@@ -17,10 +17,10 @@ function toggleGroups(clickedElement) {
             }
             
             // Change the triangle disclosure icon as appropriate
-            if (clickedElement.className === "collapse") {
-                clickedElement.className = "expand";
+            if (clickedElement.className === "collapsed") {
+                clickedElement.className = "expanded";
             } else {
-                clickedElement.className = "collapse";
+                clickedElement.className = "collapsed";
             }
         }
     }

@@ -22,11 +22,6 @@
         <module>taggable-impl/pack</module>
     </modules>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/taggable/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/taggable/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/taggable/trunk</url>
-    </scm>
     
     <distributionManagement>
         <site>

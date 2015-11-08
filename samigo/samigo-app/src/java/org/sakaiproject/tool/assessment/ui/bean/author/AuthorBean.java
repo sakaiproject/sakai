@@ -89,7 +89,7 @@ public class AuthorBean implements Serializable
   private Boolean editPubAssessmentRestrictedAfterStarted;
   private boolean isRepublishAndRegrade = false;
   private boolean isErrorInSettings = false;
-  
+
   // currentFormTime is used to make sure the data we get back is from
   // the current form
   private long currentFormTime = 0;
@@ -629,33 +629,7 @@ public class AuthorBean implements Serializable
   public void setIsAnyAssessmentRetractForEdit(boolean isAnyAssessmentRetractForEdit){
 	  this.isAnyAssessmentRetractForEdit = isAnyAssessmentRetractForEdit;
   }
-  
-  // the following three functions are intended to detect when the user is submitting
-  // a form that is no longer valid. This can happen with multiple windows.
-  //  <h:outputText value="#{author.updateFormTime}" />
-  //  <h:inputHidden value="#{author.currentFormTime}" />
-  // A separate update is needed because inputHidden and inputText call the getter
-  // twice, once when displaying the form and once when submitting it.
-  // If it was only called for display, we could do the update as part of the
-  // getter. getUpdateFormTime is called simply to set the timestamp.  It returns
-  // a zero-length string so that it is safe to display it.
-  public String getUpdateFormTime() {
-	  currentFormTime = (new Date()).getTime();
-	  return "";
-  }
-
-  public long getCurrentFormTime(){
-	  return currentFormTime;
-  }
-  public void setCurrentFormTime(long formTime) {
-	  if (formTime != currentFormTime) {
-		  try {
-			  ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			  context.redirect("discrepancyInData");
-		  } catch (Exception e) {};
-	  }
-  }
-
+ 
   public String getAssessCreationMode(){
 	  if (assessCreationMode == null || assessCreationMode.trim().equals("")) {
 		  return "1";
@@ -881,5 +855,30 @@ public class AuthorBean implements Serializable
   public void setProtocol(String protocol){
 	  this.protocol = protocol;
   }
+  
+  // the following three functions are intended to detect when the user is submitting
+  // a form that is no longer valid. This can happen with multiple windows.
+  //  <h:outputText value="#{author.updateFormTime}" />
+  //  <h:inputHidden value="#{author.currentFormTime}" />
+  // A separate update is needed because inputHidden and inputText call the getter
+  // twice, once when displaying the form and once when submitting it.
+  // If it was only called for display, we could do the update as part of the
+  // getter. getUpdateFormTime is called simply to set the timestamp.  It returns
+  // a zero-length string so that it is safe to display it.
+  public String getUpdateFormTime() {
+	  currentFormTime = (new Date()).getTime();
+	  return "";
+  }
 
+  public long getCurrentFormTime(){
+	  return currentFormTime;
+  }
+  public void setCurrentFormTime(long formTime) {
+	  if (formTime != currentFormTime) {
+		  try {
+			  ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			  context.redirect("discrepancyInData");
+		  } catch (Exception e) {};
+	  }
+  }
 }

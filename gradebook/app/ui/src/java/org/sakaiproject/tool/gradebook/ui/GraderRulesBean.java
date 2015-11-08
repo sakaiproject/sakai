@@ -33,19 +33,18 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.tool.gradebook.Permission;
-
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
-
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 
 
 public class GraderRulesBean extends GradebookDependentBean implements Serializable
@@ -329,6 +328,12 @@ public class GraderRulesBean extends GradebookDependentBean implements Serializa
 				logger.info("unknown category or section. Permission " + permission.getId() + " was deleted");
 				getGradebookManager().deletePermission(permission);
 			} else {
+				
+				//make compatible with GradebookNG, skip the view course grade permission
+				if(StringUtils.equalsIgnoreCase(permission.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())){
+					continue;
+				}
+				
 				GraderRule graderRule = new GraderRule();
 				graderRule.setGradeOrViewValue(permission.getFunction());
 				

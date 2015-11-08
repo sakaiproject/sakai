@@ -289,7 +289,13 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public List<User> getUsers(List<String> userIds) {
-		return userDirectoryService.getUsers(userIds);
+		List<User> rval = new ArrayList<>();
+		try {
+			rval = userDirectoryService.getUsers(userIds);
+		} catch (Exception e) {
+			//I've seen an NPE in the logs from this call...
+		}
+		return rval;
 	}
 	
 	/**
@@ -1058,30 +1064,13 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public boolean isProfileGalleryEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
 		return serverConfigurationService.getBoolean("profile2.gallery.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_GALLERY_ENABLED);
 	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isMessagingEnabledGlobally() {
-		return serverConfigurationService.getBoolean("profile2.messaging.enabled", true);
 	}
 
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isSearchEnabledGlobally() {
-		return serverConfigurationService.getBoolean("profile2.search.enabled", true);
-	}
-
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isConnectionsEnabledGlobally() {
-		return serverConfigurationService.getBoolean("profile2.connections.enabled", true);
-	}
-	
 	/**
  	* {@inheritDoc}
  	*/
@@ -1526,6 +1515,82 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	}
 	
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isMenuEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.menu.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isConnectionsEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.connections.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isMessagingEnabledGlobally() {
+		if(isConnectionsEnabledGlobally()) {
+			return serverConfigurationService.getBoolean("profile2.messaging.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MESSAGING_ENABLED);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isSearchEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.search.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_SEARCH_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isPrivacyEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.privacy.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PRIVACY_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isPreferenceEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.preference.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PREFERENCE_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isMyKudosEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.myKudos.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MY_KUDOS_ENABLED);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isOnlineStatusEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.onlineStatus.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_ONLINE_STATUS_ENABLED);
+	}
+
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
 	

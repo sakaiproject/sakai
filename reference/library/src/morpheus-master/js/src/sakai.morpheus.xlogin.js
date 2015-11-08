@@ -10,6 +10,7 @@ $PBJQ(document).ready(function(){
       $PBJQ('#Mrphs-xlogin-container').load('/portal/xlogin #Mrphs-xlogin',function(){
         $PBJQ('#Mrphs-xlogin-container').addClass('loaded');
         $PBJQ('#Mrphs-xlogin').addClass('loadedByAjax');
+        $PBJQ('#eid').focus();
       });
       $('.Mrphs-portalWrapper').addClass('blurry');
 

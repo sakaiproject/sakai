@@ -373,9 +373,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	    search = "lti_tools.id=" + bltiToolId;
 	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0);
 	for ( Map<String,Object> tool : tools ) {
-	    String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
+		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
 			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);
-		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE)));
+		String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+
+		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE), fa_icon));
 	}
 
 	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=Main" + 
@@ -457,7 +459,16 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     {
 	if ( ltiService == null ) return null;
 
+	String toolBaseUrl = launchUrl;
+	int pos = launchUrl.indexOf('?');
+	if ( pos > 1 ) {
+		toolBaseUrl = launchUrl.substring(0,pos);
+	}
+
+	// Look for a tool that is a perfect match, and fall back
+	//
 	Map<String,Object> theTool = null;
+	Map<String,Object> theBaseTool = null;
 	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 	for ( Map<String,Object> tool : tools ) {
 		String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
@@ -465,22 +476,37 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 			theTool = tool;
 			break;				
 		}
+		if ( theBaseTool == null && toolLaunch.equals(toolBaseUrl) ) {
+			theBaseTool = tool;
+		}
 	}
+
+	if ( theTool == null && theBaseTool != null ) theTool = theBaseTool;
 
 	if ( theTool == null ) {
 		Properties props = new Properties ();
-		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
-		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-		props.setProperty(           LTI_PAGETITLE, bltiTitle);
+		props.setProperty(LTIService.LTI_LAUNCH,toolBaseUrl);
+		if ( toolBaseUrl.equals(launchUrl) ) {
+			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+		} else {
+			props.setProperty(LTIService.LTI_TITLE, toolBaseUrl);
+		}
+		props.setProperty(LTI_PAGETITLE, bltiTitle);
 		props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
 		props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
+		props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");
 		props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
+		props.setProperty(LTIService.LTI_ALLOWTITLE, "1");
+		props.setProperty(LTIService.LTI_ALLOWPAGETITLE, "1");
+		props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
+		props.setProperty(LTIService.LTI_SENDNAME, "1");
+		props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
 		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 		if (custom != null)
 		    props.setProperty(LTIService.LTI_CUSTOM, custom);
 		Object result = ltiService.insertTool(props);
 		if ( result instanceof String ) {
-			System.out.println("Could not insert tool - "+result);
+			log.info("Could not insert tool - "+result);
 		}
 		if ( result instanceof Long ) theTool = ltiService.getTool((Long) result);
 	}
@@ -497,9 +523,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
 		Object result = ltiService.insertContent(props);
 		if ( result instanceof String ) {
-			System.out.println("Could not insert content - "+result);
-		} else {
-			System.out.println("Adding LTI tool "+result);
+			log.info("Could not insert content - "+result);
 		}
 		if ( result instanceof Long ) theContent = ltiService.getContent((Long) result);
 	}
@@ -507,6 +531,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	String sakaiId = null;
 	if ( theContent != null ) {
 		sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
+		log.info("Adding LTI content "+sakaiId);
 	}
 	return sakaiId;
     }

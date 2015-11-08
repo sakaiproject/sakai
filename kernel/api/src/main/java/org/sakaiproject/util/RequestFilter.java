@@ -504,17 +504,17 @@ public class RequestFilter implements Filter
 				}
 				catch (RuntimeException t)
 				{
-					M_log.warn("", t);
+					M_log.error("", t);
 					throw t;
 				}
 				catch (IOException ioe)
 				{
-					M_log.warn("", ioe);
+					M_log.error("", ioe);
 					throw ioe;
 				}
 				catch (ServletException se)
 				{
-					M_log.warn(se.getMessage(), se);
+					M_log.error(se.getMessage(), se);
 					throw se;
 				}
 				finally
@@ -1300,8 +1300,13 @@ public class RequestFilter implements Filter
 			res.setHeader("X-UA-Compatible",m_UACompatible);
 		}
 
-		if (!isLTIProviderAllowed) {
+		if (!isLTIProviderAllowed && (!useContentHostingDomain || !req.getServerName().equals(chsDomain))) {
 			res.setHeader("X-Frame-Options", "SAMEORIGIN");
+		}
+
+		UsageSession us = (UsageSession)s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
+		if (us != null) {
+			res.setHeader("X-Sakai-Session",us.getId());
 		}
 
 		return res;

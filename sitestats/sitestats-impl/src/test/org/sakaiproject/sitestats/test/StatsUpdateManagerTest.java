@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.test;
 
 
 import static org.easymock.EasyMock.*;
+import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import org.junit.FixMethodOrder;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -56,7 +58,7 @@ import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 
-
+@FixMethodOrder(NAME_ASCENDING)
 public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactionalTests { 
 	// AbstractAnnotationAwareTransactionalTests / AbstractTransactionalSpringContextTests
 	private StatsUpdateManager			M_sum;
@@ -118,6 +120,9 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
 		// Setups fake dependencies.
 		M_ers.setStatsManager(M_sm);
+		// By default we don't enable the collection thread as it can interfere with tests.
+		// If a test explicitly wants to test the collect thread it should re-enable it when it starts.
+		M_sum.setCollectThreadEnabled(false);
 	}
 
 	// run this before each test starts and as part of the transaction
@@ -390,8 +395,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 	public void testSitePresences() {
 		//System.out.println("--- testSitePresences() :: START ---");
 		long minPresenceTime = 100;
-		
-		
+
 		// #1 Test : 2 site visit (different users)
 		
 		// BEGIN SITE PRESENCE
@@ -591,6 +595,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 	public void testConfigIsCollectThreadEnabled() {
 		db.deleteAll();
 		M_sum.setCollectThreadUpdateInterval(50);
+		M_sum.setCollectThreadEnabled(true);
+
 		// #1: collect thread enabled/disabled
 		assertEquals(true, M_sum.isCollectThreadEnabled());
 		// turn it off
@@ -627,7 +633,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		db.deleteAll();
 		// #2: collect thread update interval
 		assertEquals(50, M_sum.getCollectThreadUpdateInterval());
-		
+		M_sum.setCollectThreadEnabled(true);
+
 		// make sure it processes
 		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		M_ets.post(e1);		

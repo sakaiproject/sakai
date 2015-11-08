@@ -28,6 +28,11 @@ function GetFormContent(formId, buttonName) {
     var elements = theForm.elements;
     var pairs = [];
     disabledButtons = [];
+    //autosave for ckeditor
+    for(var i in CKEDITOR.instances) {
+        var encoded = encodeURIComponent(CKEDITOR.instances[i].name)+"="+encodeURIComponent(CKEDITOR.instances[i].getSnapshot());
+        pairs.push(encoded);
+    }
     for (var i=0; i<elements.length; i++) {
         var elt = elements[i]
         var name = elt.name;

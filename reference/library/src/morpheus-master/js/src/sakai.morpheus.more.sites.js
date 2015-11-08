@@ -17,6 +17,7 @@ var dhtml_view_sites = function(){
 
       $PBJQ('#txtSearch').focus();
       createDHTMLMask(dhtml_view_sites);
+      $PBJQ('#selectSite').attr('tabindex', '0');
 
       $PBJQ('.selectedTab').bind('click', function(e){
         dhtml_view_sites();
@@ -97,6 +98,7 @@ var dhtml_view_sites = function(){
 
       // hide the dropdown
       $PBJQ('#selectSite').toggleClass('outscreen'); //hide the box
+      $PBJQ('#selectSite').attr('tabindex', '-1');
       removeDHTMLMask()
       $PBJQ('#otherSiteTools').remove();
       $PBJQ('.selectedTab').unbind('click');
@@ -110,7 +112,8 @@ var dhtml_view_sites = function(){
 function closeDrawer() {
 
   $PBJQ('#selectSite').toggleClass('outscreen');  //hide the box
-  removeDHTMLMask()
+  removeDHTMLMask();
+  $PBJQ('#selectSite').attr('tabindex', '-1');
   $PBJQ('#otherSiteTools').remove();
   $PBJQ('.selectedTab').unbind('click');
   $PBJQ('.moreSitesLink').unbind('keydown');
@@ -233,6 +236,12 @@ $PBJQ(document).ready(function(){
     }
 
   });
+
+  // Open all Sites with mobile view 	
+   $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", dhtml_view_sites);
+  
+  // Open all Sites with Desktop view
+  $PBJQ("#show-all-sites").on("click", dhtml_view_sites);
 
   // open tool menus in "other sites" panel
   $PBJQ('.toolMenus').click(function(e){

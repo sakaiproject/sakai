@@ -67,7 +67,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;             
 import org.sakaiproject.db.cover.SqlService;
@@ -156,6 +156,11 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	memoryService = m;
     }
 
+	static AuthzGroupService authzGroupService = null;
+	public void setAuthzGroupService(AuthzGroupService service) {
+		authzGroupService = service;
+	}
+
     private static SimplePageToolDao simplePageToolDao;
     public void setSimplePageToolDao(Object dao) {
 	//	System.out.println("set dao " + dao);
@@ -223,10 +228,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     }
 
     public boolean isUsable() {
-	if (type == TYPE_FORUM_TOPIC)
-	    return true;
-	else
-	    return false;
+	return true;
     }
 
     public String getReference() {
@@ -396,10 +398,17 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
     public String getUrl() {
 	
-	if (topic == null)
-	    topic = getTopicById(true, id);
-	if (topic == null)
-	    return "javascript:alert('" + messageLocator.getMessage("simplepage.forumdeleted") + "')";
+	if (type == TYPE_FORUM_TOPIC) {
+	    if (topic == null)
+		topic = getTopicById(true, id);
+	    if (topic == null)
+		return "javascript:alert('" + messageLocator.getMessage("simplepage.forumdeleted") + "')";
+	} else {
+	    if (forum == null)
+		forum = getForumById(true, id);
+	    if (forum == null)
+		return "javascript:alert('" + messageLocator.getMessage("simplepage.forumdeleted") + "')";
+	}
 
 	Site site = null;
 	try {
@@ -553,7 +562,11 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     }
 
     // access control
+    // seems not to be used anymore
     public boolean addEntityControl(String siteId, String groupId) throws IOException {
+
+	if (type != TYPE_FORUM_TOPIC)
+	    return false;
 
 	setMasks();
 
@@ -571,7 +584,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	try {
 	    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 	    groupName = site.getGroup(groupId).getTitle();
-	    maintainRole = AuthzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
+	    maintainRole = authzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
 	} catch (Exception e) {
 	    System.out.println("Unable to get site info for AddEntityControl " + e);
 	}
@@ -622,7 +635,11 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	return true;
     };
 	
+    // seems not to be used anymore
     public boolean removeEntityControl(String siteId, String groupId) throws IOException {
+
+	if (type != TYPE_FORUM_TOPIC)
+	    return false;
 
 	setMasks();
 
@@ -640,7 +657,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	try {
 	    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 	    groupName = site.getGroup(groupId).getTitle();
-	    maintainRole = AuthzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
+	    maintainRole = authzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
 	} catch (Exception e) {
 	    System.out.println("Unable to get site info for AddEntityControl " + e);
 	}
@@ -703,7 +720,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	return null; // not used
     }
     public int getSubmissionCount(String user) {
-	return messageManager.findAuhtoredMessageCountByTopicIdByUserId(id, user);
+	if (type == TYPE_FORUM_TOPIC)
+	    return messageManager.findAuhtoredMessageCountByTopicIdByUserId(id, user);
+	else
+	    return messageManager.findAuthoredStatsForStudentByForumId(user, id).size();
     }
 
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
@@ -861,9 +881,16 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     }
 
     public boolean objectExists() {
-	if (topic == null)
-	    topic = getTopicById(true, id);
-	return topic != null;
+	if (type == TYPE_FORUM_TOPIC) {
+	    if (topic == null)
+		topic = getTopicById(true, id);
+	    return topic != null;
+	} else {
+	    if (forum == null)
+		forum = getForumById(true, id);
+	    return forum != null;
+	}
+
     }
 
     public boolean notPublished(String ref) {
@@ -873,9 +900,12 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     public boolean notPublished() {
 	if (!objectExists())
 	    return true;
-	if (topic.getOpenForum().getDraft())
-	    return true;
-	return false;
+	if (type == TYPE_FORUM_TOPIC) {
+	    return topic.getOpenForum().getDraft();
+	} else {
+	    return ((DiscussionForum)forum).getDraft();
+	}
+
     }
 
     // return the list of groups if the item is only accessible to specific groups
@@ -891,6 +921,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	//		return ret;
 	//	} else {
 	//	}
+
+	if (type != TYPE_FORUM_TOPIC)
+	    return null;
 
 	List <String>ret = new ArrayList<String>();
 
@@ -932,6 +965,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     // set the item to be accessible only to the specific groups.
     // null to make it accessible to the whole site
     public void setGroups(Collection<String> groups) {
+
+	if (type != TYPE_FORUM_TOPIC)
+	    return;
 
     // Setgroups with a non-null list: we set all contributor entries to none, and then set the
     //    specified groups to contribtor. By only handling groups, we avoid interfering with
@@ -1096,14 +1132,16 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	if (title == null)
 	    return null;
 
-	BaseForum forum = topic.getBaseForum();
-	
-	return "forum_topic/" + id + "/" + title + "\n" + forum.getTitle();
-
+	if (type == TYPE_FORUM_TOPIC) {
+	    BaseForum forum = topic.getBaseForum();
+	    return "forum_topic/" + id + "/" + title + "\n" + forum.getTitle();
+	} else {
+	    return "forum_forum/" + id + "/" + title;
+	}
     }
 
     public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
-        if (!objectid.startsWith("forum_topic/")) {
+        if (!objectid.startsWith("forum_topic/") && !objectid.startsWith("forum_forum/")) {
             if (nextEntity != null) {
                 return nextEntity.findObject(objectid, objectMap, siteid);
             }
@@ -1111,21 +1149,39 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	}
 
 	// isolate forum_topic/NNN from title
-	int i = objectid.indexOf("/", "forum_topic/".length());
+	int i = 0;
+
+        if (objectid.startsWith("forum_topic/"))
+	    i = objectid.indexOf("/", "forum_topic/".length());
+	else
+	    i = objectid.indexOf("/", "forum_forum/".length());
 	if (i <= 0)
 	    return null;
 	String realobjectid = objectid.substring(0, i);
+	// msgcenter uses forum/ not forum_forum/
+        if (objectid.startsWith("forum_forum/"))
+	    realobjectid = realobjectid.substring("forum_".length());
 
 	// now see if it's in the map
 	String newtopic = objectMap.get(realobjectid);
-	if (newtopic != null)
-	    return "/" + newtopic;  // sakaiid is /forum_topic/ID
+	if (newtopic != null) {
+	    if (objectid.startsWith("forum_forum/"))
+		return "/forum_" + newtopic;   // forum/ID >> /forum_forum/ID
+	    else 
+		return "/" + newtopic;  // sakaiid is /forum_topic/ID
+	}
 
 	// this must be 2.8. Can't find the topic in the map
 	// i is start of title
-	int j = objectid.indexOf("\n");
-	String title = objectid.substring(i+1,j);
-	String forumtitle = objectid.substring(j+1);
+	String title = null;
+	String forumtitle = null;
+        if (objectid.startsWith("forum_topic/")) {
+	    int j = objectid.indexOf("\n");
+	    title = objectid.substring(i+1,j);
+	    forumtitle = objectid.substring(j+1);
+	} else {
+	    forumtitle = objectid.substring(i+1);
+	}
 
 	// unfortunately we have to search the topic tree to find it.
 	SortedSet<DiscussionForum> forums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
@@ -1136,6 +1192,8 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	// ignore draft status. We want to show drafts.
 	for (DiscussionForum forum: forums) {
 	    if (forum.getTitle().equals(forumtitle)) {
+		if (title == null) // object is forum not topic
+		    return "/forum_forum/" + forum.getId();
 		for (Object o: forum.getTopicsSet()) {
 		    DiscussionTopic topic = (DiscussionTopic)o;
 		    if (topic.getTitle().equals(title)) {

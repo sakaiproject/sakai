@@ -25,6 +25,8 @@
          singleton="true" init-method="init" destroy-method="destroy" lazy-init="true">
       <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
       <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+      <property name="scheduleSaves" value="true"/>
+      <property name="scheduleDelay" value="5000"/>
    </bean>
 
     <bean id="org.sakaiproject.messagebundle.api.MessageBundleService"

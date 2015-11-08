@@ -1184,13 +1184,6 @@ function hiddenLinkOnClick(){
   </h:dataTable>
 </div>
 
-<h:outputText value="#{author.updateFormTime}" />
-<h:inputHidden id="currentFormTime" value="#{author.currentFormTime}" />
-<%
-  org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean author = (org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean) session.getAttribute("author");
-  out.println("<script>document.getElementById('editTotalResults:currentFormTime').value = " + author.getCurrentFormTime() + ";</script>");
-%>
-
 <p class="act">
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>
    <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="questionScores" type="submit" >

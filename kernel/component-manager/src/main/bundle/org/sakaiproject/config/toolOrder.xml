@@ -3,7 +3,8 @@
 <toolOrder>
 
 	<category name="myworkspace">
-		<tool id = "home" selected = "true" />
+		<tool id = "home" selected="true" />
+		<tool id = "sakai.dashboard" />
 		<tool id = "sakai.sitesetup" required = "true" />
 		<tool id = "sakai.membership" required="true" />
 		<tool id = "sakai.preferences" required="true" />
@@ -12,15 +13,17 @@
 
 	<category name="course">
 		<tool id = "sakai.iframe.site" />
+		<tool id = "sakai.dashboard" />
 		<tool id = "sakai.synoptic.chat" />
-		<tool id = "sakai.synoptic.discussion" />
+		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
 		<tool id = "home" selected = "true" />
 		<tool id = "sakai.syllabus" />
+		<tool id = "sakai.lessonbuildertool" />
 		<tool id = "sakai.schedule" />
 		<tool id = "sakai.announcements" selected = "true" />
 		<tool id = "sakai.resources" />
-		<tool id = "sakai.discussion" />
+		<tool id = "sakai.forums" />
 		<tool id = "sakai.assignment" />
 		<tool id = "sakai.assignment.grades" />
 		<tool id = "sakai.samigo" />
@@ -40,15 +43,17 @@
 
 	<category name="project">
 		<tool id = "sakai.iframe.site" />
+		<tool id = "sakai.dashboard" />
 		<tool id = "sakai.synoptic.chat" />
-		<tool id = "sakai.synoptic.discussion" />
+		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
 		<tool id = "home" selected = "true" />
 		<tool id = "sakai.syllabus" />
+		<tool id = "sakai.lessonbuildertool" />
 		<tool id = "sakai.schedule" />
 		<tool id = "sakai.announcements" />
 		<tool id = "sakai.resources" />
-		<tool id = "sakai.discussion" />
+		<tool id = "sakai.forums" />
 		<tool id = "sakai.assignment" />
 		<tool id = "sakai.assignment.grades" />
 		<tool id = "sakai.samigo" />
@@ -69,14 +74,14 @@
 	<category name="portfolio">
 		<tool id = "sakai.iframe.site" />
 		<tool id = "sakai.synoptic.chat" />
-		<tool id = "sakai.synoptic.discussion" />
+		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
 		<tool id = "home" selected = "true" />
       <toolCategory id="communicate">
          <name><![CDATA[Communicate]]></name>
          <tool id = "sakai.announcements"/>
          <tool id = "sakai.schedule"/>
-         <tool id = "sakai.discussion"/>
+         <tool id = "sakai.forums"/>
          <tool id = "sakai.chat"/>
          <tool id = "sakai.rwiki"/>
          <tool id = "sakai.news"/>

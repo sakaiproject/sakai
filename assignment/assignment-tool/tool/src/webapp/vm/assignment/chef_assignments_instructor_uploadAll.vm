@@ -48,6 +48,10 @@
 			{
 					extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
 			}
+			if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+			}
 			if (extraInfoArray.length == 0)
 			{
 				alert(alertMessage);
@@ -163,6 +167,13 @@
 				<input id="withoutFolders" type="checkbox" value="withoutFolders" name="choices" class="toggleNotSelectedAll" #if($!withoutFolders)checked="checked"#end onclick="deselectSelectAll( this );" />
 				<label for="withoutFolders">$tlang.getString("uploadall.folders.no")</label><br/>
 			#end
+			## include empty submissions, old behavior
+			##Only show this on the download, upload takes it all
+			#if ($download)
+			<hr/>
+				<input id="includeNotSubmitted" type="checkbox" value="includeNotSubmitted" name="choices" #if($!hasIncludeNotSubmitted)checked="checked"#end />
+				<label for="includeNotSubmitted" style="font-weight:bold;">$tlang.getString("uploadall.choose.file.includeNotSubmitted")</label><br/>
+			#end
 
 			</p>
 				
@@ -181,15 +192,15 @@
 			<p class="act">
 			#if ($download)
 				#set($alertMessage = $tlang.getString('downloadall.alert.choose.element'))
-				#set($actionString="#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')")
+				#set($actionString="#toolLinkParam($action 'doDownload_all')")
 				<input type="button" name="downloadButton" id="downloadButton"  accesskey="d" class="active"
 						onclick="invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$viewString', '$searchString', '$showSubmissionByFilterSearchOnly');" value="$tlang.getString('downloadall.button.download')" />
 			#else
 				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
-						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doDownload_upload_all' 'flow=upload')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
+						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doUpload_all')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
 			#end	
 					<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
-						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')'; submitform('uploadAllForm');" value="$tlang.getString('gen.can')" />
+						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_download_upload_all')'; submitform('uploadAllForm');" value="$tlang.getString('gen.can')" />
 					<img id="downloadUploadSpinner" class="spinner" src="/library/image/indicator.gif" />
 		</p>
 		</div>

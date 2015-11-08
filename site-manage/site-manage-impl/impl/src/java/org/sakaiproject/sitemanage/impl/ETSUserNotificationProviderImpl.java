@@ -2,7 +2,6 @@ package org.sakaiproject.sitemanage.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,26 +36,26 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class ETSUserNotificationProviderImpl implements UserNotificationProvider {
 	
-	private static Log M_log = LogFactory.getLog(ETSUserNotificationProviderImpl.class);
+	private static final Log M_log = LogFactory.getLog(ETSUserNotificationProviderImpl.class);
 	
-	private static String NOTIFY_ADDED_PARTICIPANT ="sitemange.notifyAddedParticipant";
+	private static final String NOTIFY_ADDED_PARTICIPANT ="sitemange.notifyAddedParticipant";
 
-	private static String NOTIFY_NEW_USER ="sitemanage.notifyNewUserEmail"; 
+	private static final String NOTIFY_NEW_USER ="sitemanage.notifyNewUserEmail"; 
 	
-	private static String NOTIFY_TEMPLATE_USE = "sitemanage.notifyTemplateUse";
+	private static final String NOTIFY_TEMPLATE_USE = "sitemanage.notifyTemplateUse";
 	
 	// to send an email to course authorizer based on course site request
-	private static String NOTITY_COURSE_REQUEST_AUTHORIZER = "sitemanage.notifyCourseRequestAuthorizer";
+	private static final String NOTITY_COURSE_REQUEST_AUTHORIZER = "sitemanage.notifyCourseRequestAuthorizer";
 	
 	// to send an email to course site requestor
-	private static String NOTIFY_COURSE_REQUEST_REQUESTER = "sitemanage.notifyCourseRequestRequester";
+	private static final String NOTIFY_COURSE_REQUEST_REQUESTER = "sitemanage.notifyCourseRequestRequester";
 	
 	// to send an email to support team about course request
-	private static String NOTIFY_COURSE_REQUEST_SUPPORT = "sitemanage.notifyCourseRequestSupport";
+	private static final String NOTIFY_COURSE_REQUEST_SUPPORT = "sitemanage.notifyCourseRequestSupport";
 	
-	private static String NOTIFY_SITE_CREATION = "sitemanage.notifySiteCreation";
+	private static final String NOTIFY_SITE_CREATION = "sitemanage.notifySiteCreation";
 	
-	private static String NOTIFY_SITE_CREATION_CONFIRMATION = "sitemanage.notifySiteCreation.confirmation";
+	private static final String NOTIFY_SITE_CREATION_CONFIRMATION = "sitemanage.notifySiteCreation.confirmation";
 	
 	private static final String ADMIN = "admin";
 	
@@ -131,18 +130,10 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			String to = emailId;
 			String headerTo = emailId;
 			String replyTo = from;
-			Map<String, String> rv = new HashMap<String, String>();
+			Map<String, String> rv = new HashMap<>();
 			rv.put("productionSiteName", productionSiteName);
 
-			
-			String content = "";
-			/*
-			 * $userName
-			 * $localSakaiName
-			 * $currentUserName
-			 * $localSakaiUrl
-			 */
-			 Map<String, String> replacementValues = new HashMap<String, String>();
+			 Map<String, String> replacementValues = new HashMap<>();
 			 replacementValues.put("userName", user.getDisplayName());
 			 replacementValues.put("userEid", user.getEid());
 			 replacementValues.put("localSakaiName", productionSiteName);
@@ -153,7 +144,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			 replacementValues.put("nonOfficialAccountUrl",nonOfficialAccountUrl);
 			 replacementValues.put("siteName", site.getTitle());
 			 replacementValues.put("productionSiteName", productionSiteName);
-			 replacementValues.put("newNonOfficialAccount", Boolean.valueOf(newNonOfficialAccount).toString().toLowerCase());
+			 replacementValues.put("newNonOfficialAccount", Boolean.toString(newNonOfficialAccount).toLowerCase());
 			 replacementValues.put("xloginText", serverConfigurationService.getString("xlogin.text", "Login"));
 			 replacementValues.put("loginText", serverConfigurationService.getString("login.text", "Login"));
 			 replacementValues.put("siteUrl", site.getUrl());
@@ -177,7 +168,6 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String to = newUserEmail;
 		String headerTo = newUserEmail;
 		String replyTo = from;
-		String content = "";
 
 		if (from != null && newUserEmail != null) {
 			/*
@@ -186,7 +176,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			 * $currentUserName
 			 * $localSakaiUrl
 			 */
-			Map<String, String> replacementValues = new HashMap<String, String>();
+			Map<String, String> replacementValues = new HashMap<>();
 			replacementValues.put("userName", user.getDisplayName());
 			replacementValues.put("localSakaiName",serverConfigurationService.getString("ui.service", ""));
 			replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
@@ -211,10 +201,9 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String to = templateEmailArchive;
 		String headerTo = templateEmailArchive;
 		String replyTo = templateEmailArchive;
-		String content = "";					
 
 		if (from != null && templateEmailArchive != null) {
-			Map<String, String> replacementValues = new HashMap<String, String>();
+			Map<String, String> replacementValues = new HashMap<>();
 			replacementValues.put("templateSiteTitle", templateSite.getTitle());
 			replacementValues.put("templateSiteId", templateSite.getId());
 			replacementValues.put("currentUserDisplayName", currentUser.getDisplayName());
@@ -234,8 +223,6 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	{
 		try {
 			User instructor = userDirectoryService.getUserByEid(instructorId);
-			ResourceLoader rb = new ResourceLoader(instructorId, "UserNotificationProvider");
-			StringBuffer buf = new StringBuffer();
 			String to = instructor.getEmail();	
 			String from = requestEmail;
 			String headerTo = to;
@@ -245,7 +232,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
 			
 			
-			Map<String, String> replacementValues = new HashMap<String, String>();
+			Map<String, String> replacementValues = new HashMap<>();
 			replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 			replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 			replacementValues.put("termTitle", termTitle);
@@ -260,7 +247,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		}
 		catch (Exception e)
 		{
-			M_log.warn(this + " cannot find user " + instructorId);
+			M_log.warn(this + " cannot find user " + instructorId, e);
 			return false;
 		}
 	}
@@ -268,9 +255,6 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	public String notifyCourseRequestSupport(String requestEmail, String serverName, String request, String termTitle, int requestListSize, String requestSectionInfo,
 			String officialAccountName, String siteTitle, String siteId, String additionalInfo, boolean requireAuthorizer, String authorizerNotified, String authorizerNotNotified)
 	{
-		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
-		
-
 		User currentUser = userDirectoryService.getCurrentUser();
 		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
 		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
@@ -283,7 +267,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String headerTo = requestEmail;
 		String replyTo = currentUserEmail;
 		
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		Map<String, String> replacementValues = new HashMap<>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 		replacementValues.put("termTitle", termTitle);
@@ -309,7 +293,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		}
 		catch (Exception e)
 		{
-			M_log.warn(this + " problem in send site request email to support for " + currentUserDisplayName );
+			M_log.warn(this + " problem in send site request email to support for " + currentUserDisplayName, e );
 			return "";
 		}
 	}
@@ -319,17 +303,13 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		User currentUser = userDirectoryService.getCurrentUser();
 		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
 		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
-		String currentUserId = currentUser!=null?currentUser.getId():"";
 		String currentUserEmail = currentUser!=null?currentUser.getEmail():"";
-		
-
-		ResourceLoader rb = new ResourceLoader(currentUserId, "UserNotificationProvider");
 		
 		String from = requestEmail;
 		String to = currentUserEmail;
 		String headerTo = to;
 		String replyTo = to;
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		Map<String, String> replacementValues = new HashMap<>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 		replacementValues.put("currentUserEmail", currentUserEmail);
@@ -344,38 +324,35 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		User currentUser = userDirectoryService.getCurrentUser();
 		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
 		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
-		String currentUserId = currentUser!=null?currentUser.getId():"";
 		String currentUserEmail = currentUser!=null?currentUser.getEmail():"";
 		
 		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
         dform.applyPattern("yyyy-MM-dd HH:mm:ss");
         String dateDisplay = dform.format(new Date());
 		
-		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
-		
 		String from = currentUserEmail;
 		String to = requestEmail;
 		String headerTo = requestEmail;
 		String replyTo = currentUserEmail;
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		Map<String, String> replacementValues = new HashMap<>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 		replacementValues.put("currentUserEmail", currentUserEmail);
 		replacementValues.put("dateDisplay", dateDisplay);
 		replacementValues.put("termTitle", termTitle);
-		replacementValues.put("serverName", serverConfigurationService.getServerName());
+		replacementValues.put("serviceName", serverConfigurationService.getString( "ui.service", serverConfigurationService.getServerName() ) );
 		replacementValues.put("siteTitle", site!=null?site.getTitle():"");
 		replacementValues.put("siteId", site!=null?site.getId():"");
 		replacementValues.put("courseSite", String.valueOf(courseSite));
 		
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		if (notifySites!= null)
 		{
 			int nbr_sections = notifySites.size();
 			replacementValues.put("numSections", String.valueOf(nbr_sections));
 			for (int i = 0; i < nbr_sections; i++) {
 				String course = (String) notifySites.get(i);
-				buf.append(course + "\n");
+				buf.append( course ).append("\n");
 			}
 		}
 		else
@@ -423,19 +400,11 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			Document document = new SAXBuilder(  ).build(in);
 			List<Element> it = document.getRootElement().getChildren("emailTemplate");
 			
-			for (int i =0; i < it.size(); i++) {
-				Element xmlTemplate = (Element)it.get(i);
+			for( Element xmlTemplate : it ) {
 				xmlToTemplate(xmlTemplate, templateRegistrationString);
 			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException | JDOMException e) {
+			M_log.warn( e );
 		} 
 		finally
 		{
@@ -463,7 +432,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			template.setMessage(body);
 			template.setLocale(locale);
 			template.setKey(key);
-			template.setVersion(Integer.valueOf(1));//setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
+			template.setVersion(1);
 			template.setOwner("admin");
 			template.setLastModified(new Date());
 			this.emailTemplateService.saveTemplate(template);
@@ -479,7 +448,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 				existingTemplate.setMessage(body);
 				existingTemplate.setLocale(locale);
 				existingTemplate.setKey(key);
-				existingTemplate.setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
+				existingTemplate.setVersion(Integer.valueOf(versionString));
 				existingTemplate.setOwner("admin");
 				existingTemplate.setLastModified(new Date());
 				this.emailTemplateService.updateTemplate(existingTemplate);
@@ -511,7 +480,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	 */
 	private String emailTemplateServiceSend(String templateName, Locale locale, User user, String from, String to, String headerTo, String replyTo, Map<String, String> replacementValues) {
 		M_log.debug("getting template: " + templateName);
-		RenderedTemplate template = null;
+		RenderedTemplate template;
 		try { 
 			if (locale == null)
 			{
@@ -525,7 +494,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			}
 			if (template != null)
 			{
-				List<String> headers = new ArrayList<String>();
+				List<String> headers = new ArrayList<>();
 				headers.add("Precedence: bulk");
 				
 				String content = template.getRenderedMessage();	
@@ -544,7 +513,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		if(toEmail != null && !"".equals(toEmail)){
 			
 			// Create the map of replacement values
-			Map<String, String> replacementValues = new HashMap<String, String>();
+			Map<String, String> replacementValues = new HashMap<>();
 			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_WORKSITE, siteTitle);
 			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_LINK, developerHelperService.getLocationReferenceURL(SITE_REF_PREFIX + siteId));
 			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_INSTITUTION, serverConfigurationService.getString(SAK_PROP_UI_INSTITUTION));

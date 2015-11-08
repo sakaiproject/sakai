@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.webservices;
 
 import java.util.ArrayList;
@@ -6,9 +21,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Date;
+import java.util.Collections;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -21,6 +39,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.message.Message;
@@ -49,10 +68,13 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -92,7 +114,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = sessionManager.getSession(sessionid);
 
         if (s == null) {
-            return "null";
+            return "";
         } else {
             return sessionid;
         }
@@ -396,6 +418,57 @@ public class SakaiScript extends AbstractWebService {
     }
 
     /**
+     * Edit a user's locale
+     *
+     * @param sessionid the id of a valid session
+     * @param eid       the login username (ie jsmith26) of the user you want to edit
+     * @param locale  the locale for the user
+     * @return success or exception message
+     * @throws RuntimeException
+     */
+    @WebMethod
+    @Path("/changeUserLocale")
+    @Produces("text/plain")
+    @GET
+    public String changeUserLocale(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "locale", partName = "locale") @QueryParam("locale") String locale) {
+        Session session = establishSession(sessionid);
+
+        try{
+            Locale localeParam = LocaleUtils.toLocale(locale);
+            if(!LocaleUtils.isAvailableLocale(localeParam)){
+                LOG.warn("WS changeUserLocale(): Locale not available");
+                return "";
+            }
+        } catch(Exception e){
+            LOG.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+
+        UserEdit userEdit = null;
+        PreferencesEdit prefs = null;
+        try {
+            User user = userDirectoryService.getUserByEid(eid);
+            
+            try {
+                prefs = (PreferencesEdit) preferencesService.edit(user.getId());
+            } catch (IdUnusedException e1) {
+                prefs = (PreferencesEdit) preferencesService.add(user.getId());
+            }
+            ResourcePropertiesEdit props = prefs.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
+            props.addProperty(ResourceLoader.LOCALE_KEY, locale);
+            preferencesService.commit(prefs);
+        } catch (Exception e) {
+            preferencesService.cancel(prefs);
+            LOG.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+    /**
      * Get a user's email address based on their session id
      *
      * @param sessionid the session id of the user who's email address you wish to retrieve
@@ -554,13 +627,15 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             Group group = site.getGroup(groupid);
-            if (group == null)
+            if (group == null) {
+                LOG.error("addMemberToGroup called with group that does not exist: " + groupid);
                 return false;
+            }
 
             Role r = site.getUserRole(userid);
             Member m = site.getMember(userid);
             group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
-            siteService.save(site);
+            siteService.saveGroupMembership(site);
             return true;
         } catch (Exception e) {
             LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -1120,7 +1195,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.addMember(userid, roleid, true, false);
-            siteService.save(site);
+            siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2497,7 +2572,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.removeMember(userid);
-            siteService.save(site);
+            siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -3902,8 +3977,7 @@ public class SakaiScript extends AbstractWebService {
         } catch (Throwable t) {
             LOG.warn(this + "getPlacementId(): Error encountered: " + t.getMessage(), t);
         }
-        return null;
-
+        return "";
     }
 
     /**
@@ -4105,7 +4179,11 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         Session s = establishSession(sessionid);
-        return siteService.getParentSite(siteid);
+        String parent = siteService.getParentSite(siteid);
+        if (parent == null) {
+            parent = "";
+        }
+        return parent;
     }
     
     /**
@@ -4134,5 +4212,485 @@ public class SakaiScript extends AbstractWebService {
         return Xml.writeDocumentToString(dom);
     }
 
+/**
+     * Adds LTI tool to a site 
+     *
+     * @param    sessionid    a valid session id
+     * @param    siteId        site identifier where to add the LTI tool
+     * @param    toolTitle    custom title for the tool. May be empty for default value 
+     * @param    properties    comma separated list of LTI properties. Example : final.allowlori:false,final.allowroster:false,imsti.allowlori:,imsti.allowroster:on,imsti.allowoutcomes:,final.allowoutcomes:false,imsti.allowsettings:,final.allowsettings:false,imsti.contentlink:,final.contentlink:false,imsti.custom:,final.custom:false,final.debug:false,imsti.encryptedsecret:,imsti.frameheight:,final.frameheight:false,imsti.key:KEY,final.key:false,imsti.launch:http://MYURL,final.launch:false,final.maximize:false,final.newpage:false,imsti.pagetitle:Virtual Meeting,final.pagetitle:false,final.releaseemail:false,final.releasename:false,imsti.secret:SECRETKEY,final.secret:false,imsti.splash:,final.splash:false,imsti.tooltitle:Virtual Meeting,final.tooltitle:false,imsti.xml:,final.xml:false,imsti.maximize:,imsti.newpage:,imsti.debug:,imsti.releaseemail:on,imsti.releasename:on
+     * @return    Success or exception message    
+     *
+     */
+    @WebMethod
+    @Path("/addLTITool")
+    @Produces("text/plain")
+    @GET
+    public String addLTITool(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteId", partName = "siteId") @QueryParam("siteId") String siteId,
+            @WebParam(name = "toolTitle", partName = "toolTitle") @QueryParam("toolTitle") String toolTitle,
+            @WebParam(name = "properties", partName = "properties") @QueryParam("properties") String properties
+        ){
+        
+        Session session = establishSession(sessionid);
+
+        boolean customTitle = false;
+
+        String toolid = "sakai.basiclti";
+
+        try {
+
+            //get site
+            Site siteEdit = siteService.getSite(siteId);
+
+            //add the page
+            SitePage sitePageEdit = siteEdit.addPage();
+            sitePageEdit.setTitle(toolTitle);
+            sitePageEdit.setTitleCustom(true);
+            sitePageEdit.setLayout(0);
+            sitePageEdit.setPosition(0);
+            sitePageEdit.setPopup(false);
+
+            // Check that the tool is visible (not stealthed) and available for this site type (category)
+            if (!securityService.isSuperUser(session.getUserId())) {
+
+                Set categories = new HashSet<String>();
+                Set<Tool> visibleTools = toolManager.findTools(categories, null);
+
+                boolean toolVisible = false;
+                for (Tool tool : visibleTools) {
+                    if (tool.getId().equals(toolid)) {
+                        toolVisible = true;
+                    }
+                }
+
+                if (!toolVisible) {
+                    LOG.warn("WS addLTITool(): Permission denied. Must be super user to add a stealthed tool to a site.");
+                    throw new RuntimeException("WS addLTITool(): Permission denied. Must be super user to add a stealthed tool to a site.");
+                }
+
+                categories.add(siteEdit.getType());
+                Set<Tool> availableTools = toolManager.findTools(categories, null);
+
+                boolean toolAvailable = false;
+                for (Tool tool : availableTools) {
+                    if (tool.getId().equals(toolid)) {
+                        toolAvailable = true;
+                    }
+                }
+
+                if (!toolAvailable) {
+                    LOG.warn("WS addLTITool(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+                    throw new RuntimeException("WS addLTITool(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+                }
+            }
+
+            //add the tool
+            ToolConfiguration tool = sitePageEdit.addTool();
+            
+            //set LTI properties
+            setToolProperties(tool, properties);
+
+            tool.setTool(toolid, toolManager.getTool(toolid));
+
+            if (StringUtils.isNotBlank(toolTitle)) {
+                tool.setTitle(toolTitle);
+            } else {
+                tool.setTitle(toolManager.getTool(toolid).getTitle());
+            }
+
+            siteService.save(siteEdit);
+            LOG.info("WS addLTITool(): LTI tool added for site:" + siteId);
+
+            return "success";
+        } catch (Exception e) {
+            LOG.error("WS addLTITool(): " + e.getClass().getName() + " : " + e.getMessage());
+            e.printStackTrace();
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+    }
+    
+    private void setToolProperties(ToolConfiguration tool, String propList) {
+        if(propList != null) {
+            for(String prop : propList.split(",")) {
+                if(StringUtils.isNotEmpty(prop)) {
+                    int index = prop.indexOf(":");
+                    if(index >= 0) {
+                        try {
+                            String propName = prop.substring(0, index);
+                            String propValue = prop.substring(index+1);
+                            
+                            if(StringUtils.isNotEmpty(propValue)) {
+                                Properties propsedit = tool.getPlacementConfig();
+                                propsedit.setProperty(propName, propValue);
+                            }
+                        } catch(Exception e){
+                            LOG.error("SakaiScript: setToolProperties(): " + e.getClass().getName() + " : " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @WebMethod
+    @Path("/getSessionCountForServer")
+    @Produces("text/plain")
+    @GET
+    public Integer getSessionCountForServer(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "serverid", partName = "serverid") @QueryParam("serverid") String serverid,
+            @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
+        //register the session with presence
+        Session s = establishSession(sessionid);
+
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+        }
+        try {
+            Map servers = usageSessionService.getOpenSessionsByServer();
+            List matchingServers = (List) getServersByServerId(servers).get(serverid);
+
+            if (matchingServers.size() == 0) {
+                LOG.warn("can't find any sessions for server with id=" + serverid);
+                return new Integer(0);
+            }
+
+            Collections.sort(matchingServers);
+            // find the latest started server with matching id
+            String serverKey = (String) matchingServers.get(matchingServers.size() - 1);
+
+            return getSessionCountForServer(servers, serverKey, millisBeforeExpire);
+        } catch (Exception e) {
+            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+        }
+        return new Integer(0);
+    }
+
+
+    @WebMethod
+    @Path("/getSessionTotalCount")
+    @Produces("text/plain")
+    @GET
+    public int getSessionTotalCount(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
+        //register the session with presence
+        Session s = establishSession(sessionid);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+        }
+        int count = 0;
+
+        try {
+            Map servers = usageSessionService.getOpenSessionsByServer();
+            Map serversByServerId = getServersByServerId(servers);
+
+
+            for (Iterator i = serversByServerId.keySet().iterator(); i.hasNext(); ) {
+                String serverKey = (String) i.next();
+                List matchingServers = (List) serversByServerId.get(serverKey);
+                Collections.sort(matchingServers);
+                // find the latest started server, and add to count
+                count += getSessionCountForServer(servers, (String) matchingServers.get(matchingServers.size() - 1), millisBeforeExpire);
+            }
+        } catch (Exception e) {
+            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+        }
+        return new Integer(count);
+    }
+
+    private Integer getSessionCountForServer(Map servers, String serverKey, int millisBeforeExpire) {
+        int count = 0;
+        List selectedServer = (List) servers.get(serverKey);
+
+        if (selectedServer != null) {
+            for (Iterator i = selectedServer.iterator(); i.hasNext(); ) {
+                UsageSession session = (UsageSession) i.next();
+                Long lastActivityTime = activityService.getLastEventTimeForUser(session.getUserId());
+                if (lastActivityTime != null &&
+                        ((new Date().getTime() - lastActivityTime) < millisBeforeExpire)) {
+                    LOG.warn("adding count for " + serverKey);
+                    count++;
+                } else {
+                    LOG.warn("not including user:" + session.getUserEid() +
+                            " in active session count last activity was more than " +
+                            millisBeforeExpire + " ago or no activity detected.");
+                }
+            }
+        } else {
+            LOG.warn("can't find any sessions for server with id=" + serverKey);
+        }
+        return new Integer(count);
+
+    }
+
+    protected Map getServersByServerId(Map servers) {
+        Map serverByServerId = new HashMap();
+
+        // create Map of servers key'd by serverId only
+        for (Iterator i = servers.keySet().iterator(); i.hasNext(); ) {
+            String key = (String) i.next();
+            List matchingServers;
+            String serverKey = key.split("-")[0];
+            if (!serverByServerId.containsKey(serverKey)) {
+                matchingServers = new ArrayList();
+                serverByServerId.put(serverKey, matchingServers);
+            } else {
+                matchingServers = (List) serverByServerId.get(serverKey);
+            }
+
+            LOG.warn("adding " + key + " to " + serverKey + " list");
+            matchingServers.add(key);
+        }
+        return serverByServerId;
+    }
+
+    /**
+     * Check if a user exists (either as an account in Sakai or in any external provider)
+     *
+     * @param sessionid the id of a valid session
+     * @param userid    the internal user id
+     * @return true/false
+     */
+    @WebMethod
+    @Path("/checkForUserById")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForUserById(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+        Session s = establishSession(sessionid);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to checkForUserById: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to checkForUserById: " + s.getUserId());
+        }
+
+        try {
+            User u = null;
+            u = userDirectoryService.getUser(userid);
+            if (u != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            LOG.error("WS checkForUserById(): " + e.getClass().getName() + " : " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    @WebMethod
+    @Path("/isSuperUser")
+    @Produces("text/plain")
+    @GET
+    public boolean isSuperUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session s = establishSession(sessionid);
+
+        return securityService.isSuperUser(s.getUserId());
+
+    }
+
+    @WebMethod
+    @Path("/resetAllUserWorkspace")
+    @Produces("text/plain")
+    @GET
+    public boolean resetAllUserWorkspace(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session session = establishSession(sessionid);
+        //check that ONLY super user's are accessing this
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+        }
+
+        try {
+            List<String> siteList = siteService.getSiteIds(SelectionType.ANY, null, null,
+                    null, SortType.NONE, null);
+            if (siteList != null && siteList.size() > 0) {
+                for (Iterator i = siteList.iterator(); i.hasNext(); ) {
+                    String siteId =  (String) i.next();
+                    if (siteService.isUserSite(siteId) && !(siteId.equals("~admin"))){
+                        siteService.removeSite(siteService.getSite(siteId));
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            LOG.warn(this + ".resetAllUserWorkspace: Error encountered" + t.getMessage(), t);
+            return false;
+        }
+
+        return true;
+    }
+
+
+    @Path("/changeSitePublishStatus")
+    @Produces("text/plain")
+    @GET
+    public String changeSitePublishStatus(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "published", partName = "published") @QueryParam("published") boolean published) {
+        Session session = establishSession(sessionid);
+
+        try {
+
+            Site siteEdit = null;
+            siteEdit = siteService.getSite(siteid);
+            siteEdit.setPublished(published);
+            siteService.save(siteEdit);
+
+        } catch (Exception e) {
+            LOG.error("WS changeSitePublishStatus(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+    @WebMethod
+    @Path("/checkForMemberInSite")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForMemberInSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS checkForMemberInSite(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS checkForMemberInSite(): Permission denied. Restricted to super users.");
+        }
+
+        try {
+            Site site = siteService.getSite(siteid);
+            String userid = userDirectoryService.getUserByEid(eid).getId();
+            Member member = site.getMember(userid);
+            if (member == null) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @WebMethod
+    @Path("/getAvailableRoles")
+    @Produces("text/plain")
+    @GET
+    public String getAvailableRoles(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS getAvailableRoles(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS getAvailableRoles(): Permission denied. Restricted to super users.");
+        }
+
+        Set roles;
+        Iterator iRoles;
+
+        Document dom = Xml.createDocument();
+        Node list = dom.createElement("list");
+        dom.appendChild(list);
+        try {
+            AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+            roles = authzgroup.getRoles();
+            for (iRoles = roles.iterator(); iRoles.hasNext(); ) {
+                Role r = (Role) iRoles.next();
+                Node item = dom.createElement("role");
+                Node roleId = dom.createElement("roleId");
+                roleId.appendChild(dom.createTextNode(r.getId()));
+                Node roleDescription = dom.createElement("roleDescription");
+                roleDescription.appendChild(dom.createTextNode(r.getDescription()));
+                item.appendChild(roleId);
+                item.appendChild(roleDescription);
+                list.appendChild(item);
+            }
+        } catch (Exception e) {
+            LOG.error("WS getAvailableRoles(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            return "";
+        }
+        return Xml.writeDocumentToString(dom);
+    }
+
+    @WebMethod
+    @Path("/getExistingFunctions")
+    @Produces("text/plain")
+    @GET
+    public String getExistingFunctions(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionId,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
+        Session session = establishSession(sessionId);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS getAvailableRoles(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS getAvailableRoles(): Permission denied. Restricted to super users.");
+        }
+
+        Document dom = Xml.createDocument();
+        Node list = dom.createElement("list");
+        dom.appendChild(list);
+
+        try {
+            AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+            Role role = authzgroup.getRole(roleid);
+
+            //get functions that are in this role
+            Set existingfunctions = role.getAllowedFunctions();
+            Iterator it = existingfunctions.iterator();
+
+            Node item = dom.createElement("functions");
+            while (it.hasNext()) {
+                Node function = dom.createElement("function");
+                function.appendChild(dom.createTextNode((String) it.next()));
+                item.appendChild(function);
+            }
+            list.appendChild(item);
+        } catch (Exception e) {
+            LOG.error("WS getAvailableRoles(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            return "";
+        }
+        return Xml.writeDocumentToString(dom);
+    }
+
+    @WebMethod
+    @Path("/getSiteDefaultJoinerRole")
+    @Produces("text/plain")
+    @GET
+    public String getSiteDefaultJoinerRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
+
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS getSiteDefaultJoinerRole(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS getSiteDefaultJoinerRole(): Permission denied. Restricted to super users.");
+        }
+
+        try {
+            Site site = siteService.getSite(siteid);
+            if (site != null) {
+                return site.getJoinerRole();
+            } else {
+                LOG.warn("WS getSiteDefaultJoinerRole() failed. Unable to find site:" + siteid);
+                throw new RuntimeException("WS failed. Unable to find site:" + siteid);
+            }
+        } catch (Exception e) {
+            LOG.warn("WS getSiteDefaultJoinerRole():"+ e.getClass().getName() + " : " + e.getMessage(), e);
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+    }
 
 }

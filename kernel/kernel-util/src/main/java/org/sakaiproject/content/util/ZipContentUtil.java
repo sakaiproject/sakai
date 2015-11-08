@@ -6,6 +6,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -117,10 +122,12 @@ public class ZipContentUtil {
 			}
 			int count = 0;
 			ContentResourceEdit resourceEdit = null;
+			String displayName="";
 			while(true){
 				try{
 					String newResourceId = resourceId;
 					String newResourceName = resourceName;
+					displayName=newResourceName;
 					count++;
 					if(count > 1){
 						//previous naming convention failed, try another one
@@ -129,6 +136,17 @@ public class ZipContentUtil {
 					}
 					newResourceId += ZIP_EXTENSION;
 					newResourceName += ZIP_EXTENSION;
+					ContentCollectionEdit currentEdit;
+					if(reference.getId().split(Entity.SEPARATOR).length>3 && ContentHostingService.isInDropbox(reference.getId())) {
+						currentEdit = (ContentCollectionEdit) ContentHostingService.getCollection(resourceId + Entity.SEPARATOR);
+						displayName = currentEdit.getProperties().getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+						if (displayName != null && displayName.length() > 0) {
+							displayName += ZIP_EXTENSION;
+						}
+						else {
+							displayName = newResourceName;
+						}
+					}
 					resourceEdit = ContentHostingService.addResource(newResourceId);
 					//success, so keep track of name/id
 					resourceId = newResourceId;
@@ -144,7 +162,7 @@ public class ZipContentUtil {
 			resourceEdit.setContent(fis);
 			resourceEdit.setContentType(mime.getContentType(resourceId));
 			ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
-			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
+			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, displayName);
 			ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);								
 		}
 		catch (PermissionException pE){
@@ -214,24 +232,46 @@ public class ZipContentUtil {
 		File temp = null;		
 		try {
 			temp = exportResourceToFile(resource);
-			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ);
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			while (entries.hasMoreElements()) {
-				ZipEntry nextElement = entries.nextElement();
-                if(!nextElement.getName().contains("__MACOSX")){
-                    if (nextElement.isDirectory()) {
-                        createContentCollection(rootCollectionId, nextElement);
-                    }
-                    else {
-                        if(!nextElement.getName().contains(".DS_Store")){
-                            createContentResource(rootCollectionId, nextElement, zipFile);
-                        }
-                    }
-                }
-
+			boolean extracted = false;
+			for (String charsetName: getZipCharsets()) {
+				Charset charset;
+				try {
+					charset = Charset.forName(charsetName);
+				} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+					LOG.warn(String.format("%s is not a legal charset.", charsetName));
+					continue;
+				}
+				ZipFile zipFile = null;
+				try {
+					zipFile = new ZipFile(temp, charset);
+					Enumeration<? extends ZipEntry> entries = zipFile.entries();
+					while (entries.hasMoreElements()) {
+						ZipEntry nextElement = entries.nextElement();
+						if (!nextElement.getName().contains("__MACOSX")){
+							if (nextElement.isDirectory()) {
+								createContentCollection(rootCollectionId, nextElement);
+							}
+							else {
+								if(!nextElement.getName().contains(".DS_Store")){
+									createContentResource(rootCollectionId, nextElement, zipFile);
+								}
+							}
+						}
+					}
+					extracted = true;
+					break;
+				} catch (Exception e) {
+					e.printStackTrace();
+					LOG.warn(String.format("Cannot extract archive %s with charset %s.", referenceId, charset));
+				} finally {
+					if (zipFile != null){
+						zipFile.close();
+					}
+				}
 			}
-			zipFile.close();
+			if (!extracted) {
+				LOG.warn(String.format("Cannot extract archives %s with any charset %s.", referenceId, getZipCharsets()));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -276,18 +316,40 @@ public class ZipContentUtil {
 		File temp = null;		
 		try {
 			temp = exportResourceToFile(resource);
-			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ);
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			int i = 0;
-			//use <= getMAX_ZIP_EXTRACT_SIZE() so the returned value will be
-			//larger than the max and then rejected
-			while (entries.hasMoreElements() && i <= getMaxZipExtractFiles()) {
-				ZipEntry nextElement = entries.nextElement();						
-				ret.put(nextElement.getName(), nextElement.getSize());
-				i++;
+			boolean extracted = false;
+			for (String charsetName: getZipCharsets()) {
+				Charset charset;
+				try {
+					charset = Charset.forName(charsetName);
+				} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+					LOG.warn(String.format("%s is not a legal charset.", charsetName));
+					continue;
+				}
+				ZipFile zipFile = null;
+				try {
+					zipFile = new ZipFile(temp, charset);
+					Enumeration<? extends ZipEntry> entries = zipFile.entries();
+					int i = 0;
+					//use <= getMAX_ZIP_EXTRACT_SIZE() so the returned value will be
+					//larger than the max and then rejected
+					while (entries.hasMoreElements() && i <= getMaxZipExtractFiles()) {
+						ZipEntry nextElement = entries.nextElement();						
+						ret.put(nextElement.getName(), nextElement.getSize());
+						i++;
+					}
+					extracted = true;
+					break;
+				} catch (Exception e) {
+					LOG.warn(String.format("Cannot get menifest of %s with charset %s.", referenceId, charset));
+				} finally {
+					if (zipFile != null){
+						zipFile.close();
+					}
+				}
 			}
-			zipFile.close();
+			if (!extracted) {
+				LOG.warn(String.format("Cannot get menifest of %s with any charset %s.", referenceId, getZipCharsets()));
+			}
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
@@ -408,7 +470,25 @@ public class ZipContentUtil {
 	 * @throws Exception
 	 */
 	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {		
-		String filename = resource.getId().substring(rootId.length(),resource.getId().length());				
+		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
+		//Inorder to have username as the folder name rather than having eids
+		if(ContentHostingService.isInDropbox(rootId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
+			try {
+				filename = getContainingFolderDisplayName(rootId, filename);
+			} catch(TypeException e){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch(IdUnusedException e ){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch(PermissionException e){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch (Exception e) {
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			}
+		}
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
@@ -438,6 +518,41 @@ public class ZipContentUtil {
 	private String extractZipCollectionName(ContentResource resource) {
 		String tmp = extractName(resource.getId());
 		return tmp.substring(0, tmp.lastIndexOf("."));
+	}
+	
+	private List<String> getZipCharsets() {
+		String[] charsetConfig = ServerConfigurationService.getStrings("content.zip.expand.charsets");
+		if (charsetConfig == null) {
+			charsetConfig = new String[0];
+		}
+		List<String> charsets = new ArrayList<>(Arrays.asList(charsetConfig));
+		// Add UTF-8 as fallback
+		charsets.add("UTF-8");
+		return charsets;
+	}
+
+	private String getContainingFolderDisplayName(String rootId,String filename) throws IdUnusedException, TypeException, PermissionException {
+		//dont manipulate filename when you are a zip file from a root folder level
+		if(!(rootId.split("/").length > 3) && (filename.split("/").length<2) &&filename.endsWith(".zip")){
+			return filename;
+		}
+
+		String filenameArr[] = filename.split(Entity.SEPARATOR);
+
+		//return rootId when you you zip from sub folder level and gives something like "group-user/site-id/user-id/" when zipping from root folder level by using filenameArr
+		String contentEditStr = (rootId.split("/").length > 3)?rootId:rootId+filenameArr[0]+Entity.SEPARATOR;
+		ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(contentEditStr);
+		ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
+		String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+
+		//returns displayname along with the filename for zipping from sub folder level
+		if(contentEditStr.equals(rootId)) {
+			return displayName +Entity.SEPARATOR+ filename;
+		}
+		else { // just replaces the user-id with the displayname and returns the filename
+			return filename.replaceFirst(filenameArr[0],displayName);
+		}
+
 	}
 
 }

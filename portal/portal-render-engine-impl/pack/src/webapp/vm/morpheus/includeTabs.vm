@@ -27,9 +27,7 @@
 #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
 
 <!-- START VM includeTabs.vm -->
-    <div class="${tabsCssClass} Mrphs-container Mrphs-container--navs">
-
-        #parse("/vm/morpheus/includeLoginNav.vm")
+    <div id="Mrphs-sites-nav" class="${tabsCssClass} Mrphs-container Mrphs-container--navs">
 
         #parse("/vm/morpheus/includeSitesNav.vm")
 

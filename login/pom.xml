@@ -12,13 +12,6 @@
 	<artifactId>login</artifactId>
   <version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/login/trunk
-		</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/login/trunk
-		</developerConnection>
-		<url>https://source.sakaiproject.org/svn/login/trunk</url>
-	</scm>
 	<modules>
 		<module>login-api/api</module>
 		<module>login-authn-tool/tool</module>

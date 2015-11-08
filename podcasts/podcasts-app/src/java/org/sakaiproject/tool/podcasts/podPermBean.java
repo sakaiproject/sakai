@@ -43,8 +43,9 @@ import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
@@ -265,6 +266,7 @@ public class podPermBean {
 			dataTableContents = new ArrayList();
 
 			final int width = headerRow.size();
+			final AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 			
 			final Iterator roleIter = firstColumn.iterator();
 			int rows = firstColumn.size();
@@ -281,7 +283,7 @@ public class podPermBean {
 				try {
 					podcastFolderRef = SLASH + CONTENT  
 											+ podcastService.retrievePodcastFolderId(podcastService.getSiteId());
-					podAuthzGroup = AuthzGroupService.getAuthzGroup(podcastFolderRef);
+					podAuthzGroup = authzGroupService.getAuthzGroup(podcastFolderRef);
 				} 
 				catch (PermissionException e) {
 					LOG.warn("PermissionException trying to get roles for site "
@@ -301,7 +303,7 @@ public class podPermBean {
 				podcastCollection.add(getSiteRef());
 
 				// get functions (permissions) for this role
-				Set rolePerms = AuthzGroupService.getAllowedFunctions(roleName,podcastCollection);
+				Set rolePerms = authzGroupService.getAllowedFunctions(roleName,podcastCollection);
 				permIter = rolePerms.iterator();
 
 				Iterator headerIter = headerRow.iterator();
@@ -396,7 +398,7 @@ public class podPermBean {
 		String siteRef = getSiteRef();
 
 		try {
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(siteRef);
+			AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(siteRef);
 
 			Set roles = realm.getRoles();
 			Iterator iter = roles.iterator();
@@ -541,6 +543,7 @@ public class podPermBean {
 	public void setCheckboxTableValues() {
 		final List roleNames = getRoleNames();
 		final Iterator roleIter = roleNames.iterator();
+		final AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 		
 		final List permNames = getPermNames();
 		
@@ -552,7 +555,7 @@ public class podPermBean {
 		try {
 			podcastFolderRef = SLASH + CONTENT  
 									+ podcastService.retrievePodcastFolderId(podcastService.getSiteId());
-			podAuthzGroup = AuthzGroupService.getAuthzGroup(podcastFolderRef);
+			podAuthzGroup = authzGroupService.getAuthzGroup(podcastFolderRef);
 		} 
 		catch (PermissionException e) {
 			LOG.warn("PermissionException trying to get roles for site "
@@ -579,7 +582,7 @@ public class podPermBean {
 			tableRow.setRowName(roleName);
 			
 			// get functions (permissions) for this role
-			Set rolePerms = AuthzGroupService.getAllowedFunctions(roleName, podcastCollection);
+			Set rolePerms = authzGroupService.getAllowedFunctions(roleName, podcastCollection);
 
 			final Iterator permNameIter = permNames.iterator();
 			final List checkVal = new ArrayList();

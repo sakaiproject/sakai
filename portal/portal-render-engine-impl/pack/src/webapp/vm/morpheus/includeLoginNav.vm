@@ -4,12 +4,6 @@
 
     #if (!${loginTopLogin})
 
-        #if ($viewAsStudentLink)
-
-            #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-
-        #end ## END of IF ($viewAsStudentLink)
-
         <ul id="loginLinks" class="Mrphs-userNav">
 
                 #foreach ( $site in $tabsSites.tabsSites )
@@ -22,11 +16,11 @@
 
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
-                                        <a id="loginUser" role="menuitem" href="${site.siteUrl}" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <span class="Mrphs-userNav__drop Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></span>
-                                            <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
+                                        <div id="loginUser" role="menuitem" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                            <a href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></a>
+                                            <a href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</a> 
                                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>                                    	
-                                        </a>
+                                        </div>
 
                                     #else
 
@@ -41,6 +35,12 @@
                                 #end ## END of IF (${displayUserloginInfo})
 
                             <ul class="Mrphs-userNav__subnav is-hidden" role="menu">
+
+                                <li class="Mrphs-userNav__submenuitem">
+                                    <a role="menuitem" href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--dashboard">
+                                        <span>${rloader.sit_dashboard}</span>
+                                    </a>
+                                </li>
 
                                     #if (${tabsSites.prefsToolUrl})
 

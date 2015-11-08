@@ -23,20 +23,11 @@
       </modules>
     </profile>
     <profile>
-      <id>framework-jcr</id>
+      <id>metadata</id>
       <modules>
-        <module>content-tool/tool</module>
-	<module>content-bundles</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>full-jcr</id>
-      <modules>
-        <module>content-impl-providers/impl</module>
-        <module>content-impl-providers/pack</module>
-        <module>content-tool/tool</module>
-	<module>content-bundles</module>
-	<module>content-types</module>
+        <module>content-metadata/api</module>
+        <module>content-metadata/impl</module>
+        <module>content-metadata/pack</module>
       </modules>
     </profile>
     <profile>
@@ -50,21 +41,18 @@
         <module>content-copyright/pack</module>
         <module>content-impl-providers/impl</module>
         <module>content-impl-providers/pack</module>
+        <module>content-metadata/api</module>
+        <module>content-metadata/impl</module>
+        <module>content-metadata/pack</module>
         <module>content-tool/tool</module>
-	<module>content-bundles</module>
-	<module>content-types</module>
-	<module>content-types-pack</module>
-	<module>content-cleanup</module>
+        <module>content-bundles</module>
+        <module>content-types</module>
+        <module>content-types-pack</module>
       </modules>
     </profile>
   </profiles>
 
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/content/trunk</url>
-  </scm>
 
   <dependencyManagement>
     <dependencies>
@@ -73,16 +61,41 @@
   	<artifactId>content-copyright-api</artifactId>
 	<version>${project.version}</version>
     <scope>provided</scope>
-      </dependency>
-      <dependency>
-  	<groupId>org.sakaiproject.content</groupId>
-  	<artifactId>content-bundles</artifactId>
-	<version>${project.version}</version>
+	</dependency>
+	<dependency>
+        <groupId>org.sakaiproject.content</groupId>
+        <artifactId>content-bundles</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.content</groupId>
         <artifactId>content-providers-impl</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.content</groupId>
+        <artifactId>content-metadata-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.content</groupId>
+        <artifactId>content-metadata-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-velocity-tool</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>1.9.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>1.9.3</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

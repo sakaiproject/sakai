@@ -59,10 +59,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasEdit;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -163,6 +163,7 @@ public class ResourcesAction
 	 private static ContentPrintService contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
 	 
 	 private static SchedulerManager schedulerManager = (SchedulerManager) ComponentManager.get("org.sakaiproject.api.app.scheduler.SchedulerManager");
+
 	 /** state variable name for the content print service call result */
 	 private static String CONTENT_PRINT_CALL_RESPONSE = "content_print_call_response";
 	 
@@ -413,6 +414,8 @@ public class ResourcesAction
     public static final ResourceLoader trb = new ResourceLoader("types");
     /** Resource bundle using current language locale */
     private static ResourceLoader rrb = new ResourceLoader("right");
+    /** Resource bundle using current language locale */
+    private static ResourceLoader metaLang = new ResourceLoader("metadata");
 	
 	/** Shared messages */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
@@ -902,6 +905,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CREATION_ACTIONS.add(ActionType.CREATE_BY_HELPER);
 		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
 		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
+	}
+
+	private AliasService aliasService;
+	private AuthzGroupService authzGroupService;
+
+	public ResourcesAction() {
+		aliasService = ComponentManager.get(AliasService.class);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
 	}
 
 	/**
@@ -2604,7 +2615,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param isLocal - true if navigation root and home collection id of site are the same, false otherwise
 	 * @param state - The session state
 	 */
-	protected static List getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
+	protected List getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
 	{
 		logger.debug("ResourcesAction.getListView()");
 		// find the ContentHosting service
@@ -2718,7 +2729,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			if(parent == null || ! parent.canUpdate())
 			{
-				canUpdate = AuthzGroupService.allowUpdate(collectionId);
+				canUpdate = authzGroupService.allowUpdate(collectionId);
 			}
 			else
 			{
@@ -3125,10 +3136,29 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			siteId = ref.getContext();
 		}
-		else
+		
+		// id may be in format of /group/<site_id>, which leads to null value for the reference context field
+		if (siteId == null && ToolManager.getCurrentPlacement() != null)
 		{
 			siteId = ToolManager.getCurrentPlacement().getContext();
 		}
+		
+		if (siteId == null)
+		{			
+			org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+			if (id.startsWith(contentService.COLLECTION_SITE))
+			{
+				// id starts with "/group/", indicates this is for site resource collection items
+				// if the siteId is still null
+				// find the site root collection id from String operations:
+				String collectionId = id;
+				// collectionId = "/group/<site_id>/<remaining_collection_path>"
+				collectionId= collectionId.replace(contentService.COLLECTION_SITE, "");
+				// collectionId = "<site_id>/<remaining_collection_path>"
+				siteId = collectionId.substring(0, collectionId.indexOf(Entity.SEPARATOR));
+			}
+		}
+		
 		Collection<ContentPermissions> permissions = new ArrayList<ContentPermissions>();
 		if(ContentHostingService.isCollection(id))
 		{
@@ -3642,45 +3672,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}
 
 	/**
-	 * @param pedit
-	 * @param metadataGroups
-	 * @param metadata
-	 */
-	private static void saveMetadata(ResourcePropertiesEdit pedit, List metadataGroups, ResourcesEditItem item)
-	{
-		logger.debug("ResourcesAction.saveMetadata()");
-		if(metadataGroups != null && !metadataGroups.isEmpty())
-		{
-			MetadataGroup group = null;
-			Iterator it = metadataGroups.iterator();
-			while(it.hasNext())
-			{
-				group = (MetadataGroup) it.next();
-				Iterator props = group.iterator();
-				while(props.hasNext())
-				{
-					ResourcesMetadata prop = (ResourcesMetadata) props.next();
-
-					if(ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-					{
-						Time val = (Time)item.getMetadata().get(prop.getFullname());
-						if(val != null)
-						{
-							pedit.addProperty(prop.getFullname(), val.toString());
-						}
-					}
-					else
-					{
-						String val = (String) item.getMetadata().get(prop.getFullname());
-						pedit.addProperty(prop.getFullname(), val);
-					}
-				}
-			}
-		}
-
-	}
-   
-	/**
 	 * @param url
 	 * @return
 	 * @throws MalformedURLException
@@ -3912,7 +3903,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		logger.debug(this + ".buildCreateWizardContext()");
 		context.put("tlang",trb);
-		
+		context.put("metaLang", metaLang);
+		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
+
 		context.put("DETAILS_FORM_NAME", "detailsForm");
 
 		String template = "content/sakai_resources_cwiz_finish";
@@ -3975,8 +3968,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			parent.setPubviewPossible(! preventPublicDisplay);
 			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
-			//item.setPubviewPossible(! preventPublicDisplay);
-			item.metadataGroupsIntoContext(context);
+			item.initMetadataGroups();
 			
 			// copied from ResourcesHelperAction since the context created in that class is not available to a template used here.
 			if(parent.isDropbox)
@@ -4967,6 +4959,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		String url = entity.getUrl();
 		String title = params.getString("page");
+
+		// if the url is hosted by sakai then take out the hostname to make it a relative link
+		String serverName = ServerConfigurationService.getServerName();
+
+		// if the supplied url starts with protocol//serverName:port/
+		Pattern serverUrlPattern = Pattern.compile(String.format("^(https?:)?//%s:?\\d*/", serverName));
+		url = serverUrlPattern.matcher(url).replaceFirst("/");
+
 		state.setAttribute(STATE_PAGE_TITLE, title);
 		if (title == null || title.trim().length() == 0) {
 			addAlert(state, trb.getString("alert.page.empty"));
@@ -5463,13 +5463,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		logger.debug(this + ".buildReviseMetadataContext()");
 		context.put("tlang", trb);
-		
+		context.put("metaLang", metaLang);
+
 		context.put("DETAILS_FORM_NAME", "detailsForm");
 		
 		ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
 		context.put("action", action);
 		
 		context.put("showItemSummary", Boolean.TRUE.toString());
+		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
 		
 		String typeId = action.getTypeId();
 		
@@ -5494,7 +5496,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			item = getListItem(state);
 			state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
 		}
-		item.metadataGroupsIntoContext(context);
+		item.initMetadataGroups();
 		
 		if(item.isDropbox)
 		{
@@ -5503,6 +5505,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
 		}
 		
+		item.initMetadataGroups();
 		context.put("item", item);
 
 		final boolean showFilter = ServerConfigurationService.getBoolean("resources.filter.show", Boolean.FALSE);
@@ -5652,15 +5655,24 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		int extIndex = webdav_instructions.indexOf(".html");
 		String webdav_doc = webdav_instructions.substring(0,extIndex).trim();
 		String locale = new ResourceLoader().getLocale().getLanguage();
+		String country = new ResourceLoader().getLocale().getCountry();
 
 		if ((locale == null) || locale.equalsIgnoreCase("en") || (locale.trim().length()==0)){
 			webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
 		}else{
-			String locale_webdav_instructions = webdav_doc + "_" + locale + ".html";
-			String filePath = getServletConfig().getServletContext().getRealPath( ".."+locale_webdav_instructions );
-			File localeFile = new File( filePath );
-			if ( localeFile.exists() )
-				webdav_instructions = locale_webdav_instructions;
+			String locale_country_webdav_instructions = String.format("%s_%s_%s.html", webdav_doc, locale, country);
+			File contentRoot = new File(getServletContext().getRealPath("/"));
+			File localeFile;
+			localeFile = new File(contentRoot.getParent(), locale_country_webdav_instructions);
+			if (localeFile.exists()){
+				webdav_instructions = locale_country_webdav_instructions;
+			} else {
+				String locale_webdav_instructions = String.format("%s_%s.html", webdav_doc, locale);
+				localeFile = new File(contentRoot.getParent(), locale_webdav_instructions);
+				if ( localeFile.exists() ) {
+					webdav_instructions = locale_webdav_instructions;
+				}
+			}
 		}
 
 		context.put("webdav_instructions" ,webdav_instructions);
@@ -5683,7 +5695,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if (!inMyWorkspace && !dropboxMode && m_siteAlias)
 		{
 			// find site alias first
-			List target = AliasService.getAliases("/site/" + siteId);		
+			List target = aliasService.getAliases("/site/" + siteId);
 	
 			if (!target.isEmpty()) {
 				// take the first alias only
@@ -5697,7 +5709,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			} else {
 				// use mail archive alias
-				target = AliasService.getAliases("/mailarchive/channel/" + siteId + "/main");
+				target = aliasService.getAliases("/mailarchive/channel/" + siteId + "/main");
 	
 				if (!target.isEmpty()) {
 					// take the first alias only
@@ -6179,6 +6191,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		if("save".equals(user_action))
 		{
+
 			item.captureProperties(params, ListItem.DOT + "0");
 			if (item.numberFieldIsInvalid) {
 				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
@@ -6186,6 +6199,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			if (item.numberFieldIsOutOfRange) {
 				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { item.getConditionAssignmentPoints() }));
+				return;
+			}
+			if(!"".equals(item.metadataValidationFails)) {
+				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", item.metadataValidationFails));
 				return;
 			}
 			String name = params.getString("name" + ListItem.DOT + "0");
@@ -7060,34 +7077,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// doDelete
 
-//    /**
-//	 * @param data
-//	 */
-//	public void doHide_metadata(RunData data)
-//	{
-//		ParameterParser params = data.getParameters ();
-//		String name = params.getString("metadataGroup");
-//
-//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-//		List metadataGroups = (List) state.getAttribute(ListItem.STATE_METADATA_GROUPS);
-//		if(metadataGroups != null && ! metadataGroups.isEmpty())
-//		{
-//			boolean found = false;
-//			MetadataGroup group = null;
-//			Iterator it = metadataGroups.iterator();
-//			while(!found && it.hasNext())
-//			{
-//				group = (MetadataGroup) it.next();
-//				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
-//			}
-//			if(found)
-//			{
-//				group.setShowing(false);
-//			}
-//		}
-//
-//	}	// doHide_metadata
-//
 	/**
 	 * @param data
 	 */
@@ -7559,6 +7548,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { item.getConditionAssignmentPoints() }));
 				return;
 			}
+			if(!"".equals(item.metadataValidationFails)) {
+				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", item.metadataValidationFails));
+				return;
+			}
 			//Control if groups are selected
 			if (!checkGroups(params)) { 
 				addAlert(state, trb.getString("alert.youchoosegroup")); 
@@ -7830,37 +7823,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}	// if-else
 
 	}	// doSaveOrder
-
-//	/**
-//	 * @param data
-//	 */
-//	public void doShow_metadata(RunData data)
-//	{
-//		ParameterParser params = data.getParameters ();
-//		String name = params.getString("metadataGroup");
-//
-//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-//		
-//		
-//		
-//		List metadataGroups = (List) state.getAttribute(ListItem.STATE_METADATA_GROUPS);
-//		if(metadataGroups != null && ! metadataGroups.isEmpty())
-//		{
-//			boolean found = false;
-//			MetadataGroup group = null;
-//			Iterator it = metadataGroups.iterator();
-//			while(!found && it.hasNext())
-//			{
-//				group = (MetadataGroup) it.next();
-//				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
-//			}
-//			if(found)
-//			{
-//				group.setShowing(true);
-//			}
-//		}
-//
-//	}	// doShow_metadata
 
 	/**
 	* Show information about WebDAV
@@ -9575,7 +9537,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        azGroups.add(SiteService.siteReference(site.getId()));
 	        azGroups.add("!site.helper");
 	        // get the user ids who has dropbox.own permissions
-	        Set userIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+	        Set userIds = authzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
 
 	        // Adding users to selector
 	        for (Iterator<String> it = userIds.iterator(); it.hasNext();) {
@@ -9723,7 +9685,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                        azGroups.add(SiteService.siteReference(site.getId()));
 	                        azGroups.add("!site.helper");
 	                        // get the user ids who has dropbox.own permissions
-	                        Set<String> dbOwnsUserIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+	                        Set<String> dbOwnsUserIds = authzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
 
 	                        for (Iterator<org.sakaiproject.authz.api.Member> it = grp.getMembers().iterator(); it.hasNext();) {
 	                            String userIdInGroup = it.next().getUserId();

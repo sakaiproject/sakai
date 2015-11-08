@@ -17,10 +17,5 @@
     <module>tool-tool/su</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/tool/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/tool/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/tool/trunk</url>
-  </scm>
 
 </project>

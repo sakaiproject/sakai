@@ -238,19 +238,11 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
     }
     else{ // notAuthorized
       if (!isAuthenticated){
-        if (AgentFacade.isStandaloneEnvironment()) {
-          delivery.setActionString(null);
-          path = delivery.getPortal();
-        }
-        else{
-          delivery.setActionString(null);
-          try {
-            path = "/authn/login?url=" + URLEncoder.encode(httpServletRequest.getRequestURL().toString()+"?pubId="+alias, "UTF-8");          
-          }
-          catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
+        delivery.setActionString(null);
+        try {
+          path = "/authn/login?url=" + URLEncoder.encode(httpServletRequest.getRequestURL().toString()+"?pubId="+alias, "UTF-8");          
+        } catch (UnsupportedEncodingException e) {
+          log.error("Encoding not suppoorted, " + e.getMessage());
         }
         log.info("** servlet path="+httpServletRequest.getRequestURL().toString());
         String url = httpServletRequest.getRequestURL().toString();

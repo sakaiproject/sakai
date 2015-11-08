@@ -78,6 +78,7 @@
 		<p>$tlang.getString("dav.graf1").</p>
 		<p>$tlang.getString("dav.graf2") <strong>$tlang.getString("dav.graf3")</strong>. $tlang.getString("dav.graf4").</p>
 		<p>$tlang.getString("dav.graf5") <strong>$tlang.getString("dav.graf6")</strong> $tlang.getString("dav.graf7") <strong>$tlang.getString("dav.graf8")</strong> $tlang.getString("dav.graf9").</p>
+			<div class="alertMessage">$tlang.getString("dav.copyrt")</div>
 		<div id="davdocs_step1">
 			<p><strong>$tlang.getString("dav.graf10") - </strong> $tlang.getString("dav.graf11"):</p>
 
@@ -142,7 +143,7 @@ ${server_url}${dav_group}$site_id
 		id="webdav_instructions_inner"
 		height="400px"
 		frameborder="0"
-		onload="javascript:setFrameHeight(this);">
+		onload="setFrameHeight(this);">
 	</iframe>
 	<script type="text/javascript">
 		IEVersion8();

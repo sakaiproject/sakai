@@ -21,20 +21,21 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.apache.wicket.markup.head.StringHeaderItem;
+import org.apache.wicket.devutils.debugbar.DebugBar;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -42,7 +43,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	private static final long		serialVersionUID	= 1L;
 	public static final String		COMMONSCRIPT		= StatsManager.SITESTATS_WEBAPP+"/script/common.js";
-	public static final String		JQUERYSCRIPT		= "/library/js/jquery/jquery-1.9.1.min.js";
+	public static final String		JQUERYSCRIPT		= "/library/js/jquery/jquery-1.11.3.min.js";
 	public static final String		BODY_ONLOAD_ADDTL	= "setMainFrameHeightNoScroll(window.name, 0, 400)";
 	public static final String		LAST_PAGE			= "lastSiteStatsPage";
 
@@ -51,33 +52,28 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		ResourceLoader rl = new ResourceLoader();
 		getSession().setLocale(rl.getLocale());
 
-        WebMarkupContainer html = new WebMarkupContainer("html") {
-
-            public boolean isTransparentResolver() {
-                return true;
-            }
-        };
+        TransparentWebMarkupContainer html = new TransparentWebMarkupContainer("html");
 
         String locale = getSession().getLocale().toString();
-        html.add(new SimpleAttributeModifier("lang", locale));
-        html.add(new SimpleAttributeModifier("xml:lang", locale));
+        html.add(AttributeModifier.replace("lang", locale));
+        html.add(AttributeModifier.replace("xml:lang", locale));
 
         add(html);
+		
+		add(new DebugBar("debug"));
 	}
 
+	@Override
 	public void renderHead(IHeaderResponse response) {
 		
 		//get the Sakai skin header fragment from the request attribute
-		HttpServletRequest request = getWebRequestCycle().getWebRequest().getHttpServletRequest();
-		response.renderString((String)request.getAttribute("sakai.html.head"));
-
-		// include sakai headscripts and resize iframe on load
-		response.renderJavascriptReference(COMMONSCRIPT);		
-		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
-		//response.renderOnDomReadyJavascript(BODY_ONLOAD_ADDTL);
+		HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
+		response.render(StringHeaderItem.forString(request.getAttribute("sakai.html.head").toString()));
+		response.render(OnLoadHeaderItem.forScript(BODY_ONLOAD_ADDTL));
+		response.render(JavaScriptHeaderItem.forUrl(COMMONSCRIPT));
 
 		// include (this) tool style (CSS)
-		response.renderCSSReference(StatsManager.SITESTATS_WEBAPP+"/css/sitestats.css");
+		response.render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/css/sitestats.css"));
 	}
 	
 	@Override

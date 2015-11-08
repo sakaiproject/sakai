@@ -22,6 +22,8 @@
 package org.sakaiproject.authz.impl;
 
 
+import java.util.Set;
+
 /**
  * methods for accessing authz data in a mysql database.
  */
@@ -94,11 +96,11 @@ public class DbAuthzGroupSqlMySql extends DbAuthzGroupSqlDefault
 	}
 
 	@Override
-	public String getCountRealmRoleFunctionSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized, String inClause)
+	public String getCountRealmRoleFunctionSql(Set<Integer> roleIds, String inClause)
 	{
 		return "select count(1) from SAKAI_REALM_RL_FN,SAKAI_REALM force index "
 				+ "(AK_SAKAI_REALM_ID) where SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY " + "and " + inClause
-				+ getCountRealmRoleFunctionEndSql(anonymousRoleKey, authorizationRoleKey, authorized, inClause);
+				+ getCountRealmRoleFunctionEndSql(roleIds, inClause);
 	}
 
 	@Override

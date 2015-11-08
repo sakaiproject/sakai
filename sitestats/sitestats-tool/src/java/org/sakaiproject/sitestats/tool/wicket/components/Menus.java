@@ -19,7 +19,6 @@
 package org.sakaiproject.sitestats.tool.wicket.components;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -30,8 +29,6 @@ public class Menus extends Panel {
 
 	private String					siteId;
 	private String					realSiteId;
-	private PageParameters			pageParameters;
-	
 
 	public Menus(String id) {
 		this(id, null);
@@ -47,9 +44,6 @@ public class Menus extends Panel {
 		}else{
 			this.siteId = realSiteId;
 		}
-
-		// page parameters
-		pageParameters = new PageParameters("siteId="+this.siteId);
 		
 		renderBody();
 	}
@@ -78,7 +72,7 @@ public class Menus extends Panel {
 			adminMenu.setVisible(true);
 			if(!isBrowsingThisSite) {
 				standardMenuContainer.setVisible(true);
-				standardMenuContainer.add(new AttributeModifier("style", true, new Model("margin: 10px 5px 5px 5px;")));
+				standardMenuContainer.add(new AttributeModifier("style", new Model("margin: 10px 5px 5px 5px;")));
 			}else{
 				standardMenuContainer.setVisible(false);
 			}

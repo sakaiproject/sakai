@@ -22,11 +22,6 @@
     <module>account-validator-tool</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/reset-pass/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

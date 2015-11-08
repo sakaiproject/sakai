@@ -44,28 +44,22 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>SakaiRSFComponents-templates</artifactId>
-      <version>${sakairsf.components.version}</version>
+      <groupId>org.sakaiproject.rsf</groupId>
+      <artifactId>sakai-rsf-web-templates</artifactId>
+      <version>${project.version}</version>
       <type>war</type>
     </dependency>
     <dependency>
-      <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>SakaiRSFComponents-evolvers</artifactId>
-      <version>${sakairsf.components.version}</version>
+      <groupId>org.sakaiproject.rsf</groupId>
+      <artifactId>sakai-rsf-web-evolvers</artifactId>
+      <version>${project.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>sakairsf</artifactId>
-      <version>${sakairsf.version}</version>
+      <groupId>org.sakaiproject.rsf</groupId>
+      <artifactId>sakai-rsf-core</artifactId>
+      <version>${project.version}</version>
       <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.rsfutil</groupId>
-      <artifactId>RSFComponents-templates</artifactId>
-      <version>${rsfutil.version}</version>
-      <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -175,7 +169,6 @@
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
-      <version>2.1_3</version>
     </dependency>
     <dependency>
       <groupId>odmg</groupId>
@@ -286,12 +279,12 @@
     <dependency>
     	<groupId>org.apache.poi</groupId>
     	<artifactId>poi</artifactId>
-    	<version>3.11</version>    
+    	<version>${sakai.poi.version}</version>    
     </dependency>
      <dependency>
     	<groupId>org.apache.poi</groupId>
     	<artifactId>poi-ooxml</artifactId>
-    	<version>3.11</version>    
+    	<version>${sakai.poi.version}</version>    
     </dependency>
   </dependencies>
 

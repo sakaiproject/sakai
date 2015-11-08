@@ -15,11 +15,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</url>
-  </scm>
 
   <packaging>jar</packaging>
   <properties>

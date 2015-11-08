@@ -61,7 +61,7 @@
 	<servlet>
 		<!-- servlet name must match tool.id in tools xml file -->
 		<servlet-name>sakai.mailtool</servlet-name>
-		<servlet-class>uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet</servlet-class>
+		<servlet-class>org.sakaiproject.rsf.servlet.ReasonableSakaiServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>sakai.mailtool</servlet-name>

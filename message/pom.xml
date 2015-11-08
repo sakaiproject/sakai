@@ -23,11 +23,6 @@
         <module>search-adapters/pack</module>
     </modules>
     
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/message/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/message/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/message/trunk</url>
-    </scm>
     
     <distributionManagement>
         <site>

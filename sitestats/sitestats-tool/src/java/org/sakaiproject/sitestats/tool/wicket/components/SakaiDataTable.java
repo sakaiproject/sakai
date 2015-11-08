@@ -40,34 +40,14 @@ public class SakaiDataTable extends AjaxFallbackDefaultDataTable {
 	 *            list of columns
 	 * @param dataProvider
 	 *            data provider
-	 * @param rowsPerPage
-	 *            number of rows per page
+	 * @param pageable
+	 *            table should have paging controls
 	 */
-	public SakaiDataTable(String id, final List/* <IColumn> */columns,
-			ISortableDataProvider dataProvider,
-			boolean pageable)
+	public SakaiDataTable(String id, final List<IColumn> columns, ISortableDataProvider dataProvider, boolean pageable)
 	{
-		this(id, (IColumn[])columns.toArray(new IColumn[columns.size()]), dataProvider, 20, pageable);
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param id
-	 *            component id
-	 * @param columns
-	 *            array of columns
-	 * @param dataProvider
-	 *            data provider
-	 * @param rowsPerPage
-	 *            number of rows per page
-	 */
-	public SakaiDataTable(String id, final IColumn[] columns, ISortableDataProvider dataProvider,
-			int rowsPerPage, boolean pageable)
-	{
-		super(id, columns, dataProvider, rowsPerPage);
-		((RepeatingView) get("topToolbars")).removeAll();
-		((RepeatingView) get("bottomToolbars")).removeAll();
+		super(id, columns, dataProvider, 20);
+		((RepeatingView) get("topToolbars:toolbars")).removeAll();
+		((RepeatingView) get("bottomToolbars:toolbars")).removeAll();
 		
 		if(pageable) {
 			addTopToolbar(new SakaiNavigationToolBar(this));

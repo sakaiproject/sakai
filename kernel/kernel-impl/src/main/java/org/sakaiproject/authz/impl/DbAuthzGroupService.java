@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
@@ -57,8 +58,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class DbAuthzGroupService extends BaseAuthzGroupService implements Observer
 {
-	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with ORs. */
-	protected final static int MAX_IN_CLAUSE = 99;
+	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <1000 the items in each in(?, ?, ...) clause, connecting them with ORs. */
+	protected final static int MAX_IN_CLAUSE = 999;
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DbAuthzGroupService.class);
 	/** All the event functions we know exist on the db. */
@@ -367,7 +368,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				public Object readSqlResultRecord(ResultSet result) {
 					try {
 						String name = result.getString(1);
-						String key = result.getString(2);
+						Integer key = result.getInt(2);
 						RealmRole realmRole = new RealmRole(name, key);
 						m_roleNameCache.add(realmRole);
 					}
@@ -394,7 +395,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					try
 					{
 						String name = result.getString(1);
-						String key = result.getString(2);
+						Integer key = result.getInt(2);
 						RealmRole realmRole = new RealmRole(name, key);
 						m_roleNameCache.add(realmRole);
 					}
@@ -506,7 +507,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 */
 	protected String orInClause(int size, String field)
 	{
-		// Note: to avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with
+		// Note: to avoide the dreaded ORA-01795 and the like, we need to limit to <1000 the items in each in(?, ?, ...) clause, connecting them with
 		// ORs -ggolden
 		int ors = size / MAX_IN_CLAUSE;
 		int leftover = size - (ors * MAX_IN_CLAUSE);
@@ -576,7 +577,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		return bindParameter;
 	}
 
-	private String getRealmRoleKey(String roleName) {
+	private Integer getRealmRoleKey(String roleName) {
 		Iterator<RealmRole> itr = m_roleNameCache.iterator();
 		while (itr.hasNext()) {
 			RealmRole realmRole = (RealmRole) itr.next();
@@ -1109,15 +1110,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		/**
 		 * {@inheritDoc}
 		 */
-		public Set getProviderIds(String authzGroupId)
+		public Set<String> getProviderIds(String authzGroupId)
 		{
 			String statement = dbAuthzGroupSql.getSelectRealmProviderId1Sql();
 			List results = sqlService().dbRead(statement, new Object[] {authzGroupId}, null);
 			if (results == null)
 			{
-				return new HashSet();
+				return new HashSet<>();
 			}
-			return new HashSet(results);
+			return new HashSet<>(results);
 		}
 
 		/**
@@ -1902,22 +1903,29 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			if ((lock == null) || (realmId == null)) return false;
 
-			// does the user have any roles granted that include this lock, based on grants or anon/auth?
-			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
+			Set<String> roles = getEmptyRoles(userId);
+			Set<Integer> roleIds = getRealmRoleKeys(roles);
 
 			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: auth=" + auth + " userId=" + userId + " lock=" + lock + " realm=" + realmId);
+				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realm=" + realmId+
+						" roles="+ StringUtils.join(roles, ','));
 
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(getRealmRoleKey(ANON_ROLE), getRealmRoleKey(AUTH_ROLE), auth);
-			Object[] fields = new Object[3];
-			fields[0] = userId;
-			fields[1] = lock;
-			fields[2] = realmId;
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roleIds);
+			Object[] fields = new Object[3 + roleIds.size()];
+			int pos = 0;
+			for (Integer roleId : roleIds)
+			{
+				fields[pos++] = roleId;
+			}
+			fields[pos++] = userId;
+			fields[pos++] = lock;
+			fields[pos++] = realmId;
+
 
 			// checks to see if the user is the current user and has the roleswap variable set in the session
 			String roleswap = securityService().getUserEffectiveRole(realmId);
 
-            if (roleswap != null && auth && userId.equals(sessionManager().getCurrentSessionUserId()))
+            if (roleswap != null && roles.contains(AUTH_ROLE) && userId.equals(sessionManager().getCurrentSessionUserId()))
             {
             	fields[0] = roleswap; // set the field to the student role for the alternate sql
             	statement = dbAuthzGroupSql.getCountRoleFunctionSql(); // set the function for our alternate sql
@@ -1957,7 +1965,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			if (lock == null) return false;
 
-			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
 			if (realms == null || realms.size() < 1)
 			{
@@ -1966,15 +1973,19 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					M_log.debug("isAllowed():", new Exception());
 				return false;
 			}
-
+			
+			Set<String> roles = getEmptyRoles(userId);
+			
 			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: auth=" + auth + " userId=" + userId + " lock=" + lock + " realms=" + realms);
+				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realms=" + realms
+						+ " roles="+ StringUtils.join(roles, ','));
 
 			String inClause = orInClause(realms.size(), "SAKAI_REALM.REALM_ID");
+			Set<Integer> roleIds = getRealmRoleKeys(roles);
 
 			// any of the grant or role realms
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(getRealmRoleKey(ANON_ROLE), getRealmRoleKey(AUTH_ROLE), auth, inClause);
-			Object[] fields = new Object[2 + (2 * realms.size())];
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roleIds, inClause);
+			Object[] fields = new Object[2 + (2 * realms.size()) + roleIds.size()];
 			int pos = 0;
 
 			// for roleswap
@@ -2013,6 +2024,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				fields[pos++] = realmId;
 			}
 
+			for (Integer roleId : roleIds)
+			{
+				fields[pos++] = roleId;
+			}
+
+			
 			/* Delegated access essentially behaves like roleswap except instead of just specifying which role, you can also specify
 			 * the realm as well.  The access map is populated by an Event Listener that listens for dac.checkaccess and is stored in the session
 			 * attribute: delegatedaccess.accessmap.  This is a map of: SiteRef -> String[]{realmId, roleId}.  Delegated access
@@ -3285,16 +3302,28 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		}
 
 	} // DbStorage
+	
+	private Set<Integer> getRealmRoleKeys(Set<String> roles) {
+		Set<Integer> roleIds = new HashSet<Integer>();
+		for(String role: roles) {
+			Integer realmRoleKey = getRealmRoleKey(role);
+			// If the role hasn't yet been used then it won't exist and so we can't lookup it's ID.
+			if (realmRoleKey != null) {
+				roleIds.add(realmRoleKey);
+			}
+		}
+		return roleIds;
+	}
 
 	class RealmRole implements Comparable<RealmRole>{
 		private String name;
-		private String key;
+		private Integer key;
 
 		RealmRole(String name) {
 			this.name = name;
 		}
 
-		RealmRole(String name, String key) {
+		RealmRole(String name, Integer key) {
 			this.name = name;
 			this.key = key;
 		}
@@ -3307,11 +3336,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			this.name = name;
 		}
 
-		public String getKey() {
+		public Integer getKey() {
 			return key;
 		}
 
-		public void setKey(String key) {
+		public void setKey(Integer key) {
 			this.key = key;
 		}
 

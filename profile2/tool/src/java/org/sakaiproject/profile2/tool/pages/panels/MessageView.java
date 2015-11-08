@@ -184,9 +184,11 @@ public class MessageView extends Panel {
 				};
 				
 				//photo
+				/* disabled for now
 				ProfileImage messagePhoto = new ProfileImage("messagePhoto", new Model<String>(messageFromUuid));
 				messagePhoto.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 				photoLink.add(messagePhoto);
+				*/
 				item.add(photoLink);				
 				
 				//name link

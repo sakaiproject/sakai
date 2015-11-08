@@ -29,9 +29,9 @@ public class IMSJSONRequest {
 
 	private final static Logger Log = Logger.getLogger(IMSJSONRequest.class .getName());
 
-    public final static String STATUS = "status";
-    public final static String STATUS_CODE = "code";
-    public final static String STATUS_DESCRIPTION = "description";
+	public final static String STATUS = "status";
+	public final static String STATUS_CODE = "code";
+	public final static String STATUS_DESCRIPTION = "description";
 
 	public final static String CODE_MAJOR_SUCCESS = "success";
 	public final static String CODE_MAJOR_FAILURE = "failure";
@@ -41,12 +41,13 @@ public class IMSJSONRequest {
 	private String header = null;
 	private String oauth_body_hash = null;
 	private String oauth_consumer_key = null;
+	private String oauth_signature_method = null;
 
 	public boolean valid = false;
 	public String errorMessage = null;
 	public String base_string = null;
 
-    private static final String APPLICATION_JSON = "application/json";
+	private static final String APPLICATION_JSON = "application/json";
 
 	public String getOAuthConsumerKey()
 	{
@@ -85,6 +86,7 @@ public class IMSJSONRequest {
 		header = request.getHeader("Authorization");
 		// System.out.println("Header: "+header);
 		oauth_body_hash = null;
+		oauth_signature_method = null;
 		if ( header != null ) {
 			if (header.startsWith("OAuth ")) header = header.substring(5);
 			String [] parms = header.split(",");
@@ -93,6 +95,10 @@ public class IMSJSONRequest {
 				if ( parm.startsWith("oauth_body_hash=") ) {
 					String [] pieces = parm.split("\"");
 					if ( pieces.length == 2 ) oauth_body_hash = URLDecoder.decode(pieces[1]);
+				}
+				if ( parm.startsWith("oauth_signature_method=") ) {
+					String [] pieces = parm.split("\"");
+					if ( pieces.length == 2 ) oauth_signature_method = URLDecoder.decode(pieces[1]);
 				}
 				if ( parm.startsWith("oauth_consumer_key=") ) {
 					String [] pieces = parm.split("\"");
@@ -108,7 +114,7 @@ public class IMSJSONRequest {
 		}
 
 		// System.out.println("OBH="+oauth_body_hash);
-        byte[] buf = new byte[1024];
+		byte[] buf = new byte[1024];
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		int chars = 0;
 		try {
@@ -131,22 +137,30 @@ public class IMSJSONRequest {
 			return;
 		}
 
-        byte[] bytes = bos.toByteArray();
+		byte[] bytes = bos.toByteArray();
 
 		try {
 			postBody = new String(bytes, "UTF-8");
-			MessageDigest md = MessageDigest.getInstance("SHA1");
+			MessageDigest md = null;
+			if ( "HMAC-SHA256".equalsIgnoreCase(oauth_signature_method) ) {
+				md = MessageDigest.getInstance("SHA-256");
+			} else {
+				md = MessageDigest.getInstance("SHA-1");
+			}
 			md.update(bytes); 
 			byte[] output = Base64.encode(md.digest());
 			String hash = new String(output);
 			// System.out.println("HASH="+hash+" bytes="+bytes.length);
 			if ( ! hash.equals(oauth_body_hash) ) {
 				errorMessage = "Body hash does not match. bytes="+bytes.length;
+				if ( oauth_signature_method != null ) errorMessage += " oauth_signature_method="+oauth_signature_method;
 				// System.out.println(postBody);
 				return;
 			}
 		} catch (Exception e) {
 			errorMessage = "Could not compute body hash.  bytes="+bytes.length;
+			if ( oauth_signature_method != null ) errorMessage += " oauth_signature_method="+oauth_signature_method;
+			errorMessage += " Exception:" + e.getMessage();
 			return;
 		}
 		valid = true;  // So far we are valid
@@ -215,7 +229,7 @@ public class IMSJSONRequest {
 		return retval;
 	}
 
-	/* IMS JSON version of Errors - does the complet request - returns the JSON in case
+	/* IMS JSON version of Errors - does the complete request - returns the JSON in case
 	   the code above us wants to log it. */
 	@SuppressWarnings("static-access")
 	public static String doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
@@ -223,6 +237,7 @@ public class IMSJSONRequest {
 		throws java.io.IOException 
 	{
 		response.setContentType(APPLICATION_JSON);
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		Map<String, Object> jsonResponse = new TreeMap<String, Object>();
 
 		Map<String, String> status = null;
@@ -232,6 +247,9 @@ public class IMSJSONRequest {
 			status = json.getStatusFailure(message);
 			if ( json.base_string != null ) {
 				jsonResponse.put("base_string", json.base_string);
+			}
+			if ( json.errorMessage != null ) {
+				jsonResponse.put("error_message", json.errorMessage);
 			}
 		}
 		jsonResponse.put(IMSJSONRequest.STATUS, status);

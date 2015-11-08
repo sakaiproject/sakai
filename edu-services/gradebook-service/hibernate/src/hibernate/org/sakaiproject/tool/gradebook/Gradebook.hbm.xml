@@ -56,6 +56,7 @@
 
 		<property name="showStatisticsChart" column="DO_SHOW_STATISTICS_CHART" type="boolean" not-null="false"/>
 		
+		<property name="courseLetterGradeDisplayed" column="COURSE_LETTER_GRADE_DISPLAYED" type="boolean" not-null="true"/>
 
 	</class>
 </hibernate-mapping>

@@ -1,0 +1,23 @@
+/* Graceful degradation of on/off switch for browsers that don't support :before :after, like IE8 */
+
+.fl-prefsEditor .fl-prefsEditor-onoff input {
+    clip: auto;
+    height: 1em;
+    width: 1em;
+    margin: 0 10px 0 0;
+    position: relative;
+    display: inline;
+    float: left;
+}
+.fl-prefsEditor .fl-prefsEditor-onoff .fl-prefsEditor-switch {
+    display: none;
+}
+.fl-prefsEditor .fl-prefsEditor-onoff input:focus + label {
+    outline: none;
+}
+
+/* Font icons in IE8 require EOT */
+@font-face {
+    font-family: 'InfusionIcons';
+    src:url('../fonts/InfusionIcons-PrefsEditor.eot');
+}

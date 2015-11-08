@@ -481,6 +481,11 @@
             <value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
         </managed-property>
         <managed-property>
+            <description>Authz Group Service</description>
+            <property-name>authzGroupService</property-name>
+            <value>#{Components["org.sakaiproject.authz.api.AuthzGroupService"]}</value>
+        </managed-property>
+        <managed-property>
             <description>Rank Manager</description>
             <property-name>rankManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.RankManager"]}</value>

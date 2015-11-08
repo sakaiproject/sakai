@@ -46,7 +46,7 @@
 		<div class="navPanel">
 			<div class="viewNav">
 			<br />
-			#if ($!groups.hasNext() || !$hasAtLeastOneAnonAssignment)
+			#if (!$hasAtLeastOneAnonAssignment)
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
@@ -72,16 +72,15 @@
 				<p />
 				#end
 
-				#if( !$hasAtLeastOneAnonAssignment )
 				<label for="$form_search" class="skip">$tlang.getString("search")</label>
-				<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
+				<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" 
+					name="search" id="search" type="text" class="searchField" size="20" />
 				<input type="button" value="$tlang.getString('search')" onclick="ASN.applySearchFilter('search');" />
 				#if (($!searchString) && (!$searchString.equals("")))
 					<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="ASN.applySearchFilter('clearSearch');" />
 				#end
 				<img id="userFilterSpinner" class="spinner" src="/library/image/indicator.gif" />
 				<p />
-				#end
 
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
@@ -244,9 +243,9 @@
 						#set ($submissionType = $assignmentContent.TypeOfSubmission)
 						#set ($typeOfGrade = $assignmentContent.getTypeOfGrade())
 						#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
+						#set ($anonymousSubmissionId = $submission.getSubmission().getAnonymousSubmissionId())
 						<tr>
 							<td headers="studentname">
-							#set ($submitterNames = "")
 							#if ($submission.getIsMultiGroup())
 							<span class="error alertMessage">
 							#end
@@ -261,7 +260,11 @@
 										#set($submitterName=$submitterName.concat(" [").concat($submission.getGroup().getTitle()).concat("]"))
 									#end
 								#end
-								$validator.escapeHtml($!submitterName)
+								#if( $isAnon )
+									$anonymousSubmissionId
+								#else
+									$validator.escapeHtml($!submitterName)
+								#end
 							#end
 							#if ($submission.getIsMultiGroup())
 							</span>

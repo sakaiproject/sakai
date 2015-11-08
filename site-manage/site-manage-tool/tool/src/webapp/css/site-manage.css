@@ -43,10 +43,6 @@ dl.defList dd{
     float: right;
 }
 
-.ui-widget-content{
-    min-width: 30em;
-}
-
 #templateSettings, #siteTypeList, #archiveSettings{
     padding:.5em;
     background:#eee;
@@ -894,4 +890,9 @@ dl.defList dd{
 #joinLimitByAccountType
 {
     margin-bottom: 1em;
+}
+
+/* SAK-29873 */
+.unpublishedLabel {
+    opacity:0.2;
 }

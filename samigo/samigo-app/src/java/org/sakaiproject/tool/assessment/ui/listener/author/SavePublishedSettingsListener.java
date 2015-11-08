@@ -36,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -97,6 +98,8 @@ implements ActionListener
 		IntegrationContextFactory.getInstance().isIntegrated();
 	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
 	private ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	
+	private static String EXTENDED_TIME_KEY = "extendedTime";
 	
 	public SavePublishedSettingsListener()
 	{
@@ -532,12 +535,12 @@ implements ActionListener
 			feedback.setAssessmentBase(assessment.getData());
 		}
 		// Feedback authoring
-		if (assessmentSettings.getFeedbackAuthoring()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackAuthoring()))
 			feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
 		// Feedback delivery
-		if (assessmentSettings.getFeedbackDelivery()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackDelivery()))
 			feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
-		if (assessmentSettings.getFeedbackComponentOption()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
 		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
 
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
@@ -602,6 +605,7 @@ implements ActionListener
 		// hasUsernamePassword, hasTimeAssessment,hasAutoSubmit, hasPartMetaData, 
 		// hasQuestionMetaData
 		HashMap h = assessmentSettings.getValueMap();
+		h = addExtendedTimeValuesToMetaData(assessment, assessmentSettings);
 		saveAssessmentSettings.updateMetaWithValueMap(assessment, h);
 		
 		// i. set Graphics
@@ -680,10 +684,12 @@ implements ActionListener
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook()!=null && 
 					evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+				Long categoryId = null;
 				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
 					try {
 						log.debug("before gbsHelper.removeGradebook()");
+						categoryId = gbsHelper.getExternalAssessmentCategoryId(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 						gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 					} catch (Exception e1) {
 						// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
@@ -701,7 +707,7 @@ implements ActionListener
 				else{
 					try{
 						log.debug("before gbsHelper.addToGradebook()");
-						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
+						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), categoryId, g);
 
 						// any score to copy over? get all the assessmentGradingData and copy over
 						GradingService gradingService = new GradingService();
@@ -766,6 +772,43 @@ implements ActionListener
 		ArrayList publishedAssessmentList = assessmentService.getBasicInfoOfAllPublishedAssessments2(
 				  PublishedAssessmentFacadeQueries.TITLE, true, AgentFacade.getCurrentSiteId());
 		authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
+	}
+
+	/**
+	 * This will clear out the old extended time values and update them with new
+	 * ones.
+	 * 
+	 * @param assessment
+	 * @param assessmentSettings
+	 * @return
+	 */
+	private HashMap addExtendedTimeValuesToMetaData(PublishedAssessmentFacade assessment,
+			PublishedAssessmentSettingsBean assessmentSettings) {
+
+		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");
+		HashMap<String, String> metaDataMap = assessment.getAssessmentMetaDataMap();
+		String metaKey = "";
+
+		// clear out the old extended Time values
+		int itemNum = 1;
+		String extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
+		while ((extendedTimeData != null) && (!extendedTimeData.equals(""))) {
+			metaKey = EXTENDED_TIME_KEY + itemNum;
+			metaDataMap.put(metaKey, ""); // set to empty string TODO: actually
+											// delete it.
+			extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
+			itemNum++;
+		}
+
+		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
+			String extendedTimeEntry = allExtendedTimeEntries[itemNum];
+			metaKey = "extendedTime" + (itemNum + 1);
+
+			// Add in the new extended time values
+			metaDataMap.put(metaKey, extendedTimeEntry);
+		}
+
+		return metaDataMap;
 	}
 }
 

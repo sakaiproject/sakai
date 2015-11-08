@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.model.ResourceModel;
 
 public class AdminReportsPage extends ReportsPage {

@@ -30,7 +30,7 @@ var setupSiteNav = function(){
       //$PBJQ('.nav-submenu').hide();
       // Trigger click on the drop <span>, passing true to set focus on
       // the first tool in the dropdown.
-      $PBJQ(this).parent().find(".Mrphs-sitesNav__drop").trigger('click',[true]);
+      $PBJQ(this).parent().find(".Mrphs-sitesNav__dropdown").trigger('click',[true]);
 
     } else if (e.keyCode == 27) { // uparrow ? or ESC
 
@@ -59,7 +59,7 @@ var setupSiteNav = function(){
   // focusFirstLink is only ever passed from the keydown handler. We
   // don't want to focus on click; it looks odd.
 
-  $PBJQ("ul.Mrphs-sitesNav__menu li span.Mrphs-sitesNav__drop").click(function(e, focusFirstLink) {
+  $PBJQ("ul.Mrphs-sitesNav__menu li span.Mrphs-sitesNav__dropdown").click(function(e, focusFirstLink) {
 
   /*
    * see if there is a menu sibling
@@ -139,7 +139,7 @@ var setupSiteNav = function(){
   }
 
   }).hover(function(){
-    $PBJQ(this).toggleClass("Mrphs-sitesNav__drop--hover"); //On hover over, add 
+    $PBJQ(this).toggleClass("Mrphs-sitesNav__dropdown--hover"); //On hover over, add 
   });
 
 }

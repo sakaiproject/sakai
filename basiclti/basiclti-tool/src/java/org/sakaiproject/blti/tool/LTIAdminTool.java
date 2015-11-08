@@ -27,14 +27,29 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import java.net.URLEncoder;
+import java.net.HttpURLConnection;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
+import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Constants;
+import org.imsglobal.lti2.LTI2Messages;
 import org.imsglobal.lti2.LTI2Util;
+import org.imsglobal.lti2.ToolProxy;
+import org.imsglobal.lti2.ContentItem;
+import org.imsglobal.lti2.ToolProxyBinding;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
+import static org.imsglobal.lti2.LTI2Util.getObject;
+import static org.imsglobal.lti2.LTI2Util.getArray;
+import static org.imsglobal.lti2.LTI2Util.getString;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -46,6 +61,7 @@ import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti2.SakaiLTI2Config;
@@ -73,8 +89,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltitool");
 
-	private boolean inHelper = false;
-
 	private static String STATE_POST = "lti:state_post";
 	private static String STATE_SUCCESS = "lti:state_success";
 	private static String STATE_ID = "lti:state_id";
@@ -83,8 +97,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
 	private static String STATE_LTI2_TOOL_ID = "lti2:state_tool_id";
 
-	private static String SECRET_HIDDEN = "***************";
-	
 	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
 
 	/** Service Implementations */
@@ -124,9 +136,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		Placement placement = toolManager.getCurrentPlacement();
 		String toolReg = placement.getToolId();
-		inHelper = ! ( "sakai.basiclti.admin".equals(toolReg));
-		
-		
 	}
 
 	/**
@@ -149,7 +158,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		// default to site view
-		return buildToolSitePanelContext(portlet, context, data, state);
+		return buildToolSystemPanelContext(portlet, context, data, state);
 	}
 	
 	public String buildToolSitePanelContext(VelocityPortlet portlet, Context context, 
@@ -165,7 +174,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
-		context.put("inHelper",new Boolean(inHelper));
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
@@ -198,8 +206,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		// top navigation menu
 		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
-		menu.add(new MenuEntry(rb.getString("tool.in.site"), false, "doNav_tool_site"));
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), true, "doNav_tool_system"));
+		menu.add(new MenuEntry(rb.getString("tool.in.site"), false, "doNav_tool_site"));
 		context.put("menu", menu);
 		
 		return "lti_tool_site";
@@ -219,7 +227,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
-		context.put("inHelper",new Boolean(inHelper));
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
@@ -236,8 +243,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		// top navigation menu
 		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
-		menu.add(new MenuEntry(rb.getString("tool.in.site"), true, "doNav_tool_site"));
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), false, "doNav_tool_system"));
+		menu.add(new MenuEntry(rb.getString("tool.in.site"), true, "doNav_tool_site"));
 		context.put("menu", menu);
 		
 		return "lti_tool_system";
@@ -290,8 +297,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
         String formStatus = ltiService.formOutput(tool, fieldInfo);
 		context.put("formStatus", formStatus);
 
-		tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);
-		tool.put(LTIService.LTI_CONSUMERKEY,SECRET_HIDDEN);
+		tool.put(LTIService.LTI_SECRET,LTIService.SECRET_HIDDEN);
+		tool.put(LTIService.LTI_CONSUMERKEY,LTIService.SECRET_HIDDEN);
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 		state.removeAttribute(STATE_SUCCESS);
@@ -324,7 +331,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Hide the old tool secret unless it is incomplete
 		if ( ! LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET)) ) {
-			tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);		
+			tool.put(LTIService.LTI_SECRET,LTIService.SECRET_HIDDEN);		
 		}
 
 		// Deal with the differences between LTI 1 and LTI 2
@@ -486,7 +493,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties reqProps = data.getParameters().getProperties();
 
 		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
-		if ( SECRET_HIDDEN.equals(newSecret) ) {
+		if ( LTIService.SECRET_HIDDEN.equals(newSecret) ) {
 			reqProps.remove(LTIService.LTI_SECRET);
 			newSecret = null;
 		}
@@ -826,8 +833,35 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
 		String old_secret = (String) deploy.get(LTIService.LTI_SECRET);
 		String ack = (String) deploy.get(LTIService.LTI_REG_ACK);
-		if ( ack != null && ack.length() < 1 ) ack = null;
 
+		// We will notify first and then update all the tools later in case the notification fails
+		boolean notified = true;
+		if ( ack != null && ack.length() > 0 ) {
+		    notified = false;
+		    M_log.info("Sending Re-Registration notification to "+ack);
+		    String oauth_consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
+		    String oauth_secret = old_secret;
+		    oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+		    // System.out.println("key="+oauth_consumer_key+" secret="+oauth_secret);
+
+		    HttpURLConnection connection = BasicLTIUtil.sendOAuthURL("PUT", ack, oauth_consumer_key, oauth_secret);
+		    int responseCode = BasicLTIUtil.getResponseCode(connection);
+		    M_log.info("Re-Registration notification response code "+responseCode);
+		    String return_data = BasicLTIUtil.readHttpResponse(connection);
+		    M_log.info("Re-Registration notification response data "+return_data);
+		    if ( responseCode == HttpURLConnection.HTTP_OK ) {
+			notified = true;
+		    } else {
+			state.setAttribute(STATE_POST,reqProps);
+			String oops = "Error return from acknowledgement code="+responseCode+
+			    "\nData: "+data;
+			addAlert(state, oops);
+			switchPanel(state, "DeploySystem");
+			return;
+		    }
+		}
+
+		// We have sent the ACK if needed, update our data structures.
 		String new_secret = (String) deploy.get(LTIService.LTI_NEW_SECRET);
 		if ( new_secret != null && new_secret.length() < 1 ) new_secret = null;
 		if ( new_secret != null ) {
@@ -841,9 +875,29 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		M_log.info("Starting activation process for id="+key+" title="+info.get("title"));
 
+		String failures = "";
+		// Update reg_state to indicate we are activated...
+		Map<String, Object> deployUpdate = new HashMap<String, Object> ();
+		deployUpdate.put(LTIService.LTI_REG_STATE, "2");
+		deployUpdate.put(LTIService.LTI_REG_ACK, "");
+		if ( new_secret != null ) {
+			deployUpdate.put(LTIService.LTI_SECRET, new_secret);
+			deployUpdate.put(LTIService.LTI_NEW_SECRET, "");
+		}
+
+		// Almost a transaction - at this point update is unlikely to fail
+		Object obj = ltiService.updateDeployDao(key, deployUpdate);
+		boolean updated = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
+
+		if ( ! updated ) {
+			String oops = "Unable to update deployment key="+key;
+			M_log.error(oops);
+			failures += "\n" + oops;
+		}
+
+		// Update the tools...
 		int inserts = 0;
 		int updates = 0;
-		String failures = "";
 		for ( Map<String, Object> theTool : theTools ) {
 			Object retval = null;
 			Long toolId = foorm.getLongNull(theTool.get(LTIService.LTI_ID));
@@ -871,33 +925,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 		}
 
-		// Update reg_state to indicate we are activated...
-		Map<String, Object> deployUpdate = new HashMap<String, Object> ();
-		deployUpdate.put(LTIService.LTI_REG_STATE, "2");
-		deployUpdate.put(LTIService.LTI_REG_ACK, "");
-		if ( new_secret != null ) {
-			deployUpdate.put(LTIService.LTI_SECRET, new_secret);
-			deployUpdate.put(LTIService.LTI_NEW_SECRET, "");
-		}
-
-		// Almost a transaction - at this point update is unlikely to fail
-		Object obj = ltiService.updateDeployDao(key, deployUpdate);
-		boolean updated = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
-		if ( updated ) {
-			if ( ack != null && ack.length() > 0 ) {
-			    M_log.info("Sending Re-Registration notification to "+ack);
-			    String oauth_consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
-			    String oauth_secret = old_secret;
-			    oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
-			    // System.out.println("key="+oauth_consumer_key+" secret="+oauth_secret);
-			    BasicLTIUtil.sendOAuthURL("GET", ack, oauth_consumer_key, oauth_secret);
-			}
-		} else {
-			String oops = "Unable to update deployment key="+key;
-			M_log.error(oops);
-			failures += "\n" + oops;
-		}
-
 		// We can have a combination of successes and failures...
 		String success = "";
 		if ( inserts > 0 ) success = inserts + " tools inserted ";
@@ -923,34 +950,37 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_error";
 		}
 
-		JSONObject providerProfile = (JSONObject) JSONValue.parse(profileText);
-		if ( providerProfile == null ) {
+		ToolProxy toolProxy = null;
+		try {
+			toolProxy = new ToolProxy(profileText);
+			M_log.debug("OBJ:"+toolProxy);
+		} catch (Throwable t ) {
+			t.printStackTrace();
 			M_log.error("error parsing tool profile " + profileText);
 			addAlert(state,rb.getString("deploy.parse.error"));
 			return "lti_error";
 		}
 
-
 		List<Properties> profileTools = new ArrayList<Properties> ();
 		try {
-            String retval = LTI2Util.parseToolProfile(profileTools, info, providerProfile);
-            if ( retval != null ) {
+			String retval = toolProxy.parseToolProfile(profileTools, info);
+			if ( retval != null ) {
 				addAlert(state,rb.getString("deploy.parse.error")+" "+retval);
 				return "lti_error";
-            }
+			}
 		}
-        catch (Exception e ) {
+		catch (Exception e ) {
 			addAlert(state,rb.getString("deploy.parse.exception")+" "+e.getLocalizedMessage());
 			e.printStackTrace();
 			return "lti_error";
-        }
+		}
 
 		String instance_guid = (String) info.get("instance_guid");
 
-        if ( profileTools.size() < 1 ) {
+		if ( profileTools.size() < 1 ) {
 			addAlert(state,rb.getString("deploy.activate.notools"));
 			return "lti_error";
-        }
+		}
 
 		// Check them all first
 		for ( Properties profileTool : profileTools ) {
@@ -994,9 +1024,81 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( profileTool.get(LTIService.LTI_TITLE) != null ) newTool.put(LTIService.LTI_TITLE, profileTool.get(LTIService.LTI_TITLE));
 			if ( profileTool.get(LTIService.LTI_TITLE) != null ) newTool.put(LTIService.LTI_PAGETITLE, profileTool.get(LTIService.LTI_TITLE)); // Duplicate by default
 			if ( profileTool.get("button") != null ) newTool.put(LTIService.LTI_PAGETITLE, profileTool.get("button")); // Note different fields
-			if ( profileTool.get(LTIService.LTI_DESCRIPTION) != null ) newTool.put(LTIService.LTI_DESCRIPTION, profileTool.get(LTIService.LTI_DESCRIPTION));
-			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTIService.LTI_PARAMETER));
-			if ( profileTool.get(LTIService.LTI_ENABLED_CAPABILITY) != null ) newTool.put(LTIService.LTI_ENABLED_CAPABILITY, profileTool.get(LTIService.LTI_ENABLED_CAPABILITY));
+			if ( profileTool.get(LTIService.LTI_DESCRIPTION) != null ) newTool.put(LTIService.LTI_DESCRIPTION, profileTool.get(LTI2Constants.DESCRIPTION));
+			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTI2Constants.PARAMETER));
+
+			// Turn on all the UI allow bits so as to allow overriding
+			newTool.put(LTIService.LTI_ALLOWTITLE, new Integer(1));
+			newTool.put(LTIService.LTI_ALLOWPAGETITLE, new Integer(1));
+			// Might only want to do this if we know they do LtiLinkItem Content Item
+			newTool.put(LTIService.LTI_ALLOWLAUNCH, new Integer(1));
+
+			String tool_proxy_binding = (String) profileTool.get(LTI2Constants.TOOL_PROXY_BINDING);
+			ToolProxyBinding toolProxyBinding = null;
+			try {
+				toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
+			} catch (Throwable t) {
+				addAlert(state,rb.getString("deploy.parse.error")+" tool_proxy_binding");
+				return "lti_error";
+			}
+
+			JSONObject launchMessage = toolProxyBinding.getMessageOfType(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST);
+			JSONObject selectMessage = toolProxyBinding.getMessageOfType(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
+
+                        if ( launchMessage != null ) {
+                                newTool.put(LTIService.LTI_PL_LAUNCH, new Integer(1));
+                        }
+
+			// Look for capabilities for Sakai
+			boolean sakaiplacements = false;
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTANY ) ) {
+                                newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+				newTool.put(LTIService.LTI_PL_FILEITEM, new Integer(1));
+				newTool.put(LTIService.LTI_PL_IMPORTITEM, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTFILE ) ) {
+				newTool.put(LTIService.LTI_PL_FILEITEM, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTLINK ) ) {
+                                newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTIMPORT ) ) {
+                                newTool.put(LTIService.LTI_PL_IMPORTITEM, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+			// If we did not see any Sakai commentary about placements, look to the Canvas variants
+			boolean selection = sakaiplacements;
+			if ( ! sakaiplacements && toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+				SakaiBLTIUtil.CANVAS_PLACEMENTS_LINKSELECTION ) ) {
+				newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+				selection = true;
+			}
+
+			if ( ! sakaiplacements && toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+				SakaiBLTIUtil.CANVAS_PLACEMENTS_CONTENTIMPORT ) ) {
+				newTool.put(LTIService.LTI_PL_FILEITEM, new Integer(1));
+				selection = true;
+			}
+
+			// When in doubt, assume LINKSELECTION
+			if ( !selection && toolProxyBinding.getMessageOfType(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST) != null ) {
+				newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+			}
+			
+			newTool.put(LTIService.LTI_TOOL_PROXY_BINDING, tool_proxy_binding);
+			String fa_icon = toolProxyBinding.getIconPath("FontAwesome");
+			if ( fa_icon != null ) newTool.put("fa_icon", fa_icon);
 
 			M_log.info("newTool="+newTool);
 			theTools.add(newTool); 
@@ -1028,7 +1130,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Check if we are configured
         LTI2Config cnf = new SakaiLTI2Config();
         if ( cnf.getGuid() == null ) {
-			context.put("alertMessage",rb.getString("error.deploy.not.config"));
+			context.put("configMessage",rb.getString("error.deploy.not.config"));
             M_log.error("*********************************************");
             M_log.error("* LTI2 NOT CONFIGURED - Using Sample Data   *");
             M_log.error("* Do not use this in production.  Test only *");
@@ -1247,6 +1349,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
         	Properties defaultData = new Properties();
         	defaultData.put("title",tool.get(LTIService.LTI_TITLE));
         	defaultData.put("pagetitle",tool.get(LTIService.LTI_PAGETITLE));
+		String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+		if ( fa_icon != null && fa_icon.length() > 0 ) {
+			defaultData.put("fa_icon",tool.get(LTIService.LTI_FA_ICON));
+		}
         	previousData = defaultData;
         	
         }
@@ -1268,13 +1374,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	// Insert or edit depending on whether an id is present or not
 	public void doContentPut(RunData data, Context context)
 	{
+		Properties reqProps = data.getParameters().getProperties();
+		doContentPutInternal(data, context, reqProps);
+	}
+
+	private void doContentPutInternal(RunData data, Context context, Properties reqProps)
+	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		state.removeAttribute(STATE_POST);
 		
-		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString(LTIService.LTI_ID);
-		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
+		String id = reqProps.getProperty(LTIService.LTI_ID);
+		String toolId = reqProps.getProperty(LTIService.LTI_TOOL_ID);
 
 		// Does an insert when id is null and update when is is not null
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps);
@@ -1353,7 +1464,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		state.setAttribute(STATE_SUCCESS,success);
 		
-		String title = data.getParameters().getString(LTIService.LTI_PAGETITLE);
+		String title = reqProps.getProperty(LTIService.LTI_PAGETITLE);
 
 		// Take the title from the content (or tool) definition
 		if (title == null || title.trim().length() < 1 ) {
@@ -1403,6 +1514,124 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		switchPanel(state, "ToolSite");
+	}
+
+	public void doContentItemPut(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		// Check for a returned error message from LTI
+		String lti_errormsg = data.getParameters().getString("lti_errormsg");
+		if ( lti_errormsg != null && lti_errormsg.trim().length() > 0 ) {
+			addAlert(state,lti_errormsg);
+			switchPanel(state, "Error");
+			return;
+		}
+
+		// Check for a returned "note" from LTI
+		String lti_msg = data.getParameters().getString("lti_msg");
+		if ( lti_msg != null ) state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
+
+
+		// Sanity check our returnUrl
+		String returnUrl = data.getParameters().getString("returnUrl");
+		if ( returnUrl == null ) {
+			addAlert(state,rb.getString("error.contentitem.missing.returnurl"));
+			switchPanel(state, "Error");
+                        return;
+		}
+
+		// Retrieve the tool associated with the content item
+		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		if ( toolKey == 0 || toolKey < 0 ) {
+			addAlert(state,rb.getString("error.contentitem.missing"));
+			switchPanel(state, "Error");
+                        return;
+		}
+		Map<String, Object> tool = ltiService.getTool(toolKey);
+		if ( tool == null ) {
+			addAlert(state,rb.getString("error.contentitem.missing"));
+			switchPanel(state, "Error");
+                        return;
+		}
+
+		// Parse and validate the incoming ContentItem
+		ContentItem contentItem = null;
+		try {
+			contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
+		} catch(Exception e) {
+			addAlert(state,rb.getString("error.contentitem.bad")+" ("+e.getMessage()+")");
+			switchPanel(state, "Error");
+                        return;
+		}
+
+		// Example of how to pull back the data Properties we passed in above
+		// Properties dataProps = contentItem.getDataProperties();
+		// System.out.println("dataProps="+dataProps);
+		// dataProps={remember=always bring a towel}
+
+		// Extract the content item data
+		JSONObject item = contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM);
+		if ( item == null ) {
+			addAlert(state,rb.getString("error.contentitem.no.ltilink"));
+			switchPanel(state, "Error");
+                        return;
+		}
+
+		// Parse the returned information to insert a Content Item
+		/* {
+			"@type": "LtiLinkItem",
+			"@id": ":item2",
+			"text": "The mascot for the Sakai Project",
+			"title": "The fearsome mascot of the Sakai Project",
+			"url": "http:\/\/localhost:8888\/sakai-api-test\/tool.php?sakai=98765",
+			"mediaType" : "application/vnd.ims.lti.v1.ltilink", 
+			"icon": {
+				"@id": "fa-bullseye",
+				"width": 50,
+				"height": 50
+			}
+		} */
+		String title = getString(item,"title");
+		String text = getString(item,"text");
+		String url = getString(item,"url");
+
+		// Much prefer this be an icon style like LTI 2.0
+		JSONObject iconObject = getObject(item, "icon");
+		String icon = getString(iconObject, "fa_icon");
+		if ( icon == null ) {
+			icon = getString(iconObject, LTI2Constants.JSONLD_ID);
+			if ( icon != null ) {
+				if ( ! icon.startsWith("fa-") ) icon = null;
+			}
+		}
+
+		// Prepare data for the next phase
+		state.removeAttribute(STATE_POST);
+		Properties reqProps = new Properties();
+		reqProps.setProperty(LTIService.LTI_CONTENTITEM, contentItem.toString());
+		reqProps.setProperty("returnUrl", returnUrl);
+		reqProps.setProperty("tool_id", toolKey+"");
+		if ( url != null ) reqProps.setProperty("launch", url);
+		if ( title == null ) title = text;
+		if ( text == null ) text = title;
+		if ( title != null ) reqProps.setProperty(LTIService.LTI_PAGETITLE, title);
+		if ( text != null ) reqProps.setProperty(LTIService.LTI_TITLE, text);
+		if ( icon != null ) reqProps.setProperty(LTIService.LTI_FA_ICON, icon);
+
+		// If we are not complete, we forward back to the configuration screen
+		boolean complete = title != null && text != null && url != null;
+		if ( ! complete ) {
+			M_log.debug("Forwarding to ContentConfig toolKey="+toolKey);
+			state.setAttribute(STATE_POST,reqProps);
+			switchPanel(state, "ContentConfig");
+			return;
+		}
+
+		// Time to store our content item and redirect back to our helpee
+		M_log.debug("Content Item complete toolKey="+toolKey);
+		doContentPutInternal(data, context, reqProps);
 	}
 
 	public String buildRedirectPanelContext(VelocityPortlet portlet, Context context, 
@@ -1481,11 +1710,45 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_error";
 		}
 
+		// Create a POSTable URL back to this application with the right parameters
+		// Since the external tool will be setting all the POST data we need to 
+		// include GET data for things that we might normally have sent as "hidden" data
+		Placement placement = toolManager.getCurrentPlacement();
+                // String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() + 
+                String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId() + 
+			"/sakai.basiclti.admin.helper.helper" +
+			"?eventSubmit_doContentItemPut=Save" +
+			"&returnUrl=" + URLEncoder.encode(returnUrl) + 
+			"&panel=PostContentItem" +
+			"&tool_id=" + tool.get(LTIService.LTI_ID);
+
+		// Add CSRF protection so it actually makes it into the "do" code
+		contentReturn = SakaiBLTIUtil.addCSRFToken(contentReturn);
+
+		// /acccess/blti/context/tool:12 (does not have a querystring)
+		String contentLaunch  = ltiService.getToolLaunch(tool, placement.getContext());
+
+		// Can set ContentItemSelection launch values or put in our own data items
+		// which will come back later.  Be mindful of GET length limitations enroute
+		// to the access servlet.
+		Properties contentData = new Properties();
+		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
+		contentData.setProperty("remember", "always bring a towel");  // An example
+
+		contentLaunch = ContentItem.buildLaunch(contentLaunch , contentReturn, contentData);
+
 		Object previousData = null;
 		if ( content != null ) { 
 			previousData = content;
 		} else { 
-			previousData = (Properties) state.getAttribute(STATE_POST);
+			previousData = previousPost;
+			if ( previousData == null ) {
+				previousData = new Properties();
+			}
+			String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+			if ( ((Properties) previousData).getProperty("fa_icon") == null && fa_icon != null ) {
+				((Properties) previousData).setProperty(LTIService.LTI_FA_ICON, fa_icon);
+			}
 		}
 
 		// We will handle the tool_id field ourselves in the Velocity code
@@ -1495,10 +1758,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_error";
 		}
 
+		// Check if we are supposed to let the tool configure itself
+		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
+		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_PL_LAUNCH));
+
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		context.put("doAction", BUTTON + "doContentPut");
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("cancelUrl", returnUrl);
 		context.put("returnUrl", returnUrl);
+		if ( allowLinkSelection > 0 ) context.put("contentLaunch", contentLaunch);
+		// If this tool only allows configuration, go straight to Content Item
+		if ( allowLinkSelection > 0 && allowLaunch < 1 ) context.put("autoLaunch", contentLaunch);
 		context.put(LTIService.LTI_TOOL_ID,toolKey);
 		context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 		context.put("tool_title", tool.get(LTIService.LTI_TITLE));

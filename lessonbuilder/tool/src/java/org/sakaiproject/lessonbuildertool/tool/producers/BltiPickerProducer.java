@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2010 Rutgers, the State University of New Jersey
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");                                                                
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -41,12 +41,13 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
+import org.sakaiproject.component.cover.ServerConfigurationService;     
+import org.sakaiproject.portal.util.ToolUtils;
 
 import org.sakaiproject.lessonbuildertool.service.BltiEntity;
 
 import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
+import uk.org.ponder.localeutil.LocaleGetter;										  
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -80,9 +81,9 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
-        private BltiEntity bltiEntity;
+private BltiEntity bltiEntity;
 	public MessageLocator messageLocator;
-        public LocaleGetter localeGetter;                                                                                             
+public LocaleGetter localeGetter;											     
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
@@ -113,19 +114,22 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 		}
 
-	        Integer bltiToolId = ((GeneralViewParameters)viewparams).addTool;
+	Integer bltiToolId = ((GeneralViewParameters)viewparams).addTool;
 		BltiTool bltiTool = null;
 		if (bltiToolId == -1)
 		    bltiToolId = null;
 		else
 		    bltiTool = simplePageBean.getBltiTool(bltiToolId);
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
-		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
+	UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
 
 		//errorMessage=&id=&title=&source=&backPath=&sendingPage=92&path=&clearAttr=&recheck=&itemId=-1&returnView=
 
 		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
+
+		// Reach down and grab a GET parameter from ThreadLocal
+		String ltiItemId = ToolUtils.getRequestParameter("ltiItemId");
 
 		simplePageBean.setItemId(itemId);
 
@@ -135,7 +139,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		    UIOutput.make(tofill, "mainhead", messageLocator.getMessage("simplepage.blti.chooser"));
 
 		// here is a URL to return to this page
-		String comeBack = ServerConfigurationService.getToolUrl()+ "/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
+		String comeBack = ToolUtils.getToolBaseUrl()+ "/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
 		    ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId + (bltiTool == null? "" : "&addTool=" + bltiToolId);
 		if ( bltiEntity instanceof BltiEntity ) ( (BltiEntity) bltiEntity).setReturnUrl(comeBack);
 
@@ -146,7 +150,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 			SimplePage page = simplePageBean.getCurrentPage();
 
-		        String currentItem = null; // default value, normally current
+			String currentItem = null; // default value, normally current
 			if (itemId != null && itemId != -1) {
 			    SimplePageItem i = simplePageToolDao.findItem(itemId);
 			    if (i == null)
@@ -167,96 +171,53 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			    }
 			    toolcount = 1;
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "blti-create:");
-			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(createLink.Url);
-			    view.setReturnView(VIEW_ID);
-			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
-			    UIInternalLink.make(link, "blti-create-link", (bltiTool == null ? createLink.label : bltiTool.addText), view);
+
+			    UILink.make(link, "blti-create-link", (bltiTool == null ? createLink.label : bltiTool.addText), createLink.Url)
+				.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
+
+			    if ( createLink.fa_icon != null ) {
+				UIOutput.make(link, "blti-create-icon", "")
+				    .decorate(new UIFreeAttributeDecorator("class", "fa " + createLink.fa_icon));
+			    }
+
 			}
 			
-			if (bltiTool != null) {
-			    if (bltiTool.description != null)
-				UIOutput.make(tofill, "blti-tools-text", bltiTool.description);
-			    if (bltiTool.addInstructions != null)
-				UIVerbatim.make(tofill, "blti-add-instructions", bltiTool.addInstructions);
-			} else if (bltiTool == null && toolcount > 0) 
+			if ( toolcount > 0 ) {
 			    UIOutput.make(tofill, "blti-tools-text", messageLocator.getMessage("simplepage.blti.tools.text"));
+			} else { 
+			    UIOutput.make(tofill, "no-blti-tools");
+			    UIOutput.make(tofill, "no-blti-tools-text", messageLocator.getMessage("simplepage.no_blti_tools"));
+			}
+
+			UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 
 			// only show manage link if we aren't simulating a native tool
 			if (bltiTool == null) {
 			    UIOutput.make(tofill, "manageblti");
-			if (mainLink != null) {
-			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(mainLink.Url);
-			    view.setReturnView(VIEW_ID);
-			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
-			    UIInternalLink.make(tofill, "blti-main-link", mainLink.label , view);
-			}
+			    if (mainLink != null) {
+				UILink.make(tofill, "blti-main-link", mainLink.label, mainLink.Url)
+					.decorate(new UIFreeAttributeDecorator("title", mainLink.label) );
+			    }
 			}
 
-			UIForm form = UIForm.make(tofill, "blti-picker");
 			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
-			if (sessionToken != null)
-			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
+			if ( ltiItemId != null ) {
+				UIForm fb = UIForm.make(tofill, "blti-autosubmit");
+				if (sessionToken != null)
+					UIInput.make(fb, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
+				UIInput.make(fb, "select", "simplePageBean.selectedBlti", ltiItemId);
+				UIInput.make(fb, "item-id", "#{simplePageBean.itemId}");
+				UICommand.make(fb, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
+				UICommand.make(fb, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 
-			List<LessonEntity> plist = bltiEntity.getEntitiesInSite(null, bltiToolId);
-
-			if (plist == null || plist.size() < 1) {
-			    UIOutput.make(tofill, "no-blti-items");
-			    if (bltiToolId == null)
-				UIOutput.make(tofill, "no-blti-items-text", messageLocator.getMessage("simplepage.no_blti_items"));
-			    else
-				UIOutput.make(tofill, "no-blti-items-text", messageLocator.getMessage("simplepage.no_blti_native"));
-			} else
-			    UIOutput.make(tofill, "select-blti-text", messageLocator.getMessage("simplepage.select_blti.text"));
-
-			ArrayList<String> values = new ArrayList<String>();
-
-			if (plist != null)
-			    for (LessonEntity blti: plist) {
-				values.add(blti.getReference());
-			    }
-
-			// if no current item, use first
-			if (currentItem == null && plist != null && plist.size() > 0)
-			    currentItem = plist.get(0).getReference();
-
-			UISelect select = UISelect.make(form, "blti-span", values.toArray(new String[1]), "#{simplePageBean.selectedBlti}", currentItem);
-			if (plist != null)
-			    for (LessonEntity a : plist) {
-
-				UIBranchContainer row = UIBranchContainer.make(form, "blti:", String.valueOf(plist.indexOf(a)));
-
-				UISelectChoice.make(row, "select", select.getFullID(), plist.indexOf(a)).
-				    decorate(new UIFreeAttributeDecorator("title", a.getTitle()));
-
-				UILink.make(row, "link", a.getTitle(), a.getUrl());
-			    }
-
-			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
-
-			if (plist != null && plist.size() > 0) {
-
-			    if (false) {
-				// this code works, but I think the resulting UI is too complex
-			    UIOutput.make(form, "format-explain", messageLocator.getMessage("simplepage.format.heading"));
-
-			    UISelect radios = UISelect.make(form, "format-select",
-						new String[] {"window", "inline", "page"},
-							    "#{simplePageBean.format}", "page");
-			    UISelectChoice.make(form, "format-window", radios.getFullID(), 0);
-			    UISelectChoice.make(form, "format-inline", radios.getFullID(), 1);
-			    UISelectChoice.make(form, "format-page", radios.getFullID(), 2);
-			    }
-
-			    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
 			}
-			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 
+			UIForm cancelform = UIForm.make(tofill, "blti-cancel");
+			if (sessionToken != null)
+				UIInput.make(cancelform, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
+			UIInput.make(cancelform, "select", "simplePageBean.selectedBlti", ltiItemId);
+			UICommand.make(cancelform, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			UICommand.make(cancelform, "cancel2", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 		}
 	}
 
@@ -271,4 +232,5 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		return togo;
 	}
+
 }

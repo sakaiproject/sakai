@@ -5,18 +5,24 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 public class UserValidator implements Validator {
 
 	private static Log m_log  = LogFactory.getLog(UserValidator.class);
+
+	// prefix for error messages - indicates they are to be pulled from tool configuration rather than a resource bundle
+	private final String TOOL_CONFIG_PREFIX = "toolconfig_";
 	
 	public boolean supports(Class clazz) {
 		return clazz.equals(User.class);
@@ -38,6 +44,11 @@ public class UserValidator implements Validator {
 	private SecurityService securityService;
 	public void setSecurityService(SecurityService ss){
 		this.securityService = ss;
+	}
+
+	private ToolManager toolManager;
+	public void setToolManager(ToolManager tm) {
+		this.toolManager = tm;
 	}
 	
 	public void validate(Object obj, Errors errors) {
@@ -66,7 +77,7 @@ public class UserValidator implements Validator {
 		m_log.debug("got user " + user.getId() + " of type " + user.getType());
 		if (securityService.isSuperUser(user.getId())) {
 			m_log.warn("tryng to change superuser password");
-			errors.reject("wrongtype","wrong type");
+			rejectWrongType(errors);
 			return;
 		}
 		boolean allroles = serverConfigurationService.getBoolean("resetPass.resetAllRoles",false);
@@ -88,11 +99,30 @@ public class UserValidator implements Validator {
 		    List<String> rolesL = Arrays.asList(roles);
 		    if (!rolesL.contains(user.getType())) {
 		        m_log.warn("this is a type don't change");
-		        errors.reject("wrongtype","wrong type");
+		        rejectWrongType(errors);
 		        return;
 		    }
 		}
 		retUser.setUser(user);
+	}
+
+	/**
+	 * Explains that the user's type is incorrect.
+	 * Looks for a custom message in the tool properties first,
+	 * if there is no custom message, it goes to the message bundle
+	 */
+	private void rejectWrongType(Errors errors)
+	{
+		Placement placement = toolManager.getCurrentPlacement();
+		String toolPropWrongType = placement.getConfig().getProperty("wrongtype");
+		if (StringUtils.isBlank(toolPropWrongType))
+		{
+			errors.reject("wrongtype", "wrong type");
+		}
+		else
+		{
+			errors.reject(TOOL_CONFIG_PREFIX + "wrongtype", toolPropWrongType);
+		}
 	}
 
 }

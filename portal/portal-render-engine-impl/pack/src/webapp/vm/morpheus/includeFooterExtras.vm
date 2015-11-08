@@ -4,8 +4,9 @@
 
         #if ($neoChat)
 
-            <div id="Mrphs-footerApp__chat" class="Mrphs-footerApp__presence is-hidden">
+            <div id="Mrphs-footerApp__chat" class="Mrphs-footerApp__portalChat is-hidden">
                 <a href="#" id="Mrphs-footerApp--toggle" class="Mrphs-footerApp--toggle Mrphs-footerApp--toggle-chat">
+                    <i class="Mrphs-footerApp--icon icon-sakai-chat"></i>
                     ${rloader.pc_title} 
                     <span id="Mrphs-footerApp--count" class="Mrphs-footerApp--count Mrphs-footerApp--count-chat"></span>
                 </a>
@@ -18,7 +19,8 @@
 
                 <h1 class="skip">${rloader.sit_presencehead}</h1>
                 <div id="footerAppPresence" class="Mrphs-footerApp__presence">
-                    <a href="#" id="presenceToggle" class="Mrphs-footerApp--toggle Mrphs-footerApp--toggle-presence">
+                    <a href="#" id="presenceToggle" class="Mrphs-footerApp--toggle Mrphs-footerApp--toggle-users">
+                        <span class="Mrphs-footerApp--icon icon-sakai-users"></span>
                         <span class="skip">Toggle users present panel</span>
                     </a>
                     <span class="skip">Number of users present:</span>
@@ -47,6 +49,7 @@
 
         <header id="Mrphs-portalChat__title" class="Mrphs-portalChat__title">${rloader.pc_title}
             <a href="#" id="Mrphs-portalChat__close" title="${rloader.pc_chat_close}" class="Mrphs-closeButton Mrphs-portalChat__close">
+                <i class="Mrphs-footerApp--icon icon-sakai-close"></i>
                 <span class="skip">${rloader.pc_chat_close}</span>
             </a>
         </header>
@@ -57,13 +60,27 @@
 
         <div style="display:none;" id="Mrphs-portalChat__video--localcontent" class="Mrphs-portalChat__container Mrphs-portalChat__video--localcontent" data-video="0">
         
-            <video id="Mrphs-portalChat__video--localvideo" class="pc_chat_video_min Mrphs-portalChat__video--video" autoplay muted="true"></video>
+            <video id="Mrphs-portalChat__video--localvideo" class="pc_chat_video_min Mrphs-portalChat__videochat--video" autoplay muted="true"></video>
         
             <nav id="Mrphs-portalChat__video--nav">
-                <a href="javascript:;" id="disable_local_video" onclick="return portal.chat.video.disableVideo();" title="${rloader.pc_video_disable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videocamenabled"></a>
-                <a href="javascript:;" id="enable_local_video" onclick="return portal.chat.video.enableVideo();" style="display:none" title="${rloader.pc_video_enable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videocamdisabled"></a>
-                <a href="javascript:;" id="mute_local_audio" onclick="return portal.chat.video.mute();"  title="${rloader.pc_video_mute_local_audio_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videomicenabled"></a>
-                <a href="javascript:;" id="unmute_local_audio" onclick="return portal.chat.video.unmute();" style="display:none" title="${rloader.pc_video_unmute_local_audio_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videomicdisabled"></a>
+                <a href="javascript:;" id="disable_local_video" onclick="return portal.chat.video.disableVideo();" title="${rloader.pc_video_disable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton">
+                	<i class="Mrphs-footerApp--icon icon-sakai-videocam"></i>
+                	<i class="Mrphs-footerApp--icon icon-sakai-toggle-on"></i>
+                </a>
+                <a href="javascript:;" id="enable_local_video" onclick="return portal.chat.video.enableVideo();" style="display:none" title="${rloader.pc_video_enable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton">
+                	<i class="Mrphs-footerApp--icon icon-sakai-videocam"></i>
+                	<i class="Mrphs-footerApp--icon icon-sakai-toggle-off"></i>
+                </a>
+                <a href="javascript:;" id="mute_local_audio" onclick="return portal.chat.video.mute();"  title="${rloader.pc_video_mute_local_audio_title}" class="Mrphs-portalChat__videochat--videobutton ">
+                	<i class="Mrphs-footerApp--icon icon-sakai-mic"></i>
+                	<i class="Mrphs-footerApp--icon icon-sakai-toggle-on"></i>
+                
+                </a>
+                <a href="javascript:;" id="unmute_local_audio" onclick="return portal.chat.video.unmute();" style="display:none" title="${rloader.pc_video_unmute_local_audio_title}" class="Mrphs-portalChat__videochat--videobutton">
+                	<i class="Mrphs-footerApp--icon icon-sakai-mic"></i>
+                	<i class="Mrphs-footerApp--icon icon-sakai-toggle-off"></i>
+                
+                </a>
             </nav>
         
         </div>
@@ -121,21 +138,23 @@
                             <span class="Mrphs-portalChat__user--name">${connection.displayName}</span>
                             {if connection.online}
          	                   {if connection.video == 'none' || !portal.chat.video || !portal.chat.video.webrtc.isVideoEnabled()}
-                           	       <img class="pc_display_status_bullet Mrphs-portalChat__connection--bullet" src="/library/image/silk/bullet_green.png" border="0"/>
+                           	       <i class="Mrphs-portalChat__connection--bullet Mrphs-footerApp--icon icon-sakai-online"></i>
                                {/if}
                             {else}
-                            	<img class="Mrphs-portalChat__connection--bullet" src="/library/image/silk/bullet_red.png" border="0"/>
+                            	<i class="Mrphs-portalChat__connection--bullet Mrphs-footerApp--icon icon-sakai-offline"></i>
                             {/if}
                         </a>
                         {if connection.online}
      	                   {if connection.video != 'none' && portal.chat.video && portal.chat.video.webrtc.isVideoEnabled()}
 	                        <a id="${connection.uuid}_link" class="Mrphs-portalChat__connection--videolink" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${connection.uuid}',false);">
-                        	   <img class="Mrphs-portalChat__connection--bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
+                        	   <i class="Mrphs-portalChat__connection--bullet Mrphs-footerApp--icon icon-sakai-videocam"></i>
                         	</a>
                            {/if}
                         {/if}
                         {if connection.online == false}
-                            <a href="javascript:;" onclick="portal.chat.pingConnection('${connection.uuid}');" title="$rloader.getString("pc_ping") ${connection.displayName} $rloader.getString("pc_ping_connection")"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
+                            <a href="javascript:;" onclick="portal.chat.pingConnection('${connection.uuid}');" title="$rloader.getString("pc_ping") ${connection.displayName} $rloader.getString("pc_ping_connection")">
+                           	   <i class=" Mrphs-footerApp--icon icon-sakai-bell"></i>
+                            </a>
                        		<span id="Mrphs-portalChat__connection--ping_${connection.uuid}" class=" Mrphs-portalChat__connection--ping ">${rloader.pc_pinged_popup}</span>
                         {/if}
                     </li>
@@ -158,17 +177,17 @@
                             <span class="pc_site_display_name Mrphs-portalChat__name Mrphs-portalChat__user--name">${user.displayName}</span>
                             {if user.offline == false}
                               {if user.video == 'none' || !portal.chat.video || !portal.chat.video.webrtc.isVideoEnabled()}
-                              <img class="pc_display_status_bullet Mrphs-portalChat__connection--bullet" src="/library/image/silk/bullet_green.png" border="0"/>
+                           	       <i class="Mrphs-portalChat__connection--bullet Mrphs-footerApp--icon icon-sakai-online"></i>
                               {/if}
                             {else}
-                            <img class="pc_display_status_bullet Mrphs-portalChat__connection--bullet" src="/library/image/silk/bullet_red.png" border="0"/>
+                           	       <i class="Mrphs-portalChat__connection--bullet Mrphs-footerApp--icon icon-sakai-offline"></i>
                             {/if}
                         {if user.offline == false}
                         </a>
                         {/if}
                         {if user.video != 'none' && portal.chat.video && portal.chat.video.webrtc.isVideoEnabled()}
                          <a id="${user.id}_link" class="Mrphs-portalChat__connection--videolink" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${user.id}',false);">
-                          <img class="pc_display_status_bullet Mrphs-portalChat__connection--bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
+                        	   <i class="Mrphs-portalChat__connection--bullet Mrphs-footerApp--icon icon-sakai-videocam"></i>
                          </a>
                         {/if}
                     </li>
@@ -186,19 +205,30 @@
                     <div class="pc_connection_chat_title Mrphs-portalChat__name  Mrphs-portalChat__chat--name">${displayName}</div></a>
 #end
                     <a href="javascript:;" class="Mrphs-portalChat__close" onclick="return portal.chat.closeChatWindow('${uuid}');" title="${rloader.pc_chat_close}">
+						<i class="Mrphs-footerApp--icon icon-sakai-close"></i>
 						<span class="skip">${rloader.pc_chat_close}</span>
 					</a>
                 </div>
                 #if ( $neoChatVideo )
 				<div id="Mrphs-portalChat__chat--videochatbar-${uuid}" class="pc_connection_videochat_bar Mrphs-portalChat__videochat--bar Mrphs-portalChat__videochat--ctrlbar">
 					<div class="Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--leftelement">
-						<a href="javascript:;" onclick="return portal.chat.video.openVideoCall('${uuid}',false);" class="video_off Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videocall" title="${rloader.pc_video_do_videocall_title}" ></a>
-						<a href="javascript:;" onclick="return portal.chat.video.closeVideoCall('${uuid}',true);" class="video_on Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videoclose" title="${rloader.pc_video_end_title}" ></a>
-						<a href="javascript:;" onclick="return portal.chat.video.maximizeVideoCall('${uuid}');" class="video_on Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videomaxi" title="${rloader.pc_video_maximize_title}" ></a>
+						<a href="javascript:;" onclick="return portal.chat.video.openVideoCall('${uuid}',false);" class="video_off Mrphs-portalChat__videochat--videobutton " title="${rloader.pc_video_do_videocall_title}" >
+							<i class="Mrphs-footerApp--icon icon-sakai-videocam"></i>
+						</a>
+						<a href="javascript:;" onclick="return portal.chat.video.closeVideoCall('${uuid}',true);" class="video_on Mrphs-portalChat__videochat--videobutton" title="${rloader.pc_video_end_title}" >
+								<i class="Mrphs-footerApp--icon icon-sakai-stop"></i>
+						</a>
+						<a href="javascript:;" onclick="return portal.chat.video.maximizeVideoCall('${uuid}');" class="video_on Mrphs-portalChat__videochat--videobutton" title="${rloader.pc_video_maximize_title}" >
+							<i class="Mrphs-footerApp--icon icon-sakai-maximize"></i>
+						</a>
 					</div>
 					<div id="Mrphs-portalChat__chat--videoin-${uuid}" class="pc_connection_videochat_bar_answer Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--answerelement">
-						<a href="javascript:;" onclick="return portal.chat.video.acceptVideoCall('${uuid}');" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videocall" title="${rloader.pc_video_accept_title}"></a>
-						<a href="javascript:;" onclick="return portal.chat.video.ignoreVideoCall('${uuid}');" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videoclose" title="${rloader.pc_video_ingnore_title}"></a>
+						<a href="javascript:;" onclick="return portal.chat.video.acceptVideoCall('${uuid}');" class="Mrphs-portalChat__videochat--videobutton" title="${rloader.pc_video_accept_title}">
+							<i class="Mrphs-footerApp--icon icon-sakai-thumbup"></i>
+						</a>
+						<a href="javascript:;" onclick="return portal.chat.video.ignoreVideoCall('${uuid}');" class="Mrphs-portalChat__videochat--videobutton" title="${rloader.pc_video_ingnore_title}">
+							<i class="Mrphs-footerApp--icon icon-sakai-thumbdown"></i>
+						</a>
 						<span>${rloader.pc_video_askforincoming}</span>
 					</div>
 					<div id="Mrphs-portalChat__chat--videotime-${uuid}" class=" Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--rightelement">
@@ -207,8 +237,8 @@
                 </div>
 				<div id="Mrphs-portalChat__chat--videocontent-${uuid}" class="Mrphs-portalChat__chat--videocontent">
 					<div style="display:none;" class="Mrphs-portalChat__videochat--statusbar "><span></span></div>
-					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfailed" ><span>:(</span></div>
-					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfinished" ></div>
+					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfailed" ><i class="Mrphs-footerApp--icon icon-sakai-frown"></i></div>
+					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfinished" ><i class="Mrphs-footerApp--icon icon-sakai-flagcheckered"></i></div>
 					
 					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--bubblingG">
 						<span class="Mrphs-portalChat__videochat--bubblingG_1">
@@ -244,25 +274,29 @@
 
 #if ( (!$neoChat) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn} )
 
-    <div id="presenceArea" class="trayPopup hidden Mrphs-portalChat__presence is-hidden">
-        <div id="presenceWrapper" class="Mrphs-portalChat__presence--container">
-            <div id="presenceTitle" class="Mrphs-portalChat__presence--title">
+    <div id="presenceArea" class="trayPopup hidden Mrphs-presence__area is-hidden">
+        <div id="presenceWrapper" class="Mrphs-presence__area--wrapper">
+            <div id="presenceTitle" class="Mrphs-presence__area--title">
                 ${rloader.sit_presencetitle}
+                <a href="#" id="presenceClose" class="trayPopupClose Mrphs-presence__area--title--close"> </a>
             </div>
-            <a href="#" id="presenceClose" class="trayPopupClose Mrphs-portalChat__presence--popup">x</a>
-        </div>
 
         #if (${sitePages.pageNavPresenceIframe})
 
-            <iframe name="presenceIframe" id="presenceIframe" class="Mrphs-portalChat__presence--iframe" title="${rloader.sit_presencetitle}" src="${sitePages.pageNavPresenceUrl}?auto=true">
+            <iframe name="presenceIframe" id="presenceIframe" class="Mrphs-presence__area--iframe" title="${rloader.sit_presencetitle}" src="${sitePages.pageNavPresenceUrl}?auto=true">
             </iframe>
 
         #else
 
-            <div id="presenceIframe" class="Mrphs-portalChat__presence--iframe-div"></div>
-
+            <div id="presenceIframe" class="Mrphs-presence__area--iframe-div"></div>
+            <script>
+                //these are global variables...
+                var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
+                var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
+                var sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
+            </script>
         #end ## END of IF (${sitePages.pageNavPresenceIframe})
-
+        </div><!-- End of div#presenceWrapper -->
     </div> <!-- End of div#presenceArea -->
 
 #end ## END of IF ( (!$neoChat) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn }

@@ -47,11 +47,13 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterGroup;
@@ -62,6 +64,8 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -92,6 +96,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private ServerConfigurationService serverConfigurationService;
 	private SessionManager sessionManager;
 	private SiteService siteService;
+	private StatsManager statsManager;
 	private ToolManager toolManager;
 	private UserDirectoryService userDirectoryService;
     private RosterMemberComparator memberComparator;
@@ -130,6 +135,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO, true);
+        }
+
+        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS)) {
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS, true);
         }
 
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
@@ -252,6 +261,26 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
 		}
 		return false;		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getViewConnections() {
+
+		Boolean view_connections = serverConfigurationService.getBoolean("roster_view_connections",
+				DEFAULT_VIEW_CONNECTIONS);
+
+		Boolean profile2_connections_enabled = serverConfigurationService.getBoolean("profile2.connections.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);
+		Boolean profile2_menu_enabled = serverConfigurationService.getBoolean("profile2.menu.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
+
+		if(!profile2_menu_enabled || !profile2_connections_enabled) {
+			view_connections = false;
+		}
+
+		return view_connections;
 	}
 	
 	/**
@@ -486,11 +515,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		for (Iterator<RosterMember> i = members.iterator(); i.hasNext(); ) {
             RosterMember member = i.next();
+			String userId = member.getUserId();
 
-			userIds.add(member.getEid());
+			userIds.add(userId);
 
             // If this member is not in the authzGroup, remove them.
-            if (authzGroup.getMember(member.getUserId()) == null) {
+            if (authzGroup.getMember(userId) == null) {
                 i.remove();
             }
 		}
@@ -509,9 +539,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		// determine filtered membership
 		for (RosterMember member : members) {
+			String userId = member.getUserId();
 			
-			// skip if privacy restricted
-			if (hiddenUserIds.contains(member.getEid())) {
+			// skip if privacy restricted and not the current user
+			if (!userId.equals(currentUserId) && hiddenUserIds.contains(userId)) {
 				continue;
 			}
 			
@@ -541,8 +572,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			membership.addAll(site.getMembers());
 		} else if (null != site.getGroup(groupId)) {
 			// get all members of requested groupId
-			membership.addAll(site.getGroup(groupId)
-						.getMembers());
+			membership.addAll(site.getGroup(groupId).getMembers());
 		} else {
 			// assume invalid groupId specified
 			return null;
@@ -773,7 +803,14 @@ public class SakaiProxyImpl implements SakaiProxy {
             if (log.isDebugEnabled()) {
                 log.debug("Cache miss on '" + enrollmentSetId + "'");
             }
-            EnrollmentSet enrollmentSet = courseManagementService.getEnrollmentSet(enrollmentSetId);
+
+            EnrollmentSet enrollmentSet = null;
+            try {
+                enrollmentSet = courseManagementService.getEnrollmentSet(enrollmentSetId);
+            } catch (IdNotFoundException idNotFoundException){
+                // This is okay, let this go, as we're not expecting
+                // the site necessarily to be part of coursemanagement.
+            }
 
             if (null == enrollmentSet) {
                 return null;
@@ -971,7 +1008,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		for (String sectionId : sectionIds) {
 
-			Section section = courseManagementService.getSection(sectionId);
+			Section section = null;
+			try {
+				section = courseManagementService.getSection(sectionId);
+			} catch (IdNotFoundException idNotFoundException){
+				// This is okay, let this go, as we're not expecting
+				// groups necessarily to be part of coursemanagement.
+			}
+
 			if (null == section) {
 				continue;
 			}
@@ -1095,5 +1139,13 @@ public class SakaiProxyImpl implements SakaiProxy {
             log.error("Exception whilst retrieving search index for site '" + siteId + "'. Returning null ...", e);
             return null;
         }
+    }
+
+    public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId) {
+        return statsManager.getPresenceTotalsForSite(siteId);
+    }
+
+    public boolean getShowVisits() {
+        return serverConfigurationService.getBoolean("roster.showVisits", false);
     }
 }

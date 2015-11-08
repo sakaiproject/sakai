@@ -115,6 +115,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId);
   
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo);
+  
+  public PublishedAssessmentFacade getPublishedAssessmentQuick(Long assessmentId);
 
   public Long getPublishedAssessmentId(Long assessmentId);
 
@@ -277,6 +279,14 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public Integer getTotalSubmission(String agentId, Long publishedAssessmentId);
 
+  /**
+   * Get submission number for the assessment by giving the publishedAssessmentId
+   * for assessment deletion safe check
+   * @param publishedAssessmentId
+   * @return number of submissions
+   */
+  public Integer getTotalSubmissionForEachAssessment(Long publishedAssessmentId);
+
   public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias);
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(
@@ -366,4 +376,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(	final String agentId, final String siteId, boolean allAssessments);
      
+  public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId);
 }

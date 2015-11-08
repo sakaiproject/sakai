@@ -18,26 +18,14 @@
             <div #if ( ${tabsSites} ) class="Mrphs-mainHeader is-maximized" #else class="Mrphs-mainHeader is-minimized" #end>
 
                 ## Header
-                #parse("/vm/morpheus/snippets/header-snippet.vm")
+                <div class="Mrphs-topHeader">
+                    #parse("/vm/morpheus/snippets/header-snippet.vm")
+                    #parse("/vm/morpheus/includeLoginNav.vm")
+                </div>
 
                 #if (${tabsSites})
                     ## tabs
                     #parse("/vm/morpheus/includeTabs.vm")
-
-                #else
-
-                    <nav class="Mrphs-loginNav Mrphs-loginNav--no-sites">
-                        <!-- login component -->
-
-                            #if (!${loginTopLogin})
-                                #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
-                            #else
-                                #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
-                                <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
-                            #end ## END of IF (!${loginTopLogin})
-
-                        <!-- end login component -->
-                    </nav>
 
                 #end ## END of IF (${tabsSites})
 
@@ -50,53 +38,39 @@
         </div> <!-- end Mrphs-portalWrapper -->
         <!-- END VM site.vm -->
         
-        <script>
-            ## SAK-16484 Allow Javascript to easily get at user details.
-            ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
-            var portal = { 
-                "chat": {
-                    "enabled": $!{neoChat},
-                    "pollInterval": $!{portalChatPollInterval},
-            "video" : {
-            "enabled": $!{neoChatVideo}
-            }
-                },
-                "loggedIn": $!{loggedIn},
-                "portalPath": "$!{portalPath}",
-                "loggedOutUrl": "$!{loggedOutUrl}",
-                "siteId": "$!{siteId}",
-                "siteTitle": "$!{siteTitle}",
-                "shortDescription" : "$!{shortDescription}",
-                "locale": "$!{locale}",
-                "user": {
-                    "id": "$!{userId}",
-                    "eid": "$!{userEid}"
-                },
-                "timeoutDialog" : {
-                "enabled": $!{timeoutDialogEnabled},
-                "seconds": $!{timeoutDialogWarningSeconds}
-                },
-                "toggle" : {
-                    "allowauto": false,
-                    "tools": false,
-                    "sitenav": false // This is not allowed in morpheus
-                }
-            };
-        </script>
-
         #if ( ${bufferedResponse} && ${responseHead} )
         #else 
             ${sakai_html_head_js}
         #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
-        ## Make sure we at least have a jQuery 1.9 or higher, log messages
+        ## Make sure we at least have a jQuery 1.11 or higher, log messages
     #set ( $d = "$")
     <script>
         var needJQuery = true;
         var secondJQuery = false;
+        var notJQuery = false;
+        var dollarEmpty = false;
+        var dollarVersion = false;
+        if ( window.$ ) {
+              if ( window.${d}.fn && window.${d}.fn ) {
+                 dollarVersion = window.${d}.fn.jquery;
+              } else {
+                 dollarVersion = 'not jQuery';
+                 window.console && console.log('Dollar is defined but is not jQuery');
+                 window.console && console.log($d);
+                 //Just have it reload this other $ afterward
+                 notJQuery = true;
+              }
+         } else {
+              dollarEmpty = true;
+              dollarVersion = 'not present';
+              if ( window.jQuery ) {
+                  window.console && console.log('tool called jQuery.noConflict()');
+              }
+        }
         if ( window.jQuery ) {
             tver = jQuery.fn.jquery;
-            if ( tver.indexOf('1.9.') == 0 ) {
+            if ( tver.indexOf('1.11.') == 0 ) {
                 window.console && console.log('Using tool jQuery '+tver);
                 needJQuery = false;
             } else {
@@ -104,13 +78,28 @@
             }
         }
         if ( needJQuery ) {
-            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.11.3.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageScriptPath}bootstrap/3.3.5/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageScriptPath}jquery/ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            window.console && console.log('Portal scripts loaded JQ+MI+BS+UI');
+        } else {
+            if (typeof jQuery.migrateWarnings == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding jQuery migrate');
+            }
+            if ( typeof jQuery.fn.popover == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}bootstrap/3.3.5/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding Bootstrap');
+            }
+            if (typeof jQuery.ui == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding jQuery UI');
+            }
         }
     </script>
     <script>
         ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
-        window.console && console.log('Portal scripts loading PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
     </script>
 
         #if ($loggedIn)
@@ -126,7 +115,7 @@
         <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/notify/2.0.1/pnotify.custom.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 
@@ -141,24 +130,50 @@
         #if ($pageTop)
             <script>
                 var sakaiPortalWindow = "";
-                $(document).ready(function() {
+                ${d}PBJQ(document).ready(function() {
                     setupSkipNav();
                 });
             </script>
         #end ## END of IF ($pageTop)
 
         <script>
-        // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+            // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
             if ( secondJQuery ) {
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
-        jQuery = ${d};  // Return jQuery to point at the tool jQuery
+                if ( ! dollarEmpty ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
             }
-            window.console && console.log('Portal scripts loaded PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
+            if (notJQuery) {
+                ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+                //Just set jQuery to be the same thing since it didn't exist before
+                jQuery = ${d}PBJQ;
+
+            }
+            window.console && console.log('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+dollarVersion);
 
             ${d}PBJQ(document).ready(function() {
                 setupSiteNav();
-                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308 
+                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308         
             });
+        </script>
+
+        <script>
+        PNotify.prototype.options.styling = "jqueryui";
+        function portal_check_pnotify() {
+            ${d}PBJQ.getJSON( "/direct/portal/notify.json", function( data ) {
+                for(i=0; i<data.error.length; i++ ) {
+                     ${d}PBJQ(function(){
+                        new PNotify({
+                            title: '${rloader.getString("pnotify_notice")}',
+                            text: data.error[i],
+                            type: 'notice'
+                        });
+                    });
+                }
+            });
+        }
+    #if ($userWarning) 
+        ${d}PBJQ(document).ready(portal_check_pnotify);
+    #end
         </script>
 
         <!--[if lt IE 9]>
@@ -166,6 +181,11 @@
 <![endif]-->
  
         #parse("/vm/morpheus/includeAnalytics.vm")
+        #parse("/vm/morpheus/includePASystem.vm")
+
+        #parse("/vm/morpheus/includeCookieNotice.vm")
+
+        #parse("/vm/morpheus/includeGoogleTagManager.vm")
 
         ${includeExtraHead}
     </body>

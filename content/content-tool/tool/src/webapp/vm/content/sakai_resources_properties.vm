@@ -20,12 +20,12 @@
 				#if($item.canChangeDisplayName() )
 					<span class="reqStar">*</span>
 					<label for="displayName${DOT}$i">
-						$tlang.getString("title.name") 
+						$tlang.getString("label.display") 
 					</label>
 					<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" maxlength="512"/>
 				#else
 					<label for="displayName_display${DOT}$i">
-						$tlang.getString("title.name") 
+						$tlang.getString("label.display") 
 					</label>
 					<input type="text" size="40" id="displayName_display${DOT}$i" disabled="disabled" value="$validator.escapeHtml("$!item.name")" />
 					<input type="hidden" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
@@ -75,7 +75,7 @@
 	
 		<p class="act">
 			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.update")" accesskey="s" />
-			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<input type="button" id="cancel_button" onclick="document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

@@ -176,9 +176,12 @@ public class CollectionAccessFormatter
 			// Iterate through content items
 
 			URI baseUri = new URI(x.getUrl());
-						
+
+			String hiddenClassParent = x.isAvailable() ? "" : " inactive";
+			String hiddenClass;
 			for (ContentEntity content : members) {
 
+				hiddenClass = hiddenClassParent;
 				ResourceProperties properties = content.getProperties();
 				boolean isCollection = content.isCollection();
 				String xs = content.getId();
@@ -214,32 +217,50 @@ public class CollectionAccessFormatter
 					URI contentUri = new URI(contentUrl);
 					URI relativeUri = baseUri.relativize(contentUri);
 					contentUrl = relativeUri.toString();
-					
+					if(!content.isAvailable()) {
+							hiddenClass = " inactive";
+					}
+					String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+
 					if (isCollection)
 					{
 						// Folder
 						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
-						if (desc == null)
+						if (desc == null) {
 							desc = "";
-						else
+						} else {
 							desc = "<div class=\"textPanel\">" +  desc + "</div>";
-						out.println("<li class=\"folder\"><a href=\"" + contentUrl + "\">"
-								+ formattedText.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
-								+ "</a>" + desc + "</li>");
+						}
+						StringBuilder li
+							= new StringBuilder("<li class=\"folder\"><a href=\"").append(contentUrl).append("\"");
+						li.append(" class=\""+hiddenClass+"\"");
+						li.append(">")
+							.append(formattedText.escapeHtml(displayName))
+							.append("</a>")
+							.append(desc)
+							.append("</li>");
+
+						out.println(li.toString());
 					}
 					else
 					{
 						// File
 						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
-						if (desc == null)
+						if (desc == null) {
 							desc = "";
-						else
+						} else {
 							desc = "<div class=\"textPanel\">" + formattedText.escapeHtml(desc) + "</div>";
+						}
 						String resourceType = content.getResourceType().replace('.', '_');
-						out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank class=\""
-								+ resourceType+"\">"
-								+ formattedText.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
-								+ "</a>" + desc + "</li>");
+						StringBuilder li
+							= new StringBuilder("<li class=\"file" + hiddenClass +"\"><a href=\"").append(contentUrl).append("\" target=_blank class=\"");
+						li.append(resourceType);
+						li.append(hiddenClass);
+						li.append("\">");
+						li.append(formattedText.escapeHtml(displayName));
+						li.append("</a>").append(desc).append("</li>");
+
+						out.println(li.toString());
 					}
 				}
 				catch (Exception e)

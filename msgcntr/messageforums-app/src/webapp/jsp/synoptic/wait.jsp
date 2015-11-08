@@ -19,8 +19,9 @@
 <html>
 
 <head>
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
 <script src="js/frameAdjust.js" type="text/javascript"></script>
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 
 
 

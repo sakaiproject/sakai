@@ -6,12 +6,12 @@ package org.sakaiproject.lessonbuildertool.util;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.rsf.copies.Web;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.WebApplicationContext;
 
-import uk.ac.cam.caret.sakai.rsf.copies.Web;
 import uk.org.ponder.rsf.viewstate.BaseURLProvider;
 import uk.org.ponder.rsf.viewstate.support.StaticBaseURLProvider;
 import uk.org.ponder.servletutil.ServletUtil;

@@ -1,0 +1,26 @@
+<link href="/pasystem-tool/stylesheets/pasystem.css{{portalCDNQuery}}" rel="stylesheet" property="stylesheet" type="text/css" />
+
+<script>
+// Work around the fact that several pages pull in very old versions
+// of JQuery.
+function paSystemJQueryOK() {
+    if (!window.jQuery) {
+        /* no jQuery at all */
+        return false;
+    }
+
+    var version_numbers = jQuery.fn.jquery.split('.');
+
+    /* >= 1.9+ */
+    return (parseInt(version_numbers[0]) > 1) || (parseInt(version_numbers[0]) == 1 && parseInt(version_numbers[1]) >= 9);
+}
+
+if (paSystemJQueryOK()) {
+  document.write('\x3Cscript src="/pasystem-tool/scripts/pasystem.js{{portalCDNQuery}}">\x3C/script>');
+  document.write('\x3Cscript type="text/javascript" src="/pasystem-tool/scripts/featherlight.min.js{{portalCDNQuery}}">\x3C/script>');
+
+  var pasystem = pasystem || {'loaded': true};
+} else {
+  console.log("PASystem not loaded for this page because jQuery is missing or unsupported.");
+}
+</script>

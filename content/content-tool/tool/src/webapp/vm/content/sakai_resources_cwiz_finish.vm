@@ -71,7 +71,7 @@
 	
 		<p class="act">
 			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.finish")" accesskey="s" />
-			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<input type="button" id="cancel_button" onclick="document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

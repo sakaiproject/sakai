@@ -1,0 +1,11 @@
+<script id="timezoneBannerTemplate" type="text/template">
+  <span>
+    {{{t this "timezone-does-not-match-msg"}}}
+  </span>
+</script>
+
+<script>
+  if (pasystem) {
+    new PASystemTimezoneChecker().checkTimezone();
+  }
+</script>

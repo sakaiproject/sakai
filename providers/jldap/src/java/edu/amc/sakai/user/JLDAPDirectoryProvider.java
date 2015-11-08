@@ -487,7 +487,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					}
 					resolvedEntry = getUserByEid(eid, null);
 				} catch ( InvalidEmailAddressException e ) {
-					M_log.warn("findUserByEmail(): Attempted to look up user at an invalid email address [" + email + "]", e);
+					M_log.error("findUserByEmail(): Attempted to look up user at an invalid email address [" + email + "]", e);
 					useStdFilter = true; // fall back to std processing, we cant derive an EID from this addr
 				}
 			}

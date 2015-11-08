@@ -715,8 +715,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 				{
 					items = filterList(items, filter);
 				}
+				//Check if the ListItem in 'items' matches with the attach_item in the new_items list , if yes then it should not have option to be selected.
+				for(Object new_item : new_items){
+					for(ListItem listItem : items){
+						if(listItem.getId().equals(((AttachItem)new_item).getId())){
+							listItem.setCanSelect(false);
+							break;
+						}
+
+					}
+				}
 				this_site.addAll(items);
-				
+
 			}
 			
 			context.put ("this_site", this_site);

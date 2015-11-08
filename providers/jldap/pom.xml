@@ -105,7 +105,11 @@
         </configuration>
       </plugin>
     </plugins>
-    <resources />
+    <resources>
+      <resource>
+        <directory>src/resources</directory>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
         <directory>src/test-resources</directory>

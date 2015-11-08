@@ -23,7 +23,7 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Collection;
+import java.util.Set;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +54,10 @@ public interface GradebookService {
 	public static final String[] validLetterGrade = {"a+", "a", "a-", "b+", "b", "b-",
     "c+", "c", "c-", "d+", "d", "d-", "f"};
 	
-	public static final String gradePermission = "grade";
-	public static final String viewPermission = "view";
+	// These Strings have been kept for backwards compatibility as they are used everywhere,
+	// however the {@link GraderPermission} enum should be used going forward.
+	@Deprecated public static final String gradePermission = GraderPermission.GRADE.toString();
+	@Deprecated public static final String viewPermission = GraderPermission.VIEW.toString();
 	
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 	
@@ -360,8 +362,9 @@ public interface GradebookService {
 	 * Create a new Gradebook-managed assignment.
 	 * 
 	 * @param assignmentDefinition
+	 * @return the id of the newly created assignment
 	 */
-	public void addAssignment(String gradebookUid, Assignment assignmentDefinition);
+	public Long addAssignment(String gradebookUid, Assignment assignmentDefinition);
 	
 	/**
 	 * Modify the definition of an existing Gradebook-managed assignment.
@@ -526,6 +529,20 @@ public interface GradebookService {
 	 * or grade a student in the passed list
 	 */
 	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long assignmentId, List<String> studentIds);
+
+	/**
+	 * This method gets grades for multiple gradebook items with emphasis on performance. This is particularly useful for reporting tools
+	 * @param gradebookUid
+	 * @param gradableObjectIds
+	 * @param studentIds
+	 * @return a Map of GradableObjectIds to a List of GradeDefinitions containing the grade information for the given
+	 * students for the given gradableObjectIds. Comments are excluded which can be useful for performance.
+	 * If a student does not have a grade on a gradableObject, the GradeDefinition will be omitted
+	 * @throws SecurityException if the current user is not authorized with gradeAll in this gradebook
+	 * @throws IllegalArgumentException if gradableObjectIds is null/empty,
+	 * or if gradableObjectIds contains items that are not members of the gradebook with uid = gradebookUid
+	 */
+	public Map<Long, List<GradeDefinition>> getGradesWithoutCommentsForStudentsForItems(String gradebookUid, List<Long> gradableOjbectIds, List<String> studentIds);
 	
 	/**
 	 * 
@@ -716,4 +733,67 @@ public interface GradebookService {
      */
     @SuppressWarnings("rawtypes")
 	public List getGradingEvents(final String studentId, final long assignmentId);
+    
+    /**
+     * Calculate a student's score for a category given the category definition and grades for that student.
+     * 
+     * Note that this cannot be run as a student due to permission checks. 
+     * Use {@link GradebookService#calculateCategoryScore(List, String)} if in context of a student.
+     * 
+     * @param category category to perform the calculations for
+     * @param gradeMap map of assignmentId to grade, to use for the calculations
+     * @return percentage or null if no calculations were made
+     */
+    Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap);
+    
+    /**
+     * Calculate the category score given the viewable assignments and grades for that student.
+     * 
+     * @param categoryId id of category, used for validation that the assignments and grades match
+     * @param assignments list of assignments the student can view
+     * @param gradeMap map of assignmentId to grade, to use for the calculations
+     * @return percentage or null if no calculations were made
+     */
+    Double calculateCategoryScore(final Long categoryId, final List<Assignment> viewableAssignments, final Map<Long,String> gradeMap);
+
+    /**
+     * Get the course grade for a student
+     * 
+     * @param gradebookUid
+     * @param userUuid uuid of the user
+     * @return The CourseGrade for the student
+     */
+	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
+	
+	/**
+	 * Get a list of CourseSections that the current user has access to in the given gradebook.
+	 * This is a combination of sections and groups and is permission filtered.
+	 * @param gradebookUid
+	 * @return list of CourseSection objects.
+	 */
+	@SuppressWarnings("rawtypes")
+	List getViewableSections(String gradebookUid);
+
+	/**
+	 * Update the settings for this gradebook
+	 * 
+	 * @param gradebookUid
+	 * @param gbInfo GradebookInformation object
+	 */
+	void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo);
+
+	/**
+	 * Return the GradeMappings for the given gradebook. The normal getGradebook(siteId)
+	 * doesn't return the GradeMapping.
+	 * @param gradebookId
+	 * @return Set of GradeMappings for the gradebook
+	 */
+	Set getGradebookGradeMappings(Long gradebookId);
+	
+	/**
+	 * Return the GradeMappings for the given gradebook.
+	 * @param gradebookUid
+	 * @return Set of GradeMappings for the gradebook
+	 */
+	Set getGradebookGradeMappings(String gradebookUid);
 }

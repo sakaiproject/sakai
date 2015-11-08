@@ -11,8 +11,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
-import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -48,7 +48,7 @@ import uk.org.ponder.stringutil.StringList;
 public class AddProducer implements ViewComponentProducer, NavigationCaseReporter, DefaultView, ViewParamsReporter, ActionResultInterceptor {
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(AddProducer.class);
+	private static final Log M_log = LogFactory.getLog(AddProducer.class);
 
     public SiteAddParticipantHandler handler;
     public static final String VIEW_ID = "Add";
@@ -172,7 +172,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 				TargettedMessage msg = targettedMessageList.messageAt(i);
 				if (msg.severity == TargettedMessage.SEVERITY_ERROR)
 				{
-					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.toString(i));
 					
 			    	if (msg.args != null ) 
 			    	{
@@ -185,7 +185,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 				}
 				else if (msg.severity == TargettedMessage.SEVERITY_INFO)
 				{
-					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.valueOf(i).toString());
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.toString(i));
 						
 			    	if (msg.args != null ) 
 			    	{
@@ -211,7 +211,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     }
     
     public List<NavigationCase> reportNavigationCases() {
-        List<NavigationCase> togo = new ArrayList<NavigationCase>();
+        List<NavigationCase> togo = new ArrayList<>();
         togo.add(new NavigationCase("sameRole", new SimpleViewParameters(SameRoleProducer.VIEW_ID)));
         togo.add(new NavigationCase("differentRole", new SimpleViewParameters(DifferentRoleProducer.VIEW_ID)));
         return togo;

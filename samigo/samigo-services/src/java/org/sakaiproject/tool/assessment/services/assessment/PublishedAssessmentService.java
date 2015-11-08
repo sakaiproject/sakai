@@ -198,8 +198,22 @@ public class PublishedAssessmentService extends AssessmentService{
       log.error(e);
       throw new RuntimeException(e);
     }
-  }
-  
+	}
+
+	public PublishedAssessmentFacade getPublishedAssessmentQuick(String assessmentId) {
+		// SAM-1995 if an empty or null id is passed throw and exception
+		if (assessmentId == null || "".equals(assessmentId)) {
+			throw new IllegalArgumentException("AssesmentId must be specified");
+		}
+		try {
+			return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+					.getPublishedAssessmentQuick(Long.valueOf(assessmentId));
+		} catch (Exception e) {
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
   public PublishedAssessmentFacade getPublishedAssessment(String assessmentId, boolean withGroupsInfo) {
 	    try {
 	      return PersistenceService.getInstance().
@@ -361,6 +375,16 @@ public class PublishedAssessmentService extends AssessmentService{
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
         getTotalSubmission(agentId, new Long(publishedAssessmentId));
+  }
+
+  /**
+   * @param publishedAssessmentId
+   * @return number of submissions
+   */
+  public Integer getTotalSubmissionForEachAssessment(String publishedAssessmentId){
+    return PersistenceService.getInstance().
+        getPublishedAssessmentFacadeQueries().
+        getTotalSubmissionForEachAssessment(new Long(publishedAssessmentId));
   }
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias) {
@@ -729,4 +753,9 @@ public class PublishedAssessmentService extends AssessmentService{
 	   getPublishedAssessmentFacadeQueries().
 	   getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
    }
+
+	public List getAllAssessmentsGradingDataByAgentAndSiteId(String agentId, String siteId) {
+		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.getAllAssessmentsGradingDataByAgentAndSiteId(agentId, siteId);
+	}
 }

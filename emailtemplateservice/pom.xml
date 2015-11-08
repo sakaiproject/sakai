@@ -31,11 +31,6 @@
     <module>tool</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

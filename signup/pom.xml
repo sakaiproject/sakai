@@ -40,11 +40,6 @@
 		</contributor>
 	</contributors>
 
-	<scm>
-		<connection>scm:https://source.sakaiproject.org/svn/signup/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/signup/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/signup/trunk</url>
-	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -146,7 +141,7 @@
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi</artifactId>
-				<version>3.11</version>
+				<version>${sakai.poi.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>

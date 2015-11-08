@@ -63,8 +63,7 @@ public class SuTool
 	ResourceLoader msgs = new ResourceLoader("tool-tool-su");
 
 	// Service instance variables
-	private AuthzGroupService M_authzGroupService = org.sakaiproject.authz.cover.AuthzGroupService
-			.getInstance();
+	private AuthzGroupService M_authzGroupService = ComponentManager.get(AuthzGroupService.class);
 
 	private UserDirectoryService M_uds = org.sakaiproject.user.cover.UserDirectoryService.getInstance();
 

@@ -1,9 +1,10 @@
 package org.sakaiproject.site.tool.helper.managegroup.rsf;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,7 +19,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.SortedIterator;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -47,7 +48,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class GroupEditProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter {
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(GroupEditProducer.class);
+	private static final Log M_log = LogFactory.getLog(GroupEditProducer.class);
 	
     public SiteManageGroupHandler handler;
     public static final String VIEW_ID = "GroupEdit";
@@ -83,7 +84,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	// description for group
     	String groupDescription = null;
     	// member list for group
-    	Collection<Member> groupMembers = new Vector<Member>();
+    	Set<Member> groupMembers = new HashSet<>();
     	
     	UIForm groupForm = UIForm.make(arg0, "groups-form");
 
@@ -92,15 +93,19 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	 {
     		 try
     		 {
-    			 g = siteService.findGroup(id);
-    			 groupId = g.getId();
-    			 groupTitle = g.getTitle();
-    			 groupDescription = g.getDescription();
-    			 groupMembers = g.getMembers();
+    			 // SAK-29645 - preserve user input
+    			 if( handler.messages.size() == 0 )
+    			 {
+    				 g = siteService.findGroup(id);
+    				 groupId = g.getId();
+    				 groupTitle = g.getTitle();
+    				 groupDescription = g.getDescription();
+    				 groupMembers = g.getMembers();
+    			 }
     		 }
     		 catch (Exception e)
     		 {
-    			 M_log.debug(this + "fillComponents: cannot get group id=" + id);
+    			 M_log.debug(this + "fillComponents: cannot get group id=" + id, e);
     		 }
     	 }
     	 else
@@ -116,7 +121,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
          
          UIOutput.make(groupForm, "group_title_label", messageLocator.getMessage("group.title"));
-         UIInput titleTextIn = UIInput.make(groupForm, "group_title", "#{SiteManageGroupHandler.title}",groupTitle);
+         UIInput.make(groupForm, "group_title", "#{SiteManageGroupHandler.title}",groupTitle);
 		 
 		
 		 UIMessage groupDescrLabel = UIMessage.make(arg0, "group_description_label", "group.description"); 
@@ -128,46 +133,47 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 UIOutput.make(groupForm, "membership_group_label", messageLocator.getMessage("editgroup.grouplist"));
 		 
 		 // for the site members list
-		 Collection siteMembers= handler.getSiteParticipant(g);
-		 String[] siteMemberLabels = new String[siteMembers.size()];
-		 String[] siteMemberValues = new String[siteMembers.size()];
-		 UISelect siteMember = UISelect.makeMultiple(groupForm,"siteMembers",siteMemberValues,siteMemberLabels,"#{SiteManageGroupHandler.selectedSiteMembers}", new String[] {});
+		 List<Participant> siteMembers= handler.getSiteParticipant(g);
+		 List<String> siteMemberLabels = new ArrayList<>();
+		 List<String> siteMemberValues = new ArrayList<>();
 		 
-		 int i =0;
 		 Iterator<Participant> sIterator = new SortedIterator(siteMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_PARTICIPANT_NAME, Boolean.TRUE.toString()));
-	     for (; sIterator.hasNext();i++){
+	     while( sIterator.hasNext() ){
 	        	Participant p = (Participant) sIterator.next();
 	        	// not in the group yet
 	        	if (g == null || g.getMember(p.getUniqname()) == null)
 	        	{
-					siteMemberLabels[i] = p.getName() + " (" + p.getDisplayId() + ")";
-					siteMemberValues[i] = p.getUniqname();
+					siteMemberLabels.add( p.getName() + " (" + p.getDisplayId() + ")" );
+					siteMemberValues.add( p.getUniqname() );
 	        	}
 	        }
-	     
+
+         UISelect.makeMultiple( groupForm, "siteMembers", siteMemberValues.toArray( new String[siteMemberValues.size()]), 
+                                siteMemberLabels.toArray( new String[siteMemberLabels.size()]), "#{SiteManageGroupHandler.selectedSiteMembers}", new String[] {} );
+
 	     // for the group members list
-		 String[] groupMemberLabels = new String[groupMembers.size()];
-		 String[] groupMemberValues = new String[groupMembers.size()];
-		 UISelect groupMember = UISelect.make(groupForm,"groupMembers",groupMemberValues,groupMemberLabels,null);
-		 i =0;
+		 List<String> groupMemberLabels = new ArrayList<>();
+		 List<String> groupMemberValues = new ArrayList<>();
 		 Iterator<Member> gIterator = new SortedIterator(groupMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
-	     for (; gIterator.hasNext();i++){
+	     while( gIterator.hasNext() ){
 	        	Member p = (Member) gIterator.next();
 	        	String userId = p.getUserId();
 	        	try
 	        	{
 	        		User u = userDirectoryService.getUser(userId);
-	        		groupMemberLabels[i] = u.getSortName() + " (" + u.getDisplayId() + ")";
+	        		groupMemberLabels.add( u.getSortName() + " (" + u.getDisplayId() + ")" );
+                    groupMemberValues.add( userId );
 	        	}
 	        	catch (Exception e)
 	        	{
-	        		M_log.debug(this + ":fillComponents: cannot find user " + userId);
+	        		M_log.debug(this + ":fillComponents: cannot find user " + userId, e);
 	        		// need to remove the group member
 	        		groupMembers.remove(p);
 	        	}
-				groupMemberValues[i] = userId;
 	        }
-	        
+
+	     UISelect.make( groupForm, "groupMembers", groupMemberValues.toArray( new String[groupMemberValues.size()]), 
+                        groupMemberLabels.toArray( new String[groupMemberLabels.size()]), null );
 	     UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupHandler.processAddGroup}");
 
          UICommand.make(groupForm, "cancel", messageLocator.getMessage("editgroup.cancel"), "#{SiteManageGroupHandler.processBack}");
@@ -180,8 +186,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          //process any messages
          tml = handler.messages;
          if (tml.size() > 0) {
- 			for (i = 0; i < tml.size(); i ++ ) {
- 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", Integer.valueOf(i).toString());
+ 			for (int i = 0; i < tml.size(); i ++ ) {
+ 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", Integer.toString(i));
  				TargettedMessage msg = tml.messageAt(i);
 		    	if (msg.args != null ) 
 		    	{
@@ -204,19 +210,10 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
         return params;
     }
 
-    // old and busted
-//    public List reportNavigationCases() {
-//        List togo = new ArrayList();
-//        togo.add(new NavigationCase("success", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-//    	togo.add(new NavigationCase("cancel", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-//        return togo;
-//    }
-
     // new hotness
     public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
         if ("success".equals(actionReturn) || "cancel".equals(actionReturn)) {
             result.resultingView = new SimpleViewParameters(GroupListProducer.VIEW_ID);
         }
     }
-
 }

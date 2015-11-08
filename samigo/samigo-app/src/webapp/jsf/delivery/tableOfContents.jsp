@@ -17,7 +17,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*      http://www.osedu.org/licenses/ECL-2.0
+*      http://www.opensource.org/licenses/ECL-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,8 @@
  <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
  <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
 
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div class="portletBody">
+ <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
 
 <!-- content... -->
@@ -146,9 +147,11 @@ function clickSubmitForGrade(){
   <h5>
     <h:outputLabel value="#{deliveryMessages.key}"/>
   </h5>
-  <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/tree/blank.gif" />
+  <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/whiteBubble15.png" />
   <h:outputText value="#{deliveryMessages.unans_q}" /><br/>
-  <h:graphicImage  alt="#{deliveryMessages.alt_q_marked}" url="/images/tree/marked.gif" rendered="#{delivery.displayMardForReview}" />
+  <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/blackBubble15.png" />
+  <h:outputText value="answered question" /><br/>
+  <h:graphicImage  alt="#{deliveryMessages.alt_q_marked}" url="/images/questionMarkBubble15.png" rendered="#{delivery.displayMardForReview}" />
   <h:outputText value="#{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
 
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
@@ -169,9 +172,11 @@ function clickSubmitForGrade(){
             <f:verbatim><div class="tier3"></f:verbatim>
             <h:panelGroup>
             <h:graphicImage alt="#{deliveryMessages.alt_unans_q}" 
-               url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>
+               url="/images/whiteBubble15.png" rendered="#{question.unanswered}"/>
+            <h:graphicImage alt="#{deliveryMessages.alt_unans_q}" 
+               url="/images/blackBubble15.png" rendered="#{!question.unanswered}"/>
             <h:graphicImage alt="#{deliveryMessages.alt_q_marked}"
-               url="/images/tree/marked.gif"  rendered="#{question.review}"/>
+               url="/images/questionMarkBubble15.png"  rendered="#{question.review}"/>
               <h:commandLink title="#{deliveryMessages.t_takeAssessment}" immediate="true" action="takeAssessment"> 
                 <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})">
 <f:convertNumber maxFractionDigits="2"/>
@@ -236,6 +241,7 @@ function clickSubmitForGrade(){
 
 </h:form>
 <!-- end content -->
+  </div>
 </div>
     </body>
   </html>

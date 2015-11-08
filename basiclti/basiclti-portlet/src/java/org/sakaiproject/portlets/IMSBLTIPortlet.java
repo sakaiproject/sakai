@@ -116,6 +116,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 	public final static String CURRENT_HTTP_REQUEST = "org.sakaiproject.util.RequestFilter.http_request";
 
+	public static final String SITE_NAME = "ui.service";
+
+	public static final String SAKAI = "Sakai";
+
 	public void init(PortletConfig config) throws PortletException {
 		super.init(config);
 
@@ -135,12 +139,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("releaseemail");
 		fieldList.add("assignment");
 		fieldList.add("newpage");
-		fieldList.add("maximize");
+		// fieldList.add("maximize");
 		fieldList.add("allowsettings");
 		fieldList.add("allowroster");
-		fieldList.add("allowlori");
 		fieldList.add("contentlink");
 		fieldList.add("splash");
+		fieldList.add("fa_icon");
 	}
 
 	// Simple Debug Print Mechanism
@@ -186,13 +190,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String allowOutcomes = getSakaiProperty(sakaiProperties,"imsti.allowoutcomes");
 			String allowSettings = getSakaiProperty(sakaiProperties,"imsti.allowsettings");
 			String allowRoster = getSakaiProperty(sakaiProperties,"imsti.allowroster");
-			String allowLORI = getSakaiProperty(sakaiProperties,"imsti.allowlori");
 			String assignment = getSakaiProperty(sakaiProperties,"imsti.assignent");
 			String launch = getSakaiProperty(sakaiProperties,"imsti.launch");
 
 			if ( placementSecret == null && 
 			   ( "on".equals(allowOutcomes) || "on".equals(allowSettings) || 
-				 "on".equals(allowRoster) || "on".equals(allowLORI) ) ) {
+				 "on".equals(allowRoster) ) ) {
 				String uuid = UUID.randomUUID().toString();
 				Date date = new Date();
 				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
@@ -238,9 +241,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 						text.append(windowOpen+"\n");
 						text.append("</script>\n");
 					}
-					text.append(rb.getString("new.page.launch"));
-					text.append("<br><a href=\""+iframeUrl+"\" onclick=\""+windowOpen+"\" target=\"BasicLTI\">"+rb.getString("noiframe.press.here")+"</a>");
+					String siteName = ServerConfigurationService.getString(SITE_NAME, SAKAI);
+					title = title!=null ? title : rb.getString("tool.name", "your tool");
+					String newPageLaunchText = rb.getFormattedMessage("new.page.launch", new Object[]{FormattedText.escapeHtml(title, false), FormattedText.escapeHtml(siteName, false)});
+					text.append(newPageLaunchText);
 					text.append("</p>\n");
+					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"BasicLTI\" value=\"Launch " + title + "\"/>");
 				} else {
 					if ( "on".equals(maximize) ) {
 						text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
@@ -337,17 +343,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
 		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
 
-		// For outcomes and LORI we check for tools in the site before offering the options
+		// For outcomes we check for tools in the site before offering the options
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( "true".equals(allowOutcomes) ) {
 			String outcomeProp = getCorrectProperty(request, "allowoutcomes", "on");
 			allowOutcomes = "on".equals(outcomeProp) ? "true" : "false";
-		}
-
-		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-		if ( "true".equals(allowLori) ) {
-			String loriProp = getCorrectProperty(request, "allowlori", "on");
-			allowLori = "on".equals(loriProp) ? "true" : "false";
 		}
 
 		boolean foundLessons = false;
@@ -366,11 +366,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			M_log.warn("Could not load site.");
 		}
 
-		if ( ! foundLessons ) allowLori = "false";
 		if ( ! foundGradebook ) allowOutcomes = "false";
 
 		request.setAttribute("allowOutcomes", new Boolean("true".equals(allowOutcomes)));
-		request.setAttribute("allowLori", new Boolean("true".equals(allowLori)));
 		if ( "true".equals(allowOutcomes) ) {
 			List<String> assignments = getGradeBookAssignments();
 			if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
@@ -658,8 +656,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 			String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
 			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
-			String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
 					// System.out.println("Success!");
@@ -670,7 +666,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			// System.out.println("old placementsecret="+oldPlacementSecret);
 			if ( oldPlacementSecret == null && 
 					("true".equals(allowOutcomes) || "true".equals(allowSettings) || 
-                     "true".equals(allowRoster) || "true".equals(allowLori) ) ) {
+                     "true".equals(allowRoster) ) ) {
 				try {
 					String uuid = UUID.randomUUID().toString();
 					Date date = new Date();

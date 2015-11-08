@@ -76,15 +76,9 @@ $(document).ready(function(){
 			  });
 		    });
 	  }
-	  // I need UI js
+	  // I need jquery-UI js
 	  // But we'll assume its already on the page so we don't break other scripts by loading an outdated version
 	  loadUI();  
-	 //  if (!$.progressbar) {
-		// $.getScript("/library/js/jquery-ui-latest/js/jquery-ui.min.js",loadUI);
-	 //  } else {
-	 //  	loadUI();  
-
-	 //  }
 });
 
 function changeSelect(obj) {
@@ -93,7 +87,7 @@ function changeSelect(obj) {
 
 function addTagSelector(obj) {
   	if (obj) {
-	  	$(obj).select2({formatNoMatches:function(){return'';}});
+	  	$(obj).select2({formatNoMatches:function(){return'';},placeholder: "Click here to select recipients"});
 	  	$(obj).on('change',function(){resize();});
   	}
 }

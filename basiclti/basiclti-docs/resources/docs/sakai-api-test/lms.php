@@ -103,6 +103,9 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   $checked = '';
   if ( $iframe ) $checked = 'checked';
   echo("<br/>Launch in iFrame: <input type=\"checkbox\" name=\"iframe\" $checked $disabled value=\"true\">\n");
+  $sha256 = isset($_REQUEST["sha256"]) && $_REQUEST["sha256"] == "true";
+  if ( $sha256 ) $checked = 'checked';
+  echo("<br/>Sign with SHA256: <input type=\"checkbox\" name=\"sha256\" $checked $disabled value=\"true\">\n");
   echo("</fieldset><p>");
   echo("<fieldset><legend>Launch Data</legend>\n");
   foreach ($lmsdata as $k => $val ) {
@@ -127,6 +130,7 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   $parms["oauth_callback"] = "about:blank";
   $parms["lis_outcome_service_url"] = $outcomes;
   $parms["content_item_return_url"] = $content_url;
+  $parms["accept_media_types"] = "application/vnd.ims.lti.v1.ltilink,application/vnd.ims.imsccv1p*";
   $parms["lis_result_sourcedid"] = '{"zap" : "Siân JSON 1234 Sourcedid <>&lt;"}';
     
 if ( strpos($cur_url, "localhost" ) === FALSE ) $parms['launch_presentation_css_url'] = $cssurl;
@@ -138,6 +142,10 @@ addCustom($parms, array(
 
 if ( (isset($_REQUEST["cert_num"]) && $secret != "secret" ) || 
       isset($_POST['launch']) || isset($_POST['debug']) ) {
+
+if ( $sha256 ) {
+    $parms['oauth_signature_method'] = 'HMAC-SHA256';
+}
 
 $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
 "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);

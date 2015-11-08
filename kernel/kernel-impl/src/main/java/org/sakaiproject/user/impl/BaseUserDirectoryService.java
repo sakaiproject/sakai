@@ -600,7 +600,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			M_log.error("init(): ", t);
 		}
 	}
 
@@ -1212,7 +1212,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.warn("commitEdit(): closed UserEdit", new Exception());
+			M_log.error("commitEdit(): closed UserEdit", new Exception());
 			return;
 		}
 
@@ -1254,7 +1254,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 			catch (Exception e)
 			{
-				M_log.warn("cancelEdit(): closed UserEdit", e);
+				M_log.error("cancelEdit(): closed UserEdit", e);
 			}
 			return;
 		}
@@ -1564,7 +1564,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.warn("removeUser(): closed UserEdit", new Exception());
+			M_log.error("removeUser(): closed UserEdit", new Exception());
 			return;
 		}
 

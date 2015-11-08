@@ -31,10 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -47,7 +43,6 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.cover.UserDirectoryService;
 
 import org.sakaiproject.util.Web;
 
@@ -108,79 +103,8 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 
 		} // ignore
 
-		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
-		
-		boolean loggedIn = session.getUserId() != null;
-
-		if (!loggedIn)
-		{
-			tabsToDisplay = serverConfigurationService.getInt(
-					"gatewaySiteListDisplayCount", tabsToDisplay);
-		}
-		else
-		{
-			Preferences prefs = preferencesService
-					.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-			try
-			{
-				tabsToDisplay = (int) props.getLongProperty("tabs");
-			}
-			catch (Exception any)
-			{
-			}
-		}
-
 		// we allow one site in the drawer - that is OK
 		moreSites = new ArrayList<Site>();
-		if (mySites.size() > tabsToDisplay)
-		{
-			// Check to see if the selected site is in the first
-			// "tabsToDisplay" tabs
-			boolean found = false;
-			for (int i = 0; i < tabsToDisplay && i < mySites.size(); i++)
-			{
-				Site site = mySites.get(i);
-				String effectiveId = siteHelper.getSiteEffectiveId(site);
-				if (site.getId().equals(currentSiteId)
-						|| effectiveId.equals(currentSiteId)) found = true;
-			}
-
-			// Save space for the current site
-			if (!found) tabsToDisplay = tabsToDisplay - 1;
-			if (tabsToDisplay < 2) tabsToDisplay = 2;
-
-			// Create the list of "additional sites"- but do not
-			// include the currently selected set in the list
-			Site currentSelectedSite = null;
-
-			int remove = mySites.size() - tabsToDisplay;
-			for (int i = 0; i < remove; i++)
-			{
-				// We add the site the the drop-down
-				// unless it it the current site in which case
-				// we retain it for later
-				Site site = mySites.get(tabsToDisplay);
-				mySites.remove(tabsToDisplay);
-
-				String effectiveId = siteHelper.getSiteEffectiveId(site);
-				if (site.getId().equals(currentSiteId)
-						|| effectiveId.equals(currentSiteId))
-				{
-					currentSelectedSite = site;
-				}
-				else
-				{
-					moreSites.add(site);
-				}
-			}
-
-			// check to see if we need to re-add the current site
-			if (currentSelectedSite != null)
-			{
-				mySites.add(currentSelectedSite);
-			}
-		}
 		
 		processMySites();
 

@@ -10,7 +10,7 @@
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
-        <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
         <sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 		<script type="text/javascript">
 			$(document).ready(function(){

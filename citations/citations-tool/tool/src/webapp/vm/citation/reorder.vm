@@ -5,7 +5,7 @@
 </style>
 <link rel="stylesheet" href="/library/js/jquery-ui-latest/css/ui-lightness/jquery-ui.css" type="text/css" media="all" />
 <script type="text/javascript" src="/library/js/jquery/1.7.1/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>
 <div class="portletBody specialLink">

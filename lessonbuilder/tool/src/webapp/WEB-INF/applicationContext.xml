@@ -36,7 +36,9 @@
 	  <property name="value">
 	    <value>
 simplePageBean.addAssignment,
+simplePageBean.addBefore,
 simplePageBean.addBlti,
+simplePageBean.handleFileItem,
 simplePageBean.addComment,
 simplePageBean.addForum,
 simplePageBean.addMultimedia,
@@ -46,6 +48,7 @@ simplePageBean.addQuiz,
 simplePageBean.alt,
 simplePageBean.anonymous,
 simplePageBean.assigntool,
+simplePageBean.breakbelow,
 simplePageBean.cancel,
 simplePageBean.comments,
 simplePageBean.contents,
@@ -266,6 +269,7 @@ simplePageBean.peerEvalAllowSelfGrade
     <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="contentFilterService"><ref bean="org.sakaiproject.content.api.ContentFilterService"/></property>
+    <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
 
     <property name="messageLocator" ref="messageLocator"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
@@ -282,20 +286,20 @@ simplePageBean.peerEvalAllowSelfGrade
 	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
 		<constructor-arg>
 			<map>
-				<entry key="application/msword" value="/library/image/silk/page_white_word.png"/>
-				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="/library/image/silk/page_white_word.png"/>
-				<entry key="application/vnd.ms-powerpoint" value="/library/image/silk/page_white_powerpoint.png"/>
-				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="/library/image/silk/page_white_powerpoint.png"/>
-				<entry key="application/vnd.ms-excel" value="/library/image/silk/page_white_excel.png"/>
-				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="/library/image/silk/page_white_excel.png"/>
-				<entry key="application/pdf" value="/library/image/silk/page_white_acrobat.png"/>
-				<entry key="application/x-shockwave-flash" value="/library/image/silk/page_white_flash.png"/>
-				<entry key="video/x-flv" value="/library/image/silk/page_white_flash.png"/>
-                <entry key="video/mp4" value="/library/image/silk/film.png"/>
-				<entry key="text/plain" value="/library/image/silk/page_white_text.png"/>
-				<entry key="text/rtf" value="/library/image/silk/page_white_text.png"/>
-				<entry key="LBWEBSITE" value="/library/image/silk/page_white_world.png"/>
-				<entry key="text/html" value="/library/image/silk/page_white_world.png"/>
+				<entry key="application/msword" value="fa-file-word-o"/>
+				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="fa-file-word-o"/>
+				<entry key="application/vnd.ms-powerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="fa-file-powerpoint-o"/>
+				<entry key="application/vnd.ms-excel" value="file-excel-o"/>
+				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="fa-file-excel-o"/>
+				<entry key="application/pdf" value="fa-file-pdf-o"/>
+				<entry key="application/x-shockwave-flash" value="fa-video-o"/>
+				<entry key="video/x-flv" value="fa-video-o"/>
+				<entry key="video/mp4" value="fa-video-o"/>
+				<entry key="text/plain" value="fa-file-text-o"/>
+				<entry key="text/rtf" value="fa-file-text-o"/>
+				<entry key="LBWEBSITE" value="fa-external-link"/>
+				<entry key="text/html" value="fa-external-link"/>
     	</map>
     	</constructor-arg>
     	</bean>
@@ -417,6 +421,8 @@ simplePageBean.peerEvalAllowSelfGrade
         singleton="true">
       <property name="messageSource"><ref bean="messageSource"/></property>
       <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+      <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+      <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     </bean>
 
  </beans>

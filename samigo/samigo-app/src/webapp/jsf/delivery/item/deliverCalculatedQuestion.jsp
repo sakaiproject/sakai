@@ -36,6 +36,11 @@ should be included in file importing DeliveryMessages
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/checkmark.gif">
       </h:graphicImage>
+      <h:graphicImage alt="#{deliveryMessages.alt_incorrect}" id="image2"
+        rendered="#{delivery.feedback eq 'true' &&
+                    delivery.feedbackComponent.showCorrectResponse &&
+                    answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/crossmark.gif">
+      </h:graphicImage>      
 	  <h:inputText size="10" rendered="#{answer.hasInput 
 		&& delivery.actionString !='gradeAssessment' 
 		&& delivery.actionString !='reviewAssessment'}"

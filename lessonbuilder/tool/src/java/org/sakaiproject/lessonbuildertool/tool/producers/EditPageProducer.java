@@ -115,7 +115,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 		Collection<String> groups = null;
 
-        boolean isPrerequisite = false;
+		boolean isPrerequisite = false;
 
 		if (itemId != null && itemId != -1) {
 			SimplePageItem i = simplePageBean.findItem(itemId);
@@ -129,7 +129,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			    // should be impossible for text item; underlying object missing
 			}
 
-            isPrerequisite = i.isPrerequisite();
+			isPrerequisite = i.isPrerequisite();
 		}
 
 		if (simplePageBean.canEditPage()) {
@@ -159,6 +159,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			    UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",isPrerequisite);
 			}
 
+			UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", gparams.getAddBefore());
 			UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.cancel_message")));

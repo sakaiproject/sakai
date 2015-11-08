@@ -26,11 +26,6 @@
         <module>calendar-util/util</module>
     </modules>
     
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/calendar/trunk</url>
-    </scm>
     
     <distributionManagement>
         <site>

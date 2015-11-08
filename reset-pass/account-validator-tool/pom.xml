@@ -42,6 +42,10 @@
 		<groupId>org.sakaiproject.entitybroker</groupId>
         <artifactId>entitybroker-utils</artifactId>
       </dependency>
+      <dependency>
+      	<groupId>org.sakaiproject.emailtemplateservice</groupId>
+      	<artifactId>emailtemplateservice-api</artifactId>
+      </dependency>
       
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
@@ -57,23 +61,23 @@
       </dependency>
       <!-- Sakai RSF dependency -->
       <dependency>
-         <groupId>uk.org.ponder.sakairsf</groupId>
-         <artifactId>sakairsf</artifactId>
-         <version>${sakairsf.version}</version>
+         <groupId>org.sakaiproject.rsf</groupId>
+         <artifactId>sakai-rsf-core</artifactId>
+         <version>${project.version}</version>
          <type>jar</type>
       </dependency>
 
       <dependency>
-         <groupId>uk.org.ponder.sakairsf</groupId>
-         <artifactId>SakaiRSFComponents-evolvers</artifactId>
-		 <version>${sakairsf.components.version}</version>
+         <groupId>org.sakaiproject.rsf</groupId>
+         <artifactId>sakai-rsf-web-evolvers</artifactId>
+		 <version>${project.version}</version>
          <type>jar</type>
       </dependency>
 
       <dependency>
-         <groupId>uk.org.ponder.sakairsf</groupId>
-         <artifactId>SakaiRSFComponents-templates</artifactId>
-         <version>${sakairsf.components.version}</version>
+         <groupId>org.sakaiproject.rsf</groupId>
+         <artifactId>sakai-rsf-web-templates</artifactId>
+         <version>${project.version}</version>
          <type>war</type>
       </dependency>
 	  
@@ -98,7 +102,7 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>2.7</version>
+			<version>${joda.time.version}</version>
 		</dependency>
    </dependencies>
 

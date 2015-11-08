@@ -31,12 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.WicketRuntimeException;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.datetime.StyleDateConverter;
@@ -46,7 +46,9 @@ import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOptions;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -65,7 +67,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.string.Strings;
+import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.convert.converter.IntegerConverter;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -150,8 +153,8 @@ public class ReportsEditPage extends BasePage {
 	public ReportsEditPage(ReportDefModel reportDef, PageParameters pageParameters, final WebPage returnPage) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
-			siteId = pageParameters.getString("siteId");
-			predefined = pageParameters.getBoolean("predefined");
+			siteId = pageParameters.get("siteId").toString();
+			predefined = pageParameters.get("predefined").toBoolean(false);
 		}
 		if(siteId == null) {
 			siteId = realSiteId;
@@ -193,8 +196,8 @@ public class ReportsEditPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference(JQUERYSCRIPT);
-		response.renderJavascriptReference(StatsManager.SITESTATS_WEBAPP + "/script/reports.js");
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
+		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP + "/script/reports.js"));
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("checkWhatSelection();");
 		onDomReady.append("checkWhenSelection();");
@@ -202,7 +205,7 @@ public class ReportsEditPage extends BasePage {
         onDomReady.append("checkHowSelection();");
         onDomReady.append("checkReportDetails();");
         onDomReady.append("checkHowChartSelection();");
-		response.renderOnDomReadyJavascript(onDomReady.toString());
+		response.render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
 	}
 	
 	private void renderBody() {
@@ -264,7 +267,7 @@ public class ReportsEditPage extends BasePage {
 					if(predefined) {
 						getReportParams().setSiteId(siteId);
 					}
-					setResponsePage(new ReportDataPage(reportDefModel, new PageParameters("siteId="+siteId), ReportsEditPage.this));
+					setResponsePage(new ReportDataPage(reportDefModel, new PageParameters().set("siteId", siteId), ReportsEditPage.this));
 				}
 				super.onSubmit();
 			}
@@ -289,7 +292,7 @@ public class ReportsEditPage extends BasePage {
 							}else{
 								titleStr = new StringResourceModel("report_save_success", getPage(), reportDefModel).getString();
 							}							
-							info(titleStr);
+							returnPage.info(titleStr);
 							setResponsePage(returnPage);
 						}else{
 							if(getReportDef().isTitleLocalized()) {
@@ -346,8 +349,8 @@ public class ReportsEditPage extends BasePage {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				titleLocalizedContainer.setVisible(getReportDef().isTitleLocalized());
-				target.addComponent(titleLocalizedContainer);
-				target.appendJavascript("setMainFrameHeightNoScroll(window.name);");
+				target.add(titleLocalizedContainer);
+				target.appendJavaScript("setMainFrameHeightNoScroll(window.name);");
 			}		
 		});
 		
@@ -364,8 +367,8 @@ public class ReportsEditPage extends BasePage {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				descriptionLocalizedContainer.setVisible(getReportDef().isDescriptionLocalized());
-				target.addComponent(descriptionLocalizedContainer);
-				target.appendJavascript("setMainFrameHeightNoScroll(window.name);");
+				target.add(descriptionLocalizedContainer);
+				target.appendJavaScript("setMainFrameHeightNoScroll(window.name);");
 			}			
 		});
 
@@ -383,8 +386,7 @@ public class ReportsEditPage extends BasePage {
 			}
 		}else{
 			reportDetailsTop.setVisible(true);
-			reportDetailsShow.setVisible(true);
-			reportDetails.add(new AttributeModifier("style", true, new Model("display: none")));
+			reportDetailsShow.setVisible(false);
 		}
 	}
 
@@ -450,7 +452,7 @@ public class ReportsEditPage extends BasePage {
 		Select whatToolIds = new Select("reportParams.whatToolIds");
 		RepeatingView selectOptionsRV1 = new RepeatingView("selectOptionsRV1");
 		whatToolIds.add(selectOptionsRV1);
-		whatToolIds.add(new AttributeModifier("title", true, new ResourceModel("report_multiple_sel_instruction")));
+		whatToolIds.add(new AttributeModifier("title", new ResourceModel("report_multiple_sel_instruction")));
 		addTools(selectOptionsRV1);
 		form.add(whatToolIds);
 		
@@ -458,7 +460,7 @@ public class ReportsEditPage extends BasePage {
 		Select whatEventIds = new Select("reportParams.whatEventIds");
 		RepeatingView selectOptionsRV2 = new RepeatingView("selectOptionsRV2");
 		whatEventIds.add(selectOptionsRV2);
-		whatEventIds.add(new AttributeModifier("title", true, new ResourceModel("report_multiple_sel_instruction")));
+		whatEventIds.add(new AttributeModifier("title", new ResourceModel("report_multiple_sel_instruction")));
 		addEvents(selectOptionsRV2);
 		form.add(whatEventIds);
 		
@@ -498,7 +500,7 @@ public class ReportsEditPage extends BasePage {
 			}		
 		}) {
 			@Override
-			protected CharSequence getDefaultChoice(Object selected) {
+			protected CharSequence getDefaultChoice(String selected) {
 				return "";
 			}
 			
@@ -603,17 +605,17 @@ public class ReportsEditPage extends BasePage {
 			protected void onUpdate(AjaxRequestTarget target) {
 				if(ReportManager.WHO_CUSTOM.equals(getReportParams().getWho())) {
 					addUsers(selectOptionsRV);
-					whoUserIds.add(new AttributeModifier("style", true, new Model("width: 300px")));
+					whoUserIds.add(new AttributeModifier("style", new Model("width: 300px")));
 					who.remove(this);
-					whoUserIds.add(new AttributeModifier("onchange", true, new Model("checkWhoSelection();")));
-					target.addComponent(who);
-					target.addComponent(whoUserIds);
+					whoUserIds.add(new AttributeModifier("onchange", new Model("checkWhoSelection();")));
+					target.add(who);
+					target.add(whoUserIds);
 				}
-				target.appendJavascript("checkWhoSelection();");
+				target.appendJavaScript("checkWhoSelection();");
 			}
 			@Override
-			protected CharSequence generateCallbackScript(CharSequence partialCall) {
-				CharSequence ajaxScript =  super.generateCallbackScript(partialCall);
+			public CharSequence getCallbackScript() {
+				CharSequence ajaxScript =  super.getCallbackScript();
 				StringBuilder b = new StringBuilder();
 				b.append("checkWhoSelection();");
 				b.append("if(jQuery('#who').val() == 'who-custom') {;");
@@ -630,7 +632,7 @@ public class ReportsEditPage extends BasePage {
 		selectOptionsRV.setRenderBodyOnly(true);
 		selectOptionsRV.setEscapeModelStrings(true);		
 		whoUserIds.add(selectOptionsRV);
-		whoUserIds.add(new AttributeModifier("title", true, new ResourceModel("report_multiple_sel_instruction")));
+		whoUserIds.add(new AttributeModifier("title", new ResourceModel("report_multiple_sel_instruction")));
 		whoUserIds.setOutputMarkupId(true);
 		whoUserIds.setOutputMarkupPlaceholderTag(true);
 		whoUserIds.setEscapeModelStrings(true);
@@ -812,7 +814,7 @@ public class ReportsEditPage extends BasePage {
 		howMaxResultsCheck.setMarkupId("howMaxResultsCheck");
 		howMaxResultsCheck.setOutputMarkupId(true);
 		form.add(howMaxResultsCheck);
-		TextField howMaxResults = new TextField("reportParams.howMaxResults",int.class) {
+		TextField howMaxResults = new TextField("reportParams.howMaxResults", Integer.class) {
 			@Override
 			public String getInput() {
 				String[] input = getInputAsArray();

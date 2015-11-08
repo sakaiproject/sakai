@@ -1,13 +1,12 @@
 package org.sakaiproject.site.tool.helper.managegroup.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -41,10 +40,10 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 public class SiteManageGroupHandler {
 	
     /** Our log (commons). */
-    private static Log M_log = LogFactory.getLog(SiteManageGroupHandler.class);
+    private static final Log M_log = LogFactory.getLog(SiteManageGroupHandler.class);
    
     private Collection<Member> groupMembers;
-    private GroupComparator groupComparator = new GroupComparator();
+    private final GroupComparator groupComparator = new GroupComparator();
 	
     public Site site = null;
     public SiteService siteService = null;
@@ -53,7 +52,6 @@ public class SiteManageGroupHandler {
     public SessionManager sessionManager = null;
     public ServerConfigurationService serverConfigurationService;
     private List<Group> groups = null;
-    private Set unhideables = null;
     public String memberList = "";
     public boolean update = false;
     public boolean done = false;
@@ -61,18 +59,8 @@ public class SiteManageGroupHandler {
     public String[] selectedGroupMembers = new String[]{};
     public String[] selectedSiteMembers = new String[]{};
     
-    private String NULL_STRING = "";
-    
-    private final String TOOL_CFG_FUNCTIONS = "functions.require";
-    private final String TOOL_CFG_MULTI = "allowMultiple";
-    private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
-    private final String GROUP_ADD = "group.add";
     private final String GROUP_DELETE = "group.delete";
-    private final String GROUP_RENAME = "group.rename";
-    private final String GROUP_SHOW = "group.show";
-    private final String GROUP_HIDE = "group.hide";
-    private final String SITE_REORDER = "group.reorder";
     private final String SITE_RESET = "group.reset";
 
     // Tool session attribute name used to schedule a whole page refresh.
@@ -133,12 +121,17 @@ public class SiteManageGroupHandler {
 	 */
 	public void resetParams()
 	{
-		id = "";
-		title = "";
-		description ="";
-		deleteGroupIds=new String[]{};
-		selectedGroupMembers = new String[]{};
-	    selectedSiteMembers = new String[]{};
+		// SAK-29645 - preserve user input
+		if( messages.size() == 0 )
+		{
+			id = "";
+			title = "";
+			description ="";
+			deleteGroupIds=new String[]{};
+			selectedGroupMembers = new String[]{};
+			selectedSiteMembers = new String[]{};
+			memberList = new String();
+		}
 	}
 	 
     /**
@@ -150,14 +143,14 @@ public class SiteManageGroupHandler {
             init();
         }
         if (update) {
-            groups = new Vector<Group>();
+            groups = new ArrayList<>();
             if (site != null)
             {   
                // only show groups created by WSetup tool itself
                Collection allGroups = (Collection) site.getGroups();
                for (Iterator gIterator = allGroups.iterator(); gIterator.hasNext();) {
                   Group gNext = (Group) gIterator.next();
-                  String gProp = gNext.getProperties().getProperty(gNext.GROUP_PROP_WSETUP_CREATED);
+                  String gProp = gNext.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED);
                   if (gProp != null && gProp.equals(Boolean.TRUE.toString())) {
                      groups.add(gNext);
                   }
@@ -194,14 +187,14 @@ public class SiteManageGroupHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                e.printStackTrace();
+                M_log.warn( e );
             }
         }
         title = "";
 
         if (groupMembers == null)
         {
-        	groupMembers = new Vector<Member>();
+        	groupMembers = new ArrayList<>();
         }
     }
     
@@ -217,7 +210,7 @@ public class SiteManageGroupHandler {
     
     public List<Participant> getSiteParticipant(Group group)
     {
-    	List<Participant> rv = new Vector<Participant>();
+    	List<Participant> rv = new ArrayList<>();
     	if (site != null)
     	{
     		String siteId = site.getId();
@@ -257,6 +250,7 @@ public class SiteManageGroupHandler {
     /**
      * Allows the Cancel button to return control to the tool calling this helper
      *
+     * @return status
      */
     public String processCancel() {
     	// reset the warning messages
@@ -271,6 +265,7 @@ public class SiteManageGroupHandler {
     /**
      * Cancel out of the current action and go back to main view
      * 
+     * @return status
      */
     public String processBack() {
     	// reset the warning messages
@@ -286,13 +281,8 @@ public class SiteManageGroupHandler {
                 EventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
 
         } 
-        catch (IdUnusedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } 
-        catch (PermissionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        catch (IdUnusedException | PermissionException e) {
+            M_log.warn( e );
         }
 
         return "";
@@ -307,7 +297,7 @@ public class SiteManageGroupHandler {
     	// reset the warning messages
     	resetTargettedMessageList();
     	
-        Group group = null;
+        Group group;
         
         id = StringUtils.trimToNull(id);
         
@@ -343,7 +333,7 @@ public class SiteManageGroupHandler {
 		{
 			// adding a new group
 	        group= site.addGroup();
-	        group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+	        group.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 		}
 		
 		if (group != null)
@@ -351,7 +341,7 @@ public class SiteManageGroupHandler {
 			group.setTitle(title);
             group.setDescription(description);   
             
-            boolean found = false;
+            boolean found;
             // remove those no longer included in the group
 			Set members = group.getMembers();
 			String[] membersSelected = memberList.split("##");
@@ -371,24 +361,24 @@ public class SiteManageGroupHandler {
 				}
 			}
 
-			// add those seleted members
-			for (int i = 0; i < membersSelected.length; i++) {
-				String memberId = membersSelected[i];
-				memberId = StringUtils.trimToNull(memberId);
-				if (memberId != null && group.getUserRole(memberId) == null) {
-					Role r = site.getUserRole(memberId);
-					Member m = site.getMember(memberId);
-					Role memberRole = m != null ? m.getRole() : null;
-					// for every member added through the "Manage
-					// Groups" interface, he should be defined as
-					// non-provided
-					// get role first from site definition. 
-					// However, if the user is inactive, getUserRole would return null; then use member role instead
-					group.addMember(memberId, r != null ? r.getId()
-							: memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true,
-							false);
-				}
-			}
+            // add those seleted members
+            for( String memberId : membersSelected )
+            {
+                memberId = StringUtils.trimToNull(memberId);
+                if (memberId != null && group.getUserRole(memberId) == null) {
+                    Role r = site.getUserRole(memberId);
+                    Member m = site.getMember(memberId);
+                    Role memberRole = m != null ? m.getRole() : null;
+                    // for every member added through the "Manage
+                    // Groups" interface, he should be defined as
+                    // non-provided
+                    // get role first from site definition.
+                    // However, if the user is inactive, getUserRole would return null; then use member role instead
+                    group.addMember(memberId, r != null ? r.getId()
+                                              : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true,
+                                              false);
+                }
+            }
 	            
     		// save the changes
     		try
@@ -397,11 +387,7 @@ public class SiteManageGroupHandler {
     			// reset the form params
     			resetParams();
 	        } 
-	        catch (IdUnusedException e) {
-	        	M_log.warn(this + ".processAddGroup: cannot find site " + site.getId(), e);
-	            return null;
-	        } 
-	        catch (PermissionException e) {
+	        catch (IdUnusedException | PermissionException e) {
 	        	M_log.warn(this + ".processAddGroup: cannot find site " + site.getId(), e);
 	            return null;
 	        }
@@ -425,14 +411,14 @@ public class SiteManageGroupHandler {
     	}
     	else
     	{
-    		List<Group> groups = new Vector<Group>();
+    		List<Group> groups = new ArrayList<>();
     		
-	    	for (int i = 0; i < deleteGroupIds.length; i++) {
-	    		String groupId = deleteGroupIds[i];
-	    		//
-	    		Group g = site.getGroup(groupId);
-	    		groups.add(g);
-	    	}
+            for( String groupId : deleteGroupIds )
+            {
+                //
+                Group g = site.getGroup(groupId);
+                groups.add(g);
+            }
 	    	return "confirm";
     	}
     }
@@ -444,13 +430,13 @@ public class SiteManageGroupHandler {
     	
     	if (site != null)
     	{
-	    	for (int i = 0; i < deleteGroupIds.length; i++) {
-		    	String groupId = deleteGroupIds[i];
-		    	Group g = site.getGroup(groupId);
-				if (g != null) {
-					site.removeGroup(g);
-				}
-			}
+            for( String groupId : deleteGroupIds )
+            {
+                Group g = site.getGroup(groupId);
+                if (g != null) {
+                    site.removeGroup(g);
+                }
+            }
 			try {
 				siteService.save(site);
 			} catch (IdUnusedException e) {
@@ -500,15 +486,14 @@ public class SiteManageGroupHandler {
 	
 	public List<Group> getSelectedGroups()
 	{
-		List<Group> rv = new Vector<Group>();
+		List<Group> rv = new ArrayList<>();
 		if (deleteGroupIds != null && deleteGroupIds.length > 0 && site != null)
 		{
-			for (int i = 0; i<deleteGroupIds.length; i++)
-			{
-				String groupId = deleteGroupIds[i];
-				Group g = site.getGroup(groupId);
-				rv.add(g);
-			}
+            for( String groupId : deleteGroupIds )
+            {
+                Group g = site.getGroup(groupId);
+                rv.add(g);
+            }
 		}
 		return rv;
 	}
@@ -534,4 +519,3 @@ public class SiteManageGroupHandler {
       }
    }
 }
-

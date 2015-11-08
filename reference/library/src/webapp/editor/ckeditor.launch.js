@@ -36,7 +36,12 @@ sakai.editor.editors = sakai.editor.editors || {};
 // Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
 sakai.editor.enableResourceSearch = false;
 
-sakai.editor.editors.ckeditor = {};
+sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
+
+//get path of directory ckeditor 
+var basePath = CKEDITOR.basePath; 
+basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
+
 // Please note that no more parameters should be added to this signature.
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
@@ -58,6 +63,30 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var language = sakai.locale && sakai.locale.userLanguage || '';
     var country = sakai.locale && sakai.locale.userCountry || null;
 
+    if (sakai.editor.editors.ckeditor.browser === "elfinder") {
+        // Flag for setting elfinder to build or source version
+        // Must be either 'src' or 'build'
+        var elfinderBuild = 'build';
+        var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.' + elfinderBuild +
+            '.html?connector=elfinder-connector/elfinder-servlet/connector';
+
+        var filebrowser = {
+            browseUrl :      elfinderUrl + '&startdir=' + collectionId,
+            imageBrowseUrl : elfinderUrl + '&startdir=' + collectionId + '&type=images',
+            flashBrowseUrl : elfinderUrl + '&startdir=' + collectionId + '&type=flash'
+        };
+
+    } else {
+        var fckeditorUrl = '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html' +
+            '?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector';
+
+        var filebrowser = {
+            browseUrl : fckeditorUrl + collectionId + '&' + folder,
+            imageBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Image",
+            flashBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Flash"
+        };
+    }
+
     var ckconfig = {
 	//Some defaults for audio recorder
         audiorecorder : {
@@ -70,12 +99,16 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
         language: language + (country ? '-' + country.toLowerCase() : ''),
         height: 310,
+        // This is used for uploading by the autorecorder and fmath_formula plugins.
+        // TODO Get this to work with elfinder.
         fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
 
-        filebrowserBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
-        filebrowserImageBrowseUrl : '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
-        filebrowserFlashBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Flash&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
-				extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
+        // These are the general URLs for browsing generally and specifically for images/flash object.
+        filebrowserBrowseUrl :      filebrowser.browseUrl,
+        filebrowserImageBrowseUrl : filebrowser.imageBrowseUrl,
+        filebrowserFlashBrowseUrl : filebrowser.flashBrowseUrl,
+
+        extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
 
 
         // These two settings enable the browser's native spell checking and context menus.
@@ -105,8 +138,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                : ['AudioRecorder','Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
+                : ['AudioRecorder','Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -116,7 +149,11 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         resize_dir: 'both',
         //SAK-23418
         pasteFromWordRemoveFontStyles : false,
-        pasteFromWordRemoveStyles : false
+        pasteFromWordRemoveStyles : false,
+        autosave_saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
+        //SAK-29598 - Add more templates to CK Editor
+        templates_files: [basePath+"templates/default.js"],
+        templates: 'customtemplates'
     };
 
     //NOTE: The height and width properties are handled discretely here.
@@ -166,10 +203,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		}
 	}
 
-		//get path of directory ckeditor 
-		//
-		var basePath = CKEDITOR.basePath; 
-		basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
 		//To add extra plugins outside the plugins directory, add them here! (And in the variable)
 		(function() { 
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
@@ -177,6 +210,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		   CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('autosave',basePath+'autosave/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js'); 
 			 /*
 			  To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
 			  and to extraPlugins. This also needs extra stylesheets.
@@ -192,8 +227,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			 //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
 			 //ckconfig.extraPlugins+="atd-ckeditor,";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
-
-			 ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula";
+			 
+			 ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome";
+			 
+			 //SAK-29648
+			 ckconfig.contentsCss = basePath+'/fontawesome/font-awesome/css/font-awesome.min.css';
+			 CKEDITOR.dtd.$removeEmpty.span = false;
+			 CKEDITOR.dtd.$removeEmpty['i'] = false;
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);
@@ -206,12 +246,14 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
           var onShow = dialogDefinition.onShow;
           dialogDefinition.onShow = function() {
-              var pos = findPos(e.editor.container.$);
-              this.move(this.getPosition().x, pos[1]);
+              var result;
               if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
-                  var result = onShow.call(this);
-                  return result;
+                  result = onShow.call(this);
               }
+              var pos = findPos(e.editor.container.$);
+              //SAK-29830 - On some pages it was moving too far down the pages, on others it was still moving too far. This fix is intended to cut that significantly.
+              this.move(this.getPosition().x, pos[1]*0.25);
+              return result;
           }
 
           if ( dialogName == 'link' )

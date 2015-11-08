@@ -17,4 +17,11 @@
     <properties>
         <deploy.target>shared</deploy.target>
     </properties>
+    
+    <dependencies>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+    </dependencies>
 </project>

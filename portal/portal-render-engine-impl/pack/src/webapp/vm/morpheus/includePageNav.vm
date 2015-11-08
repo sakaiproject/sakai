@@ -12,18 +12,6 @@
 
     <h1 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h1>
 
-    ## Added Site name to the Nav for Mobile menus
-
-    #foreach ( $site in $tabsSites.tabsSites )
-
-        #if (${site.isCurrentSite})
-
-            <h2 title="${site.fullTitle}" class="Mrphs-toolsNav__title--current-site">${site.siteTitle}</h2>
-
-        #end ## END of IF (${site.isCurrentSite})
-
-    #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
-
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
         <ul>
 		#set( $categoryMap = {})
@@ -41,7 +29,7 @@
 		        #if (${page.current})
 
 		            <li class="Mrphs-toolsNav__menuitem is-current">
-		                <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" title="${page.pageTitle}" role="presentation" aria-disabled="true">
+		                <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
 		                    <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 		                    <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 		                </a>
@@ -96,7 +84,7 @@
 				#if (${page.current})
 
 				    <li class="Mrphs-toolsNav__menuitem is-current">
-				        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" title="${page.pageTitle}" role="presentation" aria-disabled="true">
+				        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl} title="${page.pageTitle}" role="presentation">
 				            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 				            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 				        </a>
@@ -202,6 +190,10 @@
         </nav>
 
     #end ## END of IF ( $subSites )
+
+	#if ($viewAsStudentLink)
+	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+	#end ## END of IF ($viewAsStudentLink)
 
 </div>
 

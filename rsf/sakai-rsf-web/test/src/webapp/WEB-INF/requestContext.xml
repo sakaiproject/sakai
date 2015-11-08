@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- The "request scope application context" file -->
+
+<beans>
+
+	<bean id="localeSetter" class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
+		<property name="targetBeanName" value="sakai-LocaleSetter" />
+	</bean>
+	<!-- Restore original Sakai definition of requestLocale which was obscured by base webapp -->
+	<bean name="requestLocale" class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
+		<property name="targetBeanName" value="sakai-Locale" />
+	</bean>
+
+</beans>

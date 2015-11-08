@@ -1,5 +1,4 @@
 var dropdownViaClick = false;
-var lessonBuilderAnimationLocked = false;
 var oldloc;
 var requirementType = 0;
 var importccactive = false;
@@ -24,6 +23,11 @@ function msg(s) {
        return s;
     }  else 
        return m.innerHTML;;
+}
+
+function setupdialog(oe) {
+	oe.dialog("option", "width", modalDialogWidth());
+	$('.ui-dialog').zIndex(150000);
 }
 
 function checksize(oe) {
@@ -61,7 +65,9 @@ function safeParseFloat(s) {
 
 var blankRubricTemplate, blankRubricRow;
 
-$(function() {
+// Note from Chuck S. - Is there a strong reason to do this before ready()?
+// $(function() {
+$(document).ready(function() {
 	var breadcrumbs = $(".breadcrumbs span");
 	if (breadcrumbs.size() > 0) {
 	    $(".Mrphs-toolTitleNav__addLeft").append($(".breadcrumbs span"));
@@ -86,32 +92,32 @@ $(function() {
 	if($("#subpage-dialog").length > 0) {
 		$('#subpage-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 
 		$('#edit-item-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 
 		$('#edit-multimedia-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 
 		$('#add-multimedia-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
@@ -119,88 +125,110 @@ $(function() {
 		// hardcode height so we have space for date picker
 		$('#edit-title-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
-	
+
 		$('#new-page-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 
 		$('#remove-page-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 
 		$('#youtube-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 	
 		$('#movie-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 	
 		$('#import-cc-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 	
 		$('#export-cc-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 
 		$('#comments-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 	
 		$('#student-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 		
 		$('#question-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
-		
+
+		$('#addContentDiv').dialog({
+			autoOpen: false,
+			modal: true,
+			resizable: false,
+			draggable: false
+                }).parent('.ui-dialog').css('zIndex',150000);
+
+		$('#moreDiv').dialog({
+			autoOpen: false,
+			modal: true,
+			resizable: false,
+			draggable: false
+		}).parent('.ui-dialog').css('zIndex',150000);
+
+		$('#column-dialog').dialog({
+			autoOpen: false,
+			modal: true,
+			width: 'auto',
+			resizable: false,
+			draggable: true
+		}).parent('.ui-dialog').css('zIndex',150000);
+
 		$('#delete-confirm').dialog({
 			autoOpen: false,
 			resizable: false,
-			    modal: true,
+			modal: true,
 			dialogClass: "no-close",
 			    buttons: [{text:msg("simplepage.delete"),
 				          click: function() {
@@ -209,7 +237,17 @@ $(function() {
 				      }},{text:msg("simplepage.cancel_message"),
 				          click: function() {
 				          $( this ).dialog( "close" );}}
-				]});
+				]}).parent('.ui-dialog').css('zIndex',150000);
+		
+		$(window).resize(function() {
+			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
+			'#add-multimedia-dialog', '#edit-title-dialog', '#new-page-dialog', '#remove-page-dialog',
+			'#youtube-dialog', '#movie-dialog', '#import-cc-dialog', '#export-cc-dialog',
+			'#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
+			for (var i = 0; i < modalDialogList.length; i++) {
+				$(modalDialogList[i]).dialog("option", "width", modalDialogWidth());
+			}
+		});
 
 		/* RU Rubrics ********************************************* */
 		$("#rubric-title").append($("#peer-eval-title-cloneable input"));
@@ -221,9 +259,8 @@ $(function() {
 				
 		$('#peer-eval-create-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			height: 400,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
@@ -238,20 +275,20 @@ $(function() {
 		$("#select-resource-group").hide();
 
 		$('.subpage-link').click(function(){
-			closeDropdowns();
-			var position =  $(this).position();
-			$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
+			closeDropdowns();
+			if ($(this).hasClass("add-at-end"))
+			    addAboveItem = '';
+			$('#subpage-add-before').val(addAboveItem);
 			$('#subpage-dialog').dialog('open');
-			checksize($('#subpage-dialog'));
+			setupdialog($('#subpage-dialog'));
 			return false;
 		});
 
 		$('#edit-title').click(function(){
+			oldloc = $(".dropdown a");
 			closeDropdowns();
 			$('#edit-title-error-container').hide();
-			var position =  $(this).position();
-			$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
 			if ($("#page-points").val() === '') {
 				$("#page-gradebook").prop("checked", false);
 				$("#page-points").prop("disabled", true);
@@ -269,9 +306,8 @@ $(function() {
 			if ($("#currentReleaseDate").text() === '')
 			    $("#page-releasedate").prop('checked', false);
 
-			oldloc = $(".dropdown a");
 			$('#edit-title-dialog').dialog('open');
-			checksize($('#edit-title-dialog'));
+			setupdialog($('#edit-title-dialog'));
 			return false;
 		});
 
@@ -280,14 +316,12 @@ $(function() {
 		    });
 
 		$('#import-cc').click(function(){
-			closeDropdowns();
-			var position =  $(this).position();
-			$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
+			closeDropdowns();
 			$("#import-cc-loading").hide();
 			importccactive = true;
 			$('#import-cc-dialog').dialog('open');
-			checksize($('#import-cc-dialog'));
+			setupdialog($('#import-cc-dialog'));
 			return false;
 		});
 
@@ -310,12 +344,10 @@ $(function() {
 		});
 		
 		$('#export-cc').click(function(){
-			closeDropdowns();
-			var position =  $(this).position();
-			$("#export-cc-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
+			closeDropdowns();
 			$('#export-cc-dialog').dialog('open');
-			checksize($('#export-cc-dialog'));
+			setupdialog($('#export-cc-dialog'));
 			return false;
 		});
 
@@ -481,23 +513,19 @@ $(function() {
 	    });
 
 		$('#new-page').click(function(){
-			closeDropdowns();
-			var position =  $(this).position();
-			$("#new-page-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
+			closeDropdowns();
 			$('#new-page-dialog').dialog('open');
-			checksize($('#new-page-dialog'));
+			setupdialog($('#new-page-dialog'));
 			return false;
 		});
 
 		$('.remove-page').click(function(){
-			closeDropdowns();
-			var position =  $(this).position();
-			$("#remove-page-dialog").dialog("option", "position", [position.left, position.top]);
-			// rsf puts the URL on the non-existent src attribute
 			oldloc = $(".dropdown a");
+			closeDropdowns();
+			// rsf puts the URL on the non-existent src attribute
 			$('#remove-page-dialog').dialog('open');
-			checksize($('#remove-page-dialog'));
+			setupdialog($('#remove-page-dialog'));
 			return false;
 		});
 
@@ -509,33 +537,15 @@ $(function() {
 		//		return true;
 		//	});
 
-		var outerWidth = $('#outer').width();
-		if (outerWidth < 500) {
-			$("#subpage-dialog").dialog("option", "width", outerWidth-10);
-			$("#edit-item-dialog").dialog("option", "width", outerWidth-10);
-			$("#edit-multimedia-dialog").dialog("option", "width", outerWidth-10);
-			$("#add-multimedia-dialog").dialog("option", "width", outerWidth-10);
-			$("#edit-title-dialog").dialog("option", "width", outerWidth-10);
-			$("#import-cc-dialog").dialog("option", "width", outerWidth-10);
-			$("#export-cc-dialog").dialog("option", "width", outerWidth-10);
-			$("#new-page-dialog").dialog("option", "width", outerWidth-10);
-			$("#remove-page-dialog").dialog("option", "width", outerWidth-10);
-			$("#youtube-dialog").dialog("option", "width", outerWidth-10);
-			$("#movie-dialog").dialog("option", "width", outerWidth-10);
-			$("#subpage-link").dialog("option", "width", outerWidth-10);
-			$("#comments-dialog").dialog("option", "width", outerWidth-10);
-			$("#student-dialog").dialog("option", "width", outerWidth-10);
-			$("#question-dialog").dialog("option", "width", outerWidth-10);
-		}
-		
 		$(".edit-youtube").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
-            $('li').removeClass('editInProgress');
+			$('li').removeClass('editInProgress');
 			$("#editgroups-youtube").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-youtube").hide();
 
-			var row = $(this).parent().parent().parent();
+			var row = $(this).closest('li');
 
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
@@ -560,13 +570,10 @@ $(function() {
 			$("#youtubeHeight").val(row.find(".mm-height").text());
 			$("#youtubeWidth").val(row.find(".mm-width").text());
 			$("#description4").val(row.find(".description").text());
-			var position =  row.position();
-            $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
-			$("#youtube-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
 			$('#youtube-dialog').dialog('open');
-			checksize($('#youtube-dialog'));
+			setupdialog($('#youtube-dialog'));
 			$("#grouplist").hide();
 			return false;
 		});
@@ -577,6 +584,7 @@ $(function() {
 		    });
 
 		$('.edit-movie').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 	                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
@@ -586,7 +594,7 @@ $(function() {
 			$("#grouplist").hide();
 			$("#editgroups-movie").hide();
 
-			var row = $(this).parent().parent().parent();
+			var row = $(this).closest('li');
 			
 			var findObject = row.find('object').find('object');
 			row.find(".path-url").attr("href", findObject.attr("data"));
@@ -624,18 +632,16 @@ $(function() {
 			    $('#movie-prerequisite').prop('checked', false);
 			}
 			$("#mimetype4").val(row.find(".mm-type").text());
-			var position =  row.position();
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
-			$("#movie-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$("#movie-dialog").dialog('open');
-			checksize($("#movie-dialog"));
+			setupdialog($("#movie-dialog"));
 			$("#grouplist").hide();
 			return false;
 		});
 		
 		$(".edit-comments").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 			$("#editgroups-comments").after($("#grouplist"));
@@ -694,13 +700,10 @@ $(function() {
 				$("#comments-max").val("");
 			}
 			
-			var position = row.position();
             $('.edit-col').addClass('edit-colHidden');
             $(this).closest('li').addClass('editInProgress');
-			$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#comments-dialog').dialog('open');
-			checksize($("#comments-dialog"));
+			setupdialog($("#comments-dialog"));
 			$("#grouplist").hide();
 			return false;
 		});
@@ -711,8 +714,9 @@ $(function() {
 		    });
 
 		$(".edit-student").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
-            $('li').removeClass('editInProgress');
+			$('li').removeClass('editInProgress');
 			$("#editgroups-student").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-student").hide();
@@ -901,17 +905,28 @@ $(function() {
 			
 			insist = false;
 			$("#student-group-errors").text("");
-			var position = row.position();
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
-			$("#student-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#student-dialog').dialog('open');
-			checksize($("#student-dialog"));
+			setupdialog($("#student-dialog"));
 			$("#grouplist").hide();
 			return false;
 		});
 		
+		//		$(".mainList li").hover(function() {
+		//			$(this).find('.group-col').show();
+		//			var next = $(this).next();
+		//			if (next.hasClass('offscreen'))
+		//			    next = next.next();
+		//			next.find('.group-col').show();			
+		//		    }, function() {
+		//			$(this).find('.group-col').hide();
+		//			var next = $(this).next();
+		//			if (next.hasClass('offscreen'))
+		//			    next = next.next();
+		//			next.find('.group-col').hide();			
+		//		    });
+
 		$("#update-student").click(function(){
 			if (!insist && $("#student-group-owned").prop("checked")) {
 			    var groups = "";
@@ -937,13 +952,13 @@ $(function() {
 		$("#editgroups-student").click(function(){
 			$("#editgroups-student").hide();
 			$("#grouplist").show();
-			checksize($("#student-dialog"));
+			setupdialog($("#student-dialog"));
 		    });
 
 		$("#student-group-owned").click(function(){
 			$("#student-group-show").show();
 			$("#student-grouplist").show();
-			checksize($("#student-dialog"));
+			setupdialog($("#student-dialog"));
 		    });
 
 		$("#student-comments").click(function() {
@@ -958,6 +973,19 @@ $(function() {
 			}
 		});
 		
+		function fixAddBefore(href) {
+			var re = /(&|\?)addBefore=[^&]*(&|$)/;
+			var res = re.exec(href);
+			var n = res[1] + 'addBefore=' + (addAboveItem === null ? "" : addAboveItem) + res[2];
+			return href.replace(re, n);
+
+		}
+
+		$(".add-before-param").click(function() {
+			$(this).attr('href', fixAddBefore($(this).attr('href')));
+			return true;
+		    });
+
 		/* RU Rubrics ********************************************* */
 		$("#peer-eval-check").change(function() {
 			if(!$("#peer-eval-check").prop("checked")) {
@@ -1007,6 +1035,7 @@ $(function() {
 		});
 		
 		$('.question-link').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 
@@ -1017,8 +1046,6 @@ $(function() {
 			    $("#question-editgroups").show();
 			    $("#grouplist").show();
 			}
-
-			var position =  $(this).position();
 
 			$('#question-error-container').hide();
 			$("#questionEditId").val("-1");
@@ -1042,10 +1069,9 @@ $(function() {
 			$("#question-incorrect-text").val("");
 			$("#update-question").attr("value", msg("simplepage.save_message"));
 			
-			$("#question-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
+			$("#question-addBefore").val(addAboveItem);
 			$('#question-dialog').dialog('open');
-			checksize($('#subpage-dialog'));
+			setupdialog($('#subpage-dialog'));
 			$("#grouplist").hide();
 			return false;
 		});
@@ -1053,6 +1079,7 @@ $(function() {
 		$("#question-graded").click(checkQuestionGradedForm);
 		
 		$(".edit-question").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			
 			$("#question-editgroups").after($("#grouplist"));
@@ -1183,17 +1210,14 @@ $(function() {
 			
 			$("#delete-question-div").show();
 			
-			var position = row.position();
 			$("#delete-question-div").hide();
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
 			$('#question-error-container').hide();
 			$("#update-question").attr("value", msg("simplepage.edit"));
 
-			$("#question-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#question-dialog').dialog('open');
-			checksize($("#question-dialog"));
+			setupdialog($("#question-dialog"));
 			$("#grouplist").hide();
 			return false;
 		});
@@ -1210,15 +1234,14 @@ $(function() {
 
 			$("#mm-item-id").val($("#movieEditId").val());
 			$("#mm-is-mm").val('true');
+			$("#mm-add-before").val(addAboveItem);
 			var href=$(this).attr("href");
 			var editingCaption = (href.indexOf("&caption=true&")>0);
 			$("#mm-is-caption").val(editingCaption ? "true" : "false");
-			href=fixhref(href, $("#movieEditId").val(), "true", "false");
+			href=fixAddBefore(fixhref(href, $("#movieEditId").val(), "true", "false"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 
-			var position =  $("#movie-dialog").dialog('option','position');
-			$("#add-multimedia-dialog").dialog("option", "position", position);
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$("#checkingwithhost").hide();
@@ -1234,7 +1257,7 @@ $(function() {
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
-			checksize($("#add-multimedia-dialog"));
+			setupdialog($("#add-multimedia-dialog"));
 			// originally I thought it was confusing to start with the focus on some
 			// specific item in the dialog. The problem is that JAWS won't announce
 			// the dialog unless some item has focus
@@ -1246,15 +1269,16 @@ $(function() {
 		$("#expert-movie-toggle").click(function(){
 			$("#expert-movie-toggle-div").hide();
 			$("#expert-movie").show();
-			checksize($("#movie-dialog"));
+			setupdialog($("#movie-dialog"));
 			return false;
 		});
 		
 		$(".edit-link").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
-            $('li').removeClass('editInProgress');
-            $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
+			$('li').removeClass('editInProgress');
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
 			$("#require-label2").hide();
 			$("#item-required2").hide();
 			$("#assignment-dropdown-selection").hide();
@@ -1277,6 +1301,7 @@ $(function() {
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
 			$("#edit-height").hide();
+			$("#pathdiv").hide();
 			$("#editgroups").after($("#grouplist"));
 			
 			var row = $(this).parent().parent().parent();
@@ -1501,8 +1526,11 @@ $(function() {
 				}
 			    }
 			    row.find(".path-url").attr("href", row.find(".itemlink").attr('href'));
-			    $("#path").html(row.find(".item-path").html());
-
+			    var path = row.find(".item-path").html();
+			    if (path !==  null && path !== '') {
+				$("#path").html(path);
+				$("#pathdiv").show();
+			    }
 			}
 
 			if(row.find(".status-image").attr("src") === undefined) {
@@ -1519,11 +1547,8 @@ $(function() {
 			setUpRequirements();
 		        $("#item-id").val(row.find(".current-item-id2").text());
 			$("#edit-item-error-container").hide();
-			var position =  $(this).closest('li').position();
-			$("#edit-item-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$("#edit-item-dialog").dialog('open');
-			checksize($("#edit-item-dialog"));
+			setupdialog($("#edit-item-dialog"));
 			$("#grouplist").hide();
 			return false;
 		});
@@ -1544,12 +1569,11 @@ $(function() {
 
 			$("#mm-item-id").val($("#item-id").val());
 			$("#mm-is-mm").val('false');
+			$("#mm-add-before").val(addAboveItem);
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, $("#item-id").val(), "false", "false");
+			href=fixAddBefore(fixhref(href, $("#item-id").val(), "false", "false"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-			var position =  $("#edit-item-dialog").dialog('option','position');
-			$("#add-multimedia-dialog").dialog("option", "position", position);
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
@@ -1560,13 +1584,14 @@ $(function() {
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
-			checksize($("#add-multimedia-dialog"));
+			setupdialog($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
 			//$('.edit-multimedia-input').blur();
 			return false;
 		});
 
 		$(".add-multimedia").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 
 			mm_test_reset();
@@ -1575,14 +1600,12 @@ $(function() {
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('true');
 			$("#mm-is-website").val('false');
+			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, "-1", "true", "false");
+			href=fixAddBefore(fixhref(href, "-1", "true", "false"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-			var position =  $(this).position();
-            
-			$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
@@ -1592,29 +1615,30 @@ $(function() {
 			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
-			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
-			checksize($("#add-multimedia-dialog"));
+			setupdialog($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
 			//$('.mm-additional-instructions').blur();
 			return false;
 		});
 
 		$(".add-resource").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
+			if ($(this).hasClass("add-at-end"))
+			    addAboveItem = '';
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
 
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
+			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-website").val('false');
 			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href,"-1","false","false");
+			href=fixAddBefore(fixhref(href,"-1","false","false"));
 			$("#mm-choose").attr("href",href);
-			var position =  $(this).position();
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-			$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
 			$(".mm-additional").hide();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
@@ -1624,14 +1648,14 @@ $(function() {
 			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
-			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
-			checksize($("#add-multimedia-dialog"));
+			setupdialog($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
 			return false;
 		});
 
 		$(".add-website").click(function(){
+			oldloc = $(".dropdown a");
 			closeDropdowns();
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
@@ -1639,31 +1663,30 @@ $(function() {
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('true');
+			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, "-1","false","true");
+			href=fixAddBefore(fixhref(href, "-1","false","true"));
 			$("#mm-choose").attr("href",href);
-			var position =  $(this).position();
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-			$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
 			$(".mm-additional").hide();
 			$(".mm-additional-website").show();
 			$(".mm-url-section").hide();
 			$(".mm-prerequisite-section").show();
-			oldloc = $(".dropdown a");
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
 			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
-			checksize($("#add-multimedia-dialog"));
+			setupdialog($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
 			//$('.mm-additional-website-instructions').blur();
 			return false;
 		});
 
 		$(".multimedia-edit").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			mm_test_reset();
 			$('li').removeClass('editInProgress');
@@ -1736,14 +1759,11 @@ $(function() {
 			     $("#change-resource-mm").attr("href").replace("pageItemId=-1", 
 				   "pageItemId=" + row.find(".mm-itemid").text()));
 			$("#multimedia-item-id").val(row.find(".mm-itemid").text());
-			var position =  row.position();
             $('.edit-col').addClass('edit-colHidden');
             $(this).closest('li').addClass('editInProgress');
 
-			$("#edit-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$("#edit-multimedia-dialog").dialog('open');
-			checksize($("#edit-multimedia-dialog"));
+			setupdialog($("#edit-multimedia-dialog"));
 			$("#grouplist").hide();
 			return false;
 		});
@@ -1756,7 +1776,7 @@ $(function() {
 		$("#expert-multimedia-toggle").click(function(){
 			$("#expert-multimedia-toggle-div").hide();
 			$("#expert-multimedia").show();
-			checksize($("#edit-multimedia-dialog"));
+			setupdialog($("#edit-multimedia-dialog"));
 			return false;
 		});
 
@@ -1767,12 +1787,11 @@ $(function() {
 
 			$("#mm-item-id").val($("#multimedia-item-id").val());
 			$("#mm-is-mm").val('true');
+			$("#mm-add-before").val(addAboveItem);
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, $("#multimedia-item-id").val(), true, false);
+			href=fixAddBefore(fixhref(href, $("#multimedia-item-id").val(), true, false));
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 			$("#mm-choose").attr("href",href);
-			var position =  $("#edit-multimedia-dialog").dialog('option','position');
-			$("#add-multimedia-dialog").dialog("option", "position", position);
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
@@ -1783,7 +1802,7 @@ $(function() {
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
-			checksize($("#add-multimedia-dialog"));
+			setupdialog($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
 			//$('.mm-additional-instructions').blur();
 			return false;
@@ -1805,7 +1824,6 @@ $(function() {
 			}
 			insist = false;
 			$("#delete-confirm-message").text(message);
-			$("#delete-confirm").dialog("option", "position", [event.pageX, event.pageY-100]);
 			$("#delete-confirm").dialog('open');
 			return false;
 		    };
@@ -1817,6 +1835,18 @@ $(function() {
 			    return true;
 			delbutton = $('#delete-comments-item');
 			return delete_confirm(event, msg("simplepage.deletecommentsubmissionexist"));
+		    });
+
+		$('.add-link').attr('title', msg("simplepage.add-above"));
+
+		$('.del-item-link').attr('title', msg("simplepage.delete-item"));
+
+		$('.del-item-link').click(function(event) {
+			// edit row is set by edit-comments. We're current in the dialog. need
+			// to look in the actual page row.
+			$("#delete-item-itemid").val($(this).parents("li").find("span.itemid").text());
+			delbutton = $('#delete-item-button');
+			return delete_confirm(event, msg("simplepage.delete_page_confirm"));
 		    });
 
 		$('#delete-student-item').click(function(event) {
@@ -1898,7 +1928,7 @@ $(function() {
         e.preventDefault();
 		var pollGraph = $(this).parents(".questionDiv").find(".questionPollGraph");
 		
-		if($(this).find("span").text() === $(this).parent().find(".show-poll").text()) {
+		if($(this).attr("value") === $(this).parents(".questionDiv").find(".show-poll").text()) {
 			pollGraph.empty();
 			var pollData = [];
 			pollGraph.parent().find(".questionPollData").each(function(index) {
@@ -1911,17 +1941,168 @@ $(function() {
 			pollGraph.show();
 			pollGraph.jqBarGraph({data: pollData, height:100, speed:1});
 			
-			$(this).find("span").text($(this).parent().find(".hide-poll").text());
+			$(this).attr("value",($(this).parents(".questionDiv").find(".hide-poll").text()));
 		}else {
 			pollGraph.hide();
 			pollGraph.empty();
 			
-			$(this).find("span").text($(this).parent().find(".show-poll").text());
+			$(this).attr("value",($(this).parents(".questionDiv").find(".show-poll").text()));
 		}
 
         resizeFrame('grow');
 	});
 	
+	$('.add-break-section').click(function(e) {
+		e.preventDefault();
+		var newitem = addBreak(addAboveItem, 'section');
+		// addAboveLI is LI from which add was triggered
+		// following LI's if any
+		var tail_lis = addAboveLI.nextAll();
+		// current section DIV
+		var tail_uls = addAboveLI.parent().nextAll();
+		var tail_cols = addAboveLI.parent().parent().nextAll();
+		var section = addAboveLI.parent().parent().parent();
+		section.after('<div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-edit-icon plus-edit-icon">+</span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"></li></ul></div></div>');
+		// now go to new section
+		section = section.next();
+		// and move current item and following into the first col of the new section
+		section.find("ul").append(addAboveLI, tail_lis);
+		section.find(".column").append(tail_uls);
+		section.append(tail_cols);
+
+		// need trigger on the A we just added
+		section.find('.section-merge-link').click(sectionMergeLink);
+		section.find('.columnopen').click(columnOpenLink);
+		section.find('.add-bottom').click(buttonOpenDropdownb);
+		fixupColAttrs();
+		fixupHeights();
+		closeDropdownc();
+	    });
+
+	$('.add-break-column').click(function(e) {
+		e.preventDefault();
+		var newitem = addBreak(addAboveItem, 'column');
+
+		// addAboveLI is LI from which add was triggered
+		// following LI's if any
+		var tail_lis = addAboveLI.nextAll();
+		// current section DIV
+		var tail_uls = addAboveLI.parent().nextAll();
+		var column = addAboveLI.parent().parent();
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-edit-icon plus-edit-icon">+</span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"></li></ul></div>');
+		// now go to new section
+		column = column.next();
+		// and move current item and following into the first col of the new section
+		column.find("ul").append(addAboveLI, tail_lis);
+		column.find(".column").append(tail_uls);
+		// need trigger on the A we just added
+		column.find('.column-merge-link').click(columnMergeLink);
+		column.find('.columnopen').click(columnOpenLink);
+		column.find('.add-bottom').click(buttonOpenDropdownb);
+		fixupColAttrs();
+		fixupHeights();
+		closeDropdownc();
+	    });
+
+	$('.section-merge-link').click(sectionMergeLink);
+	$('.column-merge-link').click(columnMergeLink);
+
+	function sectionMergeLink(e) {
+		e.preventDefault();
+		deleteBreak($(this).attr('href').substring(1));
+		var thisCol = $(this).parents('.column');
+		// in first column all li's except the break
+		var tail_lis = thisCol.find('.mainList').children().first().nextAll();
+		var tail_uls = thisCol.find('.mainList').nextAll();
+		var tail_cols = thisCol.nextAll();
+
+		// current section DIV
+		var section = thisCol.parent();
+		// append rest of ul last one in prevous section
+		section.prev().find('ul').last().append(tail_lis);
+		section.prev().find('.column').last().append(tail_uls);
+		section.prev().append(tail_cols);
+		// nothing should be left in current section. kill it
+		section.remove();
+		fixupColAttrs();
+		fixupHeights();
+	};
+
+	function columnMergeLink(e) {
+		e.preventDefault();
+		deleteBreak($(this).attr('href').substring(1));
+		var thisCol = $(this).parents('.column');
+		// all li's expect break
+		var tail_lis = thisCol.find('.mainList').children().first().nextAll();
+		var tail_uls = thisCol.find('.mainList').nextAll();
+
+		// append rest of ul last one in prevous column;
+		thisCol.prev().find('ul').last().append(tail_lis);
+		thisCol.prev().append(tail_uls);
+		// nothing should be left in current section. kill it
+		thisCol.remove();
+		fixupColAttrs();
+		fixupHeights();
+	};
+
+	$('.columnopen').click(columnOpenLink);
+	function columnOpenLink(e) {
+	    var itemid = $(this).closest('.editsection').find('.column-merge-link,.section-merge-link').attr('href').substring(1);
+	    $('.currentlyediting').removeClass('currentlyediting');
+	    var col = $(this).closest('.column');
+	    col.addClass('currentlyediting');
+	    $('#columndouble').prop('checked', col.hasClass('double'));
+	    $('#columnsplit').prop('checked', col.hasClass('split'));
+	    $('#columnitem').val(itemid);
+	    $('#columntrans').prop('selected', col.hasClass('coltrans'));
+	    $('#columngray').prop('selected', col.hasClass('colgray'));
+	    $('#columnred').prop('selected', col.hasClass('colred'));
+	    $('#columnblue').prop('selected', col.hasClass('colblue'));
+	    $('#columngreen').prop('selected', col.hasClass('colgreen'));
+	    $('#columnyellow').prop('selected', col.hasClass('colyellow'));
+	    $('#column-dialog').dialog('open');
+	    return false;
+	}
+
+	$('#column-cancel').click(function() {
+		$('#column-dialog').dialog('close');
+		return false;
+	    });
+
+	$('#column-submit').click(function(){
+		var itemid = $('#columnitem').val();
+		var width = $('#columndouble').prop('checked') ? 2 : 1;
+		var split = $('#columnsplit').prop('checked') ? 2 : 1;
+		var col =  $('.currentlyediting');
+		var color_index = $('#columnbackground')[0].selectedIndex; 
+		var color = '';
+		switch (color_index) {
+		case 0: color = ''; break;
+		case 1: color = 'trans'; break;
+		case 2: color = 'gray'; break;
+		case 3: color = 'red'; break;
+		case 4: color = 'blue'; break;
+		case 5: color = 'green'; break;
+		case 6: color = 'yellow'; break;
+		}
+		setColumnProperties(itemid, width, split, color);
+		if (width === 2)
+		    col.addClass('double');		    
+		else
+		    col.removeClass('double');
+		if (split === 2)
+		    col.addClass('split');
+		else
+		    col.removeClass('split');
+		col.removeClass('coltrans colgray colred colblue colgreen colyellow');
+		if (color !== '')
+		    col.addClass('col' + color);
+		fixupColAttrs();
+		fixupHeights();
+		$('#column-dialog').dialog('close');
+		return false;
+	    });
+
 	// don't do this twice. if portal is loaded portal will do it
         if(typeof portal === 'undefined')
 	$('a.tool-directurl').cluetip({
@@ -2003,38 +2184,6 @@ $(function() {
 	$("#edit-youtube-error-container").hide();
 	$("#messages").hide();
 	
-	var megaConfig = {	
-			interval: 200,
-			sensitivity: 7,
-			over: buttonAddHighlight,
-			timeout: 700,
-			out: buttonRemoveHighlight
-	};
-	
-	var megaConfigc = {	
-			interval: 200,
-			sensitivity: 7,
-			over: buttonAddHighlightc,
-			timeout: 700,
-			out: buttonRemoveHighlightc
-	};
-
-	var dropdownConfig = {	
-			interval: 0,
-			sensitivity: 7,
-			over: menuAddHighlight,
-			timeout: 700,
-			out: menuRemoveHighlight
-	};
-
-	var dropdowncConfig = {	
-			interval: 0,
-			sensitivity: 7,
-			over: menuAddHighlightc,
-			timeout: 700,
-			out: menuRemoveHighlightc
-	};
-
 	// where html5 might work we have an html5 player followed by the ususal object or embed
 	// check the dom to see if it will actually work. If so use html5 with other stuff inside it
 	// otherwise remove html5
@@ -2060,15 +2209,31 @@ $(function() {
 	     }
             });
 
-	$("#dropdown").hoverIntent(megaConfig);
-	$("#dropdownc").hoverIntent(megaConfigc);
 	$("#moreDiv").hide();
 	$("#addContentDiv").hide();
-	$("#moreDiv").hoverIntent(dropdownConfig);
-	$("#addContentDiv").hoverIntent(dropdowncConfig);
-	$("#dropdown").click(buttonToggleDropdown);
-	$("#dropdownc").click(buttonToggleDropdownc);
-	dropDownViaClick = false;
+	$("#dropdown").click(buttonOpenDropdown);
+	$("#dropdownc").click(buttonOpenDropdownc);
+	$(".add-link").click(buttonOpenDropdowna);
+	$(".add-bottom").click(buttonOpenDropdownb);
+
+	$("#moreDiv").on('keyup',function(evt) {
+		if (evt.which == 27) {
+		    closeDropdown($("#moreDiv"), $("#dropdown"));
+		};
+	    });
+
+	$("#addContentDiv").on('keyup',function(evt) {
+		if (evt.which == 27) {
+		    closeDropdown($("#addContentDiv"), $("#dropdownc"));
+		};
+	    });
+
+	// trap jquery close so we can clean up
+	$("[aria-describedby='addContentDiv'] .ui-dialog-titlebar-close")
+	    .click(closeDropdownc);
+
+	$("[aria-describedby='moreDiv'] .ui-dialog-titlebar-close")
+	    .click(closeDropdown);
 
 	return false;
 });
@@ -2203,7 +2368,8 @@ function checkYoutubeForm(w, h) {
 		return false;
 	}
 
-	if($('#youtubeURL').val().contains('youtube.com')) {
+	if($('#youtubeURL').val().contains('youtube.com') ||
+	   $('#youtubeURL').val().contains('youtu.be')) {
 		return true;
 	}else {
 		$('#edit-youtube-error').val(msg("simplepage.must_be_youtube"));
@@ -2395,142 +2561,69 @@ $(function() {
 });
 
 var hasBeenInMenu = false;
+var addAboveItem = "";
+var addAboveLI = null;
 
-function buttonAddHighlight() {
-    if (!$("#addContentDiv").is(":visible"))
-	addHighlight($("#moreDiv"));
+function buttonOpenDropdown() {
+    oldloc = $("#dropdown");
+    addAboveItem = "";
+    openDropdown($("#moreDiv"), $("#dropdown"));
+}
+
+function buttonOpenDropdownc() {
+    oldloc = $("#dropdownc");
+    addAboveItem = "";
+    $(".addbreak").hide();
+    openDropdown($("#addContentDiv"), $("#dropdownc"));
+}
+
+function buttonOpenDropdowna() {
+    addAboveLI = $(this).closest("li");
+    oldloc = addAboveLI.find(".plus-edit-icon");
+    addAboveItem = addAboveLI.find("span.itemid").text();
+    $(".addbreak").show();
+    openDropdown($("#addContentDiv"), $("#dropdownc"));
+}
+
+function buttonOpenDropdownb() {
+    oldloc = $(this);
+    addAboveItem = '-' + $(this).closest('.column').find('ul').children().last().find("span.itemid").text();
+    $(".addbreak").show();
+    openDropdown($("#addContentDiv"), $("#dropdownc"));
     return false;
 }
 
-function buttonAddHighlightc() {
-    if (!$("#moreDiv").is(":visible"))
-	addHighlight($("#addContentDiv"));
+function openDropdown(dropDiv, button) {
+    closeDropdowns();
+    hideMultimedia();
+    dropDiv.dialog('open');
+    dropDiv.find("a").first().focus();
     return false;
-}
-
-function menuAddHighlight() {
-    hasBeenInMenu = true;
-    addHighlight($("#moreDiv"));
-    return false;
-}
-
-function menuAddHighlightc() {
-    hasBeenInMenu = true;
-    addHighlight($("#addContentDiv"));
-    return false;
-}
-
-function menuRemoveHighlight() {
-    removeHighlight($("#moreDiv"), $("#dropdown a"));
-    return false;
-}
-
-function menuRemoveHighlightc() {
-    removeHighlight($("#addContentDiv"), $("#dropdownc a"));
-    return false;
-}
-
-function buttonRemoveHighlight() {
-    if (!hasBeenInMenu)
-	removeHighlight($("#moreDiv"), $("#dropdown a"));
-	return false;
-}
-
-function buttonRemoveHighlightc() {
-    if (!hasBeenInMenu)
-	removeHighlight($("#addContentDiv"), $("#dropdownc a"));
-	return false;
-}
-
-function addHighlight(dropDiv) {
-	if(!lessonBuilderAnimationLocked) {
-		if(!dropDiv.is(":visible")) {
-			closeDropdowns();
-			lessonBuilderAnimationLocked = true;
-			hideMultimedia();
-			reposition();
-			$(dropDiv).show("slide", {direction: "up"}, 300, unlockAnimation);
-			dropDiv.find(".firstDropItem").focus();
-			checksize(dropDiv);
-		}
-	}
-	//$(this).addClass("hovering");
-	return false;
-}
-
-function removeHighlight(dropDiv, button) {
-	if(!lessonBuilderAnimationLocked) {
-		if(dropDiv.is(":visible") && !dropdownViaClick) {
-			hasBeenInMenu = false;
-			lessonBuilderAnimationLocked = true;
-			dropDiv.hide("slide", {direction: "up"}, 300, unlockAnimation);
-			unhideMultimedia();
-			button.focus();
-		}
-	}
-	//$(this).removeClass("hovering");
-	return false;
-}
-
-function buttonToggleDropdown() {
-    toggleDropdown($("#moreDiv"), ("#dropdown a"));
-}
-
-function buttonToggleDropdownc() {
-    toggleDropdown($("#addContentDiv"), ("#dropdownc a"));
-}
-
-function toggleDropdown(dropDiv, button) {
-	if(!lessonBuilderAnimationLocked) {
-		if(dropDiv.is(":visible")) {
-			lessonBuilderAnimationLocked = true;
-			hasBeenInMenu = false;
-			dropDiv.hide("slide", {direction: "up"}, 300, unlockAnimation);
-			unhideMultimedia();
-			dropdownViaClick = false;
-			button.focus();
-		}else {
-			closeDropdowns();
-			lessonBuilderAnimationLocked = true;
-			hideMultimedia();
-			reposition();
-			dropDiv.show("slide", {direction: "up"}, 300, unlockAnimation);
-			dropDiv.find(".firstDropItem").focus();
-			checksize(dropDiv);
-			dropdownViaClick = true;
-		}
-	}
-	return false;
 }
 
 function closeDropdowns() {
-    closeDropdown($("#addContentDiv"), $("#dropdownc a"));
-    closeDropdown($("#moreDiv"), $("#dropdown a"));
+    closeDropdown($("#addContentDiv"), $("#dropdownc"));
+    closeDropdown($("#moreDiv"), $("#dropdown"));
 }
 
+function closeDropdownc() {
+    closeDropdown($("#addContentDiv"), $("#dropdownc"));
+}
+
+function closeDropdown() {
+    closeDropdown($("#moreDiv"), $("#dropdown"));
+}
 
 function closeDropdown(dropDiv, button) {
-
-	if(!lessonBuilderAnimationLocked) {
-		if(dropDiv.is(":visible")) {
-			hasBeenInMenu = false;
-			dropDiv.hide();
-			unhideMultimedia();
-			dropdownViaClick = false;
-			button.focus();
-		}
-	}
-	return false;
+    dropDiv.dialog('close');
+    unhideMultimedia();
+    oldloc.focus();
+    return false;
 }
 
 function reposition() {
     // seems not needed now
     //    dropdown.css("left", "0x");
-}
-
-// Keeps JQuery from getting confused mid-animation
-function unlockAnimation() {
-	lessonBuilderAnimationLocked = false;
 }
 
 function hideMultimedia() {
@@ -2709,6 +2802,52 @@ function getGroupErrors(groups) {
      return errors;
 }
 
+function addBreak(itemId, type) {
+    var errors = '';
+    var url = location.protocol + '//' + location.host + 
+	'/lessonbuilder-tool/ajax';
+    var grouped;
+    var csrf = $("#edit-item-dialog input[name='csrf8']").attr('value');
+    $.ajax({type: "POST",
+	    async: false,
+	    url: url,
+	    data: {op: 'insertbreakbefore', itemid: itemId, type: type, cols:'1', csrf: csrf},
+	    success: function(data){
+		grouped = data;
+	    }});
+    return grouped;
+}
+
+function deleteBreak(itemId, type) {
+    var errors = '';
+    var url = location.protocol + '//' + location.host + 
+	'/lessonbuilder-tool/ajax';
+    var grouped;
+    var csrf = $("#edit-item-dialog input[name='csrf8']").attr('value');
+    $.ajax({type: "POST",
+	    async: false,
+	    url: url,
+	    data: {op: 'deleteitem', itemid: itemId, csrf: csrf},
+	    success: function(data){
+		grouped = data;
+	    }});
+}
+
+function setColumnProperties(itemId, width, split, color) {
+    var errors = '';
+    var url = location.protocol + '//' + location.host + 
+	'/lessonbuilder-tool/ajax';
+    var grouped;
+    var csrf = $("#edit-item-dialog input[name='csrf8']").attr('value');
+    $.ajax({type: "POST",
+	    async: false,
+	    url: url,
+		data: {op: 'setcolumnproperties', itemid: itemId, width: width, split: split, csrf: csrf, color: color},
+	    success: function(data){
+		ok = data;
+	    }});
+}
+
 var mimeMime = "";
 
 function getMimeType(url) {
@@ -2789,3 +2928,35 @@ function printView(url) {
 	return url;
     return url.substring(0, i) + url.substring(j);
 }
+// make columns in a section the same height. Is there a better place to trigger this?
+// use load because we want to do this after images, etc. are loaded so heights are set
+
+// fix up cols1, cols2, etc, after splitting a section
+function fixupColAttrs() {
+    $(".section").each(function(index) {
+	    var count = $(this).find(".column").size() + $(this).find(".double").size();
+	    $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9 lastcol');
+	    $(this).find(".column").last().addClass('lastcol');
+	    $(this).find(".column").addClass('cols' + count);
+	});
+};
+
+$(window).load(fixupHeights);
+
+function fixupHeights() {
+    $(".section").each(function(index) {
+	    var max = 0;
+	    // reset to auto to cause recomputation. This is needed because
+	    // this gets called after contents of columns have changed.
+	    $(this).find(".column").css('height','auto');
+	    $(this).find(".column").each(function (i) {
+		    if ($(this).height() > max)
+			max = $(this).height();
+		});
+	    $(this).find(".column").each(function (i) {
+		    if (max > $(this).height())
+			$(this).height(max);
+		});
+	});
+};
+

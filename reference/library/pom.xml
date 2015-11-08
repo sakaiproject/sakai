@@ -35,6 +35,15 @@
 			<artifactId>sakai-fck-connector</artifactId>
 			<type>war</type>
 		</dependency>
+		<!-- At the moment we're unpacking the webjars, so we don't want them bundled into the WAR
+		     but we still need them as dependencies so the plugin unpacks them, that's why they
+		     have a scope of runtime -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>codemirror</artifactId>
+			<version>5.6</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
@@ -81,7 +90,6 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
-						<version>2.7</version>
 						<executions>
 							<execution>
 								<id>copy-images</id>
@@ -112,6 +120,39 @@
 											<includes>
 												<include>lib/**/*.js</include>
 												<include>ie/**/*.js</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-fonts</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/fonts/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/${sakai.skin.source}/fonts/</directory>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-fonts-css</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/font-awesome/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/${sakai.skin.source}/fonts/</directory>
+											<includes>
+												<include>*.css</include>
 											</includes>
 										</resource>
 									</resources>
@@ -190,6 +231,18 @@
 								<version>1.0.3</version>
 								<type>gem</type>
 							</dependency>
+							<dependency>
+								<groupId>rubygems</groupId>
+								<artifactId>font-awesome-sass</artifactId>
+								<version>4.3.2.1</version>
+								<type>gem</type>
+							</dependency>
+							<dependency>
+								<groupId>rubygems</groupId>
+								<artifactId>bootstrap-sass</artifactId>
+								<version>3.3.5.1</version>
+								<type>gem</type>
+							</dependency>
 						</dependencies>
 					</plugin>
 					<plugin>
@@ -235,7 +288,22 @@
 		</profile>
 	</profiles>
 	<build>
-		<resources />
-		<!-- java source -->
+		<plugins>
+			<!-- This unpacks the webjars into the webapp -->
+			<plugin>
+				<groupId>org.sakaiproject.maven.plugins</groupId>
+				<artifactId>webjars-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>unpack-webjars</id>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<phase>generate-resources</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 </project>

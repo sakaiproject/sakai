@@ -1,4 +1,16 @@
 <div class="portletBody">
+#if ( $autoLaunch ) 
+<p>$tlang.getString("content.redirecting")</p>
+<script type="text/javascript"><!--
+setTimeout('window.location="$autoLaunch";', 1500);
+// -->
+</script>
+#else
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('lti_content_config.vm');</script>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
 	<h3>
 		$tlang.getString("content.put")
 	</h3>
@@ -11,6 +23,15 @@
 #end
 #if ( $tool_description ) 
 <p>$validator.escapeHtml($tool_description)</p>
+#end
+#if ( $contentLaunch )
+<p>
+$tlang.getString("contentitem.detail")
+</p>
+<p>
+<a href="$contentLaunch">$tlang.getString("contentitem.link")</a>
+</p>
+</p>
 #end
 #if ( $keyField ) 
 $tlang.getString("need.tool.info")
@@ -34,7 +55,20 @@ $tlang.getString("need.tool.info")
 #end
 		</p>
 	</form>
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
 #if ( $isAdmin ) 
 $tlang.getString("content.admin.note")
+#end
+#if ( ! $isAdmin )
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
 #end
 </div>

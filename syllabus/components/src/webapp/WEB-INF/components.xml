@@ -66,6 +66,7 @@
 		<property name="contentHostingService">
 			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
 		</property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 	</bean>
 
 	<bean id="FixPublicSyllabusAttachmentsJob"
@@ -73,6 +74,7 @@
  		<property name="syllabusManager">
 			<ref bean="org.sakaiproject.api.app.syllabus.SyllabusManager" />
 		</property>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 		<!-- This is the userId the job will run under.  This user must have
 		the appropriate permissions to create new permissions/realms for any site in the system -->
 		<property name="userId" value="admin" />

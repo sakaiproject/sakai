@@ -140,7 +140,18 @@
 
 #user-create_edit fieldset
 {
-    width: 33em;
+    display:inline-block;
+}
+
+.createBlurb
+{
+    display:table;
+    width:33em;
+}
+
+.createBlurb p
+{
+    margin: 10px 0;
 }
 
 #useredit fieldset
@@ -152,36 +163,6 @@
 {
     padding: 0 0.5em;
     color: rgb(85, 85, 85);
-}
-
-input[type="submit"].active
-{
-    background: #009DCE !important;
-    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%) !important;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5)) !important;
-    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    color: #fff !important;
-    text-shadow: none !important;
-    border: 1px solid #007EA5 !important;
-}
-
-input[type="submit"].active[disabled],input[type="submit"].active[disabled="disabled"],input[type="submit"].active[disabled="true"],
-input[type="submit"].active[disabled]:hover,input[type="submit"].active[disabled="disabled"]:hover,input[type="submit"].active[disabled="true"]:hover
-{
-    background: #eeeeee !important;
-    background: -moz-linear-gradient(top, #eeeeee 0%, #eeeeee 100%) !important;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#eeeeee)) !important;
-    background: -webkit-linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    background: -o-linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    background: -ms-linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    background: linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    color: #bbb !important;
-    border: 1px solid #E0E3E5 !important;
-    text-shadow: 0 2px 3px #FFFFFF !important;
-    cursor: default;
 }
 
 .spinner {

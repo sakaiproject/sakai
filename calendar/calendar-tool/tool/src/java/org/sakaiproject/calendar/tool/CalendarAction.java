@@ -49,7 +49,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
@@ -206,6 +206,8 @@ extends VelocityPortletStateAction
 
 	// Dependency: setup in init
 	private OpaqueUrlDao opaqueUrlDao;
+
+	private AliasService aliasService;
    
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
 	private final static String ASSN_ENTITY_ID     = "assignment";
@@ -213,6 +215,11 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
+
+	public CalendarAction() {
+		super();
+		aliasService = ComponentManager.get(AliasService.class);
+	}
 	
 	/**
 	 * Converts a string that is used to store additional attribute fields to an array of strings.
@@ -483,6 +490,9 @@ extends VelocityPortletStateAction
 		
 		public String getDayName()
 		{
+			SimpleDateFormat df = new SimpleDateFormat("EEE");
+			GregorianCalendar calendar = new GregorianCalendar(getYear(),getMonth()-1,getDay());
+			dayName = df.format(calendar.getTime());
 			return dayName;
 		}
 		
@@ -4019,7 +4029,7 @@ extends VelocityPortletStateAction
 
 		if ( calendarObj != null )
 		{
-			List aliasList =	AliasService.getAliases( calendarObj.getReference() );
+			List aliasList =	aliasService.getAliases( calendarObj.getReference() );
 			if ( ! aliasList.isEmpty() )
 			{
 				String alias[] = ((Alias)aliasList.get(0)).getId().split("\\.");
@@ -4028,7 +4038,11 @@ extends VelocityPortletStateAction
 		}
 
 		context.put("serverName", ServerConfigurationService.getServerName());
-		
+
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		context.put("icalInfoStr",icalInfoStr);
 			
 		// Add iCal Export URL
 		Reference calendarRef = EntityManager.newReference(calId);
@@ -4056,6 +4070,10 @@ extends VelocityPortletStateAction
 		context.put("isMyWorkspace", isOnWorkspaceTab());
 		context.put("form-generate", BUTTON + "doOpaqueUrlGenerate");
 		context.put("form-cancel", BUTTON + "doCancel");
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		context.put("icalInfoStr",icalInfoStr);
 	}
 	
 	/**
@@ -4067,6 +4085,12 @@ extends VelocityPortletStateAction
 		Reference calendarRef = EntityManager.newReference(calId);
 		String opaqueUrl = ServerConfigurationService.getAccessUrl()
 			+ CalendarService.calendarOpaqueUrlReference(calendarRef);
+
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		context.put("icalInfoStr",icalInfoStr);
+
 		context.put("opaqueUrl", opaqueUrl);
 		context.put("webcalUrl", opaqueUrl.replaceFirst("http", "webcal"));
 		context.put("isMyWorkspace", isOnWorkspaceTab());
@@ -5747,7 +5771,7 @@ extends VelocityPortletStateAction
 		{
 			calendarObj = CalendarService.getCalendar(calId);
 		
-			List aliasList =	AliasService.getAliases( calendarObj.getReference() );
+			List aliasList =	aliasService.getAliases( calendarObj.getReference() );
 			String oldAlias = null;
 			if ( ! aliasList.isEmpty() )
 			{
@@ -5759,10 +5783,10 @@ extends VelocityPortletStateAction
 			if ( alias != null && (oldAlias == null || !oldAlias.equals(alias)) )
 			{
 				// first, clear any alias set to this calendar
-				AliasService.removeTargetAliases(calendarObj.getReference());
+				aliasService.removeTargetAliases(calendarObj.getReference());
 				
 				alias += ICAL_EXTENSION;
-				AliasService.setAlias(alias, calendarObj.getReference());
+				aliasService.setAlias(alias, calendarObj.getReference());
 			}
 		}
 		catch (IdUnusedException ie)
@@ -7427,6 +7451,10 @@ extends VelocityPortletStateAction
 
 		context.put("calendarFormattedText", new CalendarFormattedText());
 
+		String currentUserId = UserDirectoryService.getCurrentUser().getId();
+		boolean canViewEventAudience = SecurityService.unlock(currentUserId, org.sakaiproject.calendar.api.CalendarService.AUTH_VIEW_AUDIENCE, "/site/" + ToolManager.getCurrentPlacement().getContext());
+        context.put("canViewAudience", !canViewEventAudience);
+
 	}	 // buildListContext
 	
 	private void buildPrintMenu( VelocityPortlet portlet,
@@ -7611,37 +7639,38 @@ extends VelocityPortletStateAction
 			allow_delete = false;
 		}
 		
-		bar.add( new MenuEntry(rb.getString("java.new"), null, allow_new, MenuItem.CHECKED_NA, "doNew") );
+		bar.add( new MenuEntry(rb.getString("java.new"), rb.getString("java.new.title"), null, allow_new, MenuItem.CHECKED_NA, "doNew") );
+		
+		// See if we are allowed to import items.
+		if ( allow_import_export )
+		{
+			bar.add( new MenuEntry(rb.getString("java.import"), rb.getString("java.import.title"), null, allow_new, MenuItem.CHECKED_NA, "doImport") );
+		}
 		
 		//
 		// See if we are allowed to merge items.
 		//
 		bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
-
-		// See if we are allowed to import items.
-		if ( allow_import_export )
-		{
-			bar.add( new MenuEntry(rb.getString("java.import"), null, allow_new, MenuItem.CHECKED_NA, "doImport") );
-		}
+		
+		// See if we are allowed to configure external calendar subscriptions
+		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,false))
+			{
+				bar.add( new MenuEntry(rb.getString("java.subscriptions"), rb.getString("java.subscriptions.title"), null, allow_subscribe, MenuItem.CHECKED_NA, "doSubscriptions") );
+			}
 		
 		// See if we are allowed to export items.
 		String calId = state.getPrimaryCalendarReference();
 		if ( (allow_import_export || CalendarService.getExportEnabled(calId)) && 
 			  ServerConfigurationService.getBoolean("ical.experimental",false))
 		{
-			bar.add( new MenuEntry(rb.getString("java.export"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
+			bar.add( new MenuEntry(rb.getString("java.export"), rb.getString("java.export.title"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
 		}
 		
-		// See if we are allowed to configure external calendar subscriptions
-		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,false))
-			{
-				bar.add( new MenuEntry(rb.getString("java.subscriptions"), null, allow_subscribe, MenuItem.CHECKED_NA, "doSubscriptions") );
-			}
 		
 		// A link for subscribing to the implicit calendar
 		if ( ServerConfigurationService.getBoolean("ical.opaqueurl.subscribe", true) )
 		{
-			bar.add( new MenuEntry(rb.getString("java.opaque_subscribe"), null, allow_subscribe_this, MenuItem.CHECKED_NA, "doOpaqueUrl") );
+			bar.add( new MenuEntry(rb.getString("java.opaque_subscribe"), rb.getString("java.opaque_subscribe.title"), null, allow_subscribe_this, MenuItem.CHECKED_NA, "doOpaqueUrl") );
 		}
 		
 		//2nd menu bar for the PDF print only

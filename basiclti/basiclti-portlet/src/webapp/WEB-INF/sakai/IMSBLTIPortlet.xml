@@ -48,9 +48,9 @@
                 <configuration name="imsti.allowsettings" />
                 <configuration name="imsti.allowroster" />
                 <configuration name="imsti.allowoutcomes" />
-                <configuration name="imsti.allowlori" />
                 <configuration name="imsti.contentlink" />
                 <configuration name="imsti.splash" />
+                <configuration name="imsti.fa-icon" /> <!-- A font awesome icon line "fa-adjust" -->
 
                 <!-- Setting these to true means the corresponding above values 
 		     cannot be altered by by the instructor.  -->
@@ -72,9 +72,9 @@
                 <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
                 <configuration name="final.allowoutcomes" value="false"/>
-                <configuration name="final.allowlori" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
                 <configuration name="final.splash" value="false"/>
+                <configuration name="final.fa-icon" value="false"/>
 
                 <!-- Allow multiple instances of this tool within one site -->
                 <configuration name="allowMultipleInstances" value="true" />
@@ -115,7 +115,6 @@
                 <configuration name="imsti.allowsettings" value="on"/>
                 <configuration name="imsti.allowroster" value="on"/> 
                 <configuration name="imsti.allowoutcomes" value="on"/> 
-                <configuration name="imsti.allowlori" value="on"/> 
                 <configuration name="imsti.contentlink" />
                 <configuration name="imsti.splash" value="You are leaving this system."/>
 
@@ -136,7 +135,6 @@
                 <configuration name="final.allowsettings" value="true"/>
                 <configuration name="final.allowroster" value="true"/>
                 <configuration name="final.allowoutcomes" value="true"/>
-                <configuration name="final.allowlori" value="true"/>
                 <configuration name="final.contentlink" value="true"/>
                 <configuration name="final.splash" value="true"/>
         </tool>

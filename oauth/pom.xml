@@ -55,9 +55,9 @@
     <modules>
         <module>api</module>
         <module>impl</module>
-        <module>impl/dao-hbm</module>
-        <module>impl/dao-memory</module>
-        <module>impl/dao-server-config</module>
+        <module>dao-hbm</module>
+        <module>dao-memory</module>
+        <module>dao-server-config</module>
         <module>pack</module>
         <module>tool</module>
     </modules>
@@ -74,7 +74,7 @@
         <joda-time.version>2.2</joda-time.version>
         <commons-logging.version>1.1.1</commons-logging.version>
         <servlet-api.version>2.5</servlet-api.version>
-        <wicket.version>1.4.20</wicket.version>
+        <wicket.version>1.4.23</wicket.version>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
 

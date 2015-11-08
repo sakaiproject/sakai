@@ -201,10 +201,6 @@ public interface MessageForumsForumManager {
 
     public PrivateForum getPrivateForumByOwnerAreaNull(final String owner);
     
-    public PrivateForum getPrivateForumByOwnerAreaWithAllTopics(final String owner, final Area area);
-    
-    public PrivateForum getPrivateForumByOwnerAreaNullWithAllTopics(final String owner);
-    
     public List getForumByTypeAndContextWithTopicsMembership(final String typeUuid, final String contextId);
     
     /**

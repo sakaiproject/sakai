@@ -137,6 +137,7 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
             $('#' + list + ' input:checkbox').prop('checked', false);
             $('#' + list + ' tbody tr').removeClass(highlightClass);
         }
+        utils.checkEnableUnjoin();
     });
     
     $('#' + list + ' input:checkbox').click(function(){
@@ -548,6 +549,41 @@ utils.endDialog = function(ev, dialogTarget){
 
 };
 
+utils.checkEnableUnjoin = function()
+{
+    var disabled = $( ".joinable:checked" ).length > 0 ? false : true;
+    $( "#reset" ).prop( "disabled", disabled );
+    $( "#unjoin" ).prop( "disabled", disabled );
+    if( disabled )
+    {
+        $( "#unjoin" ).removeClass( "active" );
+    }
+    else
+    {
+        $( "#unjoin" ).addClass( "active" );
+    }
+};
+
+utils.clearSelections = function()
+{
+    $( "#currentSites input:checkbox" ).prop( "checked", false);
+    $( "#currentSites tbody tr").removeClass( "selectedSelected" );
+    utils.checkEnableUnjoin();
+};
+
+utils.labelFor = function(elementId)
+{
+    var labels = document.getElementsByTagName("label");
+    for (var i = 0; i < labels.length; i++)
+    {
+	    if (labels[i].htmlFor === elementId)
+	    {
+		    return labels[i];
+	    }
+    }
+	
+	return null;
+}
 
 // toggle a fade
 jQuery.fn.fadeToggle = function(speed, easing, callback){
@@ -912,6 +948,12 @@ var setupCategTools = function(){
         } else {
             // for each tool with this id, set check to false and fade in/out selectedTool display
             setChecked(selectedId,false);
+            var originalInputId = selectedId.replace(/_/g, ".");
+            var label = utils.labelFor(originalInputId);
+            if (label !== null)
+            {
+                label.style.fontWeight = "normal";
+            }
         }
         
         // SAK-22384
@@ -925,6 +967,8 @@ var setupCategTools = function(){
         
         noTools();
     });
+	
+	
  
     $('.moreInfoTool').click(function(e){
         e.preventDefault();

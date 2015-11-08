@@ -21,10 +21,10 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -104,7 +104,7 @@ public class AdminPage extends BasePage {
 
 			@Override
 			protected void onSelectionChanged(Object newSelection) {
-				setRedirect(true);
+				
 				setResponsePage(getPage());
 				super.onSelectionChanged(newSelection);
 			}

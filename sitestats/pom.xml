@@ -31,9 +31,8 @@
     <mysql.version>5.1.25</mysql.version>
     <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
     <fop.version>1.0</fop.version>
-    <poi.version>3.11</poi.version>
     <jfreechart.version>1.0.5</jfreechart.version>
-    <sst.wicket.version>1.4.23</sst.wicket.version>
+    <sst.wicket.version>6.20.0</sst.wicket.version>
   </properties>
 
   <!-- Project modules -->
@@ -65,11 +64,6 @@
   </profiles>
 
   <!-- Source code repository location -->
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</developerConnection>
-    <url>http://source.sakaiproject.org/viewsvn/sitestats/trunk</url>
-  </scm>
 
   <!-- Distribution Management -->
   <distributionManagement>
@@ -141,13 +135,14 @@
       <dependency>
         <groupId>org.apache.poi</groupId>
         <artifactId>poi</artifactId>
-        <version>${poi.version}</version>
+        <version>${sakai.poi.version}</version>
       </dependency>
       <!-- Apache Wicket -->
       <dependency>
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket</artifactId>
         <version>${sst.wicket.version}</version>
+        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.apache.wicket</groupId>
@@ -172,6 +167,11 @@
       <dependency>
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-datetime</artifactId>
+        <version>${sst.wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-devutils</artifactId>
         <version>${sst.wicket.version}</version>
       </dependency>
       <!-- JFreeChart -->
@@ -199,33 +199,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <!-- Build -->
-  <build>
-    <plugins>
-      <!-- maven-surefire-report-plugin 2.8+ requires maven-site-plugin 2.1+ -->
-      <plugin>
-        <inherited>true</inherited>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>2.1</version>
-      </plugin>
-      <!-- Downgrade surefireplugin version due to build error. -->
-      <plugin>
-        <inherited>true</inherited>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <systemPropertyVariables>
-            <!-- Pass through important service-integration test properties. -->
-            <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
-            <test.sakai.home>${test.sakai.home}</test.sakai.home>
-          </systemPropertyVariables>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
   <!-- Reporting (mvn site) -->
   <reporting>

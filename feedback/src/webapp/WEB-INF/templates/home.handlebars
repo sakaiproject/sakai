@@ -1,0 +1,77 @@
+<h2 id="feedback-title">{{translate 'title'}}</h2>
+<div id="feedback-overview" class="instruction">
+    {{translate 'overview'}}
+</div>
+<div id="feedback-help-wrapper" class="instruction">
+	<span>{{translate 'help_home' helpPagesUrl=helpPagesUrl helpPagesTarget=helpPagesTarget}}</span>
+</div>
+<div id="feedback-technical-setup-instruction" class="information">
+    {{translate 'technical_setup_instruction'}}
+</div>
+<div id="feedback-links">
+
+    {{#if showContentPanel}}
+        <div class="feedback-box" id="feedback-content-problem">
+            <h3>{{translate 'content_title'}}</h3>
+            <ul>{{translate 'content_explanation'}}</ul>
+            <p><a id="feedback-report-content-link" href="javascript:;">{{translate 'content_link'}}</a></p>
+            <div class="clear"></div>
+        </div>
+    {{/if}}
+
+    {{#if showHelpPanel}}
+        <div class="feedback-box" id="feedback-ask-help">
+            <h3>{{translate 'ask_title'}}</h3>
+            <ul>{{translate 'ask_explanation'}}</ul>
+        	{{#if enableTechnical}}
+            	<p><a id="feedback-report-helpdesk-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+            {{else}}
+            	<p class='information'>{{translate 'no_technical_address'}}</p>
+            {{/if}}
+            <div class="clear"></div>
+        </div>
+    {{/if}}
+
+    {{#if showTechnicalPanel}}
+        <div class="feedback-box" id="feedback-tech-problem">
+            <h3>{{translate 'technical_title'}}</h3>
+            <ul>{{translate 'technical_explanation'}}</ul>
+        	{{#if enableTechnical}}
+        		<p><a id="feedback-report-technical-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+            {{else}}
+            	<p class='information'>{{translate 'no_technical_address'}}</p>
+            {{/if}}
+            <div class="clear"></div>
+        </div>
+    {{/if}}
+
+    {{#if showSuggestionsPanel}}
+        <div class="feedback-box" id="feedback-improvement">
+            <h3>{{translate 'suggest_title'}}</h3>
+            <ul>{{translate 'suggest_explanation'}}</ul>
+            {{#if featureSuggestionUrl}}
+            	<p><a id="feedback-suggest-feature-link" href="{{featureSuggestionUrl}}" target="_blank">{{translate 'suggest_link'}}</a></p>
+            {{else}}
+            	<p class='information'>{{translate 'no_suggestion_url'}}</p>
+            {{/if}}
+            <div class="clear"></div>
+        </div>
+    {{/if}}
+
+    {{#unless showContentPanel}}
+        {{#unless showHelpPanel}}
+            {{#unless showTechnicalPanel}}
+                {{#unless showSuggestionsPanel}}
+                    <div class="feedback-box" id="feedback-no-panels">
+                        <h3>{{translate 'no_panels_title'}}</h3>
+                        <p>{{translate 'no_panels_explanation'}}</p>
+                        <div class="clear"></div>
+                    </div>
+                {{/unless}}
+            {{/unless}}
+        {{/unless}}
+    {{/unless}}
+
+    <div id="feedback-supplementary-info">{{{supplementaryInfo}}}</div>
+    <div class="clear"></div>
+</div>

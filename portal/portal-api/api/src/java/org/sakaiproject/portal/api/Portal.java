@@ -76,11 +76,6 @@ public interface Portal
 	public static final String ATTR_SITE_PAGE = "sakai.portal.site.";
 
 	/**
-	 * Session variable passing a maximized URL between a portlet and the portal
-	 */
-	public static final String ATTR_MAXIMIZED_URL = "sakai:maximized-url";
-
-	/**
 	 * The default portal name is none is specified.
 	 */
 	public static final String DEFAULT_PORTAL_CONTEXT = "charon";
@@ -89,11 +84,6 @@ public interface Portal
 	 * Configuration option to enable/disable state reset on navigation change
 	 */
 	public static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
-	
-    /**
-	* Configuration option for default number of site tabs to display to users
-	*/
-	public static final String CONFIG_DEFAULT_TABS = "portal.default.tabs";
 
 	/**
 	 * Names of tool config/registration attributes that control the rendering
@@ -112,26 +102,6 @@ public interface Portal
 	 * as they are being placed in the context.
 	 */
 	public static final String JSR_168_PRE_RENDER = "sakai:portlet-pre-render";
-
-	/**
-	 * Tool property used to indicate if a tool prefers a maximized view
-	 * with minimal portal navigation.
-	 */
-	public static final String PREFER_MAXIMIZE = "sakai:prefer-maximize";
-	
-	/**
-	 * Name of cookie that is set to signal that the user wants us to start minimized
-	 */
-	public static final String SAKAI_NAV_MINIMIZED = "sakai_nav_minimized";
-
-	/**
-         * Constants for SAK-19455 - The NEO Portlet Feature that allows a portlet
-	 * to suppress its title and add to the system breadcrumbs.
-	 */
-        public static final String SAKAI_PORTAL_ALLOW_NEO = "sakai-portal:allow-neo";
-        public static final String SAKAI_PORTAL_HELP_ACTION = "sakai-portal:help-action";
-        public static final String SAKAI_PORTAL_RESET_ACTION = "sakai-portal:reset-action";
-        public static final String SAKAI_PORTAL_SUPPRESSTITLE = "sakai-portal:suppresstitle";
 
 	/**
 	 * Tool property to allow the enabling/disabling of the direct url linking UI
@@ -381,13 +351,6 @@ public interface Portal
 	 * @return
 	 */
 	ServletContext getServletContext();
-
-	/**
-         * Look at the user agent and add Mobile Browser related material to 
-	 * the context.
-	 */
- 	void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext);
-
 
 	/**
 	 * Return the sub sites below a particular site

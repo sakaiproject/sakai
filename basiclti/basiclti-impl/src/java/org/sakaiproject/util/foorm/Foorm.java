@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *		   http://www.opensource.org/licenses/ECL-2.0
+ *    http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,6 +45,10 @@ public class Foorm {
 	public static String NUMBER_TYPE = "java.lang.Number";
 	public static String STRING_TYPE = "java.lang.String";
 
+	// Anything longer than this is treated as "LONG TEXT"
+	// With multiple megabytes of text possible
+	// Make this larger than 2^16 (65535)
+	public static int MAX_TEXT = 70000;
 
 	// Parse a form field description
 	// field:type:key=value:key2=value2
@@ -99,6 +103,7 @@ public class Foorm {
 		if (key instanceof Number)
 			return new Long(((Number) key).longValue());
 		if (key instanceof String) {
+			if ( ((String)key).length() < 1 ) return new Long(-1);
 			try {
 				return new Long((String) key);
 			} catch (Exception e) {
@@ -583,9 +588,8 @@ public class Foorm {
 		return formInputText(value.toString(), field, label, required, size, loader);
 	}
 
-	// Produce a form for createing a new object or editing an existing object
 	/**
-	 * 
+	 * Produce a form for creating a new object or editing an existing object
 	 */
 	public String formInput(Object row, String fieldinfo, Object loader) {
 		Properties info = parseFormString(fieldinfo);
@@ -600,19 +604,20 @@ public class Foorm {
 		Object value = getField(row, field);
 		String label = info.getProperty("label", field);
 		
-		// look for tool id prefix
-		if (field.indexOf("_") != -1)
+		// look for fields with a tool id prefix like 694_fa_prefix
+		int pos = field.indexOf("_");
+		if (pos != -1 && field.length() > pos+1)
 		{
-			String[] array = field.split("_");
-			
+			String first = field.substring(0,pos);
+			String second = field.substring(pos+1);
 			try
 			{
 				// the first array item should be an long value
-				Long.parseLong(array[0]);
+				Long.parseLong(first);
 				// reset the input value
-				value = getField(row, array[1]);
+				value = getField(row, second);
 				// reset the input label
-				label = info.getProperty("label", array[1]);
+				label = info.getProperty("label", second);
 			}
 			catch (NumberFormatException e)
 			{
@@ -1010,7 +1015,7 @@ public class Foorm {
 			}
 			if ( "header".equals(type) ) continue;
 			String label = info.getProperty("label", field);
-			// System.out.println("field="+field+" type="+type);
+			logger.fine("field="+field+" type="+type);
 
 			// Check the automatically populate empty date fields
 			if ("autodate".equals(type) && dataMap != null && (!isFieldSet(parms, field)) ) {
@@ -1041,11 +1046,13 @@ public class Foorm {
 				if ( errors != null ) errors.put(label, error);
 			}
 
-			String maxs = info.getProperty("maxlength", null);
+			String maxs = adjustMax(info.getProperty("maxlength", null));
 			if (maxs != null && dataField instanceof String) {
 				int maxlength = (new Integer(maxs)).intValue();
 				String truncate = info.getProperty("truncate", "true");
-				if (sdf.length() > maxlength) {
+				if ( maxlength >= MAX_TEXT ) {
+					// We are OK
+				} else if (sdf.length() > maxlength) {
 					if ("true".equals(truncate)) {
 						sdf = sdf.substring(0, maxlength);
 						dataField = sdf;
@@ -1206,6 +1213,89 @@ public class Foorm {
 	}
 
 	/**
+	 * Check to see if an order clause is valid
+	 *
+	 * A legal order fields is of the form:
+	 *
+	 * [tablename].fieldname [asc|desc]
+	 * 
+	 * @param order
+	 * @param tableName
+	 * @param fieldinfo
+	 * @return null if the order is not valid and a good order string if if is OK
+	 */
+	public String orderCheck(String order, String tableName, String[] fieldinfo) {
+
+		if ( order == null ) return null;
+		String order_seq = null;
+		String order_table = null;
+		String order_field = null;
+
+		String opieces [] = order.trim().split(" ");
+		if ( opieces.length > 2 ) {
+			return null;
+		} else if ( opieces.length == 2 ) {
+			order_seq = opieces[1].toUpperCase();
+			if ( "ASC".equals(order_seq) || "DESC".equals(order_seq) ) {
+				// All good
+			} else {
+				return null;
+			}
+		}
+
+		String [] fpieces = opieces[0].split("\\.");
+		String regex = "^[a-zA-Z0-0_]+$";
+
+		if ( fpieces.length == 1 ) {
+			order_field = fpieces[0];
+		} else if ( fpieces.length == 2 )  {
+			order_table = fpieces[0];
+			order_field = fpieces[1];
+			if ( !order_table.matches(regex) ) {
+				return null;
+			}
+		} else {
+			return null;
+		}
+
+		if ( !order_field.matches(regex) ) {
+			return null;
+		}
+		if ( order_table == null ) {
+			order_table = tableName;
+		} else if ( ! tableName.equals(order_table) ) {
+			return null;
+		}
+
+		// Make sure our field is legit
+		StringBuffer fields = new StringBuffer();
+		boolean found = false;
+		for (String line : fieldinfo) {
+			Properties info = parseFormString(line);
+			String field = info.getProperty("field");
+			String type = info.getProperty("type");
+			if (field == null || type == null) {
+				throw new IllegalArgumentException(
+						"All model elements must include field name and type");
+			}
+			if ( "header".equals(type) ) continue;
+			if ( field.equals(order_field) ) {
+				found = true;
+				break;
+			}
+		}
+		if ( ! found ) {
+			return null;
+		}
+
+		String retval = order_table+"."+order_field;
+		if ( order_seq != null ) {
+			retval = retval + " " + order_seq;
+		}
+		return retval;
+	}
+
+	/**
 	 * 
 	 * @param dataMap
 	 * @return
@@ -1354,7 +1444,7 @@ public class Foorm {
 		String field = info.getProperty("field", null);
 		String type = info.getProperty("type", null);
 		if ( "header".equals(type) ) return null;
-		String maxs = info.getProperty("maxlength", null);
+		String maxs = adjustMax(info.getProperty("maxlength", null));
 		int maxlength = 0;
 		if (maxs != null)
 			maxlength = (new Integer(maxs)).intValue();
@@ -1397,12 +1487,16 @@ public class Foorm {
 					schema = "CLOB";
 				}
 			} else if ("hsqldb".equals(vendor)) {
-				schema = "VARCHAR(" + maxlength + ")";
-			} else {
-				if (maxlength < 512) {
+				if ( maxlength < 4000 ) {
 					schema = "VARCHAR(" + maxlength + ")";
 				} else {
-					schema = "TEXT(" + maxlength + ")";
+					schema = "CLOB";
+				}
+			} else {
+				if (maxlength < 4000) {
+					schema = "VARCHAR(" + maxlength + ")";
+				} else {
+					schema = "MEDIUMTEXT";
 				}
 			}
 		} else if ("radio".equals(type) || "checkbox".equals(type) ) {
@@ -1419,7 +1513,7 @@ public class Foorm {
 		// With no data - the software can still enforce required - but	
 		// we leave it up to the insert and update code
 		//if ("true".equals(required) && !(schema.indexOf("NOT NULL") > 0))
-			//schema += " NOT NULL";
+		//schema += " NOT NULL";
 		return "    " + field + " " + schema;
 	}
 
@@ -1449,7 +1543,7 @@ public class Foorm {
 			String field = info.getProperty("field", null);
 			String type = info.getProperty("type", null);
 			if ( "header".equals(type) ) continue;
-			String maxs = info.getProperty("maxlength", null);
+			String maxs = adjustMax(info.getProperty("maxlength", null));
 			int maxlength = 0;
 			if (maxs != null) maxlength = (new Integer(maxs)).intValue();
 			if (maxlength < 1) maxlength = 80;
@@ -1460,7 +1554,6 @@ public class Foorm {
 			boolean isNullable = false;			
 			try {
 				for( int i = 1; i <= md.getColumnCount(); i++ ) {
-					// System.out.println("F="+field+" SF="+md.getColumnLabel(i));
 					if ( field.equalsIgnoreCase(md.getColumnLabel(i)) ) {
 						sqlLength = md.getColumnDisplaySize(i);
 						autoIncrement = md.isAutoIncrement(i);
@@ -1473,8 +1566,9 @@ public class Foorm {
 				// ignore
 			}
 
-			// System.out.println( field + " (" + maxlength + ") type="+type);
-			// System.out.println( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
+			logger.fine( field + " (" + maxlength + ") type="+type);
+			logger.fine( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
+
 			//  If the field is not there...
 			if ( sqlType == null ) {
 				if ( "oracle".equals(vendor) ) {
@@ -1584,7 +1678,6 @@ public class Foorm {
 				c = c.getSuperclass();
 			}
 		} catch(Exception e) {
-			// System.out.println("OOPS");
 			e.printStackTrace();
 		}
 		return className;
@@ -1665,6 +1758,18 @@ public class Foorm {
 			int recordCount = (endRec - startRec) + 1;
 			return sqlIn + " limit " + startRec + "," + recordCount;
 		}
+	}
+
+	/**
+	 * Deal with suffixes like "M" and "K"
+	 */
+	public String adjustMax(String maxs)
+	{
+		if ( maxs == null ) return null;
+		maxs = maxs.toLowerCase();
+		if ( maxs.endsWith("m")) maxs = maxs.replace("m","000000");
+		if ( maxs.endsWith("k")) maxs = maxs.replace("k","000");
+		return maxs;
 	}
 
 }

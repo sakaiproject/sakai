@@ -99,7 +99,19 @@ public interface PortalSiteHelper
 			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
 			boolean expandSite, boolean resetTools, boolean doPages,
 			String toolContextPath, boolean loggedIn);
-	
+
+	/**
+	 * SAK-29138 - Get the site or section title for the current user for the current site.
+	 * Takes into account 'portal.use.sectionTitle' sakai.property; if set to true,
+	 * this method will return the title of the section the current user is enrolled
+	 * in for the site (if it can be found). Otherwise, it will return the site
+	 * title (default behaviour)
+	 * 
+	 * @param site the site in question
+	 * @return the site or section title
+	 */
+	String getUserSpecificSiteTitle( Site site );
+
 	/**
 	 * Generates a SiteView object from the current request and location
 	 * @param view

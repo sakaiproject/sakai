@@ -135,10 +135,13 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 				// the mappings to be seen while the transaction remains
 				// uncommitted.
 				gradebook.setGradeMappings(gradeMappings);
-				
+
 				gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
 				gradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 
+				//SAK-29740 make backwards compatible
+				gradebook.setCourseLetterGradeDisplayed(true);
+				
 				// Update the gradebook with the new selected grade mapping
 				session.update(gradebook);
 
@@ -187,6 +190,64 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			}
 		});
 	}
+
+	@Override
+	public void updateGradeMapping(final Long gradeMappingId, final Map<String, Double> gradeMap){
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				GradeMapping gradeMapping = (GradeMapping)session.load(GradeMapping.class, gradeMappingId);
+				gradeMapping.setGradeMap(gradeMap);
+				session.update(gradeMapping);
+				session.flush();
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public void saveGradeMappingToGradebook(final String scaleUuid, final String gradebookUid) {
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+
+				List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
+
+
+				for (Iterator iter = gradingScales.iterator(); iter.hasNext(); ) {
+					GradingScale gradingScale = (GradingScale) iter.next();
+					if (gradingScale.getUid().equals(scaleUuid)){
+						GradeMapping gradeMapping = new GradeMapping(gradingScale);
+						Gradebook gradebookToSet = getGradebook(gradebookUid);
+						gradeMapping.setGradebook(gradebookToSet);
+						session.save(gradeMapping);
+					}
+				}
+				session.flush();
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public List getAvailableGradingScales() {
+
+		return (List)getHibernateTemplate().execute(new HibernateCallback() {
+
+			public List doInHibernate(Session session) throws HibernateException {
+				// Get available grade mapping templates.
+				List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
+
+				// The application won't be able to run without grade mapping
+				// templates, so if for some reason none have been defined yet,
+				// do that now.
+				if (gradingScales.isEmpty()) {
+					if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
+					gradingScales = GradebookFrameworkServiceImpl.this.addDefaultGradingScales(session);
+				}
+				return gradingScales;
+			}
+		});
+	}
+
 
 	public void setDefaultGradingScale(String uid) {
 		setPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY, uid);

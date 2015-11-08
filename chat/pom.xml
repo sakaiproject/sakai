@@ -20,11 +20,6 @@
     <module>chat-tool/tool</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/chat/trunk</url>
-  </scm>
 
   <dependencyManagement>
     <dependencies>

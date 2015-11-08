@@ -1,0 +1,78 @@
+#* @vtlmacrolibrary path="../resources/sakai_metadata-edit.vm" *#
+#* @vtlvariable name="item" type="org.sakaiproject.content.tool.ListItem" *#
+#* @vtlvariable name="site_id" type="java.lang.String" *#
+#* @vtlvariable name="metadataType" type="org.sakaiproject.content.metadata.model.MetadataType" *#
+#* @vtlvariable name="metadataValue" type="java.lang.Object" *#
+#* @vtlvariable name="multipleMetadataType" type="java.util.List<java.lang.String>" *#
+#* @vtlvariable name="groupMetadataLevel" type="int" *#
+#* @vtlvariable name="groupMetadataValue" type="java.util.List<java.lang.Object>" *#
+#* @vtlvariable name="groupMetadataType" type="java.util.List<org.sakaiproject.content.metadata.model.MetadataType>" *#
+#* @vtlvariable name="suffix" type="java.lang.String" *#
+
+<label>#printMetadataName($metadataType)</label>
+
+#if($multipleMetadataType.contains($metadataType.uniqueName))
+  #foreach($value in $metadataValue)
+  <!-- Double selection -->
+  <select name="${metadataType.uniqueName}_first_count${suffix}">
+      <option></option>
+      #foreach ($f in [0..99])
+          <option #if($value.firstCount == $f) selected="selected" #end value="$f">$f</option>
+      #end
+  </select>
+  <select name="${metadataType.uniqueName}_first_unit${suffix}">
+      <option></option>
+      #foreach ($unit in $metadataType.units)
+          <option #if($value.firstUnit == ${unit})selected="selected"#end value="${unit}">
+              $metaLang.getString("label.lom_duration.${unit}")
+          </option>
+      #end
+  </select>
+
+  <select name="${metadataType.uniqueName}_second_count${suffix}">
+      <option></option>
+      #foreach ($f in [0..99])
+          <option #if($value.secondCount == $f) selected="selected" #end value="$f">$f</option>
+      #end
+  </select>
+  <select name="${metadataType.uniqueName}_second_unit${suffix}">
+      <option></option>
+      #foreach ($unit in $metadataType.units)
+          <option #if($value.secondUnit == ${unit})selected="selected"#end value="${unit}">
+              $metaLang.getString("label.lom_duration.${unit}")
+          </option>
+      #end
+  </select>
+  #end
+#else
+    <!-- Double selection -->
+    <select name="${metadataType.uniqueName}_first_count${suffix}">
+        <option></option>
+        #foreach ($f in [0..99])
+            <option #if($metadataValue.firstCount == $f) selected="selected" #end value="$f">$f</option>
+        #end
+    </select>
+    <select name="${metadataType.uniqueName}_first_unit${suffix}">
+        <option></option>
+        #foreach ($unit in $metadataType.units)
+            <option #if($metadataValue.firstUnit == ${unit})selected="selected"#end value="${unit}">
+                $metaLang.getString("label.lom_duration.${unit}")
+            </option>
+         #end
+    </select>
+
+    <select name="${metadataType.uniqueName}_second_count${suffix}">
+        <option></option>
+        #foreach ($f in [0..99])
+            <option #if($metadataValue.secondCount == $f) selected="selected" #end value="$f">$f</option>
+        #end
+    </select>
+    <select name="${metadataType.uniqueName}_second_unit${suffix}">
+        <option></option>
+        #foreach ($unit in $metadataType.units)
+            <option #if($metadataValue.secondUnit == ${unit})selected="selected"#end value="${unit}">
+                $metaLang.getString("label.lom_duration.${unit}")
+            </option>
+        #end
+    </select>
+#end

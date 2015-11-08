@@ -589,6 +589,15 @@ function lockdownMarkForReview(value) {
   }
 }
 
+function initTimedCheckBox(){
+		var timedHours = document.getElementById("assessmentSettingsAction\:timedHours");
+		var timedHoursVal = timedHours.options[timedHours.selectedIndex].value;
+		var timedMinutes = document.getElementById("assessmentSettingsAction\:timedMinutes");
+		var timedMinutesVal = timedMinutes.options[timedMinutes.selectedIndex].value;
+		
+		if((timedHoursVal != "0") || (timedMinutesVal != "0")) document.getElementById("assessmentSettingsAction\:selTimeAssess").checked=true;
+}
+
 function lockdownAnonyGrading(value) {
 	if (value == 'Anonymous Users') {
 		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', 'checked');
@@ -617,4 +626,19 @@ function show_multiple_text(show_multiple_link){
 		}
 	});
 	$(show_multiple_link).hide();
+}
+
+function checkLastHandling(){
+	var isDisabled=$('input[id*="lateHandling"]:checked').val();
+	var retractDate = $('input[id*="retractDate"]:visible');
+	//$('input[id*="retractDate"]:visible').prop( "disabled", isDisabled);
+	//$('input[id*="retractDate"]:visible').next().show;
+	
+	if(isDisabled==2){
+		$(retractDate).prop( "disabled", true );
+		$(retractDate).next().hide();
+	}else{
+		$(retractDate).prop( "disabled", false );
+		$(retractDate).next().show();
+	}
 }

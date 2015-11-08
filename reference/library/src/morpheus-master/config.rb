@@ -1,6 +1,7 @@
 # Require any additional compass plugins here.
 # require 'breakpoint'
-
+require 'font-awesome-sass'
+require 'bootstrap-sass'
 # Set this to the root of your project when deployed:
 sass_dir = "sass"
 images_dir = "images"

@@ -1,0 +1,24 @@
+#cookie-notice{
+	font-size: 0.9em;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	background-color: $primary-color;
+	color: $background-color;
+	z-index: 50;
+	.cookie-notice-content{
+		max-width: $measure;
+		margin: 1em auto;
+		padding: 0.5em;
+	}
+	a{
+		color: $background-color-secondary;
+	}
+	.cookie-notice-text{
+		display: inline;
+	}
+	#cookie-notice-close{
+		display: inline;
+		@extend .button;
+	}
+}

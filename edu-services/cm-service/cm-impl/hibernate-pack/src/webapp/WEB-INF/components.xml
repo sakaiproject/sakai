@@ -148,6 +148,9 @@
    		<property name="classPathToXml">
    			<value>org/sakaiproject/coursemanagement/impl/job/sampleCMData.xml</value>
    		</property>
+   		<property name="authzGroupService">
+   			<ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+   		</property>
    	</bean>
 -->
 
@@ -167,6 +170,18 @@
       </property>
    </bean>
 -->
+
+    <!-- SAK-29138 - SiteTitleAdvisor default impl registration -->
+    <bean id="org.sakaiproject.site.api.SiteTitleAdvisor"
+        class="org.sakaiproject.coursemanagement.impl.SiteTitleAdvisorCMS"
+        init-method="init"
+        singleton="true">
+        <property name="uds" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="ss" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="cms" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+        <property name="scs" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="azgs" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    </bean>
 
  </beans>
 

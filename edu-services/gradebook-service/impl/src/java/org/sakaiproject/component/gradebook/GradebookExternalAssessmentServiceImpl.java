@@ -271,11 +271,23 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         // any deletions at present. See the comments to deleteGradebook
         // for the details.
         HibernateTemplate hibTempl = getHibernateTemplate();
+        
+        List toBeDeletedEvents = hibTempl.find("from GradingEvent as ge where ge.gradableObject=?", asn);
+        int numberDeletedEvents = toBeDeletedEvents.size();
+        hibTempl.deleteAll(toBeDeletedEvents);
+        if (logData.isDebugEnabled()) logData.debug("Deleted " + numberDeletedEvents + "records from gb_grading_event_t");
 
         List toBeDeleted = hibTempl.find("from AssignmentGradeRecord as agr where agr.gradableObject=?", asn);
         int numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " externally defined scores");
+
+        toBeDeleted = hibTempl.find( "from Comment as c where c.gradableObject = ?", asn );
+        hibTempl.deleteAll( toBeDeleted );
+        if( log.isInfoEnabled() )
+        {
+            log.info( "Deleted " + toBeDeleted.size() + " externally defined score comments" );
+        }
 
         // Delete the assessment.
 		hibTempl.flush();
@@ -958,6 +970,18 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 	private NumberFormat getNumberFormat() {
 	    return NumberFormat.getInstance(new ResourceLoader().getLocale());
+	}
+	
+	public Long getExternalAssessmentCategoryId(String gradebookUId, String externalId) {
+		Long categoryId = null;
+		final Assignment assignment = getExternalAssignment(gradebookUId, externalId);
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUId);
+		}
+		if (assignment.getCategory() != null) {
+			categoryId = assignment.getCategory().getId();
+		}
+		return categoryId;
 	}
 
 }

@@ -57,7 +57,7 @@
 					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<label for="view">$tlang.getString("gen.view2")</label>
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-					<select name="view" id="view" size="1" tabindex="3" onchange="ASN.disableControls();ASN.showSpinner( 'viewSpinner' );document.viewFormList.submit();">
+					<select name="view" id="view" size="1" tabindex="3" onchange="ASN.disableControls( null, 'studentLink' );ASN.showSpinner( 'viewSpinner' );document.viewFormList.submit();">
 						<option value="lisofass1" >$!tlang.getString('lisofass1')</option>
 						<option value="lisofass2" selected="selected" >$!tlang.getString('lisofass2')</option>
 					</select>
@@ -74,7 +74,7 @@
 						</div>
  						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 
- 						<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="ASN.disableControls();ASN.showSpinner( 'groupSpinner' );blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+ 						<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="ASN.disableControls( null, 'studentLink' );ASN.showSpinner( 'groupSpinner' );blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
 
 							#if (!$showSubmissionByFilterSearchOnly)
 								<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
@@ -91,7 +91,8 @@
 
 					#if( !$hasAtLeastOneAnonAssignment )
 					<label for="$form_search" class="skip">$tlang.getString("search")</label>
-					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
+					<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" 
+						name="search" id="search" type="text" class="searchField" size="20" />
 					<input type="button" value="$tlang.getString('search')" onclick="ASN.applySearchFilter( 'search', true );" />
 					#if (($!searchString) && (!$searchString.equals("")))
 						<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="ASN.applySearchFilter( 'clearSearch', true );" />
@@ -143,12 +144,12 @@
 							<td headers="studentname" class="specialLink">	
 								<h4>
 								#if (!$studentListShowSet.contains($member.Id))
-									<a href="#" onclick="ASN.disableControls();ASN.showSpinner( 'userSpinner_$member.Id' );location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" 
-											title="$tlang.getString("stulistsunbm.shostuass")">
+									<a href="#" onclick="ASN.disableControls( null, 'studentLink' );ASN.showSpinner( 'userSpinner_$member.Id' );location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" 
+											title="$tlang.getString("stulistsunbm.shostuass")" name="studentLink" >
 										<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />
 								#else 
-									<a href="#" onclick="ASN.disableControls();ASN.showSpinner( 'userSpinner_$member.Id' );location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" 
-											title="$tlang.getString("stulistsunbm.hidstuass")">
+									<a href="#" onclick="ASN.disableControls( null, 'studentLink' );ASN.showSpinner( 'userSpinner_$member.Id' );location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" 
+											title="$tlang.getString("stulistsunbm.hidstuass")" name="studentLink" >
 										<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />
 								#end
 										$submitterName
@@ -180,10 +181,12 @@
 											<h5>
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.limit($validator.escapeHtml($assignment.Title), 40)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
+												#set( $spinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignment.Reference) )
 												<div class="itemAction">
-													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
-														$tlang.getString("subasstudent")
+													<a onclick="ASN.disableControls( null, 'studentLink' );ASN.showSpinner( '$spinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
+														$tlang.getString("submitforstudent")
 													</a>
+													<img id="$spinnerID" class="spinner" src="/library/image/indicator.gif" />
 												</div>
 												#end
 											#else

@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -58,6 +59,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
@@ -107,21 +109,45 @@ public class SavePartListener
     
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
-
+	
     // #1a. prepare sectionBean
     AssessmentService assessmentService = null;
     SectionFacade section = null;
+    
+    // permission check
+    String creator;
+    if (isEditPendingAssessmentFlow)
+    {
+        assessmentService = new AssessmentService();
+        AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
+        creator = af.getCreatedBy();
+    }
+    else
+    {
+        PublishedAssessmentService pubService = new PublishedAssessmentService();
+        assessmentService = pubService;
+        PublishedAssessmentFacade paf = pubService.getSettingsOfPublishedAssessment(assessmentId);
+        creator = paf.getCreatedBy();
+    }
+    
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (!authzBean.isUserAllowedToEditAssessment(assessmentId, creator, !isEditPendingAssessmentFlow))
+    {
+        String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+        context.addMessage(null, new FacesMessage(err));
+        sectionBean.setOutcome("editPart");
+        return;
+    }
+    
     if (isEditPendingAssessmentFlow) {
     	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
-    	assessmentService = new AssessmentService();
     }
     else {
     	EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
-    	assessmentService = new PublishedAssessmentService();
     }
-    
-    boolean addItemsFromPool = false;
 
+    boolean addItemsFromPool = false;
+	
     sectionBean.setOutcome("editAssessment");
    
     if((sectionBean.getType().equals("2"))&& (sectionBean.getSelectedPool().equals(""))){

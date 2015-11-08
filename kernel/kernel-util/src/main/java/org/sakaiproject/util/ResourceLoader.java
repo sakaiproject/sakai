@@ -27,6 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.i18n.InternationalizedMessages;
+import org.sakaiproject.messagebundle.api.MessageBundleService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 
@@ -59,9 +61,6 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 
     // cached set of ResourceBundle objects
 	protected ConcurrentHashMap<Locale, ResourceBundle> bundles = new ConcurrentHashMap<Locale, ResourceBundle>();
-
-    // cached set of last time bundle was loaded
-    protected ConcurrentHashMap<Locale, Date> bundlesTimestamp = new ConcurrentHashMap<Locale, Date>();
 
 	// current user id
 	protected String userId = null;
@@ -99,6 +98,26 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	    return preferencesService;
 	}
 	
+	private static MessageBundleService messageBundleService;
+    protected MessageBundleService getMessageBundleService() {
+        if (messageBundleService == null) {
+            synchronized (LOCK) {
+                messageBundleService = (MessageBundleService) ComponentManager.get(MessageBundleService.class.getName());
+            }
+        }
+        return messageBundleService;
+    }
+
+    private static ThreadLocalManager threadLocalManager;
+    protected static ThreadLocalManager getThreadLocalManager() {
+        if (threadLocalManager == null) {
+            synchronized (LOCK) {
+                threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
+            }
+        }
+        return threadLocalManager;
+    }
+
 	/**
 	 * Default constructor (may be used to find user's default locale 
 	 *                      without specifying a bundle)
@@ -652,54 +671,53 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 */
 	protected ResourceBundle getBundle()
 	{
-        if (ServerConfigurationService.getBoolean("load.bundles.from.db", false)) {
-            return getBundleFromDb();
-        }
 		Locale loc = getLocale();
+		String context = (String) getThreadLocalManager().get(org.sakaiproject.util.RequestFilter.CURRENT_CONTEXT);
+
+        if (M_log.isDebugEnabled()) M_log.debug("Request for bundle " + baseName + "/" + context + "/" + loc.toString());
+
 		ResourceBundle bundle = this.bundles.get(loc);
 		if (bundle == null)
 		{
-			if (M_log.isDebugEnabled()) {
-				M_log.debug("Load bundle name=" + this.baseName + ", locale=" + getLocale().toString());
-			}
-			bundle = loadBundle(loc);
+			bundle = loadBundle(context, loc);
 		}
-		return bundle;
-	}
 
-    /**
-     *
-     * @return ResourceBundle from the cache or retrieved from the MessageService data store
-     */
-	protected ResourceBundle getBundleFromDb()
-	{
-		Locale loc = getLocale();
-        //TODO consider using a better caching method here
-		ResourceBundle bundle = this.bundles.get(loc);
-        Date timeStamp = this.bundlesTimestamp.get(loc);
-		if ((timeStamp == null || timeStamp.getTime() + ServerConfigurationService.getInt("load.bundles.from.db.timeout", 30000) < new Date().getTime() ) )
-		{
-			M_log.debug("Load bundle name=" + this.baseName + ", locale=" + getLocale().toString());
-			bundle = loadBundle(loc);
-		}
+        if (ServerConfigurationService.getBoolean("load.bundles.from.db", false)) {
+
+            Map<String, String> bundleFromDbMap = getMessageBundleService().getBundle(baseName, context, loc);
+            if (!bundleFromDbMap.isEmpty()) {
+                // skip if there are no modified bundle data
+                Map<String, Object> bundleMap = getBundleAsMap(bundle);
+                bundleMap.putAll(bundleFromDbMap);
+                bundle = new MapResourceBundle(bundleMap, baseName, loc);
+            }
+            if (M_log.isDebugEnabled()) { 
+                M_log.debug("Bundle from db added " + bundleFromDbMap.size() + 
+                        " properties to " + baseName + "/" + context + "/" + loc.toString());
+            }
+        }
 		return bundle;
 	}
 
 	/**
 	 ** Return the ResourceBundle properties as a Map object
 	 **/
-	protected Map<Object, Object> getBundleAsMap()
+	protected Map<String, Object> getBundleAsMap()
 	{
-		Map<Object, Object> bundle = new ConcurrentHashMap<Object, Object>();
-
-		for (Enumeration e = getBundle().getKeys(); e.hasMoreElements();)
-		{
-			Object key = e.nextElement();
-			bundle.put(key, getBundle().getObject((String) key));
-		}
-
-		return bundle;
+		return getBundleAsMap(getBundle());
 	}
+
+    protected Map<String, Object> getBundleAsMap(ResourceBundle bundle) {
+        Map<String, Object> bundleMap = new HashMap<String, Object>();
+
+        for (Enumeration e = bundle.getKeys(); e.hasMoreElements();)
+        {
+            Object key = e.nextElement();
+            bundleMap.put((String) key, bundle.getObject((String) key));
+        }
+
+        return bundleMap;
+    }
 
 	/**
 	 * Return ResourceBundle for specified locale
@@ -709,56 +727,30 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 * @return locale specific ResourceBundle
 	 *         (or empty ListResourceBundle in case of error)
 	 */
-	protected ResourceBundle loadBundle(Locale loc)
+	protected ResourceBundle loadBundle(String context, Locale loc)
 	{
-        if (ServerConfigurationService.getBoolean("load.bundles.from.db", false)) {
-            return loadBundleFromDb(loc);
-        }
 		ResourceBundle newBundle = null;
 		try
 		{
-			if (this.classLoader == null) {
-				newBundle = ResourceBundle.getBundle(this.baseName, loc);
+			if (classLoader == null) {
+				newBundle = ResourceBundle.getBundle(baseName, loc);
 			} else {
-				newBundle = ResourceBundle.getBundle(this.baseName, loc, this.classLoader);
+				newBundle = ResourceBundle.getBundle(baseName, loc, classLoader);
 			}
 		} catch (NullPointerException e) {
 			// IGNORE FAILURE
 		}
 
-        setBundle(loc, newBundle);
-		return newBundle;
-	}
-
-	/**
-	 * Return ResourceBundle for specified locale.  Returns values from the classpath
-     * overridden with any values found in the database via the MessageService.  Also,
-     * responsible for indexing any new or changes values.
-	 *
-	 * @param loc
-	 *        properties bundle * *
-	 * @return locale specific ResourceBundle
-	 *         (or empty ListResourceBundle in case of error)
-	 */
-	protected ResourceBundle loadBundleFromDb(Locale loc)
-	{
-		ResourceBundle newBundle;
-		try
-		{
-            newBundle = DbResourceBundle.addResourceBundle(this.baseName, loc, this.classLoader);
+		if (ServerConfigurationService.getBoolean("load.bundles.from.db", false)) {
+		    // typically bundles with an empty context are from shared
+		    // and we are not adding bundles with an empty context to MessageBundleService
+	        if (StringUtils.isNotBlank(context)) {
+	            getMessageBundleService().saveOrUpdate(baseName, context, newBundle, loc);
+	            setBundle(loc, newBundle);
+	        }
+		} else {
+		    setBundle(loc, newBundle);
 		}
-		catch (Exception e)
-		{
-			if (M_log.isWarnEnabled()) {
-				M_log.warn("loadBundle "+baseName+" "+loc.toString(), e );
-			}
-			throw new MissingResourceException("ResourceLoader.loadBundle failed",
-														  "", "" );
-		}
-
-        DbResourceBundle.indexResourceBundle(this.baseName, newBundle, loc, this.classLoader);
-
-		setBundle(loc, newBundle);
 		return newBundle;
 	}
 
@@ -775,7 +767,6 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		if (loc == null || bundle == null) 
 			return;
 		this.bundles.put(loc, bundle);
-        this.bundlesTimestamp.put(loc, new Date());
 	}
 
     @Override

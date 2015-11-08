@@ -20,11 +20,12 @@
 		<div style="display:block;clear:both" ></div>
 	#end
     <div id="tradUploadWrapper" class="fallback">
+        #if($dragAndDrop)<strong><a href="#" id="dndUploadSwitcher">$tlang.getString("link.switch.to.dnd")</a></strong>#end
         #if($instr_uploads)
 		<p class="instruction">
-			$instr_uploads #if($dragAndDrop)<strong><a href="#" id="dndUploadSwitcher">$tlang.getString("link.switch.to.dnd")</a></strong>#end
+			$instr_uploads
 		</p>
-         #end
+        #end
 
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
@@ -64,7 +65,7 @@
 			#end
 		</div>
 		<p class="act">
-			<a href="#" onclick="javascript:addFileInput();return false">$tlang.getString("label.addfile")</a>
+			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addfile")</a>
 		</p>
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			#if($model.isDropbox())
@@ -105,22 +106,21 @@
 		#end
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" disabled="true" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doUpload" "flow=save")';submitform('addContentForm');" value="$tlang.getString("label.finupl")" accesskey="s" />
-			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" disabled="true" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doUpload" "flow=save")';submitform('addContentForm');" value="$tlang.getString("label.finupl")" accesskey="s" />
+			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 		</p>
-		#if($upload_limit)
-			<p class="instruction">
-				$upload_limit
-			</p>
-		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
     </div>
     #if($dragAndDrop)
         <div id="dragDropWrapper">
+        <strong><a href="#" id="tradUploadSwitcher">$tlang.getString("link.switch.to.upload")</a></strong>
         <div id="fileUploaderDesc" class="instruction">
-            <p>$tlang.getString("label.dragDescription") <strong><a href="#" id="tradUploadSwitcher">$tlang.getString("link.switch.to.upload")</a></strong></p>
+            <p>$tlang.getString("label.dragDescription")</p
+            <br />
+            <br />
+            <p>$instr_dnd_uploads</p>
         </div>
         <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
         	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -165,11 +165,11 @@
 		#end
 		<p class="act">
 			<input type="button" name="finish" id="finish" disabled=true
-			onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';" 
+			onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';" 
 			 value="$tlang.getString("label.continue")" accesskey="x" />
 			
 			<input type="button" name="cancel" 
-			onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" 
+			onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" 
 			value="$tlang.getString("label.cancel")" accesskey="x" />
 			
 		</p>

@@ -76,7 +76,7 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.7</version>
+            <version>${joda.time.version}</version>
         </dependency>
 
         <!-- Sakai uses apache commons logging -->
@@ -149,44 +149,6 @@
                         </resource>
                     </webResources>
                 </configuration>
-            </plugin>
-            <plugin>
-                <!-- Used to replace the headers of files with proper licenses -  
-                http://code.google.com/p/maven-license-plugin  
-                - Run mvn license:format to fix up licenses on all files in the project 
-                -->
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.5.0</version>
-                <configuration>
-                    <strictCheck>true</strictCheck>
-                    <header>${basedir}/LICENSE_HEADER</header>
-                    <properties>
-                        <name>${project.name}</name>
-                        <year>${project.inceptionYear}</year>
-                        <holder>Apereo Foundation</holder>
-                    </properties>
-                    <excludes>
-                        <exclude>target/**</exclude>
-                        <exclude>m2-target/**</exclude>
-                        <exclude>**/*.properties</exclude>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>LICENSE*</exclude>
-                        <exclude>**/README.txt</exclude>
-                        <exclude>bin/**</exclude>
-                    </excludes>
-                    <mapping>
-                        <tag>DYNASCRIPT_STYLE</tag>
-                    </mapping>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
 	<testOutputDirectory>target/test-classes</testOutputDirectory>

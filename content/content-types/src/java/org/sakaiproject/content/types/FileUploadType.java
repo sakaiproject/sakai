@@ -203,7 +203,7 @@ public class FileUploadType extends BaseResourceType
 			try {
 					contentHostingService.expandZippedResource(reference.getId());
 			} catch (Exception e) {
-				LOG.warn("Exception extracting zip content", e);
+				LOG.error("Exception extracting zip content", e);
 			}
 		}
 		

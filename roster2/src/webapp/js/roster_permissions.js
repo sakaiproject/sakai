@@ -41,6 +41,8 @@ roster.RosterPermissions = function (permissions) {
 			self.viewProfile = true;
 		} else if ('roster.viewofficialphoto' === p) {
 			self.viewOfficialPhoto = true;
+		} else if ('roster.viewsitevisits' === p) {
+			self.viewSiteVisits = true;
 		} else if ('roster.viewemail' === p) {
 			self.viewEmail = true;
 		} else if ('site.upd' === p) { // sakai permissions

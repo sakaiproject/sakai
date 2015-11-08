@@ -215,7 +215,13 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
      */
     private List<Person> getConnectionsForUser(String uuid) {
 
-        List<Person> connections = profileConnectionsLogic.getConnectionsForUser(uuid);
+        List<Person> connections = new ArrayList<Person>();
+        try {
+            connections = profileConnectionsLogic.getConnectionsForUser(uuid);
+        } catch (NullPointerException npe) {
+            // TODO: this needs tracing back into the Profile2 code
+            logger.error("NPE thrown by profile service. No connections will be returned for '" + uuid + "'");
+        }
 
         List<Person> filteredConnections = new ArrayList<Person>();
 
@@ -260,23 +266,31 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
      */
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 
+        logger.debug("createEntity");
+
 		final User currentUser = userDirectoryService.getCurrentUser();
 		final User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
 		}
 		
 		final String to = (String) params.get("to");
-		if (to == null) throw new IllegalArgumentException("You must supply a recipient");
+        if (to == null) {
+            logger.debug("No recipient");
+            throw new IllegalArgumentException("You must supply a recipient");
+        }
 		
 		if (to.equals(currentUser.getId())) {
+            logger.debug("recipient is sender");
 			throw new IllegalArgumentException("You can't chat with yourself");
 		}
 		
 		String message = (String) params.get("message");
 
 		if (message == null) {
+            logger.debug("no message supplied");
             throw new IllegalArgumentException("You must supply a message");
         }
 
@@ -301,6 +315,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
             if (!isVideoSignal) {
                 profileMessagingLogic.sendNewMessage(to,currentUser.getId(), UUID.randomUUID().toString(), rb.getString("profile_message_subject"), message);
             }
+            logger.debug("returning OFFLINE ...");
 			return "OFFLINE";
         }
 
@@ -451,8 +466,8 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
-			//return new HashMap<String,Object>(0);
 		}
 		
 		String online = (String) params.get("online");
@@ -463,11 +478,15 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
             logger.debug("siteId: " +  siteId);
         }
 		
-		if (logger.isDebugEnabled()) logger.debug("online: " + online);
+        if (logger.isDebugEnabled()) {
+            logger.debug("online: " + online);
+        }
 		
 		if (online != null && "true".equals(online)) {
 			
-			if (logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
+            if (logger.isDebugEnabled()) {
+                logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
+            }
 			
 			UserMessage userMessage = new UserMessage(currentUser.getId(), videoAgent);
 			heartbeatMap.put(currentUser.getId(), userMessage);
@@ -548,13 +567,22 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 				// Grab the type map for this user
                 Map<String, Map<String, List<UserMessage>>> typeMap = messageMap.get(currentUserId);
 
-				// Now pull the plain and video messages for this site
+                // Now pull the plain, video and connection messages for this site
                 messages = typeMap.get(PLAIN).get(siteId);
-                videoMessages = typeMap.get(VIDEO).get(siteId);
+                if (messages != null) {
+                    messages.addAll(typeMap.get(PLAIN).get(CONNECTION));
+                } else {
+                    messages = typeMap.get(PLAIN).get(CONNECTION);
+                }
 
-				// Now we can remove the messages for this site
-				typeMap.get(PLAIN).remove(siteId);
-				typeMap.get(VIDEO).remove(siteId);
+                videoMessages = typeMap.get(VIDEO).get(siteId);
+                if (videoMessages != null) {
+                    videoMessages.addAll(typeMap.get(VIDEO).get(CONNECTION));
+                } else {
+                    videoMessages = typeMap.get(VIDEO).get(CONNECTION);
+                }
+
+                messageMap.remove(currentUserId);
 			}
 
             sendClearMessage(currentUserId);
@@ -596,6 +624,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
 		}
 		
@@ -619,6 +648,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		final User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
 		}
 
@@ -635,32 +665,48 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
         synchronized (messageMap) {
 
             if (!messageMap.containsKey(m.to)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No message map entry for '" + m.to + "'. Creating new entries ...");
+                }
                 Map<String, Map<String, List<UserMessage>>> typeMap = new HashMap<String, Map<String, List<UserMessage>>>();
                 typeMap.put(PLAIN, new HashMap<String, List<UserMessage>>());
                 typeMap.get(PLAIN).put(m.siteId, new ArrayList<UserMessage>());
+                typeMap.get(PLAIN).put(CONNECTION, new ArrayList<UserMessage>());
                 typeMap.put(VIDEO, new HashMap<String, List<UserMessage>>());
                 typeMap.get(VIDEO).put(m.siteId, new ArrayList<UserMessage>());
+                typeMap.get(VIDEO).put(CONNECTION, new ArrayList<UserMessage>());
                 messageMap.put(m.to, typeMap);
             }
 
             if (m.video) {
-                Map<String, List<UserMessage>> siteMap = messageMap.get(m.to).get(VIDEO);
+                logger.debug("Message is a video message");
+                Map<String, List<UserMessage>> videoMap = messageMap.get(m.to).get(VIDEO);
 
-                if (siteMap.containsKey(m.siteId)) {
-                    siteMap.get(m.siteId).add(m);
+                if (m.fromConnection) {
+                    videoMap.get(CONNECTION).add(m);
+                } else if (videoMap.containsKey(m.siteId)) {
+                    videoMap.get(m.siteId).add(m);
                 } else {
-                    siteMap.put(m.siteId, Arrays.asList(m));
+                    videoMap.put(m.siteId, Arrays.asList(m));
                 }
             } else {
-                Map<String, List<UserMessage>> siteMap = messageMap.get(m.to).get(PLAIN);
+                logger.debug("Message is a plain message");
+                Map<String, List<UserMessage>> plainMap = messageMap.get(m.to).get(PLAIN);
 
-                if (siteMap.containsKey(m.siteId)) {
-                    siteMap.get(m.siteId).add(m);
+                if (m.fromConnection) {
+                    plainMap.get(CONNECTION).add(m);
+                } else if (plainMap.containsKey(m.siteId)) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("plainMap already contains '" + m.siteId + "'");
+                    }
+                    plainMap.get(m.siteId).add(m);
                 } else {
-                    siteMap.put(m.siteId, Arrays.asList(m));
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("plainMap does not contain '" + m.siteId + "'. A new list will be mapped");
+                    }
+                    plainMap.put(m.siteId, Arrays.asList(m));
                 }
             }
-
         }
     }
 

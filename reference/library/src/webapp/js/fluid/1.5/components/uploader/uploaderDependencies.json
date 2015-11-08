@@ -1,0 +1,25 @@
+{
+    "uploader": {
+        "name": "Uploader",
+        "description": "Upload single files, batches of files, and large files while visually indicating duration.",
+        "cssFiles": "Uploader.css",
+        "files": [
+            "./js/Uploader.js",
+            "./js/FileQueue.js",
+            "./js/FileQueueView.js",
+            "./js/ErrorPanel.js",
+            "./js/HTML5UploaderSupport.js",
+            "./js/DemoUploadManager.js",
+            "./js/MimeTypeExtensions.js"
+        ],
+        "dependencies": [
+            "fss",
+            "jQuery",
+            "jQueryUICore",
+            "jQueryScrollToPlugin",
+            "framework",
+            "progress",
+            "enhancement"
+        ]
+    }
+}

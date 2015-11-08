@@ -52,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,7 +98,7 @@ import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -820,6 +821,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private NotificationService m_notificationService = null;
 	
 	private SecurityService m_securityService = null;
+
+	private AuthzGroupService authzGroupService = null;
 	
 	/********************** Supplement item ************************/
 	private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
@@ -1464,6 +1467,11 @@ public class AssignmentAction extends PagedResourceActionII
 			if (assignment.getContent().getAllowReviewService())
 			{
 				context.put("plagiarismNote", rb.getFormattedMessage("gen.yoursubwill", contentReviewService.getServiceName()));
+				if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment))
+				{
+					context.put("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage()));
+					context.put("content_review_acceptedMimeTypes", getContentReviewAcceptedMimeTypes());
+				}
 			}
 			if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
@@ -1685,6 +1693,61 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		return stripped;
 	}
+
+	/**
+	 * Get a list of accepted mime types suitable for an 'accept' attribute in an html file picker
+	 * @throws illegal argument exception if the assignment accepts all attachments
+	 */
+	private String getContentReviewAcceptedMimeTypes()
+	{
+		if (contentReviewService.allowAllContent())
+		{
+			throw new IllegalArgumentException("getContentReviewAcceptedMimeTypes invoked, but the content review service accepts all attachments");
+		}
+
+		StringBuilder mimeTypes = new StringBuilder();
+		Collection<SortedSet<String>> mimeTypesCollection = contentReviewService.getAcceptableExtensionsToMimeTypes().values();
+		String delimiter = "";
+		for (SortedSet<String> mimeTypesList : mimeTypesCollection)
+		{
+			for (String mimeType : mimeTypesList)
+			{
+				mimeTypes.append(delimiter).append(mimeType);
+				delimiter = ",";
+			}
+		}
+		return mimeTypes.toString();
+	}
+
+	/**
+	 * return true if the assignment's submission type takes attachments.
+	 * @throws IllegalArgumentException if assignment is null
+	 */
+	private boolean assignmentSubmissionTypeTakesAttachments(Assignment assignment)
+	{
+		if (assignment == null)
+		{
+			throw new IllegalArgumentException("assignmentSubmissionTypeTakesAttachments invoked with assignment = null");
+		}
+		
+		int submissionType = assignment.getContent().getTypeOfSubmission();
+
+		if (submissionType == Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
+		{
+			return true;
+		}
+		if (submissionType == Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION)
+		{
+			return true;
+		}
+		if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
+		{
+			return true;
+		}
+
+		return false;
+	}
+	
 
 	/**
 	 * build the student view of showing a group assignment error with eligible groups
@@ -2209,7 +2272,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("contextString", contextString);
 		context.put("user", state.getAttribute(STATE_USER));
 		context.put("service", AssignmentService.getInstance());
-		context.put("AuthzGroupService", AuthzGroupService.getInstance());
+		context.put("AuthzGroupService", authzGroupService);
 		context.put("TimeService", TimeService.getInstance());
 		context.put("LongObject", Long.valueOf(TimeService.newTime().getTime()));
 		context.put("currentTime", TimeService.newTime());
@@ -2297,7 +2360,7 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("groups", (groups != null && groups.size()>0)?Boolean.TRUE:Boolean.FALSE);
 
 			// add active user list
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
 			if (realm != null)
 			{
 				context.put("activeUserIds", realm.getUsers());
@@ -2512,6 +2575,12 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// Keep the use review service setting
 		context.put("value_UseReviewService", state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
+		if (!contentReviewService.allowAllContent())
+		{
+			String fileTypesMessage = getContentReviewAcceptedFileTypesMessage();
+			String contentReviewNote = rb.getFormattedMessage("content_review.note", new Object[]{fileTypesMessage});
+			context.put("content_review_note", contentReviewNote);
+		}
 		context.put("turnitin_forceSingleAttachment", ServerConfigurationService.getBoolean("turnitin.forceSingleAttachment", false));
 		context.put("value_AllowStudentView", state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.allowStudentView.default", false)) : state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW));
 		
@@ -2763,7 +2832,7 @@ public class AssignmentAction extends PagedResourceActionII
 		HashMap<String, List> roleUsers = new HashMap<String, List>();
 		try
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
 			Set<Role> roles = realm.getRoles();
 			for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 			{
@@ -2796,6 +2865,41 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 	} // setAssignmentFormContext
+
+	/**
+	 * Get a user facing String message represeting the list of file types that are accepted by the content review service
+	 * They appear in this form: PowerPoint (.pps, .ppt, .ppsx, .pptx), plain text (.txt), ...
+	 */
+	private String getContentReviewAcceptedFileTypesMessage()
+	{
+		StringBuilder sb = new StringBuilder();
+		Map<String, SortedSet<String>> fileTypesToExtensions = contentReviewService.getAcceptableFileTypesToExtensions();
+		// The delimiter is a comma. Commas still need to be internationalized (the arabic comma is not the english comma)
+		String i18nDelimiter = rb.getString("content_review.accepted.types.delimiter") + " ";
+		String i18nLParen = " " + rb.getString("content_review.accepted.types.lparen");
+		String i18nRParen = rb.getString("content_review.accepted.types.rparen");
+		String fDelimiter = "";
+		// don't worry about conjunctions; just separate with commas
+		for (Map.Entry<String, SortedSet<String>> entry : fileTypesToExtensions.entrySet())
+		{
+			String fileType = entry.getKey();
+			SortedSet<String> extensions = entry.getValue();
+			sb.append(fDelimiter).append(fileType).append(i18nLParen);
+			String eDelimiter = "";
+			for (String extension : extensions)
+			{
+				sb.append(eDelimiter).append(extension);
+				// optimized by java compiler
+				eDelimiter = i18nDelimiter;
+			}
+			sb.append(i18nRParen);
+			
+			// optimized by java compiler
+			fDelimiter = i18nDelimiter;
+		}
+
+		return sb.toString();
+	}
 
 	/**
 	 * how many gradebook items has been assoicated with assignment
@@ -3299,10 +3403,21 @@ public class AssignmentAction extends PagedResourceActionII
 					// Determine next ungraded, next with submission, next ungraded with submission
 					for( int i = index + 1; i < userSubmissions.size(); i++ )
 					{
-						processIfUngraded( userSubmissions.get( i ).getSubmission(), true );
-						processIfHasSubmission( userSubmissions.get( i ).getSubmission(), true );
-						processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), true );
-						
+						if( !nextUngraded )
+						{
+							processIfUngraded( userSubmissions.get( i ).getSubmission(), true );
+						}
+
+						if( !nextWithSubmission )
+						{
+							processIfHasSubmission( userSubmissions.get( i ).getSubmission(), true );
+						}
+
+						if( !nextUngradedWithSubmission )
+						{
+							processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), true );
+						}
+
 						if( nextUngraded && nextWithSubmission && nextUngradedWithSubmission )
 						{
 							break;
@@ -3312,10 +3427,21 @@ public class AssignmentAction extends PagedResourceActionII
 					// Determine previous ungraded, previous with submission, previous ungraded with submission
 					for( int i = index - 1; i >= 0; i-- )
 					{
-						processIfUngraded( userSubmissions.get( i ).getSubmission(), false );
-						processIfHasSubmission( userSubmissions.get( i ).getSubmission(), false );
-						processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), false );
-						
+						if( !prevUngraded )
+						{
+							processIfUngraded( userSubmissions.get( i ).getSubmission(), false );
+						}
+
+						if( !prevWithSubmission )
+						{
+							processIfHasSubmission( userSubmissions.get( i ).getSubmission(), false );
+						}
+
+						if( !prevUngradedWithSubmission )
+						{
+							processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), false );
+						}
+
 						if( prevUngraded && prevWithSubmission && prevUngradedWithSubmission )
 						{
 							break;
@@ -3485,35 +3611,35 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void applyNavOption( String flag, AssignmentSubmission submission )
 	{
-		if( FLAG_NEXT_UNGRADED.equals( flag ) )
+		if( null != flag )
 		{
-			nextUngraded = true;
-			nextUngradedRef = submission.getReference();
-		}
-		else if( FLAG_PREV_UNGRADED.equals( flag ) )
-		{
-			prevUngraded = true;
-			prevUngradedRef = submission.getReference();
-		}
-		else if( FLAG_NEXT_WITH_SUB.equals( flag ) )
-		{
-			nextWithSubmission = true;
-			nextWithSubmissionRef = submission.getReference();
-		}
-		else if( FLAG_PREV_WITH_SUB.equals( flag ) )
-		{
-			prevWithSubmission = true;
-			prevWithSubmissionRef = submission.getReference();
-		}
-		else if( FLAG_NEXT_UNGRADED_WITH_SUB.equals( flag ) )
-		{
-			nextUngradedWithSubmission = true;
-			nextUngradedWithSubmissionRef = submission.getReference();
-		}
-		else if( FLAG_PREV_UNGRADED_WITH_SUB.equals( flag ) )
-		{
-			prevUngradedWithSubmission = true;
-			prevUngradedWithSubmissionRef = submission.getReference();
+			switch( flag )
+			{
+				case FLAG_NEXT_UNGRADED:
+					nextUngraded = true;
+					nextUngradedRef = submission.getReference();
+					break;
+				case FLAG_PREV_UNGRADED:
+					prevUngraded = true;
+					prevUngradedRef = submission.getReference();
+					break;
+				case FLAG_NEXT_WITH_SUB:
+					nextWithSubmission = true;
+					nextWithSubmissionRef = submission.getReference();
+					break;
+				case FLAG_PREV_WITH_SUB:
+					prevWithSubmission = true;
+					prevWithSubmissionRef = submission.getReference();
+					break;
+				case FLAG_NEXT_UNGRADED_WITH_SUB:
+					nextUngradedWithSubmission = true;
+					nextUngradedWithSubmissionRef = submission.getReference();
+					break;
+				case FLAG_PREV_UNGRADED_WITH_SUB:
+					prevUngradedWithSubmission = true;
+					prevUngradedWithSubmissionRef = submission.getReference();
+					break;
+			}
 		}
 	}
 
@@ -3968,7 +4094,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 			context.put("view", view);
 			
-			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
 			
 			// access point url for zip file download
@@ -4047,7 +4173,7 @@ public class AssignmentAction extends PagedResourceActionII
 								u = UserDirectoryService.getUser(item.getAssessorUserId());
 								reviewersMap.put(item.getAssessorUserId(), u);
 							} catch (UserNotDefinedException e) {
-								M_log.warn(e.getMessage(), e);
+								M_log.error(e.getMessage(), e);
 							}
 						}
 					}
@@ -4097,6 +4223,7 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("showAllowResubmission", Boolean.TRUE);
 			}
 			// put the re-submission info into context
+			assignment_resubmission_option_into_state(assignment, null, state);
 			putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
 			assignment_resubmission_option_into_context(context, state);
 		}
@@ -4130,11 +4257,7 @@ public class AssignmentAction extends PagedResourceActionII
 		supplementItemIntoContext(state, context, assignment, null);
 		
 		// search context
-		String searchString = (String) state.getAttribute(STATE_SEARCH);
-		if (searchString == null)
-		{
-			searchString = rb.getString("search_student_instruction");
-		}
+		String searchString = (String) state.getAttribute(STATE_SEARCH) != null ? (String) state.getAttribute(STATE_SEARCH) : "";
 		context.put("searchString", searchString);
 		
 		context.put("form_search", FORM_SEARCH);
@@ -4426,7 +4549,7 @@ public class AssignmentAction extends PagedResourceActionII
 						User reviewer = UserDirectoryService.getUser(peerAssessmentItem.getAssessorUserId());
 						context.put("reviewer", reviewer);
 					} catch (UserNotDefinedException e) {
-						M_log.warn(e.getMessage(), e);
+						M_log.error(e.getMessage(), e);
 					}
 				}else{
 					context.put("view_only", false);
@@ -4633,12 +4756,6 @@ public class AssignmentAction extends PagedResourceActionII
 		String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
 		Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 
-		// Don't search for "Name, ID, or Email" literally
-		if (search != null && search.equals(rb.getString("search_student_instruction")))
-		{
-			search = null;
-		}
-
 		// get the realm and its member
 		List studentMembers = new ArrayList();
 		List assignments = AssignmentService.getListAssignmentsForContext(contextString);
@@ -4683,7 +4800,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("userService", UserDirectoryService.getInstance());
 		context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
 
-		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 		
 		if (AssignmentService.getAllowGroupAssignments()) {
@@ -4745,10 +4862,10 @@ public class AssignmentAction extends PagedResourceActionII
 		List submissions = prepPage( state );
 		context.put("submissions", submissions);
 
+		List<SubmitterSubmission> allSubmissions = (List) state.getAttribute(STATE_PAGEING_TOTAL_ITEMS);
 		boolean hasAtLeastOneAnonAssigment = false;
-		for( Object obj : submissions )
+		for( SubmitterSubmission submission : allSubmissions )
 		{
-			SubmitterSubmission submission = (SubmitterSubmission) obj;
 			Assignment assignment = submission.getSubmission().getAssignment();
 			if( AssignmentService.getInstance().assignmentUsesAnonymousGrading( assignment ) )
 			{
@@ -4771,7 +4888,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// get current site
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
 		String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 		context.put("view", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
@@ -4811,9 +4928,8 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean rv = false;
 		try
 		{
-			GradebookService g = (GradebookService)  ComponentManager
-					.get("org.sakaiproject.service.gradebook.GradebookService");
-			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			String gradebookUid = ToolManager.getCurrentPlacement().getContext();
 			if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
 			{
 				rv = true;
@@ -4928,7 +5044,7 @@ public class AssignmentAction extends PagedResourceActionII
 		GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 		GradebookExternalAssessmentService gExternal = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 		
-		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		String gradebookUid = ToolManager.getCurrentPlacement().getContext();
 		if (g.isGradebookDefined(gradebookUid) && g.currentUserHasGradingPerm(gradebookUid))
 		{
 			boolean isExternalAssignmentDefined=gExternal.isExternalAssignmentDefined(gradebookUid, assignmentRef);
@@ -4958,19 +5074,8 @@ public class AssignmentAction extends PagedResourceActionII
 						addAlert(state, rb.getFormattedMessage("addtogradebook.nonUniqueTitle", new Object[]{"\"" + newAssignment_title + "\""}));
 						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
-					catch (ConflictingExternalIdException e)
-					{
-						// this shouldn't happen, as we have already checked for assignment reference before. Log the error
-						M_log.warn(this + ":integrateGradebook " + e.getMessage());
-					}
-					catch (GradebookNotFoundException e)
-					{
-						// this shouldn't happen, as we have checked for gradebook existence before
-						M_log.warn(this + ":integrateGradebook " + e.getMessage());
-					}
 					catch (Exception e)
 					{
-						// ignore
 						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
 				}
@@ -5001,11 +5106,13 @@ public class AssignmentAction extends PagedResourceActionII
 			if (updateRemoveSubmission != null)
 			{
 				Assignment a = getAssignment(assignmentRef, "integrateGradebook", state);
+				
 				if (a != null)
 				{
 					String propAddToGradebook = a.getProperties().getProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
 					if ("update".equals(updateRemoveSubmission)
-							&& (StringUtils.equals( propAddToGradebook, AssignmentService.GRADEBOOK_INTEGRATION_ADD) || StringUtils.equals( propAddToGradebook, AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE))
+					        && (StringUtils.equals( propAddToGradebook, AssignmentService.GRADEBOOK_INTEGRATION_ADD) 
+							        || StringUtils.equals( propAddToGradebook, AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE))
 							&& a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 					{
 						if (submissionRef == null)
@@ -5032,7 +5139,7 @@ public class AssignmentAction extends PagedResourceActionII
 									for (int i=0; submitters != null && i < submitters.length; i++) {
  										String submitterId = submitters[i].getId();
 										String gradeStringToUse = (a.isGroup() && aSubmission.getGradeForUser(submitterId) != null)
-		                                                                                      ? displayGrade(state,aSubmission.getGradeForUser(submitterId), a.getContent().getFactor()): grade;
+										        ? displayGrade(state,aSubmission.getGradeForUser(submitterId), a.getContent().getFactor()): grade;
 										sm.put(submitterId, gradeStringToUse);
 										cm.put(submitterId, commentString);
 									}
@@ -5052,6 +5159,7 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									else if (isAssignmentDefined)
 									{
+									    Long associateGradebookAssignmentId = g.getAssignment(gradebookUid, associateGradebookAssignment).getId();
 										// the associated assignment is internal one, update records one by one
 										for (Map.Entry<String, String> entry : sm.entrySet())
 										{
@@ -5059,7 +5167,9 @@ public class AssignmentAction extends PagedResourceActionII
 											String grade = StringUtils.trimToNull(displayGrade(state, (String) sm.get(submitterId), a.getContent().getFactor()));
 											if (grade != null)
 											{
-												g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, grade, "");
+												g.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, grade, "");
+												String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
+												g.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId, comment);
 											}
 										}
 									}
@@ -5081,8 +5191,10 @@ public class AssignmentAction extends PagedResourceActionII
 								User[] submitters = aSubmission.getSubmitters();
 								String gradeString = displayGrade(state, StringUtils.trimToNull(aSubmission.getGrade(false)), factor);
 								for (int i=0; submitters != null && i < submitters.length; i++) {
-									String gradeStringToUse = (a.isGroup() && aSubmission.getGradeForUser(submitters[i].getId()) != null)
-									        ? displayGrade(state,aSubmission.getGradeForUser(submitters[i].getId()), factor): gradeString;
+								    String gradeStringToUse = (a.isGroup() && aSubmission.getGradeForUser(submitters[i].getId()) != null) 
+								            ? displayGrade(state,aSubmission.getGradeForUser(submitters[i].getId()), factor): gradeString;
+								    //Gradebook only supports plaintext strings
+								    String commentString = FormattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
 									if (associateGradebookAssignment != null)
 									{
 										if (gExternal.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment))
@@ -5090,22 +5202,25 @@ public class AssignmentAction extends PagedResourceActionII
 											// the associated assignment is externally maintained
 											gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[i].getId(),
 													(gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "");
-											//Gradebook only supports plaintext strings
-											String commentString = FormattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
 											gExternal.updateExternalAssessmentComment(gradebookUid, associateGradebookAssignment, submitters[i].getId(),
 													(commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
 										}
 										else if (g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
 										{
+										    Long associateGradebookAssignmentId = g.getAssignment(gradebookUid, associateGradebookAssignment).getId();
 											// the associated assignment is internal one, update records
-											g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[i].getId(),
+											g.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitters[i].getId(),
 													(gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "", "");
+											g.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitters[i].getId(), 
+											        (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
 										}
 									}
 									else
 									{
 										gExternal.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[i].getId(),
 												(gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "");
+										gExternal.updateExternalAssessmentComment(gradebookUid, assignmentRef, submitters[i].getId(),
+										        (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
 									}
 								}
 							}
@@ -6440,7 +6555,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// SAK-26322 - add inline as an attachment for the content review service
 						if (a.getContent().getAllowReviewService() && !isHtmlEmpty(text))
 						{
-							prepareInlineForContentReview(text, sEdit, state, submitter);
+							prepareInlineForContentReview(text, sEdit, state, u);
 						}
 
 						if (submitter != null) {
@@ -6451,19 +6566,22 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 
 						// SAK-17606
-						StringBuilder log = new StringBuilder();
-						log.append(new java.util.Date());
-						log.append(" ");
+						String logEntry = new java.util.Date().toString() + " ";
 						boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 						if(!anonymousGrading){
-								log.append(u.getDisplayName());
-								log.append(" (");
-								log.append(u.getEid());
-								log.append(") ");
+							String subOrDraft = post ? "submitted" : "saved draft";
+							if( submitter != null && !submitter.getEid().equals( u.getEid() ) )
+							{
+								logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
+											rb.getString( "listsub.submitted.on.behalf" ) + " " + u.getDisplayName() + " (" +
+											u.getEid() + ")";
+							}
+							else
+							{
+								logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
+							}
 						}
-						log.append(post ? "submitted" : "saved draft");
-						sEdit.addSubmissionLogEntry(log.toString());
-
+						sEdit.addSubmissionLogEntry( logEntry );
 						AssignmentService.commitEdit(sEdit);
 					}
 				}
@@ -6492,7 +6610,7 @@ public class AssignmentAction extends PagedResourceActionII
 							// SAK-26322 - add inline as an attachment for the content review service
 							if (a.getContent().getAllowReviewService() && !isHtmlEmpty(text))
 							{
-								prepareInlineForContentReview(text, edit, state, submitter);
+								prepareInlineForContentReview(text, edit, state, u);
 							}
 							
 							if (attachments != null)
@@ -6519,19 +6637,22 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 
 							// SAK-17606
-							StringBuilder log = new StringBuilder();
-							log.append(new java.util.Date());
-							log.append(" ");
+							String logEntry = new java.util.Date().toString() + " ";
 							boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 							if(!anonymousGrading){
-									log.append(u.getDisplayName());
-									log.append(" (");
-									log.append(u.getEid());
-									log.append(") ");
+								String subOrDraft = post ? "submitted" : "saved draft";
+								if( submitter != null && !submitter.getEid().equals( u.getEid() ) )
+								{
+									logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
+												rb.getString( "listsub.submitted.on.behalf" ) + " " + u.getDisplayName() + " (" +
+												u.getEid() + ")";
+								}
+								else
+								{
+									logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
+								}
 							}
-							log.append(post ? "submitted" : "saved draft");
-							edit.addSubmissionLogEntry(log.toString());
-							
+							edit.addSubmissionLogEntry( logEntry );
 							AssignmentService.commitEdit(edit);
 						}
 					}
@@ -6563,7 +6684,7 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * Takes the inline submission, prepares it as an attachment to the submission and queues the attachment with the content review service
 	 */
-	private void prepareInlineForContentReview(String text, AssignmentSubmissionEdit edit, SessionState state, User submitter)
+	private void prepareInlineForContentReview(String text, AssignmentSubmissionEdit edit, SessionState state, User student)
 	{
 		//We will be replacing the inline submission's attachment
 		//firstly, disconnect any existing attachments with AssignmentSubmission.PROP_INLINE_SUBMISSION set
@@ -6587,8 +6708,9 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		//now prepare the new resource
-		//provide lots of info for forensics - filename=InlineSubmission_siteId_assignmentId_userDisplayId_(on ehalf of)_date.html
-		String currentDisplayName = UserDirectoryService.getCurrentUser().getDisplayId();
+		//provide lots of info for forensics - filename=InlineSub_assignmentId_userDisplayId_(for_studentDisplayId)_date.html
+		User currentUser = UserDirectoryService.getCurrentUser();
+		String currentDisplayName = currentUser.getDisplayId();
 		String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
 		//avoid semicolons in filenames, right?
@@ -6596,9 +6718,11 @@ public class AssignmentAction extends PagedResourceActionII
 		StringBuilder sb_resourceId = new StringBuilder("InlineSub_");
 		String u = "_";
 		sb_resourceId.append(edit.getAssignmentId()).append(u).append(currentDisplayName).append(u);
-		if (submitter != null)
+		boolean isOnBehalfOfStudent = student != null && !student.equals(currentUser);
+		if (isOnBehalfOfStudent)
 		{
-			sb_resourceId.append("for_").append(submitter.getDisplayId()).append(u);
+			// We're submitting on behalf of somebody
+			sb_resourceId.append("for_").append(student.getDisplayId()).append(u);
 		}
 		sb_resourceId.append(dform.format(new Date()));
 
@@ -6651,11 +6775,7 @@ public class AssignmentAction extends PagedResourceActionII
 			m_securityService.pushAdvisor(sa);
 			ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
 			// TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service
-			String contentUserId = UserDirectoryService.getCurrentUser().getId();
-			if(submitter != null){
-				//this is a submission on behalf of a student, so grab that student's id instead
-				contentUserId = submitter.getId();
-			}
+			String contentUserId = isOnBehalfOfStudent ? student.getId() : currentUser.getId();
 			contentReviewService.queueContent(contentUserId, siteId, edit.getAssignment().getReference(), Arrays.asList(attachment));
 
 			try
@@ -7438,7 +7558,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 							}
 						} catch (IdUnusedException | PermissionException e) {
-							M_log.warn(e);
+							M_log.error(e);
 						}
 						
 						validPointGrade(state, gradePoints, scaleFactor);
@@ -7624,7 +7744,7 @@ public class AssignmentAction extends PagedResourceActionII
 		List<String> accessList = new ArrayList<String>();
 		try
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
 			Set<Role> roles = realm.getRoles();
 			for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 			{
@@ -8473,7 +8593,7 @@ public class AssignmentAction extends PagedResourceActionII
 				Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
 				try
 				{
-					AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
+					AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
 					Set<Role> roles = realm.getRoles();
 					for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 					{
@@ -8682,7 +8802,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (gradebookExists)
 		{
 			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			String gradebookUid = ToolManager.getCurrentPlacement().getContext();
 			
 			String aReference = a.getReference();
 			String addUpdateRemoveAssignment = "remove";
@@ -9390,7 +9510,7 @@ public class AssignmentAction extends PagedResourceActionII
         } catch (Exception e) {
             M_log.error(e);
 			String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
-			String[] args = new String[]{contentReviewService.getServiceName(), uiService};
+			String[] args = new String[]{contentReviewService.getServiceName(), uiService, e.toString()};
             state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
         }
 		return false;
@@ -10148,13 +10268,13 @@ public class AssignmentAction extends PagedResourceActionII
 				
 				// remove related announcement if there is one
 				removeAnnouncement(state, pEdit);
-				
-				// we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
-				// delete assignment and its submissions altogether
-				deleteAssignmentObjects(state, aEdit, true);
 
 				// remove from Gradebook
 				integrateGradebook(state, (String) ids.get (i), associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
+
+				// we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
+				// delete assignment and its submissions altogether
+				deleteAssignmentObjects(state, aEdit, true);
 			}
 		} // for
 
@@ -11607,10 +11727,9 @@ public class AssignmentAction extends PagedResourceActionII
 							// the preview grade process might already scaled up the grade by "factor"
 							if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
 							{
-								validPointGrade(state, grade, factor);
-								
 								if (state.getAttribute(STATE_MESSAGE) == null)
 								{
+									validPointGrade(state, grade, factor);
 									int maxGrade = a.getContent().getMaxGradePoint();
 									try
 									{
@@ -11881,6 +12000,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		if(assignmentPeerAssessmentService == null){
 			assignmentPeerAssessmentService = (AssignmentPeerAssessmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentPeerAssessmentService");
+		}
+
+		if (authzGroupService == null) {
+			authzGroupService = ComponentManager.get(AuthzGroupService.class);
 		}
 		
 
@@ -13983,12 +14106,6 @@ public class AssignmentAction extends PagedResourceActionII
 			String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
 			Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 
-			// Don't search for "Name, ID, or Email" literally
-			if (search != null && search.equals(rb.getString("search_student_instruction")))
-			{
-				search = null;
-			}
-
 		    Boolean has_multiple_groups_for_user = false;
 		    List submissions = new ArrayList();
 
@@ -14085,73 +14202,86 @@ public class AssignmentAction extends PagedResourceActionII
 			String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
 			String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 			Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+			Assignment assignment = null;
 
-			// Don't search for "Name, ID, or Email" literally
-			if (search != null && search.equals(rb.getString("search_student_instruction")))
-			{
-				search = null;
-			}
 			
-			try {
-			    if (AssignmentService.getAssignment(aRef).isGroup()) {
-
-			        Collection<Group> submitterGroups = AssignmentService.getSubmitterGroupList("false", allOrOneGroup, "", aRef, contextString);
-
-			        // construct the group-submission list
-			        if (submitterGroups != null && !submitterGroups.isEmpty())
-			        {
-			            for (Iterator<Group> iSubmitterGroupsIterator = submitterGroups.iterator(); iSubmitterGroupsIterator.hasNext();)
-			            {
-			                Group gId = iSubmitterGroupsIterator.next();
-			                // Allow sections to be used for group assigments - https://jira.sakaiproject.org/browse/SAK-22425
-			                //if (gId.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
-			                try
-			                {
-			                    AssignmentSubmission sub = AssignmentService.getSubmission(aRef, gId.getId());
-			                    returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
-			                }
-			                catch (IdUnusedException subIdException)
-			                {
-			                    M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
-			                }
-			                catch (PermissionException subPerException)
-			                {
-			                    M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of group " + gId.getId());
-			                }
-			                //}
-			            }
-			        }
-
-			    } else {
-
-			        //List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-					Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-
-			        // construct the user-submission list
-					for (User u : submitters.keySet())
-					{
-						String uId = u.getId();
-
-						AssignmentSubmission sub = submitters.get(u);
-						SubmitterSubmission us = new SubmitterSubmission(u, sub);
-						String submittedById = (String)sub.getProperties().get(AssignmentSubmission.SUBMITTER_USER_ID);
-						if ( submittedById != null) {
-							try {
-								us.setSubmittedBy(UserDirectoryService.getUser(submittedById));
-							} catch (UserNotDefinedException ex1) {
-								M_log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
-							}
-						}
-						returnResources.add(us);
-					}
-			    }
-
-			} catch (PermissionException aPerException) {
-			    M_log.warn(":getSubmitterGroupList: Not allowed to get assignment " + aRef + " " + aPerException.getMessage());
-			} catch (org.sakaiproject.exception.IdUnusedException e) {
-			    M_log.warn(this + ":sizeResources cannot find assignment " + e.getMessage() + "");
+			try
+			{
+				assignment = AssignmentService.getAssignment( aRef );
+				if( assignment.getProperties().getBooleanProperty( NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING ) == true )
+				{
+					allOrOneGroup = "all";
+				}
+			}
+			catch( IdUnusedException ex )
+			{
+				M_log.warn( ":sizeResources cannot find assignment " + ex.getMessage() );
+			}
+			catch( PermissionException aPerException )
+			{
+				M_log.warn( ":sizeResources: Not allowed to get assignment " + aRef + " " + aPerException.getMessage() );
+			}
+			catch( EntityPropertyNotDefinedException ex )
+			{
+				M_log.warn( ":sizeResources: property not defined for assignment  " + aRef + " " + ex.getMessage() );
+			}
+			catch( EntityPropertyTypeException ex )
+			{
+				M_log.warn( ":sizeResources: property type exception for assignment  " + aRef + " " + ex.getMessage() );
 			}
 
+			if ( assignment != null && assignment.isGroup()) {
+
+				Collection<Group> submitterGroups = AssignmentService.getSubmitterGroupList("false", allOrOneGroup, "", aRef, contextString);
+
+				// construct the group-submission list
+				if (submitterGroups != null && !submitterGroups.isEmpty())
+				{
+					for (Iterator<Group> iSubmitterGroupsIterator = submitterGroups.iterator(); iSubmitterGroupsIterator.hasNext();)
+					{
+						Group gId = iSubmitterGroupsIterator.next();
+						// Allow sections to be used for group assigments - https://jira.sakaiproject.org/browse/SAK-22425
+						//if (gId.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
+						try
+						{
+							AssignmentSubmission sub = AssignmentService.getSubmission(aRef, gId.getId());
+							returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
+						}
+						catch (IdUnusedException subIdException)
+						{
+							M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
+						}
+						catch (PermissionException subPerException)
+						{
+							M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of group " + gId.getId());
+						}
+						//}
+					}
+				}
+
+			} else {
+
+				//List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+				Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+
+				// construct the user-submission list
+				for (User u : submitters.keySet())
+				{
+					String uId = u.getId();
+
+					AssignmentSubmission sub = submitters.get(u);
+					SubmitterSubmission us = new SubmitterSubmission(u, sub);
+					String submittedById = (String)sub.getProperties().get(AssignmentSubmission.SUBMITTER_USER_ID);
+					if ( submittedById != null) {
+						try {
+							us.setSubmittedBy(UserDirectoryService.getUser(submittedById));
+						} catch (UserNotDefinedException ex1) {
+							M_log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
+						}
+					}
+					returnResources.add(us);
+				}
+			}
 		}
 
 		// sort them all
@@ -14490,7 +14620,17 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						Integer.parseInt(grade);
-						grade = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+						int length = grade.length();
+						if (length > dec) {
+							grade = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+						}
+						else {
+							String newGrade = "0".concat(decSeparator);
+							for (int i = length; i < dec; i++) {
+								newGrade = newGrade.concat("0");
+							}
+							grade = newGrade.concat(grade);
+						}
 					}
 					catch (NumberFormatException e)
 					{
@@ -15306,38 +15446,14 @@ public class AssignmentAction extends PagedResourceActionII
 	    }
 	    return retVal;
 	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public void doDownload_upload_all(RunData data)
-	{
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-		String flow = params.getString("flow");
-		if ("upload".equals(flow))
-		{
-			// upload
-			doUpload_all(data);
-		}
-		else if ("download".equals(flow))
-		{
-			// upload
-			doDownload_all(data);
-		}
-		else if ("cancel".equals(flow))
-		{
-			// cancel
-			doCancel_download_upload_all(data);
-		}
-	}
 	
 	public void doDownload_all(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+		ParameterParser params = data.getParameters();
+		String downloadUrl = params.getString("downloadUrl");
+		state.setAttribute(STATE_DOWNLOAD_URL, downloadUrl);
 	}
 	
 	public void doUpload_all(RunData data)
@@ -16207,9 +16323,6 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
-		ParameterParser params = data.getParameters();
-		String downloadUrl = params.getString("downloadUrl");
-		state.setAttribute(STATE_DOWNLOAD_URL, downloadUrl);
 		cleanUploadAllContext(state);
 	}
 	
@@ -16857,22 +16970,52 @@ public class AssignmentAction extends PagedResourceActionII
 						m_securityService.pushAdvisor(sa);
 						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
 						
+						Site s = null;
 						try
 						{
-							Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
-							if (singleFileUpload && attachments.size() > 1)
+							s = SiteService.getSite(siteId);
+						}
+						catch (IdUnusedException iue)
+						{
+							M_log.warn(this + ":doAttachUpload: Site not found!" + iue.getMessage());
+						}
+
+						// Check if the file is acceptable with the ContentReviewService
+						boolean blockedByCRS = false;
+						if (allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s))
+						{
+							String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+							Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
+							if (a.getContent().getAllowReviewService())
 							{
-								//SAK-26319	- the assignment type is 'single file upload' and the user has existing attachments, so they must be uploading a 'newSingleUploadedFile'
-								state.setAttribute("newSingleUploadedFile", ref);
-							}
-							else
-							{
-								attachments.add(ref);
+								if (!contentReviewService.isAcceptableContent(attachment))
+								{
+									addAlert(state, rb.getFormattedMessage("review.file.not.accepted", new Object[]{contentReviewService.getServiceName(), getContentReviewAcceptedFileTypesMessage()}));
+									blockedByCRS = true;
+									// TODO: delete the file? Could we have done this check without creating it in the first place?
+								}
 							}
 						}
-						catch(Exception ee)
+
+						if (!blockedByCRS)
 						{
-							M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+							try
+							{
+								Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+								if (singleFileUpload && attachments.size() > 1)
+								{
+									//SAK-26319	- the assignment type is 'single file upload' and the user has existing attachments, so they must be uploading a 'newSingleUploadedFile'	--bbailla2
+									state.setAttribute("newSingleUploadedFile", ref);
+								}
+								else
+								{
+									attachments.add(ref);
+								}
+							}
+							catch(Exception ee)
+							{
+								M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+							}
 						}
 						
 						state.setAttribute(ATTACHMENTS, attachments);

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.pasystem"
+          title="PA System"
+          description="For managing banner alerts and popup screens">
+
+        <!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
+        <category name="sakai.admin"/>
+
+        <configuration name="functions.require" value="pasystem.manage"/>
+    </tool>
+</registration>
+

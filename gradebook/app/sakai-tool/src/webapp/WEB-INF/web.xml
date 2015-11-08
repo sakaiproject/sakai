@@ -28,10 +28,8 @@
 		  classpath:conf/sakaiComponents-applicationContext.xml,
 		  classpath:conf/sakai-entitybroker-applicationContext.xml,
 	      /WEB-INF/applicationContext.xml,
-	      			/WEB-INF/spring-db.xml,
 			/WEB-INF/spring-beans.xml,
-			/WEB-INF/spring-facades.xml,
-			/WEB-INF/spring-hib.xml
+			/WEB-INF/spring-facades.xml
 		</param-value>
 	</context-param>
 	  <context-param>
@@ -76,7 +74,7 @@
     	<servlet-name>sakai-gradebook-helper</servlet-name>
      
 	    <servlet-class>
-	      uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet
+	      org.sakaiproject.rsf.servlet.ReasonableSakaiServlet
 	    </servlet-class>
   </servlet>
 

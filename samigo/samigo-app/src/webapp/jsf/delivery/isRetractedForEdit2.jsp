@@ -38,7 +38,8 @@
        <body onload="<%= request.getAttribute("html.body.onload") %>;">
 
       <h:outputText value="<a name='top'></a>" escape="false" />
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div class="portletBody">
+ <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
 <!-- content... -->
 <h:form id="isRetractedForError2" enctype="multipart/form-data">
@@ -59,6 +60,7 @@
   </h:panelGroup>
 </h:form>
 <!-- end content -->
+  </div>
 </div>
     </body>
   </html>

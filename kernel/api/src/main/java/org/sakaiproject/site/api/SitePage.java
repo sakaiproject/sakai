@@ -45,6 +45,8 @@ public interface SitePage extends Edit, Serializable
 
 	/** flag custom page title (excluded from localization) */
 	public static final String PAGE_CUSTOM_TITLE_PROP = "sitePage.customTitle";
+	
+	public static final String PAGE_HOME_TOOLS_CUSTOM_TITLE_PROP = "sitePage.homeToolsCustomTitle";
    
 	/** boolean page property for site home page **/
 	public static final String IS_HOME_PAGE = "is_home_page";
@@ -129,6 +131,25 @@ public interface SitePage extends Edit, Serializable
 	 * @return True if custom page title, otherwise false
 	 */
 	public boolean getTitleCustom();
+	
+	/** 
+	 * Just a method to get the property IS_HOME_PAGE in a easier, more secure way
+	 */
+	public boolean isHomePage();
+	
+	/**
+	 *  Check if a toolId is in Page's list of Home tools which overrides page's customTitle property
+	 *  
+	 *  @param toolId
+	 */
+	public boolean getHomeToolsTitleCustom(String toolId);
+	
+	/**
+	 *  Adds a toolId to page's list of Home tools which override page's customTitle property
+	 *  
+	 * @param toolId
+	 */
+	public void setHomeToolsTitleCustom(String toolId);
 
 	/**
 	 * Replace page title with its localized value and localize page's tools

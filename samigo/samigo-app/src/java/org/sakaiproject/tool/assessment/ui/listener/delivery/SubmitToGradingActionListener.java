@@ -36,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -516,53 +517,31 @@ public class SubmitToGradingActionListener implements ActionListener {
 			ItemGradingData oldItem = map.get(newItem
 					.getItemGradingId());
 			if (oldItem != null) {
-				// itemGrading exists and value has been change, then need
-				// update
-				Boolean oldReview = oldItem.getReview();
-				Boolean newReview = newItem.getReview();
-				Long oldAnswerId = oldItem.getPublishedAnswerId();
-				Long newAnswerId = newItem.getPublishedAnswerId();
-				String oldRationale = oldItem.getRationale();
-				String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
-				String oldAnswerText = oldItem.getAnswerText();
-				// Change to allow student submissions in rich-text [SAK-17021]
-				String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
-				if ((oldReview != null && !oldReview.equals(newReview))
-				    || (newReview!=null && !newReview.equals(oldReview))
-						|| (oldAnswerId != null && !oldAnswerId
-								.equals(newAnswerId))
-						|| (newAnswerId != null && !newAnswerId
-								.equals(oldAnswerId))
-						|| (oldRationale != null && !oldRationale
-								.equals(newRationale))
-						|| (newRationale != null && !newRationale
-								.equals(oldRationale))
-						|| (oldAnswerText != null && !oldAnswerText
-								.equals(newAnswerText))
-						|| (newAnswerText != null && !newAnswerText
-								.equals(oldAnswerText))
-						|| fibMap.get(oldItem.getPublishedItemId()) != null
-						|| emiMap.get(oldItem.getPublishedItemId()) != null 
-						|| finMap.get(oldItem.getPublishedItemId())!=null
-						|| calcQuestionMap.get(oldItem.getPublishedItemId())!=null
-						|| mcmrMap.get(oldItem.getPublishedItemId()) != null) {
-					oldItem.setReview(newItem.getReview());
-					oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
-					oldItem.setRationale(newRationale);
-							
-					oldItem.setAnswerText(newAnswerText);
-					oldItem.setSubmittedDate(new Date());
-					oldItem.setAutoScore(newItem.getAutoScore());
-					oldItem.setOverrideScore(newItem.getOverrideScore());
-					updateItemGradingSet.add(oldItem);
-					// log.debug("**** SubmitToGrading: need update
-					// "+oldItem.getItemGradingId());
-				}
+			    if (!oldItem.equals(newItem) || 
+			    //Now Check all the maps
+			            fibMap.get(oldItem.getPublishedItemId()) != null
+			            || emiMap.get(oldItem.getPublishedItemId()) != null 
+			            || finMap.get(oldItem.getPublishedItemId())!=null
+			            || calcQuestionMap.get(oldItem.getPublishedItemId())!=null
+			            || mcmrMap.get(oldItem.getPublishedItemId()) != null) {
+			        String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
+			        oldItem.setReview(newItem.getReview());
+			        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
+			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
+			        oldItem.setRationale(newRationale);
+			        oldItem.setAnswerText(newAnswerText);
+			        oldItem.setSubmittedDate(new Date());
+			        oldItem.setAutoScore(newItem.getAutoScore());
+			        oldItem.setOverrideScore(newItem.getOverrideScore());
+			        updateItemGradingSet.add(oldItem);
+			        // log.debug("**** SubmitToGrading: need update
+			        // "+oldItem.getItemGradingId());
+			    }
 			} else { // itemGrading from new set doesn't exist, add to set in
 				// this case
 				// log.debug("**** SubmitToGrading: need add new item");
-			        //a new item should always have the grading ID set to null
-			        newItem.setItemGradingId(null);
+				//a new item should always have the grading ID set to null
+				newItem.setItemGradingId(null);
 				newItem.setAgentId(adata.getAgentId());
 				updateItemGradingSet.add(newItem);
 			}
@@ -616,8 +595,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		for (int m = 0; m < grading.size(); m++) {
 			ItemGradingData itemgrading = grading.get(m);
 			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview().booleanValue())  == true) {
-				adds.addAll(grading);
-				break;
+				adds.add(itemgrading);
 			} 
 		}
 		
@@ -814,8 +792,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
-				if ((itemgrading !=null && itemgrading.getItemGradingId() == null) || itemgrading.getItemGradingId().intValue() <= 0) {
-					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) { 
+				if (itemgrading !=null && (itemgrading.getItemGradingId() == null || itemgrading.getItemGradingId().intValue() <= 0)) {
+					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && StringUtils.isNotBlank(itemgrading.getRationale()))) { 
 						answerModified = true;
 						break;
 					}
@@ -834,10 +812,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 						removes.add(itemgrading);
 					} else {
 						// add new answer
-						if (itemgrading.getPublishedAnswerId() != null
+						if (itemgrading !=null && (itemgrading.getPublishedAnswerId() != null
 							|| itemgrading.getAnswerText() != null
 							|| (itemgrading.getRationale() != null 
-							&& !itemgrading.getRationale().trim().equals(""))) { 
+							&& StringUtils.isNotBlank(itemgrading.getRationale())))) { 
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {

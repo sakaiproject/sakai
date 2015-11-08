@@ -22,20 +22,49 @@
 
 package org.sakaiproject.service.gradebook.shared;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class GradebookInformation {
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+/**
+ * Represents the settings for the gradebook
+ *
+ */
+public class GradebookInformation implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String selectedGradingScaleUid;
 	private Map<String, Double> selectedGradingScaleBottomPercents;
-	private Collection<Assignment> assignments;
 	private boolean displayReleasedGradeItemsToStudents;
 	
 	private int gradeType;
 	private int categoryType;
-	private List category;
+	private List<CategoryDefinition> categories;
 	private String gradeScale;
+	
+	/**
+	 * Is the course grade to be shown at all?
+	 */
+	private boolean courseGradeDisplayed; 
+	
+	/**
+	 * If the course grade is displayed, should the letter grade be displayed?
+	 */
+	private boolean courseLetterGradeDisplayed;
+	
+	/**
+	 * If the course grade is displayed, should the total points be displayed?
+	 */
+	private boolean coursePointsDisplayed;
+	
+	/**
+	 * If the course grade is displayed, should the percentage be displayed?
+	 */
+	private boolean courseAverageDisplayed;
 	
 	
 	public String getSelectedGradingScaleUid() {
@@ -50,12 +79,6 @@ public class GradebookInformation {
 	public void setSelectedGradingScaleBottomPercents(
 			Map<String, Double> selectedGradingScaleBottomPercents) {
 		this.selectedGradingScaleBottomPercents = selectedGradingScaleBottomPercents;
-	}
-	public Collection<Assignment> getAssignments() {
-		return assignments;
-	}
-	public void setAssignments(Collection<Assignment> assignments) {
-		this.assignments = assignments;
 	}
 	public boolean isDisplayReleasedGradeItemsToStudents() {
 		return displayReleasedGradeItemsToStudents;
@@ -76,17 +99,46 @@ public class GradebookInformation {
 	public void setCategoryType(int categoryType) {
 		this.categoryType = categoryType;
 	}
-	public List getCategory() {
-		return category;
-	}
-	public void setCategory(List category) {
-		this.category = category;
-	}
 	public String getGradeScale() {
 		return gradeScale;
 	}
 	public void setGradeScale(String gradeScale) {
 		this.gradeScale = gradeScale;
+	}
+	public boolean isCourseGradeDisplayed() {
+		return courseGradeDisplayed;
+	}
+	public void setCourseGradeDisplayed(boolean courseGradeDisplayed) {
+		this.courseGradeDisplayed = courseGradeDisplayed;
+	}
+	public List<CategoryDefinition> getCategories() {
+		return categories;
+	}
+	public void setCategories(List<CategoryDefinition> categories) {
+		this.categories = categories;
+	}
+	public boolean isCourseLetterGradeDisplayed() {
+		return courseLetterGradeDisplayed;
+	}
+	public void setCourseLetterGradeDisplayed(boolean courseLetterGradeDisplayed) {
+		this.courseLetterGradeDisplayed = courseLetterGradeDisplayed;
+	}
+	public boolean isCoursePointsDisplayed() {
+		return coursePointsDisplayed;
+	}
+	public void setCoursePointsDisplayed(boolean coursePointsDisplayed) {
+		this.coursePointsDisplayed = coursePointsDisplayed;
+	}
+	public boolean isCourseAverageDisplayed() {
+		return courseAverageDisplayed;
+	}
+	public void setCourseAverageDisplayed(boolean courseAverageDisplayed) {
+		this.courseAverageDisplayed = courseAverageDisplayed;
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 
 }

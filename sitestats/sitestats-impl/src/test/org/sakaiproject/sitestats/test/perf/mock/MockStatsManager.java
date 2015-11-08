@@ -1,7 +1,9 @@
 package org.sakaiproject.sitestats.test.perf.mock;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
@@ -12,6 +14,7 @@ import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
 import org.sakaiproject.sitestats.api.SiteVisits;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.SummaryActivityChartData;
@@ -243,6 +246,13 @@ public class MockStatsManager implements StatsManager {
 			List<String> totalsBy) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public Map<String, SitePresenceTotal> getPresenceTotalsForSite(final String siteId) {
+
+		final Map<String, SitePresenceTotal> totals = new HashMap<String, SitePresenceTotal>();
+		return totals;
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -40,6 +40,7 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
@@ -149,8 +150,13 @@ public class MailboxAction extends PagedResourceActionII
 
 	/** Default for search suppression threshold */
         private final int MESSAGE_THRESHOLD_DEFAULT = 2500;
-	
-	/** paging */
+
+	private AliasService aliasService;
+
+	public MailboxAction() {
+		super();
+		aliasService = ComponentManager.get(AliasService.class);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -513,12 +519,12 @@ public class MailboxAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 
 		// the aliases for the channel
-		List all = AliasService.getAliases((String) state.getAttribute(STATE_CHANNEL_REF));
+		List all = aliasService.getAliases((String) state.getAttribute(STATE_CHANNEL_REF));
 
 		// and the aliases for the site (context)
 		Reference channelRef = EntityManager.newReference((String) state.getAttribute(STATE_CHANNEL_REF));
 		String siteRef = SiteService.siteReference(channelRef.getContext());
-		all.addAll(AliasService.getAliases(siteRef));
+		all.addAll(aliasService.getAliases(siteRef));
 
 		context.put("aliases", all);
 		
@@ -855,7 +861,7 @@ public class MailboxAction extends PagedResourceActionII
 		}
 
 		// place the current alias, if any, in to context
-		List all = AliasService.getAliases((String) state.getAttribute(STATE_CHANNEL_REF), 1, 1);
+		List all = aliasService.getAliases((String) state.getAttribute(STATE_CHANNEL_REF), 1, 1);
 		if (!all.isEmpty()) context.put("alias", ((Alias) all.get(0)).getId());
 
 		context.put("serverName", ServerConfigurationService.getServerName());
@@ -927,7 +933,7 @@ public class MailboxAction extends PagedResourceActionII
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			// get any current alias for this channel
-			List all = AliasService.getAliases((String) state.getAttribute(STATE_CHANNEL_REF), 1, 1);
+			List all = aliasService.getAliases((String) state.getAttribute(STATE_CHANNEL_REF), 1, 1);
 			String curAlias = null;
 			if (!all.isEmpty()) curAlias = ((Alias) all.get(0)).getId();
 
@@ -941,7 +947,7 @@ public class MailboxAction extends PagedResourceActionII
 				{
 					try
 					{
-						String target = AliasService.getTarget(alias);
+						String target = aliasService.getTarget(alias);
 
 						// if so, is it this channel?
 						ok = target.equals(channel.getReference());
@@ -963,9 +969,9 @@ public class MailboxAction extends PagedResourceActionII
 					try
 					{
 						if ( alias == null ) {
-							AliasService.removeTargetAliases(channel.getReference());
+							aliasService.removeTargetAliases(channel.getReference());
 						} else {
-							AliasService.setAlias(alias, channel.getReference());
+							aliasService.setAlias(alias, channel.getReference());
 						}
 					}
           catch (IdInvalidException iie) {
