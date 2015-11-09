@@ -492,7 +492,7 @@
 													<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-													<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 											</h:outputLink>
 											<h:panelGroup rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
@@ -510,7 +510,7 @@
 													<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-													<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 											</h:panelGroup>
 										</h:panelGroup>
