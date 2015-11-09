@@ -175,7 +175,7 @@ public class AuthorActionListener
     } 
 
 	author.setEditPubAssessmentRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted.afterStart", false));
-	author.setCanRemovePublishedAssessmentsAfterStarted(ServerConfigurationService.getBoolean("samigo.removePubAssessment.restricted.afterStart", false));
+	author.setRemovePubAssessmentsRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.removePubAssessment.restricted.afterStart", false));
 
 	AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 	author.setIsGradeable(authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment());
