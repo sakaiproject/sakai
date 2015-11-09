@@ -238,7 +238,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 			 // not include in the group yet
 			 if ((groupProviderId == null || !groupProviderId.contains(roster)) && !membersSelected.contains( roster ))
 			 {
-				 siteMemberLabels.add( SECTION_PREFIX + roster );
+				 siteMemberLabels.add( SECTION_PREFIX + handler.getRosterLabel(roster) + " (" + roster + ")");
 				 siteMemberValues.add( roster );
 			 }
 		 }

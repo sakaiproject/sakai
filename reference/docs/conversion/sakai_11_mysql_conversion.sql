@@ -427,3 +427,44 @@ ALTER TABLE CITATION_COLLECTION_ORDER ADD SECTION_TYPE ENUM('HEADING1','HEADING2
 ALTER TABLE CITATION_COLLECTION_ORDER ADD VALUE TEXT DEFAULT NULL;
 ALTER TABLE CITATION_COLLECTION_ORDER MODIFY COLUMN CITATION_ID VARCHAR(36) NULL;
 -- End SAK-29974
+
+--  SAK-30000 Site creation notification email template updates
+UPDATE email_template_item
+SET message = '
+From Worksite Setup to ${serviceName} support:
+
+<#if courseSite ="true">Official Course Site<#else>Site </#if> ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} <#if courseSite ="true">for ${termTitle} </#if>
+<#if numSections = "1">with access to the roster for this section:<#elseif numSections != "0">with access to rosters for these ${numSections} sections:</#if>
+
+${sections}
+'
+WHERE template_key = 'sitemanage.notifySiteCreation' AND template_locale = 'default';
+UPDATE email_template_item
+SET subject = 'Site "${siteTitle}" was successfully created by ${currentUserDisplayName}', message = '
+Hi, ${currentUserDisplayName}:
+
+Your site "${siteTitle}" has been successfully created. The following is a copy of the site creation notification email sent to ${serviceName} support:
+
+
+From Worksite Setup to ${serviceName} support:
+
+<#if courseSite ="true">Official Course Site<#else>Site </#if> ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} <#if courseSite ="true">for ${termTitle} </#if>
+<#if numSections = "1">with access to the roster for this section:<#elseif numSections != "0">with access to rosters for these ${numSections} sections:</#if>
+
+${sections}
+'
+WHERE template_key = 'sitemanage.notifySiteCreation.confirmation' AND template_locale = 'default';
+-- END SAK-30000
+
+-- SAK-29740 update gradebook settings
+ALTER TABLE gb_gradebook_t ADD course_letter_grade_displayed BIT(1) NOT NULL DEFAULT true;
+
+-- SAK-29401/SAK-29977 Role based access to sites --
+INSERT INTO SAKAI_REALM_ROLE VALUES (DEFAULT, '.default');
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'));

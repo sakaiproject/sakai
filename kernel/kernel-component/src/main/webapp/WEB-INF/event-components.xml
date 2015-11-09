@@ -105,6 +105,14 @@
 	 	
 	 </bean>
 
+    <bean id="org.sakaiproject.event.api.EventQueryService"
+          class="org.sakaiproject.event.impl.EventQueryServiceImpl"
+          init-method="init"  destroy-method="destroy" singleton="true">
+
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+
+    </bean>
+
     <bean id="org.sakaiproject.event.api.LearningResourceStoreService"
             class="org.sakaiproject.event.impl.BaseLearningResourceStoreService"
             init-method="init" destroy-method="destroy" singleton="true">

@@ -25,6 +25,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * JavaBean to hold data associated with a Gradebook assignment.
@@ -237,6 +239,11 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 		return new CompareToBuilder()
 	       .append(this.id, o.id)
 	       .toComparison();
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 
 }

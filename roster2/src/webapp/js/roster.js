@@ -533,7 +533,7 @@
                 'currentUserId': roster.userId,
                 'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
                 'viewSiteVisits': roster.currentUserPermissions.viewSiteVisits,
-                'viewConnections': (undefined != window.friendStatus)
+                'viewConnections': ((undefined != window.friendStatus) && roster.viewConnections)
             };
 
         var templateName = (enrollmentsMode) ? 'enrollments' : 'members';

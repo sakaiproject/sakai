@@ -55,6 +55,11 @@
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.content</groupId>
+      <artifactId>content-metadata-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>jdom</groupId>
       <artifactId>jdom</artifactId>
       <version>1.0</version>

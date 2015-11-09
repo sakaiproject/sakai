@@ -25,7 +25,7 @@
 				#set ($providerCourseListNum =$providerCourseListNum + 1)	
 					<tr>
 						<td headers="class">
-							<h4><label for="pcl$providerCourseListNum">
+							<h4><label for="pcl$providerCourseListNum" title="$id">
 								$!providerCourseTitles.get($id)
 							</label></h4>
 						</td>

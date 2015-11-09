@@ -571,6 +571,20 @@ utils.clearSelections = function()
     utils.checkEnableUnjoin();
 };
 
+utils.labelFor = function(elementId)
+{
+    var labels = document.getElementsByTagName("label");
+    for (var i = 0; i < labels.length; i++)
+    {
+	    if (labels[i].htmlFor === elementId)
+	    {
+		    return labels[i];
+	    }
+    }
+	
+	return null;
+}
+
 // toggle a fade
 jQuery.fn.fadeToggle = function(speed, easing, callback){
     return this.animate({
@@ -934,6 +948,12 @@ var setupCategTools = function(){
         } else {
             // for each tool with this id, set check to false and fade in/out selectedTool display
             setChecked(selectedId,false);
+            var originalInputId = selectedId.replace(/_/g, ".");
+            var label = utils.labelFor(originalInputId);
+            if (label !== null)
+            {
+                label.style.fontWeight = "normal";
+            }
         }
         
         // SAK-22384
@@ -947,6 +967,8 @@ var setupCategTools = function(){
         
         noTools();
     });
+	
+	
  
     $('.moreInfoTool').click(function(e){
         e.preventDefault();

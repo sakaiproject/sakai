@@ -190,38 +190,50 @@ div#groupsContainer, div#groupListLabel, div#pendingGroupsContainer, div#pending
 	display: table-cell;
 }
 
-div#pendingGroupListLabel {
-
+div#userPanel div.edit.collapsed h4, div#userPanel div.edit.expanded h4 {
+	font-weight: normal;
 }
 
-div#genPanel div.edit.collapsed, div#genPanel div.edit.expanded {
+div#genPanel div.edit.collapsed, div#genPanel div.edit.expanded,
+div#userPanel div.edit.collapsed, div#userPanel div.edit.expanded {
 	display: block !important;
 	background-color: #FFF;
 }
 
-div#genPanel div.collapsed h4, div#genPanel div.expanded h4 {
+div#genPanel div.collapsed h4, div#genPanel div.expanded h4,
+div#userPanel div.collapsed h4, div#userPanel div.expanded h4{
 	display: inline-block;
 	color: #000;
 	cursor: pointer;
 }
 
-div#genPanel div.collapsed h4 {
+div#genPanel div.collapsed h4, div#userPanel div.collapsed h4 {
 	background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 
-div#genPanel div.expanded h4 {
+div#genPanel div.expanded h4, div#userPanel div.expanded h4 {
 	background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
 }
 
-div#genPanel div.edit {
+div#genPanel div.edit, div#userPanel div.edit {
 	display: none;
 	background-color: #EEE;
 }
 
-div#genPanel div.edit p, div#genPanel div.edit h4 {
+div#genPanel div.edit p, div#genPanel div.edit h4, div#userPanel div.edit h4 {
 	margin: 0;
 	border: 0;
 	padding: 1em 1em;
+}
+
+div#userPanel {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 1em;
+}
+
+div#userPanel div.edit div {
+	padding: 0 1em 0 1em;
 }
 
 div#genPanel div.edit input#allowpreview-row\:\:allowPreviewMembership,

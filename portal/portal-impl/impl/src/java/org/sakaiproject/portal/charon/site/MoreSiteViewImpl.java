@@ -22,6 +22,7 @@
 package org.sakaiproject.portal.charon.site;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -235,7 +236,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			String type = site.getType();
 			String term = null;
 
-			if ("course".equals(type))
+			if (isCourseType(type))
 			{
 				term = siteProperties.getProperty("term");
 				if(null==term) {
@@ -243,7 +244,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 				}
 
 			}
-			else if ("project".equals(type))
+			else if (isProjectType(type))
 			{
 				term = rb.getString("moresite_projects");
 			}
@@ -394,6 +395,33 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	{
 		this.toolContextPath = toolContextPath;
 
+	}
+	
+	/**
+	 * read the site Type definition from configuration files
+	 */
+	public List<String> getSiteTypeStrings(String type)
+	{
+		String[] siteTypes = serverConfigurationService.getStrings(type + "SiteType");
+		if (siteTypes == null || siteTypes.length == 0)
+		{
+			siteTypes = new String[] {type};
+		}
+		return Arrays.asList(siteTypes);
+	}
+
+	private boolean isCourseType(String type)
+	{
+		List<String> courseSiteTypes = getSiteTypeStrings("course");
+		if (courseSiteTypes.contains(type)) return true;
+		else return false;
+	}
+
+	private boolean isProjectType(String type)
+	{
+		List<String> projectSiteTypes = getSiteTypeStrings("project");
+		if (projectSiteTypes.contains(type)) return true;
+		else return false;
 	}
 
 }

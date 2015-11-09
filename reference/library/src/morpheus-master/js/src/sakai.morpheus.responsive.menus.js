@@ -14,7 +14,7 @@ function toggleSitesNav(event){
   event.preventDefault();
   $PBJQ('body').toggleClass('sitesNav--displayed');
   // remove class if siteNav submenus are activated
-  $PBJQ('#linkNav .Mrphs-sitesNav__drop').removeClass('is-clicked');
+  $PBJQ('#linkNav .Mrphs-sitesNav__dropdown').removeClass('is-clicked');
   $PBJQ('#linkNav .Mrphs-sitesNav__submenu').removeClass('is-visible');
 
 }

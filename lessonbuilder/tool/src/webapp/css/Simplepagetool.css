@@ -27,6 +27,23 @@
 
 /* end override */
 
+/* override weird setting in tool.css */
+
+/* was -20 left, position absolute */
+.lessonsDialog .checkbox  input[type="checkbox"],
+.lessonsDialog .radio  input[type="radio"] {
+   position:static;
+   margin-left:0px;
+}
+
+/* was 20 px left margin for label */
+.lessonsDialog .radio label,
+.lessonsDialog .checkbox label {
+  padding-left: 4px;
+}
+
+/* end override */
+
 .title-tools h2{
 	padding-top: 0px;
 }
@@ -350,8 +367,47 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     column-count: 2;
 }
 
+.coltrans {
+   border-color: transparent;
+}
+/* 
+   Any changes shoud be checked to make sure they have enough
+   contrast for accessiblity. These colors have been checked
+   against the WebAIM Color Contrast Checker. I've tried to
+   make them subjectively the same darkness.
+*/
+.colgray {
+   background-color: #f0f0f0;
+   border-color: #222;
+}
+.colred {
+   background-color: #fff0f0;
+   border-color: #600;
+   color: #600;
+}
+.colblue {
+   background-color: #f4f4ff;
+   border-color: #004;
+   color: #004;
+}
+.colgreen {
+   background-color: #f6fff6;
+   border-color: #030;
+   color: #030;
+}
+.colyellow {
+   background-color: #ffffe8;
+   border-color: #840;
+   color: #840;
+}
+
+
+
 .columnopen, .addbottom {
   text-decoration: none;
+}
+.edit-col {
+  font-size: 70%;
 }
 
 .mainList li {
@@ -422,7 +478,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
 }
-
+.edit-col {
+  font-size: 75%;
+}
 .buttonItem {
 	padding-left: 20px
 }
@@ -1274,15 +1332,17 @@ font-size: 90%;
   font-family:FontAwesome;
 }
 .fa-edit-icon{
-  font-size:200%;
+  font-size:16px;
   font-weight: normal;
   color: #aaa;
   font-family:FontAwesome;
 }
 .fa-group-icon {
-  font-size:200%;
+  font-size:16px;
   font-family:FontAwesome;
 }
 .mainList li:hover.canEdit {
     background-color: #eee;
 }
+
+

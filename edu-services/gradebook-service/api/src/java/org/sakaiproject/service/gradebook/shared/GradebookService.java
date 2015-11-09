@@ -23,6 +23,7 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Set;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -772,4 +773,27 @@ public interface GradebookService {
 	 */
 	@SuppressWarnings("rawtypes")
 	List getViewableSections(String gradebookUid);
+
+	/**
+	 * Update the settings for this gradebook
+	 * 
+	 * @param gradebookUid
+	 * @param gbInfo GradebookInformation object
+	 */
+	void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo);
+
+	/**
+	 * Return the GradeMappings for the given gradebook. The normal getGradebook(siteId)
+	 * doesn't return the GradeMapping.
+	 * @param gradebookId
+	 * @return Set of GradeMappings for the gradebook
+	 */
+	Set getGradebookGradeMappings(Long gradebookId);
+	
+	/**
+	 * Return the GradeMappings for the given gradebook.
+	 * @param gradebookUid
+	 * @return Set of GradeMappings for the gradebook
+	 */
+	Set getGradebookGradeMappings(String gradebookUid);
 }

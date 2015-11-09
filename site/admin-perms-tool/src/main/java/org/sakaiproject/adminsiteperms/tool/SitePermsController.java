@@ -120,6 +120,7 @@ public class SitePermsController extends AbstractController {
         model.put("siteTypes", sitePermsService.getSiteTypes());
         model.put("roles", sitePermsService.getValidRoles());
         model.put("permissions", sitePermsService.getPermissions());
+        model.put("additionalRoles", sitePermsService.getAdditionalRoles());
 
         return new ModelAndView("sitePerms", model);
     }

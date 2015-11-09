@@ -270,13 +270,13 @@
 					<h:commandButton
 						action="#{SyllabusTool.processEditBulkPost}"
 						styleClass="active"
-						value="#{msgs.bar_post}" 
+						value="#{msgs.bar_publish}" 
 						accesskey="s"
-						title="#{msgs.button_post}" />
+						title="#{msgs.button_publish}" />
 					<h:commandButton
 						action="#{SyllabusTool.processEditBulkDraft}"
 						styleClass="active"
-						value="#{msgs.bar_save_draft}" 
+						value="#{msgs.bar_new}" 
 						accesskey="s"
 						title="#{msgs.button_save}" />
 					<h:commandButton

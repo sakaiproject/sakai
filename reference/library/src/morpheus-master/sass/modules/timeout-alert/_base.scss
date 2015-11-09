@@ -7,4 +7,11 @@
 	width: calc(100% - 20em);
 	padding: 2em;
 	font-size: 1.2em;
+	@media #{$phone}{
+		top: 5em;
+		left: 1em;
+		padding: 1em;
+		width: calc(100% - 2em);
+		font-size: 1.05em;
+	}
 }

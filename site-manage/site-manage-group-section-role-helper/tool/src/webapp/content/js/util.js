@@ -350,21 +350,54 @@ function checkEnableRemove()
     }
 }
 
-function toggleGenPanel( clickedElement )
+function togglePanel( clickedElement, isUserPanel )
 {
     var div = clickedElement.parentNode;
     if( div.className === "edit collapsed" )
     {
         div.className = "edit expanded";
-        $( div ).siblings().show();
-        resizeFrame( "grow" );
+        if( isUserPanel )
+        {
+            $( "#userRowsContainer" ).show();
+            $( "#userRowsContainer" ).children().show();
+        }
+        else
+        {
+            $( div ).siblings().show();
+        }
     }
     else
     {
         div.className = "edit collapsed";
-        $( div ).siblings().hide();
-        resizeFrame( "shrink" );
+        if( isUserPanel )
+        {
+            $( "#userRowsContainer" ).hide();
+            $( "#userRowsContainer" ).children().hide();
+        }
+        else
+        {
+            $( div ).siblings().hide();
+        }
     }
+}
+
+function adjustDivHeights()
+{
+    var userRowsHeader = document.getElementById( "usersNotInSet-title-row::" );
+    var userPanelExpanded = userRowsHeader.classList.contains( "expanded" );
+    var groupFieldsHeight = document.getElementById( "groupFields" ).offsetHeight;
+    var userRowsHeaderHeight = userRowsHeader.offsetHeight;
+    var actualHeight = groupFieldsHeight - userRowsHeaderHeight;
+    var userRowsContainer = document.getElementById( "userRowsContainer" );
+    var style = "height: " + actualHeight + "px" + (userPanelExpanded ? "; overflow-y: scroll;" : ";" );
+    userRowsContainer.setAttribute( "style", style );
+    userRowsContainer.style.height = actualHeight + "px";
+    if( userPanelExpanded )
+    {
+        userRowsContainer.style.overflowY = "scroll";
+    }
+
+     resizeFrame( "grow" );
 }
 
 function adjustCount(caller, countName)

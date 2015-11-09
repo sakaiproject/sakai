@@ -3756,7 +3756,7 @@ public class DeliveryBean
 	  }
 	  
 	  private String getTimeBeforeRetract(String timeLimit) {
-		  retractDate = publishedAssessment.getRetractDate();
+		  
 		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0) {
 			  int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
 			  if (timeBeforeRetract < Integer.parseInt(timeLimit)) {

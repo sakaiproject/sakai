@@ -53,6 +53,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterGroup;
@@ -260,6 +261,26 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
 		}
 		return false;		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getViewConnections() {
+
+		Boolean view_connections = serverConfigurationService.getBoolean("roster_view_connections",
+				DEFAULT_VIEW_CONNECTIONS);
+
+		Boolean profile2_connections_enabled = serverConfigurationService.getBoolean("profile2.connections.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);
+		Boolean profile2_menu_enabled = serverConfigurationService.getBoolean("profile2.menu.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
+
+		if(!profile2_menu_enabled || !profile2_connections_enabled) {
+			view_connections = false;
+		}
+
+		return view_connections;
 	}
 	
 	/**

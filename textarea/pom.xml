@@ -15,5 +15,6 @@
   <modules>
     <module>FCKeditor/connector</module>
     <module>calendar</module>
+    <module>elfinder-sakai</module>
   </modules>
 </project>

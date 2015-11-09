@@ -120,6 +120,9 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
 		// Setups fake dependencies.
 		M_ers.setStatsManager(M_sm);
+		// By default we don't enable the collection thread as it can interfere with tests.
+		// If a test explicitly wants to test the collect thread it should re-enable it when it starts.
+		M_sum.setCollectThreadEnabled(false);
 	}
 
 	// run this before each test starts and as part of the transaction
@@ -392,10 +395,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 	public void testSitePresences() {
 		//System.out.println("--- testSitePresences() :: START ---");
 		long minPresenceTime = 100;
-		
-		//Turn off the collect thread while running this test
-		M_sum.setCollectThreadEnabled(false);
-		
+
 		// #1 Test : 2 site visit (different users)
 		
 		// BEGIN SITE PRESENCE
@@ -579,8 +579,6 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		//System.out.println("3.   secondDuration: "+secondDuration);
 		assertTrue(totalDuration == firstDuration + secondDuration);
 		//System.out.println("--- testSitePresences() :: END ---");
-		//Turn the thread back on again
-		M_sum.setCollectThreadEnabled(true);
 	}
 	
 	// Test (remaining) CustomEventImpl fields
@@ -597,6 +595,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 	public void testConfigIsCollectThreadEnabled() {
 		db.deleteAll();
 		M_sum.setCollectThreadUpdateInterval(50);
+		M_sum.setCollectThreadEnabled(true);
+
 		// #1: collect thread enabled/disabled
 		assertEquals(true, M_sum.isCollectThreadEnabled());
 		// turn it off
@@ -633,7 +633,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		db.deleteAll();
 		// #2: collect thread update interval
 		assertEquals(50, M_sum.getCollectThreadUpdateInterval());
-		
+		M_sum.setCollectThreadEnabled(true);
+
 		// make sure it processes
 		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		M_ets.post(e1);		

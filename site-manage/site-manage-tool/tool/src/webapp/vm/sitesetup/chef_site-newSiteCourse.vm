@@ -207,8 +207,8 @@ function redirectBasedOnSelection(){
 				#foreach($courseObject in $termCourseList)
 					<table class="listHier lines nolines specialLink" cellpadding="0" cellspacing="0"  summary="$tlang.getString("nscourse.courselist.summary")" border="0" style="width:auto">
 					<tr>	
-					<th colspan="2">
-                                        $!courseObject.title ($!courseObject.eid) $!courseObject.description
+					<th colspan="2" title="$!courseObject.eid">
+                                        $!courseObject.title $!courseObject.description
 					#if ($!courseObject.courseOfferingObjects.size() > 1)
 						(cross-listed)
 						#set($crosslisted=1)	
@@ -273,7 +273,7 @@ function redirectBasedOnSelection(){
 								</td>
 								<td style="white-space:nowrap">
 									<h5>
-									<label for="course$courseNumber">$validator.escapeHtml($sectionObject.title) ($sectionObject.eid) $sectionObject.getCategoryDescription()</label>
+									<label for="course$courseNumber" title="$sectionObject.eid">$validator.escapeHtml($sectionObject.title) $sectionObject.getCategoryDescription()</label>
 									#if ($!sectionObject.attached)
 										<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
 									#end
