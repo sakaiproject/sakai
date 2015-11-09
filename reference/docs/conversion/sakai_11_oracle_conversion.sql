@@ -439,13 +439,19 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 
 ALTER TABLE SAKAI_SESSION MODIFY SESSION_USER_AGENT VARCHAR2 (255 CHAR);
 -- END KNL-1379
 
--- SAK-29733 Change Schedule to Calendar for existing sites
+-- SAK-29974 Nested citation lists
+ALTER TABLE CITATION_COLLECTION_ORDER ADD SECTION_TYPE ENUM('HEADING1','HEADING2', 'HEADING3', 'DESCRIPTION', 'CITATION') DEFAULT NULL;
+ALTER TABLE CITATION_COLLECTION_ORDER ADD VALUE TEXT DEFAULT NULL;
+ALTER TABLE CITATION_COLLECTION_ORDER MODIFY ( CITATION_ID VARCHAR(36) NULL);
+-- End SAK-29974
+
+--  SAK-29733 Change Schedule to Calendar for existing sites
 UPDATE SAKAI_SITE_TOOL SET TITLE="Calendar" WHERE REGISTRATION = "sakai.schedule" AND TITLE = "Schedule";
 UPDATE SAKAI_SITE_PAGE SET TITLE="Calendar" WHERE TITLE = "Schedule";
 
 -- SAK-30000 Site creation notification email template updates
 UPDATE email_template_item
-SET message = ' 
+SET message = '
 From Worksite Setup to ${serviceName} support:
 
 <#if courseSite ="true">Official Course Site<#else>Site </#if> ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} <#if courseSite ="true">for ${termTitle} </#if>
