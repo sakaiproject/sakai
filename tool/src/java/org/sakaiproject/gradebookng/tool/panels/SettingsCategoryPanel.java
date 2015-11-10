@@ -1,21 +1,15 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import org.apache.wicket.AttributeModifier;
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -26,18 +20,16 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 public class SettingsCategoryPanel extends Panel {
@@ -67,9 +59,11 @@ public class SettingsCategoryPanel extends Panel {
 		
 		//get categories, passed in
 		final List<CategoryDefinition> categories = this.model.getObject().getCategories();
-		
+				
 		//parse the categories and see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
+		//also build a map that we can use to add/remove from
 		for(CategoryDefinition category: categories) {
+						
 			if(category.getDropHighest() != null && category.getDropHighest() > 0) {
 				isDropHighest = true;
 			}
@@ -97,6 +91,14 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				isDropHighest = this.getModelObject();
+				
+				//reset
+				if(!isDropHighest) {
+					for(CategoryDefinition c: model.getObject().getCategories()) {
+						c.setDropHighest(0);
+					}
+				}
+				
 				target.add(categoriesWrap);
 			}
         };
@@ -109,7 +111,15 @@ public class SettingsCategoryPanel extends Panel {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				isDropHighest = this.getModelObject();
+				isDropLowest = this.getModelObject();
+				
+				//reset
+				if(!isDropLowest) {
+					for(CategoryDefinition c: model.getObject().getCategories()) {
+						c.setDrop_lowest(0);
+					}
+				}
+				
 				target.add(categoriesWrap);
 			}
         };
@@ -123,6 +133,14 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				isKeepHighest = this.getModelObject();
+				
+				//reset
+				if(!isKeepHighest) {
+					for(CategoryDefinition c: model.getObject().getCategories()) {
+						c.setKeepHighest(0);
+					}
+				}
+				
 				target.add(categoriesWrap);
 			}
         };
@@ -158,18 +176,27 @@ public class SettingsCategoryPanel extends Panel {
   		        item.add(extraCredit);
   				
   				//drop highest
-  		        final CheckBox categoryDropHighest = new CheckBox("categoryDropHighest", new PropertyModel<Boolean>(category, "dropHighest"));
+  				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest", new PropertyModel<Integer>(category, "dropHighest"));
   		        categoryDropHighest.setOutputMarkupId(true);
+  		        if(!isDropHighest) {
+  		        	categoryDropHighest.setEnabled(false);
+  		        }
   		        item.add(categoryDropHighest);
   		        
   		        //drop lowest
-  		        final CheckBox categoryDropLowest = new CheckBox("categoryDropLowest", new PropertyModel<Boolean>(category, "drop_lowest"));
+  				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest", new PropertyModel<Integer>(category, "drop_lowest"));
   		        categoryDropLowest.setOutputMarkupId(true);
+  		        if(!isDropLowest) {
+  		        	categoryDropLowest.setEnabled(false);
+		        }
   		        item.add(categoryDropLowest);
   		        
   		     	//keep highest
-  		        final CheckBox categoryKeepHighest = new CheckBox("categoryKeepHighest", new PropertyModel<Boolean>(category, "keepHighest"));
+  				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest", new PropertyModel<Integer>(category, "keepHighest"));
   		        categoryKeepHighest.setOutputMarkupId(true);
+  		        if(!isKeepHighest) {
+  		        	categoryKeepHighest.setEnabled(false);
+		        }
   		        item.add(categoryKeepHighest);
   				
   				//remove button
@@ -178,23 +205,18 @@ public class SettingsCategoryPanel extends Panel {
 					@Override
 					public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 						
-						//remove current item
+						//remove this category from the model
 						CategoryDefinition current = item.getModelObject();
-						//categories.remove(current);
 						
-						System.out.println(current);
-						
-						//model.getObject().getCategories().remove(current);
-						
-						//target.add(categoriesWrap);
+						model.getObject().getCategories().remove(current);
+						target.add(categoriesWrap);
 					}
 				};
 				remove.setDefaultFormProcessing(false);
 				item.add(remove);
-  				
   			}
   		};
-  		categoriesView.setReuseItems(true);
+  		//categoriesView.setReuseItems(true);
   		categoriesWrap.add(categoriesView);
   		categoriesWrap.setOutputMarkupId(true);
   		add(categoriesWrap);
@@ -207,6 +229,7 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> f) {
 				
+				//add a new category to the model
 				CategoryDefinition cd = new CategoryDefinition();
 				cd.setAssignmentList(Collections.<Assignment> emptyList());
 				
