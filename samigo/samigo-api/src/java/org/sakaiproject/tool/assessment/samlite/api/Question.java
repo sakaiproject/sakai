@@ -34,7 +34,8 @@ public class Question {
 	private String feedbackOK;
 	private String feedbackNOK;
 	private boolean randomize;
-	
+	private boolean rationale;
+
 	public Question() {
 		this.questionNumber = 0;
 		this.questionPoints = "";
@@ -134,6 +135,14 @@ public class Question {
 
 	public void setQuestionType(int questionType) {
 		this.questionType = questionType;
+	}
+
+	public boolean isRationale() {
+		return rationale;
+	}
+
+	public void setRationale(boolean rationale) {
+		this.rationale = rationale;
 	}
 	
 	public void postProcessing() {

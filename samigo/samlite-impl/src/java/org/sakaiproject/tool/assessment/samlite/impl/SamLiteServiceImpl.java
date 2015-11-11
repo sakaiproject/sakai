@@ -79,6 +79,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 	private Pattern discountPattern;
 	String realPatternString = "((\\+||\\-)?(\\d+((\\.|\\,)\\d+)?)((E|e)(\\-|\\+)?\\d+)?)";
 	private Pattern randomizePattern;
+	private Pattern rationalePattern;
 	
 	private Pattern extendedMatchingCorrectAnswersPattern;
 	
@@ -192,7 +193,12 @@ public class SamLiteServiceImpl implements SamLiteService {
 		unnecessaryFalsePattern = Pattern.compile("^" + stFalse + "$");
 		String txtRandomize = rb.getString("randomize", "#randomize");
 		randomizePattern = Pattern.compile("^" + txtRandomize + "$", Pattern.CASE_INSENSITIVE);
-		
+		String txtRationale = rb.getString("rationale", "#rationale");
+		rationalePattern = Pattern.compile("^" + txtRationale + "$", Pattern.CASE_INSENSITIVE);
+
+
+
+
 		QuestionGroup questionGroup = new QuestionGroup(name, description);
 		
 		String cleanData = data; 
@@ -274,6 +280,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		Matcher feedbackNOKMatcher = feedbackNOKPattern.matcher(line);
 		boolean hasfeedbackNOK = feedbackNOKMatcher.find();
 		boolean randomize = randomizePattern.matcher(line).find();
+		boolean rationale = rationalePattern.matcher(line).find();
 		
 		boolean isEMICorrectAnswer = extendedMatchingCorrectAnswersPattern.matcher(line).find();
 		
@@ -337,7 +344,21 @@ public class SamLiteServiceImpl implements SamLiteService {
 				question.getQuestionType() == Question.MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION) {
 				question.setRandomize(randomize);
 			}
-		} else {
+
+
+		} else if (rationale) {
+			if (question.getQuestionType() == Question.MULTIPLE_CHOICE_QUESTION || 
+					question.getQuestionType() == Question.MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION || 
+					question.getQuestionType() == Question.TRUE_FALSE_QUESTION) {
+				question.setRationale(rationale);
+			}
+
+			
+		}
+
+
+
+		else {
 			// If we didn't match anything, then assume it's just part of the question text
 			question.append(line);
 		}
@@ -728,6 +749,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		
 		buildMetaDataField(qtiMetaData, "qmd_itemtype", "True False");
 		buildMetaDataField(qtiMetaData, "TEXT_FORMAT", "HTML");
+		buildMetaDataField(qtiMetaData, "hasRationale", Boolean.valueOf(question.isRationale()).toString());
 		
 		ItemrubricType itemRubric = item.addNewItemrubric();
 		itemRubric.setView(ItemrubricType.View.ALL);
@@ -754,7 +776,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		
 		buildMetaDataField(qtiMetaData, "qmd_itemtype", "Multiple Choice");
 		buildMetaDataField(qtiMetaData, "TEXT_FORMAT", "HTML");
-		buildMetaDataField(qtiMetaData, "hasRationale", "False");
+		buildMetaDataField(qtiMetaData, "hasRationale", Boolean.valueOf(question.isRationale()).toString());
 		buildMetaDataField(qtiMetaData, ItemMetaDataIfc.RANDOMIZE, Boolean.valueOf(question.isRandomize()).toString());
 		
 		ItemrubricType itemRubric = item.addNewItemrubric();
@@ -786,7 +808,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		
 		buildMetaDataField(qtiMetaData, "qmd_itemtype", "Multiple Correct Answer");
 		buildMetaDataField(qtiMetaData, "TEXT_FORMAT", "HTML");
-		buildMetaDataField(qtiMetaData, "hasRationale", "False");
+		buildMetaDataField(qtiMetaData, "hasRationale", Boolean.valueOf(question.isRationale()).toString());
 		buildMetaDataField(qtiMetaData, ItemMetaDataIfc.RANDOMIZE, Boolean.valueOf(question.isRandomize()).toString());
 		
 		ItemrubricType itemRubric = item.addNewItemrubric();
