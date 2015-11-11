@@ -26,22 +26,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.impl.ContentHostingComparator;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class SortTest extends TestCase {
-
-	public SortTest(String name) {
-		super(name);
-	}
+public class SortTest {
 
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testSorts() {
 		ContentHostingComparator c = new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true); 
 		
@@ -93,6 +90,7 @@ public class SortTest extends TestCase {
 		return testList;
 	}
 
+	@Test
 	public void testNameCompare() {
 		ContentHostingComparator c = new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true, false); 
 		//Test ids to use
@@ -121,7 +119,8 @@ public class SortTest extends TestCase {
 		}
 		System.out.println();
 	}
-	
+
+	@Test
 	public void testLocaleSorts() {
 		ContentHostingComparator c = new ContentHostingComparator(null, true);
 
@@ -161,6 +160,7 @@ public class SortTest extends TestCase {
 		assertTrue(c.comparerLocalSensitive("A1", "A184467440737095516160") < 0);
 	}
 
+	@Test
 	public void testPrioritySorts() {
 		ContentHostingComparator c = new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true, false);
 
@@ -188,5 +188,43 @@ public class SortTest extends TestCase {
 		assertEquals(0, c.compare(priority1, diffPriority1));
 		assertTrue(c.compare(priorityNull, diffPriorityNull) > 0);
 	}
-	
+
+
+	@Test
+	public void testPrioritySortThenName() {
+		ContentHostingComparator comparator = new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true, false);
+		// Check that when priority is the same we fallback to the name
+		ContentResource cr1 = new PriorityContentResource("collection", "file-a.txt");
+		ContentResource cr2 = new PriorityContentResource("collection", "file-b.txt");
+		ContentResource cr3 = new PriorityContentResource("collection", "file-c.txt");
+
+		ContentResource pcr1 = new PriorityContentResource("collection", "file-a.txt");
+		pcr1.getProperties().addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, "1");
+		ContentResource pcr2 = new PriorityContentResource("collection", "file-a.txt");
+		pcr2.getProperties().addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, "2");
+		ContentResource pcr3 = new PriorityContentResource("collection", "file-a.txt");
+		pcr3.getProperties().addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, "3");
+
+		List<ContentResource> actual = new ArrayList<>();
+		actual.addAll(Arrays.asList(new ContentResource[]{cr3, cr2, cr1, pcr3, pcr2, pcr1}));
+		actual.sort(comparator);
+
+		ContentResource[] expected = {pcr1, pcr2, pcr3, cr1, cr2, cr3};
+		assertArrayEquals(expected, actual.toArray());
+
+	}
+
+	/**
+	 * Just makes debugging easier when wanting to know the filename and priority sort.
+	 */
+	private class PriorityContentResource extends MockContentResource {
+		public PriorityContentResource(String collectionId, String resourceId) {
+			super(collectionId, resourceId);
+		}
+		@Override
+		public String toString() {
+			return resourceId+ " "+ getProperties().getProperty(ResourceProperties.PROP_CONTENT_PRIORITY);
+		}
+	}
+
 }
