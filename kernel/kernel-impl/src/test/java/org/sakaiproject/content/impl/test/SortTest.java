@@ -160,5 +160,33 @@ public class SortTest extends TestCase {
 		 */
 		assertTrue(c.comparerLocalSensitive("A1", "A184467440737095516160") < 0);
 	}
+
+	public void testPrioritySorts() {
+		ContentHostingComparator c = new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true, false);
+
+		MockContentResource priority10 = new MockContentResource("test", "itema");
+		priority10.getPropertiesEdit().addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, "10");
+
+		MockContentResource priorityNull = new MockContentResource("test", "itemb");
+		MockContentResource diffPriorityNull = new MockContentResource("test", "iteme");
+
+		MockContentResource priority1 = new MockContentResource("test", "itemc");
+		MockContentResource diffPriority1 = new MockContentResource("test", "itemd");
+		priority1.getPropertiesEdit().addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, "1");
+		diffPriority1.getPropertiesEdit().addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, "1");
+
+		assertEquals(1, c.compare(priorityNull, priority10));
+		assertEquals(1, c.compare(priorityNull, priority1));
+		assertEquals(-1, c.compare(priority1, priority10));
+		assertEquals(0, c.compare(priority1, diffPriority1));
+		assertTrue(c.compare(priorityNull, diffPriorityNull) < 0);
+
+		c = new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, false, false);
+		assertEquals(-1, c.compare(priorityNull, priority10));
+		assertEquals(-1, c.compare(priorityNull, priority1));
+		assertEquals(1, c.compare(priority1, priority10));
+		assertEquals(0, c.compare(priority1, diffPriority1));
+		assertTrue(c.compare(priorityNull, diffPriorityNull) > 0);
+	}
 	
 }
