@@ -1,14 +1,12 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
-import java.util.List;
-
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 
@@ -83,6 +81,7 @@ public class SettingsPage extends BasePage {
 		form.add(new SettingsGradeEntryPanel("gradeEntryPanel", formModel));
 		form.add(new SettingsGradeReleasePanel("gradeReleasePanel", formModel));
 		form.add(new SettingsCategoryPanel("categoryPanel", formModel));
+		form.add(new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel));
 		
 		add(form);
 		

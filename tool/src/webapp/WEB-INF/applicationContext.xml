@@ -19,6 +19,7 @@
 			ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="gradebookPermissionService"
 			ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
+		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 		<property name="courseManagementService"
 			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />

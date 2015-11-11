@@ -49,6 +49,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
@@ -62,6 +63,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -97,6 +99,9 @@ public class GradebookNgBusinessService {
 	
 	@Setter
 	private GradebookPermissionService gradebookPermissionService;
+	
+	@Setter
+	private GradebookFrameworkService gradebookFrameworkService;
 	
 	@Setter
 	private CourseManagementService courseManagementService;
@@ -1840,6 +1845,18 @@ public class GradebookNgBusinessService {
 
         return GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type() ||
                 GradebookService.CATEGORY_TYPE_ONLY_CATEGORY == gradebook.getCategory_type();
+    }
+    
+    /**
+     * Get a list of grading scales.
+     * Note that this uses the hibernate object. This really should be a shared object...
+     * @return List of GradingScales defined for this gradebook
+     */
+    public List<GradingScale> getGradingScales() {
+    	String siteId = this.getCurrentSiteId();
+        Gradebook gradebook = getGradebook(siteId);
+        
+        return this.gradebookFrameworkService.getAvailableGradingScales();
     }
 
     /**

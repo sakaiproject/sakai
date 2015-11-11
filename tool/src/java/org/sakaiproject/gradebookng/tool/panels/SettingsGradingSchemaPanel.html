@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:panel>
+
+		<h3><wicket:message key="settingspage.gradingschema.heading">Grading Schema</wicket:message></h3>
+		
+		<div class="form-inline">
+			<label>
+				<wicket:message key="settingspage.gradingschema.type" />
+				<select wicket:id="type" class="form-control">
+					<option>Letter Grade</option>
+				</select>
+			</label>
+		</div>
+		
+		
+		<!-- 	
+		<div wicket:id="gradeEntry">
+	  		<div class="radio"><label><input wicket:id="points" type="radio"/><wicket:message key="settingspage.gradeentry.points" /></label></div>
+	  		<div class="radio"><label><input wicket:id="percentages" type="radio"/><wicket:message key="settingspage.gradeentry.percentages" /></label></div>
+		</div>
+		-->
+			
+	</wicket:panel>
+</body>
+</html>
