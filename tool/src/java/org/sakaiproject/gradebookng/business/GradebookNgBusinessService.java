@@ -61,6 +61,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingScale;
@@ -1848,14 +1849,11 @@ public class GradebookNgBusinessService {
     }
     
     /**
-     * Get a list of grading scales.
+     * Get a list of grading scales configured in the system
      * Note that this uses the hibernate object. This really should be a shared object...
      * @return List of GradingScales defined for this gradebook
      */
     public List<GradingScale> getGradingScales() {
-    	String siteId = this.getCurrentSiteId();
-        Gradebook gradebook = getGradebook(siteId);
-        
         return this.gradebookFrameworkService.getAvailableGradingScales();
     }
 

@@ -15,6 +15,23 @@
 			</label>
 		</div>
 		
+		<div wicket:id="schemaWrap">
+			<table class="table-striped table-bordered table-hover">
+				<thead>
+					<tr>
+						<th><wicket:message key="settingspage.gradingschema.grade" /></th>
+						<th><wicket:message key="settingspage.gradingschema.minpercent" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr wicket:id="schemaView">
+						<td><span wicket:id="grade">A+</span></td>
+						<td><input wicket:id="minPercent" type="text" size="10" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
 		
 		<!-- 	
 		<div wicket:id="gradeEntry">

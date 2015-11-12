@@ -1,20 +1,35 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.GradingScale;
 
@@ -26,6 +41,9 @@ public class SettingsGradingSchemaPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 	
 	IModel<GradebookInformation> model;
+	
+	WebMarkupContainer schemaWrap;
+	GradingScale selectedGradingScale;
 
 	public SettingsGradingSchemaPanel(String id, IModel<GradebookInformation> model) {
 		super(id, model);
@@ -42,8 +60,22 @@ public class SettingsGradingSchemaPanel extends Panel {
 		
 		//get current one
 		String selectedGradingScaleUid = this.model.getObject().getSelectedGradingScaleUid();
+		for(GradingScale gs: gradingScales) {
+			if(StringUtils.equals(gs.getUid(), selectedGradingScaleUid)) {
+				selectedGradingScale = gs;
+			}
+		}
 		
-		//TODO set the selected one
+		//get grademappings
+		//this.model.getObject().getGradeMap();
+		
+		//HERE
+		//we need to be able to get the gradeMapping list for a given gradebook id and gradingScaleUid
+		//so that we can look it up. and if it switches we can run the query again to select he latest data.
+		
+		//get the grade mappings for the current one
+		//TODO turn this into a model that can refresh
+		
 		
 		//type chooser
 		final DropDownChoice<GradingScale> typeChooser = new DropDownChoice<GradingScale>("type", new Model<GradingScale>(), gradingScales, new ChoiceRenderer<GradingScale>() {
@@ -52,7 +84,6 @@ public class SettingsGradingSchemaPanel extends Panel {
 			@Override
 			public Object getDisplayValue(GradingScale g) {
 				return g.getName();
-				//return new StringResourceModel("permissionspage.label.tausername", null, new String[] {u.getDisplayName(), u.getDisplayId()}).getString();
 			}
 			
 			@Override
@@ -63,22 +94,44 @@ public class SettingsGradingSchemaPanel extends Panel {
 		});
 		
 		typeChooser.setNullValid(false);
+		typeChooser.setModelObject(selectedGradingScale);
+		add(typeChooser);
 		
-		//set selected
-		for(GradingScale gs: gradingScales) {
-			if(StringUtils.equals(gs.getUid(), selectedGradingScaleUid)) {
-				typeChooser.setModelObject(gs);
-			}
+		//convert map into list of objects which is easier to work with in the views
+		// THIS IS NOTCORRECT AS IT IS THE DEFAULTS, NOT THE ACTUAL ONES
+		//THERE DOESNT APPEAR TO BE A METHOD TO GET THE MAPPINGS FOR A GIVEN GB ID AND selectedGradingScale ??
+		Map<String,Double> bottomPercents = selectedGradingScale.getDefaultBottomPercents();
+
+		List<GbGradingSchemaEntry> gradingSchemaEntries = new ArrayList<>();
+		for(Map.Entry<String, Double> entry: bottomPercents.entrySet()) {
+			gradingSchemaEntries.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
 		}
 		
-		
-		add(typeChooser);
+		//render the grading schema table
+		schemaWrap = new WebMarkupContainer("schemaWrap");
+    	ListView<GbGradingSchemaEntry> schemaView = new ListView<GbGradingSchemaEntry>("schemaView", Model.ofList(gradingSchemaEntries)) {
+
+  			private static final long serialVersionUID = 1L;
+
+  			@Override
+  			protected void populateItem(final ListItem<GbGradingSchemaEntry> item) {
+  				
+  				GbGradingSchemaEntry entry = item.getModelObject();
+  				
+  				//grade
+  				Label grade = new Label("grade", new PropertyModel<String>(entry, "grade"));
+  				item.add(grade);
+  				
+  				//minpercent
+  				TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
+  				item.add(minPercent);
+  
+  			}
+  		};
+  		schemaWrap.add(schemaView);
+  		schemaWrap.setOutputMarkupId(true);
+  		add(schemaWrap);
 				
-		//points/percentage entry
-		//RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry", new PropertyModel<Integer>(model, "gradeType"));
-		//gradeEntry.add(new Radio<>("points", new Model<>(1)));
-		//gradeEntry.add(new Radio<>("percentages", new Model<>(2)));
-		//add(gradeEntry);
 		
 	}
 }
