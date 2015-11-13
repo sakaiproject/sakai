@@ -2,6 +2,7 @@
 <html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
     <head>
         <meta charset="utf-8">
+        <title>${loginRequired} - ${uiService}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">        
 		<link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
 		<script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
