@@ -17,8 +17,8 @@
 		$validator.escapeHtml($!description)
 	</div>
 	## no need to show the drop down menu if there is no group defined for the site
-	#if ($!groups && $groups.size()>0)
 	<div class="navPanel">
+		#if ($!groups && $groups.size()>0)
 		## if there are any groups at all
 		<div class="viewNav" id="groupSelector">
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm($action)">
