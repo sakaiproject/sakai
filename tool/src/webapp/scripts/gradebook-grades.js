@@ -844,24 +844,35 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
       self.$spreadsheet.data("categoryScrollTimeout", setTimeout(function() {
         self.$spreadsheet.find(".gb-category-label").each(function() {
           var $label = $(this);
+          var $table = $label.closest("table");
 
+          var viewport = self.$spreadsheet.width();
           var overlay = self.$fixedColumns.width();
-          var offset = $label.position().left;
+          var available = viewport - overlay;
+          var scroll = self.$spreadsheet[0].scrollLeft;
 
-          if ($label.closest("table.gb-fixed-header-table").length > 0) {
-            offset = $label.position().left + $label.closest("table.gb-fixed-header-table").position().left;
+          if (available < 0) {
+            return; // screen too small for this awesomeness...
           }
 
-          if (overlay > offset) {
-            var leftOffset = Math.min($label.parent().width() - $label.width() - 20, overlay - offset);
-            $label.animate({
-              marginLeft: leftOffset
-            });
-          } else {
-            $label.animate({
-              marginLeft: 0
-            });
+          var $cell = $label.closest("td");
+
+          var relativeCellOffset = $table.is(".gb-fixed-header-table") ? 
+                                      $cell.position().left - overlay :
+                                      $cell.position().left - $table.position().left - overlay;
+
+          var offset = Math.max(0, scroll - relativeCellOffset);
+          var newLabelWidth = Math.min($cell.width() - offset, Math.min(available - (relativeCellOffset - scroll), available));
+
+          if (newLabelWidth < 180) {
+            newLabelWidth = 180;
+            offset = Math.min(offset, $cell.width() - newLabelWidth);
           }
+
+          $label.animate({
+            marginLeft: Math.max(offset, 0),
+            width: newLabelWidth
+          });
         });
       }, 100));
     };
