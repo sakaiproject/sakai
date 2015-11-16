@@ -503,6 +503,28 @@ function handleReportsTriangleDisclosure(btn)
 							<b>$tlang.getString("gen.comments")</b> 
 							<div class="textPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
 						#end
+                        <ul class="attachList">
+                            <lh><strong>$tlang.getString("gen.attachments")</strong></lh>
+							#foreach($attachment in $review.getAttachmentRefList())
+								#set ($props = false)
+								#set ($props = $attachment.Properties)
+								#if ($!props)
+                                    <li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									#if ($decoratedUrlMap)
+                                        <a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#else
+                                        <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#end
+										#propertyDetails($props)
+                                    </li>
+								#end
+							#end
+                        </ul>
 						</div>
 					#end
 					</div>

@@ -908,6 +908,18 @@ CREATE SEQUENCE SAKAI_CFG_ITEM_S;
 --END;
 --/
 
+-- SAK-30032 Create table to handle Peer Review attachments --
+CREATE TABLE ASN_PEER_ASSESSMENT_ATTACH_T (
+ID NUMBER(19,0) NOT NULL,
+SUBMISSION_ID varchar2(255) NOT NULL, 
+ASSESSOR_USER_ID varchar2(255) NOT NULL, 
+RESOURCE_ID varchar2(255) NOT NULL, 
+PRIMARY KEY(ID)
+);
+CREATE SEQUENCE ASN_PEER_ATTACH_S START WITH 1 INCREMENT BY 1 nomaxvalue;
+create index PEER_ASSESSOR_I on ASN_PEER_ASSESSMENT_ATTACH_T (SUBMISSION_ID, ASSESSOR_USER_ID);
+-- END SAK-30032
+
 -- KNL-1424 Add Message Bundle Manager to admin workspace
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Manager', '0', 21, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );

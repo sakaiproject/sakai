@@ -90,6 +90,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
+import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
@@ -234,8 +235,10 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES = "exclude_smallmatches";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE = "exclude_type";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
-	
-	
+
+	/** Peer Review Attachments **/
+	private static final String PEER_ATTACHMENTS = "peer_attachments";
+	private static final String PEER_ASSESSMENT = "peer_assessment";
 	
 	/** The attachments */
 	private static final String ATTACHMENTS = "Assignment.attachments";
@@ -820,7 +823,9 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String VIEW_SUBMISSION_SEARCH = "view_submission_search";
 	
 	private ContentHostingService m_contentHostingService = null;
-	
+
+	private org.sakaiproject.entity.api.EntityManager m_entityManager = null;
+
 	private EventTrackingService m_eventTrackingService = null;
 	
 	private NotificationService m_notificationService = null;
@@ -2186,6 +2191,21 @@ public class AssignmentAction extends PagedResourceActionII
 									review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
 								}
 							}
+							// get attachments for peer review item
+							List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(review.getSubmissionId(),review.getAssessorUserId());
+							if(attachments != null && !attachments.isEmpty()) {
+								List<Reference> attachmentRefList = new ArrayList<>();
+								for(PeerAssessmentAttachment attachment : attachments) {
+									try {
+										Reference ref = m_entityManager.newReference(m_contentHostingService.getReference(attachment.getResourceId()));
+										attachmentRefList.add(ref);
+									} catch(Exception e) {
+										M_log.warn(e.getMessage(), e);
+									}
+								}
+								if(attachmentRefList != null && !attachmentRefList.isEmpty())
+									review.setAttachmentRefList(attachmentRefList);
+							}
 							completedReviews.add(review);
 							
 						}
@@ -2367,7 +2387,11 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// show or hide the number of submission column
 		context.put(SHOW_NUMBER_SUBMISSION_COLUMN, state.getAttribute(SHOW_NUMBER_SUBMISSION_COLUMN));
-		
+
+		// clear out peer_attachment list just in case
+		state.setAttribute(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
+		context.put(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
+
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_LIST_ASSIGNMENTS;
 
@@ -3769,8 +3793,10 @@ public class AssignmentAction extends PagedResourceActionII
 						&& AssignmentService.allowGradeSubmission(assignmentId)){
 					//coming from instructor view submissions page
 					state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+					state.setAttribute(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
 				}else{
 					state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+					state.setAttribute(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
 				}
 			}
 			if(submissionId != null && submissionIds.contains(submissionId)){
@@ -4561,7 +4587,28 @@ public class AssignmentAction extends PagedResourceActionII
 				}else{
 					context.put("view_only", false);
 				}
-				
+
+				// get attachments for peer review item
+				List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(peerAssessmentItem.getSubmissionId(),peerAssessmentItem.getAssessorUserId());
+				List<Reference> attachmentRefList = new ArrayList<Reference>();
+				if(attachments != null && !attachments.isEmpty()) {
+					for(PeerAssessmentAttachment attachment : attachments) {
+						try {
+							Reference ref = m_entityManager.newReference(m_contentHostingService.getReference(attachment.getResourceId()));
+							attachmentRefList.add(ref);
+						} catch(Exception e) {
+							M_log.warn(e.getMessage(), e);
+						}
+					}
+					if(attachmentRefList != null && !attachmentRefList.isEmpty()) {
+						context.put("peer_attachments", attachmentRefList);
+						state.setAttribute(PEER_ATTACHMENTS, attachmentRefList);
+					}
+				} else {
+					context.put("peer_attachments", attachmentRefList);
+					state.setAttribute(PEER_ATTACHMENTS, attachmentRefList);
+				}
+
 				//scores are saved as whole values
 				//so a score of 1.3 would be stored as 13
 				//so a DB score of 13 needs to be 1.3:
@@ -11083,6 +11130,17 @@ public class AssignmentAction extends PagedResourceActionII
 				// attachments
 				doAttachmentsFrom(data, null);
 			}
+			else if ("removeAttachment".equals(option))
+			{
+				// remove selected attachment
+				doRemove_attachment(data);
+			}
+			else if ("removeAttachment_review".equals(option))
+			{
+				// remove selected attachment
+				doRemove_attachment(data);
+				doSave_grade_submission_review(data);
+			}
 			else if ("modelAnswerAttach".equals(option))
 			{
 				doAttachmentsFrom(data, "modelAnswer");
@@ -11290,6 +11348,12 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, state.getAttribute(ALLPURPOSE_ATTACHMENTS));
 				state.setAttribute(ALLPURPOSE, Boolean.TRUE);
 			}
+			else if (from != null && "peerAttach".equals(from))
+			{
+				state.setAttribute(ATTACHMENTS_FOR, PEER_ATTACHMENTS);
+				state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, state.getAttribute(PEER_ATTACHMENTS));
+				state.setAttribute(PEER_ASSESSMENT, Boolean.TRUE);
+			}
 		}
 	}
 	
@@ -11422,6 +11486,9 @@ public class AssignmentAction extends PagedResourceActionII
 		else if (MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode))
 		{
 			readGradeForm(data, state, "read");
+		}
+		else if (MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
+			saveReviewGradeForm(data, state, "save");
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -11614,6 +11681,59 @@ public class AssignmentAction extends PagedResourceActionII
 						changed = true;
 						item.setComment(feedbackComment);
 					}
+
+					/** Attachments **/
+					//Get attachments already added to this item
+					List<PeerAssessmentAttachment> savedAttachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(submissionId,assessorUserId);
+
+					// get attachments added to the review form
+					List submittedAttachmentRefs = null;
+
+					if(state.getAttribute(PEER_ATTACHMENTS) != null && !((List) state.getAttribute(PEER_ATTACHMENTS)).isEmpty()) {
+						submittedAttachmentRefs = (List) state.getAttribute(PEER_ATTACHMENTS);
+					}
+
+					boolean attachmentsChanged = false;
+					// if review was saved/submitted with attachments added
+					if (submittedAttachmentRefs != null && !submittedAttachmentRefs.isEmpty())
+					{
+						// build set of attachment reference ids from review form
+						List<PeerAssessmentAttachment> attachmentsFromForm = new ArrayList<>();
+						for(Object attachment : submittedAttachmentRefs) {
+							// Try to get existing attachment first
+							PeerAssessmentAttachment peerAssessmentAttachment = assignmentPeerAssessmentService.getPeerAssessmentAttachment(item.getSubmissionId(), item.getAssessorUserId(), ((Reference) attachment).getId());
+							if (peerAssessmentAttachment != null) {
+								attachmentsFromForm.add(peerAssessmentAttachment);
+							} else {
+								// Build a new attachment
+								peerAssessmentAttachment = new PeerAssessmentAttachment(item.getSubmissionId(), item.getAssessorUserId(), ((Reference) attachment).getId());
+								attachmentsFromForm.add(peerAssessmentAttachment);
+							}
+						}
+
+						// check if there were previously saved attachments
+						if (savedAttachments != null && !savedAttachments.isEmpty()) {
+							// Find if any previously saved attachments need to be removed from item's attachments
+							List<PeerAssessmentAttachment> attachmentsToDelete = new ArrayList<>(savedAttachments);
+							attachmentsToDelete.removeAll(attachmentsFromForm);
+
+							// remove no longer needed attachments from peer review item's attachments
+							if (!attachmentsToDelete.isEmpty()) {
+								// remove previously saved attachments
+								attachmentsToDelete.forEach(assignmentPeerAssessmentService::removePeerAttachment);
+							}
+						}
+						item.setAttachmentList(attachmentsFromForm);
+						attachmentsChanged = true;
+					} else {
+						// no attachments added to the review so we need to clear out previously saved attachments
+						if (savedAttachments != null && !savedAttachments.isEmpty()) {
+							savedAttachments.forEach(assignmentPeerAssessmentService::removePeerAttachment);
+							attachmentsChanged = true;
+						}
+						item.setAttachmentList(new ArrayList<>());
+					}
+
 					//Submitted
 					if("submit".equals(gradeOption)){
 						if(item.getScore() != null || (item.getComment() != null && !"".equals(item.getComment().trim()))){
@@ -11648,6 +11768,10 @@ public class AssignmentAction extends PagedResourceActionII
 							if("submit".equals(gradeOption)){
 								state.setAttribute(GRADE_SUBMISSION_SUBMIT, Boolean.TRUE);
 							}
+						}
+						if(attachmentsChanged) {
+							//save new attachments to the DB
+							assignmentPeerAssessmentService.savePeerAssessmentAttachments(item);
 						}
 					}
 					
@@ -12039,7 +12163,12 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		}
-		
+
+		if (m_entityManager == null)
+		{
+			m_entityManager = (org.sakaiproject.entity.api.EntityManager) ComponentManager.get("org.sakaiproject.entity.api.EntityManager");
+		}
+
 		if (m_assignmentSupplementItemService == null)
 		{
 			m_assignmentSupplementItemService = (AssignmentSupplementItemService) ComponentManager.get("org.sakaiproject.assignment.api.model.AssignmentSupplementItemService");
@@ -15080,9 +15209,18 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// save submit inputs before refresh the page
 		saveSubmitInputs(state, params);
+
+		String mode = (String) state.getAttribute(STATE_MODE);
 		
 		String removeAttachmentId = params.getString("currentAttachment");
-		List attachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+		List attachments = new ArrayList();
+		if(MODE_STUDENT_REVIEW_EDIT.equals(mode))
+		{
+			attachments = state.getAttribute(PEER_ATTACHMENTS) == null?null:((List) state.getAttribute(PEER_ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(PEER_ATTACHMENTS);
+		} else
+		{
+			attachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+		}
 		if (attachments != null)
 		{
 			Reference found =  null;
@@ -15098,10 +15236,15 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				attachments.remove(found);
 				// refresh state variable
-				state.setAttribute(ATTACHMENTS, attachments);	
+				if(MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
+					state.setAttribute(PEER_ATTACHMENTS, attachments);
+				}
+				else {
+					state.setAttribute(ATTACHMENTS, attachments);
+				}
 			}
 		}
-		
+
 	}
 
 	public void doRemove_newSingleUploadedFile(RunData data)
@@ -16928,8 +17071,10 @@ public class AssignmentAction extends PagedResourceActionII
 		// save the current input before leaving the page
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		saveSubmitInputs(state, data.getParameters ());
-		
 		doAttachUpload(data, false);
+		if(MODE_STUDENT_REVIEW_EDIT.equals(state.getAttribute(STATE_MODE))) {
+			saveReviewGradeForm(data, state, "save");
+		}
 	}
 	
 	/**
@@ -16957,9 +17102,18 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters ();
 
 		String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
-		
-		// construct the state variable for attachment list
-		List attachments = state.getAttribute(ATTACHMENTS) != null? (List) state.getAttribute(ATTACHMENTS) : EntityManager.newReferenceList();
+
+		String mode = (String) state.getAttribute(STATE_MODE);
+		List attachments;
+
+		if(MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
+			// construct the state variable for peer attachment list
+			attachments = state.getAttribute(PEER_ATTACHMENTS) != null? (List) state.getAttribute(PEER_ATTACHMENTS) : EntityManager.newReferenceList();
+		} else {
+
+			// construct the state variable for attachment list
+			attachments = state.getAttribute(ATTACHMENTS) != null? (List) state.getAttribute(ATTACHMENTS) : EntityManager.newReferenceList();
+		}
 		
 		FileItem fileitem = null;
 		try
@@ -17077,8 +17231,12 @@ public class AssignmentAction extends PagedResourceActionII
 								M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
 							}
 						}
-						
-						state.setAttribute(ATTACHMENTS, attachments);
+
+						if(MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
+							state.setAttribute(PEER_ATTACHMENTS, attachments);
+						} else {
+							state.setAttribute(ATTACHMENTS, attachments);
+						}
 					}
 					catch (PermissionException e)
 					{
