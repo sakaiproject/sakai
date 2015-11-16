@@ -1,6 +1,7 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
 
@@ -18,7 +19,12 @@ public class PeerAssessmentItem implements Serializable{
 	private boolean submitted;
 	//transient variables for displaying information in the UI
 	private String assessorDisplayName;
-	 
+
+	//resource ids for attachments associated with this item stored in separate table
+	private List<PeerAssessmentAttachment> attachmentList;
+
+	private List attachmentRefList;
+
 	private Integer scaledFactor = AssignmentConstants.DEFAULT_SCALED_FACTOR;
 	
 	public String getSubmissionId() {
@@ -81,8 +87,24 @@ public class PeerAssessmentItem implements Serializable{
 	public void setSubmitted(boolean submitted) {
 		this.submitted = submitted;
 	}
-	
+
 	public boolean isDraft(){
 		return !submitted && (getScore() != null || (getComment() != null && !"".equals(getComment().trim())));
+	}
+
+	public List<PeerAssessmentAttachment> getAttachmentList() {
+		return attachmentList;
+	}
+
+	public void setAttachmentList(List<PeerAssessmentAttachment> attachmentList) {
+		this.attachmentList = attachmentList;
+	}
+
+	public List getAttachmentRefList() {
+		return attachmentRefList;
+	}
+
+	public void setAttachmentRefList(List attachmentRefList) {
+		this.attachmentRefList = attachmentRefList;
 	}
 }
