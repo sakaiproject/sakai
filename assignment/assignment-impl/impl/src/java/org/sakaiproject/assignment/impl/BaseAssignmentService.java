@@ -3622,7 +3622,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (!allowGradeSubmission(assignmentRef))
 		{
 			List submitterIds = submission.getSubmitterIds();
-			if (submitterIds != null && !submitterIds.contains(SessionManager.getCurrentSessionUserId()))
+			String userId = SessionManager.getCurrentSessionUserId();
+			if (!userId.equals(submission.getSubmitterId()) && submitterIds != null && !submitterIds.contains(userId))
 			{
 				throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionId);
 			}
