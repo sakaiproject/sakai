@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:tx="http://www.springframework.org/schema/tx"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
 
 	<!--  SakaiProxy -->
  	<bean id="org.sakaiproject.dash.app.SakaiProxy"
@@ -36,7 +42,10 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
     </bean>
 
-	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <context:annotation-config/>
+        <tx:annotation-driven  transaction-manager="transactionManager"/>
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
   		<property name="dataSource" ref="javax.sql.DataSource"/>
 	</bean>
 	
@@ -44,7 +53,7 @@
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init" destroy-method="destroy">
   		<constructor-arg>
-      		<ref local="txManager"/>
+      		<ref local="transactionManager"/>
     	</constructor-arg>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
@@ -73,6 +82,9 @@
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
     	<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+	<property name="transactionManager">
+      	  <ref local="transactionManager"/>
+	</property>
     </bean>
     
     <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->
@@ -154,6 +166,17 @@
     	<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 	</bean>
 	
+	<bean id="org.sakaiproject.dash.entity.SamigoSupport" 
+		class="org.sakaiproject.dash.entity.SamigoSupport" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
+    	<property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker"></property>
+	<property name="transactionManager">
+      		<ref local="transactionManager"/>
+	</property>
+	</bean>
+
 	<bean id="org.sakaiproject.dash.entity.ResourceSupport" 
 		class="org.sakaiproject.dash.entity.ResourceSupport" 
 		init-method="init">
@@ -191,7 +214,7 @@
       - the beanId property must match the bean id from above
       - the jobName property is the text that will be rendered in the list of jobs in Sakai
   -->
-  <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashboardCollectionJob" class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" singleton="true" init-method="init">
+  <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashboardCollectionJob" class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" scope="singleton" init-method="init">
       <property name="beanId">
           <value>DashAggregateJob</value>
       </property>
@@ -309,7 +332,7 @@ __________________________________ -->
 	-->
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashRepeatEventJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		scope="singleton" init-method="init">
 		
 		<property name="beanId">
 			<value>dashRepeatEventJob</value>
@@ -352,7 +375,7 @@ __________________________________ -->
 	-->
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashExpirePurgeJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		scope="singleton" init-method="init">
 		
 		<property name="beanId">
 			<value>dashExpirePurgeJob</value>
@@ -395,7 +418,7 @@ __________________________________ -->
 	-->
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashCheckAvailabilityJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		scope="singleton" init-method="init">
 		
 		<property name="beanId">
 			<value>dashCheckAvailabilityJob</value>
@@ -438,7 +461,7 @@ __________________________________ -->
 	-->
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashCheckAdminChangesJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		scope="singleton" init-method="init">
 		
 		<property name="beanId">
 			<value>dashCheckAdminChangesJob</value>
@@ -481,7 +504,7 @@ __________________________________ -->
 	-->
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashSyncUserSitesJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		scope="singleton" init-method="init">
 		
 		<property name="beanId">
 			<value>dashSyncUserSitesJob</value>
