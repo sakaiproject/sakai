@@ -586,6 +586,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** The default value for whether to show all sites in resources tool (used if global value can't be read from server config service) */
 	private static final boolean SHOW_ALL_SITES_IN_RESOURCES = false;
 	/** The collection id being browsed. */
+	public static final String SAK_PROP_SHOW_ALL_SITES_IN_TOOL = PREFIX + "show_all_collections.tool";
+	public static final String SAK_PROP_SHOW_ALL_SITES_IN_DROPBOX = PREFIX + "show_all_collections.dropbox";
+	public static final String SAK_PROP_SHOW_ALL_SITES_IN_HELPER = PREFIX + "show_all_collections.helper";
+
 	private static final String STATE_COLLECTION_ID = PREFIX + REQUEST + "collection_id";
 	
 	
@@ -8491,15 +8495,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		boolean show_other_sites = false;
 		if(RESOURCES_MODE_HELPER.equals(resources_mode))
 		{
-			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.helper", SHOW_ALL_SITES_IN_FILE_PICKER);
+			show_other_sites = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ALL_SITES_IN_HELPER, SHOW_ALL_SITES_IN_FILE_PICKER);
 		}
 		else if(RESOURCES_MODE_DROPBOX.equals(resources_mode))
 		{
-			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.dropbox", SHOW_ALL_SITES_IN_DROPBOX);
+			show_other_sites = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ALL_SITES_IN_DROPBOX, SHOW_ALL_SITES_IN_DROPBOX);
 		}
 		else
 		{
-			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.tool", SHOW_ALL_SITES_IN_RESOURCES);
+			show_other_sites = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ALL_SITES_IN_TOOL, SHOW_ALL_SITES_IN_RESOURCES);
 		}
 		
 		/** set attribute for the maximum size at which the resources tool will expand a collection. */
