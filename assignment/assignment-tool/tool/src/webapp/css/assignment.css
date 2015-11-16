@@ -179,10 +179,6 @@ label.disabled {
     color: #aaa;
 }
 
-a.noPointers, input.noPointers {
-    pointer-events: none;
-}
-
 /* start SAK-29314 */
 .navigator {
     width: 100%;
@@ -228,25 +224,8 @@ a.noPointers, input.noPointers {
     margin-top: 0.5em;
 }
 
-.centreColumn .messageProgress {
-    display: none;
-    text-align: left;
-    margin: 0 auto;
-}
-
 .leftColumn .instruction.textPanelFooter, .rightColumn .instruction.textPanelFooter {
     margin-top: 0.5em;
-}
-
-.spinner {
-    display: inline;
-    vertical-align: middle;
-    visibility: hidden;
-}
-
-.spinnerFrame {
-    margin: 0 2px;
-    position:absolute;
 }
 
 td.specialLink a:link, td.specialLink a:visited {
@@ -262,4 +241,68 @@ td.specialLink a:link, td.specialLink a:visited {
 
 select.selectSet {
     display: none;
+}
+
+.extraNode {
+    border:1px solid #69d;
+    padding: 0  1.5em 1em 1.5em;
+    width:50%;
+    min-width:500px;
+}
+
+.extraNodeLink {
+    cursor:pointer;
+}
+
+.extraNode legend {
+    padding:0 .5em;
+    color:#555
+}
+
+.userList {
+    margin-left:36px !important
+}
+
+.userList .selectedItem {
+    background:#def;
+    color:#000;
+    font-weight:bold
+}
+
+.userList li label:hover {
+    cursor:pointer;
+    background:#ffe
+}
+
+fieldset .alertMessageInline,fieldset .alertMessage {
+    border:none
+}
+
+.smallMatches {
+    background-color: lightyellow;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    padding: 1em 1em 1em 2em;
+}
+
+.itemAction.spinnerBesideContainer a {
+    margin: 0 4px;
+}
+
+div#pagingHeader {
+    height: 20px;
+    display: flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.itemAction a:link {
+    border: 1px solid transparent;
 }

@@ -1,21 +1,9 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_tags_list.vm  -->
 <script type="text/javascript">
-
-function saveChanges(formName, textAreaId) {
-	var _textArea = document.getElementById(textAreaId);
-	if (_textArea != null) {
-		if (typeof FCKeditorAPI != "undefined") {
-			var editor = FCKeditorAPI.GetInstance(textAreaId);
-			document[formName].savedText.value = editor.GetXHTML(false);
-		}
-	}
-}
-
-iframeId = '$iframeId';
-
+	iframeId = '$iframeId';
 </script>
-<form name="form" action="#toolForm("AssignmentAction")" method="post">
+<form id="form" name="form" action="#toolForm("AssignmentAction")" method="post">
 	<input type="hidden" name="sakai_action" value=""/>
 	<input type="hidden" name="providerId" value=""/>
 	<input type="hidden" name="criteria" value=""/>
@@ -36,68 +24,7 @@ iframeId = '$iframeId';
 			#if (!$tagList.isEmpty())
 				#set ($pager = $provider.getPager())
 				#if ($pager.getTotalItems() > 5)
-				<div class="listNav">
-					
-					<div  class="instruction">
-						$tlang.getString("gen.viewing") $pager.getFirstItemNumber() - $pager.getLastItemNumber() $tlang.getString("gen.of") $pager.getTotalItems() $tlang.getString("gen.items")
-					</div>
-					<div class="inlineForm">
-						#if ($pager.canFirst())
-							<fieldset><legend>$tlang.getString("gen.first")</legend>
-								<input type="submit"
-								       onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-								       name="page" value="|&lt;"
-								       title="$tlang.getString("gen.first")" />
-							</fieldset>
-						#else
-							<fieldset><legend>$tlang.getString("gen.first")</legend>
-								<input type="submit" value="|&lt;" disabled="disabled" />
-							</fieldset>	
-						#end
-						#if ($pager.canPrevious())
-							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
-								<input type="submit"
-								       onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-								       name="page" value="&lt;"
-								       title="$tlang.getString('gen.previous') $pagesize" />
-							</fieldset>
-						#else
-							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
-								<input type="submit" value="&lt;" disabled="disabled" />
-							</fieldset>	
-						#end
-							<label for="pageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
-							<select name="pageSize" onchange="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id'; form.submit();">
-								#foreach ($i in $!pager.getPageSizes())
-									<option value="$i" #if($pager.getPageSize() == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
-								#end
-							</select>
-						#if ($pager.canNext())
-							<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend>						
-								<input type="submit"
-		                               onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-		                               name="page"
-								       value="&gt;"
-								       title="$tlang.getString('gen.next') $pagesize" />
-							</fieldset>	
-						#else
-							<input type="submit" value="&gt;" disabled="disabled" />
-						#end
-						#if ($pager.canLast())
-							<fieldset><legend>$tlang.getString('gen.last')</legend>						
-								<input type="submit"
-		                               onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-								       name="page"
-								       value="&gt;|"
-								       title="$tlang.getString('gen.last')" />
-							</fieldset>	
-						#else
-							<fieldset><legend>$tlang.getString('gen.last')</legend>						
-								<input type="submit" value="&gt;|" disabled="disabled" />
-							</fieldset>	
-						#end
-					</div>
-				</div>
+				#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 				</div>
 				#end
 				<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString('tag.list.summary')">
@@ -105,10 +32,10 @@ iframeId = '$iframeId';
 					<tr>
 						#foreach ($column in $columns)
 							#if ($column.isSortable())
-								<th><a href="#"
-									   onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doSort_tags'; form.providerId.value='$provider.provider.id'; form.criteria.value='$column.name'; form.submit(); return false;"
-								   	   title="$!column.getDescription()">
-									$!column.getDisplayName()
+								<th>
+									<div class="spinnerBesideContainer">
+										<a href="javascript:void(0)" title="$!column.getDescription()" onclick="SPNR.insertSpinnerAfter( this, null, 'pagingHeader' ); ASN.saveChanges('form', '$name_submission_text'); ASN.doTagsListAction( form, 'doSort_tags', '$provider.provider.id' ); form.criteria.value='$column.name'; form.submit(); return false;">
+											$!column.getDisplayName()
 									#if ($provider.getSort().getSort().equals($!column.getName()))
 										#if ($provider.getSort().isAscending())
 											<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
@@ -116,7 +43,9 @@ iframeId = '$iframeId';
 											<img id="sortdescendinglastname" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
 										#end
 									#end
-								</a></th>
+										</a>
+									</div>
+								</th>
 							#else
 								<th>$column.getDisplayName()</th>
 							#end

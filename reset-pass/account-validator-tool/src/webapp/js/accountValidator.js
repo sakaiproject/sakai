@@ -1,7 +1,7 @@
 // bbailla2, plukasew, bjones86 - SAK-24427
 
 // 'Namespace'
-var VALIDATOR = {};
+var VALIDATOR = VALIDATOR || {};
 
 // Variables
 VALIDATOR.passwordValid = false;

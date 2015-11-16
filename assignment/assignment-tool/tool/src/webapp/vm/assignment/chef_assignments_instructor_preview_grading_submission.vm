@@ -2,44 +2,10 @@
 <!-- start:  chef_assignments_instructor_preview_grading_submission.vm -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_preview_grading_submission.vm,v 1.5 2005/05/16 02:26:05 zqian.umich.edu Exp $ -->
 <div class="portletBody">
-	<ul class="navIntraTool actionToolBar">
-		#set($prevAction=false)
-		#if ($allowAddAssignment)
-				#set($prevAction=true)
-				<li  class="firstToolBarItem">
-					<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
-				</li>
-				<li>
-					<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title = "$!tlang.getString('lisofass1')">$!tlang.getString("lisofass1")</a></span>
-				</li>	
-				#if ($withGrade && $!allowGradeSubmission)
-					<li>
-						<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
-					</li>	
-				#end
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
-			</li>
-		#end
-		#if (($allowAllGroups) && ($assignmentscheck))
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
-			</li>	
-		#end
-		#if ($allowUpdateSite)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>			
-				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
-			</li>
-			#if ($enableViewOption)		
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
-				</li>	
-			#end
-		#end
-	</ul>
+	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment") 	$tlang.getString("gen.to") 				$tlang.getString("gen.openquote")$validator.escapeHtml($assignment.title)$tlang.getString("gen.closequote")</h3>
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end		
-		<form action="#toolForm("AssignmentAction")" method="post" >   
+		<form id="previewGradeSubmissionForm" action="#toolForm("AssignmentAction")" method="post" >
 			<table class="itemSummary">
 				<tr>
 					<th>
@@ -256,11 +222,10 @@
 			#end
 			<p class="act">
 				## SAK-29314
-				<input accesskey="d" onclick="ASN.doGradingPreviewAction();" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdragra")" title="$tlang.getString("gen.savdratit")" class="active" />
-				<input accesskey="s" onclick="ASN.doGradingPreviewAction();" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" />
-				<input accesskey="r" onclick="ASN.doGradingPreviewAction();" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
-				<input accesskey="x" onclick="ASN.doGradingPreviewAction();" name="eventSubmit_doCancel_preview_to_list_submission" type="submit" value="$tlang.getString("gen.can")" />
-				<img id="gradeFormPreviewSpinner" class="spinner" src="/library/image/indicator.gif" />
+				<input accesskey="d" onclick="SPNR.disableControlsAndSpin( this, null );" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdragra")" title="$tlang.getString("gen.savdratit")" class="active" />
+				<input accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" />
+				<input accesskey="r" onclick="SPNR.disableControlsAndSpin( this, null );" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
+				<input accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" name="eventSubmit_doCancel_preview_to_list_submission" type="submit" value="$tlang.getString("gen.can")" />
 			</p>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

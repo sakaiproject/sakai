@@ -58,7 +58,7 @@
 	}
 }
 
-.button_color{
+.button_color, button {
 	color: $button-color-text-color;
 	cursor: pointer;
 	border-top: 1px solid $button-color-border-color;
@@ -189,7 +189,7 @@ a.noPointers, input.noPointers {
 	height: 100%;
 }
 
-.spinPlaceholder {
+.spinPlaceholder, .allocatedSpinPlaceholder {
 	position: relative;
 	display: inline-block;
 	width: 16px;
@@ -201,7 +201,10 @@ a.noPointers, input.noPointers {
 	@include display-flex;
 	@include align-items( center );
 	label {
-		margin-top: 0px;
+		margin: 0 4px 0 0;
+	}
+	select {
+		margin-bottom: 0px;
 	}
 }
 /*** End button spinner overlay ***/

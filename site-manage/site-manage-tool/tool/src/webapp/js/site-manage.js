@@ -3,7 +3,7 @@ var utils = utils || {};
 var selTools = new Array();
 var ltiPrefix = "lti_";
 // SAK-22384
-var MATHJAX = {};
+var MATHJAX = MATHJAX || {};
 MATHJAX.isInstalled = false;
 MATHJAX.checkBoxIdPrefix = "jax-";
  
