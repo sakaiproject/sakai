@@ -209,6 +209,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_SESSION_INITIALIZED = PREFIX + "session_initialized";
 	protected static final String STATE_SHOW_ALL_SITES = PREFIX + "show_all_sites";
 	protected static final String STATE_SHOW_OTHER_SITES = PREFIX + "show_other_sites";
+	public static final String SAK_PROP_SHOW_ALL_SITES = PREFIX + "show_all_collections";
 
 	/** The sort by */
 	private static final String STATE_SORT_BY = PREFIX + "sort_by";
@@ -1047,8 +1048,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		state.setAttribute(STATE_MODE, MODE_HELPER);
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT);
 		
-		// TODO: Should check sakai.properties
-		toolSession.setAttribute(STATE_SHOW_ALL_SITES, Boolean.TRUE.toString());
+		boolean show_all_sites = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ALL_SITES, 
+				ServerConfigurationService.getBoolean(ResourcesAction.SAK_PROP_SHOW_ALL_SITES_IN_HELPER, Boolean.TRUE));
+		toolSession.setAttribute(STATE_SHOW_ALL_SITES, Boolean.toString(show_all_sites));
 
 		// state attribute ResourcesAction.STATE_ATTACH_TOOL_NAME should be set with a string to indicate name of tool
 		String toolName = ToolManager.getCurrentPlacement().getTitle();
