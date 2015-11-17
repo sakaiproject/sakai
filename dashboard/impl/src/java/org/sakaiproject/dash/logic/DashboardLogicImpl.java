@@ -288,16 +288,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 						}
 					}
 					if(calendarLinks.size() > 0) {
-						
-						count = (Integer) this.transactionTemplate.execute(new TransactionCallback(){
-	
-							@Override
-							public Object doInTransaction(TransactionStatus status) {
-								
-								int count = dao.addCalendarLinks(calendarLinks);
-								return count;
-							}});
-						
+						count = dao.addCalendarLinks(calendarLinks);
 					}
 				}
 				
@@ -424,14 +415,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 						}
 					}
 					if(newsLinks.size() > 0) {
-						
-						count = (Integer) this.transactionTemplate.execute(new TransactionCallback(){
-	
-							@Override
-							public Object doInTransaction(TransactionStatus status) {
-								int count = dao.addNewsLinks(newsLinks);
-								return count;
-							}});
+						count = dao.addNewsLinks(newsLinks);
 					}
 				}
 				
@@ -465,21 +449,16 @@ public class DashboardLogicImpl implements DashboardLogic {
 			final Context context, final SourceType sourceType, final String subtype, 
 			final RepeatingCalendarItem repeatingCalendarItem, final Integer sequenceNumber) {
 
-		return (CalendarItem) transactionTemplate.execute(new TransactionCallback(){
-
-			@Override
-			public Object doInTransaction(TransactionStatus status) {
-				CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			CalendarItem calendarItem = new CalendarItem(title, calendarTime,
 						calendarTimeLabelKey, entityReference, context, sourceType, 
 						subtype, repeatingCalendarItem, sequenceNumber);
 				
-				CalendarItem rv = null;
-				boolean success = dao.addCalendarItem(calendarItem);
-				if(success) {
-					rv = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
-				}
-				return rv;
-			}});
+			CalendarItem rv = null;
+			boolean success = dao.addCalendarItem(calendarItem);
+			if(success) {
+				rv = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+			}
+			return rv;
 	}
 
 	/* (non-Javadoc)
@@ -565,18 +544,10 @@ public class DashboardLogicImpl implements DashboardLogic {
 			final String labelKey, final String entityReference, final Context context, 
 			final SourceType sourceType, final String subtype) {
 		
-		// transaction
-		return (NewsItem) transactionTemplate.execute(new TransactionCallback(){
-
-			@Override
-			public Object doInTransaction(TransactionStatus status) {
-				NewsItem newsItem = new NewsItem(title, newsTime, 
-						labelKey, entityReference, context, sourceType, subtype);
-				
-				dao.addNewsItem(newsItem);
-
-				return dao.getNewsItem(entityReference) ;
-			}});
+		NewsItem newsItem = new NewsItem(title, newsTime, 
+						 labelKey, entityReference, context, sourceType, subtype);
+		dao.addNewsItem(newsItem);
+		return dao.getNewsItem(entityReference) ;
 		
 	}
 
