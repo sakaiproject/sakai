@@ -98,9 +98,8 @@ public class SettingsGradingSchemaPanel extends Panel {
 		add(typeChooser);
 		
 		//convert map into list of objects which is easier to work with in the views
-		// THIS IS NOTCORRECT AS IT IS THE DEFAULTS, NOT THE ACTUAL ONES
-		//THERE DOESNT APPEAR TO BE A METHOD TO GET THE MAPPINGS FOR A GIVEN GB ID AND selectedGradingScale ??
-		Map<String,Double> bottomPercents = selectedGradingScale.getDefaultBottomPercents();
+		//note that this is the list of bottom percents from the configured grading scale in THIS gradebook, not the defaults
+		Map<String,Double> bottomPercents = this.model.getObject().getSelectedGradingScaleBottomPercents();
 
 		List<GbGradingSchemaEntry> gradingSchemaEntries = new ArrayList<>();
 		for(Map.Entry<String, Double> entry: bottomPercents.entrySet()) {
