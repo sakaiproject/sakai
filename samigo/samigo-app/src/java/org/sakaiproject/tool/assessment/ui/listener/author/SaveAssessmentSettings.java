@@ -195,9 +195,9 @@ public class SaveAssessmentSettings
     // e. set Submission Messages
     control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
     // f. set username
-    control.setUsername(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getUsername()));
+    control.setUsername(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, StringUtils.trim(assessmentSettings.getUsername())));
     // g. set password
-    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getPassword()));
+    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, StringUtils.trim(assessmentSettings.getPassword())));
     // h. set finalPageUrl
 
     String finalPageUrl = "";
