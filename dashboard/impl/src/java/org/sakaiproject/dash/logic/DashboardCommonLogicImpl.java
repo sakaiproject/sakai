@@ -69,8 +69,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
@@ -146,8 +144,6 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	private static final String CALENDAR_LINK_TYPE = "calendar_link_type";
 	private static final String NEWS_LINK_TYPE = "news_link_type";
 
-	TransactionTemplate transactionTemplate = null;
-	
 	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
@@ -546,8 +542,6 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			this.sakaiProxy.addLocalEventListener(this);
 			
 		}
-		
-		transactionTemplate = new TransactionTemplate(transactionManager);
 		
 	}
 	

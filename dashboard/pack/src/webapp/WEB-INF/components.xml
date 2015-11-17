@@ -172,9 +172,6 @@
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
     	<property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker"></property>
-	<property name="transactionManager">
-      		<ref local="transactionManager"/>
-	</property>
 	</bean>
 
 	<bean id="org.sakaiproject.dash.entity.ResourceSupport" 

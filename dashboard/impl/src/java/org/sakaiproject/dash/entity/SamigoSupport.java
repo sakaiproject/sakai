@@ -67,10 +67,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Samigo support for Dashboard
@@ -121,13 +117,6 @@ public class SamigoSupport {
 		this.entityBroker = entityBroker;
 	}
 	
-	protected PlatformTransactionManager transactionManager;
-	public void setTransactionManager(PlatformTransactionManager txManager) {
-	    this.transactionManager = txManager;
-	}
-
-	private TransactionTemplate transactionTemplate;
-
 	public static final String IDENTIFIER = "samigo";
 	
 	public static String makeRef(String ref) {
@@ -187,7 +176,6 @@ public class SamigoSupport {
 		//		this.dashboardLogic.registerEventProcessor(new SamigoPubUnpublishEventProcessor());
 		//		this.dashboardLogic.registerEventProcessor(new SamigoPubRepublishEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new SamigoPubRemoveEventProcessor());
-		this.transactionTemplate = new TransactionTemplate(transactionManager);
 
 	}
 	
@@ -491,10 +479,6 @@ public class SamigoSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-		    //transactionTemplate.execute(new TransactionCallback(){
-		    //@Override
-		    //public Object doInTransaction(TransactionStatus status) {
-
 			
 			PublishedAssessmentFacade pub = getPublishedAssessment(event.getResource());
 			
