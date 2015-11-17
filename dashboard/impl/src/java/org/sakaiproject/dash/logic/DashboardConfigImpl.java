@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.dao.DashboardDao;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DashboardConfigImpl implements DashboardConfig {
 	
@@ -88,6 +89,7 @@ public class DashboardConfigImpl implements DashboardConfig {
 		return value;
 	}
 	
+	@Transactional
 	public void setConfigValue(String propertyName, Integer propertyValue) {
 
 		String cacheKey = DASHBOARD_CACHE_PREFIX + propertyName;

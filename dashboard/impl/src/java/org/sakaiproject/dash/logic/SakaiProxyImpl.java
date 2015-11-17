@@ -32,6 +32,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -465,6 +466,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	//@Getter @Setter
 	protected AssignmentService assignmentService;
+
+	//@Getter @Setter
+	protected PublishedAssessmentServiceAPI publishedAssessmentServiceAPI;
 	
 	protected ContentTypeImageService contentTypeImageService;
 	
@@ -548,6 +552,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public void setAssignmentService( AssignmentService assignmentService) {
 		this.assignmentService = assignmentService;
+	}
+
+	/**
+	 * @param setPublishedAssessmentServiceAPI the PublishedAssessmentServiceAPI to set
+	 */
+	public void setPublishedAssessmentServiceAPI( PublishedAssessmentServiceAPI publishedAssessmentServiceAPI) {
+	    this.publishedAssessmentServiceAPI = publishedAssessmentServiceAPI;
 	}
 
 	/**
