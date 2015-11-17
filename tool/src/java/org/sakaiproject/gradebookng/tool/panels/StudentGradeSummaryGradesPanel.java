@@ -79,8 +79,6 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 		Collections.sort(categoryNames);
 
-		final boolean[] categoryScoreHidden = { false };
-
 		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;
 
@@ -91,22 +89,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 				List<Assignment> categoryAssignments = categoriesToAssignments.get(category);
 
 				categoryItem.add(new Label("category", category));
-
-				boolean allAssignmentsAreReleased = true;
-				for (Assignment assignment : categoryAssignments) {
-					if (!assignment.isReleased()) {
-						allAssignmentsAreReleased = false;
-						break;
-					}
-				}
-
-				if (allAssignmentsAreReleased) {
-					String categoryAverage = categoryAverages.get(category);
-					categoryItem.add(new Label("categoryGrade", categoryAverage));
-				} else {
-					categoryScoreHidden[0] = true;
-					categoryItem.add(new Label("categoryGrade", getString("label.studentsummary.categoryscoreifhiddenassignment")));
-				}
+				categoryItem.add(new Label("categoryGrade", categoryAverages.get(category)));
 
 				String categoryWeight = "";
 				if (!categoryAssignments.isEmpty()) {
@@ -186,12 +169,5 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		}
 
 		add(new AttributeModifier("data-studentid", userId));
-
-		add(new Label("categoryScoreNotReleased", getString("label.studentsummary.categoryscorenotreleased")) {
-			@Override
-			public boolean isVisible() {
-				return categoryScoreHidden[0];
-			}
-		});
 	}
 }
