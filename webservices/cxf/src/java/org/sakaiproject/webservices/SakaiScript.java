@@ -4693,4 +4693,55 @@ public class SakaiScript extends AbstractWebService {
         }
     }
 
+    /**
+     * Sets the TimeZone for the user
+     *
+     * @param sessionid
+     *            The session id.
+     * @param eid
+     *            The user eid.
+     * @param timeZoneId
+     *            The TimeZone id.
+     * @return
+     *			  Success or exception message
+     */
+
+    @WebMethod
+    @Path("/setUserTimeZone")
+    @Produces("text/plain")
+    @GET
+    public String setUserTimeZone(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "timeZoneId", partName = "timeZoneId") @QueryParam("timeZoneId") String timeZoneId){
+
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS setUserTimeZone(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS setUserTimeZone(): Permission denied. Restricted to super users.");
+        }
+
+        try {
+            User user = userDirectoryService.getUserByEid(eid);
+            PreferencesEdit prefs = null;
+            try {
+                prefs = preferencesService.edit(user.getId());
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                prefs = preferencesService.add(user.getId());
+            }
+
+            ResourcePropertiesEdit props = prefs.getPropertiesEdit(timeService.APPLICATION_ID);
+            props.addProperty(timeService.TIMEZONE_KEY, timeZoneId);
+            preferencesService.commit(prefs);
+
+        } catch (Exception e) {
+            LOG.error("WS setUserTimeZone(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+
 }
