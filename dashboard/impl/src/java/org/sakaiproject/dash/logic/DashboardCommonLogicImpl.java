@@ -21,8 +21,6 @@
 
 package org.sakaiproject.dash.logic;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +32,6 @@ import java.util.Observer;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Collection;
 
@@ -42,6 +39,7 @@ import net.sf.ehcache.Cache;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.dash.app.DashboardCommonLogic;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.app.DashboardUserLogic;
@@ -56,15 +54,10 @@ import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
-import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
-
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -654,6 +647,8 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	    // background task. Thus I'm putting every interation of the loop in a transaction explicitly
 
 		public void run() {
+			// wait till ComponentManager is ready
+			ComponentManager.waitTillConfigured();
 
 			TransactionStatus status = null;
 			try {
