@@ -27,11 +27,6 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>generic-dao</artifactId>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build />

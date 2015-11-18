@@ -61,7 +61,7 @@ public class JobExecutionContextWrapperBean {
 			FacesContext.getCurrentInstance().addMessage(null, 
 					new FacesMessage(FacesMessage.SEVERITY_INFO, 
 							parentTool.rb.getFormattedMessage("kill_message", 
-									new String[] {jec.getJobDetail().getName()}), null));
+									new String[] {jec.getJobDetail().getKey().getName()}), null));
 		}
 		
 		return "runningJobs";

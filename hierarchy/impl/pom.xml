@@ -13,10 +13,6 @@
     <artifactId>hierarchy-impl</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <sakai.generic-dao.version>0.9.18</sakai.generic-dao.version>
-    </properties>
-
     <profiles>
         <profile>
             <id>sakai-10</id>
@@ -94,9 +90,8 @@
 
         <!-- generic DAO -->
         <dependency>
-            <groupId>org.sakaiproject</groupId>
+            <groupId>org.sakaiproject.genericdao</groupId>
             <artifactId>generic-dao</artifactId>
-            <version>${sakai.generic-dao.version}</version>
         </dependency>
 
         <!-- sakai dependencies -->

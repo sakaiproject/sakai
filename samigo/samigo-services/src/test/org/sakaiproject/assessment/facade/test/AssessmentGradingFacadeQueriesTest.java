@@ -26,25 +26,27 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.SessionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={"/spring-hibernate.xml"})
+public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringContextTests {
 	
-	protected String[] getConfigLocations() {
-		return new String[] {"/spring-hibernate.xml"};
-	}
-
 	/** our query object */
 	AssessmentGradingFacadeQueries queries = null;
 	Long savedId = null;
 	Long item1Id = null;
 	Long item2Id = null;
 	
-	protected void onSetUpInTransaction() throws Exception {
+	@Before
+	public void onSetUpInTransaction() throws Exception {
 		queries = new AssessmentGradingFacadeQueries();
 		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
 		//Set the persistance helper
@@ -52,13 +54,9 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		persistenceHelper.setDeadlockInterval(3500);
 		persistenceHelper.setRetryCount(5);
 		queries.setPersistenceHelper(persistenceHelper);
-		
-		
-
 	}
-	
-	
-	
+
+	@Test
 	public void testSaveAssesmentGradingData() {
 		//A AssemementGradingData to work with
 		AssessmentGradingData data = new AssessmentGradingData();
@@ -82,7 +80,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		data.setStatus(Integer.valueOf(0));
 		
 		queries.saveOrUpdateAssessmentGrading(data);
-		assertNotNull(data.getAssessmentGradingId());
+		Assert.assertNotNull(data.getAssessmentGradingId());
 		
 		
 		//test saving an answer as part of the question.
@@ -95,7 +93,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		item1.setPublishedItemTextId(1L);
 		//saving the item should add an ID
 		queries.saveItemGrading(item1);
-		assertNotNull(item1.getItemGradingId());
+		Assert.assertNotNull(item1.getItemGradingId());
 		
 		
 		
@@ -111,7 +109,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		
 		/** saving the parent should save the children **/
 		queries.saveOrUpdateAssessmentGrading(data);
-		assertNotNull(item1.getItemGradingId());
+		Assert.assertNotNull(item1.getItemGradingId());
 		
 		Set set = data.getItemGradingSet();
 		set.add(null);
@@ -119,21 +117,22 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		queries.saveOrUpdateAll(set);
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 	}
 	
+	@Test
 	public void testLoad() {
 		loadData();
 		
 		AssessmentGradingData result = queries.load(savedId);
-		assertNotNull(result);
-		assertEquals(result.getItemGradingSet().size(), 2);
+		Assert.assertNotNull(result);
+		Assert.assertEquals(result.getItemGradingSet().size(), 2);
 		
 		
 		List<AssessmentGradingData> subs = queries.getAllSubmissions("1");
-		assertNotNull(subs);
-		assertEquals(2, subs.size());
+		Assert.assertNotNull(subs);
+		Assert.assertEquals(2, subs.size());
 		
 		
 	}
@@ -194,43 +193,43 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		
 	}
 	
-	
+	@Test
 	public void testGetAllItemGradingDataForItemInGrading() {
 		try {
 			queries.getAllItemGradingDataForItemInGrading(null , null);
-			fail();
+			Assert.fail();
 		} catch (IllegalArgumentException e) {
 			//we expect this
 		} catch (Exception ex) {
-			fail();
+			Assert.fail();
 		}
 		
 		try {
 			queries.getAllItemGradingDataForItemInGrading(999l , null);
-			fail();
+			Assert.fail();
 		} catch (IllegalArgumentException e) {
 			//we expect this
 		} catch (Exception ex) {
-			fail();
+			Assert.fail();
 		}
 		
 		try {
 			queries.getAllItemGradingDataForItemInGrading(null , 999l);
-			fail();
+			Assert.fail();
 		} catch (IllegalArgumentException e) {
 			//we expect this
 		} catch (Exception ex) {
-			fail();
+			Assert.fail();
 		}
 		
 		List<ItemGradingData> vals = queries.getAllItemGradingDataForItemInGrading(999l , 999l);
-		assertNotNull(vals);
-		assertEquals(0, vals.size());
+		Assert.assertNotNull(vals);
+		Assert.assertEquals(0, vals.size());
 		
 		loadData();
 		
 		vals = queries.getAllItemGradingDataForItemInGrading(savedId , 2L);
-		assertNotNull(vals);
-		assertEquals(1, vals.size());
+		Assert.assertNotNull(vals);
+		Assert.assertEquals(1, vals.size());
 	}
 }

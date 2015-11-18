@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--
 		Decide on a Course Management service implementation based on the runtime
@@ -158,7 +158,7 @@
 <!--
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SampleCMSyncJob"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      singleton="true" init-method="init">
+      init-method="init">
       <property name="beanId">
          <value>sampleCMSyncJob</value>
       </property>
@@ -174,8 +174,7 @@
     <!-- SAK-29138 - SiteTitleAdvisor default impl registration -->
     <bean id="org.sakaiproject.site.api.SiteTitleAdvisor"
         class="org.sakaiproject.coursemanagement.impl.SiteTitleAdvisorCMS"
-        init-method="init"
-        singleton="true">
+        init-method="init">
         <property name="uds" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="ss" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="cms" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />

@@ -22,7 +22,7 @@
 	</context-param>
  
     <listener>
-        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
     </listener>
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>

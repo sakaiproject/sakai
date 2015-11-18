@@ -19,16 +19,16 @@
 
 package org.sakaiproject.entitybroker.impl.dao;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
-
-import junit.framework.TestCase;
 
 /**
  * Note really sure this test is needed
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
-public class EntityPropertyTest extends TestCase {
+public class EntityPropertyTest {
 
    private final Long ID = Long.valueOf(1);
    private final String REF = "ref";
@@ -40,10 +40,11 @@ public class EntityPropertyTest extends TestCase {
     * Test method for
     * {@link org.sakaiproject.entitybroker.impl.EntityProperty#EntityProperty()}.
     */
+   @Test
    public void testEntityProperty() {
       EntityProperty ep = new EntityProperty();
-      assertNotNull(ep);
-      assertNull(ep.getId());
+      Assert.assertNotNull(ep);
+      Assert.assertNull(ep.getId());
       // check that none of the setters fail
       ep.setId(ID);
       ep.setEntityRef(REF);
@@ -56,15 +57,16 @@ public class EntityPropertyTest extends TestCase {
     * Test method for
     * {@link org.sakaiproject.entitybroker.impl.EntityProperty#EntityProperty(java.lang.String, java.lang.String, java.lang.String, java.lang.String[])}.
     */
+   @Test
    public void testEntityPropertyStringStringStringStringArray() {
       EntityProperty ep = new EntityProperty(REF, PREFIX, NAME, VALUE);
-      assertNotNull(ep);
+      Assert.assertNotNull(ep);
       // check that none of the getters fail
-      assertNull(ep.getId());
-      assertEquals(REF, ep.getEntityRef());
-      assertEquals(PREFIX, ep.getEntityPrefix());
-      assertEquals(NAME, ep.getPropertyName());
-      assertEquals(VALUE, ep.getPropertyValue());
+      Assert.assertNull(ep.getId());
+      Assert.assertEquals(REF, ep.getEntityRef());
+      Assert.assertEquals(PREFIX, ep.getEntityPrefix());
+      Assert.assertEquals(NAME, ep.getPropertyName());
+      Assert.assertEquals(VALUE, ep.getPropertyValue());
    }
 
 }

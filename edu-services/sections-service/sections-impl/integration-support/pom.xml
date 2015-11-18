@@ -179,13 +179,13 @@
         </resources>
         <testResources>
             <testResource>
-                <directory>${basedir}/</directory>
+                <directory>src/test</directory>
                 <includes>
                     <include>log4j.properties</include>
                 </includes>
             </testResource>
             <testResource>
-                <directory>${basedir}/src/test/</directory>
+                <directory>src/test</directory>
                 <includes>
                     <include>hibernate.properties</include>
                 </includes>

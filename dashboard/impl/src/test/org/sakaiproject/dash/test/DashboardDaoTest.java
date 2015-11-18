@@ -22,11 +22,12 @@
 package org.sakaiproject.dash.test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -37,14 +38,18 @@ import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 /**
  * This class really only tests the HSQLDB impl. But that provides a baseline for testing 
  * of the logic methods.
  */
-public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={"/test.xml"})
+public class DashboardDaoTest extends AbstractJUnit4SpringContextTests {
 	
+	@Autowired
 	protected DashboardDao dao;
 	
 	protected static AtomicInteger counter = new AtomicInteger(999);
@@ -55,24 +60,6 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	private static final long ONE_WEEK = ONE_DAY * 7L;
 	
 	private static final long TIME_DELTA = 1000L * 60L * 1L;
-
-
-
-	public DashboardDaoTest() {
-		super();
-		this.setDependencyCheck(false);
-	}
-	
-    protected String[] getConfigLocations() {
-		 // point to the needed spring config files, must be on the classpath
-		 // (add pack/src/webapp/WEB-INF to the build path in Eclipse),
-		 // they also need to be referenced in the project.xml file
-		 return new String[] {"test.xml"};
-	}
-    
-    protected final void onSetUp() throws Exception {
-    	
-    }
 
     /**
      * ADD unit tests below here, use testMethod as the name of the unit test,
@@ -85,6 +72,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * Context, SourceType and CalendarItem. It then verifies that the retrieved items 
      * have the same attribute values as the items that were saved.
      */
+	@Test
 	public void testAddCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -108,29 +96,29 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, subtype, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		
-		assertEquals(calendarTimeLabelKey,calendarItem.getCalendarTimeLabelKey());
-		assertEquals(title, calendarItem.getTitle());
-		assertEquals(entityReference, calendarItem.getEntityReference());
-		assertEquals(subtype, calendarItem.getSubtype());
+		Assert.assertEquals(calendarTimeLabelKey,calendarItem.getCalendarTimeLabelKey());
+		Assert.assertEquals(title, calendarItem.getTitle());
+		Assert.assertEquals(entityReference, calendarItem.getEntityReference());
+		Assert.assertEquals(subtype, calendarItem.getSubtype());
 		
-		assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
-		//assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
-		//assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
+		Assert.assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		//Assert.assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+		//Assert.assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 		
-		assertNotNull(calendarItem.getContext());
-		assertEquals(contextId, calendarItem.getContext().getContextId());
-		assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
-		assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
+		Assert.assertNotNull(calendarItem.getContext());
+		Assert.assertEquals(contextId, calendarItem.getContext().getContextId());
+		Assert.assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
+		Assert.assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
 		
-		assertNotNull(calendarItem.getSourceType());
-		assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());
+		Assert.assertNotNull(calendarItem.getSourceType());
+		Assert.assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());
 	}
 
     /**
@@ -138,6 +126,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * Context, SourceType, CalendarItem and CalendarLink. It then verifies that the 
      * retrieved items have the same attribute values as the items that were saved.
      */
+	@Test
 	public void testAddCalendarLink() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -160,10 +149,10 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 		dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
-		assertTrue(calendarItem.getId().longValue() > 0L);
-		assertEquals(entityReference, calendarItem.getEntityReference());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
+		Assert.assertTrue(calendarItem.getId().longValue() > 0L);
+		Assert.assertEquals(entityReference, calendarItem.getEntityReference());
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
@@ -173,32 +162,32 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
 		boolean linkSaved = dao.addCalendarLink(link);
-		assertTrue(linkSaved);
+		Assert.assertTrue(linkSaved);
 		
 		boolean saved = false;
 		boolean hidden = false;
 		
 		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
-		assertNotNull(items);
-		assertTrue(items.size() > 0);
+		Assert.assertNotNull(items);
+		Assert.assertTrue(items.size() > 0);
 		
 		boolean foundItem = false;
 		for(CalendarItem item : items) {
 			if(item.getEntityReference().equals(entityReference)) {
 				// we have found the one and only link for this user to this item
 				foundItem = true;
-				assertEquals(title, item.getTitle());
-				assertNotNull(item.getContext());
-				assertEquals(contextId,item.getContext().getContextId());
-				assertNotNull(item.getSourceType());
-				assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
-				assertEquals(calendarTime.getTime(), item.getCalendarTime().getTime());
-				//assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
-				//assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
+				Assert.assertEquals(title, item.getTitle());
+				Assert.assertNotNull(item.getContext());
+				Assert.assertEquals(contextId,item.getContext().getContextId());
+				Assert.assertNotNull(item.getSourceType());
+				Assert.assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
+				Assert.assertEquals(calendarTime.getTime(), item.getCalendarTime().getTime());
+				//Assert.assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+				//Assert.assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 				break;
 			}
 		}
-		assertTrue(foundItem);
+		Assert.assertTrue(foundItem);
 	}
 
     /**
@@ -206,6 +195,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * It then verifies that the retrieved items have the same attribute values as the 
      * items that were saved.
      */
+	@Test
 	public void testAddContext() {
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
@@ -213,14 +203,14 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		
 		boolean saved = dao.addContext(context);
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		context = dao.getContext(contextId);		
-		assertNotNull(context);
-		assertNotNull(context.getId());
-		assertEquals(contextId, context.getContextId());
-		assertEquals(contextTitle, context.getContextTitle());
-		assertEquals(contextUrl, context.getContextUrl());
+		Assert.assertNotNull(context);
+		Assert.assertNotNull(context.getId());
+		Assert.assertEquals(contextId, context.getContextId());
+		Assert.assertEquals(contextTitle, context.getContextTitle());
+		Assert.assertEquals(contextUrl, context.getContextUrl());
 	}
 
 	
@@ -229,6 +219,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * Context, SourceType and NewsItem. It then verifies that the retrieved items 
      * have the same attribute values as the items that were saved.
      */
+	@Test
 	public void testAddNewsItem() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueIdentifier();
@@ -252,29 +243,29 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			labelKey, entityReference, context, sourceType, subtype);
 		boolean saved = dao.addNewsItem(newsItem);
 		
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		newsItem = dao.getNewsItem(entityReference);
 
-		assertNotNull(newsItem);
-		assertNotNull(newsItem.getId());
+		Assert.assertNotNull(newsItem);
+		Assert.assertNotNull(newsItem.getId());
 		
-		assertEquals(title, newsItem.getTitle());
-		assertEquals(entityReference, newsItem.getEntityReference());
-		assertEquals(labelKey, newsItem.getNewsTimeLabelKey());
-		assertEquals(subtype, newsItem.getSubtype());
+		Assert.assertEquals(title, newsItem.getTitle());
+		Assert.assertEquals(entityReference, newsItem.getEntityReference());
+		Assert.assertEquals(labelKey, newsItem.getNewsTimeLabelKey());
+		Assert.assertEquals(subtype, newsItem.getSubtype());
 
-		assertEquals(eventTime.getTime(), newsItem.getNewsTime().getTime());
-		//assertTrue(eventTime.getTime() + TIME_DELTA > newsItem.getNewsTime().getTime());
-		//assertTrue(eventTime.getTime() - TIME_DELTA < newsItem.getNewsTime().getTime());
+		Assert.assertEquals(eventTime.getTime(), newsItem.getNewsTime().getTime());
+		//Assert.assertTrue(eventTime.getTime() + TIME_DELTA > newsItem.getNewsTime().getTime());
+		//Assert.assertTrue(eventTime.getTime() - TIME_DELTA < newsItem.getNewsTime().getTime());
 		
-		assertNotNull(newsItem.getContext());
-		assertEquals(contextId, newsItem.getContext().getContextId());
-		assertEquals(contextTitle, newsItem.getContext().getContextTitle());
-		assertEquals(contextUrl, newsItem.getContext().getContextUrl());
+		Assert.assertNotNull(newsItem.getContext());
+		Assert.assertEquals(contextId, newsItem.getContext().getContextId());
+		Assert.assertEquals(contextTitle, newsItem.getContext().getContextTitle());
+		Assert.assertEquals(contextUrl, newsItem.getContext().getContextUrl());
 		
-		assertNotNull(newsItem.getSourceType());
-		assertEquals(sourceTypeIdentifier, newsItem.getSourceType().getIdentifier());
+		Assert.assertNotNull(newsItem.getSourceType());
+		Assert.assertEquals(sourceTypeIdentifier, newsItem.getSourceType().getIdentifier());
 	}
 
     /**
@@ -282,6 +273,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * Context, SourceType, NewsItem and newsLink. It then verifies that the retrieved 
      * items have the same attribute values as the items that were saved.
      */
+	@Test
 	public void testAddNewsLink() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueIdentifier();
@@ -312,30 +304,30 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		NewsLink link = new NewsLink(person, newsItem, context, false, false);
 		boolean savedLink = dao.addNewsLink(link);
-		assertTrue(savedLink);
+		Assert.assertTrue(savedLink);
 		
 //		boolean saved = false;
 //		boolean hidden = false;
 //		
 //		List<NewsItem> items = dao.getNewsItems(sakaiId, contextId, saved, hidden);
-//		assertNotNull(items);
-//		assertTrue(items.size() > 0);
+//		Assert.assertNotNull(items);
+//		Assert.assertTrue(items.size() > 0);
 //		
 //		boolean foundItem = false;
 //		for(NewsItem item : items) {
 //			if(item.getEntityReference().equals(entityReference)) {
 //				// we have found the one and only link for this user to this item
 //				foundItem = true;
-//				assertEquals(title, item.getTitle());
-//				assertNotNull(item.getContext());
-//				assertEquals(contextId,item.getContext().getContextId());
-//				assertNotNull(item.getSourceType());
-//				assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
-//				assertEquals(eventTime.getTime(), item.getNewsTime().getTime());
+//				Assert.assertEquals(title, item.getTitle());
+//				Assert.assertNotNull(item.getContext());
+//				Assert.assertEquals(contextId,item.getContext().getContextId());
+//				Assert.assertNotNull(item.getSourceType());
+//				Assert.assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
+//				Assert.assertEquals(eventTime.getTime(), item.getNewsTime().getTime());
 //				break;
 //			}
 //		}
-//		assertTrue(foundItem);
+//		Assert.assertTrue(foundItem);
 	}
 
     /**
@@ -343,6 +335,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * It then verifies that the retrieved items have the same attribute values as the 
      * items that were saved.
      */
+	@Test
 	public void testAddPerson() {
 		
 		String sakaiId = getUniqueIdentifier();
@@ -350,15 +343,16 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Person person = new Person(sakaiId, userId);
 		
 		boolean saved = dao.addPerson(person);
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		person = dao.getPersonBySakaiId(sakaiId);
-		assertNotNull(person);
-		assertNotNull(person.getId());
-		assertEquals(sakaiId,person.getSakaiId());
-		assertEquals(userId,person.getUserId());
+		Assert.assertNotNull(person);
+		Assert.assertNotNull(person.getId());
+		Assert.assertEquals(sakaiId,person.getSakaiId());
+		Assert.assertEquals(userId,person.getUserId());
 	}
 	
+	@Test
 	public void testAddRepeatingCalendarItem() {
 		String title = getUniqueIdentifier();
 		String entityReference = getUniqueIdentifier();
@@ -373,7 +367,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		SourceType sourceType = new  SourceType(identifier1);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(identifier1);
-		assertNotNull(sourceType);
+		Assert.assertNotNull(sourceType);
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
@@ -381,35 +375,35 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
-		assertNotNull(context);
+		Assert.assertNotNull(context);
 		
 		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime, lastTime, 
 				timeLabel, entityReference, subtype, context, sourceType, frequency, maxCount);
 		boolean savedItem = dao.addRepeatingCalendarItem(repeatingCalendarItem);
 		
-		assertTrue(savedItem);
+		Assert.assertTrue(savedItem);
 		
 		RepeatingCalendarItem repeatingCalendarItem1 = dao.getRepeatingCalendarItem(entityReference, timeLabel);
 		
-		assertNotNull(repeatingCalendarItem1);
-		assertNotNull(repeatingCalendarItem1.getId());
-		assertEquals(title, repeatingCalendarItem1.getTitle());
-		assertEquals(entityReference, repeatingCalendarItem1.getEntityReference());
-		assertEquals(subtype, repeatingCalendarItem1.getSubtype());
-		assertEquals(frequency, repeatingCalendarItem1.getFrequency());
-		assertEquals(timeLabel, repeatingCalendarItem1.getCalendarTimeLabelKey());
-		assertEquals(maxCount,repeatingCalendarItem1.getMaxCount());
+		Assert.assertNotNull(repeatingCalendarItem1);
+		Assert.assertNotNull(repeatingCalendarItem1.getId());
+		Assert.assertEquals(title, repeatingCalendarItem1.getTitle());
+		Assert.assertEquals(entityReference, repeatingCalendarItem1.getEntityReference());
+		Assert.assertEquals(subtype, repeatingCalendarItem1.getSubtype());
+		Assert.assertEquals(frequency, repeatingCalendarItem1.getFrequency());
+		Assert.assertEquals(timeLabel, repeatingCalendarItem1.getCalendarTimeLabelKey());
+		Assert.assertEquals(maxCount,repeatingCalendarItem1.getMaxCount());
 		
-		assertNotNull(repeatingCalendarItem1.getFirstTime());
-		assertEquals(firstTime.getTime(),  repeatingCalendarItem1.getFirstTime().getTime());
-		assertNotNull(repeatingCalendarItem1.getLastTime());
-		assertEquals(lastTime.getTime(), repeatingCalendarItem1.getLastTime().getTime());
+		Assert.assertNotNull(repeatingCalendarItem1.getFirstTime());
+		Assert.assertEquals(firstTime.getTime(),  repeatingCalendarItem1.getFirstTime().getTime());
+		Assert.assertNotNull(repeatingCalendarItem1.getLastTime());
+		Assert.assertEquals(lastTime.getTime(), repeatingCalendarItem1.getLastTime().getTime());
 		
-		assertNotNull(repeatingCalendarItem1.getContext());
-		assertEquals(contextId, repeatingCalendarItem1.getContext().getContextId());
+		Assert.assertNotNull(repeatingCalendarItem1.getContext());
+		Assert.assertEquals(contextId, repeatingCalendarItem1.getContext().getContextId());
 		
-		assertNotNull(repeatingCalendarItem1.getSourceType());
-		assertEquals(identifier1, repeatingCalendarItem1.getSourceType().getIdentifier());
+		Assert.assertNotNull(repeatingCalendarItem1.getSourceType());
+		Assert.assertEquals(identifier1, repeatingCalendarItem1.getSourceType().getIdentifier());
 	}
 
     /**
@@ -417,26 +411,27 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * It then verifies that the retrieved items have the same attribute values as the 
      * items that were saved.
      */
+	@Test
 	public void testAddSourceType() {
 		String identifier = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(identifier);
 		boolean saved = dao.addSourceType(sourceType);
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		sourceType = dao.getSourceType(identifier);
-		assertNotNull(sourceType);
-		assertNotNull(sourceType.getId());
-		assertEquals(identifier,sourceType.getIdentifier());
+		Assert.assertNotNull(sourceType);
+		Assert.assertNotNull(sourceType.getId());
+		Assert.assertEquals(identifier,sourceType.getIdentifier());
 
 		String identifier1 = getUniqueIdentifier();
 		SourceType sourceType1 = new SourceType(identifier1);
 		boolean saved1 = dao.addSourceType(sourceType1);
-		assertTrue(saved1);
+		Assert.assertTrue(saved1);
 		
 		sourceType1 = dao.getSourceType(identifier1);
-		assertNotNull(sourceType1);
-		assertNotNull(sourceType1.getId());
-		assertEquals(identifier1,sourceType1.getIdentifier());
+		Assert.assertNotNull(sourceType1);
+		Assert.assertNotNull(sourceType1.getId());
+		Assert.assertEquals(identifier1,sourceType1.getIdentifier());
 	}
 
     /**
@@ -444,6 +439,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * Context, SourceType and CalendarItem. It then deletes the CalendarItem and verifies 
 	 * that the deleted item can not longer be retrieved.
      */
+	@Test
 	public void testDeleteCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -466,16 +462,17 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		boolean removed = dao.deleteCalendarItem(calendarItem.getId());
-		assertTrue(removed);
+		Assert.assertTrue(removed);
 		calendarItem = dao.getCalendarItem(calendarItem.getId());
-		assertNull(calendarItem);
+		Assert.assertNull(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNull(calendarItem);		
+		Assert.assertNull(calendarItem);		
 	}
 
+	@Test
 	public void testDeleteCalendarLinksLong() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -497,9 +494,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 		boolean saved1 = dao.addCalendarItem(calendarItem);
-		assertTrue(saved1);
+		Assert.assertTrue(saved1);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem);
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
@@ -509,7 +506,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
 		boolean linkSaved = dao.addCalendarLink(link);
-		assertTrue(linkSaved);
+		Assert.assertTrue(linkSaved);
 		
 		boolean showFuture = true;
 		boolean showPast = true;
@@ -517,8 +514,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		boolean hidden = false;
 		
 		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
-		assertNotNull(items);
-		assertTrue(items.size() > 0);
+		Assert.assertNotNull(items);
+		Assert.assertTrue(items.size() > 0);
 		
 		boolean foundItem = false;
 		List<Long> calendarItemIds = new ArrayList<Long>();
@@ -528,17 +525,18 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				foundItem = true;
 				calendarItemIds.add(item.getId());
 				boolean deleted = dao.deleteCalendarLinks(item.getId());
-				assertTrue(deleted);
+				Assert.assertTrue(deleted);
 			}
 		}
-		assertTrue(foundItem);
-		assertTrue(calendarItemIds.size() > 0);
+		Assert.assertTrue(foundItem);
+		Assert.assertTrue(calendarItemIds.size() > 0);
 		
 		items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
 		
-		assertTrue(items.size() == 0);
+		Assert.assertTrue(items.size() == 0);
 	}
 
+	@Test
 	public void testDeleteCalendarLinksLongLong() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -570,7 +568,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
 		boolean linkSaved = dao.addCalendarLink(link);
-		assertTrue(linkSaved);
+		Assert.assertTrue(linkSaved);
 		
 		boolean showFuture = true;
 		boolean showPast = true;
@@ -578,14 +576,14 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		boolean hidden = false;
 		
 		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
-		assertNotNull(items);
-		assertTrue(items.size() > 0);
+		Assert.assertNotNull(items);
+		Assert.assertTrue(items.size() > 0);
 		
 		boolean deleted = dao.deleteCalendarLinks(person.getId(), context.getId());
-		assertTrue(deleted);
+		Assert.assertTrue(deleted);
 		items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
 		
-		assertTrue(items.size() == 0);
+		Assert.assertTrue(items.size() == 0);
 	}
 
     /**
@@ -593,19 +591,23 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * Context, SourceType and NewsItem. It then deletes the NewsItem and verifies 
 	 * that the deleted item can not longer be retrieved.
      */
+	@Test
 	public void testDeleteNewsItem() {
 		Long id;
 	}
 
+	@Test
 	public void testDeleteNewsLinksLong() {
 		Long newsItemId;
 	}
 
+	@Test
 	public void testDeleteNewsLinksLongLong() {
 		Long personId;
 		Long contextId;
 	}
 
+	@Test
 	public void testGetCalendarItemLong() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -628,27 +630,28 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		
 		calendarItem = dao.getCalendarItem(calendarItem.getId());
 
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		
-		assertEquals(title, calendarItem.getTitle());
-		assertEquals(entityReference, calendarItem.getEntityReference());
-		assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		Assert.assertEquals(title, calendarItem.getTitle());
+		Assert.assertEquals(entityReference, calendarItem.getEntityReference());
+		Assert.assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
 		
-		assertNotNull(calendarItem.getContext());
-		assertEquals(contextId, calendarItem.getContext().getContextId());
-		assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
-		assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
+		Assert.assertNotNull(calendarItem.getContext());
+		Assert.assertEquals(contextId, calendarItem.getContext().getContextId());
+		Assert.assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
+		Assert.assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
 		
-		assertNotNull(calendarItem.getSourceType());
-		assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());
+		Assert.assertNotNull(calendarItem.getSourceType());
+		Assert.assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());
 	}
 
+	@Test
 	public void testGetCalendarItemString() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -671,63 +674,74 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		
-		assertEquals(title, calendarItem.getTitle());
-		assertEquals(entityReference, calendarItem.getEntityReference());
-		assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		Assert.assertEquals(title, calendarItem.getTitle());
+		Assert.assertEquals(entityReference, calendarItem.getEntityReference());
+		Assert.assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
 		
-		assertNotNull(calendarItem.getContext());
-		assertEquals(contextId, calendarItem.getContext().getContextId());
-		assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
-		assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
+		Assert.assertNotNull(calendarItem.getContext());
+		Assert.assertEquals(contextId, calendarItem.getContext().getContextId());
+		Assert.assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
+		Assert.assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
 		
-		assertNotNull(calendarItem.getSourceType());
-		assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());	}
+		Assert.assertNotNull(calendarItem.getSourceType());
+		Assert.assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());	}
 
+	@Test
 	public void testGetCalendarItems() {
 		String sakaiUserId;
 		String contextId;
 	}
 
+	@Test
 	public void testGetCalendarItemsByContext() {
 		String contextId;
 	}
 
+	@Test
 	public void testGetContextLong() {
 		long id;
 	}
 
+	@Test
 	public void testGetContextString() {
 		String contextId;
 	}
 
+	@Test
 	public void testGetNewsItemString() {
 		String entityReference;
 	}
 
+	@Test
 	public void testGetNewsItemLong() {
 		long id;
 	}
 
+	@Test
 	public void testGetNewsItems() {
 		String sakaiUserId;
 		String contextId;
 	}
 
+	@Test
 	public void testGetNewsItemsByContext() {
 
 	}
 
+	@Test
 	public void testGetPersonBySakaiId() {
 		String sakaiId;
 	}
 
+	@Test
 	public void testGetSourceType() {
 		String identifier;
 	}
 
+	@Test
 	public void testUpdateCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -750,32 +764,33 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		
 		calendarItem = dao.getCalendarItem(calendarItem.getId());
 
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		
 //		String newTitle = getUniqueIdentifier();
 //		Date newTime = new Date(System.currentTimeMillis() + (2L * ONE_DAY));
 		
 //		boolean updated = dao.updateCalendarItem(calendarItem.getId(), newTitle, newTime);
-//		assertTrue(updated);
+//		Assert.assertTrue(updated);
 //		
 //		calendarItem = dao.getCalendarItem(calendarItem.getId());
 //
-//		assertNotNull(calendarItem);
-//		assertNotNull(calendarItem.getId());
+//		Assert.assertNotNull(calendarItem);
+//		Assert.assertNotNull(calendarItem.getId());
 //		
-//		assertEquals(newTitle, calendarItem.getTitle());
+//		Assert.assertEquals(newTitle, calendarItem.getTitle());
 //		
-//		assertEquals(newTime.getTime(), calendarItem.getCalendarTime().getTime());
-		//assertTrue(newTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
-		//assertTrue(newTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
+//		Assert.assertEquals(newTime.getTime(), calendarItem.getCalendarTime().getTime());
+		//Assert.assertTrue(newTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+		//Assert.assertTrue(newTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 	}
 
+	@Test
 	public void testUpdateCalendarItemSubtype() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String calendarTimeLabelKey = getUniqueIdentifier();
@@ -799,39 +814,42 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, subtype1, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
 		
 		calendarItem = dao.getCalendarItem(calendarItem.getId());
 
-		assertNotNull(calendarItem);
-		assertNotNull(calendarItem.getId());
-		assertEquals(subtype1, calendarItem.getSubtype());
+		Assert.assertNotNull(calendarItem);
+		Assert.assertNotNull(calendarItem.getId());
+		Assert.assertEquals(subtype1, calendarItem.getSubtype());
 		
 //		String subtype2 = getUniqueIdentifier();
 //		
 //		boolean updated = dao.updateCalendarItemSubtype(calendarItem.getId(), subtype2);
-//		assertTrue(updated);
+//		Assert.assertTrue(updated);
 //		
 //		CalendarItem revisedCalendarItem = dao.getCalendarItem(calendarItem.getId());
 //
-//		assertNotNull(revisedCalendarItem);
-//		assertNotNull(revisedCalendarItem.getId());
+//		Assert.assertNotNull(revisedCalendarItem);
+//		Assert.assertNotNull(revisedCalendarItem.getId());
 //		
-//		assertEquals(subtype2, revisedCalendarItem.getSubtype());
+//		Assert.assertEquals(subtype2, revisedCalendarItem.getSubtype());
 //		
 	}
 
+	@Test
 	public void testUpdateCalendarItemTime() {
 		Long id;
 		Date newTime;
 	}
 
+	@Test
 	public void testUpdateCalendarItemTitle() {
 		Long id;
 		String newTitle;
 	}
 	
+	@Test
 	public void testUpdateContextTitle() {
 		String contextId = getUniqueIdentifier();
 		String contextTitle1 = getUniqueIdentifier();
@@ -839,33 +857,35 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Context context = new Context(contextId, contextTitle1, contextUrl );
 		
 		boolean saved = dao.addContext(context);
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		context = dao.getContext(contextId);		
-		assertNotNull(context);
-		assertNotNull(context.getId());
-		assertEquals(contextId, context.getContextId());
-		assertEquals(contextTitle1, context.getContextTitle());
-		assertEquals(contextUrl, context.getContextUrl());
+		Assert.assertNotNull(context);
+		Assert.assertNotNull(context.getId());
+		Assert.assertEquals(contextId, context.getContextId());
+		Assert.assertEquals(contextTitle1, context.getContextTitle());
+		Assert.assertEquals(contextUrl, context.getContextUrl());
 		
 		String contextTitle2 = getUniqueIdentifier();
 		boolean updated = dao.updateContextTitle(contextId, contextTitle2);
 		
-		assertTrue(updated);
+		Assert.assertTrue(updated);
 		Context revisedContext = dao.getContext(contextId);	
 		
-		assertNotNull(revisedContext);
-		assertNotNull(revisedContext.getId());
-		assertEquals(contextId, revisedContext.getContextId());
-		assertEquals(contextTitle2, revisedContext.getContextTitle());
-		assertEquals(contextUrl, revisedContext.getContextUrl());
+		Assert.assertNotNull(revisedContext);
+		Assert.assertNotNull(revisedContext.getId());
+		Assert.assertEquals(contextId, revisedContext.getContextId());
+		Assert.assertEquals(contextTitle2, revisedContext.getContextTitle());
+		Assert.assertEquals(contextUrl, revisedContext.getContextUrl());
 	}
 
+	@Test
 	public void testUpdateNewsItemTitle() {
 		Long id;
 		String newTitle;
 	}
 
+	@Test
 	public void testUpdateNewsItemTime() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueIdentifier();
@@ -887,23 +907,24 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			null, entityReference, context, sourceType, null);
 		boolean saved = dao.addNewsItem(newsItem);
 		
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		NewsItem savedItem = dao.getNewsItem(entityReference);
-		assertNotNull(savedItem);
-		assertNotNull(savedItem.getId());
-		assertTrue(savedItem.getId().longValue() >= 0L);
+		Assert.assertNotNull(savedItem);
+		Assert.assertNotNull(savedItem.getId());
+		Assert.assertTrue(savedItem.getId().longValue() >= 0L);
 		
 		Date newTime = new Date();
 		String newGroupingIdentifier = getUniqueIdentifier();
 		dao.updateNewsItemTime(savedItem.getId(), newTime, newGroupingIdentifier);
 		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
-		assertNotNull(revisedItem);
-		assertEquals(newTime.getTime(), revisedItem.getNewsTime().getTime());
+		Assert.assertNotNull(revisedItem);
+		Assert.assertEquals(newTime.getTime(), revisedItem.getNewsTime().getTime());
 		
 		
 	}
 
+	@Test
 	public void testUpdateNewsItemLabelKey() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueIdentifier();
@@ -926,26 +947,27 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			labelKey1, entityReference, context, sourceType, null);
 		boolean saved = dao.addNewsItem(newsItem);
 		
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		NewsItem savedItem = dao.getNewsItem(entityReference);
-		assertNotNull(savedItem);
-		assertNotNull(savedItem.getId());
-		assertTrue(savedItem.getId().longValue() >= 0L);
-		assertEquals(labelKey1, savedItem.getNewsTimeLabelKey());
+		Assert.assertNotNull(savedItem);
+		Assert.assertNotNull(savedItem.getId());
+		Assert.assertTrue(savedItem.getId().longValue() >= 0L);
+		Assert.assertEquals(labelKey1, savedItem.getNewsTimeLabelKey());
 
 		String labelKey2 = getUniqueIdentifier();
-		assertFalse(labelKey1.equals(labelKey2));
+		Assert.assertFalse(labelKey1.equals(labelKey2));
 
 //		String newGroupingIdentifier = getUniqueIdentifier();
 //		dao.updateNewsItemLabelKey(savedItem.getId(), labelKey2, newGroupingIdentifier);
 //		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
-//		assertNotNull(revisedItem);
-//		assertEquals(labelKey2, revisedItem.getNewsTimeLabelKey());
+//		Assert.assertNotNull(revisedItem);
+//		Assert.assertEquals(labelKey2, revisedItem.getNewsTimeLabelKey());
 //		
 		
 	}
 
+	@Test
 	public void testUpdateNewsItemSubtype() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueIdentifier();
@@ -968,16 +990,16 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			null, entityReference, context, sourceType, subtype1);
 		boolean saved = dao.addNewsItem(newsItem);
 		
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 		
 		NewsItem savedItem = dao.getNewsItem(entityReference);
-		assertNotNull(savedItem);
-		assertNotNull(savedItem.getId());
-		assertTrue(savedItem.getId().longValue() >= 0L);
-		assertEquals(subtype1, savedItem.getSubtype());
+		Assert.assertNotNull(savedItem);
+		Assert.assertNotNull(savedItem.getId());
+		Assert.assertTrue(savedItem.getId().longValue() >= 0L);
+		Assert.assertEquals(subtype1, savedItem.getSubtype());
 
 		String subtype2 = getUniqueIdentifier();
-		assertFalse(subtype1.equals(subtype2));
+		Assert.assertFalse(subtype1.equals(subtype2));
 
 //		Date newNewsTime = new Date();
 //		
@@ -985,13 +1007,14 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 //		String newGroupingIdentifier = getUniqueIdentifier();
 //		dao.updateNewsItemSubtype(savedItem.getId(), subtype2, newNewsTime, newLabelKey, newGroupingIdentifier);
 //		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
-//		assertNotNull(revisedItem);
-//		assertEquals(subtype2, revisedItem.getSubtype());
-//		assertEquals(newNewsTime, revisedItem.getNewsTime());
-//		assertEquals(newLabelKey, revisedItem.getNewsTimeLabelKey());
+//		Assert.assertNotNull(revisedItem);
+//		Assert.assertEquals(subtype2, revisedItem.getSubtype());
+//		Assert.assertEquals(newNewsTime, revisedItem.getNewsTime());
+//		Assert.assertEquals(newLabelKey, revisedItem.getNewsTimeLabelKey());
 //		
 	}
 	
+	@Test
 	public void testUpdateRepeatingCalendarItemSubtype() {
 		String title = getUniqueIdentifier();
 		String entityReference = getUniqueIdentifier();
@@ -1006,7 +1029,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		SourceType sourceType = new  SourceType(identifier1);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(identifier1);
-		assertNotNull(sourceType);
+		Assert.assertNotNull(sourceType);
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
@@ -1014,42 +1037,43 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
-		assertNotNull(context);
+		Assert.assertNotNull(context);
 		
 		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime, lastTime, 
 				timeLabel, entityReference, subtype1, context, sourceType, frequency, maxCount);
 		boolean savedItem = dao.addRepeatingCalendarItem(repeatingCalendarItem);
 		
-		assertTrue(savedItem);
+		Assert.assertTrue(savedItem);
 		
 		RepeatingCalendarItem repeatingCalendarItem1 = dao.getRepeatingCalendarItem(entityReference, timeLabel);
 		
-		assertNotNull(repeatingCalendarItem1);
-		assertNotNull(repeatingCalendarItem1.getId());
+		Assert.assertNotNull(repeatingCalendarItem1);
+		Assert.assertNotNull(repeatingCalendarItem1.getId());
 		
 //		String subtype2 = getUniqueIdentifier();
 //		boolean updated = dao.updateRepeatingCalendarItemsSubtype(entityReference, timeLabel, subtype2);
 //		
-//		assertTrue(updated);
+//		Assert.assertTrue(updated);
 //		
 //		RepeatingCalendarItem repeatingCalendarItem2 = dao.getRepeatingCalendarItem(entityReference, timeLabel);
 //		
-//		assertNotNull(repeatingCalendarItem2);
-//		assertNotNull(repeatingCalendarItem2.getId());
+//		Assert.assertNotNull(repeatingCalendarItem2);
+//		Assert.assertNotNull(repeatingCalendarItem2.getId());
 //		
-//		assertEquals(subtype2, repeatingCalendarItem2.getSubtype());
+//		Assert.assertEquals(subtype2, repeatingCalendarItem2.getSubtype());
 
 	}
 	
+	@Test
 	public void testDeleteCalendarItemsWithoutLinks() {
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		boolean personSaved = dao.addPerson(person);
-		assertTrue(personSaved);
+		Assert.assertTrue(personSaved);
 		person = dao.getPersonBySakaiId(sakaiId);
-		assertNotNull(person);
+		Assert.assertNotNull(person);
 		
 		String title = getUniqueIdentifier();
 		String entityReference = getUniqueIdentifier();
@@ -1076,44 +1100,45 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			CalendarItem calendarItem = new CalendarItem(title, calendarTime,
 					calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 			boolean saved = dao.addCalendarItem(calendarItem);
-			assertTrue(saved);
+			Assert.assertTrue(saved);
 			calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-			assertNotNull(calendarItem);
-			assertNotNull(calendarItem.getId());
+			Assert.assertNotNull(calendarItem);
+			Assert.assertNotNull(calendarItem.getId());
 			
 			if(i % 2 == 1 || i % 2 == -1) {
 				CalendarLink link = new CalendarLink(person,calendarItem,context,false,false);
 				boolean linkSaved = dao.addCalendarLink(link);
-				assertTrue(linkSaved);
+				Assert.assertTrue(linkSaved);
 				link = dao.getCalendarLink(calendarItem.getId(), person.getId());
-				assertNotNull(link);
+				Assert.assertNotNull(link);
 				itemsWithLinks++;
 			}
 			totalItems++;
 		}
 		
 		List<CalendarItem> before = dao.getCalendarItems(entityReference);
-		assertNotNull(before);
-		assertEquals(totalItems, before.size());
+		Assert.assertNotNull(before);
+		Assert.assertEquals(totalItems, before.size());
 		
 		boolean linksDeleted = dao.deleteCalendarItemsWithoutLinks();
-		assertTrue(linksDeleted);
+		Assert.assertTrue(linksDeleted);
 		
 		List<CalendarItem> after = dao.getCalendarItems(entityReference);
-		assertNotNull(after);
-		assertEquals(itemsWithLinks, after.size());
+		Assert.assertNotNull(after);
+		Assert.assertEquals(itemsWithLinks, after.size());
 		
 	}
 	
+	@Test
 	public void testDeleteCalendarLinksBefore() {
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		boolean personSaved = dao.addPerson(person);
 		
-		assertTrue(personSaved);
+		Assert.assertTrue(personSaved);
 		person = dao.getPersonBySakaiId(sakaiId);
-		assertNotNull(person);
+		Assert.assertNotNull(person);
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
@@ -1156,18 +1181,18 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			CalendarItem calendarItem = new CalendarItem(title, calendarTime,
 					calendarTimeLabelKey, entityReference, context, sourceType, subtype, null, null);
 			boolean saved = dao.addCalendarItem(calendarItem);
-			assertTrue(saved);
+			Assert.assertTrue(saved);
 			calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-			assertNotNull(calendarItem);
-			assertNotNull(calendarItem.getId());
+			Assert.assertNotNull(calendarItem);
+			Assert.assertNotNull(calendarItem.getId());
 			
 			boolean hidden = i % 2 == 1;
 			boolean sticky = i % 3 == 1;
 			CalendarLink link = new CalendarLink(person,calendarItem,context,hidden,sticky);
 			boolean linkSaved = dao.addCalendarLink(link);
-			assertTrue(linkSaved);
+			Assert.assertTrue(linkSaved);
 			link = dao.getCalendarLink(calendarItem.getId(), person.getId());
-			assertNotNull(link);
+			Assert.assertNotNull(link);
 
 			totalCount++;
 			if(hidden) {
@@ -1204,51 +1229,52 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		int expectedCount = totalCount - hiddenCount;
 		List<CalendarLink> links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());
 		
 		links = dao.getStarredCalendarLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(stickyCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(stickyCount, links.size());
 		
 		links = dao.getFutureCalendarLinks(sakaiId, contextId, true);
-		assertNotNull(links);
-		assertEquals(hiddenCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(hiddenCount, links.size());
 		
 		expectedCount = expectedCount - notStickyNotHiddenCount1;
 		dao.deleteCalendarLinksBefore(deleteDate1, false, false);
 		links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());
 
 		expectedCount = expectedCount - stickyNotHiddenCount1;
 		dao.deleteCalendarLinksBefore(deleteDate1, true, false);
 		links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());
 		
 		links = dao.getStarredCalendarLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(stickyCount - stickyNotHiddenCount1, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(stickyCount - stickyNotHiddenCount1, links.size());
 		
 		dao.deleteCalendarLinksBefore(deleteDate1, false, true);
 		links = dao.getFutureCalendarLinks(sakaiId, contextId, true);
-		assertNotNull(links);
-		assertEquals(hiddenCount - hiddenNotStickyCount1, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(hiddenCount - hiddenNotStickyCount1, links.size());
 
 		dao.deleteCalendarLinksBefore(deleteDate1, true, true);
 		links = dao.getFutureCalendarLinks(sakaiId, contextId, true);
-		assertNotNull(links);
-		assertEquals(hiddenCount - hiddenNotStickyCount1 - stickyAndHiddenCount1, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(hiddenCount - hiddenNotStickyCount1 - stickyAndHiddenCount1, links.size());
 		
 		expectedCount = expectedCount - stickyNotHiddenCount2;
 		dao.deleteCalendarLinksBefore(deleteDate2, true, false);
 		links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());	
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());	
 		
 	}
 
+	@Test
 	public void testDeleteNewsItemsWithoutLinks() {
 		
 		String sakaiId = getUniqueIdentifier();
@@ -1256,9 +1282,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Person person = new Person(sakaiId, userId);
 		boolean personSaved = dao.addPerson(person);
 		
-		assertTrue(personSaved);
+		Assert.assertTrue(personSaved);
 		person = dao.getPersonBySakaiId(sakaiId);
-		assertNotNull(person);
+		Assert.assertNotNull(person);
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
@@ -1287,43 +1313,44 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			NewsItem newsItem = new NewsItem(title, newsTime,
 					newsTimeLabelKey, entityReference, context, sourceType, subtype);
 			boolean saved = dao.addNewsItem(newsItem);
-			assertTrue(saved);
+			Assert.assertTrue(saved);
 			newsItem = dao.getNewsItem(entityReference);
-			assertNotNull(newsItem);
-			assertNotNull(newsItem.getId());
+			Assert.assertNotNull(newsItem);
+			Assert.assertNotNull(newsItem.getId());
 			
 			if(i % 2 == 1 || i % 2 == -1) {
 				NewsLink link = new NewsLink(person,newsItem,context,false,false);
 				boolean linkSaved = dao.addNewsLink(link);
-				assertTrue(linkSaved);
+				Assert.assertTrue(linkSaved);
 				link = dao.getNewsLink(newsItem.getId(), person.getId());
-				assertNotNull(link);
+				Assert.assertNotNull(link);
 				itemsWithLinks++;
 			}
 			totalItems++;
 		}
 		
 		List<NewsItem> before = dao.getNewsItemsByContext(context.getContextId());
-		assertNotNull(before);
-		assertEquals(totalItems, before.size());
+		Assert.assertNotNull(before);
+		Assert.assertEquals(totalItems, before.size());
 		
 		boolean linksDeleted = dao.deleteNewsItemsWithoutLinks();
-		assertTrue(linksDeleted);
+		Assert.assertTrue(linksDeleted);
 		
 		List<NewsItem> after = dao.getNewsItemsByContext(context.getContextId());
-		assertNotNull(after);
-		assertEquals(itemsWithLinks, after.size());
+		Assert.assertNotNull(after);
+		Assert.assertEquals(itemsWithLinks, after.size());
 	}
 	
+	@Test
 	public void testDeleteNewsLinksBefore() {
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		boolean personSaved = dao.addPerson(person);
 		
-		assertTrue(personSaved);
+		Assert.assertTrue(personSaved);
 		person = dao.getPersonBySakaiId(sakaiId);
-		assertNotNull(person);
+		Assert.assertNotNull(person);
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
@@ -1366,18 +1393,18 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			NewsItem newsItem = new NewsItem(title, newsTime,
 					newsTimeLabelKey, entityReference, context, sourceType, subtype);
 			boolean saved = dao.addNewsItem(newsItem);
-			assertTrue(saved);
+			Assert.assertTrue(saved);
 			newsItem = dao.getNewsItem(entityReference);
-			assertNotNull(newsItem);
-			assertNotNull(newsItem.getId());
+			Assert.assertNotNull(newsItem);
+			Assert.assertNotNull(newsItem.getId());
 			
 			boolean hidden = i % 2 == 1;
 			boolean sticky = i % 3 == 1;
 			NewsLink link = new NewsLink(person,newsItem,context,hidden,sticky);
 			boolean linkSaved = dao.addNewsLink(link);
-			assertTrue(linkSaved);
+			Assert.assertTrue(linkSaved);
 			link = dao.getNewsLink(newsItem.getId(), person.getId());
-			assertNotNull(link);
+			Assert.assertNotNull(link);
 
 			totalCount++;
 			if(hidden) {
@@ -1413,55 +1440,56 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		}
 		
 		List<NewsItem> items = dao.getNewsItemsByContext(context.getContextId());
-		assertNotNull(items);
-		assertEquals(totalCount, items.size());
+		Assert.assertNotNull(items);
+		Assert.assertEquals(totalCount, items.size());
 		
 		int expectedCount = totalCount - hiddenCount;
 		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());
 		
 		links = dao.getStarredNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(stickyCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(stickyCount, links.size());
 		
 		links = dao.getHiddenNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(hiddenCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(hiddenCount, links.size());
 		
 		expectedCount = expectedCount - notStickyNotHiddenCount1;
 		dao.deleteNewsLinksBefore(deleteDate1, false, false);
 		links = dao.getCurrentNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());
 
 		expectedCount = expectedCount - stickyNotHiddenCount1;
 		dao.deleteNewsLinksBefore(deleteDate1, true, false);
 		links = dao.getCurrentNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());
 		
 		links = dao.getStarredNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(stickyCount - stickyNotHiddenCount1, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(stickyCount - stickyNotHiddenCount1, links.size());
 		
 		dao.deleteNewsLinksBefore(deleteDate1, false, true);
 		links = dao.getHiddenNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(hiddenCount - hiddenNotStickyCount1, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(hiddenCount - hiddenNotStickyCount1, links.size());
 
 		dao.deleteNewsLinksBefore(deleteDate1, true, true);
 		links = dao.getHiddenNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(hiddenCount - hiddenNotStickyCount1 - stickyAndHiddenCount1, links.size());
+		Assert.assertNotNull(links);
+		Assert.assertEquals(hiddenCount - hiddenNotStickyCount1 - stickyAndHiddenCount1, links.size());
 		
 		expectedCount = expectedCount - stickyNotHiddenCount2;
 		dao.deleteNewsLinksBefore(deleteDate2, true, false);
 		links = dao.getCurrentNewsLinks(sakaiId, contextId);
-		assertNotNull(links);
-		assertEquals(expectedCount, links.size());	
+		Assert.assertNotNull(links);
+		Assert.assertEquals(expectedCount, links.size());	
 	}
 
+	@Test
 	public void testAddTaskLock() {
 		// boolean addTaskLock(TaskLock taskLock)
 		boolean saved = false;
@@ -1473,56 +1501,58 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 			Date claimTime = new Date();
 			TaskLock taskLock = new TaskLock(task, serverId , claimTime, hasLock, lastUpdate);
 			
-			saved = this.dao.addTaskLock(taskLock);
+			saved = dao.addTaskLock(taskLock);
 		} catch(Throwable t) {
-			fail("Failure while trying to create and save a task-lock");
+			Assert.fail("Failure while trying to create and save a task-lock");
 		}
 		
-		assertTrue(saved);
+		Assert.assertTrue(saved);
 	}
 	
+	@Test
 	public void testGetTaskLocks() {
 		String task00 = getUniqueIdentifier();
 		
-		List<TaskLock> locks = this.dao.getTaskLocks(task00);
-		assertNotNull(locks);
-		assertEquals(0, locks.size());
+		List<TaskLock> locks = dao.getTaskLocks(task00);
+		Assert.assertNotNull(locks);
+		Assert.assertEquals(0, locks.size());
 		
 		String serverId00 = this.getUniqueIdentifier();
 		Date time00 = new Date();
 		TaskLock taskLock00 = new TaskLock(task00, serverId00 , time00, false, time00);
 		
-		boolean saved00 = this.dao.addTaskLock(taskLock00);
-		assertTrue(saved00);
+		boolean saved00 = dao.addTaskLock(taskLock00);
+		Assert.assertTrue(saved00);
 		
-		List<TaskLock> locks01 = this.dao.getTaskLocks(task00);
-		assertNotNull(locks01);
-		assertEquals(1, locks01.size());
+		List<TaskLock> locks01 = dao.getTaskLocks(task00);
+		Assert.assertNotNull(locks01);
+		Assert.assertEquals(1, locks01.size());
 		
 		String task01 = getUniqueIdentifier();
 		Date time01 = new Date();
 		TaskLock taskLock01 = new TaskLock(task01, serverId00, time01 , false, time01);
 		
-		boolean saved01 = this.dao.addTaskLock(taskLock01);
-		assertTrue(saved01);
+		boolean saved01 = dao.addTaskLock(taskLock01);
+		Assert.assertTrue(saved01);
 		
-		List<TaskLock> locks02 = this.dao.getTaskLocks(task01);
-		assertNotNull(locks02);
-		assertEquals(1, locks02.size());
+		List<TaskLock> locks02 = dao.getTaskLocks(task01);
+		Assert.assertNotNull(locks02);
+		Assert.assertEquals(1, locks02.size());
 		
 		String serverId02 = getUniqueIdentifier();
 		Date time02 = new Date();
 		TaskLock taskLock02 = new TaskLock(task00, serverId02, time02, false, time02);
 		
-		boolean saved02 = this.dao.addTaskLock(taskLock02);
-		assertTrue(saved02);
+		boolean saved02 = dao.addTaskLock(taskLock02);
+		Assert.assertTrue(saved02);
 
-		List<TaskLock> locks03 = this.dao.getTaskLocks(task00);
-		assertNotNull(locks03);
-		assertEquals(2, locks03.size());
+		List<TaskLock> locks03 = dao.getTaskLocks(task00);
+		Assert.assertNotNull(locks03);
+		Assert.assertEquals(2, locks03.size());
 
 	}
 	 
+	@Test
 	public void testDeleteTaskLocks() {
 		// boolean deleteTaskLocks(String task)
 		
@@ -1531,58 +1561,59 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Date time00 = new Date();
 		TaskLock taskLock00 = new TaskLock(task00, serverId00 , time00, false, time00);
 		
-		boolean saved00 = this.dao.addTaskLock(taskLock00);
-		assertTrue(saved00);
+		boolean saved00 = dao.addTaskLock(taskLock00);
+		Assert.assertTrue(saved00);
 		
 		String task01 = getUniqueIdentifier();
 		Date time01 = new Date();
 		TaskLock taskLock01 = new TaskLock(task01, serverId00, time01 , false, time01);
 		
-		boolean saved01 = this.dao.addTaskLock(taskLock01);
-		assertTrue(saved01);
+		boolean saved01 = dao.addTaskLock(taskLock01);
+		Assert.assertTrue(saved01);
 				
 		String serverId02 = getUniqueIdentifier();
 		Date time02 = new Date();
 		TaskLock taskLock02 = new TaskLock(task00, serverId02, time02, false, time02);
 		
-		boolean saved02 = this.dao.addTaskLock(taskLock02);
-		assertTrue(saved02);
+		boolean saved02 = dao.addTaskLock(taskLock02);
+		Assert.assertTrue(saved02);
 
-		List<TaskLock> locks00 = this.dao.getTaskLocks(task00);
-		assertNotNull(locks00);
-		assertEquals(2, locks00.size());
+		List<TaskLock> locks00 = dao.getTaskLocks(task00);
+		Assert.assertNotNull(locks00);
+		Assert.assertEquals(2, locks00.size());
 
-		List<TaskLock> locks01 = this.dao.getTaskLocks(task01);
-		assertNotNull(locks01);
-		assertEquals(1, locks01.size());
+		List<TaskLock> locks01 = dao.getTaskLocks(task01);
+		Assert.assertNotNull(locks01);
+		Assert.assertEquals(1, locks01.size());
 		
-		boolean deleted00 = this.dao.deleteTaskLocks(task00);
-		assertTrue(deleted00);
+		boolean deleted00 = dao.deleteTaskLocks(task00);
+		Assert.assertTrue(deleted00);
 		
-		List<TaskLock> locks02 = this.dao.getTaskLocks(task00);
-		assertNotNull(locks02);
-		assertEquals(0, locks02.size());
+		List<TaskLock> locks02 = dao.getTaskLocks(task00);
+		Assert.assertNotNull(locks02);
+		Assert.assertEquals(0, locks02.size());
 
-		List<TaskLock> locks03 = this.dao.getTaskLocks(task01);
-		assertNotNull(locks03);
-		assertEquals(1, locks03.size());
+		List<TaskLock> locks03 = dao.getTaskLocks(task01);
+		Assert.assertNotNull(locks03);
+		Assert.assertEquals(1, locks03.size());
 		
-		boolean deleted01 = this.dao.deleteTaskLocks(task00);
-		assertTrue(deleted01);
+		boolean deleted01 = dao.deleteTaskLocks(task00);
+		Assert.assertTrue(deleted01);
 		
-		boolean deleted02 = this.dao.deleteTaskLocks(task01);
-		assertTrue(deleted02);
+		boolean deleted02 = dao.deleteTaskLocks(task01);
+		Assert.assertTrue(deleted02);
 		
-		List<TaskLock> locks04 = this.dao.getTaskLocks(task00);
-		assertNotNull(locks04);
-		assertEquals(0, locks04.size());
+		List<TaskLock> locks04 = dao.getTaskLocks(task00);
+		Assert.assertNotNull(locks04);
+		Assert.assertEquals(0, locks04.size());
 
-		List<TaskLock> locks05 = this.dao.getTaskLocks(task01);
-		assertNotNull(locks05);
-		assertEquals(0, locks05.size());
+		List<TaskLock> locks05 = dao.getTaskLocks(task01);
+		Assert.assertNotNull(locks05);
+		Assert.assertEquals(0, locks05.size());
 		
 	}
 	
+	@Test
 	public void testUpdateTaskLockStringStringDate() {
 		// boolean updateTaskLock(String task, String serverId, Date lastUpdate)
 		String task = getUniqueIdentifier();
@@ -1591,42 +1622,43 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Date time00 = new Date();
 		TaskLock taskLock = new TaskLock(task, serverId , time00, hasLock, time00);
 		
-		boolean saved = this.dao.addTaskLock(taskLock);
-		assertTrue(saved);
+		boolean saved = dao.addTaskLock(taskLock);
+		Assert.assertTrue(saved);
 		
-		List<TaskLock> locks00 = this.dao.getTaskLocks(task);
-		assertNotNull(locks00);
-		assertEquals(1, locks00.size());
+		List<TaskLock> locks00 = dao.getTaskLocks(task);
+		Assert.assertNotNull(locks00);
+		Assert.assertEquals(1, locks00.size());
 		
 		TaskLock savedLock = locks00.get(0);
-		assertNotNull(savedLock);
-		assertNotNull(savedLock.getId());
+		Assert.assertNotNull(savedLock);
+		Assert.assertNotNull(savedLock.getId());
 		
-		assertEquals(time00.getTime(), savedLock.getClaimTime().getTime());
-		assertEquals(time00.getTime(), savedLock.getLastUpdate().getTime());
+		Assert.assertEquals(time00.getTime(), savedLock.getClaimTime().getTime());
+		Assert.assertEquals(time00.getTime(), savedLock.getLastUpdate().getTime());
 		
 		long tasklockId = savedLock.getId().longValue();
 		Date time01 = new Date(time00.getTime() + 10000L);
 		
-		boolean updated = this.dao.updateTaskLock(task, serverId, time01);
+		boolean updated = dao.updateTaskLock(task, serverId, time01);
 		
-		assertTrue(updated);
+		Assert.assertTrue(updated);
 		
-		List<TaskLock> locks01 = this.dao.getTaskLocks(task);
-		assertNotNull(locks01);
-		assertEquals(1, locks01.size());
+		List<TaskLock> locks01 = dao.getTaskLocks(task);
+		Assert.assertNotNull(locks01);
+		Assert.assertEquals(1, locks01.size());
 		
 		TaskLock updatedLock = locks01.get(0);
-		assertNotNull(updatedLock);
-		assertNotNull(updatedLock.getId());
-		assertEquals(tasklockId, updatedLock.getId().longValue());
-		assertFalse(updatedLock.isHasLock());
+		Assert.assertNotNull(updatedLock);
+		Assert.assertNotNull(updatedLock.getId());
+		Assert.assertEquals(tasklockId, updatedLock.getId().longValue());
+		Assert.assertFalse(updatedLock.isHasLock());
 		
-		assertEquals(time00.getTime(), updatedLock.getClaimTime().getTime());
-		assertEquals(time01.getTime(), updatedLock.getLastUpdate().getTime());
+		Assert.assertEquals(time00.getTime(), updatedLock.getClaimTime().getTime());
+		Assert.assertEquals(time01.getTime(), updatedLock.getLastUpdate().getTime());
 		
 	}
 	
+	@Test
 	public void testUpdateTaskLockLongBooleanDate() {
 		// boolean updateTaskLock(long id, boolean hasLock, Date lastUpdate)
 		String task = getUniqueIdentifier();
@@ -1635,40 +1667,40 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Date time00 = new Date();
 		TaskLock taskLock = new TaskLock(task, serverId , time00, hasLock, time00);
 		
-		boolean saved = this.dao.addTaskLock(taskLock);
-		assertTrue(saved);
+		boolean saved = dao.addTaskLock(taskLock);
+		Assert.assertTrue(saved);
 		
-		List<TaskLock> locks00 = this.dao.getTaskLocks(task);
-		assertNotNull(locks00);
-		assertEquals(1, locks00.size());
+		List<TaskLock> locks00 = dao.getTaskLocks(task);
+		Assert.assertNotNull(locks00);
+		Assert.assertEquals(1, locks00.size());
 		
 		TaskLock savedLock = locks00.get(0);
-		assertNotNull(savedLock);
-		assertNotNull(savedLock.getId());
-		assertFalse(savedLock.isHasLock());
+		Assert.assertNotNull(savedLock);
+		Assert.assertNotNull(savedLock.getId());
+		Assert.assertFalse(savedLock.isHasLock());
 		
-		assertEquals(time00.getTime(), savedLock.getClaimTime().getTime());
-		assertEquals(time00.getTime(), savedLock.getLastUpdate().getTime());
+		Assert.assertEquals(time00.getTime(), savedLock.getClaimTime().getTime());
+		Assert.assertEquals(time00.getTime(), savedLock.getLastUpdate().getTime());
 		
 		long tasklockId = savedLock.getId().longValue();
 		Date time01 = new Date(time00.getTime() + 10000L);
 		
-		boolean updated = this.dao.updateTaskLock(tasklockId, true, time01);
+		boolean updated = dao.updateTaskLock(tasklockId, true, time01);
 		
-		assertTrue(updated);
+		Assert.assertTrue(updated);
 		
-		List<TaskLock> locks01 = this.dao.getTaskLocks(task);
-		assertNotNull(locks01);
-		assertEquals(1, locks01.size());
+		List<TaskLock> locks01 = dao.getTaskLocks(task);
+		Assert.assertNotNull(locks01);
+		Assert.assertEquals(1, locks01.size());
 		
 		TaskLock updatedLock = locks01.get(0);
-		assertNotNull(updatedLock);
-		assertNotNull(updatedLock.getId());
-		assertEquals(tasklockId, updatedLock.getId().longValue());
-		assertTrue(updatedLock.isHasLock());
+		Assert.assertNotNull(updatedLock);
+		Assert.assertNotNull(updatedLock.getId());
+		Assert.assertEquals(tasklockId, updatedLock.getId().longValue());
+		Assert.assertTrue(updatedLock.isHasLock());
 		
-		assertEquals(time00.getTime(), updatedLock.getClaimTime().getTime());
-		assertEquals(time01.getTime(), updatedLock.getLastUpdate().getTime());
+		Assert.assertEquals(time00.getTime(), updatedLock.getClaimTime().getTime());
+		Assert.assertEquals(time01.getTime(), updatedLock.getLastUpdate().getTime());
 	}
 
 	protected String getUniqueIdentifier() {
@@ -1676,7 +1708,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	}
 
 	public void setDashboardDao(DashboardDao dashboardDao) {
-		this.dao = dashboardDao;
+		dao = dashboardDao;
 		
 	}
 }

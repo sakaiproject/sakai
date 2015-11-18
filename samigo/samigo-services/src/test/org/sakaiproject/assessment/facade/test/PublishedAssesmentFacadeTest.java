@@ -1,11 +1,13 @@
 package org.sakaiproject.assessment.facade.test;
 
 import org.hibernate.SessionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 /**********************************************************************************
  * $URL$
@@ -28,24 +30,19 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  *
  **********************************************************************************/
 
-
-public class PublishedAssesmentFacadeTest  extends AbstractTransactionalSpringContextTests{
-
-	protected String[] getConfigLocations() {
-		return new String[] {"/spring-hibernate.xml"};
-	}
+@ContextConfiguration(locations={"/spring-hibernate.xml"})
+public class PublishedAssesmentFacadeTest  extends AbstractJUnit4SpringContextTests{
 
 	//our object
 	PublishedAssessmentFacadeQueries queries = null;
 
-	protected void onSetUpInTransaction() throws Exception {
+	@Before
+	public void onSetUpInTransaction() throws Exception {
 		queries = new PublishedAssessmentFacadeQueries();
 		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
-
-
-
 	}
 
+	@Test
 	public void testGetAssesment() {
 		/*
 		 * We expect a item that doesn't exist to return null
@@ -53,13 +50,9 @@ public class PublishedAssesmentFacadeTest  extends AbstractTransactionalSpringCo
 		 */
 		try {
 			PublishedAssessmentData item = queries.loadPublishedAssessment(999999L);
-			assertNull(item);
+			Assert.assertNull(item);
 		} catch (Exception e) {
-			fail("unexpected exception");
+			Assert.fail("unexpected exception");
 		}
-
 	}
-
-
-
 }

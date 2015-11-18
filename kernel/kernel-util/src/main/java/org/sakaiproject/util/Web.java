@@ -53,9 +53,6 @@ public class Web
 	private static final String START_JAVASCRIPT = "<script";
 	private static final String END_JAVASCRIPT = "</script>";
 	
-	private static SessionManager sessionManager = (SessionManager)
-			ComponentManager.get(SessionManager.class);
-
 	/**
 	 * Escape a plaintext string so that it can be output as part of an HTML document. Amperstand, greater-than, less-than, newlines, etc, will be escaped so that they display (instead of being interpreted as formatting).
 	 * 
@@ -341,7 +338,7 @@ public class Web
 	 */
 	public static void sendAutoUpdate(PrintWriter out, HttpServletRequest req, String placementId, int updateTime)
 	{
-		String userId = sessionManager.getCurrentSessionUserId();
+		String userId = ComponentManager.get(SessionManager.class).getCurrentSessionUserId();
 		StringBuilder url = new StringBuilder(serverUrl(req));
 		url.append("/courier/");
 		url.append(placementId);

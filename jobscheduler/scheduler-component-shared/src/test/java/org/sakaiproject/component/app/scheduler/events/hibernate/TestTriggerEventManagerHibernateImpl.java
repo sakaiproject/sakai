@@ -3,6 +3,8 @@ package org.sakaiproject.component.app.scheduler.events.hibernate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -100,7 +102,7 @@ public class TestTriggerEventManagerHibernateImpl
 
             Date newDate = new Date(cal.getTimeInMillis());
 
-            mgr.createTriggerEvent(type, "job name " + i, "trigger name " + i,
+            mgr.createTriggerEvent(type, JobKey.jobKey("job name " + i), TriggerKey.triggerKey("trigger name " + i),
                                    newDate, "message " + i, "server1");
 
             cal.add(Calendar.HOUR, -1);
@@ -192,8 +194,8 @@ public class TestTriggerEventManagerHibernateImpl
 
         final TriggerEventHibernateImpl
             result = (TriggerEventHibernateImpl)mgr.createTriggerEvent(evt.getEventType(),
-                                                                       evt.getJobName(),
-                                                                       evt.getTriggerName(),
+                                                                       JobKey.jobKey(evt.getJobName()),
+                                                                       TriggerKey.triggerKey(evt.getTriggerName()),
                                                                        evt.getTime(),
                                                                        evt.getMessage(),
                                                                        "server1");
@@ -218,7 +220,7 @@ public class TestTriggerEventManagerHibernateImpl
 
         try
         {
-            mgr.createTriggerEvent(null, evt.getJobName(), evt.getTriggerName(), evt.getTime(), evt.getMessage(), "server1");
+            mgr.createTriggerEvent(null, JobKey.jobKey(evt.getJobName()), TriggerKey.triggerKey(evt.getTriggerName()), evt.getTime(), evt.getMessage(), "server1");
         }
         catch (Exception e)
         {
@@ -236,7 +238,7 @@ public class TestTriggerEventManagerHibernateImpl
 
         try
         {
-            mgr.createTriggerEvent(evt.getEventType(), null, evt.getTriggerName(), evt.getTime(), evt.getMessage(), "server1");
+            mgr.createTriggerEvent(evt.getEventType(), null, TriggerKey.triggerKey(evt.getTriggerName()), evt.getTime(), evt.getMessage(), "server1");
         }
         catch (Exception e)
         {
@@ -254,7 +256,7 @@ public class TestTriggerEventManagerHibernateImpl
         
         try
         {
-            mgr.createTriggerEvent(evt.getEventType(), evt.getJobName(), evt.getTriggerName(), null, evt.getMessage(), "server1");
+            mgr.createTriggerEvent(evt.getEventType(), JobKey.jobKey(evt.getJobName()), TriggerKey.triggerKey(evt.getTriggerName()), null, evt.getMessage(), "server1");
         }
         catch (Exception e)
         {

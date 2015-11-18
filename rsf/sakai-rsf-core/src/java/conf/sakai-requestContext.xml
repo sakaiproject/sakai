@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 <!-- Contains bean overrides and new definitions for request-scope beans required for integration of RSF apps into Sakai -->
-<beans>
+
 	<bean id="httpServletFactory" class="org.sakaiproject.rsf.servlet.SakaiHttpServletFactory">
 		<property name="entityReference" ref="sakai-UrlEntityReference" />
 	</bean>
@@ -42,10 +43,10 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 
-	<bean id="requestLocale" class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
-		<property name="targetBeanName" value="sakai-Locale" />
-	</bean>
-
+    <bean id="requestLocale" class="uk.org.ponder.springutil.BeanReferenceFactoryBean">
+        <property name="targetBeanName" value="sakai-Locale" />
+    </bean>
+	
 	<bean id="requestTimeZone" factory-bean="sakaiRequestParser" factory-method="getTimeZone" />
 
 	<bean id="sakai-Placement" factory-bean="sakaiRequestParser" factory-method="getPlacement" />

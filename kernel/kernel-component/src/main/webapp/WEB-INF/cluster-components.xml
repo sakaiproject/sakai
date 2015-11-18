@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- database beans -->
-    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault"   class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault" singleton="true"/>
-    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"      class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"    singleton="true"/>
-    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"     class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"   singleton="true"/>
-    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"    class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"  singleton="true"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault"   class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"      class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"     class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"    class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"/>
 
 	<bean id="org.sakaiproject.cluster.api.ClusterService"
 			class="org.sakaiproject.cluster.impl.SakaiClusterService"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
         <property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
         <property name="sqlService">                 <ref bean="org.sakaiproject.db.api.SqlService"/>                        </property>
         <property name="eventTrackingService">       <ref bean="org.sakaiproject.event.api.EventTrackingService"/>           </property>

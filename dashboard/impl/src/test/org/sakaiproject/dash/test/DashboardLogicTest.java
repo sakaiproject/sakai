@@ -22,9 +22,10 @@
 package org.sakaiproject.dash.test;
 
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.sakaiproject.dash.app.DashboardCommonLogic;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.app.SakaiProxy;
@@ -41,14 +42,13 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * 
  *
  */
-public class DashboardLogicTest extends AbstractTransactionalSpringContextTests 
+public class DashboardLogicTest
 {
 
 	protected static AtomicInteger counter = new AtomicInteger(999);
@@ -75,11 +75,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		this.dashboardCommonLogic = dashboardCommonLogic;
 	}
 
-	public DashboardLogicTest() {
-		super();
-		this.setDependencyCheck(false);
-	}
-
+	@Test
 	public void testAddCalendarLinks() {
 		String sakaiUserId;
 		String contextId;
@@ -92,6 +88,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		
 	}
 
+	@Test
 	public void testAddNewsLinks() {
 		String sakaiUserId;
 		String contextId;
@@ -104,6 +101,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 
 	}
 
+	@Test
 	public void testCreateCalendarItem() {
 		String title; 
 		Date calendarTime;
@@ -117,6 +115,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		// confirm that its properties are correct
 	}
 
+	@Test
 	public void testCreateCalendarLinks() {
 		CalendarItem calendarItem;
 		
@@ -126,6 +125,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		// confirm that the calendar links were created for the item
 	}
 
+	@Test
 	public void testCreateContext() {
 		this.sakaiProxy = new SakaiProxyMock();
 		DashboardDao dao = new DashboardDaoMock();
@@ -144,25 +144,26 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		
 		// create and save a Context object for a valid siteId
 		Context validContext = this.dashboardCommonLogic.createContext(validContextId);
-		assertNotNull(validContext);
+		Assert.assertNotNull(validContext);
 		// retrieve the Context object
 		Context c1 = this.dashboardCommonLogic.getContext(validContextId);
 		// confirm that its properties are correct
-		assertNotNull(c1);
-		assertEquals(validContextId, c1.getContextId());
+		Assert.assertNotNull(c1);
+		Assert.assertEquals(validContextId, c1.getContextId());
 		
 		String bogusContextId = SakaiProxyMock.BOGUS_SITE_ID;
 		
 		// try creating and saving a Context object for an invalid siteId
 		Context bogusContext = this.dashboardCommonLogic.createContext(bogusContextId);
 		
-		assertNull(bogusContext);
+		Assert.assertNull(bogusContext);
 		
 		Context c2 = this.dashboardCommonLogic.getContext(bogusContextId);
 		
-		assertNull(c2);
+		Assert.assertNull(c2);
 	}
 
+	@Test
 	public void testCreateNewsItem() {
 		String title;
 		Date newsTime;
@@ -176,6 +177,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		// confirm that its properties are correct
 	}
 
+	@Test
 	public void testCreateNewsLinks() {
 		NewsItem newsItem;
 		
@@ -185,6 +187,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		// confirm that the news links were created for the item
 	}
 
+	@Test
 	public void testCreateSourceType() {
 		String identifier;
 
@@ -193,6 +196,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		// confirm that its properties are correct
 	}
 
+	@Test
 	public void testGetCalendarItem() {
 		long id;
 		
@@ -201,87 +205,106 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		// confirm that it can be retrieved by its id
 	}
 
+	@Test
 	public void testGetCalendarItemsString() {
 		String sakaiUserId;
 	}
 
+	@Test
 	public void testGetCalendarItemsStringString() {
 		String sakaiUserId;
 		String contextId;
 	}
 
+	@Test
 	public void testGetContext() {
 		String contextId;
 	}
 
+	@Test
 	public void testGetNewsItem() {
 		long id;
 	}
 
+	@Test
 	public void testGetNewsItemsString() {
 		String sakaiUserId;
 	}
 
+	@Test
 	public void testGetNewsItemsStringString() {
 		String sakaiUserId;
 		String contextId;
 	}
 
+	@Test
 	public void testGetSourceType() {
 		String identifier;
 	}
 
+	@Test
 	public void testRegisterEventProcessor() {
 		EventProcessor eventProcessor;
 	}
 
+	@Test
 	public void testRemoveCalendarItem() {
 		String entityReference;
 	}
 
+	@Test
 	public void testRemoveCalendarLinksString() {
 		String entityReference;
 	}
 
+	@Test
 	public void testRemoveCalendarLinksStringString() {
 		String sakaiUserId;
 		String contextId;
 	}
 
+	@Test
 	public void testRemoveNewsItem() {
 		String entityReference;
 	}
 
+	@Test
 	public void testRemoveNewsLinksString() {
 		String entityReference;
 	}
 
+	@Test
 	public void testRemoveNewsLinksStringString() {
 		String sakaiUserId;
 		String contextId;
 	}
 
+	@Test
 	public void testReviseCalendarItem() {
 		String entityReference;
 		String newTitle;
 		Date newTime;
 	}
 
+	@Test
 	public void testReviseCalendarItemTime() {
 		String entityReference;
 		Date newTime;
 	}
 
+	@Test
 	public void testReviseCalendarItemTitle() {
 		String entityReference;
 		String newTitle;
 	}
 
+	@Test
 	public void testReviseNewsItemTitle() {
 		String entityReference;
 		String newTitle;
 	}
 	
+	@Test
 	public void testGenerateCalendarItems() {
 		
 		String title = getUniqueIdentifier();

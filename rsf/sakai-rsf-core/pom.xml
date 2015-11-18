@@ -70,9 +70,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
+			<groupId>org.sakaiproject.genericdao</groupId>
 			<artifactId>generic-dao</artifactId>
-			<version>${generic-dao.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

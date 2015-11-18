@@ -1573,13 +1573,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
 
-  public void saveOrUpdateAll(Collection c) {
+  public void saveOrUpdateAll(Collection<ItemGradingData> c) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     
     c.removeAll(Collections.singleton(null));
     while (retryCount > 0){ 
       try {
-        getHibernateTemplate().saveOrUpdateAll(c);
+          for (ItemGradingData itemGradingData : c) {
+              getHibernateTemplate().saveOrUpdate(c);
+          }
         retryCount = 0;
       }
       catch (Exception e) {
@@ -3369,8 +3371,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 	  }
 
-	  public void saveOrUpdateAttachments(List list) {
-		  getHibernateTemplate().saveOrUpdateAll(list);
+	  public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list) {
+		  for (AssessmentAttachmentIfc attachment : list) {
+		      getHibernateTemplate().saveOrUpdate(attachment);
+		  }
 	  }
 
 	  public HashMap getInProgressCounts(String siteId) {

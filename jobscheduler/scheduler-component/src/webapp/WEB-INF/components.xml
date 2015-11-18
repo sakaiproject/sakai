@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="org.sakaiproject.jobscheduler.hibernate.AdditionalHibernateMappings"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
@@ -18,8 +18,7 @@
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-          singleton="true">
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
@@ -116,7 +115,7 @@
     </bean>
 
     <bean id="eventPurgeJobWrapper" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-        singleton="true" init-method="init">
+       init-method="init">
       <property name="beanId">
          <value>eventPurgeJob</value>
       </property>
@@ -142,8 +141,7 @@
       </property>
     </bean>
 
-    <bean id="eventPurgeScheduling" class="org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule"
-          singleton="true">
+    <bean id="eventPurgeScheduling" class="org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule">
         <property name="jobBeanWrapper"><ref bean="eventPurgeJobWrapper"/></property>
         <property name="jobName" value="Event Log Purge"/>
         <property name="triggerName" value="Nightly Log Purge Trigger"/>
@@ -163,13 +161,12 @@
 
    <!-- Job to allow logging of an arbitrary message to an arbitrary logger at an arbitrary level. -->
    <bean id="org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob"
-         class="org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob"
-         singleton="true">
+         class="org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob">
    </bean>
 
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.LogMessageJob"
          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-         singleton="true" init-method="init">
+         init-method="init">
        <property name="beanId">
            <value>org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob</value>
        </property>
@@ -211,7 +208,7 @@
     </bean>
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ContentCheckJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-          singleton="true" init-method="init">
+          init-method="init">
         <property name="beanId">
             <value>org.sakaiproject.component.app.scheduler.jobs.ContentCheckJob</value>
         </property>
@@ -237,7 +234,7 @@
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AuthzGroupProviderSync"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-          singleton="true" init-method="init">
+          init-method="init">
         <property name="beanId">
             <value>org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync</value>
         </property>
@@ -252,8 +249,7 @@
 	   <!-- this is the helper that will register the above bean with the job scheduler -->
 	   <!--
 	   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DatetimeEventJob"
-	      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-	      singleton="true" init-method="init">
+	      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" init-method="init">
 	      <property name="beanId">
 	         <value>datetimeJob</value>
 	      </property>
@@ -276,7 +272,7 @@
 
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SoftSiteDeletion"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="beanId">
 			<value>org.sakaiproject.component.app.scheduler.jobs.SoftSiteDeletionJob</value>
 		</property>
@@ -290,7 +286,7 @@
 
     <!-- Job to backfill roles into a site from a template -->
     <bean id="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob" singleton="true">
+          class="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="authzService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
@@ -298,7 +294,7 @@
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillRoleJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-          singleton="true" init-method="init">
+          init-method="init">
         <property name="beanId">
             <value>org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob</value>
         </property>

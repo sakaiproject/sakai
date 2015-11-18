@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.syllabus"
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
@@ -25,8 +27,7 @@
 		</property>
 		<property name="target">
 			<bean
-				class="org.sakaiproject.component.app.syllabus.SyllabusManagerImpl"
-				singleton="true">
+				class="org.sakaiproject.component.app.syllabus.SyllabusManagerImpl">
 				<property name="sessionFactory">
 					<ref
 						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
@@ -50,8 +51,7 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.api.app.syllabus.SyllabusService"
-		class="org.sakaiproject.component.app.syllabus.SyllabusServiceImpl"
-		singleton="true" init-method="init" destroy-method="destroy">
+		class="org.sakaiproject.component.app.syllabus.SyllabusServiceImpl" init-method="init" destroy-method="destroy">
 <!-- 		<property name="logger">
 			<ref bean="org.sakaiproject.service.framework.log.Logger" />
 		</property>-->
@@ -81,8 +81,7 @@
 	</bean>
 
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.helloWorld"
-		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" init-method="init">
 		
 		<property name="beanId">
 			<value>FixPublicSyllabusAttachmentsJob</value>
@@ -100,7 +99,7 @@
    <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.syllabus"
       parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
       class="org.sakaiproject.syllabus.user.prefs.SyllabusUserNotificationPreferencesRegistrationImpl"
-      init-method="init" singleton="true">
+      init-method="init">
       <property name="bundleLocation"><value>syllabus-noti-prefs</value></property>
       <property name="sectionTitleBundleKey"><value>prefs_title</value></property>
       <property name="sectionDescriptionBundleKey"><value>prefs_description</value></property>

@@ -39,9 +39,8 @@
 
       <!-- generic DAO -->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
+			<groupId>org.sakaiproject.genericdao</groupId>
 			<artifactId>generic-dao</artifactId>
-			<version>${generic-dao.version}</version>
 		</dependency>
 
       <!-- spring and hibernate -->

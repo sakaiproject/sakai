@@ -2046,9 +2046,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		  // now let's save them
 		  try {
-			  getHibernateTemplate().saveOrUpdateAll(agrToUpdate);
-			  getHibernateTemplate().saveOrUpdateAll(commentsToUpdate);
-			  getHibernateTemplate().saveOrUpdateAll(eventsToAdd);
+			for (AssignmentGradeRecord assignmentGradeRecord : agrToUpdate) {
+				getHibernateTemplate().saveOrUpdate(assignmentGradeRecord);
+			}
+			for (Comment comment : commentsToUpdate) {
+				getHibernateTemplate().saveOrUpdate(comment);
+			}
+			for (GradingEvent gradingEvent : eventsToAdd) {
+				getHibernateTemplate().saveOrUpdate(gradingEvent);
+			}
 		  }	catch (HibernateOptimisticLockingFailureException holfe) {
 			  if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectId);
 			  throw new StaleObjectModificationException(holfe);

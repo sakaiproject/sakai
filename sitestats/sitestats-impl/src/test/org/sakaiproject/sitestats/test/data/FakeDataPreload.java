@@ -20,10 +20,10 @@ package org.sakaiproject.sitestats.test.data;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 
-public class FakeDataPreload extends AbstractTransactionalSpringContextTests {
+public class FakeDataPreload extends AbstractJUnit4SpringContextTests {
 	private static Log	log	= LogFactory.getLog(FakeDataPreload.class);
 
 	public void init() {

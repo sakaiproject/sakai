@@ -24,7 +24,7 @@ package org.sakaiproject.login.springframework;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.component.impl.ContextLoader;
+import org.sakaiproject.component.impl.SakaiContextLoader;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -44,7 +44,7 @@ import java.io.File;
  * Time: 12:02 PM
  * To change this template use File | Settings | File Templates.
  */
-public class SakaiHomeContextLoader extends ContextLoader {
+public class SakaiHomeContextLoader extends SakaiContextLoader {
 
     /**
      * Our logger.

@@ -90,12 +90,6 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.sakaiproject</groupId>
-				<artifactId>generic-dao</artifactId>
-				<version>${generic-dao.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.sakaiproject.jsf</groupId>
 				<artifactId>jsf-tool</artifactId>
 				<version>${sakai.version}</version>

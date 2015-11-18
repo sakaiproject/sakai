@@ -76,7 +76,7 @@
     <sakai.version>11-SNAPSHOT</sakai.version>
     <!-- Retain this for backward compatibility -->
     <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
-    <kernel.spring.version>3.2.13.RELEASE</kernel.spring.version>
+    <kernel.spring.version>4.1.8.RELEASE</kernel.spring.version>
     <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
     <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
     <kernel.hibernate.jpa.version>1.0.1.Final</kernel.hibernate.jpa.version>
@@ -100,7 +100,7 @@
     <sakai.jackson.version>2.3.4</sakai.jackson.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
-    <sakai.quartz.version>1.8.6</sakai.quartz.version>
+    <sakai.quartz.version>2.2.1</sakai.quartz.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.sigar.version>1.6.4</sakai.sigar.version>
     <sakai.spatial4j.version>0.4.1</sakai.spatial4j.version>
@@ -110,10 +110,10 @@
     <sakai.asm.version>4.1</sakai.asm.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>3.2.13.RELEASE</sakai.spring.version>
-    <sakai.spring.security.version>3.2.7.RELEASE</sakai.spring.security.version>
+    <sakai.spring.version>4.1.8.RELEASE</sakai.spring.version>
+    <sakai.spring.security.version>3.2.8.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-    <sakai.spring.test.version>3.2.13.RELEASE</sakai.spring.test.version>
+    <sakai.spring.test.version>4.1.8.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.10</sakai.tika.version>
     <sakai.tomcat.version>8.0.20</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
@@ -123,8 +123,8 @@
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
     <sakai.poi.version>3.13</sakai.poi.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <generic-dao.version>0.9.18</generic-dao.version>
     <joda.time.version>2.9</joda.time.version>
+    <sakai.genericdao.version>0.10.0-SNAPSHOT</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -981,6 +981,11 @@
         <artifactId>sakai-db-ext</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.genericdao</groupId>
+        <artifactId>generic-dao</artifactId>
+        <version>${sakai.genericdao.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.courier</groupId>

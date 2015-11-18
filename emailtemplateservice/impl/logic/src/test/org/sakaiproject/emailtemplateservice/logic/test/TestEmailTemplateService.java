@@ -1,18 +1,24 @@
 package org.sakaiproject.emailtemplateservice.logic.test;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.impl.EmailTemplateServiceImpl;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-
-
-
-public class TestEmailTemplateService extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={ 
+		"/hibernate-test.xml",
+		"classpath:org/sakaiproject/emailtemplateservice/spring-hibernate.xml"
+	})
+public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 
 	private static final String KEY_1 = "key1";
 	private static final String KEY_2 = "key2";
@@ -22,7 +28,8 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 
 	private static final String ADMIN_USER = "admin";
 
-
+	@Autowired
+	@Qualifier("org.sakaiproject.emailtemplateservice.dao.EmailTemplateServiceDao")
 	EmailTemplateServiceDao dao;
 	EmailTemplateServiceImpl emailTemplateService;
 
@@ -33,28 +40,13 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 	
 	Long template1Id = null;
 
-	protected String[] getConfigLocations() {
-		// point to the needed spring config files, must be on the classpath
-		// (add component/src/webapp/WEB-INF to the build path in Eclipse),
-		// they also need to be referenced in the project.xml file
-		return new String[] { "hibernate-test.xml",
-				"classpath:org/sakaiproject/emailtemplateservice/spring-hibernate.xml"};
-	}
-	// run this before each test starts
-	@Override
-	protected void onSetUpBeforeTransaction() throws Exception {
-		
-		dao = (EmailTemplateServiceDao)applicationContext.getBean("org.sakaiproject.emailtemplateservice.dao.EmailTemplateServiceDao");
-		if (dao == null) {
-			throw new NullPointerException("DAO could not be retrieved from spring context");
-		}
-
+	@Before
+	public void onSetUp() throws Exception {
 		emailTemplateService = new EmailTemplateServiceImpl();
 		emailTemplateService.setDao(dao);
 		
 		emailTemplateService.deleteAllTemplates();
 		populateData();
-
 	}
 
 	private void populateData() {
@@ -87,18 +79,18 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		emailTemplateService.saveTemplate(template3);
 	}
 	
-
+	@Test
 	public void testSaveTemplate() {
 
 		
 		
 		//saving should set the ID
-		assertNotNull(template1.getId());
+		Assert.assertNotNull(template1.getId());
 
 		emailTemplateService.saveTemplate(template2);
-		assertNotNull(template2.getId());
+		Assert.assertNotNull(template2.getId());
 		//if these are the same there is something very wrong
-		assertNotSame(template2.getId(), template1.getId());
+		Assert.assertNotSame(template2.getId(), template1.getId());
 		
 		
 		//we should not be able to save a new template in the same locale/key
@@ -121,7 +113,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		try {
 			emailTemplateService.saveTemplate(template3);
 			emailTemplateService.saveTemplate(template4);
-			fail();
+			Assert.fail();
 		}
 		catch (Exception e) {
 			//e.printStackTrace();
@@ -129,99 +121,98 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		
 	}
 
-
+	@Test
 	public void testGetTemplatebyId() {
 		EmailTemplate t1 =this.emailTemplateService.getEmailTemplateById(template1Id);
-		assertNotNull(t1);
-		assertEquals(t1.getKey(), KEY_1);
+		Assert.assertNotNull(t1);
+		Assert.assertEquals(t1.getKey(), KEY_1);
 		
 	}
 
-
+	@Test
 	public void testGetEmailTemplate() {
 		EmailTemplate ti = emailTemplateService.getEmailTemplate(KEY_1, null);
-		assertNotNull(ti);
+		Assert.assertNotNull(ti);
 		
 		
 		//There is no specific template for en_us we still expect the default
 		EmailTemplate t2 = emailTemplateService.getEmailTemplate(KEY_1, new Locale("en", "us"));
-		assertNotNull(t2);
-		assertEquals(EmailTemplate.DEFAULT_LOCALE, t2.getLocale());
-		
-		
+		Assert.assertNotNull(t2);
+		Assert.assertEquals(EmailTemplate.DEFAULT_LOCALE, t2.getLocale());
 	}
 	
+	@Test
 	public void testEmptyTemplate() {
 		
 		EmailTemplate badTemplate = new EmailTemplate();
 		try {
 		emailTemplateService.saveTemplate(badTemplate);
-		fail();
+		Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
 			//we expect this
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 		
 		badTemplate.setKey("someKey");
 		try {
 			emailTemplateService.saveTemplate(badTemplate);
-			fail();
+			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
 			//we expect this
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 		
 		
 		badTemplate.setOwner("admin");
 		try {
 			emailTemplateService.saveTemplate(badTemplate);
-			fail();
+			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
 			//we expect this
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 		
 		
 		badTemplate.setSubject("something");
 		try {
 			emailTemplateService.saveTemplate(badTemplate);
-			fail();
+			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
 			//we expect this
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 		
 		badTemplate.setMessage("something");
 		badTemplate.setLocale(" ");
 		try {
 			emailTemplateService.saveTemplate(badTemplate);
-			assertEquals(EmailTemplate.DEFAULT_LOCALE, badTemplate.getLocale());
-			assertNotSame("Template Locale can't be empty", "", badTemplate.getLocale());
+			Assert.assertEquals(EmailTemplate.DEFAULT_LOCALE, badTemplate.getLocale());
+			Assert.assertNotSame("Template Locale can't be empty", "", badTemplate.getLocale());
 			
 		}
 		catch (IllegalArgumentException e) {
 			//we expect this
-			fail();
+			Assert.fail();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 		
 		badTemplate.setLocale("thisIsNotAGoodLocale");
@@ -234,10 +225,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
-
 	}
-
-
 }

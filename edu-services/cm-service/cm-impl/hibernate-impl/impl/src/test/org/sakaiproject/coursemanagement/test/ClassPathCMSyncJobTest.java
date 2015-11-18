@@ -22,8 +22,9 @@ package org.sakaiproject.coursemanagement.test;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
@@ -35,25 +36,32 @@ import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.coursemanagement.impl.job.ClassPathCMSyncJob;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
+	
+	@Autowired
 	private ClassPathCMSyncJob job;
+	
+	@Autowired
 	private CourseManagementService cmService;
+	
+	@Autowired
 	private CourseManagementAdministration cmAdmin;
 	
-	protected void onSetUpInTransaction() throws Exception {
-		job = (ClassPathCMSyncJob)applicationContext.getBean(ClassPathCMSyncJob.class.getName());
-		cmService = (CourseManagementService)applicationContext.getBean(CourseManagementService.class.getName());
-		cmAdmin = (CourseManagementAdministration)applicationContext.getBean(CourseManagementAdministration.class.getName());
+	@Before
+	public void onSetup() throws Exception {
 		job.syncAllCmObjects();
 	}
 	
+	@Test
 	public void testAcademicSessionsLoaded() throws Exception {
 		// Ensure that the academic sessions were loaded
 		List asList = cmService.getAcademicSessions();
 		Assert.assertEquals(2, asList.size());
 	}
 	
+	@Test
 	public void testAcademicSessionsReconciled() throws Exception {
 		// Update an AS manually
 		AcademicSession academicSession = cmService.getAcademicSession("fall_2006");
@@ -73,16 +81,18 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertEquals(oldTitle, cmService.getAcademicSession("fall_2006").getTitle());		
 	}
 	
+	@Test
 	public void testCanonicalCoursesLoaded() throws Exception {
 		// Ensure that the canonical courses were loaded
 		try {
 			cmService.getCanonicalCourse("biology_101");
 			cmService.getCanonicalCourse("chemistry_101");
 		} catch (IdNotFoundException ide) {
-			fail();
+			Assert.fail();
 		}
 	}
 	
+	@Test
 	public void testCanonicalCoursesReconciled() throws Exception {
 		// Update a cc manually
 		CanonicalCourse cc = cmService.getCanonicalCourse("biology_101");
@@ -100,16 +110,18 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertEquals(oldTitle, cmService.getCanonicalCourse("biology_101").getTitle());
 	}
 
+	@Test
 	public void testCourseOfferingsLoaded() throws Exception {
 		// Ensure that the course offerings were loaded
 		try {
 			cmService.getCourseOffering("biology_101_01");
 			cmService.getCourseOffering("chemistry_101_01");
 		} catch (IdNotFoundException ide) {
-			fail();
+			Assert.fail();
 		}
 	}
 	
+	@Test
 	public void testCourseOfferingsReconciled() throws Exception {
 		// Update a co manually
 		CourseOffering co = cmService.getCourseOffering("biology_101_01");
@@ -127,6 +139,7 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertEquals(oldTitle, cmService.getCourseOffering("biology_101_01").getTitle());
 	}
 
+	@Test
 	public void testCourseOfferingMembersReconciled() throws Exception {
 		// Ensure that the memberships were loaded
 		Membership member = (Membership)cmService.getCourseOfferingMemberships("biology_101_01").iterator().next();
@@ -145,15 +158,17 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertFalse(cmService.getCourseOfferingMemberships("biology_101_01").contains(newMember));
 	}
 
+	@Test
 	public void testSectionsLoaded() throws Exception {
 		// Ensure that the sections were loaded
 		try {
 			cmService.getSection("biology_101_01_lec01");
 		} catch (IdNotFoundException ide) {
-			fail();
+			Assert.fail();
 		}
 	}
 	
+	@Test
 	public void testSectionsReconciled() throws Exception {
 		// Update a sec manually
 		Section sec = cmService.getSection("biology_101_01_lec01");
@@ -171,6 +186,7 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertEquals(oldTitle, cmService.getSection("biology_101_01_lec01").getTitle());
 	}
 
+	@Test
 	public void testSectionMembersReconciled() throws Exception {
 		// Ensure that the memberships were loaded
 		Membership member = (Membership)cmService.getSectionMemberships("biology_101_01_lec01").iterator().next();
@@ -189,15 +205,17 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertFalse(cmService.getSectionMemberships("biology_101_01_lec01").contains(newMember));
 	}
 
+	@Test
 	public void testEnrollmentSetsLoaded() throws Exception {
 		// Ensure that the enrollmentSets were loaded
 		try {
 			cmService.getEnrollmentSet("biology_101_01_lec01_es");
 		} catch (IdNotFoundException ide) {
-			fail();
+			Assert.fail();
 		}
 	}
 	
+	@Test
 	public void testEnrollmentSetsReconciled() throws Exception {
 		// Update a enrollment set manually
 		EnrollmentSet es = cmService.getEnrollmentSet("biology_101_01_lec01_es");
@@ -215,15 +233,17 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertEquals(oldTitle, cmService.getEnrollmentSet("biology_101_01_lec01_es").getTitle());
 	}
 
+	@Test
 	public void testCourseSetsLoaded() throws Exception {
 		// Ensure that the courseSets were loaded
 		try {
 			cmService.getCourseSet("ucb");
 		} catch (IdNotFoundException ide) {
-			fail();
+			Assert.fail();
 		}
 	}
 	
+	@Test
 	public void testCourseSetsReconciled() throws Exception {
 		// Update a course set manually
 		CourseSet es = cmService.getCourseSet("ucb");
@@ -241,6 +261,7 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertEquals(oldTitle, cmService.getCourseSet("ucb").getTitle());
 	}
 	
+	@Test
 	public void testCourseSetMembersReconciled() throws Exception {
 		// Ensure that the memberships were loaded
 		Membership member = (Membership)cmService.getCourseSetMemberships("ucb").iterator().next();
@@ -260,11 +281,13 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertFalse(cmService.getCourseSetMemberships("ucb").contains(newMember));
 	}
 	
+	@Test
 	public void testEnrollmentsLoaded() throws Exception {
 		Assert.assertNotNull(cmService.findEnrollment("student1", "biology_101_01_lec01_es"));
 		Assert.assertNotNull(cmService.findEnrollment("student2", "biology_101_01_lec01_es"));
 	}
 
+	@Test
 	public void testEnrollmentsReconciled() throws Exception {
 		// Remove an enrollment
 		cmAdmin.removeEnrollment("student1", "biology_101_01_lec01_es");
@@ -279,11 +302,13 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertFalse(cmService.findEnrollment("student1",  "biology_101_01_lec01_es").isDropped());
 	}
 
+	@Test
 	public void testInstructorsLoaded() throws Exception {
 		Assert.assertTrue(cmService.getInstructorsOfRecordIds("biology_101_01_lec01_es").contains("instructor1"));
 		Assert.assertTrue(cmService.getInstructorsOfRecordIds("biology_101_01_lec01_es").contains("instructor2"));
 	}
 
+	@Test
 	public void testInstructorsReconciled() throws Exception {
 		// Remove an instructor
 		EnrollmentSet es = cmService.getEnrollmentSet("biology_101_01_lec01_es");
@@ -299,6 +324,7 @@ public class ClassPathCMSyncJobTest extends CourseManagementTestBase {
 		Assert.assertTrue(cmService.getInstructorsOfRecordIds("biology_101_01_lec01_es").contains("instructor1"));
 	}
 	
+	@Test
 	public void testCurrentAcademicSessions() throws Exception {
 		List<AcademicSession> currentAcademicSessions = cmService.getCurrentAcademicSessions();
 		Assert.assertEquals(1, currentAcademicSessions.size());

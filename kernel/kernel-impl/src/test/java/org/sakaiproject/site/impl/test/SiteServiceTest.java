@@ -3,12 +3,11 @@ package org.sakaiproject.site.impl.test;
 import java.util.Set;
 import java.util.TreeSet;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -29,33 +28,26 @@ import org.sakaiproject.user.api.UserPermissionException;
 
 public class SiteServiceTest extends SakaiKernelTestBase {
 	private static final Log log = LogFactory.getLog(SiteServiceTest.class);
-	public static Test suite()
-	{
-		TestSetup setup = new TestSetup(new TestSuite(SiteServiceTest.class))
-		{
-			protected void setUp() throws Exception 
-			{
-				log.debug("starting oneTimeSetup");
-				oneTimeSetup(null);
-				log.debug("finished oneTimeSetup");
-			}
-			protected void tearDown() throws Exception 
-			{
-				log.debug("starting tearDown");
-				oneTimeTearDown();
-				log.debug("finished tearDown");
-			}
-		};
-		return setup;
-	}
 
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+			log.debug("starting oneTimeSetup");
+			oneTimeSetup(null);
+			log.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
+	}
+	
+	@Test
 	public void testNullSiteId() {
 		SiteService siteService = getService(SiteService.class);
 		workAsAdmin();
 
 		try {
 			siteService.addSite("", "other");
-			fail();
+			Assert.fail();
 		} catch (IdInvalidException e) {
 			log.info("when passed a null id the test correctly responded with an IdInvalidException");
 		} catch (IdUsedException e) {
@@ -80,7 +72,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		session.setUserId(id);
 	}
 
-
+	@Test
 	public void testNonExistentSiteId() {
 		/*
 		 * See KNL-512 sending a realm ID that doesn't exit to 
@@ -98,13 +90,14 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 	}
 
 	/**
 	 * Check that when a site is unpublished a user roleswapped user can still access the site when switching to a role which can't access the unpublished site.
 	 */
+	@Test
 	public void testRoleSwapSiteVisit() throws IdUnusedException, PermissionException, IdInvalidException, IdUsedException, UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException {
 		
 		SiteService siteService = (SiteService) getService(SiteService.class);
@@ -129,24 +122,25 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		
 		workAsUser("maintain", "maintain");
 		// Check maintainer has same access through allowAccess as getSiteVisit.
-		assertTrue(siteService.allowAccessSite("roleSwapSiteVisit"));
+		Assert.assertTrue(siteService.allowAccessSite("roleSwapSiteVisit"));
 		try {
 			siteService.getSiteVisit("roleSwapSiteVisit");
 		} catch (PermissionException pe) {
-			fail("Should have been able to get the site fine.");
+			Assert.fail("Should have been able to get the site fine.");
 		}
 		
-		assertTrue(securityService.setUserEffectiveRole(site.getReference(), "access"));
+		Assert.assertTrue(securityService.setUserEffectiveRole(site.getReference(), "access"));
 		// Check accessor as well
-		assertTrue(siteService.allowAccessSite("roleSwapSiteVisit"));
+		Assert.assertTrue(siteService.allowAccessSite("roleSwapSiteVisit"));
 		try {
 			siteService.getSiteVisit("roleSwapSiteVisit");
 		} catch (PermissionException pe) {
-			fail("Should have been able to get the site fine.");
+			Assert.fail("Should have been able to get the site fine.");
 		}
 		
 	}
 	
+	@Test
 	public void testGroupSave() throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
 		SiteService siteService = (SiteService) getService(SiteService.class);
 		workAsAdmin();
@@ -163,16 +157,14 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		try {
 			site.addGroup();
 			siteService.save(site);
-			fail("Should not be able to save a group without a title");
+			Assert.fail("Should not be able to save a group without a title");
 		}
 		catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
 		catch (RuntimeException e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
-		
 	}
-	
 }

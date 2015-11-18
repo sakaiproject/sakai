@@ -75,7 +75,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	 */
    public boolean hasAnySiteTypeQuestions()
    {
-	   List<SiteTypeQuestions> rvList = getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
+	   List<SiteTypeQuestions> rvList = (List<SiteTypeQuestions>) getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
 	   if (rvList != null && !rvList.isEmpty())
 	   {
 		   return true;
@@ -88,7 +88,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	 */
   public void removeAllSiteTypeQuestions()
   {
-	  List<SiteTypeQuestions> qList = getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
+	  List<SiteTypeQuestions> qList = (List<SiteTypeQuestions>) getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
 	  if (qList != null && !qList.isEmpty())
 	  {
 		  for(SiteTypeQuestions q : qList)
@@ -103,8 +103,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	 */
 	public List<SiteSetupQuestion> getAllSiteQuestions()
 	{
-		List<SiteSetupQuestion> rvList = getHibernateTemplate().findByNamedQuery(QUERY_ALL_QUESTIONS);
-		return rvList;
+		return (List<SiteSetupQuestion>) getHibernateTemplate().findByNamedQuery(QUERY_ALL_QUESTIONS);
 	}
 	
 	/**
@@ -113,7 +112,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	public SiteTypeQuestions getSiteTypeQuestions(String siteType)
 	{
 		SiteTypeQuestions rv = null;
-		List<SiteTypeQuestions> rvList = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_QUESTIONS_BY_SITETYPE, "siteType", siteType);
+		List<SiteTypeQuestions> rvList = (List<SiteTypeQuestions>) getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_QUESTIONS_BY_SITETYPE, "siteType", siteType);
 		if (rvList != null && rvList.size() == 1)
 		{
 			rv = rvList.get(0);
@@ -123,7 +122,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	
 	public SiteSetupQuestionAnswer getSiteSetupQuestionAnswer(String answerId)
 	{
-		List<SiteSetupQuestionAnswer> rvList = (getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_ANSWER_BY_ID, "id", answerId));
+		List<SiteSetupQuestionAnswer> rvList = (List<SiteSetupQuestionAnswer>) getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_ANSWER_BY_ID, "id", answerId);
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);

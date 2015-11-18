@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org.sakaiproject.tool.api.SessionManager"
 			name="org.sakaiproject.tool.api.SessionStore"
 			class="org.sakaiproject.tool.impl.SessionComponent"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
@@ -52,8 +51,7 @@
     <!-- uncomment this if sessionListener property is enabled above -->
     <!--
     <bean id="org.sakaiproject.tool.api.SessionAttributeListener.journaler"
-        class="org.sakaiproject.tool.impl.attribs.SessionAttributeJournaler"
-        singleton="true">
+        class="org.sakaiproject.tool.impl.attribs.SessionAttributeJournaler">
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="enableJournal" value="true" />
     </bean>
@@ -72,8 +70,7 @@
 			name="org.sakaiproject.tool.api.ToolManager"
 			class="org.sakaiproject.tool.impl.ActiveToolComponent"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
 		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
@@ -86,7 +83,7 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.tool.impl.ToolResourceFactory" class="org.sakaiproject.tool.impl.ToolResourceFactory">
-		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
 	<!-- Export active session data over JMX -->

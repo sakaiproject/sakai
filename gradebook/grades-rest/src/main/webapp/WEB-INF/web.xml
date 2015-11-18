@@ -21,6 +21,6 @@
   <description>Sakai GB REST</description>
   <!-- Sakai listeners -->
   <listener>
-    <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
   </listener>
 </web-app>

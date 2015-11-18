@@ -2,13 +2,13 @@ package org.sakaiproject.component.app.scheduler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.quartz.Trigger;
+import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.TriggerListener;
 
 import java.util.Date;
@@ -30,62 +30,67 @@ public class NavigableEventLogListener implements TriggerListener, JobListener
         JOB_EXECUTING, JOB_VETOED, JOB_EXECUTED, TRIGGER_FIRED, TRIGGER_MISFIRED, TRIGGER_COMPLETED
     };
 
+    @Override
     public void jobToBeExecuted(JobExecutionContext context)
     {
-        info (EVENTTYPE.JOB_EXECUTING, null, context, null, 0);
+        info (EVENTTYPE.JOB_EXECUTING, null, context, null, null);
     }
 
+    @Override
     public void jobExecutionVetoed(JobExecutionContext context)
     {
-        info (EVENTTYPE.JOB_VETOED, null, context, null, 0);
+        info (EVENTTYPE.JOB_VETOED, null, context, null, null);
     }
 
+    @Override
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException e)
     {
-        info (EVENTTYPE.JOB_EXECUTED, null, context, e, 0);
+        info (EVENTTYPE.JOB_EXECUTED, null, context, e, null);
     }
 
+    @Override
     public String getName()
     {
         return NavigableEventLogListener.class.getName();
     }
 
+    @Override
     public void triggerFired(Trigger trigger, JobExecutionContext context)
     {
-        info (EVENTTYPE.TRIGGER_FIRED, trigger, context, null, 0);
+        info (EVENTTYPE.TRIGGER_FIRED, trigger, context, null, null);
     }
 
+    @Override
     public boolean vetoJobExecution(Trigger trigger, JobExecutionContext jobExecutionContext)
     {
         return false;
     }
 
+    @Override
     public void triggerMisfired(Trigger trigger)
     {
-        info (EVENTTYPE.TRIGGER_MISFIRED, trigger, null, null, 0);
+        info (EVENTTYPE.TRIGGER_MISFIRED, trigger, null, null, null);
     }
 
-    public void triggerComplete(Trigger trigger, JobExecutionContext context, int i)
-    {
-        info (EVENTTYPE.TRIGGER_COMPLETED, trigger, context, null, i);
+    @Override
+    public void triggerComplete(Trigger trigger, JobExecutionContext context, CompletedExecutionInstruction triggerInstructionCode) {
+        info (EVENTTYPE.TRIGGER_COMPLETED, trigger, context, null, triggerInstructionCode);        
     }
 
-    private void info (EVENTTYPE eventType, Trigger trig, JobExecutionContext context, JobExecutionException exception,
-                       int exitCode)
-    {
+    private void info (EVENTTYPE eventType, Trigger trig, JobExecutionContext context, JobExecutionException exception, CompletedExecutionInstruction instructionCode) {
         JobDetail
             detail = (context != null)?context.getJobDetail():null;
         final JobDataMap
             dataMap = (context != null)?context.getMergedJobDataMap():null;
         final String
-            jobName = (detail != null)?detail.getName():null,
+            jobName = (detail != null)?detail.getKey().getName():null,
             jobDesc = (detail != null)?detail.getDescription():null;
         final Class
             jobClass = (detail != null)?detail.getJobClass():null;
         final Trigger
             trigger = (trig != null)?trig:((context != null)?context.getTrigger():null);
         final String
-            trigName = (trigger != null)?trigger.getName():null,
+            trigName = (trigger != null)?trigger.getKey().getName():null,
             trigDesc = (trigger != null)?trigger.getDescription():null;
         final Date
             trigStart = (trigger != null)?trigger.getStartTime():null,
@@ -154,7 +159,7 @@ public class NavigableEventLogListener implements TriggerListener, JobListener
                   .append(", end: ").append((trigEnd!=null)?trigEnd.toString():null);
                 sb.append(", job: ").append(jobName).append(", job description: ").append((jobDesc != null)?jobDesc:"")
                   .append(", class: ").append(jobClass.getName())
-                  .append(", execution result: ").append(exitCode);
+                  .append(", execution result: ").append(instructionCode);
                 sb.append("]");
                 break;
             }
