@@ -1231,7 +1231,7 @@ $(document).ready(function() {
 			closeMovieDialog();
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
-
+			$("#mm-file-replace-group").show();
 			$("#mm-item-id").val($("#movieEditId").val());
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
@@ -1566,7 +1566,7 @@ $(document).ready(function() {
 			closeEditItemDialog();
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
-
+			$("#mm-file-replace-group").show();
 			$("#mm-item-id").val($("#item-id").val());
 			$("#mm-is-mm").val('false');
 			$("#mm-add-before").val(addAboveItem);
@@ -1784,7 +1784,7 @@ $(document).ready(function() {
 			closeMultimediaEditDialog();
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
-
+			$("#mm-file-replace-group").show();
 			$("#mm-item-id").val($("#multimedia-item-id").val());
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
@@ -2887,6 +2887,7 @@ function mm_test_reset() {
    $('.mm-test-reset').hide();
    $('#mm-test-prototype').hide();
    $('#mm-test-oembed-results .oembedall-container').remove();
+   $('#mm-file-replace-group').hide();
 }
 
 resizeFrame = function (updown) {
