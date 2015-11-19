@@ -695,11 +695,6 @@
         <artifactId>sakai-kernel-storage-util</artifactId>
         <version>${sakai.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>test-harness</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
 
       <!-- Tika includes asm-debug-all which it really shouldn't
            since it is used in multiple places it is declared here so its done right -->
