@@ -24,7 +24,7 @@
     <module>privacy-comp-impl</module>
     <module>privacy-components</module>
     <module>privacy-hbm</module>
-    <module>privacy-integration-test</module>
+    <!-- module>privacy-integration-test</module -->
     <!-- archive and import -->
     <module>archive-api</module>
     <module>archive-impl/impl2</module>
