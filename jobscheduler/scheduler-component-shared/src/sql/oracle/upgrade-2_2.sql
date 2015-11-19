@@ -25,16 +25,16 @@ alter table qrtz_fired_triggers drop column is_stateful;
 --
 -- add new 'sched_name' column to all tables
 --
-alter table qrtz_blob_triggers add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_calendars add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_cron_triggers add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_fired_triggers add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_job_details add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_locks add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_paused_trigger_grps add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_scheduler_state add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_simple_triggers add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
-alter table qrtz_triggers add column sched_name varchar(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_blob_triggers add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_calendars add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_cron_triggers add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_fired_triggers add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_job_details add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_locks add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_paused_trigger_grps add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_scheduler_state add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_simple_triggers add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
+alter table qrtz_triggers add column sched_name varchar2(120) not null DEFAULT 'QuartzScheduler';
 -- 
 -- add new 'sched_time' column to all tables
 --
@@ -72,24 +72,24 @@ alter table qrtz_scheduler_state drop primary key, add primary key (sched_name, 
 -- add new simprop_triggers table
 --
 CREATE TABLE qrtz_simprop_triggers
- (          
-    SCHED_NAME VARCHAR(120) NOT NULL,
-    TRIGGER_NAME VARCHAR(200) NOT NULL,
-    TRIGGER_GROUP VARCHAR(200) NOT NULL,
-    STR_PROP_1 VARCHAR(512) NULL,
-    STR_PROP_2 VARCHAR(512) NULL,
-    STR_PROP_3 VARCHAR(512) NULL,
-    INT_PROP_1 INT NULL,
-    INT_PROP_2 INT NULL,
-    LONG_PROP_1 BIGINT NULL,
-    LONG_PROP_2 BIGINT NULL,
+  (          
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    STR_PROP_1 VARCHAR2(512) NULL,
+    STR_PROP_2 VARCHAR2(512) NULL,
+    STR_PROP_3 VARCHAR2(512) NULL,
+    INT_PROP_1 NUMBER(10) NULL,
+    INT_PROP_2 NUMBER(10) NULL,
+    LONG_PROP_1 NUMBER(13) NULL,
+    LONG_PROP_2 NUMBER(13) NULL,
     DEC_PROP_1 NUMERIC(13,4) NULL,
     DEC_PROP_2 NUMERIC(13,4) NULL,
-    BOOL_PROP_1 BOOL NULL,
-    BOOL_PROP_2 BOOL NULL,
-    PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
-    FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
-    REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+    BOOL_PROP_1 VARCHAR2(1) NULL,
+    BOOL_PROP_2 VARCHAR2(1) NULL,
+    CONSTRAINT QRTZ_SIMPROP_TRIG_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
+    CONSTRAINT QRTZ_SIMPROP_TRIG_TO_TRIG_FK FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) 
+      REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
 );
 --
 -- create indexes for faster queries
