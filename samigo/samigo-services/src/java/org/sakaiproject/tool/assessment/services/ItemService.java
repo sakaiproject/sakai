@@ -260,6 +260,7 @@ public class ItemService
     cloned.setItemFeedbackSet(newItemFeedbackSet);
     cloned.setItemAttachmentSet(newItemAttachmentSet);
     cloned.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
+    cloned.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 
     return cloned;
   }
