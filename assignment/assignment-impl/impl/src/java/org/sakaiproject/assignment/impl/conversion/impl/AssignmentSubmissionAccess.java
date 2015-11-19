@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.impl.conversion.api.SerializableSubmissionAccess;
 import org.sakaiproject.assignment.impl.conversion.impl.SAXSerializablePropertiesAccess;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.util.Xml;
@@ -128,6 +129,47 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		
 	}
 
+	/**
+	 * Helper method to add elements or attributes to a list
+	 * @param attributeName Name of the attribute or element value to add
+	 * @param list The list to add to add elements to
+	 * @param attributes A object of Element or Attributes that will be used as a source
+	 * @param dereference Whether or not it needs to be created as a reference from entitybroker
+	 */
+	protected void addElementsToList(String attributeName, List list, Object attributes, boolean dereference) {
+		int x=0;
+		String tempString = null;
+		//Can handle either values coming as an Element or Attributes
+		if (attributes instanceof Element) {
+			tempString = ((Element) attributes).getAttribute(attributeName+x);
+		}
+		else if (attributes instanceof Attributes) {
+			tempString = ((Attributes) attributes).getValue(attributeName+x);
+		}
+		tempString = StringUtils.trimToNull(tempString);
+		while (tempString != null)
+		{
+			/* This method doesn't seem to deference
+			Reference tempReference;
+			if (dereference==true) {
+				tempReference = m_entityManager.newReference(tempString);
+				list.add(tempReference);
+			}
+			else {
+				list.add(tempString);
+			}
+			*/
+			list.add(tempString);
+			x++;
+			if (attributes instanceof Element) {
+				tempString = ((Element) attributes).getAttribute(attributeName+x);
+			}
+			else if (attributes instanceof Attributes) {
+				tempString = ((Attributes) attributes).getValue(attributeName+x);
+			}
+			tempString = StringUtils.trimToNull(tempString);
+		} 
+	}
 	public String toXml()
 	{
 		Document doc = Xml.createDocument();
@@ -160,8 +202,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		submission.setAttribute("pledgeflag", this.pledgeflag);
 
 		// SAVE THE SUBMITTERS
-		numItemsString = "" + this.submitters.size();
-		submission.setAttribute("numberofsubmitters", numItemsString);
 		for (int x = 0; x < this.submitters.size(); x++)
 		{
 			attributeString = "submitter" + x;
@@ -172,9 +212,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 			}
 		}
 
-                // SAVE THE SUBMISSION LOGS
-		numItemsString = "" + this.submissionLog.size();
-		submission.setAttribute("numberoflogs", numItemsString);
+        // SAVE THE SUBMISSION LOGS
 		for (int x = 0; x < this.submissionLog.size(); x++)
 		{
 			attributeString = "log" + x;
@@ -186,8 +224,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		}
 
 		// SAVE GRADE OVERRIDES
-		numItemsString = "" + this.grades.size();
-		submission.setAttribute("numberofgrades", numItemsString);
 		for (int x = 0; x < this.grades.size(); x++) {
 		    attributeString = "grade" + x;
 		    itemString = (String) this.grades.get(x);
@@ -197,8 +233,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		}
 
 		// SAVE THE FEEDBACK ATTACHMENTS
-		numItemsString = "" + this.feedbackattachments.size();
-		submission.setAttribute("numberoffeedbackattachments", numItemsString);
 		for (int x = 0; x < this.feedbackattachments.size(); x++)
 		{
 			attributeString = "feedbackattachment" + x;
@@ -209,8 +243,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 			}
 		}
 		// SAVE THE SUBMITTED ATTACHMENTS
-		numItemsString = "" + this.submittedattachments.size();
-		submission.setAttribute("numberofsubmittedattachments", numItemsString);
 		for (int x = 0; x < this.submittedattachments.size(); x++)
 		{
 			attributeString = "submittedattachment" + x;
@@ -434,44 +466,10 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					setGradedBy(StringUtils.trimToNull(attributes.getValue("gradedBy")));
 					setGradereleased(StringUtils.trimToNull(attributes.getValue("gradereleased")));
 					setLastmod(StringUtils.trimToNull(attributes.getValue("lastmod")));
-					String numberoffeedbackattachments = StringUtils.trimToNull(attributes.getValue("numberoffeedbackattachments"));
-					int feedbackAttachmentCount = 0;
-					try
-					{
-						feedbackAttachmentCount = Integer.parseInt(numberoffeedbackattachments);
-					}
-					catch (Exception e)
-					{
-						// use 0 for feedbackAttachmentCount
-						log.warn(this + ":parse feedbackAttachmentCount " + e.getMessage());
-					}
-					for(int i = 0; i < feedbackAttachmentCount; i++)
-					{
-						String feedbackattachment = StringUtils.trimToNull(attributes.getValue("feedbackattachment" + i));
-						if(feedbackattachment != null)
-						{
-							feedbackattachments.add(feedbackattachment);
-						}
-					}
-					String numberofsubmittedattachments = StringUtils.trimToNull(attributes.getValue("numberofsubmittedattachments"));
-					int submittedAttachmentCount = 0;
-					try
-					{
-						submittedAttachmentCount = Integer.parseInt(numberofsubmittedattachments);
-					}
-					catch (Exception e)
-					{
-						// use 0 for submittedAttachmentCount
-						log.warn(this + ":parse submittedAttachmentCount " + e.getMessage());
-					}
-					for(int i = 0; i < submittedAttachmentCount; i++)
-					{
-						String submittedattachment = StringUtils.trimToNull(attributes.getValue("submittedattachment" + i));
-						if(submittedattachment != null)
-						{
-							submittedattachments.add(submittedattachment);
-						}
-					}
+
+					addElementsToList("feedbackattachment",feedbackattachments,attributes,false);
+					addElementsToList("submittedattachment",submittedattachments,attributes,false);
+
 					setPledgeflag(StringUtils.trimToNull(attributes.getValue("pledgeflag")));
 					setReturned(StringUtils.trimToNull(attributes.getValue("returned")));
 					setReviewReport(StringUtils.trimToNull(attributes.getValue("reviewReport")));
@@ -483,61 +481,10 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					setSubmittedtext(StringUtils.trimToNull(attributes.getValue("submittedtext")));
 					setSubmittedtext_html(StringUtils.trimToNull(attributes.getValue("submittedtext-html")));
 					setSubmitterId(StringUtils.trimToNull(attributes.getValue("submitterid")));
-					String numberofsubmitters = StringUtils.trimToNull(attributes.getValue("numberofsubmitters"));
-					int submitterCount = 0;
-					try
-					{
-						submitterCount = Integer.parseInt(numberofsubmitters);
-					}
-					catch (Exception e)
-					{
-						// use 0 for submittedAttachmentCount
-						log.warn(this + ":Parse " + e.getMessage());
-					}
-					for(int i = 0; i < submitterCount; i++)
-					{
-						String submitter = StringUtils.trimToNull(attributes.getValue("submitter" + i));
-						if(submitter != null)
-						{
-							submitters.add(submitter);
-						}
-					}
-					String numberoflogs = StringUtils.trimToNull(attributes.getValue("numberoflogs"));
-					int logCount = 0;
-					try
-					{
-					    logCount = Integer.parseInt(numberoflogs);
-					}
-					catch (NumberFormatException e)
-					{
-					    log.warn(this + ":Parse " + e.getMessage());
-					}
-					for(int i = 0; i < logCount; i++)
-					{
-						String log = StringUtils.trimToNull(attributes.getValue("log" + i));
-						if(log != null)
-						{
-							submissionLog.add(log);
-						}
-					}
-					String numberofgrades = StringUtils.trimToNull(attributes.getValue("numberofgrades"));
-					int gradeCount = 0;
-					try
-					{
-					    gradeCount = Integer.parseInt(numberofgrades);
-					}
-					catch (NumberFormatException e)
-					{
-					    log.warn(this + ":Parse " + e.getMessage());
-					}
-					for(int i = 0; i < logCount; i++)
-					{
-					    String gr = StringUtils.trimToNull(attributes.getValue("grade" + i));
-					    if( gr != null)
-					    {
-					        grades.add(gr);
-					    }
-					}
+
+					addElementsToList("submitter",submitters,attributes,false);
+					addElementsToList("log",submissionLog,attributes,false);
+					addElementsToList("grade",grades,attributes,false);
 				}
 			}
 		});	
