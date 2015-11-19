@@ -236,7 +236,7 @@
 		<!-- If your driver supports JDBC4 we strongly recommend not setting this property. This is for "legacy" databases that do not support the JDBC4 Connection.isValid() API. Default null (important). -->
 		<!-- This seems like it might need to be specified with MySQL to something like "SELECT 1" depending on the driver: https://github.com/brettwooldridge/HikariCP/issues/206 -->
 		<property name="connectionTestQuery">
-		      <value>SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS</value>
+		      <null />
 		</property>
 
 		<!-- This property controls the minimum number of idle connections that HikariCP tries to maintain in the pool. Default 10 -->
