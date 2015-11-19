@@ -7144,7 +7144,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// return true if resubmission is allowed and current time is before resubmission close time
 			// get the resubmit settings from submission object first
 			String allowResubmitNumString = submission != null?submission.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
-			if (allowResubmitNumString != null  && submission.getTimeSubmitted() != null)
+			if (allowResubmitNumString != null  && submission.getTimeSubmitted() != null && this.hasBeenSubmitted(submission))
 			{
 				try
 				{
@@ -14231,5 +14231,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
         LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), context);
         return statement;
     }
+    
+    public boolean hasBeenSubmitted(AssignmentSubmission submission)
+	{
+		try
+		{
+			List submissionLog=submission.getSubmissionLog();
+			
+			for (int x = 0; x < submissionLog.size(); x++)
+			{
+			    String itemString = (String) submissionLog.get(x);
+			    if(itemString.contains("submitted"))
+			    {
+			    	return true;
+			    }
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn(" hasBeenSubmitted(submission) " + e.getMessage());
+			return false;
+		}
+		return false;
+	}
 } // BaseAssignmentService
 
