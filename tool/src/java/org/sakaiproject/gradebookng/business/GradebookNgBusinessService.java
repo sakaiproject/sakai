@@ -1055,12 +1055,16 @@ public class GradebookNgBusinessService {
     Map<String, List<Long>> orderedAssignments = getCategorizedAssignmentsOrder(siteId);
 
     if (!orderedAssignments.containsKey(category)) {
-      orderedAssignments.put(category, new ArrayList<Long>());
-    } else {
-      orderedAssignments.get(category).remove(assignmentToMove.getId());
+      orderedAssignments = initializeCategorizedAssignmentOrder(siteId, category);
     }
 
-    orderedAssignments.get(category).add(order, assignmentToMove.getId());
+    orderedAssignments.get(category).remove(assignmentToMove.getId());
+
+    if (orderedAssignments.get(category).size() == order) {
+      orderedAssignments.get(category).add(assignmentToMove.getId());
+    } else {
+      orderedAssignments.get(category).add(order, assignmentToMove.getId());
+    }
 
     storeCategorizedAssignmentsOrder(siteId, orderedAssignments);
   }
@@ -1174,9 +1178,7 @@ public class GradebookNgBusinessService {
     List<Assignment> assignments = getGradebookAssignments();
 
     Map<String, List<Long>> categoriesToAssignments = new HashMap<String, List<Long>>();
-    Iterator<Assignment> assignmentsIterator = assignments.iterator();
-    while (assignmentsIterator.hasNext()) {
-      Assignment assignment = assignmentsIterator.next();
+    for (Assignment assignment : assignments) {
       String category = assignment.getCategoryName();
       if (!categoriesToAssignments.containsKey(category)) {
         categoriesToAssignments.put(category, new ArrayList<Long>());
@@ -1189,15 +1191,35 @@ public class GradebookNgBusinessService {
     return categoriesToAssignments;
   }
   
+
   /**
-   * Store categorized assignment order as XML on a site property
-   *
-   * @param siteId the site's id
-   * @param assignments a list of assignments in their new order
-   * @throws JAXBException
-   * @throws IdUnusedException
-   * @throws PermissionException
+   * Set up Categorized Assignment Order for single category
+   *   This is required if a category is added to the gradebook
+   *   after the categorized assignment order has been initialized.
    */
+  private Map<String, List<Long>> initializeCategorizedAssignmentOrder(String siteId, String category) throws JAXBException, IdUnusedException, PermissionException {
+    List<Assignment> assignments = getGradebookAssignments();
+    List<Long> assignmentIds = new ArrayList<Long>();
+    for (Assignment assignment : assignments) {
+      if (category.equals(assignment.getCategoryName())) {
+        assignmentIds.add(assignment.getId());
+    }
+    }
+    Map<String, List<Long>> orderData = getCategorizedAssignmentsOrder();
+    orderData.put(category, assignmentIds);
+    storeCategorizedAssignmentsOrder(siteId, orderData);
+
+    return orderData;
+  }
+
+  /**
+    * Store categorized assignment order as XML on a site property
+    *
+    * @param siteId the site's id
+    * @param assignments a list of assignments in their new order
+    * @throws JAXBException     * @throws IdUnusedException
+    * @throws PermissionException
+    */
   private void storeCategorizedAssignmentsOrder(String siteId, Map<String, List<Long>> categoriesToAssignments) throws JAXBException, IdUnusedException, PermissionException {
     Site site = null;
     try {
