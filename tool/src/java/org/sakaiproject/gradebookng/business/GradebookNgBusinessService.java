@@ -966,6 +966,9 @@ public class GradebookNgBusinessService {
                 updateAssignmentOrder(assignmentId, nextSortOrder);
             }
 
+            // also update the categorized order
+            syncCatagorizedAssignmentOrder(getCurrentSiteId(), assignment);
+
             return assignmentId;
             
             //TODO wrap this so we can catch any runtime exceptions
@@ -1249,6 +1252,35 @@ public class GradebookNgBusinessService {
     this.siteService.save(site);
   }
 
+  /**
+   * Ensure the assignment is ordered within their category
+   */
+  private void syncCatagorizedAssignmentOrder(String siteId, Assignment assignment) {
+    Map<String, List<Long>> orderData = getCategorizedAssignmentsOrder();
+    // remove assignment from existing category
+    if (orderData.containsValue(assignment.getId())) {
+      for (String category : orderData.keySet()) {
+        orderData.get(category).remove(assignment.getId());
+      }
+    }
+
+    try {
+      // ensure category order data exists
+      if (!orderData.containsKey(assignment.getCategoryName())) {
+        initializeCategorizedAssignmentOrder(siteId, assignment.getCategoryName());
+      }
+
+      // add assignment end of rightful category
+      orderData.get(assignment.getCategoryName()).add(assignment.getId());
+
+      // store in the database
+      storeCategorizedAssignmentsOrder(siteId, orderData);
+    } catch ( Exception e) {
+      log.error("Failed to sync categorized assignment order for: " + assignment.getId());
+      e.printStackTrace();
+    }
+  }
+
 
   /**
     * Comparator class for sorting a list of users by last name
@@ -1433,6 +1465,9 @@ public class GradebookNgBusinessService {
     	 
     	 try {
     		 gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
+			 if (original.getCategoryId() != assignment.getCategoryId()) {
+			 	syncCatagorizedAssignmentOrder(siteId, assignment);
+			 }
     		 return true;
     	 } catch (Exception e) {
     		 log.error("An error occurred updating the assignment", e);
