@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -26,6 +28,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -149,6 +152,11 @@ public class SettingsCategoryPanel extends Panel {
                 
         //render rows of categories
         categoriesWrap = new WebMarkupContainer("categoriesWrap");
+
+		final Label runningTotal = new Label("runningTotal", FormatHelper.formatDoubleAsPercentage(calculateCategoryWeightTotal(categories) * 100));
+		runningTotal.setOutputMarkupId(true);
+		categoriesWrap.add(runningTotal);
+
     	ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView", model.getObject().getCategories()) {
 
   			private static final long serialVersionUID = 1L;
@@ -164,6 +172,21 @@ public class SettingsCategoryPanel extends Panel {
   				
   				//weight
   				TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight"));
+				weight.add(new OnChangeAjaxBehavior() {
+					@Override
+					protected void onUpdate(AjaxRequestTarget target) {
+						Double newTotal = calculateCategoryWeightTotal(categories);
+
+						if (newTotal.equals(new Double(1))) {
+							runningTotal.add(new AttributeModifier("class", "text-success"));
+						} else {
+							runningTotal.add(new AttributeModifier("class", "text-danger"));
+						}
+
+						runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(newTotal * 100)));
+						target.add(runningTotal);
+					}
+				});
   				item.add(weight);
   				
   				//num assignments
@@ -242,5 +265,14 @@ public class SettingsCategoryPanel extends Panel {
         add(addCategory);
 		
 	}
-	
+
+	private Double calculateCategoryWeightTotal(List<CategoryDefinition> categories) {
+		Double total = new Double(0);
+		for (CategoryDefinition categoryDefinition : categories) {
+			if (!categoryDefinition.isExtraCredit()) {
+				total += categoryDefinition.getWeight();
+			}
+		}
+		return total;
+	}
 }
