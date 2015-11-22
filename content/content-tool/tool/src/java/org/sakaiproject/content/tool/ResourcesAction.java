@@ -4185,6 +4185,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		boolean isSpecialSite = false;
 		if ("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)) {
 			isSpecialSite = true;
+			// SAK-30085
+			context.put("showJumpToResourceForm", true);
 		}
 		
 		

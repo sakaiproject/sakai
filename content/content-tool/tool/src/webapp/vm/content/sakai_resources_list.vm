@@ -52,6 +52,25 @@
 			#if($showQuota)
 			<li><span><a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.quota')">$clang.getString("list.quota")</a></span></li>
 			#end
+			##SAK-30085
+			#if($showJumpToResourceForm)
+			<li class="inputItem">
+				<span class="formItem">
+					<form id="jumpToResourceForm" class="inlineForm" action="#toolForm("ResourcesAction")" method="post">
+						<input type="hidden" name="source" value="0" />	
+						<input type="hidden" name="navRoot" value="" />
+						<input type="hidden" name="criteria" value="title" />
+						<input type="hidden" name="sakai_action" value="doNavigate" />
+						<input type="hidden" name="rt_action" value="" />
+						<input type="hidden" name="selectedItemId" value="" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						<input type="text" name="collectionId" value="" required />
+						<input type="submit" value="$clang.getString('list.jumptoresource')"/>
+					</form>
+				</span>
+			</li>
+			#end
+		</ul>
 		</ul>
 	#if ($alertMessage)
                  <br /><div class="messageValidation">$alertMessage</div><div class="clear"></div>
@@ -1049,6 +1068,29 @@
 	    }
 	}
     });
+
+	##SAK-30085
+	#if($showJumpToResourceForm)
+	$(function() {
+		var formEl = $("#jumpToResourceForm");
+		var collectionIdEl = formEl.find(":input[name=collectionId]");
+
+		formEl.on("submit", function() {
+			var collectionId = collectionIdEl.val();
+
+			if (collectionId.length == 0) {
+				return false;
+			}
+
+			if (collectionId.match(/\/$/) == null) {
+				collectionId += "/";
+				collectionIdEl.val(collectionId);
+			}
+
+			return true;
+		});
+	});
+	#end
 
 	//-->
 </script>
