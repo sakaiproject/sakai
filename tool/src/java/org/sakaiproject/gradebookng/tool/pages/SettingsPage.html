@@ -5,20 +5,21 @@
 <wicket:extend>
 
 	<h2><wicket:message key="settingspage.main.heading">Gradebook Setup</wicket:message></h2>
-	
+
 	<form wicket:id="form">
-		<wicket:container wicket:id="gradeEntryPanel" />
-  		<wicket:container wicket:id="gradeReleasePanel" />
-  		<wicket:container wicket:id="categoryPanel" />
-  		<wicket:container wicket:id="gradingSchemaPanel" />
-  		
-  		<div>
+		<div class="panel-group" id="settingsAccordion" role="tablist" aria-multiselectable="true">
+			<wicket:container wicket:id="gradeEntryPanel" />
+			<wicket:container wicket:id="gradeReleasePanel" />
+			<wicket:container wicket:id="categoryPanel" />
+			<wicket:container wicket:id="gradingSchemaPanel" />
+		</div>
+
+		<div>
 			<input type="submit" class="active" wicket:message="value:button.savechanges" />
 			<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
 		</div>
-  	
-  	</form>
-  	 
+	</form>
+
 </wicket:extend>
 
 </body>
