@@ -1,12 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
@@ -29,11 +25,9 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 public class SettingsCategoryPanel extends Panel {
 	
@@ -42,7 +36,7 @@ public class SettingsCategoryPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 	
-	IModel<GradebookInformation> model;	
+	IModel<GbSettings> model;	
 	
 	boolean isDropHighest = false;
 	boolean isDropLowest = false;
@@ -50,18 +44,17 @@ public class SettingsCategoryPanel extends Panel {
 	
 	WebMarkupContainer categoriesWrap;
 
-	public SettingsCategoryPanel(String id, IModel<GradebookInformation> model) {
+	public SettingsCategoryPanel(String id, IModel<GbSettings> model) {
 		super(id, model);
 		this.model = model;
 	}
-	
 	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		
 		//get categories, passed in
-		final List<CategoryDefinition> categories = this.model.getObject().getCategories();
+		final List<CategoryDefinition> categories = this.model.getObject().getGradebookInformation().getCategories();
 				
 		//parse the categories and see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
 		//also build a map that we can use to add/remove from
@@ -79,7 +72,7 @@ public class SettingsCategoryPanel extends Panel {
 		}		
 		
 		//category types
-		RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType", new PropertyModel<Integer>(model, "categoryType"));
+		RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType", new PropertyModel<Integer>(model, "gradebookInformation.categoryType"));
 		categoryType.add(new Radio<>("none", new Model<>(1)));
 		categoryType.add(new Radio<>("categoriesOnly", new Model<>(2)));
 		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(3)));
@@ -97,7 +90,7 @@ public class SettingsCategoryPanel extends Panel {
 				
 				//reset
 				if(!isDropHighest) {
-					for(CategoryDefinition c: model.getObject().getCategories()) {
+					for(CategoryDefinition c: model.getObject().getGradebookInformation().getCategories()) {
 						c.setDropHighest(0);
 					}
 				}
@@ -118,7 +111,7 @@ public class SettingsCategoryPanel extends Panel {
 				
 				//reset
 				if(!isDropLowest) {
-					for(CategoryDefinition c: model.getObject().getCategories()) {
+					for(CategoryDefinition c: model.getObject().getGradebookInformation().getCategories()) {
 						c.setDrop_lowest(0);
 					}
 				}
@@ -139,7 +132,7 @@ public class SettingsCategoryPanel extends Panel {
 				
 				//reset
 				if(!isKeepHighest) {
-					for(CategoryDefinition c: model.getObject().getCategories()) {
+					for(CategoryDefinition c: model.getObject().getGradebookInformation().getCategories()) {
 						c.setKeepHighest(0);
 					}
 				}
@@ -157,7 +150,7 @@ public class SettingsCategoryPanel extends Panel {
 		runningTotal.setOutputMarkupId(true);
 		categoriesWrap.add(runningTotal);
 
-    	ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView", model.getObject().getCategories()) {
+    	ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView", model.getObject().getGradebookInformation().getCategories()) {
 
   			private static final long serialVersionUID = 1L;
 
@@ -231,7 +224,7 @@ public class SettingsCategoryPanel extends Panel {
 						//remove this category from the model
 						CategoryDefinition current = item.getModelObject();
 						
-						model.getObject().getCategories().remove(current);
+						model.getObject().getGradebookInformation().getCategories().remove(current);
 						target.add(categoriesWrap);
 					}
 				};
@@ -256,7 +249,7 @@ public class SettingsCategoryPanel extends Panel {
 				CategoryDefinition cd = new CategoryDefinition();
 				cd.setAssignmentList(Collections.<Assignment> emptyList());
 				
-				model.getObject().getCategories().add(cd);
+				model.getObject().getGradebookInformation().getCategories().add(cd);
 				
 				target.add(categoriesWrap);
 			}

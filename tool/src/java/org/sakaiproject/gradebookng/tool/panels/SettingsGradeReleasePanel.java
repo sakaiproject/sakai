@@ -9,8 +9,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.gradebookng.tool.model.GbSettings;
 
 public class SettingsGradeReleasePanel extends Panel {
 	
@@ -19,9 +18,9 @@ public class SettingsGradeReleasePanel extends Panel {
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 	
-	IModel<GradebookInformation> model;
+	IModel<GbSettings> model;
 	
-	public SettingsGradeReleasePanel(String id, IModel<GradebookInformation> model) {
+	public SettingsGradeReleasePanel(String id, IModel<GbSettings> model) {
 		super(id, model);
 		this.model = model;
 	}
@@ -31,7 +30,7 @@ public class SettingsGradeReleasePanel extends Panel {
 		super.onInitialize();
 				
 		//display released items to students
-        final AjaxCheckBox displayReleased = new AjaxCheckBox("displayReleased", new PropertyModel<Boolean>(model, "displayReleasedGradeItemsToStudents")) {
+        final AjaxCheckBox displayReleased = new AjaxCheckBox("displayReleased", new PropertyModel<Boolean>(model, "gradebookInformation.displayReleasedGradeItemsToStudents")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -43,7 +42,7 @@ public class SettingsGradeReleasePanel extends Panel {
         add(displayReleased);
         
         //display course grade
-        final AjaxCheckBox displayCourseGrade = new AjaxCheckBox("displayCourseGrade", new PropertyModel<Boolean>(model, "courseGradeDisplayed")) {
+        final AjaxCheckBox displayCourseGrade = new AjaxCheckBox("displayCourseGrade", new PropertyModel<Boolean>(model, "gradebookInformation.courseGradeDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -68,7 +67,7 @@ public class SettingsGradeReleasePanel extends Panel {
         add(courseGradeType);
         
         //letter grade
-        final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade", new PropertyModel<Boolean>(model, "courseLetterGradeDisplayed")) {
+        final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade", new PropertyModel<Boolean>(model, "gradebookInformation.courseLetterGradeDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -80,7 +79,7 @@ public class SettingsGradeReleasePanel extends Panel {
         courseGradeType.add(letterGrade);
         
         //percentage
-        final AjaxCheckBox percentage = new AjaxCheckBox("percentage", new PropertyModel<Boolean>(model, "courseAverageDisplayed")) {
+        final AjaxCheckBox percentage = new AjaxCheckBox("percentage", new PropertyModel<Boolean>(model, "gradebookInformation.courseAverageDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -92,7 +91,7 @@ public class SettingsGradeReleasePanel extends Panel {
         courseGradeType.add(percentage);
         
         //points
-        final AjaxCheckBox points = new AjaxCheckBox("points", new PropertyModel<Boolean>(model, "coursePointsDisplayed")) {
+        final AjaxCheckBox points = new AjaxCheckBox("points", new PropertyModel<Boolean>(model, "gradebookInformation.coursePointsDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

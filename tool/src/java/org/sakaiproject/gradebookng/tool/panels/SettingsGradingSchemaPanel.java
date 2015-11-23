@@ -4,38 +4,25 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.Radio;
-import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
-import org.sakaiproject.tool.gradebook.GradingScale;
 
 public class SettingsGradingSchemaPanel extends Panel {
 	
@@ -44,11 +31,11 @@ public class SettingsGradingSchemaPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 	
-	IModel<GradebookInformation> model;
+	IModel<GbSettings> model;
 	
 	WebMarkupContainer schemaWrap;
 
-	public SettingsGradingSchemaPanel(String id, IModel<GradebookInformation> model) {
+	public SettingsGradingSchemaPanel(String id, IModel<GbSettings> model) {
 		super(id, model);
 		this.model = model;
 	}
@@ -62,7 +49,7 @@ public class SettingsGradingSchemaPanel extends Panel {
 		List<GradingScaleDefinition> gradingScales = this.businessService.getGradingScales();
 		
 		//get current one
-		String selectedGradingScaleUid = this.model.getObject().getSelectedGradingScaleUid();
+		String selectedGradingScaleUid = this.model.getObject().getGradebookInformation().getSelectedGradingScaleUid();
 
 		//create map of grading scales
 		final Map<String, String> gradingScaleMap = new LinkedHashMap<>();
@@ -72,7 +59,7 @@ public class SettingsGradingSchemaPanel extends Panel {
 		
 		//grading scale type chooser
 		List<String> gradingSchemaList = new ArrayList<String>(gradingScaleMap.keySet());
-		DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradeScale"), gradingSchemaList, new ChoiceRenderer<String>() {
+		DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradebookInformation.gradeScale"), gradingSchemaList, new ChoiceRenderer<String>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -105,7 +92,7 @@ public class SettingsGradingSchemaPanel extends Panel {
 	        	
 	        	//get the bottom percents from the configured grading scale in THIS gradebook, not the defaults
 	        	//convert map into list of objects which is easier to work with in the views
-	    		Map<String,Double> bottomPercents = model.getObject().getSelectedGradingScaleBottomPercents();
+	    		Map<String,Double> bottomPercents = model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents();
 
 	    		List<GbGradingSchemaEntry> rval = new ArrayList<>();
 	    		for(Map.Entry<String, Double> entry: bottomPercents.entrySet()) {

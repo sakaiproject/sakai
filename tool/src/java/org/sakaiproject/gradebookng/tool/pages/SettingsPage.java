@@ -3,6 +3,8 @@ package org.sakaiproject.gradebookng.tool.pages;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
+import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
@@ -28,37 +30,29 @@ public class SettingsPage extends BasePage {
 	public void onInitialize() {
 		super.onInitialize();
 		
-		//get settings
+		//get settings data
 		GradebookInformation settings = this.businessService.getGradebookSettings();
 		
-		//form model
-		CompoundPropertyModel<GradebookInformation> formModel = new CompoundPropertyModel<GradebookInformation>(settings);
-		
+		//setup page model
+		GbSettings gbSettings = new GbSettings(settings);
+        CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<GbSettings>(gbSettings);
+			
 		//form
-		Form<GradebookInformation> form = new Form<GradebookInformation>("form", formModel) {
+		Form<GbSettings> form = new Form<GbSettings>("form", formModel) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
 				
-				GradebookInformation settings = this.getModelObject();
-				System.out.println("settings: " + settings);
+				GbSettings model = (GbSettings) this.getModelObject();
 				
+				System.out.println("settings: " + model.getGradebookInformation());
 				
-				businessService.updateGradebookSettings(settings);
-				/*
-				Assignment assignment = this.getModelObject();
+				//update settings
+				businessService.updateGradebookSettings(model.getGradebookInformation());
 				
-				//TODO validation of the fields here
+				//TODO update the grading schema values (pull from model object also);
 				
-				if(businessService.updateAssignment(assignment)) {
-					GradebookPage rval = new GradebookPage();
-					rval.info(MessageFormat.format(getString("message.edititem.success"),assignment.getName()));
-					setResponsePage(rval);
-				} else {
-					error(getString("message.edititem.error"));
-				}
-				*/
 				
 				getSession().info(getString("settingspage.update.success"));
 				setResponsePage(new SettingsPage());
@@ -86,6 +80,5 @@ public class SettingsPage extends BasePage {
 		add(form);
 		
 	}
-	
 	
 }
