@@ -55,6 +55,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.site.api.Group;
@@ -1907,11 +1908,10 @@ public class GradebookNgBusinessService {
     
     /**
      * Get a list of grading scales configured in the system
-     * Note that this uses the hibernate object. This really should be a shared object...
-     * @return List of GradingScales defined for this gradebook
+     * @return List of GradingScaleDEfinitions defined for this gradebook
      */
-    public List<GradingScale> getGradingScales() {
-        return this.gradebookFrameworkService.getAvailableGradingScales();
+    public List<GradingScaleDefinition> getGradingScales() {
+        return this.gradebookFrameworkService.getAvailableGradingScaleDefinitions();
     }
 
     /**
