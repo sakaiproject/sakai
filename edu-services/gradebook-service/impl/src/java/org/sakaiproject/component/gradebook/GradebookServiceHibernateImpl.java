@@ -361,6 +361,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
 		if(selectedGradeMapping!=null) {
 			rval.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+			
+			//note that these are not the DEFAULT bottom percents but the configured ones per gradebook
 			rval.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
 			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}

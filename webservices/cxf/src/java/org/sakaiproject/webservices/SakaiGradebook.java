@@ -101,7 +101,7 @@ public class SakaiGradebook extends AbstractWebService {
                     // Set the new Values
                     gradingScaleDefintion.setName(scaleName);
                     gradingScaleDefintion.setGrades(Arrays.asList(grades));
-                    gradingScaleDefintion.setDefaultBottomPercents(Arrays.asList(percents));
+                    gradingScaleDefintion.setDefaultBottomPercentsAsList(Arrays.asList(percents));
                     isUpdate=true;
                 }
                 gradingScaleDefinitions.add(gradingScaleDefintion); //always add the Scale
@@ -112,7 +112,7 @@ public class SakaiGradebook extends AbstractWebService {
                 scale.setUid(scaleUuid);
                 scale.setName(scaleName);
                 scale.setGrades(Arrays.asList(grades));
-                scale.setDefaultBottomPercents(Arrays.asList(percents));
+                scale.setDefaultBottomPercentsAsList(Arrays.asList(percents));
                 gradingScaleDefinitions.add(scale);//always add the Scale
             }
 

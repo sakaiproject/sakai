@@ -120,7 +120,9 @@ public class GradingScale implements Serializable, Comparable {
 			mapBottomPercentsIter.remove();
 		}
 		scaleDef.setGrades(grades);
-		scaleDef.setDefaultBottomPercents(defaultBottomPercents);
+		scaleDef.setDefaultBottomPercentsAsList(defaultBottomPercents);
+		scaleDef.setDefaultBottomPercents(this.getDefaultBottomPercents());
+
 		return scaleDef;
 	}
 
