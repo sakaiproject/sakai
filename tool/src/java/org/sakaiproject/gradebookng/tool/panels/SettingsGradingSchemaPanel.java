@@ -72,15 +72,9 @@ public class SettingsGradingSchemaPanel extends Panel {
 		//create map of grading scales to use for the dropdown
 		final Map<String, String> gradingScaleMap = new LinkedHashMap<>();
         for (GradingScaleDefinition gradingScale : gradingScales) {
-        	
-        	System.out.println(gradingScale);
-        	
-        	
         	gradingScaleMap.put(gradingScale.getUid(), gradingScale.getName());
         }
-        
-        System.out.println(model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
-		
+        		
 		//grading scale type chooser
 		List<String> gradingSchemaList = new ArrayList<String>(gradingScaleMap.keySet());
 		final DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradebookInformation.gradeScale"), gradingSchemaList, new ChoiceRenderer<String>() {
@@ -127,13 +121,9 @@ public class SettingsGradingSchemaPanel extends Panel {
 	        		}
 	        	}
 	        	
-                System.out.println(bottomPercents);
-
-	        	
 	        	//convert map into list of objects which is easier to work with in the views 
 	    		List<GbGradingSchemaEntry> rval = new ArrayList<>();
 	    		for(Map.Entry<String, Double> entry: bottomPercents.entrySet()) {
-	                System.out.println(entry.getKey());
 	    			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
 	    		}
 	        	
@@ -158,8 +148,13 @@ public class SettingsGradingSchemaPanel extends Panel {
   				
   				//minpercent
   				TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
+  				
+  				//if grade is F, set disabled
+  				if(StringUtils.equals(entry.getGrade(), "F")) {
+  					minPercent.setEnabled(false);
+  				}
+  				
   				item.add(minPercent);
-  
   			}
   		};
   		schemaWrap.add(schemaView);
@@ -207,6 +202,7 @@ public class SettingsGradingSchemaPanel extends Panel {
 /**
  * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
  * Copied from GradebookService and made Serializable as we use it in a TreeMap
+ * Also has the fix from SAK-30094.
  */
 class LetterGradeComparator implements Comparator<String>, Serializable {
 
@@ -230,7 +226,7 @@ class LetterGradeComparator implements Comparator<String>, Serializable {
 			}
 			if(o1.length() == 2 && o2.length() == 1) {
 				if(o1.charAt(1) == '+') {
-					return 0;
+					return -1;
 				} else {
 					return 1;
 				}
