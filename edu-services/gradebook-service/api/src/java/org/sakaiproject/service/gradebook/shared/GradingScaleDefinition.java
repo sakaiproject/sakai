@@ -72,11 +72,11 @@ public class GradingScaleDefinition implements Serializable {
 	public List<Double> getDefaultBottomPercentsAsList() {
 		return defaultBottomPercentsAsList;
 	}
-	public void setDefaultBottomPercentsAsList(List<Object> defaultBottomPercents) {
+	public void setDefaultBottomPercentsAsList(List<Object> defaultBottomPercentsList) {
 		// Depending on how this was called, the list may
 		// be of Double, String, emtpy String, or null objects. Convert the strings.
 		List<Double> doubleScores = new ArrayList<Double>();
-		for (Iterator<Object> iter = defaultBottomPercents.iterator(); iter.hasNext(); ) {
+		for (Iterator<Object> iter = defaultBottomPercentsList.iterator(); iter.hasNext(); ) {
 			Object obj = iter.next();
 			if (obj instanceof String) {
 				String str = (String)obj;

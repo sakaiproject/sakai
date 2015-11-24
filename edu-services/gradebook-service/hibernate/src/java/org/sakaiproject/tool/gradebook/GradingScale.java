@@ -118,7 +118,7 @@ public class GradingScale implements Serializable, Comparable {
 		List<String> grades = new ArrayList<>();
 		for(Map.Entry<String, Double> pair : mapBottomPercents.entrySet()) {
 			listBottomPercents.add(pair.getValue());
-			grades.add(pair.getKey().toString());
+			grades.add(pair.getKey());
 		}
 		scaleDef.setGrades(grades);
 		scaleDef.setDefaultBottomPercentsAsList(listBottomPercents);
