@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * DTO for the persistent GradingScale
  */
@@ -93,6 +96,11 @@ public class GradingScaleDefinition implements Serializable {
 	}
 	public void setDefaultBottomPercents(Map<String, Double> defaultBottomPercents) {
 		this.defaultBottomPercents = defaultBottomPercents;
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 
 }
