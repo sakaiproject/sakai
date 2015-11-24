@@ -113,17 +113,16 @@ public class GradingScale implements Serializable, Comparable {
 		Map<String, Double> mapBottomPercents = this.getDefaultBottomPercents();
 		scaleDef.setDefaultBottomPercents(mapBottomPercents);
 
+		//build the bottom percents as a list as well
 		List<Object> listBottomPercents = new ArrayList<>();
 		List<String> grades = new ArrayList<>();
-		Iterator mapBottomPercentsIter = mapBottomPercents.entrySet().iterator();
-		while (mapBottomPercentsIter.hasNext()) {
-			Map.Entry pair = (Map.Entry)mapBottomPercentsIter.next();
+		for(Map.Entry<String, Double> pair : mapBottomPercents.entrySet()) {
 			listBottomPercents.add(pair.getValue());
 			grades.add(pair.getKey().toString());
-			mapBottomPercentsIter.remove();
 		}
 		scaleDef.setGrades(grades);
 		scaleDef.setDefaultBottomPercentsAsList(listBottomPercents);
+		
 		return scaleDef;
 	}
 
