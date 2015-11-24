@@ -92,7 +92,7 @@ public class SakaiGradebook extends AbstractWebService {
 
                     //Store the previous default values to compare later if updateOnlyNotCustomized=true
                     Iterator gradesIterOld = gradingScaleDefintion.getGrades().iterator();
-                    Iterator defaultBottomPercentsIterOld = gradingScaleDefintion.getDefaultBottomPercents().iterator();
+                    Iterator defaultBottomPercentsIterOld = gradingScaleDefintion.getDefaultBottomPercentsAsList().iterator();
                     while (gradesIterOld.hasNext() && defaultBottomPercentsIterOld.hasNext()) {
                         String gradeOld = (String)gradesIterOld.next();
                         Double valueOld = (Double)defaultBottomPercentsIterOld.next();
@@ -101,7 +101,7 @@ public class SakaiGradebook extends AbstractWebService {
                     // Set the new Values
                     gradingScaleDefintion.setName(scaleName);
                     gradingScaleDefintion.setGrades(Arrays.asList(grades));
-                    gradingScaleDefintion.setDefaultBottomPercents(Arrays.asList(percents));
+                    gradingScaleDefintion.setDefaultBottomPercentsAsList(Arrays.asList(percents));
                     isUpdate=true;
                 }
                 gradingScaleDefinitions.add(gradingScaleDefintion); //always add the Scale
@@ -112,7 +112,7 @@ public class SakaiGradebook extends AbstractWebService {
                 scale.setUid(scaleUuid);
                 scale.setName(scaleName);
                 scale.setGrades(Arrays.asList(grades));
-                scale.setDefaultBottomPercents(Arrays.asList(percents));
+                scale.setDefaultBottomPercentsAsList(Arrays.asList(percents));
                 gradingScaleDefinitions.add(scale);//always add the Scale
             }
 

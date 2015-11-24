@@ -247,7 +247,17 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			}
 		});
 	}
-
+	
+	@Override
+	public List<GradingScaleDefinition> getAvailableGradingScaleDefinitions() {
+		List<GradingScale> gradingScales = this.getAvailableGradingScales();
+		
+		List<GradingScaleDefinition> rval = new ArrayList<>();
+		for(GradingScale gradingScale: gradingScales) {
+			rval.add(gradingScale.toGradingScaleDefinition());
+		}
+		return rval;
+	}
 
 	public void setDefaultGradingScale(String uid) {
 		setPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY, uid);
@@ -259,7 +269,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 		gradingScale.setGrades(bean.getGrades());
 		Map defaultBottomPercents = new HashMap();
 		Iterator gradesIter = bean.getGrades().iterator();
-		Iterator defaultBottomPercentsIter = bean.getDefaultBottomPercents().iterator();
+		Iterator defaultBottomPercentsIter = bean.getDefaultBottomPercentsAsList().iterator();
 		while (gradesIter.hasNext() && defaultBottomPercentsIter.hasNext()) {
 			String grade = (String)gradesIter.next();
 			Double value = (Double)defaultBottomPercentsIter.next();

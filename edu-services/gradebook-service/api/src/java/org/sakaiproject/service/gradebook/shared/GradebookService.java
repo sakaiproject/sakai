@@ -90,39 +90,37 @@ public interface GradebookService {
         INVALID_DECIMAL
     }
 	
-	@SuppressWarnings("rawtypes")
-	public static Comparator lettergradeComparator = new Comparator() 
-	{
-		public int compare(Object o1, Object o2) 
-		{
-			if(((String)o1).toLowerCase().charAt(0) == ((String)o2).toLowerCase().charAt(0))
-			{
-				if(((String)o1).length() == 2 && ((String)o2).length() == 2)
-				{
-					if(((String)o1).charAt(1) == '+')
+    /**
+     * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
+     */
+    public static Comparator<String> lettergradeComparator = new Comparator<String>() {
+		public int compare(String o1, String o2){
+			if(o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
+				if(o1.length() == 2 && o2.length() == 2) {
+					if(o1.charAt(1) == '+') {
 						return 0;
-					else
+					} else {
 						return 1;
+					}
 				}
-				if(((String)o1).length() == 1 && ((String)o2).length() == 2)
-				{
-					if(((String)o2).charAt(1) == '+')
+				if(o1.length() == 1 && o2.length() == 2) {
+					if(o2.charAt(1) == '+') {
 						return 1;
-					else
+					} else {
 						return 0;
+					}
 				}
-				if(((String)o1).length() == 2 && ((String)o2).length() == 1)
-				{
-					if(((String)o1).charAt(1) == '+')
+				if(o1.length() == 2 && o2.length() == 1) {
+					if(o1.charAt(1) == '+') {
 						return 0;
-					else
+					} else {
 						return 1;
+					}
 				}
 				return 0;
 			}
-			else
-			{
-				return ((String)o1).toLowerCase().compareTo(((String)o2).toLowerCase());
+			else {
+				return o1.toLowerCase().compareTo(o2.toLowerCase());
 			}
 		}
 	};
