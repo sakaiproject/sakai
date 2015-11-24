@@ -92,7 +92,7 @@ public class SakaiGradebook extends AbstractWebService {
 
                     //Store the previous default values to compare later if updateOnlyNotCustomized=true
                     Iterator gradesIterOld = gradingScaleDefintion.getGrades().iterator();
-                    Iterator defaultBottomPercentsIterOld = gradingScaleDefintion.getDefaultBottomPercents().iterator();
+                    Iterator defaultBottomPercentsIterOld = gradingScaleDefintion.getDefaultBottomPercentsAsList().iterator();
                     while (gradesIterOld.hasNext() && defaultBottomPercentsIterOld.hasNext()) {
                         String gradeOld = (String)gradesIterOld.next();
                         Double valueOld = (Double)defaultBottomPercentsIterOld.next();
