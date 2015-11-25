@@ -262,6 +262,8 @@ public class ItemService
     cloned.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
     cloned.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 
+    cloned.setIsExtraCredit(item.getIsExtraCredit());
+
     return cloned;
   }
 

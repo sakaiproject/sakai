@@ -97,6 +97,7 @@ public class ItemBean
   
   private int totalMCAsnwers;
   private CalculatedQuestionBean calculatedQuestion;
+  private boolean isExtraCredit;
   
   private boolean[] choiceCorrectArray;
   private String maxRecordingTime;
@@ -1985,5 +1986,13 @@ public class ItemBean
 	public void setMcmsPartialCredit(String mcmsPartialCredit) {
 		this.mcmsPartialCredit = mcmsPartialCredit;
 	}
+
+    public boolean getIsExtraCredit() {
+        return isExtraCredit;
+    }
+
+    public void setIsExtraCredit(boolean isExtraCredit) {
+        this.isExtraCredit = isExtraCredit;
+    }
 
 }

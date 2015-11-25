@@ -115,6 +115,10 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
 
   void setLastModifiedDate(Date lastModifiedDate);
 
+  Boolean getIsExtraCredit();
+
+  void setIsExtraCredit(Boolean isExtraCredit);
+
   Set<ItemTextIfc> getItemTextSet();
 
   void setItemTextSet(Set<ItemTextIfc> itemTextSet) ;

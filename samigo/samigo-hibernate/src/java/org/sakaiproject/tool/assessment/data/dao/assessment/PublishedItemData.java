@@ -69,6 +69,7 @@ public class PublishedItemData
   private Date createdDate;
   private String lastModifiedBy;
   private Date lastModifiedDate;
+  private Boolean isExtraCredit;
   private Set itemTextSet;
   private Set itemMetaDataSet;
   private Set itemFeedbackSet;
@@ -298,6 +299,14 @@ public class PublishedItemData
 
   public void setLastModifiedDate(Date lastModifiedDate) {
     this.lastModifiedDate = lastModifiedDate;
+  }
+
+  public Boolean getIsExtraCredit() {
+    return this.isExtraCredit;
+  }
+
+  public void setIsExtraCredit(Boolean isExtraCredit) {
+    this.isExtraCredit = isExtraCredit;
   }
 
   public Set getItemTextSet() {

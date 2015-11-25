@@ -87,6 +87,7 @@
             <h:outputText styleClass="tier1" value="#{question.itemData.type.keyword}" />
             <h:outputText styleClass="tier1" value="#{question.itemData.score}" />
             <h:outputText styleClass="tier1" value="#{authorMessages.points_lower_case}" />
+            <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{authorMessages.extra_credit_preview}" />
           </h:panelGroup>
 
         </h:panelGrid>

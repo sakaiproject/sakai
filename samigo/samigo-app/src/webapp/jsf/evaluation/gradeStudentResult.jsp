@@ -134,6 +134,7 @@ function toPoint(id)
                   <h:outputText escape="false" value="#{question.number}#{deliveryMessages.dot} #{question.strippedText} #{question.roundedMaxPoints} #{deliveryMessages.pt} ">
 				  </h:outputText>
                 </h:outputLink>
+                <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit==true}" value=" #{deliveryMessages.extra_credit_preview}" />
               </h:panelGroup>
             <f:verbatim></h4></f:verbatim> 
           </h:column>
@@ -172,6 +173,7 @@ function toPoint(id)
             </h:inputText>
             <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPoints} " />
             <h:outputText value="#{deliveryMessages.pt}"/>
+            <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
           <f:verbatim><br/></f:verbatim>
 <h:message for="adjustedScore" style="color:red"/>
           <f:verbatim></h4></f:verbatim>

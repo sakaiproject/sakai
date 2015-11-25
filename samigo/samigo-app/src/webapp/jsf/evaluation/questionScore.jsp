@@ -289,7 +289,10 @@ function hiddenLinkOnClick(){
     <h:panelGroup rendered="#{questionScores.typeId == '15'}"><!-- // CALCULATED_QUESTION -->
       <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_cq}"/>
     </h:panelGroup>
-      <f:verbatim></h4></div></f:verbatim>
+     <h:panelGroup rendered="#{question.isExtraCredit == true}">
+        <h:outputText styleClass="extraCreditLabel" value=" #{deliveryMessages.extra_credit_preview}" />
+     </h:panelGroup>
+     <f:verbatim></h4></div></f:verbatim>
     </h:column>
   </h:dataTable>
 

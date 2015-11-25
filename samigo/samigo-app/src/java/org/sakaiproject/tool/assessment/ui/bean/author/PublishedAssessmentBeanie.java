@@ -140,7 +140,8 @@ public class PublishedAssessmentBeanie
       for (int j=0; j<items.size();j++){
         ItemContentsBean item = (ItemContentsBean)items.get(j);
         if (item.getItemData().getScore()!=null){
-          this.totalScore += item.getItemData().getScore().doubleValue();
+          if(item.getItemData().getIsExtraCredit() == null || !item.getItemData().getIsExtraCredit().booleanValue())
+            this.totalScore += item.getItemData().getScore().doubleValue();
         }
       }
     }

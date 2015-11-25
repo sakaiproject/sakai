@@ -88,6 +88,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected Date createdDate;
   protected String lastModifiedBy;
   protected Date lastModifiedDate;
+  protected Boolean isExtraCredit;
   protected Set itemTextSet;
   protected Set itemMetaDataSet;
   protected Set itemFeedbackSet;
@@ -645,6 +646,20 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   public void setLastModifiedDate(Date lastModifiedDate) {
     this.lastModifiedDate = lastModifiedDate;
     this.data.setLastModifiedDate(lastModifiedDate);
+  }
+
+  public void setIsExtraCredit(Boolean isExtraCredit) {
+      this.isExtraCredit = isExtraCredit;
+      this.data.setIsExtraCredit(isExtraCredit);
+  }
+
+  public Boolean getIsExtraCredit() throws DataFacadeException {
+      try {
+          this.data = (ItemDataIfc) item.getData();
+      } catch (AssessmentException ex) {
+          throw new DataFacadeException(ex.getMessage());
+      }
+      return this.data.getIsExtraCredit();
   }
 
   /**

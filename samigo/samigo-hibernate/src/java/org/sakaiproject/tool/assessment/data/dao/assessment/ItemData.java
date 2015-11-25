@@ -55,6 +55,7 @@ public class ItemData
   private Set<ItemMetaDataIfc> itemMetaDataSet;
   private Set<ItemFeedbackIfc> itemFeedbackSet;
   private Set<ItemAttachmentIfc> itemAttachmentSet;
+  private Boolean isExtraCredit;
 
   // for EMI question
   private String themeText;
@@ -368,6 +369,10 @@ public ItemData() {}
   public void setLastModifiedDate(Date lastModifiedDate) {
     this.lastModifiedDate = lastModifiedDate;
   }
+
+  public Boolean getIsExtraCredit() { return this.isExtraCredit; }
+
+  public void setIsExtraCredit(Boolean isExtraCredit) { this.isExtraCredit = isExtraCredit; }
 
   public Set<ItemTextIfc> getItemTextSet() {
     return itemTextSet;
