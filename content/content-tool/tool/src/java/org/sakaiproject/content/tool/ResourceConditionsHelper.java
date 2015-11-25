@@ -135,7 +135,6 @@ public class ResourceConditionsHelper {
 			notification.setResourceFilter(submittedResourceFilter);
 			if (missingTermQuery.contains("Date")) {
 				notification.addFunction("datetime.update");
-				notification.setResourceFilter(null);
 			}
 			notification.setAction(resourceConditionRule);
 			notification.getProperties().addProperty(ConditionService.PROP_SUBMITTED_FUNCTION_NAME, submittedFunctionName);
@@ -180,7 +179,7 @@ public class ResourceConditionsHelper {
 					item.setConditionArgument(notification.getProperties().getProperty(ConditionService.PROP_CONDITIONAL_RELEASE_ARGUMENT));					
 				}
 			} catch (NotificationNotDefinedException e) {
-				VelocityPortletPaneledAction.addAlert(state, rb.getString("conditions.notification.load.error"));								
+				VelocityPortletPaneledAction.addAlert(state, rb.getString("notification.load.error"));								
 			}					
 		}
 		
