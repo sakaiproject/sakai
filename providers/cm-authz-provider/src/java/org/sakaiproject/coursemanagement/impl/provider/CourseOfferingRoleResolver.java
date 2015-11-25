@@ -142,11 +142,19 @@ public class CourseOfferingRoleResolver extends BaseRoleResolver {
 			
 			if(log.isDebugEnabled()) log.debug(userEid + " has role=" + coRole + " in course offering " + coEid);
 			// Get the sections in each course offering
+			// Only those sections in which the userEid is a member
 			Set<Section> sections = cmService.getSections(coEid);
 			for(Iterator<Section> secIter = sections.iterator(); secIter.hasNext();) {
 				// Add the section EIDs and the converted *CourseOffering* role to the sectionRoles map
 				Section section = secIter.next();
-				sectionRoles.put(section.getEid(), sakaiRole);
+				Set<Membership> members = cmService.getSectionMemberships(section.getEid());
+				for (Iterator<Membership> membersIter = members.iterator(); membersIter.hasNext();) {
+					Membership member = membersIter.next();
+					if (member.getUserId().equals(userEid)) {
+						sectionRoles.put(section.getEid(), sakaiRole);
+						break;
+					}
+				}
 			}
 		}
 		return sectionRoles;
