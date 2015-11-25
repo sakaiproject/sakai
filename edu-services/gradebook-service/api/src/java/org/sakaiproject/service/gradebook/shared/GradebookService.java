@@ -98,21 +98,21 @@ public interface GradebookService {
 			if(o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
 				if(o1.length() == 2 && o2.length() == 2) {
 					if(o1.charAt(1) == '+') {
-						return 0;
+						return -1; //SAK-30094
 					} else {
 						return 1;
 					}
 				}
 				if(o1.length() == 1 && o2.length() == 2) {
 					if(o2.charAt(1) == '+') {
-						return 1;
+						return 1; //SAK-30094
 					} else {
-						return 0;
+						return -1;
 					}
 				}
 				if(o1.length() == 2 && o2.length() == 1) {
 					if(o1.charAt(1) == '+') {
-						return 0;
+						return -1; //SAK-30094
 					} else {
 						return 1;
 					}
