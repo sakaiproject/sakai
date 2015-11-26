@@ -47,6 +47,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -86,6 +87,7 @@ public class AbstractWebService {
     protected IdManager idManager;
     protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
     protected ActivityService activityService;
+    protected QuestionPoolServiceAPI questionPoolServiceImpl;
 
     
     @WebMethod(exclude = true)
@@ -259,5 +261,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setQuestionPoolServiceImpl(QuestionPoolServiceAPI questionPoolServiceImpl) {
+        this.questionPoolServiceImpl = questionPoolServiceImpl;
     }
 }
