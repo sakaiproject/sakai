@@ -1,5 +1,6 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
@@ -99,14 +100,6 @@
 				</div>
 			</div>
 			</fieldset>
-			<%--
-			<h4><h:outputText value="#{msgs.gb_setup_grader_perms_title}"/></h4>
-			<div class="indnt1 gbSection">
-				<h:commandLink action="graderRules">
-					<h:outputText value="#{msgs.gb_setup_modify_grader_perms}"/>
-				</h:commandLink>
-			</div>
-			--%>
 	 
 		  <t:aliasBean alias="#{bean}" value="#{gradebookSetupBean}">
 				<%@ include file="/inc/categoryEdit.jspf"%>
@@ -118,11 +111,11 @@
 					styleClass="active"
 					value="#{msgs.gb_setup_save}"
 					action="#{gradebookSetupBean.processSaveGradebookSetup}"
-					onclick="javascript:reEnableCategoryDropInputs();"/>
+					onclick="SPNR.disableControlsAndSpin( this, null ); reEnableCategoryDropInputs();"/>
 				<h:commandButton
 					value="#{msgs.gb_setup_cancel}"
 					action="#{gradebookSetupBean.processCancelGradebookSetup}" immediate="true"
-					onclick="javascript:reEnableCategoryDropInputs();"/>
+					onclick="SPNR.disableControlsAndSpin( this, null ); reEnableCategoryDropInputs();"/>
 			</div>
 			
 			<%

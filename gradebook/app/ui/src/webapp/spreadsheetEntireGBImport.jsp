@@ -1,4 +1,5 @@
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <f:view>
     <div class="portletBody">
         <%--TODO: determine how to make menu option unlinked not using this hack --%>
@@ -75,7 +76,7 @@
             			</td>
             			<td>
             		</f:verbatim>
-                	<h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="#{msgs.upload_view_choose_file_button}">
+                	<h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="#{msgs.upload_view_choose_file_button}" onclick="SPNR.disableControlsAndSpin( this, null );">
                 	</h:commandButton>
 					<%/*
             		<h:message for="fileupload" styleClass="validationEmbedded" />
@@ -93,7 +94,8 @@
                      id="saveButton"
                      styleClass="active"
                      value="#{msgs.import_entire_button_title}"
-                     action="#{spreadsheetUploadBean.processFileEntire}" />
+                     action="#{spreadsheetUploadBean.processFileEntire}"
+                     onclick="SPNR.disableControlsAndSpin( this, null );" />
             </p>
    
          </h:form> <%-- End of upload completed spreadsheet form --%>
