@@ -28,7 +28,7 @@
 			<list-index column="list_index" />
 			<composite-element class="org.sakaiproject.signup.model.SignupAttendee" >
 				<property name="attendeeUserId" column="attendee_user_id" length="99" type="string" not-null="true" />
-	   			<property name="comments" column="comments" type="text" not-null="false" />
+	   			<property name="comments" column="comments" type="materialized_clob" not-null="false" />
 				<property name="signupSiteId" column="signup_site_id" length="99" type="string" not-null="true" />
 				<property name="calendarEventId" column="calendar_event_id" length="2000" type="string" not-null="false" />
 				<property name="calendarId" column="calendar_id" length="99" type="string" not-null="false" />
@@ -43,7 +43,7 @@
 			<list-index column="list_index" />
 			<composite-element class="org.sakaiproject.signup.model.SignupAttendee" >
 				<property name="attendeeUserId" column="attendee_user_id" length="99" type="string" not-null="true" />
-	   			<property name="comments" column="comments" type="text" not-null="false" />
+	   			<property name="comments" column="comments" type="materialized_clob" not-null="false" />
 				<property name="signupSiteId" column="signup_site_id" length="99" type="string" not-null="true" />
 				<property name="calendarEventId" column="calendar_event_id" length="2000" type="string" not-null="false" />
 				<property name="calendarId" column="calendar_id" length="99" type="string" not-null="false" />
