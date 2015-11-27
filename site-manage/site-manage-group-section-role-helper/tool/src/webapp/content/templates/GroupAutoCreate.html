@@ -6,15 +6,12 @@
         <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
         <link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" rsf:id="resize"/>
-        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
-        </script>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
         <script type="text/javascript">includeLatestJQuery('site-manage');</script>
-        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url">
-        </script>
-        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url">
-        </script>
-        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url">
-        </script>
+        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url"></script>
+        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url"></script>
+        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
+        <script type="text/javascript" src="/library/js/spinner.js"></script>
     </head>
     <body>
         <div class="portletBody">
@@ -162,9 +159,8 @@
 	                	</fieldset>
                 </div>
                 <p class="act">
-                    <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" />
-                    <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="disableButtonsActivateSpinner('save', 'cancel', 'autoGroupsSpinner');" />
-                    <img id="autoGroupsSpinner" class="spinner" src="/library/image/indicator.gif" />
+                    <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                    <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
                 </p>
             </form>
         </div>

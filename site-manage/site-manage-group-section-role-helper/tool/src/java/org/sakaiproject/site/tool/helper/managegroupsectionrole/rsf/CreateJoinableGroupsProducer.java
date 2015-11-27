@@ -139,11 +139,6 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 			additionalRow.decorate( new UIStyleDecorator( "edit collapsed" ) );
 			UIOutput.make(additionalRow, "additional-title", messageLocator.getMessage("group.joinable.additionalGroups"));
 
-			// Allow unjoin
-			UIBranchContainer allowUnjoin = UIBranchContainer.make(groupForm,"allowunjoin-row:");
-			UIBoundBoolean allowUnjoinCheckbox = UIBoundBoolean.make(allowUnjoin, "allowUnjoin", "#{SiteManageGroupSectionRoleHandler.unjoinable}");
-			UILabelTargetDecorator.targetLabel(UIMessage.make(allowUnjoin, "allowUnjoin-label", "group.allow.unjoinable"), allowUnjoinCheckbox);
-
 			// Generate button
 			UIBranchContainer generateRow = UIBranchContainer.make(groupForm,"generate-row:");
 			generateRow.decorate( new UIStyleDecorator( "edit" ) );
@@ -169,6 +164,13 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 					i++;
 				}
 			}
+		}
+		else
+		{
+			// Allow unjoin
+			UIBranchContainer allowUnjoin = UIBranchContainer.make(groupForm,"allowunjoin-row:");
+			UIBoundBoolean allowUnjoinCheckbox = UIBoundBoolean.make(allowUnjoin, "allowUnjoin", "#{SiteManageGroupSectionRoleHandler.unjoinable}");
+			UILabelTargetDecorator.targetLabel(UIMessage.make(allowUnjoin, "allowUnjoin-label", "group.allow.unjoinable"), allowUnjoinCheckbox);
 		}
 
 		//Num of Groups Row
