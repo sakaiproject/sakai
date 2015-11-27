@@ -1,5 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_view.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
-
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
@@ -77,8 +77,8 @@
 				</table>
 				
 				<div class="act">
-					<input type="submit" class="active" name="eventSubmit_doImport" value="$tlang.getString("import.file.continue")"  accesskey="s" />
-					<input type="submit" name="eventSubmit_doCancelImport" value="$tlang.getString("useconrem.can")"  accesskey="x" />
+					<input type="submit" class="active" name="eventSubmit_doImport" value="$tlang.getString("import.file.continue")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" name="eventSubmit_doCancelImport" value="$tlang.getString("useconrem.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</div>
 			#end	
 				
