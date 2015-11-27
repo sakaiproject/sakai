@@ -121,6 +121,7 @@
 		</script>
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
+			<script type="text/javascript" src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<script type="text/javascript">		
 			function toggleComments(link){
@@ -343,8 +344,10 @@
   		</h:dataTable>
 		<h:panelGrid columns="1" width="100%" styleClass="navPanel  specialLink">
 		  <h:panelGroup styleClass="itemNav" rendered="#{mfStatisticsBean.selectedAssign != 'Default_0'}">
-		  	<h:commandButton onclick="warn = false;" action="#{mfStatisticsBean.proccessActionSubmitGrades}" value="#{msgs.stat_forum_submit_grades}" accesskey="s"/>
-		  	<h:commandButton onclick="warn = false;" action="" value="#{msgs.stat_forum_submit_grades_cancel}" accesskey="c"/>
+		  	<h:commandButton action="#{mfStatisticsBean.proccessActionSubmitGrades}" value="#{msgs.stat_forum_submit_grades}" accesskey="s"
+		  		onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" />
+		  	<h:commandButton action="" value="#{msgs.stat_forum_submit_grades_cancel}" accesskey="c"
+		  		onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" />
 		  </h:panelGroup>	
         </h:panelGrid>  
   	</h:form>

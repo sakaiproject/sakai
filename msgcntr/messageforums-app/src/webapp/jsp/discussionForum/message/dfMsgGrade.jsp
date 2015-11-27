@@ -91,7 +91,7 @@
 			}			
 			%>
 		</script>
-
+		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		
       <h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
 			<h4>
@@ -133,14 +133,14 @@
   	    <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline" rendered="#{ForumTool.allowedToGradeItem}" />
 			</p>
    
-			<h:panelGrid styleClass="jsfFormTable" columns="1" columnClasses="shorttext" border="0">
+			<h:panelGrid styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">
 				<h:panelGroup>
 					<h:outputLabel for="assignment"  style="padding-bottom:.3em;display:block;clear:both;float:none;white-space:nowrap"  rendered="#{ForumTool.allowedToGradeItem}">
 						<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
 						<h:outputText  value="#{msgs.cdfm_assignments}"/>
 					</h:outputLabel>	
         <h:selectOneMenu id="assignment" value="#{ForumTool.selectedAssign}" valueChangeListener="#{ForumTool.processGradeAssignChange}"
-              onchange="document.forms[0].submit();">
+              onchange="SPNR.insertSpinnerAfter( this, null, null );document.forms[0].submit();">
            <f:selectItems value="#{ForumTool.assignments}" />
          </h:selectOneMenu>
          <h:outputFormat value=" #{msgs.cdfm_points_possible}" rendered="#{!ForumTool.selGBItemRestricted && ForumTool.gbItemPointsPossible != null && ForumTool.gradeByPoints}">
@@ -179,12 +179,14 @@
     <sakai:button_bar>
     	<% if(isDialogBox){ %>
 			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
-	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>
-	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="closeDialogBoxIfExists();" />
+	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" onclick="SPNR.disableControlsAndSpin( this, null );" />
+	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x" 
+	      		onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
 		<% }else {%>	
 			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}"
-	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>
-	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="closeDialogBoxIfExists();" />	      			
+	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" 
+	      		onclick="SPNR.disableControlsAndSpin( this, null );" />
+	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
       	<%}%>
       	
     </sakai:button_bar>
