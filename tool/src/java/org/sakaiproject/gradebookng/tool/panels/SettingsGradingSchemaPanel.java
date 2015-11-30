@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,12 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.IFormModelUpdateListener;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -29,7 +30,7 @@ import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 
-public class SettingsGradingSchemaPanel extends Panel {
+public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdateListener {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -39,6 +40,8 @@ public class SettingsGradingSchemaPanel extends Panel {
 	IModel<GbSettings> model;
 	
 	WebMarkupContainer schemaWrap;
+	ListView<GbGradingSchemaEntry> schemaView;
+	List<GradingScaleDefinition> gradingScales;
 	
 	/**
 	 * This is the currently PERSISTED grading scale that is persisted for this gradebook
@@ -61,13 +64,16 @@ public class SettingsGradingSchemaPanel extends Panel {
 		super.onInitialize();
 		
 		//get all known scales
-		final List<GradingScaleDefinition> gradingScales = this.businessService.getGradingScales();
+		gradingScales = this.businessService.getGradingScales();
 		
 		//get current one
 		configuredGradingScaleUid = this.model.getObject().getGradebookInformation().getSelectedGradingScaleUid();
 
 		//set the value for the dropdown
 		currentGradingScaleUid = configuredGradingScaleUid;
+		
+		//setup the grading scale schema entries
+		model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
 		
 		//create map of grading scales to use for the dropdown
 		final Map<String, String> gradingScaleMap = new LinkedHashMap<>();
@@ -77,7 +83,7 @@ public class SettingsGradingSchemaPanel extends Panel {
         		
 		//grading scale type chooser
 		List<String> gradingSchemaList = new ArrayList<String>(gradingScaleMap.keySet());
-		final DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradebookInformation.gradeScale"), gradingSchemaList, new ChoiceRenderer<String>() {
+		final DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradebookInformation.selectedGradingScaleUid"), gradingSchemaList, new ChoiceRenderer<String>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -94,46 +100,9 @@ public class SettingsGradingSchemaPanel extends Panel {
 		typeChooser.setModelObject(currentGradingScaleUid);
 		add(typeChooser);
 		
-		
-		// wrap the bottom percent values in a model that can be refetch on each call
-		IModel<List<GbGradingSchemaEntry>> gradingSchemaEntriesModel = new LoadableDetachableModel<List<GbGradingSchemaEntry>>() {
-	        @Override
-	        protected List<GbGradingSchemaEntry> load() {
-	            
-	        	//get configured values or defaults
-	        	//need to retain insertion order
-	        	Map<String,Double> bottomPercents = new LinkedHashMap<>();
-	        	
-	        	if(StringUtils.equals(currentGradingScaleUid, configuredGradingScaleUid)) {
-	        		
-	        		//get the values from the configured grading scale in this gradebook and sort accordingly
-	        		bottomPercents = sortBottomPercents(configuredGradingScaleUid, model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
-	        		
-
-	        		
-	        	} else {
-	        		//get the default values for the chosen grading scale and sort accordingly
-	        		for (GradingScaleDefinition gradingScale : gradingScales) {
-	        			
-	        			if(StringUtils.equals(currentGradingScaleUid, gradingScale.getUid())) {
-	    	        		bottomPercents = sortBottomPercents(currentGradingScaleUid, gradingScale.getDefaultBottomPercents());
-	        			}
-	        		}
-	        	}
-	        	
-	        	//convert map into list of objects which is easier to work with in the views 
-	    		List<GbGradingSchemaEntry> rval = new ArrayList<>();
-	    		for(Map.Entry<String, Double> entry: bottomPercents.entrySet()) {
-	    			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
-	    		}
-	        	
-	    		return rval;
-	        }
-	    };
-		
 		//render the grading schema table
 		schemaWrap = new WebMarkupContainer("schemaWrap");
-    	ListView<GbGradingSchemaEntry> schemaView = new ListView<GbGradingSchemaEntry>("schemaView", gradingSchemaEntriesModel) {
+    	schemaView = new ListView<GbGradingSchemaEntry>("schemaView", new PropertyModel<List<GbGradingSchemaEntry>>(model, "gradingSchemaEntries")) {
 
   			private static final long serialVersionUID = 1L;
 
@@ -169,8 +138,13 @@ public class SettingsGradingSchemaPanel extends Panel {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				
-				//set current selection and call for a repaint
+				//set current selection
 				currentGradingScaleUid = (String) typeChooser.getDefaultModelObject();
+				
+				//refresh data
+	    		model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
+				
+	    		//repaint
 				target.add(schemaWrap);
 			}
   		});
@@ -193,6 +167,57 @@ public class SettingsGradingSchemaPanel extends Panel {
 		}
 		rval.putAll(percents);
 				
+		return rval;
+	}
+
+	/**
+	 * Sync up the custom list we are using for the list view, back into the GrdebookInformation object
+	 */
+	@Override
+	public void updateModel() {
+		
+		List<GbGradingSchemaEntry> schemaEntries = schemaView.getModelObject();
+		
+		Map<String, Double> bottomPercents = new HashMap<>();
+		for(GbGradingSchemaEntry schemaEntry: schemaEntries) {
+			bottomPercents.put(schemaEntry.getGrade(), schemaEntry.getMinPercent());
+		}
+		
+		model.getObject().getGradebookInformation().setSelectedGradingScaleBottomPercents(bottomPercents);
+	}
+	
+	/**
+	 * Helper to setup the applicable grading schema entries, depending on current state
+	 * @return
+	 */
+	private List<GbGradingSchemaEntry> setupGradingSchemaEntries() {
+				
+		//get configured values or defaults
+    	//need to retain insertion order
+    	Map<String,Double> bottomPercents = new LinkedHashMap<>();
+		
+		if(StringUtils.equals(currentGradingScaleUid, configuredGradingScaleUid)) {
+    		
+    		//get the values from the configured grading scale in this gradebook and sort accordingly
+    		bottomPercents = sortBottomPercents(configuredGradingScaleUid, model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
+    		
+    	} else {
+    		//get the default values for the chosen grading scale and sort accordingly
+    		for (GradingScaleDefinition gradingScale : gradingScales) {
+    			
+    			if(StringUtils.equals(currentGradingScaleUid, gradingScale.getUid())) {
+	        		bottomPercents = sortBottomPercents(currentGradingScaleUid, gradingScale.getDefaultBottomPercents());
+    			}
+    		}
+    	}
+    	
+    	//convert map into list of objects which is easier to work with in the views 
+		List<GbGradingSchemaEntry> rval = new ArrayList<>();
+		for(Map.Entry<String, Double> entry: bottomPercents.entrySet()) {
+			
+			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
+		}
+		
 		return rval;
 	}
 	
