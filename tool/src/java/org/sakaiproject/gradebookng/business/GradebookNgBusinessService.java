@@ -15,9 +15,6 @@ import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
 
-import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
@@ -55,20 +52,20 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
-import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import lombok.Setter;
+import lombok.extern.apachecommons.CommonsLog;
 
 
 /**
@@ -1906,13 +1903,6 @@ public class GradebookNgBusinessService {
                 GradebookService.CATEGORY_TYPE_ONLY_CATEGORY == gradebook.getCategory_type();
     }
     
-    /**
-     * Get a list of grading scales configured in the system
-     * @return List of GradingScaleDEfinitions defined for this gradebook
-     */
-    public List<GradingScaleDefinition> getGradingScales() {
-        return this.gradebookFrameworkService.getAvailableGradingScaleDefinitions();
-    }
 
     /**
      * Comparator class for sorting a list of AssignmentOrders
