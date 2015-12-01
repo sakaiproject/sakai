@@ -23,7 +23,6 @@
 package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +37,17 @@ public class GradebookInformation implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String selectedGradingScaleUid;
+	
+	/**
+	 * The ID of the GradeMapping that should be used for this gradebook
+	 */
+	private String selectedGradeMappingId;
+	
+	/**
+	 * The list of GradeMappings defined for this gradebook but as a DTO representation
+	 */
+	private List<GradeMappingDefinition> gradeMappings;
+
 	private Map<String, Double> selectedGradingScaleBottomPercents;
 	private boolean displayReleasedGradeItemsToStudents;
 	
@@ -72,6 +82,18 @@ public class GradebookInformation implements Serializable {
 	}
 	public void setSelectedGradingScaleUid(String selectedGradingScaleUid) {
 		this.selectedGradingScaleUid = selectedGradingScaleUid;
+	}
+	public String getSelectedGradeMappingId() {
+		return selectedGradeMappingId;
+	}
+	public void setSelectedGradeMappingId(String selectedGradeMappingId) {
+		this.selectedGradeMappingId = selectedGradeMappingId;
+	}
+	public List<GradeMappingDefinition> getGradeMappings() {
+		return gradeMappings;
+	}
+	public void setGradeMappings(List<GradeMappingDefinition> gradeMappings) {
+		this.gradeMappings = gradeMappings;
 	}
 	public Map<String, Double> getSelectedGradingScaleBottomPercents() {
 		return selectedGradingScaleBottomPercents;

@@ -54,6 +54,7 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -358,9 +359,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		
 		GradebookInformation rval = new GradebookInformation();
+		
+		//add in all available grademappings for this gradebook
+		rval.setGradeMappings(getGradebookGradeMappings(gradebook.getGradeMappings()));
+		
+		//add in details about the selected one
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
 		if(selectedGradeMapping!=null) {
+		
 			rval.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+			rval.setSelectedGradeMappingId(Long.toString(selectedGradeMapping.getId()));
 			
 			//note that these are not the DEFAULT bottom percents but the configured ones per gradebook
 			rval.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
@@ -379,6 +387,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
 		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
 		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
+		
+		System.out.println("Mappings: " + gradebook.getGradeMappings());
 		
 		return rval;
 	}
@@ -2976,13 +2986,36 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("There is no gradebook associated with this id: " + gradebookUid);
 		}
 		
-		//update the grade mapping
-		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
+		//iterate all available grademappings for this gradebook and set the one that we have the ID for
+		Set<GradeMapping> gradeMappings = gradebook.getGradeMappings();
+		for(GradeMapping gradeMapping: gradeMappings) {
+			if(StringUtils.equals(Long.toString(gradeMapping.getId()), gbInfo.getSelectedGradeMappingId())) {
+				gradebook.setSelectedGradeMapping(gradeMapping);
+				
+				//TODO update the mapping values we have.
+				//TODO this is in the framework service, it may need to move...
+			}
+		}
 		
+		
+		
+		
+		
+		//update the grade map with hte passed in Map of values
+		//selectedGradeMapping.setGradeMap(gbInfo.getSelectedGradingScaleBottomPercents());
+		//TODO does this need to be persisted explicitly?
+				
+		//TODO may need to get the default grademappings here so we can choose the right one, then update the map values
+		
+		
+		
+		
+		
+		//
+		//gradebook.setSelectedGradeMapping(selectedGradeMapping);
 
 		//TODO set the grading scale stuff. the inverse of:
 		/*
-		GradebookInformation gradebookInfo = new GradebookInformation();
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
 		if(selectedGradeMapping!=null) {
 			gradebookInfo.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
@@ -3105,6 +3138,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Set getGradebookGradeMappings(final String gradebookUid) {
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		return this.getGradebookGradeMappings(gradebookId);
+	}
+	
+	/**
+	 * Map a set of GradeMapping to a list of GradeMappingDefinition
+	 * @param gradeMappings set of GradeMapping
+	 * @return list of GradeMappingDefinition
+	 */
+	private List<GradeMappingDefinition> getGradebookGradeMappings(Set<GradeMapping> gradeMappings) {
+		List<GradeMappingDefinition> rval = new ArrayList<>();
+		
+		for(GradeMapping mapping: gradeMappings) {
+			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(), mapping.getGradeMap(), mapping.getDefaultBottomPercents()));
+		}
+		return rval;
+		
 	}
 	
 }
