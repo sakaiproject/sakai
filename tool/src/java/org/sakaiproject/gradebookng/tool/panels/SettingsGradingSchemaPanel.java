@@ -28,7 +28,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
-import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
+import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 
 public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdateListener {
 	
@@ -41,17 +41,17 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	
 	WebMarkupContainer schemaWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
-	List<GradingScaleDefinition> gradingScales;
+	List<GradeMappingDefinition> gradeMappings;
 	
 	/**
-	 * This is the currently PERSISTED grading scale that is persisted for this gradebook
+	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
 	 */
-	String configuredGradingScaleUid;
+	String configuredGradeMappingId;
 	
 	/**
-	 * This is the currently SELECTED grading scale, from the dropdown
+	 * This is the currently SELECTED grade mapping, from the dropdown
 	 */
-	String currentGradingScaleUid;
+	String currentGradeMappingId;
 
 	public SettingsGradingSchemaPanel(String id, IModel<GbSettings> model) {
 		super(id, model);
@@ -63,41 +63,41 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	public void onInitialize() {
 		super.onInitialize();
 		
-		//get all known scales
-		gradingScales = this.businessService.getGradingScales();
+		//get all mappings available for this gradebook
+		gradeMappings = this.model.getObject().getGradebookInformation().getGradeMappings();
 		
 		//get current one
-		configuredGradingScaleUid = this.model.getObject().getGradebookInformation().getSelectedGradingScaleUid();
+		configuredGradeMappingId = this.model.getObject().getGradebookInformation().getSelectedGradeMappingId();
 
 		//set the value for the dropdown
-		currentGradingScaleUid = configuredGradingScaleUid;
+		currentGradeMappingId = configuredGradeMappingId;
 		
 		//setup the grading scale schema entries
 		model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
 		
 		//create map of grading scales to use for the dropdown
-		final Map<String, String> gradingScaleMap = new LinkedHashMap<>();
-        for (GradingScaleDefinition gradingScale : gradingScales) {
-        	gradingScaleMap.put(gradingScale.getUid(), gradingScale.getName());
+		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
+        for (GradeMappingDefinition gradeMapping : this.gradeMappings) {
+        	gradeMappingMap.put(gradeMapping.getId(), gradeMapping.getName());
         }
         		
 		//grading scale type chooser
-		List<String> gradingSchemaList = new ArrayList<String>(gradingScaleMap.keySet());
-		final DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradebookInformation.selectedGradingScaleUid"), gradingSchemaList, new ChoiceRenderer<String>() {
+		List<String> gradingSchemaList = new ArrayList<String>(gradeMappingMap.keySet());
+		final DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradebookInformation.selectedGradeMappingId"), gradingSchemaList, new ChoiceRenderer<String>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Object getDisplayValue(String gradingScaleUid) {
-                return gradingScaleMap.get(gradingScaleUid);
+			public Object getDisplayValue(String gradeMappingId) {
+                return gradeMappingMap.get(gradeMappingId);
             }
 
 			@Override
-            public String getIdValue(String gradingScaleUid, int index) {
-                return gradingScaleUid;
+            public String getIdValue(String gradeMappingId, int index) {
+                return gradeMappingId;
             }
         });        
 		typeChooser.setNullValid(false);
-		typeChooser.setModelObject(currentGradingScaleUid);
+		typeChooser.setModelObject(currentGradeMappingId);
 		add(typeChooser);
 		
 		//render the grading schema table
@@ -139,7 +139,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 			protected void onUpdate(AjaxRequestTarget target) {
 				
 				//set current selection
-				currentGradingScaleUid = (String) typeChooser.getDefaultModelObject();
+				currentGradeMappingId = (String) typeChooser.getDefaultModelObject();
 				
 				//refresh data
 	    		model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
@@ -152,15 +152,15 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	
 	/**
 	 * Helper to sort the bottom percents maps. Caters for both letter grade and P/NP types
-	 * @param uid UID of the grading schema so we know how to sort
+	 * @param gradingSchemaName name of the grading schema so we know how to sort
 	 * @param percents
 	 * @return
 	 */
-	private Map<String,Double> sortBottomPercents(String uid, Map<String,Double> percents) {
+	private Map<String,Double> sortBottomPercents(String gradingSchemaName, Map<String,Double> percents) {
 		
 		Map<String, Double> rval = null;
 				
-		if(StringUtils.equals(uid, "PassNotPassMapping")) {
+		if(StringUtils.equals(gradingSchemaName, "Pass / Not Pass")) {
 			rval = new TreeMap<>(Collections.reverseOrder()); //P before NP.
 		} else {
 			rval = new TreeMap<>(new LetterGradeComparator()); //letter grade mappings
@@ -196,17 +196,17 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
     	//need to retain insertion order
     	Map<String,Double> bottomPercents = new LinkedHashMap<>();
 		
-		if(StringUtils.equals(currentGradingScaleUid, configuredGradingScaleUid)) {
+		if(StringUtils.equals(currentGradeMappingId, configuredGradeMappingId)) {
     		
     		//get the values from the configured grading scale in this gradebook and sort accordingly
-    		bottomPercents = sortBottomPercents(configuredGradingScaleUid, model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
+    		bottomPercents = sortBottomPercents(configuredGradeMappingId, model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
     		
     	} else {
     		//get the default values for the chosen grading scale and sort accordingly
-    		for (GradingScaleDefinition gradingScale : gradingScales) {
-    			
-    			if(StringUtils.equals(currentGradingScaleUid, gradingScale.getUid())) {
-	        		bottomPercents = sortBottomPercents(currentGradingScaleUid, gradingScale.getDefaultBottomPercents());
+    		for (GradeMappingDefinition gradeMapping : this.gradeMappings) {
+           
+    			if(StringUtils.equals(currentGradeMappingId, gradeMapping.getId())) {
+	        		bottomPercents = sortBottomPercents(currentGradeMappingId, gradeMapping.getDefaultBottomPercents());
     			}
     		}
     	}
