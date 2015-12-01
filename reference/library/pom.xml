@@ -242,6 +242,18 @@
 								<artifactId>bootstrap-sass</artifactId>
 								<version>3.3.5.1</version>
 								<type>gem</type>
+								<exclusions>
+									<exclusion>
+										<groupId>rubygems</groupId>
+										<artifactId>autoprefixer-rails</artifactId>
+									</exclusion>
+								</exclusions>
+							</dependency>
+							<dependency>
+								<groupId>rubygems</groupId>
+								<artifactId>autoprefixer-rails</artifactId>
+								<version>6.1.1</version>
+								<type>gem</type>
 							</dependency>
 						</dependencies>
 					</plugin>
