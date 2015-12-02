@@ -365,9 +365,6 @@
 
 
 	<!-- Hibernate objects api-impl mapping _________________________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.CommonStatGrpByDate"
-		class="org.sakaiproject.sitestats.impl.CommonStatGrpByDateImpl">
-	</bean>	
 	<bean id="org.sakaiproject.sitestats.api.Prefs"
 		class="org.sakaiproject.sitestats.impl.PrefsImpl">
 	</bean>	

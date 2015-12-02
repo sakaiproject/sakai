@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -40,7 +39,6 @@ import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class FakeStatsManager implements StatsManager {
 
@@ -71,11 +69,6 @@ public class FakeStatsManager implements StatsManager {
 
 	public List<Stat> getEventStats(String siteId, List<String> events, Date date, Date date2, List<String> userIds, boolean inverseUserSelection, PagingPosition page, List<String> totalsBy,
 			String sortBy, boolean sortAscending, int maxResults) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId, List<String> events, Date date, Date date2, List<String> userIds, boolean inverseUserSelection, PagingPosition page) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -127,12 +120,6 @@ public class FakeStatsManager implements StatsManager {
 
 	public List<Stat> getResourceStats(String siteId, String resourceAction, List<String> resourceIds, Date date, Date date2, List<String> userIds, boolean inverseUserSelection, PagingPosition page,
 			List<String> totalsBy, String sortBy, boolean sortAscending, int maxResults) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(String siteId, String resourceAction, List<String> resourceIds, Date date, Date date2, List<String> userIds,
-			boolean inverseUserSelection, PagingPosition page) {
 		// TODO Auto-generated method stub
 		return null;
 	}

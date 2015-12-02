@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -205,15 +204,6 @@ public class MockStatsManager implements StatsManager {
 	}
 
 	@Override
-	@Deprecated
-	public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId,
-			List<String> events, Date iDate, Date fDate, List<String> userIds,
-			boolean inverseUserSelection, PagingPosition page) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<Stat> getEventStats(String siteId, List<String> events,
 			Date iDate, Date fDate, List<String> userIds,
 			boolean inverseUserSelection, PagingPosition page,
@@ -265,16 +255,6 @@ public class MockStatsManager implements StatsManager {
 	@Deprecated
 	public List<ResourceStat> getResourceStats(String siteId, String searchKey,
 			Date iDate, Date fDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	@Deprecated
-	public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(
-			String siteId, String resourceAction, List<String> resourceIds,
-			Date iDate, Date fDate, List<String> userIds,
-			boolean inverseUserSelection, PagingPosition page) {
 		// TODO Auto-generated method stub
 		return null;
 	}
