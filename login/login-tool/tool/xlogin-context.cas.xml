@@ -36,7 +36,7 @@
 
     <bean id="org.jasig.cas.client.util.HttpServletRequestWrapperFilter" class="org.jasig.cas.client.util.HttpServletRequestWrapperFilter"></bean> 
 
-    <bean id="org.springframework.security.web.FilterChainProxy"
+    <bean id="springSecurityFilterChain"
           class="org.springframework.security.web.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/container/**"

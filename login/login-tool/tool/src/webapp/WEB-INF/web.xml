@@ -24,17 +24,13 @@
     </filter>
 
      <filter>
-         <filter-name>Spring Delegated Filter</filter-name>
+         <filter-name>springSecurityFilterChain</filter-name>
          <filter-class>org.sakaiproject.login.springframework.SafeDelegatingFilterProxy</filter-class>
-         <init-param>
-             <param-name>targetBeanName</param-name>
-             <param-value>org.springframework.security.web.FilterChainProxy</param-value>
-         </init-param>
      </filter>
 
      <filter-mapping>
-         <filter-name>Spring Delegated Filter</filter-name>
-         <url-pattern>/container</url-pattern>
+         <filter-name>springSecurityFilterChain</filter-name>
+         <url-pattern>/container/*</url-pattern>
          <dispatcher>REQUEST</dispatcher>
          <dispatcher>FORWARD</dispatcher>
          <dispatcher>INCLUDE</dispatcher>
