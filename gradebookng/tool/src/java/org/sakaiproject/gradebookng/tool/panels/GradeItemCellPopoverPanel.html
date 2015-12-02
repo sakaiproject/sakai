@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+    <a wicket:id="closePopoverLink" href="javascript:void(0);" class="gb-popover-close"></a>
+    <ul class="gb-popover-notifications">
+        <li wicket:id="saveErrorNotification" class="gb-popover-notification-error text-danger"><span wicket:id="message"></span></li>
+        <li wicket:id="isInvalidNotification" class="gb-popover-notification-invalid text-warning"><span wicket:id="message"></span></li>
+        <li wicket:id="concurrentEditNotification" class="gb-popover-notification-concurrentedit text-danger"><span wicket:id="message"></span></li>
+        <li wicket:id="isOverLimitNotification" class="gb-popover-notification-overlimit text-warning"><span wicket:id="message"></span></li>
+        <li wicket:id="hasCommentNotification" class="gb-popover-notification-has-comment text-info">
+            <span wicket:id="message"></span>
+            <blockquote>
+                <p><span wicket:id="snippet"></span></p>
+            </blockquote>
+            <p wicket:id="editCommentContainer"><a href="javascript:void(0);" class="gb-popover-edit-comments" aria-haspopup="true"><wicket:message key="comment.option.edit" /></a></p>
+        </li>
+        <li wicket:id="isExternalNotification" class="gb-popover-notification-is-external text-info"><span wicket:id="message"></span></li>
+    </ul>
+
+</wicket:panel>
+</body>
+</html>

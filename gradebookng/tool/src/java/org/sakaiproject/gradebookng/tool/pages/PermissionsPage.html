@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+
+<wicket:head>
+	<wicket:link>
+		<link rel="stylesheet" type="text/css" href="/gradebookng-tool/styles/gradebook-permissions.css"/>
+	</wicket:link>
+</wicket:head>
+
+<wicket:extend>
+	<h2><wicket:message key="permissionspage.main.heading">Grader Perms</wicket:message></h2>
+
+	<div wicket:id="instructions" class="instruction">Instruction text goes here</div>
+
+	<h3><wicket:message key="permissionspage.instructions.choose" /></h3>
+
+	<div class="form-inline">
+		<select wicket:id="ta" class="form-control">
+			<option>TA 1</option>
+		</select>
+	</div>
+
+	<div class="instruction" wicket:id="noPermissions" />
+
+	<form wicket:id="form" class="form-inline gb-permissions-form">
+		
+		<wicket:enclosure child="viewCourseGrade">
+			<div class="checkbox gb-permissions-view-grade">
+				<label>
+					<input wicket:id="viewCourseGrade" type="checkbox" />
+					<wicket:message key="permissionspage.instructions.coursegrade" />
+				</label>
+			</div>
+		</wicket:enclosure>
+
+		<div class="gb-permissions-rules">
+			<div wicket:id="permissions" class="gb-permissions-rule">
+				<span wicket:id="can">Can</span>
+				<select wicket:id="function" class="form-control"/>
+				<select wicket:id="category" class="form-control"/>
+				<span wicket:id="in">in</span>
+				<select wicket:id="group" class="form-control"/>
+				<button wicket:id="remove" class="btn btn-link"><wicket:message key="button.remove" /></button>
+			</div>
+		</div>
+
+		<div class="gb-permissions-add-rule">
+			<button wicket:id="addRule" type="submit" class="btn btn-default gb-add-permission-rule"><wicket:message key="permissionspage.addrule" /></button>
+		</div>
+
+		<div>
+			<button wicket:id="submit" class="btn btn-primary"><wicket:message key="button.savechanges" /></button>
+			<button wicket:id="clear" class="btn btn-link"><wicket:message key="button.clear" /></button>
+		</div>
+	</form>
+
+</wicket:extend>
+</body>
+</html>
