@@ -21,19 +21,24 @@
 
 package org.sakaiproject.component.impl;
 
-import java.io.IOException;
+import java.io.File;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.util.StringUtils;
+import org.springframework.context.annotation.AnnotationConfigUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
@@ -45,63 +50,52 @@ import org.springframework.web.context.WebApplicationContext;
  */
 public class SakaiContextLoader extends ContextLoader
 {
-	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(SakaiContextLoader.class);
-
-	/** Name of servlet context parameter that can specify the config location for loading into the shared component set. */
-	public static final String SHARED_LOCATION_PARAM = "contextSharedLocation";
+	private static final Log log = LogFactory.getLog(SakaiContextLoader.class);
+	public static final String SPRING_CONTEXT_SUFFIX = "-context.xml";
 
 	/**
-	 * Initialize the local ApplicationContext, link it to the shared context, and load shared definitions into the shared context.
-	 * 
-	 * @param servletContext
-	 *        current servlet context
-	 * @return the new WebApplicationContext
-	 * @throws BeansException
-	 *         if the context couldn't be initialized
-	 */
-	@Override
-	public WebApplicationContext initWebApplicationContext(ServletContext servletContext) throws BeansException
-	{
-		WebApplicationContext rv = super.initWebApplicationContext(servletContext);
+     * Allows loading/override of custom bean definitions from sakai.home
+     *
+     * <p>The pattern is the 'servlet_name-context.xml'</p>
+     *
+     * @param servletContext current servlet context
+     * @return the new WebApplicationContext
+     * @throws org.springframework.beans.BeansException
+     *          if the context couldn't be initialized
+     */
+    @Override
+    public WebApplicationContext initWebApplicationContext(ServletContext servletContext) throws BeansException {
 
-		// if we have a parent and any shared bean definitions, load them into the parent
-		ConfigurableApplicationContext parent = (ConfigurableApplicationContext) rv.getParent();
-		if (parent != null)
-		{
-			String sharedConfig = servletContext.getInitParameter(SHARED_LOCATION_PARAM);
-			if (sharedConfig != null)
-			{
-				String[] locations = StringUtils.tokenizeToStringArray(sharedConfig,
-						ConfigurableWebApplicationContext.CONFIG_LOCATION_DELIMITERS);
-				if (locations != null)
-				{
-					XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((BeanDefinitionRegistry) parent.getBeanFactory());
-
-					for (int i = 0; i < locations.length; i++)
-					{
-						try
-						{
-							reader.loadBeanDefinitions(rv.getResources(locations[i]));
-						}
-						catch (IOException e)
-						{
-							M_log.warn("exception loading into parent: " + e);
-						}
-					}
+        ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) super.initWebApplicationContext(servletContext);
+        // optionally look in sakai home for additional bean deifinitions to load
+		if (cwac != null) {
+			final String servletName = servletContext.getServletContextName(); 
+			String location = getHomeBeanDefinitionIfExists(servletName);
+			if (StringUtils.isNotBlank(location)) {
+				log.debug("Servlet " + servletName + " is attempting to load bean definition [" + location + "]");
+				XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((BeanDefinitionRegistry) cwac.getBeanFactory());
+				try {
+					int loaded = reader.loadBeanDefinitions(new FileSystemResource(location));
+					log.info("Servlet " + servletName + " loaded " + loaded + " beans from [" + location + "]");
+					AnnotationConfigUtils.registerAnnotationConfigProcessors(reader.getRegistry());
+					cwac.getBeanFactory().preInstantiateSingletons();
+				} catch (BeanDefinitionStoreException bdse) {
+					log.warn("Failure loading beans from [" + location + "]", bdse);
+				} catch (BeanCreationException bce) {
+					log.warn("Failure instantiating beans from [" + location + "]", bce);
 				}
 			}
 		}
-
-		return rv;
-	}
+        return cwac;
+    }
 
 	/**
-	 * Access the shared ApplicationContext
+	 * Spring allows a parent ApplicationContext to be set during the creation of a new ApplicationContext
+	 *
+	 * Sakai sets the SakaiApplicationContext as the parent which managed by the ComponentManager
 	 * 
-	 * @param servletContext
-	 *        (not used)
-	 * @return The shared application context
+	 * @param servletContext (not used)
+	 * @return the shared SakaiApplicationContext
 	 */
 	@Override
 	protected ApplicationContext loadParentContext(ServletContext servletContext) throws BeansException
@@ -110,5 +104,26 @@ public class SakaiContextLoader extends ContextLoader
 		ConfigurableApplicationContext sharedAc = ((SpringCompMgr) ComponentManager.getInstance()).getApplicationContext();
 
 		return sharedAc;
+	}
+
+	private String getHomeBeanDefinitionIfExists(String servletName) {
+		if (StringUtils.isBlank(servletName)) {
+			return null;
+		}
+
+		if (StringUtils.isNotBlank(servletName)) {
+			String name = servletName + SPRING_CONTEXT_SUFFIX;
+			String path = ServerConfigurationService.getSakaiHomePath();
+			String location = path + name;
+
+			log.debug("Servlet " + servletName + " is checking for a bean definition at sakai.home/" + name);
+			if (new File(location).canRead()) {
+				log.info("Servlet " + servletName + " located an additional bean definition at sakai.home/" + name);
+				return location;
+			} else {
+				log.debug("Servlet " + servletName + " did not find a bean definition at sakai.home/" + name);
+			}
+		}
+		return null;
 	}
 }
