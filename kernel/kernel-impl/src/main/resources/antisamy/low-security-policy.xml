@@ -2646,6 +2646,10 @@
             <attribute name="accentunder"/>
             <attribute name="align"/>
         </tag>
+
+        <!-- HTML5 figure and figcaption http://html5doctor.com/the-figure-figcaption-elements/ -->
+        <tag name="figure" action="validate"/>
+        <tag name="figcaption" action="validate"/>
     </tag-rules>
 
 
