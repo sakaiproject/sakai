@@ -11,6 +11,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
@@ -215,10 +216,12 @@ public class GradeItemCellPanel extends Panel {
 					}
 
 					//refresh the components we need
-					send(getPage(), Broadcast.BREADTH, new ScoreChangedEvent(studentUuid, categoryId, target));
 					target.addChildren(getPage(), FeedbackPanel.class);
 					target.add(getParentCellFor(this));
 					target.add(this);
+
+					//trigger async event that score has been updated and now displayed
+					target.appendJavaScript(String.format("$('#%s').trigger('scoreupdated.sakai')", this.getMarkupId()));
 
 					refreshNotifications();
 				}
@@ -298,9 +301,14 @@ public class GradeItemCellPanel extends Panel {
 			};
 
 			gradeCell.setType(String.class);
-						
+			gradeCell.add(new AjaxEventBehavior("scoreupdated.sakai") {
+				@Override
+				protected void onEvent(AjaxRequestTarget target) {
+					send(getPage(), Broadcast.BREADTH, new ScoreChangedEvent(studentUuid, categoryId, target));
+				}
+			});
 			gradeCell.setOutputMarkupId(true);
-						
+
 			add(gradeCell);
 		}
 
