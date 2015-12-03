@@ -282,6 +282,12 @@ function hiddenLinkOnClick(){
          <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
          <h:outputText value=" - #{commonMessages.multipl_mc_ss} (#{questionScores.maxPoint})"/>
          <f:verbatim></span></f:verbatim>
+     </h:panelGroup>
+	 <h:panelGroup rendered="#{questionScores.typeId == '16'}"><!-- // IMAGEMAP_QUESTION -->
+		 <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
+		 <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+		 <h:outputText value=" - #{evaluationMessages.q_imq} (#{questionScores.maxPoint})"/>
+		 <f:verbatim></span></f:verbatim>
       </h:panelGroup>
     <h:panelGroup rendered="#{questionScores.typeId == '14'}">
       <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_emi}"/>
@@ -355,6 +361,11 @@ function hiddenLinkOnClick(){
   <h:panelGroup rendered="#{questionScores.typeId == '15'}"><!-- // CALCULATED_QUESTION -->
     <f:subview id="calculatedQuestion">
     <%@ include file="/jsf/evaluation/item/displayCalculatedQuestion.jsp" %>
+    </f:subview>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{questionScores.typeId == '16'}"><!-- // IMAGEMAP_QUESTION -->
+    <f:subview id="imageMapQuestion">
+    <%@ include file="/jsf/evaluation/item/displayImageMapQuestion.jsp" %>
     </f:subview>
   </h:panelGroup>
   </h:column>
@@ -948,7 +959,7 @@ function hiddenLinkOnClick(){
         </h:panelGroup>
       </f:facet>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5'}" >
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5' && questionScores.typeId != '16'}" >
       	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
       </h:outputText>
       
@@ -993,6 +1004,17 @@ function hiddenLinkOnClick(){
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
+      
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
+ 		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
+ 			value="#imageMapContainer" 
+ 			onclick="javascript:loadAnswer('#{description.answer}');" 
+ 			onkeypress="javascript:loadAnswer('#{description.answer}');">
+ 			
+ 			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
+ 		</h:outputLink>
+      </h:panelGroup>
+      
     </h:column>
 
     <h:column rendered="#{questionScores.sortType eq 'answer' && questionScores.sortAscending}">
@@ -1012,7 +1034,7 @@ function hiddenLinkOnClick(){
           </h:commandLink>  
           </h:panelGroup>  
       </f:facet>
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5'}" >
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5' and questionScores.typeId != '16'}" >
       	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
       </h:outputText>
 
@@ -1051,6 +1073,15 @@ function hiddenLinkOnClick(){
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
+       <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
+		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
+			value="#imageMapContainer" 
+			onclick="javascript:loadAnswer('#{description.answer}');" 
+			onkeypress="javascript:loadAnswer('#{description.answer}');">
+			
+			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
+		</h:outputLink>
+      </h:panelGroup>
     </h:column>    
     
     <h:column rendered="#{questionScores.sortType eq 'answer' && !questionScores.sortAscending}">
@@ -1070,7 +1101,7 @@ function hiddenLinkOnClick(){
           </h:commandLink>    
           </h:panelGroup>
       </f:facet>
-	<h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5'}" />
+	<h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5' and questionScores.typeId != '16'}" />
 
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
     <h:outputText value="#{description.answer}" escape="false"/>
@@ -1104,6 +1135,15 @@ function hiddenLinkOnClick(){
         <f:subview id="displayAudioRecording4">
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
+		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
+			value="#imageMapContainer" 
+			onclick="javascript:loadAnswer('#{description.answer}');" 
+			onkeypress="javascript:loadAnswer('#{description.answer}');">
+			
+			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
+		</h:outputLink>
       </h:panelGroup>
     </h:column> 
 
