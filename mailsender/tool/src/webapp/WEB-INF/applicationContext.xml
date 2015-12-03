@@ -20,6 +20,18 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
+	<!-- use our version of the usual resolver. It differs only in expecting
+	     multiple occurrences of the same resolver -->
+
+	<bean id="viewTemplateResolver"
+	      class="org.sakaiproject.mailsender.tool.beans.BasicTemplateResolver">
+	  <property name="templateExtensionInferrer"
+		    ref="templateExtensionInferrer" />
+	  <property name="TPIAggregator" ref="TPIAggregator" />
+	  <property name="resourceLoader" ref="resourceLoader" />
+	  <property name="reflectiveCache" ref="reflectiveCache"/>
+	</bean>
+
 	<!-- Override the default style of user messages -->
 	<bean id="messageTemplateContributor" parent="templateContributorParent">
 		<property name="baseDirectory" value="component-templates/" />
