@@ -1580,7 +1580,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     while (retryCount > 0){ 
       try {
           for (ItemGradingData itemGradingData : c) {
-              getHibernateTemplate().saveOrUpdate(c);
+              getHibernateTemplate().saveOrUpdate(itemGradingData);
           }
         retryCount = 0;
       }
