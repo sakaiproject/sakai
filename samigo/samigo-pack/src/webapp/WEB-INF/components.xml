@@ -6,6 +6,10 @@
 	<bean id="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"
 		class="org.sakaiproject.tool.assessment.samlite.impl.SamLiteServiceImpl"
 		init-method="init"/>
+		
+	<bean id="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"
+		class="org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl"
+		singleton="true"/>
 
   <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.samigo"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">

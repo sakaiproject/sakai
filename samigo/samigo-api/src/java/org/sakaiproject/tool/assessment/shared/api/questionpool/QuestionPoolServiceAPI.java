@@ -135,5 +135,7 @@ public interface QuestionPoolServiceAPI
   public QuestionPoolDataIfc savePool(QuestionPoolDataIfc pool);
 
   public Map getQuestionPoolItemMap();
+  
+  public String getUserPoolAttachmentReport(String userId, Long poolId, String contextToReplace);
 
 }
