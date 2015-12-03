@@ -222,19 +222,6 @@ public interface StatsManager {
 	@Deprecated public List<EventStat> getEventStats(String siteId, List<String> events, String searchKey, Date iDate, Date fDate);
 
 	/**
-	 * This method is deprecated and will be removed in version 2.1.
-	 * Use {@link #getEventStats(String, List, Date, Date, List, boolean, PagingPosition, String, String, boolean)} instead.<br/>
-	 * Get event statistics grouped by user, site, event and date
-	 * @param siteId The site ID
-	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService})
-	 * @param searchKey An user ID, first or last name
-	 * @param iDate The initial date
-	 * @param fDate The final date 
-	 * @param page The PagePosition subset of items to return
-	 * @return a list of {@link CommonStatGrpByDate} objects
-	 */
-	@Deprecated public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId, List<String> events, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
-
 	/**
 	 * Get event statistics (totals by user/event/date).
 	 * @param siteId The site ID (can be null)
@@ -355,19 +342,6 @@ public interface StatsManager {
 	 */
 	@Deprecated public List<ResourceStat> getResourceStats(String siteId, String searchKey, Date iDate, Date fDate);
 
-	/**
-	 * This method is deprecated and will be removed in version 2.1.
-	 * Use {@link #getResourceStats(String, String, List, Date, Date, List, boolean, PagingPosition, String, String, boolean)} instead.<br/>
-	 * Get resource statistics grouped by user, site, resource and date
-	 * @param siteId The site ID
-	 * @param searchKey An user ID, first or last name
-	 * @param iDate The initial date
-	 * @param fDate The final date
-	 * @param page The PagePosition subset of items to return
-	 * @return a list of {@link CommonStatGrpByDate} objects
-	 */
-	@Deprecated public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(String siteId, String resourceAction, List<String> resourceIds, Date iDate, final Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
-	
 	/**
 	 * Get resource statistics (totals by user/event/date).
 	 * @param siteId The site ID (can be null)

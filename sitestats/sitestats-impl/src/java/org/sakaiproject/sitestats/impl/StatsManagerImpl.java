@@ -62,7 +62,6 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.Prefs;
 import org.sakaiproject.sitestats.api.PrefsData;
@@ -91,7 +90,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -1103,100 +1101,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return (List<EventStat>) getHibernateTemplate().execute(hcb);
 		}
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStatsGrpByDate(java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition)
-	 */
-	@Deprecated public List<CommonStatGrpByDate> getEventStatsGrpByDate(
-			final String siteId,
-			final List<String> events, 
-			final Date iDate, final Date fDate,
-			final List<String> userIds,
-			final boolean inverseUserSelection,
-			final PagingPosition page) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			String usersStr = "";
-			String iDateStr = "";
-			String fDateStr = "";
-			if(userIds != null && !userIds.isEmpty())
-				usersStr = "and s.userId in (:users) ";
-			if(iDate != null)
-				iDateStr = "and s.date >= :idate ";
-			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousAccessEvents)
-				usersStr += " and s.userId != '?' ";
-			final String hql = "select s.siteId, s.userId, s.eventId, sum(s.count), max(s.date) " + 
-					"from EventStatImpl as s " +
-					"where s.siteId = :siteid " +
-					"and s.eventId in (:events) " +
-					usersStr + iDateStr + fDateStr +
-					"group by s.siteId, s.userId, s.eventId";
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					q.setParameterList("events", events);
-					if(userIds != null && !userIds.isEmpty())
-						q.setParameterList("users", userIds);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					if(page != null){
-						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst() + 1);
-					}
-					List<Object[]> records = q.list();
-					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
-					Set<String> siteUserIds = null;
-					if(inverseUserSelection)
-						siteUserIds = getSiteUsers(siteId);
-					if(records.size() > 0){
-						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
-							Object[] s = iter.next();
-							if(!inverseUserSelection){
-								CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-								c.setSiteId((String)s[0]);
-								c.setUserId((String)s[1]);
-								c.setRef((String)s[2]);
-								c.setCount(((Long)s[3]).longValue());
-								c.setDate((Date)s[4]);
-								results.add(c);
-							}else{
-								siteUserIds.remove((String)s[1]);
-							}
-						}
-					}
-					if(inverseUserSelection){
-						long id = 0;
-						Iterator<String> iU = siteUserIds.iterator();
-						while(iU.hasNext()){
-							String userId = iU.next();
-							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-							c.setId(id++);
-							c.setUserId(userId);
-							c.setSiteId(siteId);
-							c.setCount(0);
-							results.add(c);
-						}
-					}
-					return results;	
-				}
-			};
-			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
-		}
-	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStats(java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
 	 */
@@ -1765,112 +1670,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return (List<ResourceStat>) getHibernateTemplate().execute(hcb);
 		}
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStatsGrpByDateAndAction(java.lang.String, java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition)
-	 */
-	@Deprecated public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(
-			final String siteId,  
-			final String resourceAction,
-			final List<String> resourceIds,
-			final Date iDate, final Date fDate,
-			final List<String> userIds,
-			final boolean inverseUserSelection,
-			final PagingPosition page) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{			
-			String usersStr = "";
-			String resourcesActionStr = "";
-			String resourcesStr = "";
-			String iDateStr = "";
-			String fDateStr = "";
-			if(userIds != null && !userIds.isEmpty())
-				usersStr = "and s.userId in (:users) ";
-			if(resourceAction != null)
-				resourcesActionStr = "and s.resourceAction = :action ";
-			if(resourceIds != null && !resourceIds.isEmpty())
-				resourcesStr = "and s.resourceRef in (:resources) ";
-			if(iDate != null)
-				iDateStr = "and s.date >= :idate ";
-			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousAccessEvents)
-				usersStr += " and s.userId != '?' ";
-			final String hql = "select s.siteId, s.userId, s.resourceRef, s.resourceAction, sum(s.count), max(s.date) " + 
-					"from ResourceStatImpl as s " +
-					"where s.siteId = :siteid " +
-					usersStr + resourcesActionStr + resourcesStr + iDateStr + fDateStr +
-					"group by s.siteId, s.userId, s.resourceRef, s.resourceAction";
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					if(userIds != null && !userIds.isEmpty())
-						q.setParameterList("users", userIds);
-					if(resourceAction != null)
-						q.setString("action", resourceAction);
-					if(resourceIds != null && !resourceIds.isEmpty())
-						q.setParameterList("resources", resourceIds);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					if(page != null){
-						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst() + 1);
-					}
-					List<Object[]> records = q.list();
-					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
-					Set<String> siteUserIds = null;
-					if(inverseUserSelection)
-						siteUserIds = getSiteUsers(siteId);
-					if(records.size() > 0){
-						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
-							Object[] s = iter.next();
-							if(!inverseUserSelection){
-								CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-								c.setSiteId((String)s[0]);
-								c.setUserId((String)s[1]);
-								c.setRef((String)s[2]);
-								c.setRefImg(getResourceImage((String)s[2]));
-								c.setRefUrl(getResourceURL((String)s[2]));
-								c.setRefAction((String)s[3]);
-								c.setCount(((Long)s[4]).longValue());
-								c.setDate((Date)s[5]);
-								results.add(c);
-							}else{
-								siteUserIds.remove((String)s[1]);
-							}
-						}
-					}
-					if(inverseUserSelection){
-						long id = 0;
-						Iterator<String> iU = siteUserIds.iterator();
-						while(iU.hasNext()){
-							String userId = iU.next();
-							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-							c.setId(id++);
-							c.setUserId(userId);
-							c.setSiteId(siteId);
-							c.setCount(0);
-							results.add(c);
-						}
-					}
-					return results;	
-				}
-			};
-			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
-		}
-	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStats(java.lang.String, java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
 	 */
