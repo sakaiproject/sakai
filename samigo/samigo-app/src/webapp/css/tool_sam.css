@@ -1079,6 +1079,11 @@ td.feedbackColumn2 {
 	border: 2px solid #004B8D;
 	padding-bottom: 1em;
 }
+
+div#questionProgressPanel div.tier1 {
+	margin-left: 12px;
+}
+
 #questionProgressClick {
 	height: 200px;
 	width: 40px;
@@ -1103,7 +1108,7 @@ td.feedbackColumn2 {
 .questionProgressTable {
 
 }
-.questionProgressTable td {
+.questionProgressTable td, .questionProgressTable_linear td {
 	border: 1px solid #ddd;
 	text-align: right;
 	background-color: #ddd;
@@ -1153,4 +1158,76 @@ p.progressItem img {
 	/* Internet Explorer */
 	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 
+}
+
+button.partLink {
+	margin: 0 !important;
+	border: none !important;
+	padding: 0 !important;
+	color: #069;
+	cursor: pointer;
+	background-color: transparent;
+	display: inline;
+	outline: none;
+	outline-offset: 0;
+
+	/* Below added to handle long part titles */
+	line-height: 1;
+	overflow: hidden;
+	text-align: left;
+	width: 160px;
+}
+
+button.partLink:hover {
+	color: #30a7fc;
+}
+
+button.partLink::-moz-focus-inner {
+	border: none;
+	padding: 0;
+}
+
+div[id^='partTable'] {
+	display: none;
+	padding-bottom: 5px;
+}
+
+.numberOfQuestionsInPart {
+	position: absolute;
+	right: 5px;
+}
+.partTitle {
+	border-bottom: solid grey 1px;
+	display: inline-block;
+	width: 295px;
+	margin-bottom: 3px;
+	padding-bottom: 5px;
+	line-height: 1;
+}
+
+input[type='reset'].linearButton {
+	background: none transparent;
+	margin: 2px !important;
+	border: none !important;
+	padding: 0 !important;
+	outline: none;
+	outline-offset: 0;
+	box-shadow: none !important;
+	height: 100% !important;
+}
+
+.linearPastQuestion {
+	opacity: 0.4;
+	filter: alpha(opacity=40); /* msie */
+	background-color: inherit;
+}
+
+.arrow {
+	vertical-align: middle;
+	position: absolute;
+	right: 280px;
+}
+
+.hiddenArrow {
+	display: none;
 }
