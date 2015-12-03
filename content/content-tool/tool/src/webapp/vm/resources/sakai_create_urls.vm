@@ -40,6 +40,7 @@
 				
 				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
+					<input type="hidden" name="extension${DOT}$i" id="extension${DOT}$i" value=".URL" />
 					<p class="shorttext" style="border:none">
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
 						## TODO add onchange event handler to seed file-name into displayName field

@@ -26,15 +26,12 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.text.Format;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -1270,6 +1267,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				try
 				{
 					ContentHostingService.commitResource(resource, notification);
+					conditionsHelper.notifyCondition(resource);
 					item_added = true;
 					new_resources.add(resource);
 				}
@@ -6361,6 +6359,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					try
 					{
 						ContentHostingService.commitResource(resource, noti);
+						conditionsHelper.notifyCondition(resource);
 						if(action instanceof InteractionAction)
 						{
 						    InteractionAction iAction = (InteractionAction) action;
@@ -9232,41 +9231,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				continue;
 			}
 			String basename = name.trim();
-            // SAK-11816 - allow much longer URLs by correcting a long basename, make sure no URL resource id exceeds 36 chars
             String extension = ".URL";
-            /* removed this old method which produced really long ids (mostly because of a really long extension)
-            String extension = "";
-			if(name.contains("."))
-			{
-				String[] parts = name.split("\\.");
-				basename = parts[0];
-				if(parts.length > 1)
-				{
-					extension = parts[parts.length - 1];
-				}
-				
-				for(int i = 1; i < parts.length - 1; i++)
-				{
-					basename += "." + parts[i];
-					// extension = parts[i + 1];
-				}
-			}
-			*/
-            if (basename != null && basename.length() > 32) {
-			    // lose the http first
-                if (basename.startsWith("http:")) {
-                    basename = basename.substring(7);
-                }
-                if (basename.length() > 32) {
-                    // max of 18 chars from the URL itself
-                    basename = basename.substring(0, 18);
-                    // add a timestamp to differentiate it (+14 chars)
-                    Format f= new SimpleDateFormat("yyyyMMddHHmmss");
-                    basename += f.format(new Date());
-                    // total new length of 32 chars
-                }
-            }
-            // SAK-11816 - END
+            
             try
 			{
 				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
@@ -9330,6 +9296,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				try
 				{
 					ContentHostingService.commitResource(resource, notification);
+					conditionsHelper.notifyCondition(resource);
 					item_added = true;
 					new_resources.add(resource);
 				}

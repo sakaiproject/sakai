@@ -119,6 +119,10 @@ public class ResourceConditionsHelper {
 			
 			String containingCollectionId = item.containingCollectionId;
 			String resourceId = item.getId();
+			String extension = params.get("extension" + ListItem.DOT + index);
+			if (extension != null && !extension.equals("")) {
+				resourceId = resourceId + extension;
+			}
 			if (! resourceId.startsWith(containingCollectionId)) {
 				resourceId = containingCollectionId + resourceId;
 				if (item.isCollection() && !resourceId.endsWith("/")) resourceId = resourceId + "/";

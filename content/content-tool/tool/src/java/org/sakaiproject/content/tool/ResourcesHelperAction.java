@@ -29,9 +29,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +43,7 @@ import java.util.Properties;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.PrintWriter;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
@@ -1245,31 +1249,48 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			ResourceToolActionPipe pipe = pipes.get(actualCount);
 			
 			String url = params.getString("content" + ListItem.DOT + i );
-				if(url == null)
-				{
-					continue;
-				}
-				else
-				{
-					try
-					 {
-						 url = ResourcesAction.validateURL(url);
-					 }
-					 catch (MalformedURLException e)
-					 {
-						addAlert(state, rb.getFormattedMessage("url.invalid", new String[]{url}));
-						 continue;
-					 }
-					
-					 try {
-						 pipe.setRevisedContent(url.getBytes(ResourcesAction.UTF_8_ENCODING));
-					 } catch (UnsupportedEncodingException e) {
-						 pipe.setRevisedContent(url.getBytes());
-					 }
-				}
+			if(url == null)
+			{
+				continue;
+			}
+			else
+			{
+				try
+				 {
+					 url = ResourcesAction.validateURL(url);
+				 }
+				 catch (MalformedURLException e)
+				 {
+					 addAlert(state, rb.getFormattedMessage("url.invalid", new String[]{url}));
+					 continue;
+				 }
 				
-				pipe.setFileName(Validator.escapeResourceName(url));
-				pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
+				 try {
+					 pipe.setRevisedContent(url.getBytes(ResourcesAction.UTF_8_ENCODING));
+				 } catch (UnsupportedEncodingException e) {
+					 pipe.setRevisedContent(url.getBytes());
+				 }
+			}
+			// SAK-11816 - allow much longer URLs by correcting a long basename, make sure no URL resource id exceeds 36 chars
+			// Make the URL a length of 32 chars. This is because the basename registered in CR has to be the same than the basename in resources 
+			if (url != null) {
+			    // url with a mininum of 18 chars.
+                while (url.length() < 18) {
+                	url = url.concat(ListItem.DOT);
+                }
+                
+                // max of 18 chars from the URL itself
+                url = url.substring(0, 18);
+                
+                // add a timestamp to differentiate it (+14 chars)
+                Format f= new SimpleDateFormat("yyyyMMddHHmmss");
+                url += f.format(new Date());
+                // total new length of 32 chars
+            }
+            // SAK-11816 - END
+			
+			pipe.setFileName(Validator.escapeResourceName(url));
+			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
 				
 			ListItem newFile = (ListItem) pipe.getRevisedListItem();
 			if(newFile == null)
