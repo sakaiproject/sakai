@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Test;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
