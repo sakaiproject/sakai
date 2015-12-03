@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+
+<div id="gradeItemsToolbarItemPanel" role="menu">
+  <a href="javascript:void(0)" id="hideAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhideall">Hide All</span></a>
+  <a href="javascript:void(0)" id="showAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowall">Show All</span></a>
+  <div wicket:id="categoriesList" class="gradebook-item-filter-group">
+    <div class="gradebook-item-category-filter">
+      <label tabindex="0" role="menuitem">
+        <span wicket:id="category"></span>
+        <span class="gradebook-item-category-filter-signal"></span>
+        <input wicket:id="categoryCheckbox" type="checkbox">
+      </label>
+      <div class="btn-group">
+        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Show dropdown menu">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <li><a class="gb-show-only-this-category" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowonlythiscategory">Show only this category</span></a></li>
+          <li><a class="gb-toggle-this-category gb-show-this-category" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowthiscategory">Show this category</span></a></li>
+          <li><a class="gb-toggle-this-category gb-hide-this-category" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhidethiscategory">Hide this category</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div wicket:id="assignmentsForCategory" class="gradebook-item-filter">
+      <label tabindex="0" role="menuitem">
+        <span wicket:id="assignmentTitle"></span>
+        <span class="gradebook-item-category-filter-signal"></span>
+        <input wicket:id="assignmentCheckbox" type="checkbox">
+      </label>
+      <div class="btn-group">
+        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Open dropdown menu">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <li><a class="gb-show-only-this-item" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowonlythisitem">Show only this item</span></a></li>
+          <li><a class="gb-toggle-this-item gb-show-this-item" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowthisitem">Show this item</span></a></li>
+          <li><a class="gb-toggle-this-item gb-hide-this-item" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhidethisitem">Hide this item</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div wicket:id="categoryScore" class="gradebook-item-category-score-filter">
+      <label tabindex="0" role="menuitem">
+          <span wicket:id="categoryScoreLabel"></span>
+          <span class="gradebook-item-category-filter-signal"></span>
+          <input wicket:id="categoryScoreCheckbox" type="checkbox">
+      </label>
+      <div class="btn-group">
+          <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Show dropdown menu">
+              <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+              <li><a class="gb-show-only-this-category-score" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowonlythiscategoryscore">Show only this category score</span></a></li>
+              <li><a class="gb-toggle-this-category-score gb-show-this-category-score" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowthiscategoryscore">Show this category score</span></a></li>
+              <li><a class="gb-toggle-this-category-score gb-hide-this-category-score" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhidethiscategoryscore">Hide this category score</span></a></li>
+          </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</wicket:panel>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- <bean id="org.sakaiproject.gradebookng.business.XmlMarshaller" class="org.sakaiproject.gradebookng.business.XmlMarshaller" 
+		/> -->
+
+
+	<bean
+		id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
+		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
+		init-method="init">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="userDirectoryService"
+			ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="gradebookService"
+			ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradebookPermissionService"
+			ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
+		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
+		<property name="courseManagementService"
+			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+	</bean>
+
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.gradebookng.rest.GradebookNgEntityProvider">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="businessService" ref="org.sakaiproject.gradebookng.business.GradebookNgBusinessService" />
+	</bean>
+	
+	<bean
+		id="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
+		class="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
+		init-method="init">
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="gradebookFrameworkService" ref="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
+	</bean>
+
+</beans>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+<wicket:panel>
+
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="settingsGradeReleaseHeader">
+			<h3 class="panel-title">
+				<a role="button" data-toggle="collapse" data-parent="#settingsAccordion" href="#settingsGradeRelease" aria-expanded="false" aria-controls="settingsGradeRelease">
+					<wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message>
+				</a>
+			</h3>
+		</div>
+		<div id="settingsGradeRelease" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradeReleaseHeader">
+			<div class="panel-body">
+				<div class="checkbox">
+					<label>
+						<input wicket:id="displayReleased" type="checkbox" />
+						<wicket:message key="settingspage.graderelease.label" />
+					</label>
+				</div>
+				<p class="instruction"><wicket:message key="settingspage.graderelease.instructions" /></p>
+
+				<div class="checkbox">
+					<label>
+						<input wicket:id="displayCourseGrade" type="checkbox" />
+						<wicket:message key="settingspage.displaycoursegrade.label" />
+					</label>
+				</div>
+
+				<div class="form-group" wicket:id="courseGradeType">
+					<div class="col-sm-offset-2 col-sm-10">
+
+						<div class="checkbox">
+							<label>
+								<input wicket:id="letterGrade" type="checkbox" />
+								<wicket:message key="settingspage.displaycoursegrade.lettergrade" />
+							</label>
+						</div>
+
+						<div class="checkbox">
+							<label>
+								<input wicket:id="percentage" type="checkbox" />
+								<wicket:message key="settingspage.displaycoursegrade.percentage" />
+							</label>
+						</div>
+
+						<div class="checkbox">
+							<label>
+								<input wicket:id="points" type="checkbox" />
+								<wicket:message key="settingspage.displaycoursegrade.points" />
+							</label>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</wicket:panel>
+</body>
+</html>

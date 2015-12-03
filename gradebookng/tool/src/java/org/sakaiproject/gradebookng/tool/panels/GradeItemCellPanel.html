@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+	
+	<div wicket:id="grade">34</div>
+
+	<span wicket:id="warningNotification" class="gb-cell-notification gb-cell-notification-warning"></span>
+	<span wicket:id="errorNotification" class="gb-cell-notification gb-cell-notification-error"></span>
+	<span wicket:id="overLimitNotification" class="gb-cell-notification gb-cell-notification-over-limit"></span>
+
+	<span wicket:id="commentNotification" class="gb-cell-notification-comment"></span>
+
+	<!-- dropdown menu -->
+	<div class="btn-group" wicket:id="menu">
+	    <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
+	    	<span class="caret"></span>
+	    </a>
+	    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+	   		<li><a wicket:id="viewGradeLog" href="#" role="menuitem" aria-haspopup="true"><wicket:message key="grade.option.viewlog" /></a></li>
+			<li><a wicket:id="editGradeComment" href="#" role="menuitem" aria-haspopup="true" class="gb-edit-comments"><span wicket:id="editGradeCommentLabel">View / Edit Comments</span></a></li>
+	    </ul>
+    </div>
+</wicket:panel>
+</body>
+</html>
