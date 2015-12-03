@@ -1,3 +1,17 @@
+// page is /portal/site/nnn/tool/xxx
+// however if you use that URL for ajax, you'll get a whole page
+// you want /portal/tool/xxx
+function fixLink(link) {
+    var url = link.href;
+    var i = url.indexOf("/site/");
+    if (i >= 0) {
+	var j = url.indexOf("/tool/");
+	if (j >= 0) {
+	    link.href = url.substring(0, i) + url.substring(j);
+	}
+    }
+}
+
 var MailSender = function()
 {
 	// attachment count keeps a net count of 
@@ -297,14 +311,17 @@ var RcptSelect = function()
 			}
 
 			// if no cached content found, request content from server
-			if (resultArea.html())
+			if (false)
 			{
 				resultArea.show();
 			}
 			else
 			{
 				// setup the function that initiates the AJAX request
-				var updater = RSF.getAJAXLinkUpdater(link, function(results)
+			    
+			    fixLink(link);
+
+			    var updater = RSF.getAJAXLinkUpdater(link, function(results)
 					{
 						// put the results on the page
 						resultArea.html(results).show();

@@ -157,6 +157,7 @@ public class EmailBean
 
 		// compile the list of emails to send to
 		compileEmailList(fromEmail, emailusers);
+		System.out.println("dest " + emailusers.size());
 
 		// handle the other recipients
 		List<String> emailOthers = emailEntry.getOtherRecipients();
