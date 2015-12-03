@@ -6,6 +6,12 @@
 	<display-name>sakai-mailsender</display-name>
 	<description>Sakai Mail Sender</description>
 
+	<!-- param-value must match the id from tool/project.xml -->
+	<context-param>
+		<param-name>resourceurlbase</param-name> 
+		<param-value>/mailsender-tool/</param-value>
+	</context-param>
+
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
