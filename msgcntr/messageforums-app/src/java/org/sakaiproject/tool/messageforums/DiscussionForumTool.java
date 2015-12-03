@@ -1217,7 +1217,7 @@ public class DiscussionForumTool
     setPermissionMode(PERMISSION_MODE_FORUM);
     
     String forumId = getExternalParameterByKey(FORUM_ID);
-    if (forumId == null || "null".equals(forumId))
+    if (StringUtils.isBlank(forumId) || "null".equals(forumId))
     {
       setErrorMessage(getResourceBundleString(INVALID_SELECTED_FORUM));
       return gotoMain();
@@ -2070,8 +2070,10 @@ public class DiscussionForumTool
 		  LOG.debug("processActionTopicSettings()");
 
 		  DiscussionTopic topic = null;
-		  if(getExternalParameterByKey(TOPIC_ID) != null && !"null".equals(getExternalParameterByKey(TOPIC_ID))){
-			  topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(Long.valueOf(getExternalParameterByKey(TOPIC_ID)));
+		  String topicId = getExternalParameterByKey(TOPIC_ID);
+
+		  if(StringUtils.isNotBlank(topicId) && !"null".equals(topicId) ){
+			  topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(Long.valueOf(topicId));
 		  } else if(selectedTopic != null) {
 			  topic = selectedTopic.getTopic();
 		  }
@@ -2165,10 +2167,11 @@ public class DiscussionForumTool
     permissions=null;
     
     DiscussionTopic topic = null;
-    if(getExternalParameterByKey(TOPIC_ID) != null && !"null".equals(getExternalParameterByKey(TOPIC_ID))){
+    String topicId = getExternalParameterByKey(TOPIC_ID);
+    if(StringUtils.isNotBlank(topicId) && !"null".equals(topicId)){
 	    topic = (DiscussionTopic) forumManager
 	        .getTopicByIdWithAttachments(Long.valueOf(
-	            getExternalParameterByKey(TOPIC_ID)));
+	            topicId));
     } else if(selectedTopic != null) {
     	topic = selectedTopic.getTopic();
     }
@@ -3092,7 +3095,7 @@ public class DiscussionForumTool
   {
     LOG.debug("decorateSelectedForum()");
     String forumId = getExternalParameterByKey(FORUM_ID);
-    if (forumId != null && !"null".equals(forumId))
+    if (StringUtils.isNotBlank(forumId) && !"null".equals(forumId))
     {
       DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
       if (forum == null)
@@ -3476,7 +3479,7 @@ public class DiscussionForumTool
   private DiscussionTopicBean createTopic()
   {
     String forumId = getExternalParameterByKey(FORUM_ID);
-    if (forumId == null || "null".equals(forumId))
+    if (StringUtils.isBlank(forumId) || "null".equals(forumId))
     {
       setErrorMessage(getResourceBundleString(PARENT_TOPIC_NOT_FOUND));
       return null;
@@ -8453,8 +8456,9 @@ public class DiscussionForumTool
 		  LOG.debug("processActionDuplicateTopicMainConfirm()");
 
 		  DiscussionTopic topic = null;
-		  if(getExternalParameterByKey(TOPIC_ID) != null && !"null".equals(getExternalParameterByKey(TOPIC_ID))){
-			  topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(Long.valueOf(getExternalParameterByKey(TOPIC_ID)));
+		  String topicId = getExternalParameterByKey(TOPIC_ID);
+		  if(StringUtils.isNotBlank(topicId) && !"null".equals(topicId)){
+			  topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(Long.valueOf(topicId));
 		  } else if(selectedTopic != null) {
 			  topic = selectedTopic.getTopic();
 		  }
