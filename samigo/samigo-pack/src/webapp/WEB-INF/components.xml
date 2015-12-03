@@ -9,7 +9,7 @@
 		
 	<bean id="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"
 		class="org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl"
-		singleton="true"/>
+		scope="singleton"/>
 
   <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.samigo"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
