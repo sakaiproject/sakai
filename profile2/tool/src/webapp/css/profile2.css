@@ -433,9 +433,8 @@ h2 {
 
 .profileContent .label,
 .preferencesContent .label {
-	width: 120px;
 	float: left;
-	color: #5D5D5D;
+	color: #000000;
 	/*color: #444444;*/
 	vertical-align: top;
 	font-weight: normal;
@@ -1535,4 +1534,8 @@ img.ui-datepicker-trigger {
 
 input[type="submit"].secondary {
     color: #555 !important
+}
+
+input[type="file"]{
+    color:transparent;
 }
