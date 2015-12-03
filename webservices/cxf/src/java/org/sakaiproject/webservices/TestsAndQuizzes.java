@@ -354,6 +354,8 @@ public class TestsAndQuizzes extends AbstractWebService {
 		@WebParam(name = "poolId", partName = "poolId") @QueryParam("poolId") String poolId,
 		@WebParam(name = "contextToReplace", partName = "contextToReplace") @QueryParam("contextToReplace") String contextToReplace)
 	{
+		establishSession(sessionId);
+
 		ArrayList<Long> poolIds = new ArrayList<Long>();
 		StringBuilder resultado = new StringBuilder();
 		
@@ -371,13 +373,13 @@ public class TestsAndQuizzes extends AbstractWebService {
 		}
 
 		if (contextToReplace.isEmpty()) contextToReplace=null;
-
-		Session session = establishSession(sessionId);
 		
-		if (!poolId.isEmpty()) poolIds.add(new Long(poolId));
+		if (!poolId.isEmpty()) {
+			poolIds.add(new Long(poolId));
+		}
 		else 
 		{
-			ArrayList qpif = (ArrayList) questionPoolServiceImpl.getAllPools(userId);
+			List<?> qpif = questionPoolServiceImpl.getAllPools(userId);
 			for (int i=0;i<qpif.size();i++)
 			{
 				QuestionPoolFacade qp = (QuestionPoolFacade) qpif.get(i);
@@ -386,8 +388,9 @@ public class TestsAndQuizzes extends AbstractWebService {
 		}
 
 		//Calling the new report function in QuestionPoolService.
-		for (Long pId: poolIds)
+		for (Long pId: poolIds) {
 			resultado.append(questionPoolServiceImpl.getUserPoolAttachmentReport(userId, pId, contextToReplace));
+		}
 
 		return resultado.toString();
 	}
