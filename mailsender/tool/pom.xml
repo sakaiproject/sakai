@@ -99,11 +99,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.ogce</groupId>
-		  <artifactId>xpp3</artifactId>
-		  <version>1.1.6</version>
-		</dependency>
-		<dependency>
 			<groupId>org.sakaiproject.rsf</groupId>
 			<artifactId>sakai-rsf-web-evolvers</artifactId>
 			<version>${project.version}</version>
