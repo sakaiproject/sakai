@@ -17,6 +17,18 @@
   </bean>
  
 
+  <!-- use our version of the usual resolver. It differs only in expecting
+       multiple occurrences of the same resolver -->
+
+  <bean id="viewTemplateResolver"
+        class="org.sakaiproject.lessonbuildertool.util.BasicTemplateResolver">
+    <property name="templateExtensionInferrer"
+              ref="templateExtensionInferrer" />
+    <property name="TPIAggregator" ref="TPIAggregator" />
+    <property name="resourceLoader" ref="resourceLoader" />
+    <property name="reflectiveCache" ref="reflectiveCache"/>
+  </bean>
+
   <bean id="messageSource" 
       class="org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource"
       depends-on="TLABPostProcessorLoader">
