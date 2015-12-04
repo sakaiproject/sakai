@@ -21,6 +21,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -51,7 +52,6 @@ import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import lombok.Getter;
 
 
 /**
@@ -172,12 +172,6 @@ public class GradebookPage extends BasePage {
         final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(), settings.getNameSortOrder(), settings.getGroupFilter());
         
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
-		
-		//if the grade matrix is null, we dont have any data
-		//TODO finish this page. Test by creating a new site and going to the tool
-		if(grades == null) {
-			throw new RestartResponseException(NoDataPage.class);
-		}
 
 		//get assignment order
         final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentsOrder();
@@ -389,6 +383,17 @@ public class GradebookPage extends BasePage {
         table.addBottomToolbar(new NavigationToolbar(table));
         table.addTopToolbar(new HeadersToolbar(table, null));
         table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
+        
+        WebMarkupContainer noData = new WebMarkupContainer("noData");
+        noData.setVisible(false);
+        form.add(noData);
+        
+        //no matrix data hence no users, hide table and show message
+        if(studentGradeMatrix.size() == 0) {
+        	table.setVisible(false);
+        	noData.setVisible(true);
+        }
+        
         form.add(table);
 
         // Populate the toolbar 
