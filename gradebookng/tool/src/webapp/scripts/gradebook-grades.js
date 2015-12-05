@@ -8,6 +8,11 @@
 function GradebookSpreadsheet($spreadsheet) {
   this.$spreadsheet = $spreadsheet;
   this.$table = $("#gradebookGradesTable", this.$spreadsheet);
+  
+  // no students or grade items, nothing to do
+  if (this.$table.length == 0) {
+	  return;
+  }
 
   // all the Grade Item cell models keyed on studentUuid, then assignmentId
   this._GRADE_CELLS = {};

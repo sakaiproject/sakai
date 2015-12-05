@@ -21,6 +21,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -51,7 +52,6 @@ import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import lombok.Getter;
 
 
 /**
@@ -172,18 +172,15 @@ public class GradebookPage extends BasePage {
         final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(), settings.getNameSortOrder(), settings.getGroupFilter());
         
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
-		
-		//if the grade matrix is null, we dont have any data
-		//TODO finish this page. Test by creating a new site and going to the tool
-		if(grades == null) {
-			throw new RestartResponseException(NoDataPage.class);
-		}
 
 		//get assignment order
         final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentsOrder();
 
         //get course grade visibility
         final boolean courseGradeVisible = businessService.isCourseGradeVisible(currentUserUuid);
+        
+        //categories enabled?
+        final boolean categoriesEnabled = businessService.categoriesAreEnabled();
                 
         //this could potentially be a sortable data provider
         final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
@@ -389,13 +386,25 @@ public class GradebookPage extends BasePage {
         table.addBottomToolbar(new NavigationToolbar(table));
         table.addTopToolbar(new HeadersToolbar(table, null));
         table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
+        
+        WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
+        noAssignments.setVisible(false);
+        form.add(noAssignments);
+        
+        WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
+        noStudents.setVisible(false);
+        form.add(noStudents);
+        
         form.add(table);
 
         // Populate the toolbar 
         Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size() + categories.size(), assignments.size() + categories.size()));
         gradeItemSummary.setEscapeModelStrings(false);
         form.add(gradeItemSummary);
-
+        
+        WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
+        form.add(toggleGradeItemsToolbarItem);
+        
         AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
             @Override
             protected void onInitialize() {
@@ -419,7 +428,7 @@ public class GradebookPage extends BasePage {
             }
             @Override
             public boolean isVisible() {
-                return businessService.categoriesAreEnabled();
+                return categoriesEnabled && !assignments.isEmpty();
             }
         };
         form.add(toggleCategoriesToolbarItem);
@@ -468,7 +477,23 @@ public class GradebookPage extends BasePage {
         groupFilter.setNullValid(false);
         form.add(groupFilter);
 
-        add(new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", assignments));
+        ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", assignments);
+        add(gradeItemsTogglePanel);
+        
+        //hide/show components 
+        
+        //no assignments, hide table, show message
+        if(assignments.isEmpty()) {
+        	table.setVisible(false);
+        	toggleGradeItemsToolbarItem.setVisible(false);
+        	noAssignments.setVisible(true);
+        }
+        
+        //no visible students, show table, show message
+        //don't want two messages though, hence the else
+        else if(studentGradeMatrix.size() == 0) {
+        	noStudents.setVisible(true);
+        }
         
 		Temp.time("Gradebook page done", stopwatch.getTime());
 	}
