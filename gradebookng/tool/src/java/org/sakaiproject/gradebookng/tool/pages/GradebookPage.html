@@ -47,7 +47,7 @@
         <ul class="gb-toolbar-right">
           <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
           <li>
-            <button id="toggleGradeItemsToolbarItem" aria-popup="true" aria-controls="gradeItemsTogglePanel">Show/Hide Items</button>
+            <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" aria-popup="true" aria-controls="gradeItemsTogglePanel">Show/Hide Items</button>
           </li>
           <li>
             <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" aria-controls="gradebookGradesTable">Group By Category</button>
@@ -55,7 +55,8 @@
         </ul>
       </div>
       <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
-	  <div wicket:id="noData" class="messageInformation"><wicket:message key="nodata.label" /></div>
+	  <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
+	  <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
     </div>
   </form>
 
