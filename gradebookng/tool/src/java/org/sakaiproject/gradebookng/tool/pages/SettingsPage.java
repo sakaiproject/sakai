@@ -45,18 +45,12 @@ public class SettingsPage extends BasePage {
 			public void onSubmit() {
 				
 				GbSettings model = (GbSettings) this.getModelObject();
-				
-				System.out.println("settings: " + model.getGradebookInformation());
-				
+								
 				//update settings
 				businessService.updateGradebookSettings(model.getGradebookInformation());
 				
-				//TODO update the grading schema values (pull from model object also);
-				
-				
 				getSession().info(getString("settingspage.update.success"));
 				setResponsePage(new SettingsPage());
-				
 			}
 		};
 		
