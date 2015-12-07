@@ -346,12 +346,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		if (gradebookUid == null ) {
 	          throw new IllegalArgumentException("null gradebookUid " + gradebookUid) ;
-	      }
+		}
 	    
-	        if (!currentUserHasEditPerm(gradebookUid) && !currentUserHasGradingPerm(gradebookUid)) {
-	            log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to access gb information");
-                    throw new SecurityException("You do not have permission to access gradebook information in site " + gradebookUid);
-	        }
+        if (!currentUserHasEditPerm(gradebookUid) && !currentUserHasGradingPerm(gradebookUid)) {
+            log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to access gb information");
+                throw new SecurityException("You do not have permission to access gradebook information in site " + gradebookUid);
+        }
 	        
 		Gradebook gradebook = getGradebook(gradebookUid);
 		if(gradebook==null) {
@@ -387,9 +387,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
 		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
 		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
-		
-		System.out.println("Mappings: " + gradebook.getGradeMappings());
-		
+				
 		return rval;
 	}
 	
@@ -2991,39 +2989,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for(GradeMapping gradeMapping: gradeMappings) {
 			if(StringUtils.equals(Long.toString(gradeMapping.getId()), gbInfo.getSelectedGradeMappingId())) {
 				gradebook.setSelectedGradeMapping(gradeMapping);
-				
-				//TODO update the mapping values we have.
-				//TODO this is in the framework service, it may need to move...
+					
+				//update the map values
+				updateGradeMapping(gradeMapping.getId(), gbInfo.getSelectedGradingScaleBottomPercents());
 			}
 		}
-		
-		
-		
-		
-		
-		//update the grade map with hte passed in Map of values
-		//selectedGradeMapping.setGradeMap(gbInfo.getSelectedGradingScaleBottomPercents());
-		//TODO does this need to be persisted explicitly?
-				
-		//TODO may need to get the default grademappings here so we can choose the right one, then update the map values
-		
-		
-		
-		
-		
-		//
-		//gradebook.setSelectedGradeMapping(selectedGradeMapping);
-
-		//TODO set the grading scale stuff. the inverse of:
-		/*
-		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
-		if(selectedGradeMapping!=null) {
-			gradebookInfo.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
-			gradebookInfo.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
-			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
-		}
-		
-		*/
 				
 		//set grade type
 		gradebook.setGrade_type(gbInfo.getGradeType());
@@ -3090,14 +3060,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		//persist
 		this.updateGradebook(gradebook);
-		/*
-		getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				session.save(gradebook);
-				return null;
-			}
-		});
-		*/
+		
 	}
 
 	

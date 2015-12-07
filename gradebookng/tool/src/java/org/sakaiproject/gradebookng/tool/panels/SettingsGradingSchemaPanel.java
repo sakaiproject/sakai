@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -68,10 +69,10 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		
 		//get current one
 		configuredGradeMappingId = this.model.getObject().getGradebookInformation().getSelectedGradeMappingId();
-
+		
 		//set the value for the dropdown
 		currentGradeMappingId = configuredGradeMappingId;
-		
+				
 		//setup the grading scale schema entries
 		model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
 		
@@ -118,8 +119,8 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
   				//minpercent
   				TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
   				
-  				//if grade is F, set disabled
-  				if(StringUtils.equals(entry.getGrade(), "F")) {
+  				//if grade is F or NP, set disabled
+  				if(ArrayUtils.contains(new String[]{"F", "NP"}, entry.getGrade())) {
   					minPercent.setEnabled(false);
   				}
   				
@@ -140,7 +141,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 				
 				//set current selection
 				currentGradeMappingId = (String) typeChooser.getDefaultModelObject();
-				
+								
 				//refresh data
 	    		model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
 				
@@ -152,15 +153,15 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	
 	/**
 	 * Helper to sort the bottom percents maps. Caters for both letter grade and P/NP types
-	 * @param gradingSchemaName name of the grading schema so we know how to sort
+	 * @param gradingScaleName name of the grading schema so we know how to sort.
 	 * @param percents
 	 * @return
 	 */
-	private Map<String,Double> sortBottomPercents(String gradingSchemaName, Map<String,Double> percents) {
+	private Map<String,Double> sortBottomPercents(String gradingScaleName, Map<String,Double> percents) {
 		
 		Map<String, Double> rval = null;
-				
-		if(StringUtils.equals(gradingSchemaName, "Pass / Not Pass")) {
+						
+		if(StringUtils.equals(gradingScaleName, "Pass / Not Pass")) {
 			rval = new TreeMap<>(Collections.reverseOrder()); //P before NP.
 		} else {
 			rval = new TreeMap<>(new LetterGradeComparator()); //letter grade mappings
@@ -195,32 +196,36 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		//get configured values or defaults
     	//need to retain insertion order
     	Map<String,Double> bottomPercents = new LinkedHashMap<>();
+    	
+    	//note that we sort based on name so we need to pull the right name out	of the list of mappings, for both cases
+		String gradingSchemaName = this.gradeMappings.stream()
+				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), currentGradeMappingId))
+				.findFirst()
+				.get()
+				.getName();
 		
 		if(StringUtils.equals(currentGradeMappingId, configuredGradeMappingId)) {
-    		
     		//get the values from the configured grading scale in this gradebook and sort accordingly
-    		bottomPercents = sortBottomPercents(configuredGradeMappingId, model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
-    		
+    		bottomPercents = sortBottomPercents(gradingSchemaName, model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
     	} else {
     		//get the default values for the chosen grading scale and sort accordingly
-    		for (GradeMappingDefinition gradeMapping : this.gradeMappings) {
-           
-    			if(StringUtils.equals(currentGradeMappingId, gradeMapping.getId())) {
-	        		bottomPercents = sortBottomPercents(currentGradeMappingId, gradeMapping.getDefaultBottomPercents());
-    			}
-    		}
+    		bottomPercents = sortBottomPercents(gradingSchemaName,
+	    		this.gradeMappings.stream()
+					.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), currentGradeMappingId))
+					.findFirst()
+					.get()
+					.getDefaultBottomPercents()
+    		);
     	}
     	
     	//convert map into list of objects which is easier to work with in the views 
 		List<GbGradingSchemaEntry> rval = new ArrayList<>();
 		for(Map.Entry<String, Double> entry: bottomPercents.entrySet()) {
-			
 			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
 		}
 		
 		return rval;
 	}
-	
 }
 
 
