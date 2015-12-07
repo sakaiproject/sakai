@@ -57,6 +57,7 @@ function initializeExtTimeValues(fullExtendedTimeString,itemNum) {
 	document.getElementById("xt_open"+itemNum).value = evaluateDate(fullExtendedTimeString[2]);
 	document.getElementById("xt_due"+itemNum).value = evaluateDate(fullExtendedTimeString[3]);
 	document.getElementById("xt_retract"+itemNum).value = evaluateDate(fullExtendedTimeString[4]);
+	hookScripts(itemNum);
 }
 
 // Avoid undefined date values
@@ -131,6 +132,7 @@ function showExtendedTime() {
 // Action when a user clicks to add a new extended time entry
 function addExtTimeEntry() {
 	activeExtTimeEntries++;
+	hookScripts(activeExtTimeEntries);
 	document.getElementById("xt"+activeExtTimeEntries).style.display = "block";
 	if(activeExtTimeEntries == MAXITEMS) { // prevents them from adding more than max
 		document.getElementById("addExtTimeControl").style.display = "none";
@@ -163,13 +165,24 @@ function deleteAllExtTimeEntries() {
 	document.getElementById("xt1").style.display = "block";
 }
 
+// Add scripts to DOM by creating a script tag dynamically.
+// @param {String=} itemNum itemNum
+function hookScripts(itemNum) {
+    var s = document.createElement("script");
+    s.type = "text/javascript";	
+	s.innerHTML = 'localDatePicker({ input: \'#xt_open' + itemNum + '\', useTime: 1, parseFormat: \'YYYY-MM-DD HH:mm:ss\', ashidden: { iso8601: \'xt_open' + itemNum + 'ISO8601\' } }); ' +
+	'localDatePicker({ input: \'#xt_due' + itemNum + '\', useTime: 1, parseFormat: \'YYYY-MM-DD HH:mm:ss\', ashidden: { iso8601: \'xt_due' + itemNum + 'ISO8601\' } }); ' +
+	'localDatePicker({ input: \'#xt_retract' + itemNum + '\', useTime: 1, parseFormat: \'YYYY-MM-DD HH:mm:ss\', ashidden: { iso8601: \'xt_retract' + itemNum + 'ISO8601\' } });';	
+    document.getElementsByTagName("head")[0].appendChild(s);
+}
+
 // Dynamically create a div for each potential extended time item. Most will be hidden.
 function addAllExtendedTimeItems() {
 	var xtItem = document.getElementById("extendedTimeEntries");
 	xtItem.innerHTML = "";
 
 	for (var itemNum = 1; itemNum <= MAXITEMS; itemNum++) { 
-
+	
 		var code = "<div id=\"xt"+itemNum+"\" style=\"display:none;\">"+ // none display by default
 			"<br />"+
 			"<select id=\"xt_id"+itemNum+"\"></select>&nbsp;&nbsp;"+
@@ -182,15 +195,15 @@ function addAllExtendedTimeItems() {
 			"<table><tr><td>"+
 			"Available Date</td><td>"+
 			"<input type=\"text\" size=\"25\"  id=\"xt_open"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_open"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_open"+itemNum+"'));cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/library/calendar/html/');\">"+
+						
 			"</td></tr><tr><td>"+
 			"Due Date</td><td>"+
-			"<input type=\"text\" size=\"25\"  id=\"xt_due"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_due"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_due"+itemNum+"'));cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/library/calendar/html/');\">"+
+			"<input type=\"text\" size=\"25\"  id=\"xt_due"+itemNum+"\">&nbsp;"+	
+			
 			"</td></tr><tr><td>"+
 			"Retract Date</td><td>"+
 			"<input type=\"text\" size=\"25\"  id=\"xt_retract"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_retract"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_retract"+itemNum+"'));cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/library/calendar/html/');\">"+
+			
 			"</td></tr></table>"+
 			"</div> <!--end dates -->"+
 			"<hr width=\"450\"  align=\"left\">"+
