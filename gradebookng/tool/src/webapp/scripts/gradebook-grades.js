@@ -874,9 +874,12 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
             offset = Math.min(offset, $cell.width() - newLabelWidth);
           }
 
-          $label.animate({
-            marginLeft: Math.max(offset, 0),
-            width: newLabelWidth
+          $label.fadeOut(1000, function() {
+            $label.css({
+                        marginLeft: Math.max(offset, 0),
+                        width: newLabelWidth
+                       })
+                  .fadeIn(1000)
           });
         });
       }, 100));
