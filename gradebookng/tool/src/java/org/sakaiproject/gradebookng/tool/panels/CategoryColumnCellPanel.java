@@ -11,10 +11,12 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
  * 
@@ -59,8 +61,9 @@ public class CategoryColumnCellPanel extends Panel {
 					if (studentUuid.equals(scoreChangedEvent.getStudentUuid()) && 
 							categoryId.equals(scoreChangedEvent.getCategoryId())) {
 
-						GbStudentGradeInfo studentGradeInfo = businessService.buildGradeMatrix(businessService.getGradebookAssignments(), Arrays.asList(new String[]{studentUuid}), null, null).get(0);
-						Double categoryAverage = studentGradeInfo.getCategoryAverages().get(categoryId);
+						Map<Assignment, GbGradeInfo> grades = businessService.getGradesForStudent(studentUuid);
+						Double categoryAverage = businessService.getCategoryScoreForStudent(categoryId, studentUuid, grades);
+
 						String newCategoryAverage = (categoryAverage == null) ? getString("label.nocategoryscore") : FormatHelper.formatDoubleAsPercentage(categoryAverage);
 						((Model<String>) getDefaultModel()).setObject(newCategoryAverage);
 						scoreChangedEvent.getTarget().add(this);
