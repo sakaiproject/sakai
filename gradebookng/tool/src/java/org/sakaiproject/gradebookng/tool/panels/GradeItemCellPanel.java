@@ -305,6 +305,8 @@ public class GradeItemCellPanel extends Panel {
 				@Override
 				protected void onEvent(AjaxRequestTarget target) {
 					send(getPage(), Broadcast.BREADTH, new ScoreChangedEvent(studentUuid, categoryId, target));
+					// ensure the fixed course grade column has been updated
+					target.appendJavaScript(String.format("sakai.gradebookng.spreadsheet.refreshCourseGradeForStudent('%s')", studentUuid));
 				}
 			});
 			gradeCell.setOutputMarkupId(true);

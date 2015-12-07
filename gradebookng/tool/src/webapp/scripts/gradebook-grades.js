@@ -1631,9 +1631,6 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
     this.gradebookSpreadsheet.enablePopovers(this.$cell);
   }
 
-  //refresh the course grade
-  this.gradebookSpreadsheet.refreshCourseGradeForStudent(this.$cell.data("studentuuid"));
-
   if (this._focusAfterSaveComplete) {
     this.$cell.focus();
     this._focusAfterSaveComplete = false;
