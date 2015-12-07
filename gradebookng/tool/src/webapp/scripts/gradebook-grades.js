@@ -1485,18 +1485,22 @@ function GradebookEditableCell($cell, header, gradebookSpreadsheet) {
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
 
-  this.setupCell($cell);
-  this.setupClick();
+  this.setupEditableCell($cell);
 };
 
 
 GradebookEditableCell.prototype = Object.create(GradebookAbstractCell);
 
+GradebookEditableCell.prototype.setupEditableCell = function($cell) {
+  this.$input = $cell.find(":input:first");
 
-GradebookEditableCell.prototype.setupWicketLabelField = function() {
+  this.setupCell($cell);
+
   this.$cell.data("initialValue", null);
   this.$cell.data("wicket_input_initialized", false).removeClass("gb-cell-editing");
   this.$cell.data("wicket_label_initialized", true);
+
+  this.setupInput();
 };
 
 
@@ -1505,9 +1509,9 @@ GradebookEditableCell.prototype.isEditable = function() {
 };
 
 
-GradebookEditableCell.prototype.setupKeyboardNavigation = function($input) {
+GradebookEditableCell.prototype.setupInputKeyboardNavigation = function() {
   var self = this;
-  $input.on("keydown", function(event) {
+  self.$input.on("keydown", function(event) {
     // Return 13
     if (event.keyCode == 13) {
       self.gradebookSpreadsheet.handleInputReturn(event, self.$cell);
@@ -1534,34 +1538,41 @@ GradebookEditableCell.prototype.getRow = function() {
 };
 
 
-GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
+GradebookEditableCell.prototype.setupInput = function() {
   var self = this;
 
   if (self.$cell.data("wicket_input_initialized")) {
     return;
   }
 
-  var $input = self.$cell.find(":input:first");
+  function prepareForEdit(event) {
+    self.$cell.addClass("gb-cell-editing");
 
-  if (withValue != null && withValue != "") {
-    // set the value after the focus to ensure the cursor is
-    // positioned after the new value
-    $input.focus();
-    setTimeout(function() {$input.val(withValue)});
-  } else {
-    $input.focus().select();
+    var withValue = self.$cell.data("initialValue");
+
+    if (withValue != null && withValue != "") {
+      self.$input.val(withValue);
+    } else {
+      self.$input.select();
+    }
+
+    // add the "out of XXX marks" label
+    var $outOf = $("<span class='gb-out-of'></span>");
+    $outOf.html("/"+self.getGradeItemTotalPoints());
+    self.$input.after($outOf);
   }
 
-  // add the "out of XXX marks" label
-  var $outOf = $("<span class='gb-out-of'></span>");
-  $outOf.html("/"+self.getGradeItemTotalPoints());
-  $input.after($outOf);
+  function completeEditing(event) {
+    self.$cell.removeClass("gb-cell-editing");
+    self.$cell.find(".gb-out-of").remove();
+    self.$cell.data("initialValue", null);
+  }
 
-  // setup the keyboard bindings
-  self.setupKeyboardNavigation($input);
+  self.$input.on("focus", prepareForEdit).on("blur", completeEditing);
 
-  self.$cell.data("wicket_input_initialized", true).addClass("gb-cell-editing");
-  self.$cell.data("wicket_label_initialized", false);
+  self.setupInputKeyboardNavigation();
+
+  self.$cell.data("wicket_input_initialized", true);
 };
 
 
@@ -1587,18 +1598,8 @@ GradebookEditableCell.prototype.enterEditMode = function(keyCode) {
     }
   }
 
-  if (self.loadingEditMode) {
-    var initialValueString = (self.$cell.data("initialValue") || "") + "";
-    self.$cell.data("initialValue", initialValueString + initialValue);
-    return;
-  }
-
-  self.loadingEditMode = true;
-
   self.$cell.data("initialValue", initialValue + "");
-
-  // Trigger click on the Wicket node so we enter the edit mode
-  this.getWicketAjaxLabel().trigger("click");
+  self.$input.focus();
 };
 
 
@@ -1617,14 +1618,10 @@ GradebookEditableCell.prototype.handleBeforeSave = function() {
 
 
 GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
-  // The cell has been replaced by Wicket, so replace with the new 
-  // DOM node on the model and set it up
-  this.setupCell($("#"+cellId));
-  this.setupClick();
-  this.setupWicketLabelField();
-
   //bind a timeout to the successful save. An easing would be nice
   $(".grade-save-success").removeClass("grade-save-success", 1000);
+
+  this.setupEditableCell($("#" + cellId));
 
   //re-enable popover?
   if (this.$cell.is('[data-toggle="popover"]')) {
@@ -1637,38 +1634,6 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   }
 };
 
-
-GradebookEditableCell.prototype.handleEditSuccess = function() {
-  this.setupWicketInputField(this.$cell.data("initialValue"));
-  this.loadingEditMode = false;
-};
-
-
-GradebookEditableCell.prototype.isReadyForEdit = function() {
-  return this.$cell.is(".gb-ready-for-edit");
-};
-
-
-GradebookEditableCell.prototype.setupClick = function() {
-  var self = this;
-
-  function onClick(event) {
-    self.enterEditMode();
-  };
-
-  self.$cell.focus(function(event) {
-                     self.$cell.off("click", onClick);
-                     self.$spreadsheet.find(".gb-ready-for-edit").removeClass("gb-ready-for-edit");
-                     setTimeout(function() {
-                       self.$cell.on("click", onClick);
-                       self.$cell.addClass("gb-ready-for-edit");
-                     }, 100);
-                   }).
-             blur(function(event) {
-                    self.$cell.off("click", onClick);
-                    self.$cell.removeClass("gb-ready-for-edit");
-                  });
-    };
 
 /**************************************************************************************
  * GradebookBasicCell basic cell with basic functions
@@ -2262,33 +2227,19 @@ GradebookAPI._POST = function(url, data, onSuccess, onError, onComplete) {
  */
 
 GradebookWicketEventProxy = {
-  updateLabel : {
-    handlePrecondition: function(cellId, attrs) {
-      var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
-
-      return model.isReadyForEdit();
-    },
-    handleBeforeSend: $.noop,
-    handleSuccess: function(cellId, attrs, jqXHR, data, textStatus) {
-      var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
-      model.handleEditSuccess && model.handleEditSuccess();
-    },
-    handleFailure: $.noop, // function(cellId, attrs, jqXHR, errorMessage, textStatus) {}
-    handleComplete: $.noop // function(cellId, attrs, jqXHR, textStatus) {}
-  },
-  updateEditor : {
+  updateGradeItem: {
     handlePrecondition: $.noop,
     handleBeforeSend: function(cellId, attrs, jqXHR, settings) {
       var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
       model.handleBeforeSave && model.handleBeforeSave();
     },
-    handleSuccess: $.noop, // function(cellId, attrs, jqXHR, data, textStatus) {}
-    handleFailure: $.noop, // function(cellId, attrs, jqXHR, errorMessage, textStatus) {}
+    handleSuccess: $.noop,
+    handleFailure: $.noop,
     handleComplete: function(cellId, attrs, jqXHR, textStatus) {
       var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
       model.handleSaveComplete && model.handleSaveComplete(cellId);
     }
-  },
+  }
 };
 
 
