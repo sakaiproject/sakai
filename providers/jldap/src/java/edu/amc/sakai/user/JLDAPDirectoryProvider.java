@@ -144,6 +144,15 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	private LDAPSocketFactory secureSocketFactory = 
 		new LDAPJSSESecureSocketFactory();
 
+	/**
+	 * Sockect factory for unsecure connections. Only relevant if
+	 * {@link #secureConnection} is <code>false</code>. Defaults to a new instance
+	 * of {@link LDAPSimpleSocketFactory}
+	 */
+	private LDAPSocketFactory socketFactory =
+		new LDAPSimpleSocketFactory();
+
+
 	/** LDAP referral following behavior. Defaults to {@link #DEFAULT_IS_FOLLOW_REFERRALS} */
 	private boolean followReferrals = DEFAULT_IS_FOLLOW_REFERRALS;
 
@@ -1252,6 +1261,23 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public void setSecureSocketFactory(LDAPSocketFactory secureSocketFactory) 
 	{
 		this.secureSocketFactory = secureSocketFactory;
+	}
+
+	/**
+	 * {@inheritDoc}
+     */
+	public LDAPSocketFactory getSocketFactory()
+	{
+		return socketFactory;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+     */
+	public void setSocketFactory(LDAPSocketFactory socketFactory)
+	{
+		this.socketFactory = socketFactory;
 	}
 
 	public String getBasePath()
