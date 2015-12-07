@@ -874,9 +874,12 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
             offset = Math.min(offset, $cell.width() - newLabelWidth);
           }
 
-          $label.animate({
-            marginLeft: Math.max(offset, 0),
-            width: newLabelWidth
+          $label.fadeOut(1000, function() {
+            $label.css({
+                        marginLeft: Math.max(offset, 0),
+                        width: newLabelWidth
+                       })
+                  .fadeIn(1000)
           });
         });
       }, 100));
@@ -1627,9 +1630,6 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   if (this.$cell.is('[data-toggle="popover"]')) {
     this.gradebookSpreadsheet.enablePopovers(this.$cell);
   }
-
-  //refresh the course grade
-  this.gradebookSpreadsheet.refreshCourseGradeForStudent(this.$cell.data("studentuuid"));
 
   if (this._focusAfterSaveComplete) {
     this.$cell.focus();
