@@ -31,6 +31,18 @@ function extendedTimeCombine() {
 		var target = document.getElementById("xt_id"+itemNum).value;
 		if(target != "1"){ // don't add empties
 			var minutes = (parseInt(document.getElementById("xt_hours"+itemNum).value) * 3600) + parseInt(document.getElementById("xt_minutes"+itemNum).value) * 60;
+			var extStartDateVal = document.getElementById("xt_open"+itemNum).value;
+			if(extStartDateVal == '') {
+				document.getElementById("xt_open"+itemNum).value = document.getElementById("assessmentSettingsAction\:startDate").value;
+			}
+			var extDueDateVal = document.getElementById("xt_due"+itemNum).value;
+			if(extDueDateVal == '') {
+				document.getElementById("xt_due"+itemNum).value = document.getElementById("assessmentSettingsAction\:endDate").value;
+			}	
+			var extRetractDateVal = document.getElementById("xt_retract"+itemNum).value;
+			if(extRetractDateVal == '') {
+				document.getElementById("xt_retract"+itemNum).value = document.getElementById("xt_due"+itemNum).value;
+			}
 			var code = target+"|" + minutes +"|"
 			+ document.getElementById("xt_open"+itemNum).value+"|" + document.getElementById("xt_due"+itemNum).value+"|" + document.getElementById("xt_retract"+itemNum).value
 			+ "^";
