@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://www.opensource.org/licenses/ECL-2.0
+ *			   http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -91,16 +91,19 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private boolean							collectThreadRunning				= false;
 
 	/** Collect thread queue maps */
-	private Map<String, EventStat>			eventStatMap						= Collections.synchronizedMap(new HashMap<String, EventStat>());
-	private Map<String, ResourceStat>		resourceStatMap						= Collections.synchronizedMap(new HashMap<String, ResourceStat>());
-	private Map<String, SiteActivity>		activityMap							= Collections.synchronizedMap(new HashMap<String, SiteActivity>());
-	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
-	private Map<String, SitePresenceConsolidation>	presencesMap				= Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
-	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
-	private Map<String, ServerStat>			serverStatMap						= Collections.synchronizedMap(new HashMap<String, ServerStat>());
-	private Map<String, UserStat>			userStatMap							= Collections.synchronizedMap(new HashMap<String, UserStat>());
+	private Map<String, EventStat>					eventStatMap			= Collections.synchronizedMap(new HashMap<String, EventStat>());
+	private Map<String, ResourceStat>				resourceStatMap			= Collections.synchronizedMap(new HashMap<String, ResourceStat>());
+	private Map<String, LessonBuilderStat>			lessonBuilderStatMap	= Collections.synchronizedMap(new HashMap<String, LessonBuilderStat>());
+	private Map<String, SiteActivity>				activityMap				= Collections.synchronizedMap(new HashMap<String, SiteActivity>());
+	private Map<String, SiteVisits>					visitsMap				= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
+	private Map<String, SitePresenceConsolidation>	presencesMap			= Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
+	private Map<UniqueVisitsKey, Integer>			uniqueVisitsMap			= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
+	private Map<String, ServerStat>					serverStatMap			= Collections.synchronizedMap(new HashMap<String, ServerStat>());
+	private Map<String, UserStat>					userStatMap				= Collections.synchronizedMap(new HashMap<String, UserStat>());
 
-	private boolean							initialized 						= false;
+	private Map<String, String>				lessonPageCreateEventMap		=  new HashMap<String, String>();
+
+	private boolean							initialized							= false;
 	
 	private final ReentrantLock				lock								= new ReentrantLock();
 	
@@ -535,7 +538,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			return;
 		}
 		if(isRegisteredEvent(e.getEvent()) && isValidEvent(e)){
-			
+
 			// site check
 			String siteId = parseSiteId(e);
 			if(siteId == null || M_ss.isUserSite(siteId) || M_ss.isSpecialSite(siteId)){
@@ -624,6 +627,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
 		if(eventId == null)
 			return;
+
 		Date date = getTruncatedDate(dateTime);
 		// update		
 		if(isRegisteredEvent(eventId) && !StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
@@ -658,7 +662,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 			}
 		}	
-		
+
 		if(eventId.startsWith(StatsManager.RESOURCE_EVENTID_PREFIX)){
 			// add to resourceStatMap
 			String resourceAction = null;
@@ -681,8 +685,74 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				e1.setCount(e1.getCount() + 1);
 				resourceStatMap.put(key, e1);
 			}
-			
-		}else if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
+		} else if (eventId.startsWith(StatsManager.LESSONS_EVENTID_PREFIX)) {
+			String[] resourceParts = resourceRef.split("/");
+			if (resourceParts.length > 3 && "page".equals(resourceParts[2])) {
+				long pageId = Long.parseLong(resourceParts[3]);
+				String lessonBuilderAction = null;
+				try {
+					lessonBuilderAction = eventId.split("\\.")[1];
+				} catch (ArrayIndexOutOfBoundsException ex){
+					lessonBuilderAction = eventId;
+				}
+
+				String key = userId + siteId + lessonBuilderAction + pageId + date;
+
+				if ("create".equals(lessonBuilderAction)) {
+					// We cache create events so we can ignore read events from page creators
+					lessonPageCreateEventMap.put(resourceRef, userId);
+				}
+
+				if ("read".equals(lessonBuilderAction)) {
+					// The user reading this is the creator, don't stash the read
+					// event. If we did, every page would be read at creation time.
+
+					// See if the create event was cached for this page
+					String creatorUserId = lessonPageCreateEventMap.get(resourceRef);
+
+					if (creatorUserId == null) {
+						// It wasn't. Look it up in the db.
+						final String hql = "select s.userId "
+							+ "from LessonBuilderStatImpl as s "
+							+ "where s.siteId = :siteid "
+							+ "and s.pageAction = :pageAction "
+							+ "and s.pageRef = :pageRef ";
+
+						final String finalPageRef = resourceRef;
+
+						// New files
+						HibernateCallback hcb1 = new HibernateCallback() {
+
+							@SuppressWarnings("unchecked")
+							public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+								Query q = session.createQuery(hql);
+								q.setString("siteid", siteId);
+								q.setString("pageAction", "create");
+								q.setString("pageRef", finalPageRef);
+								return q.list();
+							}
+						};
+
+						List<String> creatorUserIds = (List<String>) getHibernateTemplate().execute(hcb1);
+
+						if (creatorUserIds.size() > 0) {
+							creatorUserId = creatorUserIds.get(0);
+							lessonPageCreateEventMap.put(resourceRef, creatorUserId);
+							if (creatorUserIds.size() > 1) {
+								LOG.warn("Multiple create events for page reference: " + resourceRef);
+							}
+						}
+					}
+
+					if (creatorUserId == null || !creatorUserId.equals(userId)) {
+						addToLessonBuilderStatMap(key, userId, siteId, resourceRef, pageId, lessonBuilderAction, date);
+					}
+				} else {
+					addToLessonBuilderStatMap(key, userId, siteId, resourceRef, pageId, lessonBuilderAction, date);
+				}
+			}
+		} else if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
 			// add to visitsMap
 			String key = siteId+date;
 			lock.lock();
@@ -695,7 +765,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 				e1.setTotalVisits(e1.getTotalVisits() + 1);
 				// unique visits are determined when updating to db:
-				//   --> e1.setTotalUnique(totalUnique);
+				//	 --> e1.setTotalUnique(totalUnique);
 				visitsMap.put(key, e1);
 				// place entry on map so we can update unique visits later
 				UniqueVisitsKey keyUniqueVisits = new UniqueVisitsKey(siteId, date);
@@ -752,6 +822,24 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		} 
 		
+	}
+
+	private void addToLessonBuilderStatMap(String key, String userId, String siteId, String pageRef, long pageId, String action, Date date) {
+
+		synchronized (lessonBuilderStatMap) {
+			LessonBuilderStat e1 = lessonBuilderStatMap.get(key);
+			if (e1 == null) {
+				e1 = new LessonBuilderStatImpl();
+				e1.setUserId(userId);
+				e1.setSiteId(siteId);
+				e1.setPageRef(pageRef);
+				e1.setPageId(pageId);
+				e1.setPageAction(action);
+				e1.setDate(date);
+			}
+			e1.setCount(e1.getCount() + 1);
+			lessonBuilderStatMap.put(key, e1);
+		}
 	}
 
 	protected boolean isRegisteredEvent(String eventId) {
@@ -832,6 +920,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 								resourceStatMap = Collections.synchronizedMap(new HashMap<String, ResourceStat>());
 							}
 							doUpdateResourceStatObjects(session, tmp2);
+						}
+
+						// do: Lessons ResourceStat
+						if (lessonBuilderStatMap.size() > 0) {
+							Collection<LessonBuilderStat> tmp3 = null;
+							synchronized (lessonBuilderStatMap) {
+								tmp3 = lessonBuilderStatMap.values();
+								lessonBuilderStatMap = Collections.synchronizedMap(new HashMap<String, LessonBuilderStat>());
+							}
+							doUpdateLessonBuilderStatObjects(session, tmp3);
 						}
 						
 						// do: SiteActivity
@@ -1007,6 +1105,56 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
+		}
+	}
+
+	private void doUpdateLessonBuilderStatObjects(Session session, Collection<LessonBuilderStat> o) {
+
+		if (o == null) return;
+		List<LessonBuilderStat> objects = new ArrayList<LessonBuilderStat>(o);
+		Collections.sort(objects);
+		Iterator<LessonBuilderStat> i = objects.iterator();
+		while (i.hasNext()) {
+			LessonBuilderStat eUpdate = i.next();
+			LessonBuilderStat eExisting = null;
+			String eExistingSiteId = null;
+			try {
+				Criteria c = session.createCriteria(LessonBuilderStatImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("pageRef", eUpdate.getPageRef()));
+				c.add(Expression.eq("pageAction", eUpdate.getPageAction()));
+				c.add(Expression.eq("userId", eUpdate.getUserId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try {
+					eExisting = (LessonBuilderStat) c.uniqueResult();
+				} catch (HibernateException ex){
+					try {
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (LessonBuilderStat) c.list().get(0);
+						} else{
+							LOG.debug("No result found", ex);
+							eExisting = null;
+						}
+					} catch (Exception ex3) {
+						eExisting = null;
+					}
+				} catch(Exception ex2) {
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+				}
+				if (eExisting == null) {
+					eExisting = eUpdate;
+				} else {
+					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
+				}
+
+				eExistingSiteId = eExisting.getSiteId();
+			} catch (Exception ex) {
+				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
+			}
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+				session.saveOrUpdate(eExisting);
 		}
 	}
 	
@@ -1296,7 +1444,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				if(spExisting == null) {
 					session.save(sp);
 					if (!spc.firstEventIsPresEnd) {
-					    doUpdateSitePresenceTotal(session, sp);
+						doUpdateSitePresenceTotal(session, sp);
 					}
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
@@ -1313,7 +1461,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
 					session.update(spExisting);
 					if (!spc.firstEventIsPresEnd) {
-					    doUpdateSitePresenceTotal(session, spExisting);
+						doUpdateSitePresenceTotal(session, spExisting);
 					}
 				}
 			}catch(HibernateException e){
@@ -1422,11 +1570,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					// drop-box
 					if(parts.length <= 5) return false;
 				}else if ((parts.length >= 3) && (parts[2].equals("private"))) {
-          // discard
+		  // discard
 					LOG.debug("Discarding content event in private area.");
 					return false;
-        }
-      }catch(Exception ex){
+		}
+	  }catch(Exception ex){
 				return false;
 			}
 		}

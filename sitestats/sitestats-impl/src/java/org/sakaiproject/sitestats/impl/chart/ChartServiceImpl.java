@@ -37,6 +37,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -72,6 +73,7 @@ import org.jfree.util.SortOrder;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
+import org.sakaiproject.sitestats.api.LessonBuilderStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
 import org.sakaiproject.sitestats.api.SitePresence;
@@ -1292,6 +1294,25 @@ public class ChartServiceImpl implements ChartService {
 					}
 				}
 				return action;
+			}else if(fieldCode.equals(StatsManager.T_PAGE)) {
+				if(s instanceof LessonBuilderStat) {
+					return M_sm.getLessonPageTitle(((LessonBuilderStat)s).getPageId());
+				}else{
+					return "";
+				}
+            }else if(fieldCode.equals(StatsManager.T_PAGE_ACTION)) {
+				String action = "";
+				if(s instanceof LessonBuilderStat) {
+					String refAction = ((LessonBuilderStat) s).getPageAction();
+					if(refAction == null){
+						action = "";
+					}else{
+						if(!"".equals(refAction.trim()))
+							action = msgs.getString("action_"+refAction);
+					}
+				}
+				return action;
+
 			}else if(fieldCode.equals(StatsManager.T_DATE) || fieldCode.equals(StatsManager.T_LASTDATE)
 					|| fieldCode.equals(StatsManager.T_DATEMONTH) || fieldCode.equals(StatsManager.T_DATEYEAR)) {
 				Date d = s.getDate();

@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -60,14 +61,15 @@ import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
 
 
 public abstract class WidgetTabTemplate extends Panel {
-	private static final long		serialVersionUID		= 1L;
-	private static Log				LOG						= LogFactory.getLog(WidgetTabTemplate.class);
-	public final static int			MAX_TABLE_ROWS			= 5;
-	public final static Integer		FILTER_DATE				= Integer.valueOf(0);
-	public final static Integer		FILTER_ROLE				= Integer.valueOf(1);
-	public final static Integer		FILTER_USER				= Integer.valueOf(2);
-	public final static Integer		FILTER_TOOL				= Integer.valueOf(3);
-	public final static Integer		FILTER_RESOURCE_ACTION	= Integer.valueOf(4);
+	private static final long		serialVersionUID			= 1L;
+	private static Log				LOG							= LogFactory.getLog(WidgetTabTemplate.class);
+	public final static int			MAX_TABLE_ROWS				= 5;
+	public final static Integer		FILTER_DATE					= Integer.valueOf(0);
+	public final static Integer		FILTER_ROLE					= Integer.valueOf(1);
+	public final static Integer		FILTER_USER					= Integer.valueOf(2);
+	public final static Integer		FILTER_TOOL					= Integer.valueOf(3);
+	public final static Integer		FILTER_RESOURCE_ACTION		= Integer.valueOf(4);
+	public final static Integer		FILTER_LESSON_ACTION		= Integer.valueOf(5);
 
 	private AjaxLazyLoadImage 		chart					= null;
 	private WebMarkupContainer 		tableTd					= null;
@@ -89,7 +91,13 @@ public abstract class WidgetTabTemplate extends Panel {
 	private String					roleFilter				= ReportManager.WHO_ALL;
 	private String					toolFilter				= ReportManager.WHAT_EVENTS_ALLTOOLS;
 	private String					resactionFilter			= null;
-
+	private String					lessonActionFilter		= null;
+	public void setLessonActionFilter(String lessonActionFilter) {
+        this.lessonActionFilter = StringUtils.trimToNull(lessonActionFilter);
+	}
+	public String getLessonActionFilter() {
+		return lessonActionFilter;
+	}
 	
 	public WidgetTabTemplate(String id, String siteId) {
 		super(id);	
@@ -391,6 +399,51 @@ public abstract class WidgetTabTemplate extends Panel {
 		resactionFilter.setOutputMarkupId(true);
 		add(resactionFilter);
 		resactionFilter.setVisible(filters.contains(FILTER_RESOURCE_ACTION));
+
+		// LESSON_ACTION Filter
+		List<String> lessonActionFilterOptions = Arrays.asList(
+				null,
+				ReportManager.WHAT_LESSONS_ACTION_CREATE, ReportManager.WHAT_LESSONS_ACTION_READ,
+				ReportManager.WHAT_LESSONS_ACTION_DELETE, ReportManager.WHAT_LESSONS_ACTION_UPDATE
+		);
+
+		IChoiceRenderer<String> lessonActionFilterRenderer = new IChoiceRenderer<String>() {
+			private static final long	serialVersionUID	= 1L;
+			public Object getDisplayValue(String object) {
+
+				if (object == null || "".equals(object)) {
+					return new ResourceModel("overview_filter_resaction_all").getObject();
+				} else {
+					return new ResourceModel("action_" + object).getObject();
+				}
+			}
+			public String getIdValue(String object, int index) {
+
+				if (object == null || "".equals(object)) {
+					return "";
+				}else {
+					return object;
+				}
+			}
+		};
+
+		IndicatingAjaxDropDownChoice lessonActionFilter = new IndicatingAjaxDropDownChoice("lessonActionFilter", lessonActionFilterOptions, lessonActionFilterRenderer) {
+			private static final long	serialVersionUID	= 1L;
+			@Override
+			protected CharSequence getDefaultChoice(String selected) {
+				return "";
+			}
+		};
+		lessonActionFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			private static final long	serialVersionUID	= 1L;
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				updateData(target);
+			}
+		});
+		lessonActionFilter.setOutputMarkupId(true);
+		add(lessonActionFilter);
+		lessonActionFilter.setVisible(filters.contains(FILTER_LESSON_ACTION));
 	}
 	
 	private void updateData(AjaxRequestTarget target) {

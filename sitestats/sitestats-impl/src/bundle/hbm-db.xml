@@ -10,6 +10,7 @@
             <list>
                 <value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
+                <value>org/sakaiproject/sitestats/impl/hbm/LessonBuilderStatImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
