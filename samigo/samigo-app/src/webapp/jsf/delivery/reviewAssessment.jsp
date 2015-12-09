@@ -109,6 +109,11 @@
            <!-- %@ include file="/jsf/delivery/item/deliverCalculatedQuestion.jsp" % -->
            </f:subview>
           </h:panelGroup>
+          <h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- // IMAGEMAP_QUESTION -->
+           <f:subview id="deliverImageMapQuestion">
+           <!-- %@ include file="/jsf/delivery/item/deliverImageMapQuestion.jsp" % -->
+           </f:subview>
+          </h:panelGroup>
           <h:panelGroup
             rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 3}">
            <f:subview id="deliverMultipleChoiceSingleCorrect">

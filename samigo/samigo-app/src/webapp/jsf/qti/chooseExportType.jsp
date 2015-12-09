@@ -69,6 +69,8 @@ function getSelectedType(qtiUrl, cpUrl){
 		  <h:outputText value="#{authorImportExport.ims_cp}"/>
 		</h:outputLink>
 		<h:outputText value="#{authorImportExport.choose_type_3}" escape="true" />
+		<br />
+		<h:outputText value="#{authorImportExport.export_imagemap_message}" escape="false" />
     </div>
     <br />
     <h:panelGrid columns="2" border="0">

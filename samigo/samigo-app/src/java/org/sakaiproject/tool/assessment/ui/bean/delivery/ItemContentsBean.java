@@ -168,6 +168,8 @@ public class ItemContentsBean implements Serializable {
 	private String commentField;
 	private boolean addComment;
 	private String studentComment;
+	
+	private String imageSrc = "";
 
 	public ItemContentsBean() {
 	}
@@ -870,6 +872,37 @@ public class ItemContentsBean implements Serializable {
 		matchingArray = newArray;
 	}
 
+	public String getSerializedImageMap() {
+		StringBuffer ret = new StringBuffer();
+		List<ImageMapQuestionBean> list = getMatchingArray();
+		for (ImageMapQuestionBean ib : list) {
+			if (ret.length() > 0)
+				ret.append("#-#");
+
+			ret.append(ib.serialize());
+		}
+		return ret.toString();
+	}
+
+	public void setSerializedImageMap(String serializedString) {
+		if (serializedString != null) {
+			HashMap<String, String> map = new HashMap<String, String>();
+			List<ImageMapQuestionBean> list = getMatchingArray();
+
+			for (String str : serializedString.split("#-#")) {
+				String[] tokens = str.split("#:#");
+				if (tokens.length == 2) {
+					map.put(tokens[0], (tokens[1] != null) ? tokens[1] : "");
+				}
+			}
+
+			for (ImageMapQuestionBean ib : list) {
+				if (map.get(ib.getItemText().getId().toString()) != null)
+					ib.setResponse(map.get(ib.getItemText().getId().toString()));
+			}
+		}
+	}
+
 	public List getFibArray() {
 		return fibArray;
 	}
@@ -1498,6 +1531,14 @@ public class ItemContentsBean implements Serializable {
   public void setSaCharCount(String saCharCount)
   {
 	  this.saCharCount = saCharCount;
+  }
+  
+  public String getImageSrc() {
+	  return imageSrc;
+  }
+
+  public void setImageSrc(String imageSrc) {
+	  this.imageSrc = imageSrc;
   }
   
   // SAM-2368
