@@ -1,19 +1,20 @@
 package org.sakaiproject.content.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.*;
 import org.sakaiproject.authz.api.*;
-import org.sakaiproject.content.api.*;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.*;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
+import static org.junit.Assert.*;
+import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+
+@FixMethodOrder(NAME_ASCENDING)
 public class RoleViewTest extends SakaiKernelTestBase {
 
     private static final Log log = LogFactory.getLog(RoleViewTest.class);
@@ -24,26 +25,23 @@ public class RoleViewTest extends SakaiKernelTestBase {
     protected ContentHostingService _chs;
     protected AuthzGroupService _ags;
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClass() throws Exception
     {
-        TestSetup setup = new TestSetup(new TestSuite(RoleViewTest.class))
-        {
-            protected void setUp() throws Exception
-            {
-                log.debug("starting oneTimeSetup");
-                oneTimeSetup(null);
-                log.debug("finished oneTimeSetup");
-            }
-            protected void tearDown() throws Exception
-            {
-                log.debug("starting tearDown");
-                oneTimeTearDown();
-                log.debug("finished tearDown");
-            }
-        };
-        return setup;
+        log.debug("starting oneTimeSetup");
+        oneTimeSetup(null);
+        log.debug("finished oneTimeSetup");
     }
 
+    @AfterClass
+    public static void afterClass() throws Exception
+    {
+        log.debug("starting tearDown");
+        oneTimeTearDown();
+        log.debug("finished tearDown");
+    }
+
+    @Before
     public void setUp() throws IdUsedException, IdInvalidException, InconsistentException, PermissionException {
         _chs = (ContentHostingService)getService(ContentHostingService.class.getName());
         _ags = (AuthzGroupService)getService(AuthzGroupService.class.getName());
@@ -56,16 +54,19 @@ public class RoleViewTest extends SakaiKernelTestBase {
         _chs.commitCollection(collectionEdit);
     }
 
+    @After
     public void tearDown() throws IdUnusedException, PermissionException, InUseException, TypeException, ServerOverloadException, AuthzPermissionException {
         _chs.removeCollection(PHOTOS_COLLECTION);
         _ags.removeAuthzGroup(_chs.getReference(PHOTOS_COLLECTION));
     }
 
+    @Test
     public void testSetPubView() {
         _chs.setPubView(PHOTOS_COLLECTION, true);
         assertTrue(hasRealmAndRole(PHOTOS_COLLECTION, AuthzGroupService.ANON_ROLE));
     }
 
+    @Test
     public void testSetRoleView() throws AuthzPermissionException {
         _chs.setRoleView(PHOTOS_COLLECTION, TEST_ROLE, true);
         assertTrue(hasRealmAndRole(PHOTOS_COLLECTION, TEST_ROLE));
@@ -90,6 +91,7 @@ public class RoleViewTest extends SakaiKernelTestBase {
         return true;
     }
 
+    @Test
     public void testPubView() {
         assertFalse(_chs.isPubView(PHOTOS_COLLECTION));
         assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).isEmpty());
@@ -105,6 +107,7 @@ public class RoleViewTest extends SakaiKernelTestBase {
         assertFalse(_chs.isRoleView(PHOTOS_COLLECTION, AuthzGroupService.ANON_ROLE));
     }
 
+    @Test
     public void testRoleView() throws AuthzPermissionException {
         _chs.setPubView(PHOTOS_COLLECTION, true);
         assertFalse(_chs.isRoleView(PHOTOS_COLLECTION, TEST_ROLE));
