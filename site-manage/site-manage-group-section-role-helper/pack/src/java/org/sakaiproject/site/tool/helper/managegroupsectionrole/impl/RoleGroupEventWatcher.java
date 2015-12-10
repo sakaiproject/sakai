@@ -21,6 +21,7 @@
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.impl;
 
 // imports
+import java.util.Collection;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -46,6 +47,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.SiteConstants;
+import org.sakaiproject.site.util.SiteGroupHelper;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
@@ -236,7 +238,7 @@ public class RoleGroupEventWatcher implements Observer
 								{
 									Set<Member> members = ((Group) g).getMembers();
 									
-									String[] roles = StringUtils.split(roleString, "+");
+									Collection<String> roles = SiteGroupHelper.unpack(roleString);
 									for (String role : roles)
 									{
 										// remove those provided members by role
