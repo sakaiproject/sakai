@@ -232,7 +232,7 @@ public class SettingsCategoryPanel extends Panel {
 				item.add(remove);
   			}
   		};
-  		//categoriesView.setReuseItems(true);
+  		categoriesView.setReuseItems(true);
   		categoriesWrap.add(categoriesView);
   		categoriesWrap.setOutputMarkupId(true);
   		add(categoriesWrap);
@@ -245,8 +245,9 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> f) {
 				
-				//add a new category to the model
+				//add a new empty category to the model
 				CategoryDefinition cd = new CategoryDefinition();
+				cd.setExtraCredit(false);
 				cd.setAssignmentList(Collections.<Assignment> emptyList());
 				
 				model.getObject().getGradebookInformation().getCategories().add(cd);
@@ -262,8 +263,14 @@ public class SettingsCategoryPanel extends Panel {
 	private Double calculateCategoryWeightTotal(List<CategoryDefinition> categories) {
 		Double total = new Double(0);
 		for (CategoryDefinition categoryDefinition : categories) {
+			
+			Double weight = categoryDefinition.getWeight();
+			if(weight == null) {
+				weight = new Double(0);
+			}
+			
 			if (!categoryDefinition.isExtraCredit()) {
-				total += categoryDefinition.getWeight();
+				total += weight;
 			}
 		}
 		return total;
