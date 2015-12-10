@@ -113,9 +113,18 @@ function copyListValuesForExtTime(itemNum) {
 }
 
 // Control to allow checkboxes to toggle whether a div displays or not.
-function toggleExtendedTimeEntity(it, box) { 
+function toggleExtendedTimeEntity(it, itemNum, box) { 
 	var vis = (box.checked) ? "block" : "none";
 	document.getElementById(it).style.display = vis;
+	
+	var defaultStartDate = moment($('#assessmentSettingsAction\\:startDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	document.getElementById("xt_open"+itemNum).value = defaultStartDate;
+	
+	var defaultDueDate = moment($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	document.getElementById("xt_due"+itemNum).value = defaultDueDate;
+	
+	var defaultRetractDate = moment($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	document.getElementById("xt_retract"+itemNum).value = defaultRetractDate;
 
 	// They are clearing out the list
 	if(vis == "none" && it == "extendedTimeEntries") {
@@ -132,8 +141,8 @@ function showExtendedTime() {
 // Action when a user clicks to add a new extended time entry
 function addExtTimeEntry() {
 	activeExtTimeEntries++;
-	hookScripts(activeExtTimeEntries);
 	document.getElementById("xt"+activeExtTimeEntries).style.display = "block";
+	hookScripts(activeExtTimeEntries);
 	if(activeExtTimeEntries == MAXITEMS) { // prevents them from adding more than max
 		document.getElementById("addExtTimeControl").style.display = "none";
 	}
@@ -168,12 +177,33 @@ function deleteAllExtTimeEntries() {
 // Add scripts to DOM by creating a script tag dynamically.
 // @param {String=} itemNum itemNum
 function hookScripts(itemNum) {
-    var s = document.createElement("script");
-    s.type = "text/javascript";	
-	s.innerHTML = 'localDatePicker({ input: \'#xt_open' + itemNum + '\', useTime: 1, parseFormat: \'YYYY-MM-DD HH:mm:ss\', ashidden: { iso8601: \'xt_open' + itemNum + 'ISO8601\' } }); ' +
-	'localDatePicker({ input: \'#xt_due' + itemNum + '\', useTime: 1, parseFormat: \'YYYY-MM-DD HH:mm:ss\', ashidden: { iso8601: \'xt_due' + itemNum + 'ISO8601\' } }); ' +
-	'localDatePicker({ input: \'#xt_retract' + itemNum + '\', useTime: 1, parseFormat: \'YYYY-MM-DD HH:mm:ss\', ashidden: { iso8601: \'xt_retract' + itemNum + 'ISO8601\' } });';	
-    document.getElementsByTagName("head")[0].appendChild(s);
+	
+	var s = document.createElement("script");
+	s.type = "text/javascript";	
+	
+	var startDatePickerOptions = { input: '#xt_open' + itemNum , 
+		useTime: 1,
+		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		ashidden: { iso8601: 'xt_open' + itemNum + 'ISO8601' } 
+	}
+	localDatePicker(startDatePickerOptions); 
+	
+	var dueDatePickerOptions = { input: '#xt_due' + itemNum , 
+		useTime: 1,
+		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		ashidden: { iso8601: 'xt_due' + itemNum + 'ISO8601' } 
+	}
+	localDatePicker(dueDatePickerOptions); 
+	
+	var retractDatePickerOptions = { input: '#xt_retract' + itemNum , 
+		useTime: 1,
+		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		ashidden: { iso8601: 'xt_retract' + itemNum + 'ISO8601' } 
+	}
+	localDatePicker(retractDatePickerOptions); 
+	
+	s.innerHTML = '';	
+	document.getElementsByTagName("head")[0].appendChild(s);
 }
 
 // Dynamically create a div for each potential extended time item. Most will be hidden.
@@ -190,19 +220,19 @@ function addAllExtendedTimeItems() {
 			"<select id=\"xt_minutes"+itemNum+"\"></select>min.&nbsp;"+
 			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"button\" value=\"Delete this entry\" onclick=\"deleteExtTimeEntry("+itemNum+")\">"+ // delete button
 			"<br />"+
-			"<input id=\"xt_datesToggle"+itemNum+"\" type=\"checkbox\" class=\"tier1\" onclick=\"deleteExtTimeDates("+itemNum+");toggleExtendedTimeEntity('xt_dates"+itemNum+"', this)\">Change Delivery Dates for this group/student."+
+			"<input id=\"xt_datesToggle"+itemNum+"\" type=\"checkbox\" class=\"tier1\" onclick=\"deleteExtTimeDates("+itemNum+");toggleExtendedTimeEntity('xt_dates"+itemNum+"', "+itemNum+", this)\">Change Delivery Dates for this group/student."+
 			"<div id=\"xt_dates"+itemNum+"\" class=\"tier3\" style=\"display:none;\">"+ // dates don't display by default
 			"<table><tr><td>"+
 			"Available Date</td><td>"+
-			"<input type=\"text\" size=\"25\"  id=\"xt_open"+itemNum+"\">&nbsp;"+
+			"<input type=\"text\" size=\"25\" id=\"xt_open"+itemNum+"\">&nbsp;"+
 						
 			"</td></tr><tr><td>"+
 			"Due Date</td><td>"+
-			"<input type=\"text\" size=\"25\"  id=\"xt_due"+itemNum+"\">&nbsp;"+	
+			"<input type=\"text\" size=\"25\" id=\"xt_due"+itemNum+"\">&nbsp;"+	
 			
 			"</td></tr><tr><td>"+
 			"Retract Date</td><td>"+
-			"<input type=\"text\" size=\"25\"  id=\"xt_retract"+itemNum+"\">&nbsp;"+
+			"<input type=\"text\" size=\"25\" id=\"xt_retract"+itemNum+"\">&nbsp;"+
 			
 			"</td></tr></table>"+
 			"</div> <!--end dates -->"+
