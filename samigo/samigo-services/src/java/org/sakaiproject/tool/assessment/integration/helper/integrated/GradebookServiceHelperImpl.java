@@ -110,6 +110,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 					return true;
 				} else if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebook.gwt.rpc")) {
 					return true;
+				} else if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebookng")) {
+					return true;
 				}
 
 			}
