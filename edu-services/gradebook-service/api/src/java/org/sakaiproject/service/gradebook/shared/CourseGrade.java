@@ -2,6 +2,9 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * Wrapper for the course grade that contains the the calculated grade (ie 46.67), the mapped grade (ie F) and any entered grade override (ie D-).
  */
@@ -39,6 +42,9 @@ public class CourseGrade implements Serializable {
 		this.mappedGrade = mappedGrade;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
 	
 }
