@@ -2727,17 +2727,20 @@ public class ListItem
     }
 
     /**
-     * Asks the Server Configuration Service to get a list of available roles with the prefix "access.enabledRoles"
+     * Asks the Server Configuration Service to get a list of available roles with the prefix "resources.enabled.roles""
      * We should expect language strings for these to be defined in the bundles.
      * @return a set of role ids that can be used
      */
     public Set<String> availableRoleIds() {
-        String[] configStrings = ServerConfigurationService.getStrings("access.enabledRoles");
+        String[] configStrings = ServerConfigurationService.getStrings("resources.enabled.roles");
 
         LinkedHashSet<String> availableIds = new LinkedHashSet<String>();
 
         if(configStrings != null) {
             availableIds.addAll(Arrays.asList(configStrings));
+        } else {
+            // By default just include the public
+            availableIds.add(PUBVIEW_ROLE);
         }
 
         return availableIds;
