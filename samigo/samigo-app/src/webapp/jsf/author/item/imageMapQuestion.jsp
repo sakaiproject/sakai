@@ -185,7 +185,7 @@
 </f:verbatim>  
 <f:verbatim> 
 	<div onmousedown="return false" id="imageContainer" class='authorImageContainer'>
-		<img id='img' src='</f:verbatim><h:outputText value="#{itemauthor.currentItem.imageMapSrc}" /><f:verbatim>' style='visibility:hidden; width: 80%' />
+		<img id='img' src='</f:verbatim><h:outputText value="#{itemauthor.currentItem.imageMapSrc}" /><f:verbatim>' style='visibility:hidden' />
 	</div>
 </f:verbatim>    
  <!-- Match FEEDBACK -->

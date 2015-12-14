@@ -92,6 +92,6 @@ include file for displaying fill in the numeric questions
 
 <f:verbatim>  
 	<div id="imageMapContainer" class='authorImageContainer'>
-		<img id='img' src='</f:verbatim><h:outputText value="#{question.imageMapSrc}" /><f:verbatim>' style='width: 80%'/>
+		<img id='img' src='</f:verbatim><h:outputText value="#{question.imageMapSrc}" /><f:verbatim>' />
 	</div>
 </f:verbatim>
