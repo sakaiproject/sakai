@@ -266,16 +266,45 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
-	 * 
+	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by default sort order
+	 *
 	 * @param siteId the siteId
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(String siteId) {
+		return getGradebookAssignments(siteId, false);
+	}
+
+	/**
+	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order or by categorised sort order
+	 *
+	 * @param sortByCategory whether to pre-sort the assignments based on their categorized sort order
+	 * @return a list of assignments or null if no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(boolean sortByCategory) {
+		return getGradebookAssignments(this.getCurrentSiteId(), sortByCategory);
+	}
+	
+	/**
+	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order or by categorised sort order
+	 * 
+	 * @param siteId the siteId
+	 * @param sortByCategory whether to pre-sort the assignments based on their categorized sort order
+	 * @return a list of assignments or null if no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(String siteId, boolean sortByCategory) {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
-			//applies permissions (both student and TA) and default sort is SORT_BY_SORTING
-			return gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid());
+			//applies permissions (both student and TA)
+			List<Assignment> assignments = gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid());
+
+			//default sort is SORT_BY_SORTING unless categories are enabled
+			if (sortByCategory) {
+				Map<String, List<Long>> categorizedAssignmentsOrder = getCategorizedAssignmentsOrder();
+				Collections.sort(assignments, new CategorizedAssignmentComparator(categorizedAssignmentsOrder));
+			}
+
+			return assignments;
 		}
 		return null;
 	}
@@ -1926,6 +1955,35 @@ public class GradebookNgBusinessService {
         }
       }
     }
+
+	/**
+	 * Comparator class for sorting Assignments in their categorised ordering
+	 */
+	class CategorizedAssignmentComparator implements Comparator<Assignment> {
+		private Map<String, List<Long>> categoryOrder;
+		private List<String> sortedCategories;
+
+		public CategorizedAssignmentComparator(Map<String, List<Long>> categoryOrder) {
+			this.categoryOrder = categoryOrder;
+			this.sortedCategories = new ArrayList(categoryOrder.keySet());
+			Collections.sort(this.sortedCategories);
+		}
+		
+
+		@Override
+		public int compare(Assignment a1, Assignment a2) {
+			if (a1.getCategoryName() == null) {
+				return 1;
+			} else if (a2.getCategoryName() == null) {
+				return -1;
+			} else if (a1.getCategoryName().equals(a2.getCategoryName())) {
+				List<Long> assignmentsInCategory = categoryOrder.get(a1.getCategoryName());
+				return Integer.compare(assignmentsInCategory.indexOf(a1.getId()), assignmentsInCategory.indexOf(a2.getId()));
+			} else {
+				return Integer.compare(sortedCategories.indexOf(a1), sortedCategories.indexOf(a2));
+			}
+		}
+	}
     
     /**
      * Build the key to identify the cell. Used in the notifications cache.

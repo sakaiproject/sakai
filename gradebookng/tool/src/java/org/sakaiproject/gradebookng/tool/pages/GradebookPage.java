@@ -165,7 +165,7 @@ public class GradebookPage extends BasePage {
 		final GradebookUiSettings settings = this.getUiSettings();
 				
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-        final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+        final List<Assignment> assignments = this.businessService.getGradebookAssignments(settings.isCategoriesEnabled());
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
         
         //get the grade matrix. It should be sorted if we have that info
@@ -298,6 +298,7 @@ public class GradebookPage extends BasePage {
             		
             		panel.add(new AttributeModifier("data-category", category));
             		panel.add(new AttributeModifier("data-categorized-order", order));
+            		panel.add(new AttributeModifier("data-order", assignment.getSortOrder()));
 
             		StringValue createdAssignmentId = getPageParameters().get(CREATED_ASSIGNMENT_ID_PARAM);
             		if (!createdAssignmentId.isNull() && assignment.getId().equals(createdAssignmentId.toLong())) {
