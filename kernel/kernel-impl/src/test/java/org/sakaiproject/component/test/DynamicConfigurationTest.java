@@ -22,13 +22,12 @@
 
 package org.sakaiproject.component.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
@@ -42,27 +41,23 @@ public class DynamicConfigurationTest extends SakaiKernelTestBase {
 
 	protected static final String CONFIG = "src/test/webapp/WEB-INF/components.xml";
 
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(DynamicConfigurationTest.class)) {
-			protected void setUp() throws Exception {
-				try {
-					oneTimeSetup("dynamic", CONFIG);
-				} catch (Exception e) {
-					log.warn(e);
-				}
-			}
-			protected void tearDown() throws Exception {
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+            log.debug("starting oneTimeSetup");
+			oneTimeSetup("dynamic", CONFIG);
+            log.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
 
+	@Before
 	public void setUp() throws Exception {
 		serverConfigurationService = (ServerConfigurationService)getService(ServerConfigurationService.class.getName());
 	}
 
-
+	@Test
 	public void testDynamicProperties() throws Exception {
 		// Test for override of "sakai.properties" value by DB.
 		String dynamicValue1 = serverConfigurationService.getString("dynamicKey1");

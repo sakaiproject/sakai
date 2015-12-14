@@ -20,6 +20,7 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -57,8 +58,8 @@ public class GalleryImageRenderer extends Panel {
 			BufferedDynamicImageResource imageResource = new BufferedDynamicImageResource() {
 
 				private static final long serialVersionUID = 1L;
-
-				protected byte[] getImageData() {
+				@Override
+				protected byte[] getImageData(IResource.Attributes ignored) {
 					return imageBytes;
 				}
 			};

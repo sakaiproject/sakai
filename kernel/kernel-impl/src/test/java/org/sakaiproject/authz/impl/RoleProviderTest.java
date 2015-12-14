@@ -4,10 +4,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleProvider;
@@ -20,29 +21,30 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
 public class RoleProviderTest extends SakaiKernelTestBase {
+	private static Log log = LogFactory.getLog(RoleProviderTest.class);
 	
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(RoleProviderTest.class)) {
-			protected void setUp() throws Exception {
-				oneTimeSetup();
-			}
-			protected void tearDown() throws Exception {
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+            log.debug("starting oneTimeSetup");
+			oneTimeSetup();
+            log.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
-	
+
+	@Test
 	public void testCheck() throws Exception {
 		
 		// Get the Services
-		SiteService siteService = (SiteService)getService(SiteService.class.getName());
+		SiteService siteService = getService(SiteService.class);
 		
-		UserDirectoryService userService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
+		UserDirectoryService userService = getService(UserDirectoryService.class);
 		
-		SessionManager sessionManager = (SessionManager)getService(SessionManager.class.getName());
+		SessionManager sessionManager = getService(SessionManager.class);
 		
-		BaseAuthzGroupService authzGroupService = (BaseAuthzGroupService)getService(AuthzGroupService.class.getName());
+		BaseAuthzGroupService authzGroupService = (BaseAuthzGroupService) getService(AuthzGroupService.class);
 
 		RoleProvider roleProvider = new RoleProvider() {
 			
@@ -94,17 +96,17 @@ public class RoleProviderTest extends SakaiKernelTestBase {
 		// AuthzGroupService.isAllowed checks through the DB.
 		
 		
-		assertTrue(site1.isAllowed("user1", SiteService.SECURE_UPDATE_SITE));
-		assertTrue(authzGroupService.isAllowed("user1", SiteService.SECURE_UPDATE_SITE, Collections.singletonList(site1.getReference())));
-		assertTrue(authzGroupService.isAllowed("user1", SiteService.SECURE_UPDATE_SITE, site1.getReference()));
-		assertFalse(site1.isAllowed("user2", SiteService.SECURE_UPDATE_SITE));
-		assertFalse(authzGroupService.isAllowed("user2", SiteService.SECURE_UPDATE_SITE, Collections.singletonList(site1.getReference())));
-		assertFalse(authzGroupService.isAllowed("user2", SiteService.SECURE_UPDATE_SITE, site1.getReference()));
+		Assert.assertTrue(site1.isAllowed("user1", SiteService.SECURE_UPDATE_SITE));
+		Assert.assertTrue(authzGroupService.isAllowed("user1", SiteService.SECURE_UPDATE_SITE, Collections.singletonList(site1.getReference())));
+		Assert.assertTrue(authzGroupService.isAllowed("user1", SiteService.SECURE_UPDATE_SITE, site1.getReference()));
+		Assert.assertFalse(site1.isAllowed("user2", SiteService.SECURE_UPDATE_SITE));
+		Assert.assertFalse(authzGroupService.isAllowed("user2", SiteService.SECURE_UPDATE_SITE, Collections.singletonList(site1.getReference())));
+		Assert.assertFalse(authzGroupService.isAllowed("user2", SiteService.SECURE_UPDATE_SITE, site1.getReference()));
 		
 		// Check .anon works.
-		assertTrue(site1.isAllowed("user2", SiteService.SITE_VISIT));
-		assertTrue(authzGroupService.isAllowed("user2", SiteService.SITE_VISIT, Collections.singletonList(site1.getReference())));
-		assertTrue(authzGroupService.isAllowed("user2", SiteService.SITE_VISIT, site1.getReference()));
+		Assert.assertTrue(site1.isAllowed("user2", SiteService.SITE_VISIT));
+		Assert.assertTrue(authzGroupService.isAllowed("user2", SiteService.SITE_VISIT, Collections.singletonList(site1.getReference())));
+		Assert.assertTrue(authzGroupService.isAllowed("user2", SiteService.SITE_VISIT, site1.getReference()));
 		
         /*
 		// Check roleprovider works
@@ -115,9 +117,9 @@ public class RoleProviderTest extends SakaiKernelTestBase {
 		
 		// Make people in site2 with the right permission be able to modify site one.
 		session.setUserId("user1");
-		assertTrue(siteService.allowUpdateSite(site1.getId()));
+		Assert.assertTrue(siteService.allowUpdateSite(site1.getId()));
 		session.setUserId("user2");
-		assertFalse(siteService.allowUpdateSite(site1.getId()));
+		Assert.assertFalse(siteService.allowUpdateSite(site1.getId()));
         /*
 		session.setUserId("user3");
 		assertTrue(siteService.allowUpdateSite(site1.getId()));

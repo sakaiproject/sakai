@@ -3,6 +3,12 @@
 	var origWrapWidth = 0;
 	var CLICK_PANEL_WIDTH = 299;
 	var QP_ENABLED = true;
+	questionProgress.nonLinear;
+	var arrowImgPrefix = "img[id*='";
+	var arrowSuffix = "']";
+	var rightArrowSuffix = ":rightArrow";
+	var downArrowSuffix = ":downArrow";
+
 	$('#questionProgressClick').click(function () {
 		toggle(400);
 		setQPToggleOn(!getQPToggleOn());
@@ -14,8 +20,6 @@
 		var clickWidth = document.getElementById("questionProgressClick").offsetWidth;
 		var panelWidth = CLICK_PANEL_WIDTH;
 		var newWrapWidth = (wrapWidth - clickWidth) - panelWidth;
-		var clickHeight = $("#questionProgressClick").height();
-		var panelHeight = $("#questionProgressPanel").height();
 
 		if (!QPToggleOn) {
 			origWrapWidth = wrapWidth;
@@ -27,7 +31,6 @@
 		$("#qpOpen").toggle();
 		$("#qpClose").toggle();
 		$("#questionProgressPanel").toggle("slide", {direction: "right"});
-		var panelHeight = $("#questionProgressPanel").height();
 
 		// Position the clickTab
 		if (!QPToggleOn) {
@@ -49,41 +52,76 @@
 		localStorage.setItem('QPToggleOn', (QPToggleOn ? '1' : '0'));
 	}
 
+	function partLinkClickEvent(event) {
+		$(event.data.rightArrow).slideToggle();
+		$(event.data.downArrow).slideToggle();
+		$(event.data.item).slideToggle();
+		event.preventDefault();
+	}
+
+	function selectAllPartTableDivs() {
+		return $("div[id*='partTable']");
+	}
+
+	function setUpClickHandlersForParts() {
+		var allParts = selectAllPartTableDivs();
+		var temp;
+		var rightArrow;
+		var downArrow;
+		var part;
+		for(var i = 0; i < allParts.size(); i++) {
+			temp = allParts[i].id;
+			temp = temp.replace("Table", "Link");
+			part = parseInt(temp.substr(9)) - 1;
+			rightArrow = arrowImgPrefix + part + rightArrowSuffix + arrowSuffix;
+			downArrow = arrowImgPrefix + part + downArrowSuffix + arrowSuffix;
+			$("#" + temp).on("click", {
+				item: allParts[i],
+				rightArrow: rightArrow,
+				downArrow: downArrow
+			}, partLinkClickEvent);
+		}
+	}
+
+	function transposeHelper(tableListId) {
+		var MAXCOLUMNS = 5;
+		var oldTable = document.getElementById(tableListId);
+		var newTable = document.createElement("table");
+
+		var newRowCount = 0;
+		var colCount = 0;
+
+		newTable.insertRow(newRowCount); // create row
+		for (var oldRowCount = 0; oldRowCount < oldTable.rows.length; oldRowCount++) {
+			newTable.rows[newRowCount].insertCell(colCount); // create cell
+
+			// Set new cell equal to what was in the old row
+			var cellText = oldTable.rows[oldRowCount].cells[0].innerHTML; // always just one column in the original rows
+
+			newTable.rows[newRowCount].cells[colCount].innerHTML = cellText; // drop the dot.
+			colCount++;
+
+			if (colCount > (MAXCOLUMNS - 1)) { // reset & go to next row in new table
+				newRowCount++;
+				colCount = 0;
+				newTable.insertRow(newRowCount); //create new row
+			}
+		}
+		var temp = oldTable.ownerDocument.createElement('div');
+		temp.innerHTML = '<table>' + newTable.innerHTML + '</table>';
+		temp.firstChild.id = oldTable.id;
+		temp.firstChild.className += oldTable.className;
+		oldTable.parentNode.replaceChild(temp.firstChild, oldTable);
+	}
+
 	// This method transposes the table of contents table from displaying everything in one column to
 	// rather display in a more space efficient table with 10 columns per row.
 	questionProgress.transposeTOCTables = function() {
-		var MAXCOLUMNS = 5;
 		var tableList = document.getElementsByTagName("table");
+
 		for (var i = 0; i < tableList.length; i++) { // loop thru all tables to find the ones we want
 			if (tableList[i].id.indexOf("tocquestions") > 0) {
-				var oldTable = document.getElementById(tableList[i].id);
-				var newTable = document.createElement("table");
-
-				var colCount = 0;
-				var newRowCount = 0;
-				var colCount = 0;
-
-				newTable.insertRow(newRowCount); // create row
-				for (var oldRowCount = 0; oldRowCount < oldTable.rows.length; oldRowCount++) {
-					newTable.rows[newRowCount].insertCell(colCount); // create cell
-
-					// Set new cell equal to what was in the old row
-					var cellText = oldTable.rows[oldRowCount].cells[0].innerHTML; // always just one column in the original rows
-
-					newTable.rows[newRowCount].cells[colCount].innerHTML = cellText; // drop the dot.
-					colCount++;
-
-					if (colCount > (MAXCOLUMNS - 1)) { // reset & go to next row in new table
-						newRowCount++;
-						colCount = 0;
-						newTable.insertRow(newRowCount); //create new row
-					}
-				}
-				var temp = oldTable.ownerDocument.createElement('div');
-				temp.innerHTML = '<table>' + newTable.innerHTML + '</table>';
-				temp.firstChild.id = oldTable.id;
-				temp.firstChild.className += oldTable.className;
-				oldTable.parentNode.replaceChild(temp.firstChild, oldTable);
+				transposeHelper(tableList[i].id);
 			}// end if tab.id
 		} //end tableList for
 	};
@@ -112,14 +150,23 @@
 
 			document.getElementById('delivAssessmentWrapper').style.width = newWrapWidth + "px";
 			document.getElementById('questionProgressClick').style.marginTop = clickPos + "px";
+
+			setUpClickHandlersForParts();
+			var tables = selectAllPartTableDivs();
+			var currentPart = $(":input[id*=partIndex]").val();
+			$(tables[currentPart]).show();
 		}
 
 	};
 
-	// Hide Question Progress panel if strict linear nav. Also hide if there's more than one question on the page
+	// Hide if there's more than one question on the page
 	questionProgress.access = function(navigation, layout) {
-		if (navigation == '2' && layout == '1') {
+		if(layout === 1) { // one question per page
 			document.getElementById('questionProgressClick').style.display = "block";
+			questionProgress.nonLinear = true;
+			if (navigation === 1) { // Linear assessment
+				questionProgress.nonLinear = false;
+			}
 		} else {
 			$("#questionProgressClick").hide();
 			$("#questionProgressPanel").hide();

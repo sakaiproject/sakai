@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="sakaiFCKTextEvolver" class="org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver">
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
@@ -13,9 +12,10 @@
 	</bean>
 
 	<!-- rich text evolver bean def -->
-	<bean id="richTextEvolver" class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
-		<property name="targetBeanName" value="sakaiFCKTextEvolver" />
-	</bean>
+	<bean id="richTextEvolver" class="uk.org.ponder.springutil.BeanReferenceFactoryBean">
+            <property name="targetBeanName" value="sakaiFCKTextEvolver" />
+    </bean>
+	<!-- <alias name="sakaiFCKTextEvolver" alias="richTextEvolver"/> -->
    
        <bean id="fieldDateTransit" parent="beanExploder">
                 <property name="factory">

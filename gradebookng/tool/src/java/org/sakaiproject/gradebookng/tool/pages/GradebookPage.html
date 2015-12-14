@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<body>
+
+<wicket:head>
+  <wicket:link>
+    <!-- Drag and Drop/Date Picker (requires jQueryUI) -->
+    <script src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+
+    <!-- Include Sakai Date Picker -->
+    <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+    <!-- GradebookNG Grade specific behaviour -->
+    <link rel="stylesheet" type="text/css" href="/gradebookng-tool/styles/gradebook-grades.css"/>
+    <script src="/gradebookng-tool/scripts/gradebook-grades.js"></script>
+    <script src="/gradebookng-tool/scripts/gradebook-grade-summary.js"></script>
+    <script src="/gradebookng-tool/scripts/gradebook-update-ungraded.js"></script>
+  </wicket:link>
+</wicket:head>
+
+<wicket:extend>
+  <form wicket:id="form">
+    <p>
+      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button" aria-haspopup="true">
+      	 <wicket:message key="button.addgradeitem" />
+      </button>
+    </p>
+    
+    <div wicket:id="addOrEditGradeItemWindow" />
+    <div wicket:id="studentGradeSummaryWindow" />
+    <div wicket:id="updateUngradedItemsWindow" />
+	<div wicket:id="gradeLogWindow" />
+	<div wicket:id="gradeCommentWindow" />
+	<div wicket:id="deleteItemWindow" />
+    
+    <div id="gradebookGrades">
+      <div id="gradebookGradesToolbar">
+        <ul class="gb-toolbar-left">
+          <li>
+            <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
+            <select id="filterByGroup" wicket:id="groupFilter">
+              <option value="1">Section 1</option>
+              <option value="2">Section 2</option>
+            </select>
+          </li>
+        </ul>
+        <ul class="gb-toolbar-right">
+          <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
+          <li>
+            <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" aria-popup="true" aria-controls="gradeItemsTogglePanel">Show/Hide Items</button>
+          </li>
+          <li>
+            <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" aria-controls="gradebookGradesTable">Group By Category</button>
+          </li>
+        </ul>
+      </div>
+      <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
+	  <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
+	  <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
+    </div>
+  </form>
+
+  <div wicket:id="gradeItemsTogglePanel" id="gradeItemsTogglePanel" style="display: none;"/>
+  <div id="gradeItemsConcurrentUserWarning" style="display: none;">
+    <ul class="gb-popover-notifications">
+      <li class="gb-popover-notification-concurrentedit text-danger">
+        <wicket:message key="grade.notifications.concurrenteditbyuser" />
+      </li>
+    </ul>
+  </div>
+  <div id="categoryTableHeader" style="display: none;">
+    <span class="gb-category-label">
+      <span class="gb-category-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
+      <span class="gb-category-name"></span>
+      <span class="gb-category-weight"></span>
+    </span>
+  </div>
+</wicket:extend>
+
+</body>
+</html>

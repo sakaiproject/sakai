@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="org.sakaiproject.portal.render.api.ToolRenderService"
-          class="org.sakaiproject.portal.render.compat.CompatibilityToolRenderService"
-          singleton="true">
+          class="org.sakaiproject.portal.render.compat.CompatibilityToolRenderService">
         <property name="renderServices">
             <list>
-                <ref local="portletRenderService"/>
-                <ref local="fragmentRenderService"/>
-                <ref local="iframeRenderService"/>
+                <ref bean="portletRenderService"/>
+                <ref bean="fragmentRenderService"/>
+                <ref bean="iframeRenderService"/>
             </list>
         </property>
     </bean>
@@ -28,7 +26,7 @@
     <bean id="portletRenderService" name="portletRenderService"
           class="org.sakaiproject.portal.render.portlet.PortletToolRenderService">
         <property name="portletStateEncoder">
-            <ref local="portletStateEncoder"/>
+            <ref bean="portletStateEncoder"/>
         </property>
         <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
     </bean>
@@ -36,7 +34,7 @@
     <bean id="portletStateEncoder"
           class="org.sakaiproject.portal.render.portlet.services.state.EnhancedPortletStateEncoder">
         <property name="urlSafeEncoder">
-            <ref local="urlSafeEncoder"/>
+            <ref bean="urlSafeEncoder"/>
         </property>
     </bean>
 

@@ -54,6 +54,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.LessonBuilderStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.Stat;
@@ -442,6 +443,40 @@ public class ReportDataPage extends BasePage {
 					}else{
 						if(!"".equals(refAction.trim()))
 							action = (String) new ResourceModel("action_"+refAction).getObject();
+					}
+					item.add(new Label(componentId, action));
+				}
+			});
+		}
+        // lessonbuilder page
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_PAGE)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_page"), columnsSortable ? ReportsDataProvider.COL_PAGE : null, ReportsDataProvider.COL_PAGE) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					LessonBuilderStat stat = (LessonBuilderStat) model.getObject();
+					final String ref = stat.getPageRef();
+					String lnkLabel = stat.getPageTitle();
+					String imgUrl = "", lnkUrl = "";
+				    if (lnkLabel == null) {
+					    lnkLabel = (String) new ResourceModel("resource_unknown").getObject();
+					}
+					Component resourceComp = new ImageWithLink(componentId, imgUrl, lnkUrl, lnkLabel, "_new");
+					item.add(resourceComp);
+				}
+			});
+		}
+        // lessonbuilder page action
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_PAGE_ACTION)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_action"), columnsSortable ? ReportsDataProvider.COL_ACTION : null, ReportsDataProvider.COL_ACTION) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final String pageAction = ((LessonBuilderStat) model.getObject()).getPageAction();
+					String action = "";
+					if (pageAction == null){
+						action = "";
+					} else {
+						if (!"".equals(pageAction.trim()))
+							action = (String) new ResourceModel("action_" + pageAction).getObject();
 					}
 					item.add(new Label(componentId, action));
 				}

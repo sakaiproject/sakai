@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org.sakaiproject.mailarchive.api.MailArchiveService"
 			class="org.sakaiproject.mailarchive.impl.DbMailArchiveService"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="notificationService"><ref bean="org.sakaiproject.event.api.NotificationService"/></property>
@@ -33,7 +32,7 @@
 	<bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.mailarchive"
       parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
       class="org.sakaiproject.mailarchive.user.prefs.MailArchiveUserNotificationPreferencesRegistrationImpl"
-      init-method="init" singleton="true">
+      init-method="init">
       <property name="bundleLocation"><value>mailarchive-noti-prefs</value></property>
       <property name="sectionTitleBundleKey"><value>prefs_title</value></property>
       <property name="sectionDescriptionBundleKey"><value>prefs_description</value></property>

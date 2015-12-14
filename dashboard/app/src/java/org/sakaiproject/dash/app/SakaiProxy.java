@@ -82,8 +82,23 @@ public interface SakaiProxy {
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS;
 	
+    /* Here are the samigo events we care about
+       sam.assessment.publish | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, assessmentId=9, publishedAssessmentId=13 
+       sam.pubsetting.edit    | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publishedAssessmentId=13 
+       sam.pubassessment.confirm_edit | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publishedAssessmentId=13 
+       sam.pubassessment.republish    | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publishedAssessmentId=13  
+       sam.pubAssessment.remove       | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publisedAssessmentId=13  
+    */
+
+	public static final String EVENT_PUBASSESSMENT_PUBLISH = "sam.assessment.publish";
+	public static final String EVENT_PUBASSESSMENT_SETTINGS = "sam.pubsetting.edit";
+	public static final String EVENT_PUBASSESSMENT_UNPUBLISH = "sam.pubassessment.confirm_edit";
+	public static final String EVENT_PUBASSESSMENT_REPUBLISH = "sam.pubassessment.republish";
+	public static final String EVENT_PUBASSESSMENT_REMOVE = "sam.pubAssessment.remove";
+
 	public static final String PERMIT_ANNOUNCEMENT_ACCESS = AnnouncementService.SECURE_ANNC_READ;
     public static final String PERMIT_ANNOUNCEMENT_ACCESS_DRAFT = AnnouncementService.SECURE_ANNC_READ_DRAFT;
+	public static final String PERMIT_SAMIGO_ACCESS = "assessment.takeAssessment";
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_ASSIGNMENT_SHARE_DRAFTS = AssignmentService.SECURE_SHARE_DRAFTS;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;

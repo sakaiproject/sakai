@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
     <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.messageforum" 
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="mappingResources">
@@ -55,7 +57,7 @@
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
-        class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl" init-method="init" singleton="true">
+        class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl" init-method="init">
         <property name="typeManager">
             <ref bean="org.sakaiproject.api.common.type.TypeManager"/>
         </property>  
@@ -75,7 +77,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.PermissionManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.PermissionManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -153,7 +155,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.PermissionLevelManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.PermissionLevelManagerImpl" init-method="init">
                 <property name="autoDdl">
       						<value>${auto.ddl}</value>
 		    				</property>
@@ -189,7 +191,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.AreaManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.AreaManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -226,7 +228,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
 		<property name="target">
-			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsForumManagerImpl" singleton="true" init-method="init">
+			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsForumManagerImpl" init-method="init">
 				<property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 				</property>   
@@ -258,7 +260,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsMessageManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsMessageManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -291,7 +293,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.ui.PrivateMessageManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.ui.PrivateMessageManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -333,7 +335,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -394,7 +396,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsUserManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsUserManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -421,7 +423,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl" singleton="true" init-method="init">            
+            <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl" init-method="init">            
                 <property name="siteService">
                   <ref bean="org.sakaiproject.site.api.SiteService"/>
                 </property>
@@ -504,7 +506,7 @@
 
 	<bean id="forumsAdaptor"
 		class="org.sakaiproject.component.app.messageforums.entity.MessageForumsEntityContentProducer"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="searchService">
 			<ref bean="org.sakaiproject.search.api.SearchService" />
 		</property>
@@ -544,7 +546,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.EmailNotificationManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.EmailNotificationManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -586,7 +588,7 @@
              <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
          </property>
  		<property name="target">
- 			<bean class="org.sakaiproject.component.app.messageforums.SynopticMsgcntrManagerImpl" singleton="true" init-method="init">
+ 			<bean class="org.sakaiproject.component.app.messageforums.SynopticMsgcntrManagerImpl" init-method="init">
  				<property name="sessionFactory">
                      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                  </property>
@@ -644,7 +646,7 @@
     	
     <bean id="UpdateSynopticMessageCountsJob"
        class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-       singleton="true" init-method="init">
+       init-method="init">
        <property name="beanId">
           <value>org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts</value>
        </property>
@@ -661,7 +663,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.RankManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.RankManagerImpl" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>

@@ -299,6 +299,10 @@ public class DeliveryBean
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
   private static String EXTENDED_TIME_KEY = "extendedTime";
+
+  private static String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
+  private static String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
+  private static String questionProgressMardPath = ServerConfigurationService.getString("samigo.questionprogress.mardpath", "/images/questionMarkBubble15.png");
   
   /**
    * Creates a new DeliveryBean object.
@@ -3058,6 +3062,9 @@ public class DeliveryBean
   }
 
   private void removeTimedAssessmentFromQueue(){
+    if (adata==null) {
+      return;
+    }
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
                                              get(adata.getAssessmentGradingId());
@@ -3069,6 +3076,12 @@ public class DeliveryBean
 
   public void syncTimeElapsedWithServer(){
 	    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
+	      if (adata==null) {
+	         if (log.isDebugEnabled()) {
+	            log.debug("aData is null for actionString"+actionString);
+	         }
+	         return;
+	      }
 	      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 	      if (timedAG != null){
@@ -3088,6 +3101,12 @@ public class DeliveryBean
 	  
 	  public void syncTimeElapsedWithServerLinear(){
 		    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
+		      if (adata==null) {
+		          if (log.isDebugEnabled()) {
+		              log.debug("aData is null for actionString"+actionString);
+		          }
+		          return;
+		      }
 		      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 		      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 		      if (timedAG != null){
@@ -4120,6 +4139,17 @@ public class DeliveryBean
 		  headMJ.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n");
 		  return headMJ.toString();
 	  }
-	  
+
+    public String getQuestionProgressUnansweredPath () {
+      return questionProgressUnansweredPath;
+    }
+
+    public String getQuestionProgressAnsweredPath () {
+      return questionProgressAnsweredPath;
+    }
+
+    public String getQuestionProgressMardPath () {
+      return questionProgressMardPath;
+    }
 }
 

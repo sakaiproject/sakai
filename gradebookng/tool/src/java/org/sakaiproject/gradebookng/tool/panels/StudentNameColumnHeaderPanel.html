@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+	
+	<div wicket:id="title" class="gb-title"></div>
+	
+	<div class="gb-student-filter">
+	  <label for="studentFilterInput" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
+	  <input type="text" id="studentFilterInput" wicket:message="placeholder:filter.students" aria-controls="gradebookGradesTable" />
+	  <a id="studentFilterClear" class="gb-student-filter-clear" href="javascript:void(0);" aria-controls="studentFilterInput" aria-label="Clear student filter"></a>
+	</div>
+	
+	<div class="btn-group">
+	    <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
+	    	<span class="caret"></span>
+	    </a>
+	    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+	   		<li><a wicket:id="sortByName" href="#" role="menuitem" aria-controls="gradebookGradesTable"><span wicket:id="sortByNameLabel">Sort by First/Last Name</span></a></li>
+	    </ul>
+    </div>
+	
+</wicket:panel>
+</body>
+</html>

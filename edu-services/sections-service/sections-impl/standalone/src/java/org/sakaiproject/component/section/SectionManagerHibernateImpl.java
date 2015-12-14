@@ -84,7 +84,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 */
 	public List<CourseSection> getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
-    	return getHibernateTemplate().findByNamedQueryAndNamedParam("findSectionsBySiteContext", "context", siteContext);
+    	return (List<CourseSection>) getHibernateTemplate().findByNamedQueryAndNamedParam("findSectionsBySiteContext", "context", siteContext);
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	            return q.list();
 	        }
         };
-        return getHibernateTemplate().executeFind(hc);
+        return (List<CourseSection>) getHibernateTemplate().executeFind(hc);
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	        	return getSection(sectionUuid, session);
 	        }
         };
-        return (CourseSection)getHibernateTemplate().execute(hc);
+        return (CourseSection) getHibernateTemplate().execute(hc);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 return q.list();
             }
         };
-        return getHibernateTemplate().executeFind(hc);
+        return (List<ParticipationRecord>) getHibernateTemplate().executeFind(hc);
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 return q.list();
             }
         };
-        return getHibernateTemplate().executeFind(hc);
+        return (List<ParticipationRecord>) getHibernateTemplate().executeFind(hc);
 	}
 	
 	/**
@@ -156,7 +156,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 return q.list();
             }
         };
-        return getHibernateTemplate().executeFind(hc);
+        return (List<EnrollmentRecord>) getHibernateTemplate().executeFind(hc);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 return q.list();
             }
         };
-        return getHibernateTemplate().executeFind(hc);
+        return (List<ParticipationRecord>) getHibernateTemplate().executeFind(hc);
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 return q.list();
             }
         };
-        return getHibernateTemplate().executeFind(hc);
+        return (List<EnrollmentRecord>) getHibernateTemplate().executeFind(hc);
 	}
 
 	/**
@@ -851,7 +851,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	return q.list();
             }
         };
-        return getHibernateTemplate().executeFind(hc);
+        return (List<EnrollmentRecord>) getHibernateTemplate().executeFind(hc);
 	}
 
 	/**

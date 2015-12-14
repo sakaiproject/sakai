@@ -21,8 +21,6 @@
 
 package org.sakaiproject.dash.logic;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +32,6 @@ import java.util.Observer;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Collection;
 
@@ -42,6 +39,7 @@ import net.sf.ehcache.Cache;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.dash.app.DashboardCommonLogic;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.app.DashboardUserLogic;
@@ -56,16 +54,15 @@ import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
-import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
-
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  * 
@@ -139,8 +136,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	// strings to indicate dashboard link type
 	private static final String CALENDAR_LINK_TYPE = "calendar_link_type";
 	private static final String NEWS_LINK_TYPE = "news_link_type";
-	
-	
+
 	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
@@ -174,7 +170,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
 	}
-	
+
+	protected PlatformTransactionManager transactionManager;
+	public void setTransactionManager(PlatformTransactionManager txManager) {
+	    transactionManager = txManager;
+	}	
+
 	protected Cache cache;
 
 	public void setCache(Cache cache) {
@@ -487,6 +488,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	 * @param itemRef
 	 * @param b
 	 */
+	@Transactional
 	protected void saveEventLocally(String event, String itemRef, boolean b) {
 		// event_date timestamp, event varchar (32), itemRef varchar (255), 
 		// contextId varchar (255), session_id varchar (163), event_code varchar (1)
@@ -501,6 +503,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	/**
 	 * @param time
 	 */
+	@Transactional
 	protected void removeAvailabilityChecksBeforeTime(Date time) {
 		
 		dao.deleteAvailabilityChecksBeforeTime(time);
@@ -532,7 +535,6 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			this.sakaiProxy.addLocalEventListener(this);
 			
 		}
-		
 		
 	}
 	
@@ -638,8 +640,19 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			timeToQuit = true;
 		}
 
+	    // WARNING
+	    // The database layer we're using, jdbctemplate, requires explicit commits or putting all
+	    // changes in a transaction. We're using a @Transactional annotation for the layer right
+	    // above the Dao to put everything in transactions. But that doesn't seem to work for this
+	    // background task. Thus I'm putting every interation of the loop in a transaction explicitly
+
 		public void run() {
+			// wait till ComponentManager is ready
+			ComponentManager.waitTillConfigured();
+
+			TransactionStatus status = null;
 			try {
+				DefaultTransactionDefinition defaultTransaction = new DefaultTransactionDefinition();
 				dashboardEventProcessorThreadId = Thread.currentThread().getId();
 				logger.info("Started Dashboard Event Processing Thread: " + dashboardEventProcessorThreadId);
 				if(propLoopTimerEnabledLocally == null) {
@@ -653,6 +666,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 								
 				sakaiProxy.startAdminSession();
 				while(! timeToQuit) {
+				        status = transactionManager.getTransaction(defaultTransaction);
 					if(loopTimerEnabled) {
 						loopTimer = System.currentTimeMillis();
 						loopActivity = "nothing";
@@ -692,7 +706,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 									if(loopTimerEnabled) {
 										loopActivity = "checkingTimeForRepeatedEvents";
 									}
-									updateRepeatingEvents(true);	
+									updateRepeatingEvents(true);
 								} else {
 									// TODO: move to checkForAdminUpdates
 									if(loopTimerEnabled) {
@@ -743,7 +757,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 						if(logger.isDebugEnabled()) {
 							logger.debug("Dashboard Event Processing Thread is processing event: " + event.getEvent());
 						}
-						EventProcessor eventProcessor = dashboardLogic.getEventProcessor(event.getEvent());
+						final EventProcessor eventProcessor = dashboardLogic.getEventProcessor(event.getEvent());
 						
 						SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
 						sakaiProxy.pushSecurityAdvisor(advisor);
@@ -775,7 +789,8 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 							logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
 						}
 					}
-
+					transactionManager.commit(status);
+					status = null;
 				}
 				
 				logger.warn(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE);
@@ -783,7 +798,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			} catch(Throwable t) {
 				logger.error("Unhandled throwable is stopping Dashboard Event Processing Thread", t);
 				throw new RuntimeException(t);
+			} finally {
+			    // abnormal termination, on normal end of loop status is set null
+				if (status != null)
+				    transactionManager.rollback(status);
 			}
+				   
 		}
 
 	}
@@ -1558,10 +1578,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		}
 	}
 
+	@Transactional
 	private void purgeNewsItems() {
 		dao.deleteNewsItemsWithoutLinks();
 	}
 
+	@Transactional
 	protected void expireNewsLinks(Date expireBefore, boolean starred, boolean hidden) {
 		dao.deleteNewsLinksBefore(expireBefore,starred,hidden);
 		
@@ -1587,11 +1609,13 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		}
 	}
 
+	@Transactional
 	private void purgeCalendarItems() {
 		dao.deleteCalendarItemsWithoutLinks();
 		
 	}
 
+	@Transactional
 	protected void expireCalendarLinks(Date expireBefore, boolean starred, boolean hidden) {
 		dao.deleteCalendarLinksBefore(expireBefore, starred, hidden);
 	}

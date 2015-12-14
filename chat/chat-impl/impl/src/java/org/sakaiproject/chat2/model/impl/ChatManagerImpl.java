@@ -598,7 +598,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     protected ChatMessage getMigratedMessage(String migratedMessageId) {
-        List<ChatMessage> messages = getHibernateTemplate().findByNamedQuery("findMigratedMessage", migratedMessageId);
+        List<ChatMessage> messages = (List<ChatMessage>) getHibernateTemplate().findByNamedQuery("findMigratedMessage", migratedMessageId);
         ChatMessage message = null;
         if (messages.size() > 0)
             message = messages.get(0);
@@ -610,7 +610,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public List<ChatChannel> getContextChannels(String context, boolean lazy) {
-        List<ChatChannel> channels = getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
+        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
         if (!lazy) {
             for (Iterator<ChatChannel> i = channels.iterator(); i.hasNext();) {
                 ChatChannel channel = i.next();
@@ -625,7 +625,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public List<ChatChannel> getContextChannels(String context, String defaultNewTitle, String placement) {
-        List<ChatChannel> channels = getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
+        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
 
         if(channels.size() == 0) {
             try {
@@ -647,7 +647,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public ChatChannel getDefaultChannel(String contextId, String placement) {
-        List<ChatChannel> channels = getHibernateTemplate().findByNamedQuery("findDefaultChannelsInContext", new Object[] {contextId, placement});
+        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQuery("findDefaultChannelsInContext", new Object[] {contextId, placement});
         if (channels.size() == 0) {
             channels = getContextChannels(contextId, "", placement);
         }

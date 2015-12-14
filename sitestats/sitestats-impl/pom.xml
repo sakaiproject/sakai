@@ -63,6 +63,10 @@
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-component-shared</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lessonbuilder</groupId>
+            <artifactId>lessonbuilder-api</artifactId>
+      	</dependency>
 
         <!-- Spring & Hibernate -->
         <dependency>

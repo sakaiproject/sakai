@@ -454,6 +454,9 @@ public class BeginDeliveryActionListener implements ActionListener
     		}
     	}
     	else {
+    		if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0) {
+    			control.setTimeLimit(extTimeService.getTimeLimit());
+    		}
     		String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
     		Date attemptDate = unSubmittedAssessmentGrading.getAttemptDate();
     		delivery.setBeginTime(attemptDate);

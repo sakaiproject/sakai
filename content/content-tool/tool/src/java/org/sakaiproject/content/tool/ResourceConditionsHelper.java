@@ -119,6 +119,10 @@ public class ResourceConditionsHelper {
 			
 			String containingCollectionId = item.containingCollectionId;
 			String resourceId = item.getId();
+			String extension = params.get("extension" + ListItem.DOT + index);
+			if (extension != null && !extension.equals("")) {
+				resourceId = resourceId + extension;
+			}
 			if (! resourceId.startsWith(containingCollectionId)) {
 				resourceId = containingCollectionId + resourceId;
 				if (item.isCollection() && !resourceId.endsWith("/")) resourceId = resourceId + "/";
@@ -135,7 +139,6 @@ public class ResourceConditionsHelper {
 			notification.setResourceFilter(submittedResourceFilter);
 			if (missingTermQuery.contains("Date")) {
 				notification.addFunction("datetime.update");
-				notification.setResourceFilter(null);
 			}
 			notification.setAction(resourceConditionRule);
 			notification.getProperties().addProperty(ConditionService.PROP_SUBMITTED_FUNCTION_NAME, submittedFunctionName);
@@ -180,7 +183,7 @@ public class ResourceConditionsHelper {
 					item.setConditionArgument(notification.getProperties().getProperty(ConditionService.PROP_CONDITIONAL_RELEASE_ARGUMENT));					
 				}
 			} catch (NotificationNotDefinedException e) {
-				VelocityPortletPaneledAction.addAlert(state, rb.getString("conditions.notification.load.error"));								
+				VelocityPortletPaneledAction.addAlert(state, rb.getString("notification.load.error"));								
 			}					
 		}
 		

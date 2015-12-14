@@ -2,6 +2,7 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.sakaiproject.conditions.api.ConditionProvider;
 import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 
 public class GradebookConditionsProvider implements ConditionProvider {
 	
@@ -32,13 +34,13 @@ public class GradebookConditionsProvider implements ConditionProvider {
 
 	public Map<String, String> getEntitiesForContext(String gradebookUid) {
 
-		Map<String, String> rv = new HashMap<String, String>();
+		Map<String, String> rv = new LinkedHashMap<String, String>();
 
 		if (!gbs.isGradebookDefined(gradebookUid)) {
 			return rv;
 		}
 		
-		List<Assignment> assignments = gbs.getAssignments(gradebookUid);
+		List<Assignment> assignments = gbs.getAssignments(gradebookUid, SortType.SORT_BY_NAME);
 		for (Assignment asn : assignments) {
 			String assignmentName = asn.getName();
 			String assignmentPoints = asn.getPoints().toString();

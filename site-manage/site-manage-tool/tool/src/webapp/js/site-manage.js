@@ -1050,3 +1050,42 @@ var toggleArchiveTermList = function() {
 
 }
 
+function checkEnableRemove()
+{
+    var selected = false;
+    var checkboxes = document.getElementsByName( "providerClassDeletes" );
+    if( checkboxes !== null )
+    {
+        selected = findSelectedInCheckboxes( checkboxes );
+    }
+
+    checkboxes = document.getElementsByName( "cmRequestedClassDeletes" );
+    if( checkboxes !== null && !selected )
+    {
+        selected = findSelectedInCheckboxes( checkboxes );
+    }
+
+    checkboxes = document.getElementsByName( "manualClassDeletes" );
+    if( checkboxes !== null && !selected )
+    {
+        selected = findSelectedInCheckboxes( checkboxes );
+    }
+
+    var btnRemove = document.getElementById( "btnRemove" );
+    btnRemove.disabled = !selected;
+    btnRemove.className = (selected ? "active" : "");
+}
+
+function findSelectedInCheckboxes( checkboxes )
+{
+    if( checkboxes !== null )
+    {
+        for( var i = 0; i < checkboxes.length; i++ )
+        {
+            if( checkboxes[i].checked )
+            {
+                return true;
+            }
+        }
+    }
+}

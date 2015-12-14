@@ -101,11 +101,5 @@ public class ComponentBuilder {
 			dir.delete();
 		}
 	}
-	
-	@Override
-	protected void finalize() {
-		tearDown();
-	}
-	
 
 }

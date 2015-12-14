@@ -21,43 +21,19 @@
 
 package org.sakaiproject.util;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-/**
- * @author ieb
- */
-public class TrustedLoginTokenTest extends TestCase
+public class TrustedLoginTokenTest
 {
-
 	private static final Log log = LogFactory.getLog(TrustedLoginTokenTest.class);
 
-	public TrustedLoginTokenTest(String name)
-	{
-		super(name);
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	protected void setUp() throws Exception
-	{
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	protected void tearDown() throws Exception
-	{
-	}
-
+	@Test
 	public void testDecode() throws Exception
 	{
 		String user = "usersid";
@@ -75,12 +51,10 @@ public class TrustedLoginTokenTest extends TestCase
 		{
 			String decodedUser = tlf.decodeToken(token);
 			
-			assertEquals("Users dont match ", user, decodedUser);
+			Assert.assertEquals("Users dont match ", user, decodedUser);
 		}
 		long end = System.currentTimeMillis();
 		double t = 1.0*(end - start) / 1000.0;
 		log.info("Per call " + t + " ms");
-
 	}
-
 }

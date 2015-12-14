@@ -84,7 +84,7 @@ public class ComponentManagerBean implements ComponentManager
 	 * 
 	 * @see org.sakaiproject.component.api.ComponentManager#get(java.lang.Class)
 	 */
-	public Object get(Class iface)
+	public <T> T get(Class<T> iface)
 	{
 		return getComponentManager().get(iface);
 	}

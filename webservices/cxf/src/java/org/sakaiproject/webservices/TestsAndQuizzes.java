@@ -28,6 +28,9 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.util.FormattedText;
 import org.w3c.dom.Document;
@@ -48,6 +51,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -329,5 +333,65 @@ public class TestsAndQuizzes extends AbstractWebService {
 		}
 		return null;
 	}
-	
+
+	/** 
+	 * poolAttachmentReport - Makes a report of all attachments included in one specified question pool. Optionally, fix the broken attachments making a copy of them in a new context.
+	 *
+	 * @param	String sessionId			the id of a valid session for user owner of the pool (NOT admin user)
+	 * @param	String user					the user EID we want to look into their question pools
+	 * @param	Long poolId					poolId for searching only in a single pool. Null searches in all pools of the userId.
+	 * @param	String contextToReplace		a site ID where user has access to, so broken attachments will be copied there and replaced in pool  
+	 * @return	String	       		 		a report of the attachments at every pool of the current user and the actions done on them 
+	 * 
+	 */
+	@WebMethod
+	@Path("/poolAttachmentReport")
+	@Produces("text/plain")
+	@GET
+	public String poolAttachmentReport(
+		@WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+		@WebParam(name = "user", partName = "user") @QueryParam("user") String user,
+		@WebParam(name = "poolId", partName = "poolId") @QueryParam("poolId") String poolId,
+		@WebParam(name = "contextToReplace", partName = "contextToReplace") @QueryParam("contextToReplace") String contextToReplace)
+	{
+		establishSession(sessionId);
+
+		ArrayList<Long> poolIds = new ArrayList<Long>();
+		StringBuilder resultado = new StringBuilder();
+		
+		LOG.debug("WS TestsAndQuizzes.poolAttachmentReport(): user - " + user);
+		
+		String userId=null;
+		try
+		{
+			userId=userDirectoryService.getUserId(user);
+		}
+		catch (Exception e)
+		{
+			LOG.warn("WS getUserId() failed for user: " + user);
+			return "";
+		}
+
+		if (contextToReplace.isEmpty()) contextToReplace=null;
+		
+		if (!poolId.isEmpty()) {
+			poolIds.add(new Long(poolId));
+		}
+		else 
+		{
+			List<?> qpif = questionPoolServiceImpl.getAllPools(userId);
+			for (int i=0;i<qpif.size();i++)
+			{
+				QuestionPoolFacade qp = (QuestionPoolFacade) qpif.get(i);
+				poolIds.add(qp.getQuestionPoolId());
+			}
+		}
+
+		//Calling the new report function in QuestionPoolService.
+		for (Long pId: poolIds) {
+			resultado.append(questionPoolServiceImpl.getUserPoolAttachmentReport(userId, pId, contextToReplace));
+		}
+
+		return resultado.toString();
+	}
 }

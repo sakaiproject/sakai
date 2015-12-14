@@ -1812,8 +1812,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return attach;
 	}
 
-	public void saveOrUpdateAttachments(List list) {
-		getHibernateTemplate().saveOrUpdateAll(list);
+	public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list) {
+	    for (AssessmentAttachmentIfc attachment : list) {
+	        getHibernateTemplate().saveOrUpdate(attachment);
+	    }
 	}
 
 	public List getAllActiveAssessmentsByAgent(final String siteAgentId) {
@@ -1849,7 +1851,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			newList.add(new_a);
 			assessmentMap.put(new_a, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId());
 		}
-		getHibernateTemplate().saveOrUpdateAll(newList); // write
+		for (AssessmentData assessmentData : newList) {
+		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
+        }
+		
 		// authorization
 		for (int i = 0; i < newList.size(); i++) {
 			AssessmentData a = (AssessmentData) newList.get(i);
@@ -1884,7 +1889,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				}
 			}
 		}
-		getHibernateTemplate().saveOrUpdateAll(newList); // write
+		for (AssessmentData assessmentData : newList) {
+		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
+		}
 		for (AssessmentData data: newList) {
 		    String oldRef = assessmentMap.get(data);
 		    if (oldRef != null && data.getAssessmentBaseId() != null)

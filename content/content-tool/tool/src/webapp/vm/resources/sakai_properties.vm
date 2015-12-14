@@ -245,7 +245,7 @@
 	
 	######### begin access section ##########
 	#if(!$model.isDropbox() && ! $model.isSiteCollection())
-		<p class="instruction">$model.longAccessLabel</p>
+		<p class="instruction">$model.getAccessInstruction()</p>
 		<div  class="labelindnt">
 			#set ($listDisplay="none")
 			#if($model.isSiteOnly())
@@ -275,21 +275,27 @@
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" />
 					<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
-			#elseif($model.isPubviewInherited())
-				## Public access inherited from parent (report that to user)
-				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#else
-				## Site is possible and either group or public is possible
+				## Site is possible; group and additional roles (including pubview) may be possible.
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && "$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
 					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end</label>
 				</p>
-				#if($model.isPubviewPossible())
-					## Public is possible
-					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!model.isPubview()) checked="checked"#end style="border:none" />
-						<label for="access_mode_public${DOT}$i">#if($model.isCollection())$tlang.getString("access.public.fldr")#else$tlang.getString("access.public.choice")#end</label>
-					</p>
+				#if($model.rolesAreAvailable())
+				<h4 style="margin-left: 40px;">$tlang.getString("access.additional")</h4>
+				<ul style="list-style: none;">
+					#foreach ($roleId in $model.availableRoleIds())
+						<li>
+							<input type="checkbox" name="access_roles${DOT}$i" id="access_role_$roleId${DOT}$i" value="$roleId"
+							       #if($model.hasRoleEnabled($roleId) || $model.inheritsRole($roleId)) checked="checked"#end
+							       #if($model.inheritsRole($roleId))   disabled="disabled"#end />
+							<label for="access_mode_$roleId${DOT}$i">
+								#if($model.inheritsRole($roleId))$tlang.getString("access.inherited")#end
+								#if($model.isCollection())$tlang.getString("access.role${roleId}.fldr")#else$tlang.getString("access.role${roleId}.choice")#end
+							</label>
+						</li>
+					#end
+				</ul>
 				#end
 				#if($model.isGroupPossible())
 					## Group is possible
@@ -305,6 +311,14 @@
 				#end
 			#end
 		</div>
+
+		#if($model.groupsAreMissing())
+			<div class="labelindnt">
+				<p class="alertMessageInline">
+					$tlang.getString("access.groups.missing")
+				</p>
+			</div>
+		#end
 
 		#if($model.isGroupPossible())
 			<table id="groupTable${DOT}$i" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">

@@ -41,6 +41,7 @@ public class ConnectionProviderDelegate implements ConnectionProvider
   /**
    * @see org.quartz.utils.ConnectionProvider#getConnection()
    */
+  @Override
   public Connection getConnection() throws SQLException {
 
      if (LOG.isDebugEnabled()){
@@ -56,7 +57,15 @@ public class ConnectionProviderDelegate implements ConnectionProvider
   /**
    * @see org.quartz.utils.ConnectionProvider#shutdown()
    */
+  @Override
   public void shutdown() throws SQLException {
+  }
+
+  /** (non-Javadoc)
+   * @see org.quartz.utils.ConnectionProvider#initialize()
+   */
+  @Override
+  public void initialize() throws SQLException {
   }
 
 }

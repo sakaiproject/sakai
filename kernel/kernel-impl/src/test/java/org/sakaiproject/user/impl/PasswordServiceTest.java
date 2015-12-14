@@ -1,8 +1,9 @@
 package org.sakaiproject.user.impl;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.user.impl.PasswordService;
-
-import junit.framework.TestCase;
 
 /**
  * Test the new password code.
@@ -10,48 +11,54 @@ import junit.framework.TestCase;
  * @author buckett
  *
  */
-public class PasswordServiceTest extends TestCase {
+public class PasswordServiceTest {
 	
 	PasswordService pwdService;
-	
+
+	@Before
 	public void setUp() throws Exception {
-		super.setUp();
 		pwdService = new PasswordService();
 	}
 
+	@Test
 	public void testEncryptOk() {
 		// Check salting is working.
-		assertNotSame(pwdService.encrypt("admin"), pwdService.encrypt("admin"));
+		Assert.assertNotSame(pwdService.encrypt("admin"), pwdService.encrypt("admin"));
 	}
 
+	@Test
 	public void testEncryptFail() {
-		assertFalse(pwdService.check("admin", "doesn't match"));
+		Assert.assertFalse(pwdService.check("admin", "doesn't match"));
 	}
 
+	@Test
 	public void testMigratedPassword() {
 		// Test of old password.
-		assertTrue(pwdService.check("admin", "ISMvKXpXpadDiUoOSoAf"));
-		assertTrue(pwdService.check("admin", "ISMvKXpXpadDiUoOSoAfww=="));
+		Assert.assertTrue(pwdService.check("admin", "ISMvKXpXpadDiUoOSoAf"));
+		Assert.assertTrue(pwdService.check("admin", "ISMvKXpXpadDiUoOSoAfww=="));
 		
 		// Test of migrated passwords
-		assertTrue(pwdService.check("admin", "MD5-SALT-SHA256:W2vRdA==:8QkvjZDLkqy5RoQUkRfOTG+C2FEhuq4sQyNxP7XKCvg=")); // MD5 admin password migrated.
-		assertTrue(pwdService.check("admin", "MD5TRUNC-SALT-SHA256:pgO3lQ==:KRWu18xxI1fJPeULNQeBUyL4FN3YMBShtkjf3PW4sSk=")); // MD5 trunc admin password migrated.
+		Assert.assertTrue(pwdService.check("admin", "MD5-SALT-SHA256:W2vRdA==:8QkvjZDLkqy5RoQUkRfOTG+C2FEhuq4sQyNxP7XKCvg=")); // MD5 admin password migrated.
+		Assert.assertTrue(pwdService.check("admin", "MD5TRUNC-SALT-SHA256:pgO3lQ==:KRWu18xxI1fJPeULNQeBUyL4FN3YMBShtkjf3PW4sSk=")); // MD5 trunc admin password migrated.
 	}
 
+	@Test
 	public void testRoundTripMigrated() {
 		// Round trip migration
-		assertTrue(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.encrypt("ISMvKXpXpadDiUoOSoAfww==")));
-		assertTrue(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.encrypt("ISMvKXpXpadDiUoOSoAf")));
-		assertFalse(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.encrypt("Doesn't match.")));
-		assertFalse(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.encrypt("Not the same")));
+		Assert.assertTrue(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.encrypt("ISMvKXpXpadDiUoOSoAfww==")));
+		Assert.assertTrue(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.encrypt("ISMvKXpXpadDiUoOSoAf")));
+		Assert.assertFalse(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.encrypt("Doesn't match.")));
+		Assert.assertFalse(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.encrypt("Not the same")));
 	}
 
+	@Test
 	public void testUnsaltedSHA256() {
 		// Test of unsalted passwords (we don't create these).
-		assertTrue(pwdService.check("secret", pwdService.hash("secret", "SHA-256")));
-		assertFalse(pwdService.check("secret", pwdService.hash("different Secret", "SHA-256")));
+		Assert.assertTrue(pwdService.check("secret", pwdService.hash("secret", "SHA-256")));
+		Assert.assertFalse(pwdService.check("secret", pwdService.hash("different Secret", "SHA-256")));
 	}
 
+	@Test
 	public void testCheckCharacterRange() {
 		// Build the string or strange characters.
 		StringBuilder password = new StringBuilder(10000);
@@ -59,7 +66,7 @@ public class PasswordServiceTest extends TestCase {
 			password.append(ch);
 		}
 		String encrypted = pwdService.encrypt(password.toString());
-		assertTrue(pwdService.check(password.toString(), encrypted));
+		Assert.assertTrue(pwdService.check(password.toString(), encrypted));
 	}
 
 }

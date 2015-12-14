@@ -57,6 +57,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.util.Assert;
 
 /**
@@ -156,6 +158,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarItemsForRepeatingCalendarItem(org.sakaiproject.dash.model.RepeatingCalendarItem, java.util.Date, java.util.Date)
 	 */
 	@Override
+	@Transactional
 	public void addCalendarItemsForRepeatingCalendarItem(RepeatingCalendarItem repeatingEvent, Date beginDate, Date endDate) {
 		if(beginDate.before(endDate)) {
 			if(repeatingEvent == null || repeatingEvent.getSourceType() == null || repeatingEvent.getSourceType().getIdentifier() == null) {
@@ -249,6 +252,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinks(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void addCalendarLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -284,16 +288,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 						}
 					}
 					if(calendarLinks.size() > 0) {
-						
-						count = (Integer) this.transactionTemplate.execute(new TransactionCallback(){
-	
-							@Override
-							public Object doInTransaction(TransactionStatus status) {
-								
-								int count = dao.addCalendarLinks(calendarLinks);
-								return count;
-							}});
-						
+						count = dao.addCalendarLinks(calendarLinks);
 					}
 				}
 				
@@ -322,6 +317,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinksForContext(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void modifyLinksByContext(String contextId, String type, boolean addOrRemove) {
 		logger.info(this + " modifyLinksByContext: (" + contextId + ", " + type + "," + addOrRemove + ") ");
 		int count = 0;
@@ -383,6 +379,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinks(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void addNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("addNewsLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -418,14 +415,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 						}
 					}
 					if(newsLinks.size() > 0) {
-						
-						count = (Integer) this.transactionTemplate.execute(new TransactionCallback(){
-	
-							@Override
-							public Object doInTransaction(TransactionStatus status) {
-								int count = dao.addNewsLinks(newsLinks);
-								return count;
-							}});
+						count = dao.addNewsLinks(newsLinks);
 					}
 				}
 				
@@ -453,32 +443,29 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, org.sakaiproject.dash.model.RepeatingCalendarItem, java.lang.Integer)
 	 */
 	@Override
+	@Transactional
 	public CalendarItem createCalendarItem(final String title, final Date calendarTime,
 			final String calendarTimeLabelKey, final String entityReference, 
 			final Context context, final SourceType sourceType, final String subtype, 
 			final RepeatingCalendarItem repeatingCalendarItem, final Integer sequenceNumber) {
 
-		return (CalendarItem) transactionTemplate.execute(new TransactionCallback(){
-
-			@Override
-			public Object doInTransaction(TransactionStatus status) {
-				CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			CalendarItem calendarItem = new CalendarItem(title, calendarTime,
 						calendarTimeLabelKey, entityReference, context, sourceType, 
 						subtype, repeatingCalendarItem, sequenceNumber);
 				
-				CalendarItem rv = null;
-				boolean success = dao.addCalendarItem(calendarItem);
-				if(success) {
-					rv = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
-				}
-				return rv;
-			}});
+			CalendarItem rv = null;
+			boolean success = dao.addCalendarItem(calendarItem);
+			if(success) {
+				rv = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+			}
+			return rv;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarLinks(org.sakaiproject.dash.model.CalendarItem)
 	 */
 	@Override
+	@Transactional
 	public void createCalendarLinks(CalendarItem calendarItem) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
@@ -524,6 +511,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createContext(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public Context createContext(String contextId) { 
 		Context context = null;
 		if (contextId.equals(DashboardLogic.MOTD_CONTEXT))
@@ -551,22 +539,15 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createNewsItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public NewsItem createNewsItem(final String title, final Date newsTime,
 			final String labelKey, final String entityReference, final Context context, 
 			final SourceType sourceType, final String subtype) {
 		
-		// transaction
-		return (NewsItem) transactionTemplate.execute(new TransactionCallback(){
-
-			@Override
-			public Object doInTransaction(TransactionStatus status) {
-				NewsItem newsItem = new NewsItem(title, newsTime, 
-						labelKey, entityReference, context, sourceType, subtype);
-				
-				dao.addNewsItem(newsItem);
-
-				return dao.getNewsItem(entityReference) ;
-			}});
+		NewsItem newsItem = new NewsItem(title, newsTime, 
+						 labelKey, entityReference, context, sourceType, subtype);
+		dao.addNewsItem(newsItem);
+		return dao.getNewsItem(entityReference) ;
 		
 	}
 
@@ -574,6 +555,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createNewsLinks(org.sakaiproject.dash.model.NewsItem)
 	 */
 	@Override
+	@Transactional
 	public void createNewsLinks(NewsItem newsItem) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("createNewsLinks(" + newsItem + ")");
@@ -605,6 +587,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createRepeatingCalendarItem(java.lang.String, java.util.Date, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, int)
 	 */
 	@Override
+	@Transactional
 	public RepeatingCalendarItem createRepeatingCalendarItem(String title, Date firstTime,
 			Date lastTime, String calendarTimeLabelKey, String entityReference, Context context, 
 			SourceType sourceType, String frequency, int count) {
@@ -625,6 +608,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createSourceType(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public SourceType createSourceType(String identifier) {
 		SourceType sourceType = dao.getSourceType(identifier);
 		if(sourceType == null) {
@@ -665,6 +649,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#getContext(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public Context getContext(String contextId) {
 		Context rv = null;
 		try {
@@ -746,6 +731,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#getSourceType(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public SourceType getSourceType(String identifier) {
 		SourceType  rv = null;
 		try {
@@ -809,6 +795,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeAllScheduledAvailabilityChecks(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void removeAllScheduledAvailabilityChecks(String entityReference) {
 		//boolean removed = 
 		dao.deleteAvailabilityChecks(entityReference);
@@ -818,6 +805,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarItem(java.lang.String, java.lang.String, java.lang.Integer)
 	 */
 	@Override
+	@Transactional
 	public void removeCalendarItem(String entityReference,
 			String calendarTimeLabelKey, Integer sequenceNumber) {
 		
@@ -846,6 +834,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarItems(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void removeCalendarItems(String entityReference) {
 		
 		if(logger.isDebugEnabled()) {
@@ -895,6 +884,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void removeCalendarLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -922,6 +912,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String, java.lang.String, int)
 	 */
 	@Override
+	@Transactional
 	public void removeCalendarLinks(String entityReference) {
 		
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
@@ -936,6 +927,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsItem(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void removeNewsItem(String entityReference) {
 
 		if(logger.isDebugEnabled()) {
@@ -963,6 +955,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinks(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void removeNewsLinks(String entityReference) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
@@ -975,6 +968,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinks(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void removeNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("removeNewsLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -992,6 +986,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void reviseCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		if(entityReference == null || oldLabelKey == null || newLabelKey == null) {
 			return;
@@ -1004,6 +999,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsTime(java.lang.String, java.util.Date)
 	 */
 	@Override
+	@Transactional
 	public void reviseCalendarItemsTime(String entityReference, Date newTime) {
 		
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
@@ -1019,6 +1015,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsTitle(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void reviseCalendarItemsTitle(String entityReference, String newTitle) {
 		
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
@@ -1033,6 +1030,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemTime(java.lang.String, java.lang.String, java.lang.Integer, java.util.Date)
 	 */
 	@Override
+	@Transactional
 	public void reviseCalendarItemTime(String entityReference,
 			String labelKey, Integer sequenceNumber, Date newDate) {
 		
@@ -1043,6 +1041,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseNewsItemTime(java.lang.String, java.util.Date, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void reviseNewsItemTime(String entityReference, Date newTime, String newGroupingIdentifier) {
 		NewsItem item = dao.getNewsItem(entityReference);
 		item.setNewsTime(newTime);
@@ -1057,6 +1056,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseNewsItemTitle(java.lang.String, java.lang.String, java.util.Date, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
@@ -1072,6 +1072,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemFrequency(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public boolean reviseRepeatingCalendarItemFrequency(String entityReference,
 			String frequency) {
 		return dao.updateRepeatingCalendarItemFrequency(entityReference, frequency);
@@ -1081,6 +1082,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void reviseRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		dao.updateRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);	
 	}
@@ -1089,6 +1091,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemTime(java.lang.String, java.util.Date, java.util.Date)
 	 */
 	@Override
+	@Transactional
 	public void reviseRepeatingCalendarItemTime(String entityReference, Date newFirstTime, Date newLastTime) {
 		// boolean done = 
 		dao.updateRepeatingCalendarItemTime(entityReference, newFirstTime, newLastTime);
@@ -1098,6 +1101,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemTitle(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void reviseRepeatingCalendarItemTitle(String entityReference, String newTitle) {
 		dao.updateRepeatingCalendarItemTitle(entityReference, newTitle);
 	}
@@ -1106,6 +1110,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#scheduleAvailabilityCheck(java.lang.String, java.lang.String, java.util.Date)
 	 */
 	@Override
+	@Transactional
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {
 		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);
 		// boolean added = 
@@ -1125,6 +1130,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateCalendarLinks(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void updateCalendarLinks(String entityReference) {
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
 		int count = 0;
@@ -1185,6 +1191,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateNewsLinks(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void updateNewsLinks(String entityReference) {
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item == null) {
@@ -1233,6 +1240,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @param sakaiId
 	 * @return
 	 */
+	@Transactional
 	protected Person getOrCreatePerson(String sakaiId) {
 		Person person = dao.getPersonBySakaiId(sakaiId);
 		if(person == null) {
@@ -1256,6 +1264,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @param calendarTime
 	 * @return true if updates have been made, false otherwise.
 	 */
+	@Transactional
 	protected boolean verifyCalendarItem(CalendarItem calendarItem,
 			RepeatingCalendarItem repeatingEvent, Integer sequenceNumber, Date calendarTime) {
 		
@@ -1324,6 +1333,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#checkTaskLock(java.lang.String)
 	 */
+        @Transactional
 	public boolean checkTaskLock(String task) {
 		String serverId = this.sakaiProxy.getServerId();
 		Date expirationTime = taskLockExpirationTimes.get(task);
@@ -1353,7 +1363,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 					return true;
 				} else if(negotiationDeadline != null && negotiationDeadline.before(new Date())) {
 					// claim the task, update task-lock data, and return true
-					this.dao.updateTaskLock(first.getId(), true, new Date());
+					dao.updateTaskLock(first.getId(), true, new Date());
 					
 					// update task-lock data
 					assignTask(task, serverId);
@@ -1361,7 +1371,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 					return true;
 				} if(first.getClaimTime().before(new Date(System.currentTimeMillis() - 2*TASK_LOCK_NEGOTIATION_LIMIT_MILLISECONDS))) {
 					// this is to deal with restarts in which no server previously claimed the task 
-					this.dao.deleteTaskLocks(task);
+					dao.deleteTaskLocks(task);
 					return false;
 				}
 				return false;
@@ -1370,7 +1380,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 				// check expiration to make sure the lock is active
 				if(first.getLastUpdate().before(new Date(System.currentTimeMillis() - TASK_LOCK_EXPIRATION_PERIOD))) {
 					// server with lock is not active. clear all locks for this task so process can start again 
-					this.dao.deleteTaskLocks(task);
+					dao.deleteTaskLocks(task);
 					return false;
 				} else {
 					// server is active, but our data needs updating
@@ -1424,7 +1434,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 		
 		if(this.delay == null || this.delay.getTime() < System.currentTimeMillis()) {
 			TaskLock taskLock = new TaskLock(task, serverId, new Date(), false, new Date());
-			this.dao.addTaskLock(taskLock);
+			dao.addTaskLock(taskLock);
 			
 			this.taskLockNegotiationsDeadlines.put(task, new Date(System.currentTimeMillis() + TASK_LOCK_NEGOTIATION_LIMIT_MILLISECONDS));
 			
@@ -1448,6 +1458,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateTaskLock(java.lang.String)
 	 */
+	@Transactional
 	public void updateTaskLock(String task) {
 		String serverId = this.sakaiProxy.getServerId();
 		Date lastUpdate = new Date();
@@ -1459,6 +1470,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeTaskLocks(java.lang.String)
 	 */
+	@Transactional
 	public void removeTaskLocks(String task) {
 		this.dao.deleteTaskLocks(task);
 	}

@@ -1589,4 +1589,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             }
 		});
 	}
+	
+	public void updateGradeMapping(final Long gradeMappingId, final Map<String, Double> gradeMap){
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				GradeMapping gradeMapping = (GradeMapping)session.load(GradeMapping.class, gradeMappingId);
+				gradeMapping.setGradeMap(gradeMap);
+				session.update(gradeMapping);
+				session.flush();
+				return null;
+			}
+		});
+	}
 }

@@ -21,11 +21,12 @@
 
 package org.sakaiproject.config.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 import org.sakaiproject.component.impl.BasicConfigurationService;
@@ -52,25 +53,18 @@ public class StoredConfigServiceTest extends SakaiKernelTestBase {
     private static StoredConfigService storedConfigService;
     private static final String SOURCE = "TEST";
 
-    public static Test suite() {
-        TestSetup setup = new TestSetup(new TestSuite(StoredConfigServiceTest.class)) {
-            protected void setUp() throws Exception {
-                LOG.debug("starting oneTimeSetup");
-                oneTimeSetup("storedconfigservice");
-                oneTimeSetupAfter();
-
-                LOG.debug("finished oneTimeSetup");
-            }
-
-            protected void tearDown() throws Exception {
-                LOG.debug("starting tearDown");
-                oneTimeTearDown();
-                LOG.debug("finished tearDown");
-            }
-        };
-        return setup;
-    }
-
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+            LOG.debug("starting oneTimeSetup");
+            oneTimeSetup("storedconfigservice");
+            oneTimeSetupAfter();
+            LOG.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			LOG.warn(e);
+		}
+	}
+	
     private static void oneTimeSetupAfter() {
         basicConfigurationService = (BasicConfigurationService) getService(ServerConfigurationService.class.getName());
         storedConfigService = (StoredConfigService) getService(StoredConfigService.class.getName());
@@ -81,24 +75,25 @@ public class StoredConfigServiceTest extends SakaiKernelTestBase {
         basicConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("test4", "test4", SOURCE, true));
     }
 
+    @Test
     public void testStoredConfigService() {
         LOG.info("Total # of Config Items is " + storedConfigService.countAll());
 
         // check that test[1-4] has been added
-        assertEquals(1, storedConfigService.countByName("test1"));
-        assertEquals(1, storedConfigService.countByName("test2"));
-        assertEquals(1, storedConfigService.countByName("test3"));
-        assertEquals(1, storedConfigService.countByName("test4"));
+        Assert.assertEquals(1, storedConfigService.countByName("test1"));
+        Assert.assertEquals(1, storedConfigService.countByName("test2"));
+        Assert.assertEquals(1, storedConfigService.countByName("test3"));
+        Assert.assertEquals(1, storedConfigService.countByName("test4"));
 
         // modify test1 for time test
         basicConfigurationService.registerConfigItem(new ConfigItemImpl("test1", "test1-updated", SOURCE));
         HibernateConfigItem test1 = storedConfigService.findByName("test1");
         LOG.info(test1.toString());
-        assertEquals("test1-updated", test1.getValue());
-        assertFalse(test1.getCreated().equals(test1.getModified()));
+        Assert.assertEquals("test1-updated", test1.getValue());
+        Assert.assertFalse(test1.getCreated().equals(test1.getModified()));
 
         // countAll == findAll.size()
-        assertEquals(storedConfigService.countAll(), storedConfigService.findAll().size());
+        Assert.assertEquals(storedConfigService.countAll(), storedConfigService.findAll().size());
 
         // create a type string ConfigItem that is secured, dynamic, defaulted, and registered
         ConfigItem test5CI = new ConfigItemImpl("test5", "test5", ServerConfigurationService.TYPE_STRING, "this is a test", SOURCE, "test5", 0, 0, null, true, true, true, true);
@@ -106,19 +101,19 @@ public class StoredConfigServiceTest extends SakaiKernelTestBase {
 
         // test5 is defaulted
         List<HibernateConfigItem> defaultedItems = storedConfigService.findDefaulted();
-        assertTrue(isConfigItemInList(defaultedItems, "test5"));
+        Assert.assertTrue(isConfigItemInList(defaultedItems, "test5"));
 
         // test5 is registered
         List<HibernateConfigItem> registeredItems = storedConfigService.findRegistered();
-        assertTrue(isConfigItemInList(registeredItems, "test5"));
+        Assert.assertTrue(isConfigItemInList(registeredItems, "test5"));
 
         // test5 is dynamic
         List<HibernateConfigItem> dynamicItems = storedConfigService.findDynamic();
-        assertTrue(isConfigItemInList(dynamicItems, "test5"));
+        Assert.assertTrue(isConfigItemInList(dynamicItems, "test5"));
 
         // test5 is secured
         List<HibernateConfigItem> securedItems = storedConfigService.findSecured();
-        assertTrue(isConfigItemInList(securedItems, "test5"));
+        Assert.assertTrue(isConfigItemInList(securedItems, "test5"));
 
         LOG.info("Number of secured: " + securedItems.size() + ", defaulted: " + defaultedItems.size() + ", registered: " + registeredItems.size() + ", dynamic: " + dynamicItems.size());
 
@@ -137,10 +132,10 @@ public class StoredConfigServiceTest extends SakaiKernelTestBase {
         // test type UNKNOWN should not be saved
         ConfigItem test9CI = new ConfigItemImpl("test9", "test9", "UNKNOWN", SOURCE);
         storedConfigService.saveOrUpdate(storedConfigService.createHibernateConfigItem(test9CI));
-        assertNull(storedConfigService.findByName(test9CI.getName()));
+        Assert.assertNull(storedConfigService.findByName(test9CI.getName()));
 
         // findRegistered.size == getConfigItems.size
-        assertEquals(storedConfigService.findRegistered().size(), storedConfigService.getConfigItems().size());
+        Assert.assertEquals(storedConfigService.findRegistered().size(), storedConfigService.getConfigItems().size());
     }
 
     private boolean isConfigItemInList(List<HibernateConfigItem> list, String name) {
@@ -154,7 +149,6 @@ public class StoredConfigServiceTest extends SakaiKernelTestBase {
     }
 
     private void persistAndRetrieve(ConfigItem item) {
-
         LOG.info("persistAndRetrieve: " + item.toString());
         HibernateConfigItem origItem = storedConfigService.createHibernateConfigItem(item);
 
@@ -162,17 +156,17 @@ public class StoredConfigServiceTest extends SakaiKernelTestBase {
 
         HibernateConfigItem savedItem = storedConfigService.findByName(origItem.getName());
 
-        assertTrue(origItem.equals(savedItem));
+        Assert.assertTrue(origItem.equals(savedItem));
 
         ConfigItem persistedItem = storedConfigService.createConfigItem(savedItem);
 
-        assertEquals(item, persistedItem);
+        Assert.assertEquals(item, persistedItem);
 
         // check the values are still the same
         if (origItem.getType().equals(ServerConfigurationService.TYPE_ARRAY)) {
-            assertTrue(Arrays.deepEquals((String[]) item.getValue(), (String[]) persistedItem.getValue()));
+        	Assert.assertTrue(Arrays.deepEquals((String[]) item.getValue(), (String[]) persistedItem.getValue()));
         } else {
-            assertTrue(item.getValue().equals(persistedItem.getValue()));
+        	Assert.assertTrue(item.getValue().equals(persistedItem.getValue()));
         }
     }
 }

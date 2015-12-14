@@ -17,8 +17,8 @@
 		$validator.escapeHtml($!description)
 	</div>
 	## no need to show the drop down menu if there is no group defined for the site
-	#if ($!groups && $groups.size()>0)
 	<div class="navPanel">
+		#if ($!groups && $groups.size()>0)
 		## if there are any groups at all
 		<div class="viewNav" id="groupSelector">
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm($action)">
@@ -28,14 +28,14 @@
 					$thelp.getString("per.lis.selectgrp")
 					</label>
 					<select id="authzGroupSelection" name="authzGroupSelection" onchange="AUTHZ.disableControls();AUTHZ.showSpinner( 'viewSpinner' );document.viewForm.submit();">
-						<option value ="$siteRef" #if ($!viewRealmId.equals($!siteId)) selected = "selected" #end>$thelp.getString("per.lis.site")</option>
+						<option value ="$siteRef" #if ($!viewRealmIds.contains($!siteId)) selected = "selected" #end>$thelp.getString("per.lis.site")</option>
 
 						## for each group
 						#set($groupCount=0)
 						 #foreach ($group in $!groups)
 							#set($groupCount=$groupCount + 1)
-							<option value ="$group.Reference" #if ($!viewRealmId.equals($group.Reference)) selected = "selected" #end>$validator.escapeHtml($group.Title)</option>
-						#end
+							<option value ="$group.Reference" #if ($!viewRealmIds.contains($group.Reference)) selected = "selected" #end>$validator.escapeHtml($group.Title)</option>
+				     	#end
 						## end 	for each group
 					</select>
 					<img id="viewSpinner" class="spinner" src="/library/image/indicator.gif" />

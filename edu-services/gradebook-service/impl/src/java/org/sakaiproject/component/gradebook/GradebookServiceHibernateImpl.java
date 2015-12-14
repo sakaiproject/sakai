@@ -54,6 +54,7 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -345,12 +346,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		if (gradebookUid == null ) {
 	          throw new IllegalArgumentException("null gradebookUid " + gradebookUid) ;
-	      }
+		}
 	    
-	        if (!currentUserHasEditPerm(gradebookUid) && !currentUserHasGradingPerm(gradebookUid)) {
-	            log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to access gb information");
-                    throw new SecurityException("You do not have permission to access gradebook information in site " + gradebookUid);
-	        }
+        if (!currentUserHasEditPerm(gradebookUid) && !currentUserHasGradingPerm(gradebookUid)) {
+            log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to access gb information");
+                throw new SecurityException("You do not have permission to access gradebook information in site " + gradebookUid);
+        }
 	        
 		Gradebook gradebook = getGradebook(gradebookUid);
 		if(gradebook==null) {
@@ -358,9 +359,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		
 		GradebookInformation rval = new GradebookInformation();
+		
+		//add in all available grademappings for this gradebook
+		rval.setGradeMappings(getGradebookGradeMappings(gradebook.getGradeMappings()));
+		
+		//add in details about the selected one
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
 		if(selectedGradeMapping!=null) {
+		
 			rval.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+			rval.setSelectedGradeMappingId(Long.toString(selectedGradeMapping.getId()));
+			
+			//note that these are not the DEFAULT bottom percents but the configured ones per gradebook
 			rval.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
 			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
@@ -377,7 +387,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
 		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
 		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
-		
+				
 		return rval;
 	}
 	
@@ -2046,9 +2056,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		  // now let's save them
 		  try {
-			  getHibernateTemplate().saveOrUpdateAll(agrToUpdate);
-			  getHibernateTemplate().saveOrUpdateAll(commentsToUpdate);
-			  getHibernateTemplate().saveOrUpdateAll(eventsToAdd);
+			for (AssignmentGradeRecord assignmentGradeRecord : agrToUpdate) {
+				getHibernateTemplate().saveOrUpdate(assignmentGradeRecord);
+			}
+			for (Comment comment : commentsToUpdate) {
+				getHibernateTemplate().saveOrUpdate(comment);
+			}
+			for (GradingEvent gradingEvent : eventsToAdd) {
+				getHibernateTemplate().saveOrUpdate(gradingEvent);
+			}
 		  }	catch (HibernateOptimisticLockingFailureException holfe) {
 			  if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectId);
 			  throw new StaleObjectModificationException(holfe);
@@ -2968,21 +2984,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("There is no gradebook associated with this id: " + gradebookUid);
 		}
 		
-		//update the grade mapping
-		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
-		
-
-		//TODO set the grading scale stuff. the inverse of:
-		/*
-		GradebookInformation gradebookInfo = new GradebookInformation();
-		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
-		if(selectedGradeMapping!=null) {
-			gradebookInfo.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
-			gradebookInfo.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
-			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
+		//iterate all available grademappings for this gradebook and set the one that we have the ID for
+		Set<GradeMapping> gradeMappings = gradebook.getGradeMappings();
+		for(GradeMapping gradeMapping: gradeMappings) {
+			if(StringUtils.equals(Long.toString(gradeMapping.getId()), gbInfo.getSelectedGradeMappingId())) {
+				gradebook.setSelectedGradeMapping(gradeMapping);
+					
+				//update the map values
+				updateGradeMapping(gradeMapping.getId(), gbInfo.getSelectedGradingScaleBottomPercents());
+			}
 		}
-		
-		*/
 				
 		//set grade type
 		gradebook.setGrade_type(gbInfo.getGradeType());
@@ -3049,14 +3060,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		//persist
 		this.updateGradebook(gradebook);
-		/*
-		getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				session.save(gradebook);
-				return null;
-			}
-		});
-		*/
+		
 	}
 
 	
@@ -3097,6 +3101,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Set getGradebookGradeMappings(final String gradebookUid) {
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		return this.getGradebookGradeMappings(gradebookId);
+	}
+	
+	/**
+	 * Map a set of GradeMapping to a list of GradeMappingDefinition
+	 * @param gradeMappings set of GradeMapping
+	 * @return list of GradeMappingDefinition
+	 */
+	private List<GradeMappingDefinition> getGradebookGradeMappings(Set<GradeMapping> gradeMappings) {
+		List<GradeMappingDefinition> rval = new ArrayList<>();
+		
+		for(GradeMapping mapping: gradeMappings) {
+			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(), mapping.getGradeMap(), mapping.getDefaultBottomPercents()));
+		}
+		return rval;
+		
 	}
 	
 }

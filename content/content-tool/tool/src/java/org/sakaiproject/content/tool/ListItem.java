@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -123,6 +125,9 @@ public class ListItem
     
     /** Default content type for unknown extensions. */
     protected static final String UNKNOWN_TYPE = "application/octet-stream";
+
+    /** The role that is used to define pubview or public access */
+    public static final String PUBVIEW_ROLE = AuthzGroupService.ANON_ROLE;
 
 	public static final String DOT = "_";
 	private static final String PROP_HIDDEN_TRUE = "true"; // SAK-23044
@@ -403,6 +408,8 @@ public class ListItem
 	protected AccessMode accessMode;
 	protected AccessMode inheritedAccessMode;
 	protected Collection<Group> groups = new ArrayList<Group>();
+	protected Set<String> roleIds = new LinkedHashSet<String>();
+	protected Set<String> inheritedRoleIds = new LinkedHashSet<String>();
 	protected Collection<Group> inheritedGroups = new ArrayList<Group>();
 	protected Collection<Group> possibleGroups = new ArrayList<Group>();
 	protected Collection<Group> allowedRemoveGroups = null;
@@ -410,8 +417,6 @@ public class ListItem
 	protected Map<String,Group> siteGroupsMap = new HashMap<String, Group>();
 
 	protected boolean isPubviewPossible;
-	protected boolean isPubviewInherited = false;
-	protected boolean isPubview = false;
 
 	protected boolean hidden;
 	protected boolean hiddenWithAccessibleContent;
@@ -837,12 +842,9 @@ public class ListItem
 			setPossibleGroups(site_groups);
 		}
 
-        this.isPubviewInherited = contentService.isInheritingPubView(id);
-		if (!this.isPubviewInherited) 
-		{
-			this.isPubview = contentService.isPubView(id);
-		}
-		
+		this.setPubviewPossible(true);
+		this.initialiseRoleIds(entity);
+
 		this.hidden = entity.isHidden();
 		Time releaseDate = entity.getReleaseDate();
 		if(releaseDate == null)
@@ -877,7 +879,7 @@ public class ListItem
 		{
 			this.htmlFilter = "auto";
 		}
-    }
+	}
 
 	/**
 	 * Determine whether or not the given entity is configured to allow inline HTML.
@@ -1133,16 +1135,17 @@ public class ListItem
 			this.setPossibleGroups(parent.getPossibleGroups());
 		}
 
- 		this.isPubviewPossible = parent.isPubviewPossible;
-        this.isPubviewInherited = parent.isPubviewInherited || parent.isPubview;
-        if(this.isPubviewInherited)
-        {
-        	this.isPubview = false;
-        }
-        else
-        {
-        	this.isPubview = contentService.isPubView(id);
-        }
+		this.inheritedRoleIds.addAll(parent.inheritedRoleIds);
+		this.inheritedRoleIds.addAll(parent.roleIds);
+
+		if(this.inheritsRoles())
+		{
+			this.roleIds.clear();
+		}
+		else
+		{
+			this.setPubview(contentService.isPubView(id));
+		}
 		
 		this.hidden = false;
 		this.useReleaseDate = false;
@@ -1431,10 +1434,27 @@ public class ListItem
 		}
 		else if(AccessMode.INHERITED.toString().equals(access_mode))
 		{
+			captureAccessRoles(params, index);
 			setAccessMode(AccessMode.INHERITED);
 			this.groups.clear();
-			setPubview(false);
 		}
+	}
+
+	/**
+	 * Set up the access roles as defined by checkboxes in the form.
+	 * Should only be called if it is compatible with the form submission
+	 *    e.g.  when access mode is not set to groups.
+	 */
+	protected void captureAccessRoles(ParameterParser params, String index) {
+		Set<String> formRoleIds = new LinkedHashSet<String>();
+
+		String[] rolesArray = params.getStrings("access_roles" + index);
+		if (rolesArray != null) {
+			formRoleIds.addAll(Arrays.asList(rolesArray));
+			formRoleIds.retainAll(availableRoleIds());
+		}
+
+		this.roleIds = formRoleIds;
 	}
 
 	protected void captureAvailability(ParameterParser params, String index) 
@@ -1800,8 +1820,13 @@ public class ListItem
 		return groupRefs;
 
 	}
-	
-	public String getLongAccessLabel()
+
+	/**
+	 * When setting access on a resource the available options will change depending on what properties it inherits.
+	 *   E.g. if groups are inherited it is not possible to broaden access, so display a message to that extent.
+	 * @return the instruction string
+	 */
+	public String getAccessInstruction()
 	{
 		String label = "";
 		
@@ -1823,19 +1848,6 @@ public class ListItem
 		{
 			//Grouped access is inherited
 			label = getMultiGroupLabel();
-		}
-		else if(isPubviewInherited())
-		{
-			checkParent();
-			if(parent == null)
-			{
-				label = trb.getString("access.public.noparent");
-				logger.warn("ListItem.getLongAccessLabel(): Unable to display label because isPubviewInherited == true and parent == null and constructor == " + this.constructor);  
-			}
-			else
-			{
-				label = trb.getFormattedMessage("access.public.nochoice", new String[]{parent.getName()});
-			}
 		}
 		else if(isCollection())
 		{
@@ -2032,7 +2044,7 @@ public class ListItem
 	    return this.entity;
     }
     
-    public String[] getGroupNameArray(boolean includeItemName)
+    public String[] getGroupNameArray(boolean includeParentName)
     {
     	Collection<Group> groups = this.groups;
     	if(AccessMode.INHERITED == this.accessMode)
@@ -2041,16 +2053,17 @@ public class ListItem
     	}
     	
     	int size = groups.size();
-		if(includeItemName)
+		if(includeParentName)
 		{
 			size += 1;
 		}
     	String[] names = new String[size];
     	
     	int index = 0;
-    	if(includeItemName)
+    	if(includeParentName)
     	{
-    		names[index] = this.name;
+    		ListItem parentItem = this.getParent();
+            names[index] = parentItem != null ? parentItem.name : "";
     		index++;
     	}
     	for(Group group : groups)
@@ -2068,25 +2081,170 @@ public class ListItem
     	
     	return names;
     }
-    
+
+    /**
+     * @deprecated Use #getShortAccessLabel instead
+     */
     public String getEffectiveAccessLabel()
     {
-		String label = rb.getString("access.site");
-		
-		if(this.isPubviewInherited || this.isPubview)
-		{
-			label = rb.getString("access.public");
-		}
-		else if(AccessMode.GROUPED == this.getEffectiveAccess())
-		{
-			label = rb.getString("access.group");
-		}
+        return getShortAccessLabel();
+    }
 
-		return label;
+    /**
+     * Provides a short description of the access rights, for example when listing in a table.
+     * This might not include details of all access rights for space reasons.
+     * @return the description String
+     */
+    public String getShortAccessLabel()
+    {
+        return getAccessLabel(false);
+    }
 
+    /**
+     * Provides a description of the access rights which is more verbose than #getShortAccessLabel
+     * @return the description String
+     */
+    public String getLongAccessLabel()
+    {
+        return getAccessLabel(true);
+    }
+
+    private String getAccessLabel(final boolean useLongerLabel)
+    {
+        String label;
+
+        if(AccessMode.GROUPED == this.getEffectiveAccess())
+        {
+            label = accessLabelForGroups(useLongerLabel);
+        }
+        else if (this.inheritsRoles() || this.hasRoles())
+        {
+            label = accessLabelForRoles(useLongerLabel);
+        }
+        else if(this.isDropbox)
+        {
+            label = useLongerLabel ? rb.getString("access.dropbox1") : rb.getString("access.dropbox");
+        }
+        else
+        {
+            // Site access
+            label = useLongerLabel ? rb.getString("access.site1") : rb.getString("access.site");
+        }
+
+        return label;
+    }
+
+    /**
+     * Constructs a nice language representation of the roles that are defined agains the list item
+     * If there are more than 2 roles defined it will show "Role_A and 5 others".
+     * @param useLongerLabel set to true if you want a label that is a natural sentence.
+     *   e.g. "Oxford members" vs "Visible to Oxford members."
+     * @return 
+     */
+    public String accessLabelForRoles(boolean useLongerLabel)
+    {
+        String label;
+        List<String> roleIds = new ArrayList<String>(this.roleIds);
+        roleIds.addAll(this.inheritedRoleIds);
+
+        if (roleIds.size() == 0)
+        {
+            logger.warn("ListItem: Constructing a roles access label with no roles defined");
+            return "";
+        }
+
+        roleIds = pubviewAtFrontOfList(roleIds);
+
+        if (useLongerLabel)
+        {
+            List<String> roleLabels = new ArrayList<String>();
+            for (String roleId : roleIds) {
+                roleLabels.add(getLabelForRole(roleId));
+            }
+
+            if(roleIds.size() > 6)
+            {
+                label = rb.getFormattedMessage("access.roleLabel.long.X", roleLabels.toArray());
+            }
+            else
+            {
+                label = rb.getFormattedMessage("access.roleLabel.long." + roleIds.size(), roleLabels.toArray());
+            }
+        }
+        else
+        {
+            String firstLabel = getLabelForRole(roleIds.get(0));
+            // Decide how to format the string based on how many roles there are
+            switch (roleIds.size())
+            {
+                case 1:
+                    label = firstLabel;
+                    break;
+                case 2:
+                    String secondLabel = getLabelForRole(roleIds.get(1));
+                    String[] twoLabelParams = {firstLabel, secondLabel};
+                    label = rb.getFormattedMessage("access.roleLabel.two", twoLabelParams);
+                    break;
+                default:
+                    String[] multiLabelParams = {firstLabel, Integer.toString(roleIds.size())};
+                    label = rb.getFormattedMessage("access.roleLabel.moreThanTwo", multiLabelParams);
+                    break;
+            }
+        }
+
+        return label;
+    }
+
+    /** Gets a label for a given roleId as defined in the resource bundle **/
+    private String getLabelForRole(String roleId) {
+        return rb.getString(String.format("access.role%s", roleId));
+    }
+
+    /**
+     * If pubview is in a list of roles then put it at the front of the list, if we are going to talk
+     * about any roles and we are restricted for space then it is important that the fact that the
+     * resource is publically viewable is known.
+     * @param roleIds a list of role ids
+     * @return
+     */
+    private List<String> pubviewAtFrontOfList(List<String> roleIds) {
+        // Put pubview at the front of the list
+        String chosenId;
+        if (roleIds.contains(PUBVIEW_ROLE))
+        {
+            chosenId = PUBVIEW_ROLE;
+        }
+        else
+        {
+            chosenId = roleIds.iterator().next();
+        }
+        roleIds.remove(chosenId);
+
+        List<String> reorderedRoleIds = new ArrayList<String>();
+        reorderedRoleIds.add(chosenId);
+        reorderedRoleIds.addAll(roleIds);
+        return reorderedRoleIds;
+    }
+
+    /**
+     * Provides a description of the groups that have been assigned to this ListItem
+     * @param useLongerLabel provides a long description if true and a short one if false
+     * @return the description
+     */
+    private String accessLabelForGroups(boolean useLongerLabel)
+    {
+        final String groupNames = getGroupNamesAsString();
+        if (useLongerLabel)
+        {
+            return rb.getFormattedMessage("access.group1",  new Object[]{groupNames});
+        }
+        else
+        {
+            return groupNames.isEmpty() ? rb.getString("access.group.missing") : rb.getString("access.group");
+        }
     }
     
-    public String getGroupNamesAsString()
+    private String getGroupNamesAsString()
     {
     	StringBuffer names = new StringBuffer();
     	String[] groups = getGroupNameArray(false);
@@ -2100,31 +2258,15 @@ public class ListItem
     	}
     	return names.toString();
     }
-    
+
+    /**
+     * @deprecated
+     */
     public String getEffectiveGroupsLabel()
     {
-		String label = rb.getString("access.site1");
-		
-		if(this.isPubviewInherited())
-		{
-			label = rb.getString("access.public1");
-		}
-		else if(this.isPubview())
-		{
-			label = rb.getString("access.public1");
-		}
-		else if(this.isDropbox)
-		{
-			label = rb.getString("access.dropbox1");
-		}
-		else if(AccessMode.GROUPED == getEffectiveAccess())
-		{
-			label = (String) rb.getFormattedMessage("access.group1",  new Object[]{getGroupNamesAsString()});
-		}
-
-		return label;
+        return getShortAccessLabel();
     }
-	
+
 	protected int getNumberOfGroups()
     {
 		int size = 0;
@@ -2171,7 +2313,15 @@ public class ListItem
     	}
     	return refs;
     }
-	
+
+    /**
+     * This indicates whether any of the groups defined on the entity no longer exist
+     * @return true if there is a mismatch and false otherwise
+     */
+    public boolean groupsAreMissing() {
+        return entity != null && entity.getGroups().size() != groups.size();
+    }
+
 	/**
      * @return the groups
      */
@@ -2179,7 +2329,7 @@ public class ListItem
     {
     	return new ArrayList<Group>(groups);
     }
-	
+
 	/**
 	 * @return the hoverText
 	 */
@@ -2527,7 +2677,7 @@ public class ListItem
      */
     public boolean isPubview()
     {
-    	return isPubview;
+        return this.roleIds.contains(PUBVIEW_ROLE);
     }
 
 	/**
@@ -2535,7 +2685,7 @@ public class ListItem
      */
     public boolean isPubviewInherited()
     {
-    	return isPubviewInherited;
+        return this.inheritedRoleIds.contains(PUBVIEW_ROLE);
     }
 
 	/**
@@ -2543,7 +2693,100 @@ public class ListItem
      */
     public boolean isPubviewPossible()
     {
-    	return isPubviewPossible;
+        return availableRoleIds().contains(PUBVIEW_ROLE);
+    }
+
+    /**
+     * Sets the initial list of role ids and inherited role ids defined in the List Item, including pubview
+     * @param entity the entity to get the roleIds frome
+     */
+    protected void initialiseRoleIds(ContentEntity entity) {
+        for (String roleId : availableRoleIds()) {
+            if (contentService.isInheritingRoleView(entity.getId(), roleId)) {
+                this.inheritedRoleIds.add(roleId);
+            } else if (contentService.isRoleView(entity.getId(), roleId)) {
+                this.roleIds.add(roleId);
+            }
+        }
+    }
+
+    /**
+     * Returns the list of roleIds currently defined for this List Item, this will include the Pubview (anon) role
+     * @return
+     */
+    public Set<String> getRoleIds() {
+        return roleIds;
+    }
+
+    /**
+     * Gets the list of inheritedRoleIds currently defined for this List Item, which may include the Pubview (anon) role.
+     * @return a set of role ids
+     */
+    public Set<String> getInheritedRoleIds() {
+        return this.inheritedRoleIds;
+    }
+
+    /**
+     * Asks the Server Configuration Service to get a list of available roles with the prefix "resources.enabled.roles""
+     * We should expect language strings for these to be defined in the bundles.
+     * @return a set of role ids that can be used
+     */
+    public Set<String> availableRoleIds() {
+        String[] configStrings = ServerConfigurationService.getStrings("resources.enabled.roles");
+
+        LinkedHashSet<String> availableIds = new LinkedHashSet<String>();
+
+        if(configStrings != null) {
+            availableIds.addAll(Arrays.asList(configStrings));
+        } else {
+            // By default just include the public
+            availableIds.add(PUBVIEW_ROLE);
+        }
+
+        return availableIds;
+    }
+
+    /**
+     * Uses availableRoleIds to determine whether roles are available to be used, includes roleIds.
+     * @return ture if no roles are available, false otherwise.
+     */
+    public boolean rolesAreAvailable() {
+        return !availableRoleIds().isEmpty();
+    }
+
+    /**
+     * Checks whether the List Item has the role access set for this role.
+     * @param roleId the role to check.
+     * @return true if the role is enabled, false otherwise.
+     */
+    public boolean hasRoleEnabled(String roleId) {
+        return this.roleIds.contains(roleId);
+    }
+
+    /**
+     * Checks whether the List Item has any inherited roles defined.
+     * @return true if the List Item inherits roles, false otherwise
+     */
+    public boolean inheritsRoles() {
+        return this.inheritedRoleIds != null && !this.inheritedRoleIds.isEmpty();
+    }
+
+    /**
+     * Checks whether the List Item inherits a given role.
+     * Used in the UI to determine whether some elements should be displayed
+     * @param roleId  the id of the role to check for inheritance
+     * @return        true if the List Item inherits the role, false otherwise
+     */
+    public boolean inheritsRole(String roleId) {
+        return this.inheritedRoleIds != null && this.inheritedRoleIds.contains(roleId);
+    }
+
+    /**
+     * Checks whether the List Item has any roles defined.
+     * @return true if the List Item has roles, false otherwise
+     */
+    public boolean hasRoles() {
+        return this.roleIds != null && !this.roleIds.isEmpty();
     }
 
 	public boolean isSelected() 
@@ -2582,7 +2825,7 @@ public class ListItem
 	  */
 	 public boolean isSitePossible()
 	 {
-		 return !this.isPubviewInherited && !isGroupInherited() && !isSingleGroupInherited();
+		 return !this.isPubviewInherited() && !isGroupInherited() && !isSingleGroupInherited();
 	 }
 
 	public boolean isTooBig()
@@ -2947,7 +3190,11 @@ public class ListItem
      */
     public void setPubview(boolean isPubview)
     {
-    	this.isPubview = isPubview;
+        if(isPubview) {
+            this.roleIds.add(PUBVIEW_ROLE);
+        } else {
+            this.roleIds.remove(PUBVIEW_ROLE);
+        }
     }
 
 	/**
@@ -2955,7 +3202,11 @@ public class ListItem
      */
     public void setPubviewInherited(boolean isPubviewInherited)
     {
-    	this.isPubviewInherited = isPubviewInherited;
+        if(isPubviewInherited) {
+            this.inheritedRoleIds.add(PUBVIEW_ROLE);
+        } else {
+            this.inheritedRoleIds.remove(PUBVIEW_ROLE);
+        }
     }
 
 	/**
@@ -2963,7 +3214,7 @@ public class ListItem
      */
     public void setPubviewPossible(boolean isPubviewPossible)
     {
-    	this.isPubviewPossible = isPubviewPossible;
+        this.isPubviewPossible = isPubviewPossible;
     }
 
 	/**
@@ -3247,21 +3498,17 @@ public class ListItem
 	{
 		try 
 		{
-			if(this.accessMode == AccessMode.GROUPED && this.groups != null && ! this.groups.isEmpty())
-			{
+			if(this.accessMode == AccessMode.GROUPED) {
+				if (this.groups != null && ! this.groups.isEmpty()) {
 					edit.setGroupAccess(groups);
-			}
-			else if(this.isPubview && ! this.isPubviewInherited)
-			{
-				edit.setPublicAccess();
-			}
-			else if(edit.getAccess() == AccessMode.GROUPED)
-			{
-				edit.clearGroupAccess();
-			}
-			else if(ContentHostingService.isPubView(edit.getId()) && ! this.isPubview)
-			{
-				edit.clearPublicAccess();
+				} else {
+					edit.clearGroupAccess();
+				}
+			} else {
+				if (AccessMode.GROUPED == edit.getAccess()) {
+					edit.clearGroupAccess();
+				}
+				setAccessRoles(edit);
 			}
 		} 
 		catch (InconsistentException e) 
@@ -3271,6 +3518,34 @@ public class ListItem
 		catch (PermissionException e) 
 		{
 			logger.warn("PermissionException " + e);
+		}
+	}
+
+	/**
+	 * Sets the access roles on the entity when saving the ListItem.
+	 * @param entityEdit the Edit object of the underlying ListItem that is being saved.
+	 * @throws PermissionException if the current user doesn't have permission to add or remove roles.
+	 * @throws InconsistentException if the current entity inherits an access mode such as group access.
+	 */
+	protected void setAccessRoles(GroupAwareEdit entityEdit) throws PermissionException, InconsistentException {
+
+		Set<String> rolesToSave = new LinkedHashSet<String>(roleIds);
+		rolesToSave.retainAll(availableRoleIds());
+
+		Set<String> currentRoles = entityEdit.getRoleAccessIds();
+
+		Set<String> rolesToAdd = new LinkedHashSet<String>(rolesToSave);
+		rolesToAdd.removeAll(currentRoles);
+		rolesToAdd.removeAll(inheritedRoleIds);
+		for (String role : rolesToAdd) {
+			entityEdit.addRoleAccess(role);
+		}
+
+		Set<String> rolesToRemove = new LinkedHashSet<String>(currentRoles);
+		rolesToRemove.removeAll(rolesToSave);
+		rolesToRemove.removeAll(inheritedRoleIds);
+		for (String role : rolesToRemove) {
+			entityEdit.removeRoleAccess(role);
 		}
 	}
 

@@ -3572,6 +3572,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing_or"), fileparams);
 
 		UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}", false);
+		UIBoundBoolean.make(form, "mm-file-replace", "#{simplePageBean.replacefile}", false);
 
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
 		UIOutput.make(form, "mm-test-tryother").decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.mm-test-tryother")));

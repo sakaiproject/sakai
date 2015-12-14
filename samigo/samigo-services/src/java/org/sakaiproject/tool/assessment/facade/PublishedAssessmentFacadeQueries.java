@@ -2994,8 +2994,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		}
 	}
 	
-	public void saveOrUpdateAttachments(List list) {
-		getHibernateTemplate().saveOrUpdateAll(list);
+	public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list) {
+	    for (AssessmentAttachmentIfc attachment : list) {
+	        getHibernateTemplate().saveOrUpdate(attachment);
+        }
 	}
 	
 	  public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId) {

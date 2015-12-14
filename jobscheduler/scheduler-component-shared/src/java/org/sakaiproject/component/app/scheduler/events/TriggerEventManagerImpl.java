@@ -1,6 +1,9 @@
 package org.sakaiproject.component.app.scheduler.events;
 
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
+import org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 
 import java.util.Collections;
@@ -19,24 +22,19 @@ public class TriggerEventManagerImpl implements TriggerEventManager
 {
     private LinkedList<TriggerEvent>
         events = new LinkedList<TriggerEvent> ();
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.api.app.scheduler.events.TriggerEventManager#createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, java.lang.String, java.lang.String, java.util.Date, java.lang.String)
-     */
-    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message) {
-        return createTriggerEvent(type, jobName, triggerName, time, message, null);
+    
+    @Override
+    public TriggerEvent createTriggerEvent(TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message) {
+        return createTriggerEvent(type, jobKey, triggerKey, time, message, null);
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.api.app.scheduler.events.TriggerEventManager#createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, java.lang.String, java.lang.String, java.util.Date, java.lang.String, java.lang.String)
-     */
-    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message, String serverId)
-    {
+    @Override
+    public TriggerEvent createTriggerEvent(TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message, String serverId) {
         TriggerEventImpl event = new TriggerEventImpl();
 
         event.setEventType(type);
-        event.setJobName(jobName);
-        event.setTriggerName(triggerName);
+        event.setJobName(jobKey.getName());
+        event.setTriggerName(triggerKey.getName());
         event.setTime(time);
         event.setMessage(message);
         event.setServerId(serverId);
@@ -129,5 +127,4 @@ public class TriggerEventManagerImpl implements TriggerEventManager
            events.remove(i); 
         }
     }
-
 }

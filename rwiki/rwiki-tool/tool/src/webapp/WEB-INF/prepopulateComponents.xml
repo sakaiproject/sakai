@@ -1,28 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<!--
-/**********************************************************************************
- * $URL:  $
- * $Id:  $
- ***********************************************************************************
- *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
- *
- * Licensed under the Educational Community License, Version 1.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.opensource.org/licenses/ecl1.php
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- **********************************************************************************/
--->
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <!-- tool context -->
 
@@ -66,8 +45,7 @@
   </bean>
 
   <bean id="rwiki.seedPage.HelpPage"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-     singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>Help Page</value></property>
 
     <property name="source">
@@ -87,8 +65,7 @@
   </bean>
 
   <bean id="rwiki.seedPage.HomePage"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-     singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>Home</value></property>
 
     <property name="source">
@@ -108,8 +85,7 @@
   </bean>
 
   <bean id="rwiki.seedPage.AboutCoursePage"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-     singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>About</value></property>
 
     <property name="source">
@@ -150,8 +126,7 @@
   </bean>
 
   <bean id="rwiki.seedPage.AboutProjectPage"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-     singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>About</value></property>
 
     <property name="targetSiteTypes">
@@ -178,8 +153,7 @@
 
   <!-- Second help page -->
   <bean id="rwiki.seedPage.HelpPagetwo"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-    singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>HelpPagetest</value></property>
 
     <property name="source">
@@ -199,8 +173,7 @@
   </bean>
   <!-- this is the default page template for new pages -->
   <bean id="rwiki.seedPage.DefaultTemplate"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-     singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>default_template</value></property>
 
     <property name="source">
@@ -221,8 +194,7 @@
 
   <!-- Page containing recent changes macro -->
   <bean id="rwiki.seedPage.RecentChangesPage"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-     singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>Recent Changes</value></property>
 
     <property name="source">
@@ -242,8 +214,7 @@
   </bean>
   <!-- Right side bar on the edit page -->
   <bean id="rwiki.seedPage.EditRightPage"
-    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl"
-     singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
     <property name="name"><value>Edit_right</value></property>
 
     <property name="source">

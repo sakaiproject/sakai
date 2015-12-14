@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
    <bean id="testConfigurableBean" class="org.sakaiproject.component.app.scheduler.jobs.TestConfigurableJob"/>
 
    <bean id="org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper.schedulerSampleTest"
          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-         singleton="true" init-method="init">
+         init-method="init">
        <property name="beanId">
           <value>testConfigurableBean</value>
        </property>
@@ -52,7 +52,7 @@
 
     <bean id="org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper.schedulerEventGenerator"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-          singleton="true" init-method="init">
+          init-method="init">
         <property name="beanId">
            <value>testEventGeneratorBean</value>
         </property>
@@ -104,7 +104,7 @@
     -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.schedulerSampleTest"
        class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-       singleton="true" init-method="init">
+       init-method="init">
        <property name="beanId">
           <value>schedulerSampleTest</value>
        </property>

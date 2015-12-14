@@ -36,11 +36,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -77,6 +77,8 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
+import org.sakaiproject.authz.api.GroupIdInvalidException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
@@ -203,7 +205,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	private static final String PROP_AVAIL_NOTI = "availableNotified";
 
 	/** MIME multipart separation string */
-    protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
+	protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
     protected static final String DEFAULT_RESOURCE_QUOTA = "content.quota.";
     protected static final String DEFAULT_DROPBOX_QUOTA = "content.dropbox.quota.";
@@ -1872,6 +1874,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		p.addProperty(ResourceProperties.PROP_CONTENT_TYPE, r.getContentType());
 
 		p.addProperty(ResourceProperties.PROP_IS_COLLECTION, "false");
+
+		if (StringUtils.isBlank(p.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE))) {
+			String copyright = m_serverConfigurationService.getString("copyright.type.default", "not_determined");
+			// if copyright is null don't set a default copyright
+			if (copyright != null) {
+				String[] copyrightTypes = m_serverConfigurationService.getStrings("copyright.types");
+				if (copyrightTypes != null && copyrightTypes.length > 0) {
+					List<String> l = Arrays.asList(copyrightTypes);
+					if (l.contains(copyright)) {
+						p.addProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+					} else {
+						M_log.warn("Cannot set the default copyright " + copyright + " on " + r.getId() + " does not match any copyright types");
+					}
+				} else {
+					M_log.warn("Cannot set the default copyright " + copyright + " on " + r.getId() + " no copyright types are defined");
+				}
+			}
+		}
 
 	} // addLiveResourceProperties
 
@@ -9476,8 +9496,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean isPubView(String id)
 	{
-		boolean pubView = m_securityService.unlock(userDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ, getReference(id));
-		return pubView;
+		User anon = userDirectoryService.getAnonymousUser();
+		return m_securityService.unlock(anon, AUTH_RESOURCE_READ, getReference(id));
 	}
 
 	/**
@@ -9488,24 +9508,30 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
 		if (isRootCollection(id)) return false;
 
-		// check for pubview on the container
+		// check for access on the container
 		String containerId = isolateContainingId(id);
-		boolean pubView = m_securityService.unlock(userDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ,
-				getReference(containerId));
-		return pubView;
+		return isPubView(containerId);
 	}
 
 	/**
-	 * Set this resource or collection to the pubview setting.
-	 * 
-	 * @param id
-	 *        The resource or collection id.
-	 * @param pubview
-	 *        The desired public view setting.
+	 * @inheritDoc
+	 * @see org.sakaiproject.content.api.ContentHostingService#setPubView(String, boolean)
 	 */
 	public void setPubView(String id, boolean pubview)
 	{
-		// TODO: check efficiency here -ggolden
+		try {
+			setRoleView(id, AuthzGroupService.ANON_ROLE, pubview);
+		} catch (AuthzPermissionException e) {
+			// Catching to prevent breaking the existing implementation
+			M_log.warn("BaseContentService#setPubView: Did not have permission to create a realm for " + getReference(id));
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @see org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
+	 */
+	public void setRoleView(String id, String roleId, boolean grantAccess) throws AuthzPermissionException {
 
 		String ref = getReference(id);
 
@@ -9519,15 +9545,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		catch (GroupNotDefinedException e)
 		{
 			// if no realm yet, and we need one, make one
-			if (pubview)
+			if (grantAccess)
 			{
 				try
 				{
 					edit = m_authzGroupService.addAuthzGroup(ref);
-				}
-				catch (Exception ee)
-				{
-				   M_log.warn("Failed to add AZG ("+ref+") for pubview: " + ee);
+				} catch (GroupIdInvalidException e1) {
+					M_log.warn("BaseContentService#setRoleView: Failed to add AZG (" + ref + "): " + e1);
+				} catch (GroupAlreadyDefinedException e1) {
+					M_log.warn("BaseContentService#setRoleView: Failed to add AZG (" + ref + "): " + e1);
 				}
 			}
 		}
@@ -9549,35 +9575,34 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		boolean delete = false;
 
 		// align the realm with our positive setting
-		if (pubview)
+		if (grantAccess)
 		{
-			// make sure the anon role exists and has "content.read" - the only client of pubview
-			Role role = edit.getRole(AuthzGroupService.ANON_ROLE);
+			// make sure the role exists and has "content.read"
+			Role role = edit.getRole(roleId);
 			if (role == null)
 			{
 				try
 				{
-					role = edit.addRole(AuthzGroupService.ANON_ROLE);
-					// moved from below as part of NPE cleanup -AZ
-					if (!role.isAllowed(AUTH_RESOURCE_READ))
-		            {
-		                role.allowFunction(AUTH_RESOURCE_READ);
-		                changed = true;
-		            }
+					role = edit.addRole(roleId);
 				}
-				catch (RoleAlreadyDefinedException ignore)
+				catch (RoleAlreadyDefinedException e)
 				{
-				    role = null;
+					throw new IllegalStateException("BaseContentService#setRoleView: Received RoleAlreadyDefined on non-existent role", e);
 				}
 			}
 
+			if (!role.isAllowed(AUTH_RESOURCE_READ))
+			{
+				role.allowFunction(AUTH_RESOURCE_READ);
+				changed = true;
+			}
 		}
 
 		// align the realm with our negative setting
 		else
 		{
 			// get the role
-			Role role = edit.getRole(AuthzGroupService.ANON_ROLE);
+			Role role = edit.getRole(roleId);
 			if (role != null)
 			{
 				if (role.isAllowed(AUTH_RESOURCE_READ))
@@ -9618,13 +9643,60 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			catch (GroupNotDefinedException e)
 			{
-				// TODO: IdUnusedException
-			}
-			catch (AuthzPermissionException e)
-			{
-				// TODO: PermissionException
+				M_log.error("BaseContentService#setRoleView: The group we were using stopped existing: " + e);
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, String)
+	 */
+	public boolean isRoleView(final String id, final String roleId) {
+		if(roleId == null) {
+			return false;
+		}
+		String dummyUserId = m_authzGroupService.encodeDummyUserForRole(roleId);
+		return m_securityService.unlock(dummyUserId, AUTH_RESOURCE_READ, getReference(id));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, String)
+	 */
+	public boolean isInheritingRoleView(final String id, final String roleId) {
+		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
+		if (isRootCollection(id)) return false;
+
+		// check for access on the container
+		String containerId = isolateContainingId(id);
+		return isRoleView(containerId, roleId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#getRoleViews(String)
+	 */
+	public Set<String> getRoleViews(final String id) {
+		String ref = getReference(id);
+		LinkedHashSet<String> roleIds = new LinkedHashSet<String>();
+		AuthzGroup realm = null;
+
+		try {
+			realm = m_authzGroupService.getAuthzGroup(ref);
+		} catch (GroupNotDefinedException e) {
+			// if there is no authz group then no roles can have been defined.
+			return roleIds;
+		}
+
+		Set<Role> roles = realm.getRoles();
+		for (Role role : roles) {
+			if(role.isAllowed(AUTH_RESOURCE_READ)) {
+				roleIds.add(role.getId());
+			}
+		}
+
+		return roleIds;
 	}
 
 	/**
@@ -10493,7 +10565,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/**
 		 * @inheritDoc
 		 */
-		public void clearGroupAccess() throws InconsistentException, PermissionException 
+		public void clearGroupAccess() throws InconsistentException, PermissionException
 		{
 			if(this.m_access != AccessMode.GROUPED)
 			{
@@ -10510,26 +10582,116 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/**
 		 * @inheritDoc
 		 */
-		public void clearPublicAccess() throws InconsistentException, PermissionException 
-		{
-			if(isPubView(this.m_id)) {
-				this.m_accessUpdated = true;
+		public void clearPublicAccess() throws PermissionException {
+			try {
+				removeRoleAccess(AuthzGroupService.ANON_ROLE);
+			} catch (InconsistentException e) {
+				M_log.error("BasicGroupAwareEdit#clearPublicAccess: the anon role was not defined: " + e);
 			}
-			setPubView(this.m_id, false);
-			this.m_access = AccessMode.INHERITED;
-			this.m_groups.clear();
-
 		}
 
-		public void setPublicAccess() throws PermissionException
+		public void setPublicAccess() throws PermissionException, InconsistentException
 		{
-			if(! isPubView(this.m_id)) {
+			addRoleAccess(AuthzGroupService.ANON_ROLE);
+		}
+
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEdit#addRoleAccess(String)
+		 */
+		public void addRoleAccess(String roleId) throws InconsistentException, PermissionException {
+			if (roleId == null || roleId.isEmpty()) {
+				throw new InconsistentException("BasicGroupAwareEdit#addRoleAccess - Must specify a role to remove for content " + this.getReference());
+			}
+
+			if (!this.getInheritedGroups().isEmpty()) {
+				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s because content %s inherits group access.", roleId, this.getReference()));
+			}
+
+			if (getInheritedRoleAccessIds().contains(roleId)) {
+				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s because content %s inherits role access.", roleId, this.getReference()));
+			}
+
+			if (!(isRoleView(this.m_id, roleId))) {
+				try {
+					setRoleView(this.m_id, roleId, true);
+				} catch (AuthzPermissionException e) {
+					throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
+				}
+				this.m_accessUpdated = true;
+				this.m_access = AccessMode.INHERITED;
+				this.m_groups.clear();
+			}
+		}
+
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEdit#removeRoleAccess(String)
+		 */
+		public void removeRoleAccess(String roleId) throws InconsistentException, PermissionException {
+			if (roleId == null || roleId.isEmpty()) {
+				throw new InconsistentException("BasicGroupAwareEdit#removeRoleAccess - Must specify a role to remove for content " + this.getReference());
+			}
+
+			if (isRoleView(this.m_id, roleId)) {
+				try {
+					setRoleView(this.m_id, roleId, false);
+				} catch (AuthzPermissionException e) {
+					throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
+				}
+				this.m_accessUpdated = true;
+				this.m_access = AccessMode.INHERITED;
+				this.m_groups.clear();
+			}
+		}
+
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEdit#clearRoleAccess()
+		 */
+		public void clearRoleAccess() throws PermissionException {
+			Set<String> roles = getRoleViews(this.m_id);
+			for (String role : roles) {
+				try {
+					setRoleView(this.m_id, role, false);
+				} catch (AuthzPermissionException e) {
+					throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
+				}
+			}
+			if (roles.size() > 0) {
 				this.m_accessUpdated = true;
 			}
-			setPubView(this.m_id, true);
-
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
+		}
+
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getRoleAccessIds() ()
+		 */
+		public Set<String> getRoleAccessIds()
+		{
+			return getRoleViews(this.m_id);
+		}
+
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getInheritedRoleAccessIds() ()
+		 */
+		public Set<String> getInheritedRoleAccessIds()
+		{
+			Set<String> roleIds = new LinkedHashSet<String>();
+			if (isRootCollection(this.m_id)) {
+				// we are at the root so there is nothing to inherit
+				return roleIds;
+			}
+			ContentEntity next = this.getContainingCollection();
+
+			while (next != null && next.getAccess() == AccessMode.INHERITED) {
+				roleIds.addAll(next.getRoleAccessIds());
+				next = next.getContainingCollection();
+			}
+			return roleIds;
 		}
 
 		/**
@@ -10542,14 +10704,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				throw new InconsistentException(this.getReference());
 			}
 
-			if(isInheritingPubView(this.m_id))
+			if(!getRoleAccessIds().isEmpty())
 			{
-				throw new InconsistentException(this.getReference());
-			}
-
-			if(isPubView(this.m_id))
-			{
-				setPubView(this.m_id, false);
+				clearRoleAccess();
 			}
 
 			SortedSet groupRefs = new TreeSet();

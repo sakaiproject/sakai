@@ -345,7 +345,7 @@ function redirectBasedOnSelection(){
 					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				#end
 				## if site creation is based on template, this could be the final step!
-				#if ($!basedOnTemplate) 
+				#if ($!basedOnTemplate && !$publishTemplate) 
 					<div class="instruction" id ="nextInstructions">
 						<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
 					</div>

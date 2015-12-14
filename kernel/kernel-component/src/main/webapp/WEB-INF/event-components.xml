@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
-
-    <!-- database beans -->
-    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDefault"   class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDefault" singleton="true"/>
-    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlHSql"      class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlHSql"    singleton="true"/>
-    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMySql"     class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMySql"   singleton="true"/>
-    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlOracle"    class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlOracle"  singleton="true"/>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- database beans -->
-    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlDefault"           class="org.sakaiproject.event.impl.UsageSessionServiceSqlDefault"         singleton="true"/>
-    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlHSql"              class="org.sakaiproject.event.impl.UsageSessionServiceSqlHSql"            singleton="true"/>
-    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlMySql"             class="org.sakaiproject.event.impl.UsageSessionServiceSqlMySql"           singleton="true"/>
-    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlOracle"            class="org.sakaiproject.event.impl.UsageSessionServiceSqlOracle"          singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDefault"   class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDefault"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlHSql"      class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlHSql"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMySql"     class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMySql"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlOracle"    class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlOracle"/>
+
+    <!-- database beans -->
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlDefault"           class="org.sakaiproject.event.impl.UsageSessionServiceSqlDefault"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlHSql"              class="org.sakaiproject.event.impl.UsageSessionServiceSqlHSql"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlMySql"             class="org.sakaiproject.event.impl.UsageSessionServiceSqlMySql"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlOracle"            class="org.sakaiproject.event.impl.UsageSessionServiceSqlOracle"/>
 
 	<bean id="org.sakaiproject.event.api.EventTrackingService"
 			class="org.sakaiproject.event.impl.ClusterEventTracking"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
 
         <lookup-method name="sqlService"                 bean="org.sakaiproject.db.api.SqlService"/>
         <lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -46,7 +46,7 @@
 	<!--
 	<bean id="org.sakaiproject.event.api.EventTrackingService"
 			class="org.sakaiproject.event.impl.BasicEventTracking"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
 
         <lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService"/>
         <lookup-method name="sessionManager"      bean="org.sakaiproject.tool.api.SessionManager"/>
@@ -56,7 +56,7 @@
 
 	<bean id="org.sakaiproject.event.api.NotificationService"
 			class="org.sakaiproject.event.impl.DbNotificationService"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
 
         <lookup-method name="eventTrackingService"       bean="org.sakaiproject.event.api.EventTrackingService"/>
         <lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -71,7 +71,7 @@
 
 	<bean id="org.sakaiproject.event.api.UsageSessionService"
 			class="org.sakaiproject.event.impl.UsageSessionServiceAdaptor"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
 
         <lookup-method name="timeService"                bean="org.sakaiproject.time.api.TimeService"/>
         <lookup-method name="sqlService"                 bean="org.sakaiproject.db.api.SqlService"/>
@@ -98,7 +98,7 @@
     <!-- ActivityService -->
     <bean id="org.sakaiproject.event.api.ActivityService"
 			class="org.sakaiproject.event.impl.ActivityServiceImpl"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
 	 	<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 	 	<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 	 	<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
@@ -107,7 +107,7 @@
 
     <bean id="org.sakaiproject.event.api.EventQueryService"
           class="org.sakaiproject.event.impl.EventQueryServiceImpl"
-          init-method="init"  destroy-method="destroy" singleton="true">
+          init-method="init"  destroy-method="destroy">
 
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 
@@ -115,7 +115,7 @@
 
     <bean id="org.sakaiproject.event.api.LearningResourceStoreService"
             class="org.sakaiproject.event.impl.BaseLearningResourceStoreService"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>

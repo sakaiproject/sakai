@@ -21,27 +21,15 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-/**
- * @author ieb
- *
- */
-public class AllTests
-{
-
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite(
-				"Test for org.sakaiproject.content.impl.serialize.impl.test");
-		//$JUnit-BEGIN$
-		suite.addTestSuite(ProfileSerializerTest.class);
-		suite.addTestSuite(ByteStorageConversionCheck.class);
-		suite.addTestSuite(Type1BaseContentResourceSerializerTest.class);
-		suite.addTestSuite(Type1BaseContentCollectionSerializerTest.class);
-		//$JUnit-END$
-		return suite;
-	}
-
-}
+@RunWith(Suite.class)
+@SuiteClasses({
+	ProfileSerializerTest.class,
+	ByteStorageConversionCheck.class,
+	Type1BaseContentResourceSerializerTest.class,
+	Type1BaseContentCollectionSerializerTest.class
+})
+public class AllTests { }

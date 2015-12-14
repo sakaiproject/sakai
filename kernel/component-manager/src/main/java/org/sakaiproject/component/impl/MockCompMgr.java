@@ -78,9 +78,9 @@ public class MockCompMgr implements ComponentManager {
         return components.contains(key);
     }
 
-    public Object get(Class iface) {
+    public <T> T get(Class<T> iface) {
         String key = iface != null ? iface.getName() : "";
-        return components.get(key);
+        return (T) components.get(key);
     }
 
     public Object get(String ifaceName) {

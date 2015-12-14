@@ -1237,10 +1237,8 @@ public class ItemContentsBean implements Serializable {
 	 */
 	public String getPointsDisplayString() {
 		String pointsDisplayString = "";
-System.out.println("zz01: " + points);
 		if (showStudentQuestionScore) {
-			pointsDisplayString = MathUtils.round(points, 2)
-					+ "/";
+			pointsDisplayString = MathUtils.round(points, 2) + "/";
 		}
 		return pointsDisplayString;
 	}

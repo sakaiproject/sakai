@@ -146,7 +146,7 @@
   <!-- Spring Locator -->
   <!--  Don't use Spring's, use Sakai's!  This allows sharing of Spring across webapps -->
   <listener>
-    <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
   </listener>
 
   <!-- OKI OSID -->

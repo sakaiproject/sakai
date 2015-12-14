@@ -227,6 +227,7 @@ public class SimplePageBean {
 	private String description;
 	private String name;
 	private boolean required;
+        private boolean replacefile;
 	private boolean subrequirement;
 	private boolean prerequisite;
 	private boolean newWindow;
@@ -803,6 +804,11 @@ public class SimplePageBean {
 		this.prerequisite = prerequisite;
 	}
 	
+	public void setReplacefile(boolean replacefile) {
+		this.replacefile = replacefile;
+	}
+	
+
 	public void setNewWindow(boolean newWindow) {
 		this.newWindow = newWindow;
 	}
@@ -5706,10 +5712,19 @@ public class SimplePageBean {
 				
 				mimeType = file.getContentType();
 				try {
-					ContentResourceEdit res = contentHostingService.addResource(collectionId, 
+					ContentResourceEdit res = null;
+					if (itemId != -1 && replacefile) {
+					    // upload new version -- get existing file
+					    SimplePageItem item = findItem(itemId);
+					    String resId = item.getSakaiId();
+					    res = contentHostingService.editResource(resId);
+					} else {
+					    // otherwise create a new file
+					    res = contentHostingService.addResource(collectionId, 
 						                fixFileName(collectionId, Validator.escapeResourceName(base), Validator.escapeResourceName(extension)),
 								"",
 							  	MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					}
 					if (isCaption)
 					    res.setContentType("text/vtt");
 					else
@@ -5854,7 +5869,8 @@ public class SimplePageBean {
 				// editing an existing item which might have customized properties
 				// retrieve original resource and check for customizations
 				ResourceHelper resHelp = new ResourceHelper(getContentResource(item.getSakaiId()));
-				boolean hasCustomName = resHelp.isNameCustom(item.getName());
+				// if replacing file, keep existing name
+				boolean hasCustomName = resHelp.isNameCustom(item.getName()) || replacefile;
 				
 				item.setSakaiId(sakaiId);
 				if (!hasCustomName)

@@ -20,9 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.login.springframework;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.util.ContextLoaderListener;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.impl.SpringCompMgr;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,12 +35,33 @@ import org.sakaiproject.util.ContextLoaderListener;
  * Time: 11:56 AM
  * To change this template use File | Settings | File Templates.
  */
-public class SakaiHomeContextLoaderListener extends ContextLoaderListener {
+public class SakaiHomeContextLoaderListener extends SakaiHomeContextLoader implements ServletContextListener {
     private static final Log log = LogFactory.getLog(SakaiHomeContextLoaderListener.class);
 
-    protected org.springframework.web.context.ContextLoader createContextLoader()
-   	{
-    		return new SakaiHomeContextLoader();
-   	}
+	/**
+	 * Initialize the root web application context.
+	 */
+	@Override
+	public void contextInitialized(ServletContextEvent event)
+	{
+		initWebApplicationContext(event.getServletContext());
 
+		// increment the count of children for the component manager
+		((SpringCompMgr) ComponentManager.getInstance()).addChildAc();
+	}
+
+	/**
+	 * Close the root web application context.
+	 */
+	@Override
+	public void contextDestroyed(ServletContextEvent event)
+	{
+		closeWebApplicationContext(event.getServletContext());
+		//ContextCleanupListener.cleanupAttributes(event.getServletContext());
+		
+		log.info("Destroying Components in "+event.getServletContext().getServletContextName());
+
+		// decrement the count of children for the component manager
+		((SpringCompMgr) ComponentManager.getInstance()).removeChildAc();
+	}
 }

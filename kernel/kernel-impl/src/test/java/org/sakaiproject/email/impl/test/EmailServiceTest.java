@@ -30,28 +30,28 @@ import java.util.List;
 
 import javax.mail.internet.InternetAddress;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailMessage;
-import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.email.api.NoRecipientsException;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.email.impl.BasicEmailService;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
-public class EmailServiceTest extends TestCase
+public class EmailServiceTest
 {
 	private static Log log = LogFactory.getLog(EmailServiceTest.class);
 
@@ -75,75 +75,63 @@ public class EmailServiceTest extends TestCase
 	ArrayList<String> additionalHeaders;
 	ArrayList<Attachment> attachments;
 
-	public static Test suite()
-	{
-		TestSetup setup = new TestSetup(new TestSuite(EmailServiceTest.class))
-		{
-			@Override
-			protected void setUp() throws Exception
+	@BeforeClass
+	public static void setUpEmailService() throws Exception {
+		log.info("Setting up test case...");
+		final ServerConfigurationService config = context.mock(ServerConfigurationService.class);
+
+		emailService = new BasicEmailService();
+		emailService.setServerConfigurationService(config);
+
+		emailService.setSmtp(HOST);
+		emailService.setSmtpPort(Integer.toString(PORT));
+		emailService.setMaxRecipients("100");
+		emailService.setOneMessagePerConnection(false);
+		emailService.setAllowTransport(ALLOW_TRANSPORT);
+
+		context.checking(new Expectations() {
 			{
-				log.info("Setting up test case...");
-				final ServerConfigurationService config = context
-						.mock(ServerConfigurationService.class);
+				allowing(config).getServerName();
+				will(returnValue("localhost"));
 
-				emailService = new BasicEmailService();
-				emailService.setServerConfigurationService(config);
+				String connTimeoutKey = emailService.propName(BasicEmailService.MAIL_CONNECTIONTIMEOUT_T);
+				allowing(config).getString(connTimeoutKey, null);
+				will(returnValue(null));
 
-				emailService.setSmtp(HOST);
-				emailService.setSmtpPort(Integer.toString(PORT));
-				emailService.setMaxRecipients("100");
-				emailService.setOneMessagePerConnection(false);
-				emailService.setAllowTransport(ALLOW_TRANSPORT);
-
-				context.checking(new Expectations() {{
-					allowing(config).getServerName();
-					will(returnValue("localhost"));
-
-					String connTimeoutKey = emailService.propName(BasicEmailService.MAIL_CONNECTIONTIMEOUT_T);
-					allowing(config).getString(connTimeoutKey, null);
-					will(returnValue(null));
-
-					String timeoutKey = emailService.propName(BasicEmailService.MAIL_TIMEOUT_T);
-					allowing(config).getString(timeoutKey, null);
-					will(returnValue(null));
-				}});
-
-				System.err.println("Initing EmailService...");
-				emailService.init();
-				System.err.println("EmailService inited.");
-
-				if (ALLOW_TRANSPORT)
-				{
-					System.err.println("Starting internal mail server...");
-					wiser = new Wiser();
-					wiser.setPort(PORT);
-					wiser.start();
-					System.err.println("Internal mail server started.");
-				}
+				String timeoutKey = emailService.propName(BasicEmailService.MAIL_TIMEOUT_T);
+				allowing(config).getString(timeoutKey, null);
+				will(returnValue(null));
 			}
+		});
 
-			@Override
-			protected void tearDown() throws Exception
-			{
-				emailService.destroy();
+		System.err.println("Initing EmailService...");
+		emailService.init();
+		System.err.println("EmailService inited.");
 
-				if (wiser != null && wiser.getServer().isRunning())
-				{
-					if (LOG_SENT_EMAIL)
-					{
-						for (WiserMessage msg : wiser.getMessages())
-						{
-							log.info(msg);
-						}
-					}
-					wiser.stop();
-				}
-			}
-		};
-		return setup;
+		if (ALLOW_TRANSPORT) {
+			System.err.println("Starting internal mail server...");
+			wiser = new Wiser();
+			wiser.setPort(PORT);
+			wiser.start();
+			System.err.println("Internal mail server started.");
+		}
 	}
 
-	@Override
+	@AfterClass
+	public static void tearDownEmailService() throws Exception {
+		emailService.destroy();
+
+		if (wiser != null && wiser.getServer().isRunning()) {
+			if (LOG_SENT_EMAIL) {
+				for (WiserMessage msg : wiser.getMessages()) {
+					log.info(msg);
+				}
+			}
+			wiser.stop();
+		}
+	}
+
+	@Before
 	public void setUp() throws Exception
 	{
 		from = new InternetAddress("from@example.com");
@@ -187,20 +175,22 @@ public class EmailServiceTest extends TestCase
 		attachments.add(new Attachment(f1, f1.getPath()));
 		attachments.add(new Attachment(f2, f2.getPath()));
 	}
-
+	
+	@Test
 	public void testSend() throws Exception
 	{
 		emailService.send(from.getAddress(), to[0].getAddress() + ", test2@example.com", subject,
 				content, headerTo[0].getAddress(), replyTo[0].getAddress(), additionalHeaders);
 	}
 
+	@Test
 	public void testNoRecipients() throws Exception
 	{
 		EmailMessage msg = new EmailMessage(from.getAddress(), subject, content);
 		try
 		{
 			emailService.send(msg);
-			fail("Should not be able to send successfully with no recipients.");
+			Assert.fail("Should not be able to send successfully with no recipients.");
 		}
 		catch (NoRecipientsException e)
 		{
@@ -208,13 +198,14 @@ public class EmailServiceTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testInvalidFrom() throws Exception
 	{
 		EmailMessage msg = new EmailMessage("test", subject, content);
 		try
 		{
 			emailService.send(msg);
-			fail("Should not be able to send successfully with invalid 'from'.");
+			Assert.fail("Should not be able to send successfully with invalid 'from'.");
 		}
 		catch (AddressValidationException e)
 		{
@@ -222,6 +213,7 @@ public class EmailServiceTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testInvalidReplyTo() throws Exception
 	{
 		EmailMessage msg = new EmailMessage("test", subject, content);
@@ -229,7 +221,7 @@ public class EmailServiceTest extends TestCase
 		try
 		{
 			emailService.send(msg);
-			fail("Should not be able to send successfully with invalid 'reply to'.");
+			Assert.fail("Should not be able to send successfully with invalid 'reply to'.");
 		}
 		catch (AddressValidationException e)
 		{
@@ -237,6 +229,7 @@ public class EmailServiceTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testSendMessageWithoutAttachments() throws Exception
 	{
 		// create message with from, subject, content
@@ -265,6 +258,7 @@ public class EmailServiceTest extends TestCase
 		emailService.send(msg);
 	}
 
+	@Test
 	public void testSendEmailMessage() throws Exception
 	{
 		// create message with from, subject, content
@@ -296,16 +290,19 @@ public class EmailServiceTest extends TestCase
 		emailService.send(msg);
 	}
 
+	@Test
 	public void testSendMailBasic() throws Exception
 	{
 		emailService.sendMail(from, to, subject, content, null, null, null, null);
 	}
 
+	@Test
 	public void testSendMailAllButAttachments() throws Exception
 	{
 		emailService.sendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders);
 	}
 
+	@Test
 	public void testSendMailAll() throws Exception
 	{
 		emailService.sendMail(from, to, subject, content, headerToMap, replyTo, additionalHeaders,

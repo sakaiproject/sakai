@@ -56,6 +56,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	public final static String		COL_EVENT			= StatsManager.T_EVENT;
 	public final static String		COL_TOOL			= StatsManager.T_TOOL;
 	public final static String		COL_RESOURCE		= StatsManager.T_RESOURCE;
+	public final static String		COL_PAGE		    = StatsManager.T_PAGE;
 	public final static String		COL_ACTION			= StatsManager.T_RESOURCE_ACTION;
 	public final static String		COL_DATE			= StatsManager.T_DATE;
 	public final static String		COL_TOTAL			= StatsManager.T_TOTAL;

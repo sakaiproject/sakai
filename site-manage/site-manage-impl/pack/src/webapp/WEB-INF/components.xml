@@ -1,34 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org.sakaiproject.sitemanage.api.SiteTypeProvider"
 			class="org.sakaiproject.sitemanage.impl.SiteTypeProviderImpl"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 	</bean>
 	
 	<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
 			class="org.sakaiproject.sitemanage.impl.SectionFieldProviderImpl"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 	      <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 	
 	<bean id="org.sakaiproject.sitemanage.api.AffiliatedSectionProvider"
 			class="org.sakaiproject.sitemanage.impl.AffiliatedSectionProviderImpl"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 	</bean>
 	 
 	<!--<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
 		class="org.sakaiproject.sitemanage.impl.UserNotificationProviderImpl"
-		init-method="init"
-		singleton="true" >
+		init-method="init">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -38,8 +34,7 @@
 	<!-- Uncomment to use the EmailTemplateService notification provider -->
 	<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
 		class="org.sakaiproject.sitemanage.impl.ETSUserNotificationProviderImpl"
-		init-method="init"
-		singleton="true" >
+		init-method="init">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -79,7 +74,7 @@
 
     <bean id="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl"
     	class="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl"
-    	singleton="true" init-method="init" destroy-method="destroy">
+    	init-method="init" destroy-method="destroy">
     	<property name="sessionFactory">
     		<ref
     			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
@@ -89,7 +84,7 @@
     <bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"
     	parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
     	class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
-    	init-method="init" singleton="true">
+    	init-method="init">
     	<property name="bundleLocation"><value>UserAuditService</value></property>
     	<property name="databaseSourceKey"><value>M</value></property>
     	<property name="hasParameters"><value>true</value></property>
@@ -98,7 +93,7 @@
     <bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.membership"
     	parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
     	class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
-    	init-method="init" singleton="true">
+    	init-method="init">
     	<property name="bundleLocation"><value>UserAuditService</value></property>
     	<property name="databaseSourceKey"><value>S</value></property>
     </bean>
@@ -117,7 +112,7 @@
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"
         class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-        singleton="true" init-method="init">
+        init-method="init">
         <property name="beanId">
             <value>org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob</value>
         </property>

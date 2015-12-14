@@ -450,16 +450,8 @@
                         </div>
 					</td>
 					#if($item.depth > 0)
-						<td headers="access" class="access" title="$item.effectiveGroupsLabel">
-							#if($item.isPubviewInherited() || $item.isPubview())
-								$tlang.getString("access.public")
-							#elseif($item.isDropbox())
-								$tlang.getString("access.dropbox")
-							#elseif($item.effectiveAccess == $GROUP_ACCESS)
-								$tlang.getString("access.group")
-							#else
-								$tlang.getString("access.site")
-							#end
+						<td headers="access" title="$item.getShortAccessLabel()">
+							$item.getShortAccessLabel()
 						</td>
 						<td headers="creator" class="creator">
 							$validator.escapeHtml($item.createdBy)
@@ -671,7 +663,9 @@
 							<td headers="actions2" class="attach"></td>
 							<td headers="actions3" class="attach"></td>
 							#if($item.depth > 0)
-								<td class="access" headers="access" title="$item.effectiveGroups"></td>
+								<td headers="access" title="$item.getShortAccessLabel()">
+									$item.getShortAccessLabel()
+								</td>
 								<td class="creator" headers="creator">
 									$validator.escapeHtml($item.createdBy)
 								</td>

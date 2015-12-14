@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -40,7 +39,6 @@ import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class FakeStatsManager implements StatsManager {
 
@@ -71,11 +69,6 @@ public class FakeStatsManager implements StatsManager {
 
 	public List<Stat> getEventStats(String siteId, List<String> events, Date date, Date date2, List<String> userIds, boolean inverseUserSelection, PagingPosition page, List<String> totalsBy,
 			String sortBy, boolean sortAscending, int maxResults) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId, List<String> events, Date date, Date date2, List<String> userIds, boolean inverseUserSelection, PagingPosition page) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -131,15 +124,24 @@ public class FakeStatsManager implements StatsManager {
 		return null;
 	}
 
-	public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(String siteId, String resourceAction, List<String> resourceIds, Date date, Date date2, List<String> userIds,
-			boolean inverseUserSelection, PagingPosition page) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public int getResourceStatsRowCount(String siteId, String resourceAction, List<String> resourceIds, Date date, Date date2, List<String> userIds, boolean inverseUserSelection, List<String> totalsBy) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public List<Stat> getLessonBuilderStats(final String siteId,
+			final String resourceAction,
+			final List<String> resourceIds,
+			final Date iDate,
+			final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final List<String> totalsBy,
+			final String sortBy, 
+			final boolean sortAscending,
+			final int maxResults) {
+		return null;
 	}
 
 	public String getResourceURL(String ref) {
@@ -345,6 +347,28 @@ public class FakeStatsManager implements StatsManager {
 	public int getTotalResources(String siteId, boolean excludeFolders) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public String getLessonPageTitle(long pageId) {
+		return null;
+	}
+
+	@Override
+	public int getTotalLessonPages(String siteId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getTotalReadLessonPages(String siteId) {
+		return 0;
+	}
+
+	public String getMostReadLessonPage(final String siteId) {
+		return null;
+	}
+
+	public String getMostActiveLessonPageReader(final String siteId) {
+		return null;
 	}
 
 	public List<Stat> getPresenceStats(String siteId, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page, List<String> totalsBy, String sortBy,

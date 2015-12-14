@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-  "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"
 		class="org.sakaiproject.tool.assessment.samlite.impl.SamLiteServiceImpl"
-		singleton="true"
 		init-method="init"/>
+		
+	<bean id="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"
+		class="org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl"
+		scope="singleton"/>
 
   <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.samigo"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
@@ -285,7 +287,7 @@
 
     <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
               class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
-              singleton="true" init-method="init" destroy-method="destroy">
+              init-method="init" destroy-method="destroy">
 	  <property name="qtiService" ref="QTIService"/>
     </bean>
 
@@ -312,7 +314,7 @@
 
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AutoSubmitAssessments"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      singleton="true" init-method="init">
+      init-method="init">
       <property name="beanId">
          <value>AutoSubmitAssessments</value>
       </property>

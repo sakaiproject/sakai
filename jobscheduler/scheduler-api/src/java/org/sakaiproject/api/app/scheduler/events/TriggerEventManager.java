@@ -23,6 +23,9 @@ package org.sakaiproject.api.app.scheduler.events;
 import java.util.Date;
 import java.util.List;
 
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
+
 /**
  * Created by IntelliJ IDEA.
  * User: duffy
@@ -42,7 +45,7 @@ public interface TriggerEventManager
      * @return a TriggerEvent object
      * @deprecated use {@link #createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, String, String, Date, String, String)} instead
      */
-    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message);
+    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message);
 
     /**
      * @param type
@@ -53,7 +56,7 @@ public interface TriggerEventManager
      * @param serverId the id of the server the job runs on
      * @return a TriggerEvent object
      */
-    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message, String ServerId);
+    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message, String ServerId);
 
     /**
      * @return list of all TriggerEvent

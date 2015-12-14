@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="org.sakaiproject.jobscheduler.hibernate.AdditionalHibernateMappings"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
@@ -18,8 +18,7 @@
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-          singleton="true">
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
@@ -114,7 +113,7 @@
     </bean>
 
     <bean id="eventPurgeJobWrapper" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-        singleton="true" init-method="init">
+       init-method="init">
       <property name="beanId">
          <value>eventPurgeJob</value>
       </property>
@@ -140,8 +139,7 @@
       </property>
     </bean>
 
-    <bean id="eventPurgeScheduling" class="org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule"
-          singleton="true">
+    <bean id="eventPurgeScheduling" class="org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule">
         <property name="jobBeanWrapper"><ref bean="eventPurgeJobWrapper"/></property>
         <property name="jobName" value="Event Log Purge"/>
         <property name="triggerName" value="Nightly Log Purge Trigger"/>
@@ -160,8 +158,7 @@
    </bean>   
     
      <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationRunner"
-      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      singleton="true" init-method="init">
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" init-method="init">
       <property name="beanId">
          <value>scheduledInvocationRunner</value>
       </property>
@@ -184,8 +181,7 @@
    </bean>   
    
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationTestJob"
-      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      singleton="true" init-method="init">
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" init-method="init">
       <property name="beanId">
          <value>scheduledInvocationTestJob</value>
       </property>
@@ -218,7 +214,7 @@
    -->
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.schedulerSampleTest"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      singleton="true" init-method="init">
+      init-method="init">
       <property name="beanId">
          <value>schedulerSampleTest</value>
       </property>
@@ -242,8 +238,7 @@
 	   <!-- this is the helper that will register the above bean with the job scheduler -->
 	   <!--
 	   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DatetimeEventJob"
-	      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-	      singleton="true" init-method="init">
+	      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" init-method="init">
 	      <property name="beanId">
 	         <value>datetimeJob</value>
 	      </property>

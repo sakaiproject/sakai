@@ -21,6 +21,7 @@
 package org.sakaiproject.assignment.tool;
 
 import au.com.bytecode.opencsv.CSVReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,6 +57,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -72,6 +74,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.Assignment.AssignmentAccess;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
@@ -140,6 +143,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringComponent;
 import org.sakaiproject.scoringservice.api.ScoringService;
@@ -2519,8 +2523,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("name_CheckHideDueDate", NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
 		//don't show the choice when there is no Announcement tool yet
-		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
+		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null) {
 			context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+			context.put("name_OpenDateNotification", Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION);
+		}
 		context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
 		// SAK-17606
@@ -2631,8 +2637,14 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
 		
 		// don't show the choice when there is no Announcement tool yet
-		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
-				context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null) {
+			context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+			context.put("value_OpenDateNotification", state.getAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION));
+			// the option values
+			context.put("value_opendate_notification_none", Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+			context.put("value_opendate_notification_low", Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
+			context.put("value_opendate_notification_high", Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
+		}
 		
 		String s = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 		if (s == null) s = "1";
@@ -3108,6 +3120,11 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
 		context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
 		context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+		context.put("Value_OpenDateNotification", state.getAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION));
+		// the option values
+		context.put("value_opendate_notification_none", Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+		context.put("value_opendate_notification_low", Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
+		context.put("value_opendate_notification_high", Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
 		context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 		context.put("honor_pledge_text", ServerConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
 
@@ -6343,7 +6360,7 @@ public class AssignmentAction extends PagedResourceActionII
 						 * SAK-22150 We will need to know later if there was a previous submission time. DH
 						 */
 						boolean isPreviousSubmissionTime = true;
-						if (sEdit.getTimeSubmitted() == null || "".equals(sEdit.getTimeSubmitted()))
+						if (sEdit.getTimeSubmitted() == null || "".equals(sEdit.getTimeSubmitted()) || !AssignmentService.hasBeenSubmitted(sEdit))
 						{
 							isPreviousSubmissionTime = false;
 						}
@@ -7360,6 +7377,21 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
 		}
+		
+		if (params.getString(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
+			if (params.getString(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION)
+					.equalsIgnoreCase(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE)) {
+				state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+			}
+			else if (params.getString(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION)
+					.equalsIgnoreCase(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW)) {
+				state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
+			}
+			else if (params.getString(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION)
+					.equalsIgnoreCase(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH)) {
+				state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
+			}
+		}		
 
 		if (params.getString(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE) != null
 				&& params.getString(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE)
@@ -8179,6 +8211,8 @@ public class AssignmentAction extends PagedResourceActionII
 			boolean hideDueDate = "true".equals((String) state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
 
 			String checkAutoAnnounce = (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+			
+			String valueOpenDateNotification = (String) state.getAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION);
 
 			String checkAddHonorPledge = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
@@ -8407,7 +8441,7 @@ public class AssignmentAction extends PagedResourceActionII
 						integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
 	
 						// the open date been announced
-						integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, oldOpenTime);
+						integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, valueOpenDateNotification, oldOpenTime);
 	
 						// integrate with Gradebook
 						try
@@ -8901,7 +8935,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void integrateWithAnnouncement(SessionState state, String aOldTitle, AssignmentEdit a, String title, Time openTime, String checkAutoAnnounce, Time oldOpenTime) 
+	private void integrateWithAnnouncement(SessionState state, String aOldTitle, AssignmentEdit a, String title, Time openTime, String checkAutoAnnounce, String valueOpenDateNotification, Time oldOpenTime) 
 	{
 		if (checkAutoAnnounce.equalsIgnoreCase(Boolean.TRUE.toString()))
 		{
@@ -8930,7 +8964,8 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							updatedOpenDate = true;
 						}
-						if (!message.getAnnouncementHeader().getAccess().equals(a.getAccess()))
+						if ((message.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && !a.getAccess().equals(AssignmentAccess.SITE))
+							|| (!message.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && a.getAccess().equals(AssignmentAccess.SITE)))
 						{
 							updateAccess = true;
 						}
@@ -9039,8 +9074,29 @@ public class AssignmentAction extends PagedResourceActionII
 								header.clearGroupAccess();
 							}
 		
-		
-							channel.commitMessage(message, m_notificationService.NOTI_NONE);
+							// save notification level if this is a future notification message
+							int notiLevel = NotificationService.NOTI_NONE;
+							String notification = "n";
+							if (Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW.equals(valueOpenDateNotification)) {
+								notiLevel = NotificationService.NOTI_OPTIONAL;
+								notification = "o"; 
+							}
+							else if (Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH.equals(valueOpenDateNotification)) {
+								notiLevel = NotificationService.NOTI_REQUIRED;
+								notification = "r";
+							}
+								
+							Time now = TimeService.newTime();
+							if (openDateAnnounced != null && now.before(oldOpenTime))
+							{
+								message.getPropertiesEdit().addProperty("notificationLevel", notification);
+								message.getPropertiesEdit().addPropertyToList("noti_history", now.toStringLocalFull()+"_"+notiLevel+"_"+openDateAnnounced);
+							}
+							else {
+								message.getPropertiesEdit().addPropertyToList("noti_history", now.toStringLocalFull()+"_"+notiLevel);
+							}
+							
+							channel.commitMessage(message, notiLevel, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
 						}
 	
 						// commit related properties into Assignment object
@@ -9366,6 +9422,7 @@ public class AssignmentAction extends PagedResourceActionII
 			aPropertiesEdit.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
 		}
 		aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, checkAutoAnnounce);
+		
 		aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, addtoGradebook);
 		aPropertiesEdit.addProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
 
@@ -9935,8 +9992,21 @@ public class AssignmentAction extends PagedResourceActionII
 				ResourceProperties properties = a.getProperties();
 				state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, properties.getProperty(
 						ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
+				
 				state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, properties.getProperty(
 						ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+				
+				String defaultNotification = ServerConfigurationService.getString("announcement.default.notification", "n");
+				if (defaultNotification.equalsIgnoreCase("r")) {
+					state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
+				}
+				else if (defaultNotification.equalsIgnoreCase("o")) {
+					state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
+				}
+				else {
+					state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+				}
+								
 				state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, Integer.toString(a.getContent().getHonorPledge()));
 				
 				state.setAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, properties.getProperty(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
@@ -12417,6 +12487,17 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
 		state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
 		state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
+		
+		String defaultNotification = ServerConfigurationService.getString("announcement.default.notification", "n");
+		if (defaultNotification.equalsIgnoreCase("r")) {
+			state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
+		}
+		else if (defaultNotification.equalsIgnoreCase("o")) {
+			state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
+		}
+		else {
+			state.setAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION, Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+		}
 		// make the honor pledge not include as the default
 		state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, (Integer.valueOf(Assignment.HONOR_PLEDGE_NONE)).toString());
 
@@ -12519,6 +12600,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
 		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+		state.removeAttribute(Assignment.ASSIGNMENT_OPENDATE_NOTIFICATION);
 		state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 		state.removeAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
 		state.removeAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);

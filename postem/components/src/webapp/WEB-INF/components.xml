@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.postem" class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">  
 		<property name="mappingResources">
@@ -16,7 +17,7 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		</property>
 		<property name="target">
-			<bean class="org.sakaiproject.component.app.postem.GradebookManagerImpl" singleton="true">
+			<bean class="org.sakaiproject.component.app.postem.GradebookManagerImpl">
 				<property name="sessionFactory">
 					<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 				</property>

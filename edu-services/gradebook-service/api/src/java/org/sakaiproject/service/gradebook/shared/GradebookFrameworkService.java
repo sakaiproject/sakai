@@ -86,6 +86,12 @@ public interface GradebookFrameworkService {
 	 *	@return List of GradingScale
 	 */
 	public List getAvailableGradingScales();
+	
+	/**
+	 *	Get all of the available Grading Scales in the system, as shared DTOs.
+	 *	@return List of GradingScaleDefinition
+	 */
+	public List<GradingScaleDefinition> getAvailableGradingScaleDefinitions();
 
 	/**
 	 * Adds a new grade scale to an existing gradebook.

@@ -134,7 +134,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		try
 		{
 			
-			locks = getHibernateTemplate().findByNamedQuery("activeByAsset", assetId);
+			locks = (List<Lock>) getHibernateTemplate().findByNamedQuery("activeByAsset", assetId);
 		}
 		catch (HibernateObjectRetrievalFailureException e)
 		{
@@ -182,7 +182,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		}
 		try
 		{
-			locks = getHibernateTemplate().findByNamedQuery("activeByQualifier", qualifier);
+			locks = (List<Lock>) getHibernateTemplate().findByNamedQuery("activeByQualifier", qualifier);
 		}
 		catch (HibernateObjectRetrievalFailureException e)
 		{

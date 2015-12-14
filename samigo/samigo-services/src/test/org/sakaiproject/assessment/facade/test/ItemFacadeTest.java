@@ -22,25 +22,29 @@
 
 package org.sakaiproject.assessment.facade.test;
 
+
 import org.hibernate.SessionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueries;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-public class ItemFacadeTest extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={"/spring-hibernate.xml"})
+public class ItemFacadeTest extends AbstractJUnit4SpringContextTests {
 	
-	protected String[] getConfigLocations() {
-		return new String[] {"/spring-hibernate.xml"};
-	}
-
 	ItemFacadeQueries queries;
-	
-	protected void onSetUpInTransaction() throws Exception {
+
+	@Before
+	public void onSetUpInTransaction() throws Exception {
 		queries = new ItemFacadeQueries();
 		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
 
 	}
 
+	@Test
 	public void testGetIem() {
 		/*
 		 * We expect a item that doesn't exist to return null
@@ -48,12 +52,9 @@ public class ItemFacadeTest extends AbstractTransactionalSpringContextTests {
 		 */
 		try {
 		ItemFacade item = queries.getItem(99999999L);
-		assertNull(item);
+		Assert.assertNull(item);
 		} catch (Exception e) {
-			fail("unexpected exception");
+			Assert.fail("unexpected exception");
 		}
-		
 	}
-	
-	
 }

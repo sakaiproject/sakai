@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--  SakaiProxy -->
  	<bean id="org.sakaiproject.profile2.logic.SakaiProxy"
@@ -71,8 +71,7 @@
     <!-- ProfilePrivacyLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl"
-    	init-method="init"
-    	singleton="true">
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
@@ -82,8 +81,7 @@
     <!-- ProfilePreferencesLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl"
-    	init-method="init"
-    	singleton="true">
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
@@ -120,8 +118,7 @@
     <!-- ProfileConnectionsLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"
     	class="org.sakaiproject.profile2.logic.ProfileConnectionsLogicImpl"
-    	init-method="init"
-    	singleton="true">
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
@@ -134,8 +131,7 @@
     <!-- ProfileKudosLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
     	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl"
-    	init-method="init"
-    	singleton="true">
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
@@ -161,7 +157,7 @@
     <!-- ProfileSearchLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileSearchLogic"
 		class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl"
-		init-method="init" singleton="true">
+		init-method="init">
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
@@ -267,7 +263,7 @@
 	
 	<bean id="org.sakaiproject.profile2.job.KudosJobBeanWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="jobName" value="Profile2 Kudos Calculator" />
 		<property name="beanId" value="org.sakaiproject.profile2.job.KudosJob" />
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />

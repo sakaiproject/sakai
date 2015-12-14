@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
-
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="org.sakaiproject.chat2.model.ChatHibernateBean"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
@@ -33,7 +32,7 @@
 
     <bean id="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
     	class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
-    	singleton="true" init-method="init" destroy-method="destroy">
+    	init-method="init" destroy-method="destroy">
     	<property name="sessionFactory">
     		<ref
     			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
@@ -47,8 +46,7 @@
     </bean>
     
     <bean id="defaultChatChannelSettings" 
-    		class="org.sakaiproject.chat2.model.ChatChannel"
-    		singleton="true">
+    		class="org.sakaiproject.chat2.model.ChatChannel">
     	<property name="filterType">
     		<bean id="org.sakaiproject.chat2.model.ChatChannel.FILTER_ALL"
                class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
@@ -64,8 +62,7 @@
    <bean id="org.sakaiproject.chat2.model.impl.ChatDataMigration"
       class="org.sakaiproject.chat2.model.impl.ChatDataMigration"
       init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
       <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
       <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
       <property name="performChatMigration">
@@ -82,8 +79,7 @@
     <bean id="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
       class="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
       init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
       <property name="entityManager">
          <ref bean="org.sakaiproject.entity.api.EntityManager"/>
       </property>
@@ -103,7 +99,7 @@
 
     <bean id="chatSearchAdapter"
     	class="org.sakaiproject.chat2.model.impl.ChatContentProducer"
-    	singleton="true" init-method="init" destroy-method="destroy">
+    	init-method="init" destroy-method="destroy">
     	<property name="addEvents">
     		<list>
     			<value>chat.new</value>

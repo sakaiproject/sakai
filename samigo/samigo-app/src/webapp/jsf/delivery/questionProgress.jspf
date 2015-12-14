@@ -32,43 +32,59 @@
 
 
 <f:verbatim><p class="progressItem"></f:verbatim>
-  <h:graphicImage alt="unanswered icon" url="/images/whiteBubble15.png" /><h:outputText value=" #{deliveryMessages.unans_q}" /><br/>
-  <h:graphicImage alt="answered icon" url="/images/blackBubble15.png" /><h:outputText value=" answered question" escape="false" /><br/>
-  <h:graphicImage alt="marked for review icon" url="/images/questionMarkBubble15.png" rendered="#{delivery.displayMardForReview}" /><h:outputText value=" #{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
+        <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" /><h:outputText value=" #{deliveryMessages.unans_q}" /><br/>
+        <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" /><h:outputText value=" answered question" escape="false" /><br/>
+        <h:graphicImage alt="marked for review icon" url="#{delivery.questionProgressMardPath}" rendered="#{delivery.displayMardForReview}" /><h:outputText value=" #{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
 <f:verbatim></p></f:verbatim>
 
 
 </div>
 <br />
 <div class="tier1">
-    <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part" rendered="#{delivery.navigation ne '1'}">
+    <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part" >
       <h:column>
       <h:panelGroup>
-        <h:outputText value="#{deliveryMessages.p} #{part.number}:  #{part.nonDefaultText}" /> 
-        <h:dataTable value="#{part.itemContents}" var="question" id="tocquestions" styleClass="questionProgressTable">
+        <h:outputText value="<div class=\"partTitle\">" escape="false" />
+        <h:outputText value="<button type=\"button\" id=\"partLink-#{part.number}\" class=\"partLink\">" escape="false"/>
+        <h:graphicImage alt="a right arrow" id="rightArrow" value="/images/right_arrow.gif" styleClass="arrow #{(part.number eq delivery.partIndex+1) ? 'hiddenArrow' : ''}" />
+        <h:graphicImage alt="a down arrow" id="downArrow" value="/images/down_arrow.gif" styleClass="arrow #{(part.number eq delivery.partIndex+1) ? '' : 'hiddenArrow'}" />
+        <h:outputText value=" #{deliveryMessages.p} #{part.number}: #{part.nonDefaultText}</button>" escape="false" />
+        <h:outputText value="<span class=\"numberOfQuestionsInPart\">#{part.questions} question(s)</span></div>" escape="false" />
+        <h:outputText value="<div id=\"partTable-#{part.number}\" >" escape="false"/>
+        <h:dataTable value="#{part.itemContents}" var="question" id="tocquestions" styleClass="#{(delivery.navigation eq '2') ? 'questionProgressTable' : 'questionProgressTable_linear'}">
           <h:column>
             <h:panelGroup>
 
 		<f:verbatim><p class="progressItem"></f:verbatim>
+              <h:panelGroup styleClass="#{((question.number eq delivery.questionIndex+1) and (part.number eq delivery.partIndex+1)) ? 'currentQuestion' : ''} #{((delivery.navigation eq '1') and ((part.number le delivery.partIndex+1 and question.number lt delivery.questionIndex+1) or (part.number lt delivery.partIndex+1))) ? 'linearPastQuestion' : ''}">
 		<h:graphicImage alt="Loading question..." url="/images/loading.gif" style="display:none;padding-left:1em;"/>
-		<h:commandLink title="#{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.goto_question}" styleClass="#{((question.number eq delivery.questionIndex+1) and (part.number eq delivery.partIndex+1)) ? 'currentQuestion' : ''}" onmouseup="questionProgress.disableLink(this);">
+		<h:commandLink title="#{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.goto_question}" rendered="#{delivery.navigation eq '2'}" onmouseup="questionProgress.disableLink(this);">
                 <h:outputText escape="false" value="#{question.sequence} " >
 			<f:convertNumber maxFractionDigits="2"/>
         	</h:outputText>
 
-        <h:graphicImage alt="unanswered icon" url="/images/whiteBubble15.png" rendered="#{question.unanswered && !question.review}" />
-		<h:graphicImage alt="marked for review icon" url="/images/questionMarkBubble15.png" rendered="#{question.review}" />
-		<h:graphicImage alt="answered icon" url="/images/blackBubble15.png" rendered="#{!question.unanswered && !question.review}" />
+                <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" rendered="#{question.unanswered && !question.review}" />
+                <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" rendered="#{!question.unanswered && !question.review}" />
+                <h:graphicImage alt="marked for review icon" url="#{delivery.questionProgressMardPath}" rendered="#{question.review}"/>
+
 
                 <f:param name="partnumber" value="#{part.number}" />
                 <f:param name="questionnumber" value="#{question.number}" />
               </h:commandLink>
+                  <h:commandButton styleClass="linearButton" type="reset" rendered="#{delivery.navigation eq '1'}">
+                      <h:outputText escape="false" value="#{question.sequence} " >
+                          <f:convertNumber maxFractionDigits="2"/>
+                      </h:outputText>
 
-		<f:verbatim></p></f:verbatim>
-		
+                      <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" rendered="#{question.unanswered}" />
+                      <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" rendered="#{!question.unanswered}" />
+                  </h:commandButton>
+                  </h:panelGroup>
+		        <f:verbatim></p></f:verbatim>
             </h:panelGroup>
           </h:column>
         </h:dataTable>
+          <f:verbatim></div></f:verbatim>
       </h:panelGroup>
       </h:column>
     </h:dataTable>

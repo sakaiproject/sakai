@@ -23,6 +23,7 @@ import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 
@@ -331,6 +332,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#hideCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -342,6 +344,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#hideNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean hideNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
@@ -353,6 +356,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#keepCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -364,6 +368,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#keepNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean keepNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
@@ -375,6 +380,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unhideCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -386,6 +392,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unhideNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
@@ -397,6 +404,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unkeepCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -408,6 +416,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unkeepNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());

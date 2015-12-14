@@ -13,7 +13,7 @@
     <modules>
         <module>sections-api</module>
         <module>sections-impl/integration-support</module>
-        <module>sections-impl/integration-test</module>
+        <!-- module>sections-impl/integration-test</module -->
         <module>sections-impl/sakai/impl</module>
         <module>sections-impl/sakai/model</module>
         <module>sections-impl/sakai/pack</module>

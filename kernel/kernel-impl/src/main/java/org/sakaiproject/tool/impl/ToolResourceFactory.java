@@ -9,7 +9,7 @@ import org.sakaiproject.util.ResourceLoader;
  * The code here was re-factored from ActiveToolComponent to make the class more testable.
  *
  */
-public abstract class ToolResourceFactory {
+public class ToolResourceFactory {
 	
 	/** localized tool properties **/
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ToolProperties";
@@ -17,14 +17,19 @@ public abstract class ToolResourceFactory {
 	private static final String RESOURCECLASS = "resource.class.tool";
 	private static final String RESOURCEBUNDLE = "resource.bundle.tool";
 	
-	private String resourceClass = serverConfigurationService().getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
-	private String resourceBundle = serverConfigurationService().getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	
-	protected abstract ServerConfigurationService serverConfigurationService();
+	private ServerConfigurationService serverConfigurationService;
 	
 	public ResourceLoader createInstance() {
+		String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+		String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+
 		// Resource starts up the ComponentManager through the cover.
 		return new Resource().getLoader(resourceClass, resourceBundle);
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 	
 }

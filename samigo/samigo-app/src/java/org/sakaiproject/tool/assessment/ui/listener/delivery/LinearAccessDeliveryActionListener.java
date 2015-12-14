@@ -254,6 +254,9 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
 
       HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 
+      if(itemGradingHash != null) {
+          delivery.setTableOfContents(getContents(publishedAssessment, itemGradingHash,delivery, publishedAnswerHash));
+      }
       // get current page contents
       delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
   }

@@ -220,7 +220,7 @@ public interface AssessmentFacadeQueriesAPI {
 	public AttachmentData createEmailAttachment(String resourceId,
 			String filename, String protocol);
 
-	public void saveOrUpdateAttachments(List list);
+	public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
 
     public String getAssessmentSiteId (String assessmentId);
   
