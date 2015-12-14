@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -76,12 +77,16 @@ public class SettingsCategoryPanel extends Panel {
 		categoryType.add(new Radio<>("none", new Model<>(1)));
 		categoryType.add(new Radio<>("categoriesOnly", new Model<>(2)));
 		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(3)));
-		
 		categoryType.setRequired(true);
 		add(categoryType);
-				
+
+		//render category related form fields
+		categoriesWrap = new WebMarkupContainer("categoriesWrap");
+		categoriesWrap.setOutputMarkupPlaceholderTag(true);
+
 		//enable drop highest
-        final AjaxCheckBox dropHighest = new AjaxCheckBox("dropHighest", Model.of(isDropHighest)) {
+		final WebMarkupContainer dropHighestContainer = new WebMarkupContainer("dropHighestContainer");
+		final AjaxCheckBox dropHighest = new AjaxCheckBox("dropHighest", Model.of(isDropHighest)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -97,12 +102,16 @@ public class SettingsCategoryPanel extends Panel {
 				
 				target.add(categoriesWrap);
 			}
-        };
-        dropHighest.setOutputMarkupId(true);
-        add(dropHighest);
-        
-        //enable drop lowest
-        final AjaxCheckBox dropLowest = new AjaxCheckBox("dropLowest", Model.of(isDropLowest)) {
+		};
+
+		dropHighest.setOutputMarkupId(true);
+		dropHighestContainer.add(dropHighest);
+		dropHighestContainer.setOutputMarkupId(true);
+		categoriesWrap.add(dropHighestContainer);
+
+		//enable drop lowest
+		final WebMarkupContainer dropLowestContainer = new WebMarkupContainer("dropLowestContainer");
+		final AjaxCheckBox dropLowest = new AjaxCheckBox("dropLowest", Model.of(isDropLowest)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -118,12 +127,15 @@ public class SettingsCategoryPanel extends Panel {
 				
 				target.add(categoriesWrap);
 			}
-        };
-        dropLowest.setOutputMarkupId(true);
-        add(dropLowest);
-        
-     	//enable keep highest
-        final AjaxCheckBox keepHighest = new AjaxCheckBox("keepHighest", Model.of(isKeepHighest)) {
+		};
+		dropLowest.setOutputMarkupId(true);
+		dropLowestContainer.add(dropLowest);
+		dropLowestContainer.setOutputMarkupId(true);
+		categoriesWrap.add(dropLowestContainer);
+
+		//enable keep highest
+		final WebMarkupContainer keepHighestContainer = new WebMarkupContainer("keepHighestContainer");
+		final AjaxCheckBox keepHighest = new AjaxCheckBox("keepHighest", Model.of(isKeepHighest)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -139,12 +151,27 @@ public class SettingsCategoryPanel extends Panel {
 				
 				target.add(categoriesWrap);
 			}
-        };
-        keepHighest.setOutputMarkupId(true);
-        add(keepHighest);
-                
-        //render rows of categories
-        categoriesWrap = new WebMarkupContainer("categoriesWrap");
+		};
+		keepHighest.setOutputMarkupId(true);
+		keepHighestContainer.add(keepHighest);
+		keepHighestContainer.setOutputMarkupId(true);
+		categoriesWrap.add(keepHighestContainer);
+
+		//When category type changes, ensure form is updated to reflect new value
+		categoryType.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				boolean noCategoriesSelected = getComponent().getDefaultModelObject().equals(1); 
+				categoriesWrap.setVisible(!noCategoriesSelected);
+
+				boolean categoriesAndWeightSelected = getComponent().getDefaultModelObject().equals(3);
+				dropHighestContainer.setVisible(categoriesAndWeightSelected);
+				dropLowestContainer.setVisible(categoriesAndWeightSelected);
+				keepHighestContainer.setVisible(categoriesAndWeightSelected);
+
+				target.add(categoriesWrap);
+			}
+		});
 
 		final Label runningTotal = new Label("runningTotal", FormatHelper.formatDoubleAsPercentage(calculateCategoryWeightTotal(categories) * 100));
 		runningTotal.setOutputMarkupId(true);
@@ -256,7 +283,7 @@ public class SettingsCategoryPanel extends Panel {
 			}
         };
         addCategory.setDefaultFormProcessing(false);
-        add(addCategory);
+        categoriesWrap.add(addCategory);
 		
 	}
 
