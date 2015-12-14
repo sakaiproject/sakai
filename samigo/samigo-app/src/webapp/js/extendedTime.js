@@ -31,9 +31,13 @@ function extendedTimeCombine() {
 		var target = document.getElementById("xt_id"+itemNum).value;
 		if(target != "1"){ // don't add empties
 			var minutes = (parseInt(document.getElementById("xt_hours"+itemNum).value) * 3600) + parseInt(document.getElementById("xt_minutes"+itemNum).value) * 60;
+			
+			var formattedStartDate = moment($("#xt_open"+itemNum).datetimepicker('getDate')).format('MM/DD/YYYY HH:mm:ss');			
+			var formattedDueDate = moment($("#xt_due"+itemNum).datetimepicker('getDate')).format('MM/DD/YYYY HH:mm:ss');
+			var formattedRetractDate = moment($("#xt_retract"+itemNum).datetimepicker('getDate')).format('MM/DD/YYYY HH:mm:ss');
+		
 			var code = target+"|" + minutes +"|"
-			+ document.getElementById("xt_open"+itemNum).value+"|" + document.getElementById("xt_due"+itemNum).value+"|" + document.getElementById("xt_retract"+itemNum).value
-			+ "^";
+			+ formattedStartDate+"|" + formattedDueDate+"|" + formattedRetractDate + "^";
 			document.getElementById("assessmentSettingsAction\:xt1").value = document.getElementById("assessmentSettingsAction\:xt1").value.concat(code);
 		} // end if(target != "0")
 	} //end for
