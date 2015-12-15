@@ -26,22 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.net.URLEncoder;
 
@@ -55,13 +40,7 @@ import org.osid.repository.PartIterator;
 import org.osid.repository.Record;
 import org.osid.repository.RecordIterator;
 import org.osid.repository.RepositoryException;
-import org.sakaiproject.citation.api.ActiveSearch;
-import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationIterator;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.citation.api.ConfigurationService;
-import org.sakaiproject.citation.api.Schema;
+import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.impl.openurl.ContextObject;
 import org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl;
@@ -2643,7 +2622,7 @@ public abstract class BaseCitationService implements CitationService
 
 		}
 
-		protected Map<String, Citation> m_citations = new Hashtable<String, Citation>();
+		protected Map<String, Citation> m_citations = new LinkedHashMap<String, Citation>();
 
 		protected Comparator m_comparator = DEFAULT_COMPARATOR;
 
@@ -3866,6 +3845,20 @@ public abstract class BaseCitationService implements CitationService
 		public void saveCitation(Citation edit);
 
 		public void saveCollection(CitationCollection collection);
+
+		public void saveSection(CitationCollectionOrder citationCollectionOrder);
+
+		public void saveSubsection(CitationCollectionOrder citationCollectionOrder);
+
+		public void saveCitationCollectionOrders(List<CitationCollectionOrder> citationCollectionOrders, String citationCollectionId);
+
+		public void updateCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder);
+
+		public CitationCollectionOrder getNestedSections(String citationCollectionId);
+
+		public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
+
+		public void removeLocation(String collectionId, int locationId);
 
 		public void updateSchema(Schema schema);
 
@@ -5471,6 +5464,72 @@ public abstract class BaseCitationService implements CitationService
 	public void save(CitationCollection collection)
 	{
 		this.m_storage.saveCollection(collection);
+	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#saveSection(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void saveSection(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.saveSection(citationCollectionOrder);
+	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#saveSubsection(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void saveSubsection(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.saveSubsection(citationCollectionOrder);
+	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#save(java.util.ArrayList, java.lang.String)
+	 */
+	public void save(List<CitationCollectionOrder> citationCollectionOrders, String citationCollectionId ) {
+		this.m_storage.saveCitationCollectionOrders(citationCollectionOrders, citationCollectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#updateSection(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void updateSection(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.updateCitationCollectionOrder(citationCollectionOrder);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getNestedCollection(java.lang.String)
+	 */
+	public CitationCollectionOrder getNestedCollection(String citationCollectionId)
+	{
+		return this.m_storage.getNestedSections(citationCollectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getUnnestedCitationCollection(java.lang.String)
+	 */
+	public CitationCollection getUnnestedCitationCollection(String citationCollectionId)
+	{
+		return this.m_storage.getUnnestedCitationCollection(citationCollectionId);
+	}
+
+	/*
+	* (non-Javadoc)
+
+	* @see org.sakaiproject.citation.api.CitationService#removeLocation(java.lang.String, int)
+	*/
+	public void removeLocation(String collectionId, int locationId)
+	{
+		this.m_storage.removeLocation(collectionId, locationId);
 	}
 	/**
 	 * Dependency: ConfigurationService.
