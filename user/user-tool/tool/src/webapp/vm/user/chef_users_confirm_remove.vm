@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_confirm_remove.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
 <link type="text/css" href="/sakai-user-tool/css/sakai-user-tool.css" rel="stylesheet" media="screen" />
-<script type="text/javascript" src="/sakai-user-tool/js/userRemove.js"></script>
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
@@ -28,9 +28,8 @@
 		</table>
 		<form action="#toolForm("$action")" method="post">
 			<div class="act">
-				<input type="submit" id="remove" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("useconrem.rem")" accesskey="s" onclick="disableButtonsActivateSpinner();" />
-				<input type="submit" id="cancel" name="eventSubmit_doCancel_remove" value="$tlang.getString("useconrem.can")" accesskey="x" onclick="disableButtonsActivateSpinner();" />
-				<img id="deleteUserSpinner" class="spinner" src="/library/image/indicator.gif" />
+				<input type="submit" id="remove" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("useconrem.rem")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" id="cancel" name="eventSubmit_doCancel_remove" value="$tlang.getString("useconrem.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
