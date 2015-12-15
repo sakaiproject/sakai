@@ -1,6 +1,7 @@
 Upgrading Spring to 4.1.x Guide for Contrib tools
 
 In order to make it easy to upgrade contrib tools here is a list of things that you will need to address in the contrib tool.
+You can use this this PR https://github.com/sakaiproject/evaluation/pull/25/files as a reference.
 
 - Web.xml
   You must update the sakai spring ContextLoaderListener as this has changed to
