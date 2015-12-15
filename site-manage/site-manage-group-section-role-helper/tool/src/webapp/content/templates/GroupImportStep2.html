@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="/library/js/jquery.js"></script>
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript" src="../js/util.js"></script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
 <body>
 <div class="portletBody">
@@ -28,9 +29,8 @@
         <form method="post" rsf:id="form">
            
 			<p class="act">
-                <input type="submit" rsf:id="continue" id="continue" value="Create Groups" onclick="disableButtonsActivateSpinner( 'content::continue', 'content::cancel', 'importSpinner');" />
-				<input type="submit" accesskey ="x" rsf:id="cancel" id="cancel" value="Cancel" onclick="disableButtonsActivateSpinner( 'content::continue', 'content::cancel', 'importSpinner');" />
-				<img id="importSpinner" class="spinner" src="/library/image/indicator.gif" />
+                <input type="submit" rsf:id="continue" id="continue" value="Create Groups" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                <input type="submit" accesskey ="x" rsf:id="cancel" id="cancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
         </form>
         
