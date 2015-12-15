@@ -4753,6 +4753,11 @@ public abstract class BaseCitationService implements CitationService
 	    		CitationService.CITATION_LIST_ID,
 	    		false );
 
+	    BaseServiceLevelAction makeSitePageAction = new BaseServiceLevelAction(ResourceToolAction.MAKE_SITE_PAGE,
+	    		ResourceToolAction.ActionType.MAKE_SITE_PAGE,
+	    		CitationService.CITATION_LIST_ID,
+	    		true );
+
 	    BasicSiteSelectableResourceType typedef = new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID);
 	    typedef.setSizeLabeler(new CitationSizeLabeler());
 	    typedef.setLocalizer(new CitationLocalizer());
@@ -4763,6 +4768,7 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
+	    typedef.addAction(makeSitePageAction);
 	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
