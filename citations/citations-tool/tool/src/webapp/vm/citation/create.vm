@@ -235,6 +235,8 @@
 			html += "</p>\n";
 		}
 		form_div.innerHTML = html;
+		//for electronic citation url is required
+		checkReqStarForElectronicCitation();
 		resizeFrame();
 	}
 	function getValue(type, t, index)

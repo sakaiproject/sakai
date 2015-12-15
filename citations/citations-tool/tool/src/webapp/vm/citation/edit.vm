@@ -1,4 +1,3 @@
-
 #set($default = "")
 #if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
 
@@ -277,6 +276,8 @@
 			html += "</p>\n";
 		}
 		form_div.innerHTML = html;
+		//for electronic citation url is required
+		checkReqStarForElectronicCitation();
 		resizeFrame();
 	}
 	function getValue(type, t, index)
