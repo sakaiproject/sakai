@@ -39,6 +39,7 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ComponentManager;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -67,6 +68,8 @@ public class PDFAssessmentBean implements Serializable {
 
 	private static Log log = LogFactory.getLog(PDFAssessmentBean.class);
 
+	private static org.sakaiproject.util.api.FormattedText formattedText = (org.sakaiproject.util.api.FormattedText)ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
+	
 	private ResourceLoader printMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.PrintMessages");
 
 	private ResourceLoader authorMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
@@ -224,7 +227,7 @@ public class PDFAssessmentBean implements Serializable {
 			log.warn(name.toString());
 			//log.warn(fTitle.substring(0, end) + year + month + day + hour + min + sec + ".pdf");
 
-		return name.toString().replace(" ", "_");
+		return formattedText.escapeUrl(name.toString().replace(" ", "_"));
 	}
 
 	public String prepPDF() {
