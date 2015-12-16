@@ -1,15 +1,22 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 public class SettingsGradeReleasePanel extends Panel {
 	
@@ -19,6 +26,8 @@ public class SettingsGradeReleasePanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 	
 	IModel<GbSettings> model;
+	
+	Label preview;
 	
 	public SettingsGradeReleasePanel(String id, IModel<GbSettings> model) {
 		super(id, model);
@@ -47,7 +56,8 @@ public class SettingsGradeReleasePanel extends Panel {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				//nothing required
+				//update preview
+				target.add(preview);
 			}
         };
         displayCourseGrade.setOutputMarkupId(true);
@@ -72,7 +82,8 @@ public class SettingsGradeReleasePanel extends Panel {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				//nothing required
+				//update preview
+				target.add(preview);
 			}
         };
         letterGrade.setOutputMarkupId(true);
@@ -84,7 +95,8 @@ public class SettingsGradeReleasePanel extends Panel {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				//nothing required
+				//update preview
+				target.add(preview);
 			}
         };
         percentage.setOutputMarkupId(true);
@@ -96,11 +108,67 @@ public class SettingsGradeReleasePanel extends Panel {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				//nothing required
+				//update preview
+				target.add(preview);
 			}
         };
         points.setOutputMarkupId(true);
         courseGradeType.add(points);
+        
+        //preview model, uses settings to determine out what to display
+        Model<String> previewModel = new Model<String>() {
+			private static final long serialVersionUID = 1L;
+			public String getObject() {
+				
+				List<String> parts = new ArrayList<>(); 
+				
+				GradebookInformation settings = model.getObject().getGradebookInformation();
+				
+				if(settings.isCourseLetterGradeDisplayed()) {
+					parts.add(getString("settingspage.displaycoursegrade.preview-letter"));
+				}
+				
+				if(settings.isCourseAverageDisplayed()) {
+					if(parts.isEmpty()) {
+						parts.add(getString("settingspage.displaycoursegrade.preview-percentage-first"));
+					} else {
+						parts.add(getString("settingspage.displaycoursegrade.preview-percentage-second"));
+					}
+				}
+				
+				if(settings.isCoursePointsDisplayed()) {
+					if(parts.isEmpty()) {
+						parts.add(getString("settingspage.displaycoursegrade.preview-points-first"));
+					} else {
+						parts.add(getString("settingspage.displaycoursegrade.preview-points-second"));
+					}
+				}
+				
+				if(parts.isEmpty()) {
+					parts.add(getString("settingspage.displaycoursegrade.preview-none"));
+				}
+				
+				return StringUtils.join(parts, " ");
+            }
+        };
+        
+        //course grade type container
+        final WebMarkupContainer courseGradePreview = new WebMarkupContainer("courseGradePreview") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+        	public boolean isVisible() {
+        		return displayCourseGrade.getModelObject();
+        	}
+        	
+        };
+        courseGradePreview.setOutputMarkupPlaceholderTag(true);
+        add(courseGradePreview);
+        
+		//preview
+        preview = new Label("preview", previewModel);
+        preview.setOutputMarkupId(true);
+        courseGradePreview.add(preview);
         
         //behaviour for when the 'display course grade' checkbox is changed
         displayCourseGrade.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -111,7 +179,9 @@ public class SettingsGradeReleasePanel extends Panel {
 				
 				boolean checked = displayCourseGrade.getModelObject();
 				courseGradeType.setVisible(checked);
+				courseGradePreview.setVisible(checked);
 				target.add(courseGradeType);
+				target.add(courseGradePreview);
 				
 			}
 		});
