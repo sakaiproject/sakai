@@ -518,6 +518,11 @@ public interface GradebookService {
 	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
 	
 	/**
+	 * Get the grade records for the given list of students and the given assignment.
+	 * This can only be called by an instructor or TA that has access, not student.
+	 * 
+	 * See {@link #getGradeDefinitionForStudentForItem} for the method call that can be made as a student.
+	 * 
 	 * @param gradebookUid
 	 * @param assignmentId
 	 * @param studentIds

@@ -1658,9 +1658,13 @@ public class GradebookNgBusinessService {
     	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
     	 
     	 Map<Assignment,GbGradeInfo> rval = new LinkedHashMap<>();
-    	 for(Assignment assignment: assignments) {
-    		 GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), studentUuid);
-    		 rval.put(assignment, new GbGradeInfo(def));
+    	 
+    	 //only get grades if released for the site (the service checks it per assignment)
+    	 if (gradebook.isAssignmentsDisplayed()) {
+    		 for(Assignment assignment: assignments) {
+        		 GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), studentUuid);
+        		 rval.put(assignment, new GbGradeInfo(def));
+        	 } 
     	 }
     	 
     	 return rval;
