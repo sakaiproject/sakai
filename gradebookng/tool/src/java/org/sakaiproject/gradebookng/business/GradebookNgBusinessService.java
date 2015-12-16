@@ -1827,6 +1827,7 @@ public class GradebookNgBusinessService {
     		 return true;
     	 }
     	 
+    	 //if TA, permission checks
     	 if(role == GbRole.TA) {
     	 
 	    	 //if no defs, implicitly allowed
@@ -1844,7 +1845,17 @@ public class GradebookNgBusinessService {
 	    	 return false;
     	 }
     	 
-    	 //students not currently supported. Could leverage the settings later.
+    	 //if student, check the settings
+    	 //this could actually get the settings but it would be more processing
+    	 if(role == GbRole.STUDENT) {
+    		 Gradebook gradebook = this.getGradebook(siteId);
+    		 
+    		 if(gradebook.isCourseGradeDisplayed()) {
+    			 return true;
+    		 }
+    	 }
+    	 
+    	 //other roles not yet catered for, catch all.
     	 return false;
      }
      
