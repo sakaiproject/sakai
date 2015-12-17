@@ -31,9 +31,13 @@ function extendedTimeCombine() {
 		var target = document.getElementById("xt_id"+itemNum).value;
 		if(target != "1"){ // don't add empties
 			var minutes = (parseInt(document.getElementById("xt_hours"+itemNum).value) * 3600) + parseInt(document.getElementById("xt_minutes"+itemNum).value) * 60;
+			
+			var formattedStartDate = moment($("#xt_open"+itemNum).datetimepicker('getDate')).format('MM/DD/YYYY HH:mm:ss');			
+			var formattedDueDate = moment($("#xt_due"+itemNum).datetimepicker('getDate')).format('MM/DD/YYYY HH:mm:ss');
+			var formattedRetractDate = moment($("#xt_retract"+itemNum).datetimepicker('getDate')).format('MM/DD/YYYY HH:mm:ss');
+		
 			var code = target+"|" + minutes +"|"
-			+ document.getElementById("xt_open"+itemNum).value+"|" + document.getElementById("xt_due"+itemNum).value+"|" + document.getElementById("xt_retract"+itemNum).value
-			+ "^";
+			+ formattedStartDate+"|" + formattedDueDate+"|" + formattedRetractDate + "^";
 			document.getElementById("assessmentSettingsAction\:xt1").value = document.getElementById("assessmentSettingsAction\:xt1").value.concat(code);
 		} // end if(target != "0")
 	} //end for
@@ -57,6 +61,7 @@ function initializeExtTimeValues(fullExtendedTimeString,itemNum) {
 	document.getElementById("xt_open"+itemNum).value = evaluateDate(fullExtendedTimeString[2]);
 	document.getElementById("xt_due"+itemNum).value = evaluateDate(fullExtendedTimeString[3]);
 	document.getElementById("xt_retract"+itemNum).value = evaluateDate(fullExtendedTimeString[4]);
+	hookScripts(itemNum);
 }
 
 // Avoid undefined date values
@@ -112,9 +117,18 @@ function copyListValuesForExtTime(itemNum) {
 }
 
 // Control to allow checkboxes to toggle whether a div displays or not.
-function toggleExtendedTimeEntity(it, box) { 
+function toggleExtendedTimeEntity(it, itemNum, box) { 
 	var vis = (box.checked) ? "block" : "none";
 	document.getElementById(it).style.display = vis;
+	
+	var defaultStartDate = moment($('#assessmentSettingsAction\\:startDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	document.getElementById("xt_open"+itemNum).value = defaultStartDate;
+	
+	var defaultDueDate = moment($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	document.getElementById("xt_due"+itemNum).value = defaultDueDate;
+	
+	var defaultRetractDate = moment($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	document.getElementById("xt_retract"+itemNum).value = defaultRetractDate;
 
 	// They are clearing out the list
 	if(vis == "none" && it == "extendedTimeEntries") {
@@ -132,6 +146,7 @@ function showExtendedTime() {
 function addExtTimeEntry() {
 	activeExtTimeEntries++;
 	document.getElementById("xt"+activeExtTimeEntries).style.display = "block";
+	hookScripts(activeExtTimeEntries);
 	if(activeExtTimeEntries == MAXITEMS) { // prevents them from adding more than max
 		document.getElementById("addExtTimeControl").style.display = "none";
 	}
@@ -163,13 +178,45 @@ function deleteAllExtTimeEntries() {
 	document.getElementById("xt1").style.display = "block";
 }
 
+// Add scripts to DOM by creating a script tag dynamically.
+// @param {String=} itemNum itemNum
+function hookScripts(itemNum) {
+	
+	var s = document.createElement("script");
+	s.type = "text/javascript";	
+	
+	var startDatePickerOptions = { input: '#xt_open' + itemNum , 
+		useTime: 1,
+		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		ashidden: { iso8601: 'xt_open' + itemNum + 'ISO8601' } 
+	}
+	localDatePicker(startDatePickerOptions); 
+	
+	var dueDatePickerOptions = { input: '#xt_due' + itemNum , 
+		useTime: 1,
+		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		ashidden: { iso8601: 'xt_due' + itemNum + 'ISO8601' } 
+	}
+	localDatePicker(dueDatePickerOptions); 
+	
+	var retractDatePickerOptions = { input: '#xt_retract' + itemNum , 
+		useTime: 1,
+		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		ashidden: { iso8601: 'xt_retract' + itemNum + 'ISO8601' } 
+	}
+	localDatePicker(retractDatePickerOptions); 
+	
+	s.innerHTML = '';	
+	document.getElementsByTagName("head")[0].appendChild(s);
+}
+
 // Dynamically create a div for each potential extended time item. Most will be hidden.
 function addAllExtendedTimeItems() {
 	var xtItem = document.getElementById("extendedTimeEntries");
 	xtItem.innerHTML = "";
 
 	for (var itemNum = 1; itemNum <= MAXITEMS; itemNum++) { 
-
+	
 		var code = "<div id=\"xt"+itemNum+"\" style=\"display:none;\">"+ // none display by default
 			"<br />"+
 			"<select id=\"xt_id"+itemNum+"\"></select>&nbsp;&nbsp;"+
@@ -177,20 +224,20 @@ function addAllExtendedTimeItems() {
 			"<select id=\"xt_minutes"+itemNum+"\"></select>min.&nbsp;"+
 			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"button\" value=\"Delete this entry\" onclick=\"deleteExtTimeEntry("+itemNum+")\">"+ // delete button
 			"<br />"+
-			"<input id=\"xt_datesToggle"+itemNum+"\" type=\"checkbox\" class=\"tier1\" onclick=\"deleteExtTimeDates("+itemNum+");toggleExtendedTimeEntity('xt_dates"+itemNum+"', this)\">Change Delivery Dates for this group/student."+
+			"<input id=\"xt_datesToggle"+itemNum+"\" type=\"checkbox\" class=\"tier1\" onclick=\"deleteExtTimeDates("+itemNum+");toggleExtendedTimeEntity('xt_dates"+itemNum+"', "+itemNum+", this)\">Change Delivery Dates for this group/student."+
 			"<div id=\"xt_dates"+itemNum+"\" class=\"tier3\" style=\"display:none;\">"+ // dates don't display by default
 			"<table><tr><td>"+
 			"Available Date</td><td>"+
-			"<input type=\"text\" size=\"25\"  id=\"xt_open"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_open"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_open"+itemNum+"'));cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/library/calendar/html/');\">"+
+			"<input type=\"text\" size=\"25\" id=\"xt_open"+itemNum+"\">&nbsp;"+
+						
 			"</td></tr><tr><td>"+
 			"Due Date</td><td>"+
-			"<input type=\"text\" size=\"25\"  id=\"xt_due"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_due"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_due"+itemNum+"'));cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/library/calendar/html/');\">"+
+			"<input type=\"text\" size=\"25\" id=\"xt_due"+itemNum+"\">&nbsp;"+	
+			
 			"</td></tr><tr><td>"+
 			"Retract Date</td><td>"+
-			"<input type=\"text\" size=\"25\"  id=\"xt_retract"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_retract"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_retract"+itemNum+"'));cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/library/calendar/html/');\">"+
+			"<input type=\"text\" size=\"25\" id=\"xt_retract"+itemNum+"\">&nbsp;"+
+			
 			"</td></tr></table>"+
 			"</div> <!--end dates -->"+
 			"<hr width=\"450\"  align=\"left\">"+

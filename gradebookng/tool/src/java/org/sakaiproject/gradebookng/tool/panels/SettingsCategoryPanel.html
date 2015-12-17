@@ -7,7 +7,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" role="tab" id="settingsCategoriesHeader">
 			<h3 class="panel-title">
-				<a role="button" data-toggle="collapse" data-parent="#settingsAccordion" href="#settingsCategories" aria-expanded="false" aria-controls="settingsCategories">
+				<a role="button" data-toggle="collapse" href="#settingsCategories" aria-expanded="false" aria-controls="settingsCategories">
 					<wicket:message key="settingspage.categories.heading">Categories & Weighting</wicket:message>
 				</a>
 			</h3>
@@ -20,13 +20,13 @@
 					<div class="radio"><label><input wicket:id="categoriesAndWeighting" type="radio"/><wicket:message key="settingspage.categories.categoriesweighting" /></label></div>
 				</div>
 
-				<div>
-					<div class="checkbox"><label><input wicket:id="dropHighest" type="checkbox"/><wicket:message key="settingspage.categories.drophighest" /></label></div>
-					<div class="checkbox"><label><input wicket:id="dropLowest" type="checkbox"/><wicket:message key="settingspage.categories.droplowest" /></label></div>
-					<div class="checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><wicket:message key="settingspage.categories.keephighest" /></label></div>
-				</div>
-
 				<div wicket:id="categoriesWrap">
+					<div>
+						<div class="checkbox" wicket:id="dropHighestContainer"><label><input wicket:id="dropHighest" type="checkbox"/><wicket:message key="settingspage.categories.drophighest" /></label></div>
+						<div class="checkbox" wicket:id="dropLowestContainer"><label><input wicket:id="dropLowest" type="checkbox"/><wicket:message key="settingspage.categories.droplowest" /></label></div>
+						<div class="checkbox" wicket:id="keepHighestContainer"><label><input wicket:id="keepHighest" type="checkbox"/><wicket:message key="settingspage.categories.keephighest" /></label></div>
+					</div>
+
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
 						<tr>
@@ -58,10 +58,9 @@
 						</tr>
 						</tbody>
 					</table>
-				</div>
-
-				<div>
-					<button wicket:id="addCategory" type="submit" class="btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
+					<div>
+						<button wicket:id="addCategory" type="submit" class="btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
+					</div>
 				</div>
 			</div>
 		</div>

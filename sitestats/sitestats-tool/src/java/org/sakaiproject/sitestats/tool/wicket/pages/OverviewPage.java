@@ -27,6 +27,7 @@ import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.widget.ActivityWidget;
+import org.sakaiproject.sitestats.tool.wicket.widget.LessonsWidget;
 import org.sakaiproject.sitestats.tool.wicket.widget.ResourcesWidget;
 import org.sakaiproject.sitestats.tool.wicket.widget.VisitsWidget;
 
@@ -108,6 +109,7 @@ public class OverviewPage extends BasePage {
 		}else{
 			add(new WebMarkupContainer("resourcesWidget").setRenderBodyOnly(true));
 		}
+        add(new LessonsWidget("lessonsWidget", siteId));
 	}
 }
 

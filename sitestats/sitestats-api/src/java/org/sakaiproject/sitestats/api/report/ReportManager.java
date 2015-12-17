@@ -40,6 +40,11 @@ public interface ReportManager {
 	public static final String	WHAT_RESOURCES_ACTION_READ	= "read";
 	public static final String	WHAT_RESOURCES_ACTION_REVS	= "revise";
 	public static final String	WHAT_RESOURCES_ACTION_DEL	= "delete";
+	public static final String	WHAT_LESSONPAGES			= "what-lessonpages";
+	public static final String	WHAT_LESSONS_ACTION_CREATE	= "create";
+	public static final String	WHAT_LESSONS_ACTION_READ	= "read";
+	public static final String	WHAT_LESSONS_ACTION_UPDATE	= "update";
+	public static final String	WHAT_LESSONS_ACTION_DELETE	= "delete";
 	public static final String	WHAT_EVENTS_BYEVENTS		= "what-events-byevent";
 	public static final String	WHAT_EVENTS_BYTOOL			= "what-events-bytool";
 	public static final String	WHAT_EVENTS_ALLEVENTS		= "all";

@@ -2,13 +2,9 @@ package edu.amc.sakai.user;
 
 import java.io.UnsupportedEncodingException;
 
+import com.novell.ldap.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.novell.ldap.LDAPConnection;
-import com.novell.ldap.LDAPConstraints;
-import com.novell.ldap.LDAPException;
-import com.novell.ldap.LDAPTLSSocketFactory;
 
 /**
  * Allocates connected, constrained, and optionally
@@ -42,13 +38,11 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 		
 		if ( config.isSecureConnection() ) {
 			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("init(): initializing secure socket factory");
+				M_log.debug("init(): initializing keystore");
 			}
 			initKeystoreLocation();
 			initKeystorePassword();
-			LDAPConnection.setSocketFactory(config.getSecureSocketFactory());
 		}
-			
 	}
 	
 	/**
@@ -59,10 +53,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 		if ( M_log.isDebugEnabled() ) {
 			M_log.debug("getConnection()");
 		}
-		
-		LDAPConnection conn = new LDAPConnection();
-		applyConstraints(conn);
-		connect(conn);
+		LDAPConnection conn = newConnection();
 
 		if ( config.isAutoBind() ) {
 			if ( M_log.isDebugEnabled() ) {
@@ -80,6 +71,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 
 		return conn;
 	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -98,7 +90,28 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 		return conn;
 	}
 
-	private void bind(LDAPConnection conn, String dn, String pw) 
+	protected LDAPConnection newConnection() throws LDAPException {
+
+		if (M_log.isDebugEnabled() ) {
+			M_log.debug("newConnection()");
+		}
+		LDAPConnection connection;
+		if (config.isSecureConnection()) {
+			connection = new LDAPConnection(config.getSecureSocketFactory());
+		} else {
+			LDAPSocketFactory factory = config.getSocketFactory();
+			if (factory != null) {
+				connection = new LDAPConnection(factory);
+			} else {
+				connection = new LDAPConnection();
+			}
+		}
+		applyConstraints(connection);
+		connect(connection);
+		return connection;
+	}
+
+	private void bind(LDAPConnection conn, String dn, String pw)
 	throws LDAPException {
 		
 		if ( M_log.isDebugEnabled() ) {

@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -45,18 +47,12 @@ public class SettingsPage extends BasePage {
 			public void onSubmit() {
 				
 				GbSettings model = (GbSettings) this.getModelObject();
-				
-				System.out.println("settings: " + model.getGradebookInformation());
-				
+								
 				//update settings
 				businessService.updateGradebookSettings(model.getGradebookInformation());
 				
-				//TODO update the grading schema values (pull from model object also);
-				
-				
 				getSession().info(getString("settingspage.update.success"));
 				setResponsePage(new SettingsPage());
-				
 			}
 		};
 		
@@ -79,6 +75,21 @@ public class SettingsPage extends BasePage {
 		
 		add(form);
 		
+		//expand/collapse panel actions
+		add(new AjaxLink("expandAll") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				target.appendJavaScript("$('#settingsAccordion .panel-collapse').collapse('show');");
+			}
+		});
+		add(new AjaxLink("collapseAll") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				target.appendJavaScript("$('#settingsAccordion .panel-collapse').collapse('hide');");
+			}
+		});
 	}
 	
 }

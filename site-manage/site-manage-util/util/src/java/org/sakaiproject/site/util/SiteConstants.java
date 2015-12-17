@@ -41,10 +41,14 @@ public class SiteConstants {
 	
 	// system property variable to hide PageOrder tab for certain types of sites, e.g. if set to "course,project", the PageOrder tool tab will be hidden for all course sites and project sites. 
 	public final static String SAKAI_PROPERTY_HIDE_PAGEORDER_SITE_TYPES = "hide.pageorder.site.types";
-	
+
+	/**
+	 * This property is used on groups to mark which roles in the site should automatically
+	 * be members of this group.
+	 */
 	// site property variable to override the above settings. If true, the PageOrder tab will be shown.
 	public final static String SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES = "site.override.hide.pageorder.site.types";
-	
+
 	public final static String SITE_TYPE_MYWORKSPACE = "site_type_myworkspace";
 
 	// All deleted sites.

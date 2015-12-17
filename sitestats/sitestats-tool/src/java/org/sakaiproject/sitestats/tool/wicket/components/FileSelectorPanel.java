@@ -214,7 +214,7 @@ public class FileSelectorPanel extends Panel {
 			// get dir
 	    	Request req = RequestCycle.get().getRequest();
 			try{
-				currentDir = req.getQueryParameters().getParameterValue("dir").toString();
+				currentDir = req.getRequestParameters().getParameterValue("dir").toString();
 				String enc = "UTF-8";
 				RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 				WebResponse response = (WebResponse) getResponse();

@@ -191,18 +191,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 		});
 	}
 
-	@Override
-	public void updateGradeMapping(final Long gradeMappingId, final Map<String, Double> gradeMap){
-		getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				GradeMapping gradeMapping = (GradeMapping)session.load(GradeMapping.class, gradeMappingId);
-				gradeMapping.setGradeMap(gradeMap);
-				session.update(gradeMapping);
-				session.flush();
-				return null;
-			}
-		});
-	}
+	
 
 	@Override
 	public void saveGradeMappingToGradebook(final String scaleUuid, final String gradebookUid) {
