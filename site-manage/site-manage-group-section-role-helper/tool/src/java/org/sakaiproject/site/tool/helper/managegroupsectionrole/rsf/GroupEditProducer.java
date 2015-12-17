@@ -302,7 +302,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 {
 			 for (String groupRoster:groupRosters)
 			 {
-				 groupMemberLabels.add( SECTION_PREFIX + groupRoster );
+				 groupMemberLabels.add( SECTION_PREFIX + handler.getRosterLabel(groupRoster) + " (" + groupRoster + ")" );
 				 groupMemberValues.add( groupRoster );
 			 }
 		 }
@@ -345,7 +345,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
                 // Selected roster...
                 if( siteRosters.contains( memberID ) )
                 {
-                    groupMemberLabels.add( SECTION_PREFIX + memberID );
+                    groupMemberLabels.add( SECTION_PREFIX + handler.getRosterLabel(memberID) + " (" + memberID + ")" );
                     groupMemberValues.add( memberID );
                 }
 
