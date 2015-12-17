@@ -51,6 +51,8 @@
     <filter-mapping>
         <filter-name>sakai.request.container</filter-name>
         <servlet-name>sakai.login.container</servlet-name>
+        <servlet-name>sakai.login.oauth2.redirect</servlet-name>
+        <servlet-name>sakai.login.oauth2.login</servlet-name>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
     
@@ -60,6 +62,11 @@
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
     
+    <filter-mapping>
+        <filter-name>sakai.request.container</filter-name>
+        <servlet-name>sakai.logout.oauth2</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
 
     <servlet>
         <servlet-name>sakai.login</servlet-name>
@@ -71,6 +78,14 @@
         <init-param>
         	<param-name>container-logout</param-name>
         	<param-value>/sakai-login-tool/container/logout</param-value>
+        </init-param>
+        <init-param>
+            <param-name>oauth2</param-name>
+            <param-value>/sakai-login-tool/oauth2login</param-value>
+        </init-param>
+        <init-param>
+        	<param-name>oauth2-logout</param-name>
+        	<param-value>/sakai-login-tool/oauth2/logout</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -86,6 +101,26 @@
     	<servlet-class>org.sakaiproject.login.tool.ContainerLogout</servlet-class>
     </servlet>
 
+    <!-- Constructs the url to invoke the oauth2 server login -->
+    <servlet>
+        <servlet-name>sakai.login.oauth2.redirect</servlet-name>
+        <servlet-class>org.sakaiproject.login.tool.Oauth2AuthenticationRequest</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <!-- Manage the redirection from the oauth2 server -->
+    <servlet>
+        <servlet-name>sakai.login.oauth2.login</servlet-name>
+        <servlet-class>org.sakaiproject.login.tool.Oauth2Login</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!-- Manage the oauth2 token when logout -->
+    <servlet>
+        <servlet-name>sakai.logout.oauth2</servlet-name>
+        <servlet-class>org.sakaiproject.login.tool.Oauth2Logout</servlet-class>
+    </servlet>
+
 	<!-- map the container login, and then cause it to trigger container authentication -->
     <servlet-mapping>
         <servlet-name>sakai.login.container</servlet-name>
@@ -98,6 +133,20 @@
         <url-pattern>/container/logout</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>sakai.login.oauth2.redirect</servlet-name>
+        <url-pattern>/oauth2login</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>sakai.login.oauth2.login</servlet-name>
+        <url-pattern>/oauth2/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>sakai.logout.oauth2</servlet-name>
+        <url-pattern>/oauth2/logout</url-pattern>
+    </servlet-mapping>
 
      <servlet-mapping>
          <servlet-name>sakai.login</servlet-name>

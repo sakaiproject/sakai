@@ -206,7 +206,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			// get the session info complete needs, since the logout will invalidate and clear the session
 			String containerLogoutUrl = serverConfigurationService.getString("login.container.logout.url", null);
 			String containerLogout = getServletConfig().getInitParameter("container-logout");
-			if ( containerLogoutUrl != null && session.getAttribute(ATTR_CONTAINER_SUCCESS) != null &&
+			String oauth2Logout = getServletConfig().getInitParameter("oauth2-logout");
+			if ( Oauth2ServerConfiguration.isEnabled() && session.getAttribute("oauth2Token") != null && oauth2Logout != null)
+			{
+				res.sendRedirect(res.encodeRedirectURL(oauth2Logout));
+			}
+			else if ( containerLogoutUrl != null && session.getAttribute(ATTR_CONTAINER_SUCCESS) != null &&
 					containerLogout != null)
 			{
 				res.sendRedirect(res.encodeRedirectURL(containerLogout));
@@ -240,7 +245,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				// save our return path
 				session.setAttribute(ATTR_RETURN_URL, Web.returnUrl(req, null));
 
-				String containerCheckPath = this.getServletConfig().getInitParameter("container");
+				String containerCheckPath = Oauth2ServerConfiguration.isEnabled() ? this.getServletConfig().getInitParameter("oauth2") : this.getServletConfig().getInitParameter("container");
 				String containerCheckUrl = Web.serverUrl(req) + containerCheckPath;
 
 				// support query parms in url for container auth
