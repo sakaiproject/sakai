@@ -2925,8 +2925,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Gradebook gradebook = getGradebook(gradebookUid);
 	
 			//if not released, and not instructor or TA, don't do any work
-			// note that this will return a course grade for Instructor and TA even if not released
-			if(!gradebook.isCourseGradeDisplayed() && (!currentUserHasEditPerm(gradebookUid) || currentUserHasGradingPerm(gradebookUid))){
+			//note that this will return a course grade for Instructor and TA even if not released, see SAK-30119
+			if(!gradebook.isCourseGradeDisplayed() && (!currentUserHasEditPerm(gradebookUid) || !currentUserHasGradingPerm(gradebookUid))){
 				return rval;
 			}
 						

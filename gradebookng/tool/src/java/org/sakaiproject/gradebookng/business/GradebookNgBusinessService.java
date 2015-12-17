@@ -368,11 +368,7 @@ public class GradebookNgBusinessService {
 	public CourseGrade getCourseGrade(String studentUuid) {
 		
 		Gradebook gradebook = this.getGradebook();
-		
 		CourseGrade rval = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
-		
-		System.out.println("cg: " + rval);
-		
 		return rval;
 	}
 	
