@@ -114,7 +114,7 @@ public class SakaiScriptSetUserTimeZoneTest extends AbstractCXFTest {
 	}
 
 	@Test
-	public void testSetUserTimeZoneNotExitingUser() {
+	public void testSetUserTimeZoneNotExistingUser() {
 		WebClient client = WebClient.create(getFullEndpointAddress());
 
 		addClientMocks(client);

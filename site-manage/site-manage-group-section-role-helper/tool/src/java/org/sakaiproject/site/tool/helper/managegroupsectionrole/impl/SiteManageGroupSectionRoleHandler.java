@@ -58,6 +58,7 @@ import java.util.Arrays;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * 
@@ -73,6 +74,8 @@ public class SiteManageGroupSectionRoleHandler {
 	
 	private List<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
+
+    public MessageLocator messageLocator;
 	
     public Site site = null;
     public SiteService siteService = null;
@@ -1029,7 +1032,7 @@ public class SiteManageGroupSectionRoleHandler {
                         group.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
                         group.setProviderGroupId(roster);
 
-                        String groupTitle = truncateGroupTitle(roster);
+                        String groupTitle = truncateGroupTitle( getRosterLabel( roster ) + " " + messageLocator.getMessage( "group.autocreate.section.postfix" ) );
                         group.setTitle(groupTitle);
                     }
                 }

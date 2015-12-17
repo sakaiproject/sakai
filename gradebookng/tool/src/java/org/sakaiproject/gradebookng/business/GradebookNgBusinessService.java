@@ -1661,9 +1661,13 @@ public class GradebookNgBusinessService {
     	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
     	 
     	 Map<Assignment,GbGradeInfo> rval = new LinkedHashMap<>();
-    	 for(Assignment assignment: assignments) {
-    		 GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), studentUuid);
-    		 rval.put(assignment, new GbGradeInfo(def));
+    	 
+    	 //only get grades if released for the site (the service checks it per assignment)
+    	 if (gradebook.isAssignmentsDisplayed()) {
+    		 for(Assignment assignment: assignments) {
+        		 GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), studentUuid);
+        		 rval.put(assignment, new GbGradeInfo(def));
+        	 } 
     	 }
     	 
     	 return rval;
@@ -1830,6 +1834,7 @@ public class GradebookNgBusinessService {
     		 return true;
     	 }
     	 
+    	 //if TA, permission checks
     	 if(role == GbRole.TA) {
     	 
 	    	 //if no defs, implicitly allowed
@@ -1847,7 +1852,17 @@ public class GradebookNgBusinessService {
 	    	 return false;
     	 }
     	 
-    	 //students not currently supported. Could leverage the settings later.
+    	 //if student, check the settings
+    	 //this could actually get the settings but it would be more processing
+    	 if(role == GbRole.STUDENT) {
+    		 Gradebook gradebook = this.getGradebook(siteId);
+    		 
+    		 if(gradebook.isCourseGradeDisplayed()) {
+    			 return true;
+    		 }
+    	 }
+    	 
+    	 //other roles not yet catered for, catch all.
     	 return false;
      }
      

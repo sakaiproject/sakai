@@ -211,15 +211,15 @@ public class Gradebook implements Serializable {
 	public void setVersion(int version) {
 		this.version = version;
 	}
-    /**
-     * @return Returns the courseGradeDisplayed.
-     */
+	
+	/**
+	 * Is the course grade to be shown at all?
+	 * @return boolean
+	 */
     public boolean isCourseGradeDisplayed() {
         return courseGradeDisplayed;
     }
-    /**
-     * @param courseGradeDisplayed The courseGradeDisplayed to set.
-     */
+   
     public void setCourseGradeDisplayed(boolean courseGradeDisplayed) {
         this.courseGradeDisplayed = courseGradeDisplayed;
     }
@@ -232,6 +232,10 @@ public class Gradebook implements Serializable {
       this.totalPointsDisplayed = totalPointsDisplayed;
     }
 
+    /**
+	 * If the course grade is displayed, should the total points be displayed?
+	 * @return true/false if total points should be displayed
+	 */
     public boolean isCoursePointsDisplayed() {
 		return coursePointsDisplayed;
 	}
@@ -240,6 +244,10 @@ public class Gradebook implements Serializable {
 		this.coursePointsDisplayed = coursePointsDisplayed;
 	}
 
+	/**
+	 * If the course grade is displayed, should the percentage be displayed?
+	 * @return true/false if percentage should be displayed
+	 */
 	public boolean isCourseAverageDisplayed() {
       return courseAverageDisplayed;
     }

@@ -17,6 +17,7 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 	<%/*<sakai:flowState bean="#{UserListBean}"/>*/%>
 	<h:outputText value="#{UserListBean.initValues}"/>
 	
@@ -62,10 +63,12 @@
 					onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"/>
 				<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
 					onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
-					styleClass="active" style="margin-left: 3px !important;"/>
+					styleClass="active" style="margin-left: 3px !important;"
+					onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<h:commandButton id="clearSearchButton" action="#{UserListBean.processActionClearSearch}"
 					onkeypress="document.forms[0].submit;" value="#{msgs.bar_clear_search}"
-					rendered="#{UserListBean.renderClearSearch}" style="margin-left: 3px !important;"/>					
+					rendered="#{UserListBean.renderClearSearch}" style="margin-left: 3px !important;"
+					onclick="SPNR.disableControlsAndSpin( this, null );" />					
 	        </t:div>
 	 	</h:panelGrid>
 		

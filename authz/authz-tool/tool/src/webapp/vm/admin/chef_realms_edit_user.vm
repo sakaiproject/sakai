@@ -1,5 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_edit_user.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $ 
-
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 <script type="text/javascript">
   focus_path = ["id"];
 </script>
@@ -52,15 +52,15 @@
 				</h4>	
 
 					<div class="act">
-						<input type="submit" name="eventSubmit_doDone_user" value="$tlang.getString("realm.user.done")" />
+						<input type="submit" name="eventSubmit_doDone_user" value="$tlang.getString("realm.user.done")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</div>
 				<h4>	
 					$tlang.getString("realm.user.complete")
 				</h4>	
 
 					<div class="act">
-						<input type="submit" class="active"  name="eventSubmit_doSave_user" value="$tlang.getString("realm.user.save")" accesskey="s" />
-						<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.user.cancel")" accesskey="x"/>
+						<input type="submit" class="active"  name="eventSubmit_doSave_user" value="$tlang.getString("realm.user.save")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.user.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

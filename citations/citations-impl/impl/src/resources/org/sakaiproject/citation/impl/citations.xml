@@ -128,6 +128,8 @@
 		</property>
 	</bean>
 
+	<bean id="org.sakaiproject.citation.api.CitationValidator" class="org.sakaiproject.citation.impl.NestedCitationValidator"/>
+
 	<bean id="org.sakaiproject.citation.api.SearchManager" class="org.sakaiproject.citation.impl.BaseSearchManager"
 		init-method="init" destroy-method="destroy">
 

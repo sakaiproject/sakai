@@ -4743,5 +4743,51 @@ public class SakaiScript extends AbstractWebService {
         return "success";
     }
 
+    /**
+     * Activate/Deactivate an user in a site
+     *
+     * @param 	sessionid 	a valid session id
+     * @param 	siteid 		the id of the site
+     * @param 	eid 		the id of the user to activate/deactivate
+     * @param 	active 		true for activate, false to deactivate
+     * @return	true if all went ok or exception otherwise
+     * @return	Success or exception message
+     */
 
+    @WebMethod
+    @Path("/changeSiteMemberStatus")
+    @Produces("text/plain")
+    @GET
+    public String changeSiteMemberStatus(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "active", partName = "active") @QueryParam("active") boolean active){
+
+        Session session = establishSession(sessionid);
+
+        try {
+            User user = userDirectoryService.getUserByEid(eid);
+            String realmId = siteService.siteReference(siteid);
+            if (!authzGroupService.allowUpdate(realmId) || !siteService.allowUpdateSiteMembership(siteid)) {
+                String errorMessage = "WS changeSiteMemberStatus(): Site : " + siteid +" membership not updatable ";
+                LOG.warn(errorMessage);
+                return errorMessage;
+            }
+            AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
+            Member userMember = realmEdit.getMember(user.getId());
+            if(userMember == null) {
+                String errorMessage = "WS changeSiteMemberStatus(): User: " + user.getId() + " does not exist in site : " + siteid ;
+                LOG.warn(errorMessage);
+                return errorMessage;
+            }
+            userMember.setActive(active);
+            authzGroupService.save(realmEdit);
+        } catch (Exception e) {
+            LOG.error("WS changeSiteMemberStatus(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+
+    }
 }

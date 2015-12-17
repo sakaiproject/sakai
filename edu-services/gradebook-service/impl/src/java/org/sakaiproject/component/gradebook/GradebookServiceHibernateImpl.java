@@ -269,9 +269,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				gradeDef.setGradeEntryType(gradebook.getGrade_type());
 				gradeDef.setGradeReleased(assignment.isReleased());
 				
-				// If this is the student, then the assignment needs to have
+				// If this is the student, then the global setting needs to be enabled and the assignment needs to have
 				// been released. Return null score information if not released
-				if (studentRequestingOwnScore && !assignment.isReleased()) {
+				if (studentRequestingOwnScore && (!gradebook.isAssignmentsDisplayed() || !assignment.isReleased())) {
 					gradeDef.setDateRecorded(null);
 					gradeDef.setGrade(null);
 					gradeDef.setGraderUid(null);
@@ -1647,9 +1647,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
 					  convertPointsToPercentage(gradebook, gradeRecs);
 				  }
-				  
-				  boolean gradeReleased = gradebook.isAssignmentsDisplayed() && gbItem.isReleased();
-				  
+				  				  
 				  for (Iterator gradeIter = gradeRecs.iterator(); gradeIter.hasNext();) {
 					  AssignmentGradeRecord agr = (AssignmentGradeRecord) gradeIter.next();
 					  if (agr != null) {

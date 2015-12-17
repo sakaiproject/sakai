@@ -2,7 +2,7 @@
 ## isn't used.
 <div class="portletBody">
 <link href="/sakai-authz-tool/css/authz.css" type="text/css" rel="stylesheet" media="all" />
-
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 #if($menu)
 	#toolbar($menu)
 #end
@@ -21,7 +21,7 @@
 
 	<form name= "permissionForm" action="#toolForm("$action")" method="post">
 		<div class="act">
-			<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" />
+			<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</div>
 	</form>
 </div>
