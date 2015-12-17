@@ -348,7 +348,12 @@ public class SettingsCategoryPanel extends Panel {
 			df.setRoundingMode(RoundingMode.DOWN);
 			
 			//convert
-			Double d = Double.valueOf(value) / 100;  //catch NumberFormatException
+			Double d;
+			try {
+				d = Double.valueOf(value) / 100;
+			} catch (NumberFormatException e) {
+				throw new ConversionException(e);
+			}
 
 			//to string for the rounding/truncation
 			String s = df.format(d);
@@ -371,7 +376,7 @@ public class SettingsCategoryPanel extends Panel {
 			df.setMaximumFractionDigits(2);
 			df.setRoundingMode(RoundingMode.DOWN);
 			
-			//convert
+			//convert to percentage representation
 			value = value * 100;
 			
 			return df.format(value);
