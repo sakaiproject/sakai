@@ -20,6 +20,8 @@ You can use this this PR https://github.com/sakaiproject/evaluation/pull/25/file
      as alias don't work for rsf)
   - remove "singleton=true" as this is the default, you could also use "scope"
   - remove "local" and use "bean"
+
+- a number of classes in org.springframework.web.servlet.mvc were removed in Spring 4.0. The best known is SimpleFormController, but several others were also involved. I was able to simply pull them from the Spring 3 source and use them. For an example (which actually has most of those that you're likely to need) see metaobj/metaobj-util/tool-lib/src/java/org/springframework/web/servlet/mvc in clhedrick/sakai-contrib
   
 - generic-dao has had its groupId changed as we forked the original code hosted on github 
   and didn't want any confusion with the original code.
