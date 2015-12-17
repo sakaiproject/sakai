@@ -249,11 +249,20 @@
 #gradebookGrades .gb-grade-item-cell > span {
   display: block;
 }
+#gradebookGrades .gb-grade-item-cell {
+  text-align:center;
+}
 #gradebookGrades .gb-grade-item-cell input {
-  text-align: right;
-  width: 40px;
+  text-align: center;
   line-height: 1em;
   display: inline;
+  border-color: transparent;
+  background-color: transparent;
+}
+#gradebookGrades .gb-grade-item-cell input:focus {
+  background-color: #FFF;
+  width: 40px;
+  text-align: right;
 }
 #gradebookGrades .gb-grade-item-cell .gb-out-of {
   display: inline;
@@ -277,6 +286,7 @@
 #gradebookGrades .gb-course-grade {
   text-align: center;
 }
+#gradebookGrades .gb-grade-item-cell > div,
 #gradebookGrades .gb-course-grade > div,
 #gradebookGrades .gb-category-item-column-cell > div {
   line-height: 2.6em;
@@ -970,4 +980,16 @@ ul.feedbackPanel li span {
 .dropdown-menu>li>a,
 .nav>li>a {
   text-decoration: none;
+}
+
+/* Mobile bits and pieces */
+/* Disable fixed columns and headers for small devices */
+@media only screen
+and (min-device-width : 375px)
+and (max-device-width : 736px) {
+  .gb-fixed-column-headers-table,
+  .gb-fixed-columns-table,
+  .gb-fixed-header-table {
+    display: none !important;
+  }
 }
