@@ -21,7 +21,7 @@
  */
 
 // Spinner namespace
-var SPNR = {};
+var SPNR = SPNR || {};
 
 /********** MAIN FUNCTIONS TO BE CALLED FROM OUTSIDE LIBRARY ******************/
 
@@ -68,6 +68,43 @@ SPNR.insertSpinnerAfter = function( clickedElement, escapeList, overrideSpinnerL
 };
 
 /**
+ * This function is to be used in special cases where injecting an element into the DOM
+ * causes 'bouncing' effects, where content is shifted dynamically.
+ * 
+ * In these special cases, you can add an empty div with a unique ID and the class
+ * "allocatedSpinPlaceholder", so that the area is pre-allocated. This function will use
+ * the pre-allocated div rather than injecting a div dynamically to avoid 'bouncing'.
+ * 
+ * If the div with the ID provided cannot be found, this will fallback to the
+ * insertSpinnerAfter() algorithm.
+ * 
+ * If no escapes are needed, pass in null for the escapeList parameter.
+ * 
+ * @param {type} clickedElement - the element being interacted with
+ * @param {type} escapeList - array of IDs you do not wish to be disabled
+ * @param {type} allocatedID - the ID of the div manually added to the page to contain the spinner
+ */
+SPNR.insertSpinnerInPreallocated = function( clickedElement, escapeList, allocatedID )
+{
+    // Get the pre-allocated div for the spinner
+    var div = document.getElementById( allocatedID );
+    if( div !== null )
+    {
+        // Clone and disable all controls, passing the escape list
+        SPNR.disableControlsAndSpin( clickedElement, escapeList );
+
+        // Apply the class to get the spinner
+        div.className = "spinPlaceholder";
+    }
+
+    // If the div couldn't be found, fallback to the insertSpinerAfter() algorithm
+    else
+    {
+        SPNR.insertSpinnerAfter( clickedElement, escapeList, null );
+    }
+};
+
+/**
  * This function is to be used with typical elements that have enough area to overlay
  * a spinner graphic on top. It will (clone and) disable all elements on the page,
  * and render a spinner graphic over top of the clicked element.
@@ -109,7 +146,7 @@ SPNR.disableLinkPointers = function( escapeList )
         if( escapeList.indexOf( links[i].id ) === -1 )
         {
             links[i].style.pointerEvents = "none";
-            links[i].className = "noPointers";
+            links[i].className += " noPointers";
             links[i].disabled = true;
         }
     }
@@ -131,7 +168,7 @@ SPNR.disableInputs = function( clickedElement, escapeList )
     var allInputs = SPNR.nodeListToArray( document.getElementsByTagName( "input" ) );
     for( i = 0; i < allInputs.length; i++ )
     {
-        if( (allInputs[i].type === "submit" || allInputs[i].type === "button" || allInputs[i].type === "checkbox") 
+        if( (allInputs[i].type === "submit" || allInputs[i].type === "button" || allInputs[i].type === "checkbox" || allInputs[i].type === "radio") 
                 && escapeList.indexOf( allInputs[i].id ) === -1 )
         {
             // If this is the clicked button, activate the spinner on it; otherwise just disable the button

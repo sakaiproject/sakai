@@ -27,7 +27,7 @@
 		#if ($allowAddAssignment && !$hideAssignmentFlag)
 		## show assignment content
 		<p class="discTria">
-			<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_view_assignment")'; return false;" title="$tlang.getString("gen.hidassinf")">
+			<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doHide_view_assignment")'; return false;" title="$tlang.getString("gen.hidassinf")">
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.hidassinf")" border="0" width="13" height="13" />
     			$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 			 </a>
@@ -256,7 +256,7 @@
 		#elseif ($allowAddAssignment && $hideAssignmentFlag)
 			## hide the assignment content
 			<p class="discTria">
-				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
+				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("viewassig.shoassinf")" border="0" width="13" height="13" align="top"  />
 				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 				</a>
@@ -268,7 +268,7 @@
 		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
 		#if (!$hideStudentViewFlag)
 			<p class="discTria">
-				<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_view_student_view")'; return false;">
+				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doHide_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" />
 				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.title)"
 				</a>
@@ -447,7 +447,7 @@
 				</div>	
 		#else
 			<p class="discTria">
-				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">
+				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" />
 				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.title)"
 				</a>
@@ -456,10 +456,10 @@
 		#end
 		<p class="act">
 			#if ($assignment.Draft)
-				<input type="submit" accesskey="s" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" class="active" />
-				 <input type="submit"accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.can")" />
+				<input type="submit" accesskey="s" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit"accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#else
-				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.backtolist")" class="active"  />
+				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.backtolist")" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		#end
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

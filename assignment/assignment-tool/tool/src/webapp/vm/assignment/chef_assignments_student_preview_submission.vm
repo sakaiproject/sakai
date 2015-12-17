@@ -162,10 +162,10 @@
 		#end
 		##	$tlang.getString("gen.title")
 	 #end
-	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	<form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="assignmentId" value="$assignment.Id" />
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
-		<input type="hidden" name="option" value="cancel" />
+		<input type="hidden" name="option" id="option" value="cancel" />
 		## submission information
 		#set($timeSubmitted=false)
 		#set($timeSubmitted=$submission.TimeSubmitted)
@@ -177,50 +177,15 @@
 					<input name="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled" />
 					<input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled" />
 			#else
-				<input
-					type="button"
-					class="active"
 					#if ($submitted && $!timeSubmitted)
 						#set($name=$tlang.getString("resubmit"))
 					#else
 						#set($name=$tlang.getString("gen.subm3"))
 					#end
-					name="post"
-					accesskey="s"
-					id="post" 
-					value="$!name"
-					onclick="showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
-				/>
-				<input
-					class="disableme" 
-					type="button" 
-					accesskey="d"
-					name="save" 
-					id="save" 
-					value="$tlang.getString("gen.savdra")"
-					onclick="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
-				/>
-				<input
-					class="disableme" 
-					type="button" 
-					name="revise" 
-					accesskey="r"
-					id="revise" 
-					value="$tlang.getString("gen.revi")"
-					onclick="document.addSubmissionForm.option.value='revise';document.addSubmissionForm.submit(); return false;"
-				/>
+				<input type="button" class="active" name="post" accesskey="s" id="post" value="$!name" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null, true );" />
+				<input class="disableme" type="button" accesskey="d" name="save" id="save" value="$tlang.getString("gen.savdra")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null, true );" />
+				<input class="disableme" type="button" name="revise" accesskey="r" id="revise" value="$tlang.getString("gen.revi")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'revise', null, null, true );" />
 			#end
-## gsilver - what used for? confusion.
-##		<input
-##				class="disableme" 
-##			type="button" 
-##		name="revise" 
-##				accesskey="x"
-##				id="done" 
-##				value="$tlang.getString("gen.don")"
-##				onclick="document.addSubmissionForm.option.value='revise'; document.addSubmissionForm.submit(); return false;"
-##			/>
-			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
