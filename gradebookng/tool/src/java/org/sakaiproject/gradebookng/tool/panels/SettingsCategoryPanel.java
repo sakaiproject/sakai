@@ -1,8 +1,14 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
@@ -24,6 +30,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.convert.ConversionException;
+import org.apache.wicket.util.convert.IConverter;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
@@ -191,8 +199,19 @@ public class SettingsCategoryPanel extends Panel {
   				item.add(name);
   				
   				//weight
-  				TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight"));
+  				TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight")) {
+  					
+  					@Override
+					public <C> IConverter<C> getConverter(Class<C> type) {
+					    return (IConverter<C>) new PercentConverter();
+					}
+  					
+  				};
+  				
+  				//onchange, update the running total
 				weight.add(new OnChangeAjaxBehavior() {
+					private static final long serialVersionUID = 1L;
+
 					@Override
 					protected void onUpdate(AjaxRequestTarget target) {
 						Double newTotal = calculateCategoryWeightTotal(categories);
@@ -301,5 +320,67 @@ public class SettingsCategoryPanel extends Panel {
 			}
 		}
 		return total;
+	}
+	
+	/**
+	 * Custom converter to flip between percentage for display and double for model object storage
+	 * Trims off any trailing .0
+	 *
+	 */
+	class PercentConverter implements IConverter<Double> {
+
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * Back to object for the model.
+		 * 
+		 * this is persisted as a fraction between 0 and 1 so for two decimal place precision in the UI we need 4 here.
+		 * 
+		 * String will be a percentage, get it back to a decimal fraction.
+		 */
+		@Override
+		public Double convertToObject(String value, Locale locale) throws ConversionException {
+			
+			//want this truncated to four decimal places, or less
+			NumberFormat df = DecimalFormat.getInstance();
+			df.setMinimumFractionDigits(0);
+			df.setMaximumFractionDigits(4);
+			df.setRoundingMode(RoundingMode.DOWN);
+			
+			//convert
+			Double d;
+			try {
+				d = Double.valueOf(value) / 100;
+			} catch (NumberFormatException e) {
+				throw new ConversionException(e);
+			}
+
+			//to string for the rounding/truncation
+			String s = df.format(d);
+			
+			//back to double
+			return Double.valueOf(s);
+		}
+
+		/**
+		 * Convert to percentage for display
+		 * 
+		 * Double will be a decimal fraction between 0 and 1 inclusive.
+		 */
+		@Override
+		public String convertToString(Double value, Locale locale) {
+			
+			//set the decimal precision
+			NumberFormat df = DecimalFormat.getInstance();
+			df.setMinimumFractionDigits(0);
+			df.setMaximumFractionDigits(2);
+			df.setRoundingMode(RoundingMode.DOWN);
+			
+			//convert to percentage representation
+			value = value * 100;
+			
+			return df.format(value);
+		}
+		
 	}
 }
