@@ -266,6 +266,10 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	margin-bottom: 0.5em;
 }
 
+.newItem {
+   border-left: 5px solid black !important;
+}
+
 .mainList {
 }
 
@@ -1313,6 +1317,11 @@ font-size: 90%;
 }
 .lessonsToolButton {
   border-radius:15px !important;
+}
+.addcontent-icontext {
+  line-height:25px; 
+  vertical-align:-3px;
+  font-size:200%
 }
 .contentButton span {
   padding: 0px !important;
