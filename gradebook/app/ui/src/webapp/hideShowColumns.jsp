@@ -17,6 +17,7 @@
 <f:view>
 
 <sakai:flowState bean="#{rosterBean}" />
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <h:form id="hidShowForm">
 	<h2>
 		<h:outputText value="#{msgs.hide_show_openLink}"/>
@@ -40,8 +41,8 @@
    	</h:dataTable>
    
   	<div class="instruction" style="float:right;">	        	
-       	<h:commandButton action="#{rosterBean.saveHidden}" value="#{msgs.feedback_options_submit}"/>
-        <input type="button" value='<h:outputText value="#{msgs.feedback_options_cancel}"/>' onclick="parent.dialogutil.closeDialog('dialogDiv', 'dialogFrame');"/>
+       	<h:commandButton action="#{rosterBean.saveHidden}" value="#{msgs.feedback_options_submit}" onclick="SPNR.disableControlsAndSpin( this, null );"/>
+        <input type="button" value='<h:outputText value="#{msgs.feedback_options_cancel}"/>' onclick="SPNR.disableControlsAndSpin( this, null );parent.dialogutil.closeDialog('dialogDiv', 'dialogFrame');"/>
   	</div>
   	<f:verbatim>    
     	<input type="text" id="saved" name="saved" value="true" style="display: none;"/>

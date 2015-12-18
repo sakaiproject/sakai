@@ -1,4 +1,5 @@
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <f:view>
     <div class="portletBody">
         <h:form id="form" enctype="multipart/form-data">
@@ -53,7 +54,7 @@
                 <t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file" required="true" accept="text/csv"/>
            		*/%>
            		<h:inputText id="pickedFileDesc" value="#{spreadsheetUploadBean.pickedFileDesc}" required="true" readonly="true"/>
-                <h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="#{msgs.upload_view_choose_file_button}" />
+                <h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="#{msgs.upload_view_choose_file_button}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                 <f:verbatim>
            			</td>
            			<td>
@@ -73,12 +74,14 @@
                         id="saveButton"
                         styleClass="active"
                         value="#{msgs.upload_view_save}"
-                        action="#{spreadsheetUploadBean.processFile}"/>
+                       action="#{spreadsheetUploadBean.processFile}"
+                        onclick="SPNR.disableControlsAndSpin( this, null );" />
                 <h:commandButton
                         value="#{msgs.upload_view_cancel}"
                         action="spreadsheetListing" 
                         actionListener="#{spreadsheetUploadBean.cancelAndClearSession}" 
-                        immediate="true"/>
+                        immediate="true"
+                        onclick="SPNR.disableControlsAndSpin( this, null );" />
             </p>
         </h:form>
     </div>

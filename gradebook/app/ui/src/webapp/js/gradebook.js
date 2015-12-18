@@ -1,5 +1,5 @@
 function clearIfDefaultString(formField, defaultString) {
-	if(formField.value == defaultString) {
+	if(formField.value === defaultString) {
 		formField.value = "";
 	}
 }
@@ -25,7 +25,7 @@ function submitOnEnter(event, defaultButtonId) {
 		characterCode = event.keyCode;
 	}
 
-	if (characterCode == 13) {
+	if (characterCode === 13) {
 		event.returnValue = false;
 		event.cancel = true;
 		var defaultButton = document.getElementById(defaultButtonId);
@@ -57,7 +57,7 @@ function blockDoubleSubmit()
 var openedWindows = new Array();
 
 function toggleWindow(elmnt, title, text) {
-	if(openedWindows[elmnt.id] == null || openedWindows[elmnt.id] == undefined) {
+	if(openedWindows[elmnt.id] === null || openedWindows[elmnt.id] === undefined) {
 		/* Open the window */
 		var newWindow = new dhtmlWindow(5,5,300,200,title,text);
 		elmnt.parentNode.appendChild(newWindow);
@@ -73,78 +73,78 @@ function toggleWindow(elmnt, title, text) {
 /* TODO format the table properly */
 function parseText(text) {
 	var textArray = text.split('|');
-	var html = "<table>\n"
+	var html = "<table>\n";
 	for(var i=0; i < textArray.length; i++) {
-		if((i) % 3 == 0) {
-			html += "\t<tr>\n"
+		if((i) % 3 === 0) {
+			html += "\t<tr>\n";
 		}
-		html += "\t\t<td>"
-		html += textArray[i]
-		html += "</td>\n"
-		if((i+1) % 3 == 0 || (i+1) == textArray.length) {
-			html += "\t</tr>\n"
+		html += "\t\t<td>";
+		html += textArray[i];
+		html += "</td>\n";
+		if((i+1) % 3 === 0 || (i+1) === textArray.length) {
+			html += "\t</tr>\n";
 		}
 	}
-	html += "</table>"
-	return html
+	html += "</table>";
+	return html;
 }
 
 function dhtmlWindow(x,y,w,h,title,text){
 
- var winBody = new divElement(x,y,w,h,"#cccccc")
-  winBody.style.borderStyle = "outset"
-  winBody.style.borderWidth = "2px"
-  winBody.style.borderColor = "#aaaaaa"
-  winBody.style.zIndex = (dhtmlWindow.zCount++)
+ var winBody = new divElement(x,y,w,h,"#cccccc");
+  winBody.style.borderStyle = "outset";
+  winBody.style.borderWidth = "2px";
+  winBody.style.borderColor = "#aaaaaa";
+  winBody.style.zIndex = (dhtmlWindow.zCount++);
   
  
- var toolBar = new divElement(4,4,w-14,18,"#006699")
-  toolBar.style.position = "absolute"
-  toolBar.style.color = "#ffffff"
-  toolBar.style.fontFamily = "arial"
-  toolBar.style.fontSize = "10pt"
-  toolBar.style.paddingLeft="4px"
+ var toolBar = new divElement(4,4,w-14,18,"#006699");
+  toolBar.style.position = "absolute";
+  toolBar.style.color = "#ffffff";
+  toolBar.style.fontFamily = "arial";
+  toolBar.style.fontSize = "10pt";
+  toolBar.style.paddingLeft="4px";
   
-  toolBar.proxyFor = winBody
+  toolBar.proxyFor = winBody;
  
- var contentArea = new divElement(4,26,w-10,h-40,"#ffffff")
-  if (document.all) contentArea.style.width = (parseInt(contentArea.style.width)-4)+"px"
-  else contentArea.style.width = (parseInt(contentArea.style.width)-7)+"px"
-  contentArea.style.borderColor="#cccccc"
-  contentArea.style.borderStyle="inset"
-  contentArea.style.borderWidth="1px"
-  contentArea.style.overflow="auto"
-  contentArea.style.paddingLeft="4px"
-  contentArea.style.paddingRight="2px"
-  contentArea.style.fontFamily = "arial"
-  contentArea.style.fontSize = "10pt"
+ var contentArea = new divElement(4,26,w-10,h-40,"#ffffff");
+  if (document.all) contentArea.style.width = (parseInt(contentArea.style.width)-4)+"px";
+  else contentArea.style.width = (parseInt(contentArea.style.width)-7)+"px";
+  contentArea.style.borderColor="#cccccc";
+  contentArea.style.borderStyle="inset";
+  contentArea.style.borderWidth="1px";
+  contentArea.style.overflow="auto";
+  contentArea.style.paddingLeft="4px";
+  contentArea.style.paddingRight="2px";
+  contentArea.style.fontFamily = "arial";
+  contentArea.style.fontSize = "10pt";
   winBody.content = contentArea;
 
- var titleDiv = document.createElement("div")
+ var titleDiv = document.createElement("div");
  titleDiv.appendChild(document.createTextNode(title));
  
- contentArea.innerHTML = parseText(text)
+ contentArea.innerHTML = parseText(text);
 
- winBody.appendChild(contentArea)
- toolBar.appendChild(titleDiv)
- winBody.appendChild(toolBar)
- return winBody
+ winBody.appendChild(contentArea);
+ toolBar.appendChild(titleDiv);
+ winBody.appendChild(toolBar);
+ return winBody;
 
 }
 
 dhtmlWindow.zCount=0;
 
 function divElement (x,y,w,h,col){
-	var lyr = document.createElement("div")
- 	 lyr.style.position = "relative"
-	 lyr.style.left = x + "px"
-	 lyr.style.top = y + "px"
-	 lyr.style.width = w + "px"
-	 lyr.style.height = h + "px"
-	 lyr.style.backgroundColor = col
-	 lyr.style.visibility = "visible"
-	 lyr.style.padding= "0px 0px 0px 0px"
-	return lyr
+	var lyr = document.createElement("div");
+ 	 lyr.style.position = "relative";
+	 lyr.style.left = x + "px";
+	 lyr.style.top = y + "px";
+	 lyr.style.width = w + "px";
+	 lyr.style.height = h + "px";
+	 lyr.style.backgroundColor = col;
+	 lyr.style.visibility = "visible";
+	 lyr.style.padding= "0px 0px 0px 0px";
+	return lyr;
 }
 
 function getTheElement(thisid)
@@ -159,7 +159,7 @@ function getTheElement(thisid)
   }
 
   if(thiselm) {
-    if(thiselm == null) {
+    if(thiselm === null) {
       return;
     } else {
       return thiselm;
@@ -177,7 +177,7 @@ function updateRunningTotal(thisForm) {
   	while(weightInput && row < 10000){
 		weight = parseFloat(weightInput.value.replace(/,/, '.'));
   		var extraCreditCheckbox = getTheElement(thisForm.name + ":categoriesTable:" + row + ":catExtraCredit");
-		if (weight >= 0 && extraCreditCheckbox != null && !extraCreditCheckbox.checked) {
+		if (weight >= 0 && extraCreditCheckbox !== null && !extraCreditCheckbox.checked) {
             runningTotal += weight;
         }
   		row++;
@@ -191,7 +191,7 @@ function updateRunningTotal(thisForm) {
   var neededTotalEl = getTheElement(thisForm.name + ":neededTotalVal");
   runningTotalValEl.innerHTML = (Math.round(runningTotal*100)/100).toFixed(2);
   neededTotalEl.innerHTML = (Math.round(neededTotal*100)/100).toFixed(2);
-  if (neededTotal == 0)
+  if (neededTotal === 0)
   	runningTotalEl.className="courseGrade";
   else
   	runningTotalEl.className = "highlight courseGrade";
@@ -207,7 +207,7 @@ function showHideDiv(hideDivisionNo, context, expandAlt, collapseAlt, expandTitl
 
   if(divisionNo)
   {
-    if(divisionNo.style.display =="block" || divisionNo.style.display =="table-row")
+    if(divisionNo.style.display ==="block" || divisionNo.style.display ==="table-row")
     {
       divisionNo.style.display="none";
       if (imgNo)
@@ -239,7 +239,7 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
   var imgAllSrcPieces = imgAll.src.split("/");
 
   var expanded = false;
-	if (imgAllSrcPieces[(imgAllSrcPieces.length - 1)] == "expand.gif")
+	if (imgAllSrcPieces[(imgAllSrcPieces.length - 1)] === "expand.gif")
 	 	expanded = true;
 	 	
 	for (var i=0; i < numToggles; i++) {
@@ -285,8 +285,7 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 }
 
 function reEnableCategoryDropInputs(component) {
-    var formName = "gbForm";
-    if(component == null) {
+    if(component === null) {
         // Enable all of the category drop scores inputs on the page
         // This is required because of the lack of support for
         // disabled components in myfaces
@@ -295,11 +294,11 @@ function reEnableCategoryDropInputs(component) {
                 var currentElement = allElements[i];
                 var currentElementName = currentElement.getAttribute('name');
 
-                if(currentElementName !== null && (currentElementName.indexOf(":pointValue") != -1
-                        || currentElementName.indexOf(":relativeWeight") != -1
-                        || currentElementName.indexOf(":dropHighest") != -1
-                        || currentElementName.indexOf(":dropLowest") != -1
-                        || currentElementName.indexOf(":keepHighest") != -1
+                if(currentElementName !== null && (currentElementName.indexOf(":pointValue") !== -1
+                        || currentElementName.indexOf(":relativeWeight") !== -1
+                        || currentElementName.indexOf(":dropHighest") !== -1
+                        || currentElementName.indexOf(":dropLowest") !== -1
+                        || currentElementName.indexOf(":keepHighest") !== -1
 					)) {
                         // Recursive function call
                     reEnableCategoryDropInputs(currentElement);
@@ -319,7 +318,6 @@ function toggleVisibilityDropScoresFields() {
     var dropHighestVisibility = ""; // an unspecified display makes the column and column header visible
     var dropLowestVisibility = ""; // an unspecified display makes the column and column header visible
     var keepHighestVisibility = ""; // an unspecified display makes the column and column header visible
-    var itemValueVisibility = "";
     var tbl  = document.getElementById(formName + ":categoriesTable");
     if(!tbl) {
         // No categories currently defined
@@ -330,24 +328,24 @@ function toggleVisibilityDropScoresFields() {
     var header = thead.item(0);
     var headerRows = header.getElementsByTagName('th');
 
-    if(headerRows.length == 7) {
+    if(headerRows.length === 7) {
         var dropHighestIdx = 3;  // the index of 1st drop column, if Categories is selected
     } else {
         var dropHighestIdx = 4;  // the index of 1st drop column, if Categories & Weighting is selected
     }
 
-    if(showDropHighest == undefined || showDropHighest.checked == false) {
+    if(showDropHighest === undefined || showDropHighest.checked === false) {
         dropHighestVisibility = "none";      // make the column and column header not visible
     }
-    if(showDropLowest == undefined || showDropLowest.checked == false) {
+    if(showDropLowest === undefined || showDropLowest.checked === false) {
         dropLowestVisibility = "none";      // make the column and column header not visible
     }
-    if(showKeepHighest == undefined || showKeepHighest.checked == false) {
+    if(showKeepHighest === undefined || showKeepHighest.checked === false) {
         keepHighestVisibility = "none";      // make the column and column header not visible
     }
-    if((showDropHighest == undefined || showDropHighest.checked == false)
-            && (showDropLowest == undefined || showDropLowest.checked == false)
-            && (showKeepHighest == undefined || showKeepHighest.checked == false)) {
+    if((showDropHighest === undefined || showDropHighest.checked === false)
+            && (showDropLowest === undefined || showDropLowest.checked === false)
+            && (showKeepHighest === undefined || showKeepHighest.checked === false)) {
         itemValueVisibility = "none";      // make the column and column header not visible
     }
 
@@ -357,7 +355,7 @@ function toggleVisibilityDropScoresFields() {
   //  headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
     var rows = tbl.getElementsByTagName('tr');
     for (var row=0; row<rows.length;row++) {
-        var cels = rows[row].getElementsByTagName('td')
+        var cels = rows[row].getElementsByTagName('td');
         if(cels.length > 0) {
             cels[dropHighestIdx].style.display=dropHighestVisibility;
             cels[dropHighestIdx+1].style.display=dropLowestVisibility;
@@ -389,114 +387,114 @@ function dropScoresAdjust() {
         var keepHighestEnabled = true;
         
         var pointsPossibleUnequal = false;
-        if(showDropHighest == undefined || showDropHighest.checked == false) {
+        if(showDropHighest === undefined || showDropHighest.checked === false) {
             dropHighestEnabled = false;
-            if(dropHighest != undefined) {
+            if(dropHighest !== undefined) {
                 dropHighest.value = 0;
             }
         }
-        if(showDropLowest == undefined || showDropLowest.checked == false) {
+        if(showDropLowest === undefined || showDropLowest.checked === false) {
             dropLowestEnabled = false;
-            if(dropLowest != undefined) {
+            if(dropLowest !== undefined) {
                 dropLowest.value = 0;
             }
         }
-        if(showKeepHighest == undefined || showKeepHighest.checked == false) {
+        if(showKeepHighest === undefined || showKeepHighest.checked === false) {
             keepHighestEnabled = false;
-            if(keepHighest != undefined) {
+            if(keepHighest !== undefined) {
                 keepHighest.value = 0;
             }
         }
-        if(dropHighestEnabled == false && dropLowestEnabled == false && keepHighestEnabled == false) {
-            if(pointValue != undefined) {
+        if(dropHighestEnabled === false && dropLowestEnabled === false && keepHighestEnabled === false) {
+            if(pointValue !== undefined) {
                 pointValue.value = 0;
             }
-            if(relativeWeight != undefined) {
+            if(relativeWeight !== undefined) {
                 relativeWeight.value = 0;
             }
         }
         // if all are disabled, this means that the category was disabled for entering drop scores (because items pointsPossible are unequal)
-        if(dropHighest != undefined && dropLowest != undefined && keepHighest != undefined) {
-            if(dropHighest.disabled == true && dropLowest.disabled == true && keepHighest.disabled == true) {
+        if(dropHighest !== undefined && dropLowest !== undefined && keepHighest !== undefined) {
+            if(dropHighest.disabled === true && dropLowest.disabled === true && keepHighest.disabled === true) {
                 pointsPossibleUnequal = true;
             } else {
                 pointsPossibleUnequal = false;
             }
         }        
         if(!pointsPossibleUnequal) {
-            if(dropHighest != undefined && (dropHighest.value > 0 || dropLowest.value > 0)) {
-                if(keepHighest != undefined) {
+            if(dropHighest !== undefined && (dropHighest.value > 0 || dropLowest.value > 0)) {
+                if(keepHighest !== undefined) {
                     keepHighest.value = 0;
                     keepHighest.disabled = true;
                 }
-            } else if(keepHighest != undefined) {
+            } else if(keepHighest !== undefined) {
                 keepHighest.disabled = false;
                 
-                if(pointValue != undefined) {
+                if(pointValue !== undefined) {
                     pointValue.disabled = true;
-                    if(pointValueLabelAsterisk != undefined) {
+                    if(pointValueLabelAsterisk !== undefined) {
                         pointValueLabelAsterisk.style.visibility="hidden";
                     }
                 }
-                if(relativeWeight != undefined) {
+                if(relativeWeight !== undefined) {
                     relativeWeight.disabled = true;
-                    if(pointValueLabelAsterisk != undefined) {
+                    if(pointValueLabelAsterisk !== undefined) {
                         pointValueLabelAsterisk.style.visibility="hidden";
                     }
                 }
                 
             }    
-            if(keepHighest != undefined && keepHighest.value > 0) {
-                if(dropLowest != undefined) {
+            if(keepHighest !== undefined && keepHighest.value > 0) {
+                if(dropLowest !== undefined) {
                     dropLowest.value = 0;
                     dropLowest.disabled = true;
                 }
-                if(dropHighest != undefined) {
+                if(dropHighest !== undefined) {
                     dropHighest.value = 0;
                     dropHighest.disabled = true;
                 }
-            } else if(dropLowest != undefined && dropHighest != undefined) {
+            } else if(dropLowest !== undefined && dropHighest !== undefined) {
                 dropLowest.disabled = false;
                 dropHighest.disabled = false;
             }
             
-            if((dropHighest != undefined && dropHighest.value > 0) 
-                    || (dropLowest != undefined && dropLowest.value > 0)
-                    || (keepHighest != undefined && keepHighest.value > 0)) {
-                if(pointValue != undefined) {
+            if((dropHighest !== undefined && dropHighest.value > 0) 
+                    || (dropLowest !== undefined && dropLowest.value > 0)
+                    || (keepHighest !== undefined && keepHighest.value > 0)) {
+                if(pointValue !== undefined) {
                     pointValue.disabled = false;
-                    if(pointValueLabelAsterisk != undefined) {
+                    if(pointValueLabelAsterisk !== undefined) {
                         pointValueLabelAsterisk.style.visibility="visible";
                     }
                 }
-                if(relativeWeight != undefined) {
+                if(relativeWeight !== undefined) {
                     relativeWeight.disabled = false;
-                    if(pointValueLabelAsterisk != undefined) {
+                    if(pointValueLabelAsterisk !== undefined) {
                         pointValueLabelAsterisk.style.visibility="visible";
                     }
                 }
             } else {
-                if(pointValue != undefined) {
+                if(pointValue !== undefined) {
                     pointValue.disabled = true;
-                    if(pointValueLabelAsterisk != undefined) {
+                    if(pointValueLabelAsterisk !== undefined) {
                         pointValueLabelAsterisk.style.visibility="hidden";
                     }
                 }
-                if(relativeWeight != undefined) {
+                if(relativeWeight !== undefined) {
                     relativeWeight.disabled = true;
-                    if(pointValueLabelAsterisk != undefined) {
+                    if(pointValueLabelAsterisk !== undefined) {
                         pointValueLabelAsterisk.style.visibility="hidden";
                     }
                 }
             }
 
-            if((dropHighest == undefined || dropHighest.value < 1) 
-                    && (dropLowest == undefined || dropLowest.value < 1)
-                    && (keepHighest == undefined || keepHighest.value < 1)) {
-                if(pointValue != undefined) {
+            if((dropHighest === undefined || dropHighest.value < 1) 
+                    && (dropLowest === undefined || dropLowest.value < 1)
+                    && (keepHighest === undefined || keepHighest.value < 1)) {
+                if(pointValue !== undefined) {
                     pointValue.value = 0.0;
                 }
-                if(relativeWeight != undefined) {
+                if(relativeWeight !== undefined) {
                     relativeWeight.value = 0.0;
                 }
             }
@@ -511,13 +509,13 @@ function assignmentReleased(myForm, releasedChanged) {
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
 	var categoryDDEl = getTheElement(myForm + ':selectCategory');
 
-	if (releasedCheckboxEl.checked == false) {
+	if (releasedCheckboxEl.checked === false) {
 		countedCheckboxEl.checked = false;
 		countedCheckboxEl.disabled = true;
-	} else if (releasedCheckboxEl.checked == true) {
-		if (undefined != categoryDDEl)
+	} else if (releasedCheckboxEl.checked === true) {
+		if (undefined !== categoryDDEl)
 		{
-			if (categoryDDEl.options[categoryDDEl.selectedIndex].value != "unassigned")
+			if (categoryDDEl.options[categoryDDEl.selectedIndex].value !== "unassigned")
 			{
 				countedCheckboxEl.disabled = false;
 				if (releasedChanged)
@@ -545,18 +543,18 @@ function categorySelected(myForm, extraCreditCategories)
 	var countedCheckboxEl = getTheElement(myForm + ':countAssignment');
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var extraCreditCheckboxEl =  getTheElement(myForm + ':extraCredit');
-	if (undefined != categoryDDEl)
+	if (undefined !== categoryDDEl)
 	{
-		if (categoryDDEl.options[categoryDDEl.selectedIndex].value == "unassigned")
+		if (categoryDDEl.options[categoryDDEl.selectedIndex].value === "unassigned")
 		{
 			countedCheckboxEl.checked = false;
 			countedCheckboxEl.disabled = true;
 		}
 		else
 		{
-			if (undefined != releasedCheckboxEl)
+			if (undefined !== releasedCheckboxEl)
 			{
-				if (releasedCheckboxEl.checked == true)
+				if (releasedCheckboxEl.checked === true)
 				{
 					countedCheckboxEl.disabled = false;
 				}
@@ -583,7 +581,7 @@ function mySetMainFrameHeight(id)
 {
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
-	if (typeof window.name != "undefined" && id != window.name) return;
+	if (typeof window.name !== "undefined" && id !== window.name) return;
 
 	var frame = parent.document.getElementById(id);
 	if (frame)
@@ -598,16 +596,16 @@ function mySetMainFrameHeight(id)
 		var clientH = document.body.clientHeight;
 		var innerDocScrollH = null;
 
-		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		if (typeof(frame.contentDocument) !== 'undefined' || typeof(frame.contentWindow) !== 'undefined')
 		{
 			// very special way to get the height from IE on Windows!
 			// note that the above special way of testing for undefined variables is necessary for older browsers
 			// (IE 5.5 Mac) to not choke on the undefined variables.
  			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+			innerDocScrollH = (innerDoc !== null) ? innerDoc.body.scrollHeight : null;
 		}
 
-		if (document.all && innerDocScrollH != null)
+		if (document.all && innerDocScrollH !== null)
 		{
 			// IE on Windows only
 			height = innerDocScrollH;
@@ -640,9 +638,9 @@ function displayHideElement(myForm, displayId, radioId, radioElementValue) {
 	
 	var inputs = radioElement.getElementsByTagName ('input');
   for (i=0;i<inputs.length;i++){
-    if (inputs[i].checked==true){
+    if (inputs[i].checked===true){
       var selection = inputs[i].value;
-      if (selection == radioElementValue) 
+      if (selection === radioElementValue) 
 				 displayElement.style.display="block";
 			else
 				displayElement.style.display="none";
@@ -697,43 +695,4 @@ function initCategoryDisplay() {
 			$(event.target).hide();
 		}
 	});
-}
-
-function disableButton(divId, button) {
-    // first set the button to be invisible  
-    button.style.display='none';
-
-    // now create a new disabled button with the same attributes as the existing button
-    var newButton = document.createElement('input');
-
-    newButton.setAttribute('type', 'button');
-    newButton.setAttribute('id', button.getAttribute('id') + 'Disabled');
-    newButton.setAttribute('name', button.getAttribute('name') + 'Disabled');
-    newButton.setAttribute('value', button.getAttribute('value'));
-    newButton.setAttribute('className', button.getAttribute('className'));
-    newButton.setAttribute('disabled', 'true');   
-
-    if ("" !== divId)
-    {
-        var div = document.getElementById(divId);
-        div.insertBefore(newButton, button);
-    }
-    else
-    {
-        var parent = button.parentNode;
-        parent.insertBefore(newButton, button);
-    }
-}
-
-function setUngradedItems_disableButtonsActivateSpinner( spinnerID )
-{
-    // Activate the spinner
-    document.getElementById( spinnerID ).style.visibility = "visible";
-    
-    // "Disable" the buttons
-    var elements = $( ":submit" );
-    for( i = 0; i < elements.length; i++ )
-    {
-        disableButton( elements[i].parentNode.id, elements[i] );
-    } 
 }
