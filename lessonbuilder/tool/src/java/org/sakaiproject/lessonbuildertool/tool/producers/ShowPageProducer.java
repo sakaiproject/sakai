@@ -1041,6 +1041,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// swfObject is not currently used
 		boolean shownSwfObject = false;
 
+		long newItemId = -1L;
+		String newItemStr = (String)toolSession.getAttribute("lessonbuilder.newitem");
+		if (newItemStr != null) {
+		    toolSession.removeAttribute("lessonbuilder.newitem");		    
+		    try {
+			newItemId = Long.parseLong(newItemStr);
+		    } catch (Exception e) {}
+		}
+
 		// items to show
 		List<SimplePageItem> itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getPageId());
 		
@@ -1189,6 +1198,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    itemClassName = itemClassName + "  canEdit";
 				}
 
+				if (i.getId() == newItemId)
+				    itemClassName = itemClassName + " newItem";
 
 				tableRow.decorate(new UIFreeAttributeDecorator("class", itemClassName));
 
@@ -3262,6 +3273,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia1", null, true, false, currentPage, "simplepage.multimedia.tooltip");
 		UIInternalLink.makeURL(tofill, "subpage-link1", "#").
 		    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
+		UIInternalLink.makeURL(tofill, "addcontent", "#").
+		    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.add-item-page")));
 
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
