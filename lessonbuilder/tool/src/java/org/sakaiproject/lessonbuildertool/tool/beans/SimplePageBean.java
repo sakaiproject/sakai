@@ -1453,6 +1453,9 @@ public class SimplePageBean {
 		clearImageSize(i);
 
 		saveItem(i);
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute("lessonbuilder.newitem", ""+i.getId()); 
+
 		return i;
 	}
 
