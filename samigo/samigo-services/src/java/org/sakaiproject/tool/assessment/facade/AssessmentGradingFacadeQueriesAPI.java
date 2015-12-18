@@ -134,6 +134,18 @@ public interface AssessmentGradingFacadeQueriesAPI
   public HashMap getMediaItemGradingHash(Long assessmentGradingId);
   
   public List getMediaArray(Long publishedItemId, Long agentId, String which);
+
+  /** Get a batch of IDs for Media objects that have blobs in the database */
+  public List<Long> getMediaConversionBatch();
+
+  /** Sanity check query for Media objects with conflicting state of holding a blob and location */
+  public List<Long> getMediaWithDataAndLocation();
+
+  /** Sanity check for Media objects left in the converting state */
+  public List<Long> getMediaInConversion();
+
+  /** Mark a list of Media objects as being converted */
+  public boolean markMediaForConversion(List<Long> mediaIds);
   
   public ItemGradingData getLastItemGradingDataByAgent(Long publishedItemId,
       String agentId);
