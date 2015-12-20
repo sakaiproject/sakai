@@ -89,7 +89,16 @@ public class SettingsCategoryPanel extends Panel {
 		add(categoryType);
 
 		//render category related form fields
-		categoriesWrap = new WebMarkupContainer("categoriesWrap");
+		categoriesWrap = new WebMarkupContainer("categoriesWrap") {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public boolean isVisible() {
+				//don't show if 'no categories'
+				return (model.getObject().getGradebookInformation().getCategoryType() != 1);
+			}
+			
+		};
 		categoriesWrap.setOutputMarkupPlaceholderTag(true);
 
 		//enable drop highest
@@ -169,10 +178,11 @@ public class SettingsCategoryPanel extends Panel {
 		categoryType.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				boolean noCategoriesSelected = getComponent().getDefaultModelObject().equals(1); 
-				categoriesWrap.setVisible(!noCategoriesSelected);
+				
+				//adjust visibility of items depending on category type
+				categoriesWrap.setVisible(model.getObject().getGradebookInformation().getCategoryType() != 1);
 
-				boolean categoriesAndWeightSelected = getComponent().getDefaultModelObject().equals(3);
+				boolean categoriesAndWeightSelected = model.getObject().getGradebookInformation().getCategoryType() == 3;
 				dropHighestContainer.setVisible(categoriesAndWeightSelected);
 				dropLowestContainer.setVisible(categoriesAndWeightSelected);
 				keepHighestContainer.setVisible(categoriesAndWeightSelected);
