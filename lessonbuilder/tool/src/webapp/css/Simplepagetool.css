@@ -1029,11 +1029,13 @@ div[role="dialog"] {
 }
 .portletTitle .action {
     padding: 2px -1px 6px 2px;
-    float: right;
+    float: right; 
     vertical-align: middle;
 }
-.Mrphs-toolTitleNav .action {
+.Mrphs-toolTitleNav .Mrphs-toolTitleNav__addRight .action {
     display: inline-block;
+    margin-top: -5px;
+    padding-right: 50px;
 }			      
 .portletTitle .action a#jsr-edit {
     padding: 2px;
@@ -1157,7 +1159,7 @@ a.Mrphs-toolTitleNav__link--reset {
   font-size: .75em;
 }
 .Mrphs-toolTitleNav__addRight {
-  display:inline-block
+  display:inline-block;
 }
 #content, #outer, nav.Mrphs-toolTitleNav {
 }
