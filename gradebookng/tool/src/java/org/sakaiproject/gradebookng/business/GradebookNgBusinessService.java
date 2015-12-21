@@ -1901,7 +1901,6 @@ public class GradebookNgBusinessService {
     	 for(GbGroup gbGroup: viewableGroups) {
     		 String groupReference = gbGroup.getReference();
     		 List<String> memberUuids = new ArrayList<>();
-					
     		 
     		 Group group = site.getGroup(groupReference);
     		 if(group != null) {
@@ -1966,21 +1965,35 @@ public class GradebookNgBusinessService {
 		public CategorizedAssignmentComparator(Map<String, List<Long>> categoryOrder) {
 			this.categoryOrder = categoryOrder;
 			this.sortedCategories = new ArrayList(categoryOrder.keySet());
-			Collections.sort(this.sortedCategories);
+			// sort categories from A-Z, null (where null is uncategorized)
+			Collections.sort(this.sortedCategories, new CategoryComparator());
 		}
 		
 
 		@Override
 		public int compare(Assignment a1, Assignment a2) {
-			if (a1.getCategoryName() == null) {
-				return 1;
-			} else if (a2.getCategoryName() == null) {
-				return -1;
-			} else if (a1.getCategoryName().equals(a2.getCategoryName())) {
-				List<Long> assignmentsInCategory = categoryOrder.get(a1.getCategoryName());
+			List<Long> assignmentsInCategory = categoryOrder.get(a1.getCategoryName());
+			// if assignments are in the same category, then sort by their index in the order array
+			if (a1.getCategoryName() == a2.getCategoryName()) {
 				return Integer.compare(assignmentsInCategory.indexOf(a1.getId()), assignmentsInCategory.indexOf(a2.getId()));
+			// otherwise, sort by their category
 			} else {
-				return Integer.compare(sortedCategories.indexOf(a1), sortedCategories.indexOf(a2));
+				return Integer.compare(sortedCategories.indexOf(a1.getCategoryName()), sortedCategories.indexOf(a2.getCategoryName()));
+			}
+		}
+	}
+	/**
+	 * Comparator class for sorting Categories, A-Z and null (or uncategorized) at the end
+	 */
+	class CategoryComparator implements Comparator<String> {
+		@Override
+		public int compare(String c1, String c2) {
+			if (c1 == null) {
+				return 1;
+			} else if (c2 == null) {
+				return -1;
+			} else {
+				return c1.compareTo(c2);
 			}
 		}
 	}
