@@ -86,7 +86,7 @@
 					<tr>
 						<th scope="col">$tlang.getString("gen.date")</th>
 						<th scope="col">$tlang.getString("imp.actvtm")</th>
-						<th scope="col">$tlang.getString("imp.keep")</th>						
+						<th scope="col"><input name="$tlang.getString('imp.markall')" id="$tlang.getString('imp.markall')" title ="$tlang.getString('imp.unmarkall')" type="checkbox" value="false" checked="checked" onclick="javascript:toggleSelectAll(this, 'CheckAll')" />$tlang.getString("imp.keep")</th>						
 					</tr>
 
 				#foreach($impEvent in $wizardImportedEvents)
@@ -99,7 +99,7 @@
 							($impEvent.getDisplayStartTime()&nbsp;-&nbsp;$impEvent.getDisplayEndTime())
 						</label>
 					</td>
-										<td nowrap="nowrap" ><span class="skip">$tlang.getString("imp.keep")</span><input name="eventSelected$impEvent.getLineNumber()" id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
+										<td nowrap="nowrap" ><span class="skip">$tlang.getString("imp.keep")</span><input name="eventSelected$impEvent.getLineNumber()" class="CheckAll"id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
 				  </tr>
 				#end
 				</table>
@@ -213,7 +213,7 @@
 		function toggleSelectAll(caller, elementName)
 		{
 			var newValue = caller.checked;
-			var elements = document.getElementsByName(elementName);
+			var elements = document.getElementsByClassName(elementName);
 			
 			if(elements)
 			{
@@ -222,6 +222,7 @@
 					elements[i].checked = newValue;
 				}
 			}
+			
 		}
 	-->
 </script>
