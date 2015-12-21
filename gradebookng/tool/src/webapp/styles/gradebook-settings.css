@@ -1,0 +1,10 @@
+/* ********************************************************************* *
+ *                      Gradebook Settings styles                        *
+ * ********************************************************************* */
+
+.gb-inline-wrap {
+	margin-bottom: 10px;
+}
+.gb-inline-checkbox {
+	display: inline !important;
+}
