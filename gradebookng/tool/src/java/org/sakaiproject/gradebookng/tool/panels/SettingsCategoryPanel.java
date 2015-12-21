@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -8,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
@@ -17,7 +15,6 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
-import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -101,7 +98,6 @@ public class SettingsCategoryPanel extends Panel {
 			}
 			
 		};
-		
 		categoriesWrap.setOutputMarkupPlaceholderTag(true);
 		
 		//wrapper for the options
@@ -186,15 +182,11 @@ public class SettingsCategoryPanel extends Panel {
 				//adjust visibility of items depending on category type
 				int categoryType = model.getObject().getGradebookInformation().getCategoryType();
 				categoriesWrap.setVisible(categoryType != 1);
-				categoriesOptionsWrap.setVisible(categoryType == 3);
+				categoriesOptionsWrap.setVisible(categoryType != 1);
 				
-				//if categories only (2), the categories table will be visible but the extra options will not
+				//if categories only (2), the categories table will be visible but the weighting column will not
 				if(categoryType == 2) {
 					target.appendJavaScript("$('.gb-category-weight').hide();");
-					target.appendJavaScript("$('.gb-category-extracredit').hide();");
-					target.appendJavaScript("$('.gb-category-drophighest').hide();");
-					target.appendJavaScript("$('.gb-category-droplowest').hide();");
-					target.appendJavaScript("$('.gb-category-keephighest').hide();");
 				}
 				
 				target.add(categoriesWrap);
@@ -293,6 +285,11 @@ public class SettingsCategoryPanel extends Panel {
   			public void renderHead(IHeaderResponse response) {
   			    super.renderHead(response);
 
+  			    int categoryType = model.getObject().getGradebookInformation().getCategoryType();
+  			    if(categoryType == 2) {
+  			    	response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-weight').hide();"));
+  			    }
+  			    
   			    if(!isDropHighest) {
   			    	response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-drophighest').hide();"));
   			    }
