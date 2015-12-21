@@ -410,10 +410,6 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .columnopen, .addbottom {
   text-decoration: none;
 }
-.edit-col {
-  font-size: 70%;
-}
-
 .mainList li {
     position: relative;
 }
@@ -483,7 +479,8 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	font-size: 60%;
 }
 .edit-col {
-  font-size: 75%;
+  font-size: 20px;
+  line-height: 24px;
 }
 .buttonItem {
 	padding-left: 20px
@@ -1217,9 +1214,9 @@ color: #666;
    -moz-border-radius: 3px;
    border-radius: 3px;
    border: solid #bbb 1px;
-   padding:3px 5px 0px 5px ;
-   font-size: 60%;
-   line-height: 200%;
+   padding: 0px 5px 0px 5px ;
+   font-size: 20px;
+   line-height: 24px;
 }
 .sectionedit a span {
    color: #666;
