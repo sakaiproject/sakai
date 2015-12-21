@@ -15,6 +15,9 @@ import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -51,8 +54,6 @@ public class SettingsCategoryPanel extends Panel {
 	boolean isDropLowest = false;
 	boolean isKeepHighest = false;
 	
-	WebMarkupContainer categoriesWrap;
-
 	public SettingsCategoryPanel(String id, IModel<GbSettings> model) {
 		super(id, model);
 		this.model = model;
@@ -89,20 +90,24 @@ public class SettingsCategoryPanel extends Panel {
 		add(categoryType);
 
 		//render category related form fields
-		categoriesWrap = new WebMarkupContainer("categoriesWrap") {
+		final WebMarkupContainer categoriesWrap = new WebMarkupContainer("categoriesWrap") {
 			private static final long serialVersionUID = 1L;
 			
 			@Override
 			public boolean isVisible() {
 				//don't show if 'no categories'
-				return (model.getObject().getGradebookInformation().getCategoryType() != 1);
+				int categoryType = model.getObject().getGradebookInformation().getCategoryType();
+				return (categoryType != 1);
 			}
 			
 		};
+		
 		categoriesWrap.setOutputMarkupPlaceholderTag(true);
-
+		
+		//wrapper for the options
+		final WebMarkupContainer categoriesOptionsWrap = new WebMarkupContainer("categoriesOptionsWrap");
+		
 		//enable drop highest
-		final WebMarkupContainer dropHighestContainer = new WebMarkupContainer("dropHighestContainer");
 		final AjaxCheckBox dropHighest = new AjaxCheckBox("dropHighest", Model.of(isDropHighest)) {
 			private static final long serialVersionUID = 1L;
 
@@ -115,6 +120,7 @@ public class SettingsCategoryPanel extends Panel {
 					for(CategoryDefinition c: model.getObject().getGradebookInformation().getCategories()) {
 						c.setDropHighest(0);
 					}
+					target.appendJavaScript("$('.gb-category-drophighest').hide();");
 				}
 				
 				target.add(categoriesWrap);
@@ -122,12 +128,9 @@ public class SettingsCategoryPanel extends Panel {
 		};
 
 		dropHighest.setOutputMarkupId(true);
-		dropHighestContainer.add(dropHighest);
-		dropHighestContainer.setOutputMarkupId(true);
-		categoriesWrap.add(dropHighestContainer);
+		categoriesOptionsWrap.add(dropHighest);
 
 		//enable drop lowest
-		final WebMarkupContainer dropLowestContainer = new WebMarkupContainer("dropLowestContainer");
 		final AjaxCheckBox dropLowest = new AjaxCheckBox("dropLowest", Model.of(isDropLowest)) {
 			private static final long serialVersionUID = 1L;
 
@@ -140,18 +143,16 @@ public class SettingsCategoryPanel extends Panel {
 					for(CategoryDefinition c: model.getObject().getGradebookInformation().getCategories()) {
 						c.setDrop_lowest(0);
 					}
+					target.appendJavaScript("$('.gb-category-droplowest').hide();");
 				}
 				
 				target.add(categoriesWrap);
 			}
 		};
 		dropLowest.setOutputMarkupId(true);
-		dropLowestContainer.add(dropLowest);
-		dropLowestContainer.setOutputMarkupId(true);
-		categoriesWrap.add(dropLowestContainer);
+		categoriesOptionsWrap.add(dropLowest);
 
 		//enable keep highest
-		final WebMarkupContainer keepHighestContainer = new WebMarkupContainer("keepHighestContainer");
 		final AjaxCheckBox keepHighest = new AjaxCheckBox("keepHighest", Model.of(isKeepHighest)) {
 			private static final long serialVersionUID = 1L;
 
@@ -164,15 +165,18 @@ public class SettingsCategoryPanel extends Panel {
 					for(CategoryDefinition c: model.getObject().getGradebookInformation().getCategories()) {
 						c.setKeepHighest(0);
 					}
+					target.appendJavaScript("$('.gb-category-keephighest').hide();");
 				}
 				
 				target.add(categoriesWrap);
 			}
 		};
 		keepHighest.setOutputMarkupId(true);
-		keepHighestContainer.add(keepHighest);
-		keepHighestContainer.setOutputMarkupId(true);
-		categoriesWrap.add(keepHighestContainer);
+		categoriesOptionsWrap.add(keepHighest);
+		
+		//add the options wrapper
+		categoriesOptionsWrap.setOutputMarkupPlaceholderTag(true);
+		categoriesWrap.add(categoriesOptionsWrap);
 
 		//When category type changes, ensure form is updated to reflect new value
 		categoryType.add(new AjaxFormChoiceComponentUpdatingBehavior() {
@@ -180,13 +184,19 @@ public class SettingsCategoryPanel extends Panel {
 			protected void onUpdate(AjaxRequestTarget target) {
 				
 				//adjust visibility of items depending on category type
-				categoriesWrap.setVisible(model.getObject().getGradebookInformation().getCategoryType() != 1);
-
-				boolean categoriesAndWeightSelected = model.getObject().getGradebookInformation().getCategoryType() == 3;
-				dropHighestContainer.setVisible(categoriesAndWeightSelected);
-				dropLowestContainer.setVisible(categoriesAndWeightSelected);
-				keepHighestContainer.setVisible(categoriesAndWeightSelected);
-
+				int categoryType = model.getObject().getGradebookInformation().getCategoryType();
+				categoriesWrap.setVisible(categoryType != 1);
+				categoriesOptionsWrap.setVisible(categoryType == 3);
+				
+				//if categories only (2), the categories table will be visible but the extra options will not
+				if(categoryType == 2) {
+					target.appendJavaScript("$('.gb-category-weight').hide();");
+					target.appendJavaScript("$('.gb-category-extracredit').hide();");
+					target.appendJavaScript("$('.gb-category-drophighest').hide();");
+					target.appendJavaScript("$('.gb-category-droplowest').hide();");
+					target.appendJavaScript("$('.gb-category-keephighest').hide();");
+				}
+				
 				target.add(categoriesWrap);
 			}
 		});
@@ -250,25 +260,16 @@ public class SettingsCategoryPanel extends Panel {
   				//drop highest
   				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest", new PropertyModel<Integer>(category, "dropHighest"));
   		        categoryDropHighest.setOutputMarkupId(true);
-  		        if(!isDropHighest) {
-  		        	categoryDropHighest.setEnabled(false);
-  		        }
   		        item.add(categoryDropHighest);
   		        
   		        //drop lowest
   				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest", new PropertyModel<Integer>(category, "drop_lowest"));
   		        categoryDropLowest.setOutputMarkupId(true);
-  		        if(!isDropLowest) {
-  		        	categoryDropLowest.setEnabled(false);
-		        }
   		        item.add(categoryDropLowest);
   		        
   		     	//keep highest
   				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest", new PropertyModel<Integer>(category, "keepHighest"));
   		        categoryKeepHighest.setOutputMarkupId(true);
-  		        if(!isKeepHighest) {
-  		        	categoryKeepHighest.setEnabled(false);
-		        }
   		        item.add(categoryKeepHighest);
   				
   				//remove button
@@ -286,6 +287,21 @@ public class SettingsCategoryPanel extends Panel {
 				};
 				remove.setDefaultFormProcessing(false);
 				item.add(remove);
+  			}
+  			
+  			@Override
+  			public void renderHead(IHeaderResponse response) {
+  			    super.renderHead(response);
+
+  			    if(!isDropHighest) {
+  			    	response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-drophighest').hide();"));
+  			    }
+  			    if(!isDropLowest) {
+			    	response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-droplowest').hide();"));
+			    }
+  			    if(!isKeepHighest) {
+			    	response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-keephighest').hide();"));
+			    }
   			}
   		};
   		categoriesView.setReuseItems(true);
@@ -313,6 +329,8 @@ public class SettingsCategoryPanel extends Panel {
         };
         addCategory.setDefaultFormProcessing(false);
         categoriesWrap.add(addCategory);
+        
+        
 		
 	}
 
