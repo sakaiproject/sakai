@@ -37,6 +37,8 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 					}catch(err){}					
 				}
 			}
+			//Set the first Element Active
+			setActive('sel_'+this.row+'0');
 		}
 	}
 	
@@ -149,5 +151,5 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 			this_.lastActive.setActive(true);
 			$('#'+this_.lastActive.getId().replace('sel_', 'btnSelect_')).removeClass('non_selected_button').addClass('selected_button');
 		}
-	}
 }
+	}	

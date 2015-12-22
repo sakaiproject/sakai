@@ -126,7 +126,7 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 		
 		var valueObj = clonedObj.find('input[name^=value_]');
 		valueObj.attr('id', 'value_'+this.row+this.count);
-		valueObj.val((value_ != undefined) ? value_ : '');
+		valueObj.attr('placeholder', (value_ != undefined) ? value_ : '');
 		
 		var buttonObj = clonedObj.find('#btnSelect_');
 		buttonObj.attr('id', 'btnSelect_'+this.row+this.count);
