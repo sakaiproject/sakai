@@ -118,7 +118,13 @@ public class GradeItemCellPanel extends Panel {
 		//RENDER
 		if(isExternal || !gradeable){
 
-			add(new Label("grade", Model.of(formattedGrade)));
+			add(new Label("readonlyGrade", Model.of(formattedGrade)));
+			add(new Label("editableGrade") {
+				@Override
+				public boolean isVisible() {
+					return false;
+				}
+			});
 
 			showMenu = false;
 
@@ -130,7 +136,13 @@ public class GradeItemCellPanel extends Panel {
 			}
 
 		} else {
-			gradeCell = new TextField<String>("grade", Model.of(formattedGrade)) {
+			add(new Label("readonlyGrade") {
+				@Override
+				public boolean isVisible() {
+					return false;
+				}
+			});
+			gradeCell = new TextField<String>("editableGrade", Model.of(formattedGrade)) {
 
 				private static final long serialVersionUID = 1L;
 
@@ -160,7 +172,7 @@ public class GradeItemCellPanel extends Panel {
 				}
 			};
 
-			gradeCell.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			gradeCell.add(new AjaxFormComponentUpdatingBehavior("scorechange.sakai") {
 				private static final long serialVersionUID = 1L;
 				private String originalGrade;
 
