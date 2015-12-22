@@ -339,45 +339,64 @@ public class GradebookPage extends BasePage {
             cols.add(column);
         }
         
-        //render the categories (TODO may be able to pass this list into the matrix to save another lookup in there)
-        final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+        //render the categories
+        // Display rules:
+        // 1. only show categories if the global setting is enabled
+        // 2. only show categories if they have items
+        //TODO may be able to pass this list into the matrix to save another lookup in there)
         
-        for(final CategoryDefinition category: categories) {
-        	AbstractColumn column = new AbstractColumn(new Model("")) {
-
-        		@Override
-            	public Component getHeader(String componentId) {
-            		CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId, new Model<CategoryDefinition>(category));
-
-            		panel.add(new AttributeModifier("data-category", category.getName()));
-            		
-            		return panel;
-        		}
-            	
-            	@Override
-    			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-    				GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
-    				
-            		Double score = studentGrades.getCategoryAverages().get(category.getId());
-            		
-            		Map<String,Object> modelData = new HashMap<>();
-    				modelData.put("score", score);
-    				modelData.put("studentUuid", studentGrades.getStudentUuid());
-    				modelData.put("categoryId", category.getId());
-    				
-    				cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
-    				cellItem.setOutputMarkupId(true);
-    			}
-            	
-            	@Override
-    			public String getCssClass() {
-    				return "gb-category-item-column-cell";
-    			} 
-        		
-        	};
-             
-             cols.add(column);
-         }
+        List<CategoryDefinition> categories = new ArrayList<>();
+                        
+        if(categoriesEnabled) {
+        	
+        	//only work with categories if enabled
+        	categories = this.businessService.getGradebookCategories();
+	        
+        	//remove those that have no assignments
+            categories.removeIf(cat -> cat.getAssignmentList().isEmpty());
+        	
+	        for(final CategoryDefinition category: categories) {
+	        	
+	        	if(category.getAssignmentList().isEmpty()) {
+	        		continue;
+	        	}
+	        	
+	        	AbstractColumn column = new AbstractColumn(new Model("")) {
+	
+	        		@Override
+	            	public Component getHeader(String componentId) {
+	            		CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId, new Model<CategoryDefinition>(category));
+	
+	            		panel.add(new AttributeModifier("data-category", category.getName()));
+	            		
+	            		return panel;
+	        		}
+	            	
+	            	@Override
+	    			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+	    				GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
+	    				
+	            		Double score = studentGrades.getCategoryAverages().get(category.getId());
+	            		
+	            		Map<String,Object> modelData = new HashMap<>();
+	    				modelData.put("score", score);
+	    				modelData.put("studentUuid", studentGrades.getStudentUuid());
+	    				modelData.put("categoryId", category.getId());
+	    				
+	    				cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
+	    				cellItem.setOutputMarkupId(true);
+	    			}
+	            	
+	            	@Override
+	    			public String getCssClass() {
+	    				return "gb-category-item-column-cell";
+	    			} 
+	        		
+	        	};
+	             
+	        	cols.add(column);
+	        }
+        }
        
 		Temp.time("all Columns added", stopwatch.getTime());
         
