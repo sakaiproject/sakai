@@ -320,10 +320,12 @@ public class MessageView extends Panel {
 			
 		});
 		
+		/* disabled for now
 		//image
 		ProfileImage messagePhoto = new ProfileImage("messagePhoto", new Model<String>(message.getFrom()));
 		messagePhoto.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 		item.add(messagePhoto);
+		*/
 		
 		//name link
 		item.add(new AjaxLink<String>("messageFromLink", new Model<String>(message.getFrom())) {
