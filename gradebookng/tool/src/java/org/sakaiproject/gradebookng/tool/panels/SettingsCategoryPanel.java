@@ -317,6 +317,7 @@ public class SettingsCategoryPanel extends Panel {
 				//add a new empty category to the model
 				CategoryDefinition cd = new CategoryDefinition();
 				cd.setExtraCredit(false);
+				cd.setWeight(new Double(0));
 				cd.setAssignmentList(Collections.<Assignment> emptyList());
 				
 				model.getObject().getGradebookInformation().getCategories().add(cd);
