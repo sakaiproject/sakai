@@ -3025,6 +3025,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//Any categories remaining in currentCategoryMap are to be removed.
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
+			//preprocessing
+			//Rule 1: If category type = categories only (no weightings), set all weights to 0
+			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY) {
+				newDef.setWeight(new Double(0));
+			}
+			
 			//new
 			if(newDef.getId() == null) {
 				this.createCategory(gradebook.getId(), newDef.getName(), newDef.getWeight(), newDef.getDrop_lowest(), newDef.getDropHighest(), newDef.getKeepHighest(), newDef.isExtraCredit());
