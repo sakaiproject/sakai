@@ -136,6 +136,29 @@ public class HTMLWorker extends org.sakaiproject.tool.assessment.pdf.itext.HTMLW
         			}
 
 			}
+			else if (src.startsWith("temp://")) {
+				try {
+					File temp = new File(src.replaceFirst("temp://", ""));
+					
+					//keep track of the new temp file for later cleanup
+					tempFiles.add(temp);
+
+					//change the src ref to point to the new local temp file
+					h.put("src", temp.getCanonicalPath());
+
+					//Spoof the interface props so that it won't try anything weird with urls
+					HashMap props = this.getInterfaceProps();
+					HashMap tempProps = new HashMap();
+					this.setInterfaceProps(tempProps);
+
+					super.startElement(tag, h);
+
+					this.setInterfaceProps(props);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			//nothing fancy for normal images
 			else {
 				super.startElement(tag, h);

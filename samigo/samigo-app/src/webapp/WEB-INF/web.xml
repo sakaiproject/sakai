@@ -128,6 +128,15 @@
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
 -->
+
+  <filter-mapping>
+    <filter-name>Upload Filter</filter-name>
+    <url-pattern>/jsf/author/item/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
   <!-- *******************************************************************  -->
 
   <!-- Listeners are used to bootstrap application runtime configuration -->
