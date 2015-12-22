@@ -1514,8 +1514,11 @@ GradebookEditableCell.prototype.setupInputKeyboardNavigation = function() {
   self.$input.on("keydown", function(event) {
     // Return 13
     if (event.keyCode == 13) {
-      self.gradebookSpreadsheet.handleInputReturn(event, self.$cell);
+      // first blur the $input to trigger a change event
+      self.$input.trigger("blur");
 
+      // ask the spreadsheet to navigate based on a return key action
+      self.gradebookSpreadsheet.handleInputReturn(event, self.$cell);
     // ESC 27
     } else if (event.keyCode == 27) {
       self.$cell.focus();
@@ -1548,6 +1551,8 @@ GradebookEditableCell.prototype.setupInput = function() {
   function prepareForEdit(event) {
     self.$cell.addClass("gb-cell-editing");
 
+    self.$cell.data("originalValue", self.$input.val());
+
     var withValue = self.$cell.data("initialValue");
 
     if (withValue != null && withValue != "") {
@@ -1566,9 +1571,22 @@ GradebookEditableCell.prototype.setupInput = function() {
     self.$cell.removeClass("gb-cell-editing");
     self.$cell.find(".gb-out-of").remove();
     self.$cell.data("initialValue", null);
+
+    // In Chrome, IE, the "change" event is only triggered after a direct user
+    // change to the input is detected and not after jQuery.val().  So  we need to
+    // ensure the "change" is triggered once when a user or programmatic change is
+    // detected.
+    //
+    // To get around this, we use a custom event "scorechange" and trigger this
+    // manually; a Wicket behaviour is bound to this custom event and handles the
+    // the update to the service.
+    if (self.$cell.data("originalValue") != self.$input.val()) {
+      self.$input.trigger("scorechange.sakai");
+    }
   }
 
-  self.$input.on("focus", prepareForEdit).on("blur", completeEditing);
+  self.$input.off("focus", prepareForEdit).on("focus", prepareForEdit);
+  self.$input.off("blur", completeEditing).on("blur", completeEditing);
 
   self.setupInputKeyboardNavigation();
 
@@ -1614,6 +1632,7 @@ GradebookEditableCell.prototype.getStudentName = function() {
 
 GradebookEditableCell.prototype.handleBeforeSave = function() {
   this.$cell.addClass("gb-cell-saving");
+  return true;
 };
 
 
