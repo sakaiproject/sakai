@@ -1306,7 +1306,16 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
 
     function handleDropdownItemBlur(blurEvent) {
       if ($(blurEvent.relatedTarget).closest(".btn-group.open").length == 0) {
-        $btnGroup.find(".btn.dropdown-toggle").dropdown("toggle");
+        // Firefox will only offer a blurEvent.relatedTarget if the item can be focussed
+        // and links will only be included in the tab index if the user's accessibility
+        // configuration has this option enabled (e.g. accessibility.tabfocus option).
+        // Instead, delay hiding the menu (0.5s is enough) to allow any click events to
+        // hit the link before we force close the menu.
+        setTimeout(function() {
+          if ($btnGroup.is(".open")) {
+            $btnGroup.find(".btn.dropdown-toggle").dropdown("toggle");
+          }
+        }, 500);
       }
     };
 
@@ -1572,14 +1581,12 @@ GradebookEditableCell.prototype.setupInput = function() {
     self.$cell.find(".gb-out-of").remove();
     self.$cell.data("initialValue", null);
 
-    // In Chrome, IE, the "change" event is only triggered after a direct user
-    // change to the input is detected and not after jQuery.val().  So  we need to
-    // ensure the "change" is triggered once when a user or programmatic change is
-    // detected.
-    //
-    // To get around this, we use a custom event "scorechange" and trigger this
+    // In Chrome, IE, the "change" event is only triggered after direct user
+    // changes to the input and not after jQuery.val().  So need to ensure
+    // "change" is triggered once when a user or programmatic change is detected.
+    // To get around this, we use a custom event "scorechanged" and trigger this
     // manually; a Wicket behaviour is bound to this custom event and handles the
-    // the update to the service.
+    // the update in the Wicket backend.
     if (self.$cell.data("originalValue") != self.$input.val()) {
       self.$input.trigger("scorechange.sakai");
     }
@@ -1632,7 +1639,6 @@ GradebookEditableCell.prototype.getStudentName = function() {
 
 GradebookEditableCell.prototype.handleBeforeSave = function() {
   this.$cell.addClass("gb-cell-saving");
-  return true;
 };
 
 
