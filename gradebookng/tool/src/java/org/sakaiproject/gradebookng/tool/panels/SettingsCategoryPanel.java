@@ -76,7 +76,12 @@ public class SettingsCategoryPanel extends Panel {
 			if(category.getKeepHighest() != null && category.getKeepHighest() > 0) {
 				isKeepHighest = true;
 			}
-		}		
+		}	
+		
+		//if categories enabled but we don't have any yet, add a default one
+		if(this.model.getObject().getGradebookInformation().getCategoryType() != 1 && categories.isEmpty()) {
+			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
+		}
 		
 		//category types
 		RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType", new PropertyModel<Integer>(model, "gradebookInformation.categoryType"));
@@ -187,6 +192,11 @@ public class SettingsCategoryPanel extends Panel {
 				//if categories only (2), the categories table will be visible but the weighting column will not
 				if(categoryType == 2) {
 					target.appendJavaScript("$('.gb-category-weight').hide();");
+				}
+				
+				//switching to categories but we don't have any, add a default one
+				if(categoryType != 1 && categories.isEmpty()) {
+					model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				}
 				
 				target.add(categoriesWrap);
@@ -315,12 +325,7 @@ public class SettingsCategoryPanel extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> f) {
 				
 				//add a new empty category to the model
-				CategoryDefinition cd = new CategoryDefinition();
-				cd.setExtraCredit(false);
-				cd.setAssignmentList(Collections.<Assignment> emptyList());
-				
-				model.getObject().getGradebookInformation().getCategories().add(cd);
-				
+				model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				target.add(categoriesWrap);
 			}
         };
@@ -329,6 +334,15 @@ public class SettingsCategoryPanel extends Panel {
         
         
 		
+	}
+	
+	// Create a new category definition stub
+	private CategoryDefinition stubCategoryDefinition() {
+		CategoryDefinition cd = new CategoryDefinition();
+		cd.setExtraCredit(false);
+		cd.setWeight(new Double(0));
+		cd.setAssignmentList(Collections.<Assignment> emptyList());
+		return cd;
 	}
 
 	private Double calculateCategoryWeightTotal(List<CategoryDefinition> categories) {

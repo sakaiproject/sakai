@@ -1,16 +1,18 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import java.util.List;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 
@@ -43,6 +45,31 @@ public class SettingsPage extends BasePage {
 		Form<GbSettings> form = new Form<GbSettings>("form", formModel) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void onValidate() {
+				super.onValidate();
+				
+				GbSettings model = (GbSettings) this.getModelObject();
+				
+				List<CategoryDefinition> categories = model.getGradebookInformation().getCategories();
+				
+				//validate the categories
+				if(model.getGradebookInformation().getCategoryType() == 3) {
+					double totalWeight = 0;
+					for(CategoryDefinition cat: categories) {
+						if(cat.getWeight() == null) {
+							error(getString("settingspage.update.failure.categorymissingweight"));
+						} else {
+							totalWeight += cat.getWeight();
+						}
+					}
+					if(Math.rint(totalWeight) != 1) {
+						error(getString("settingspage.update.failure.categoryweighttotals"));
+					}
+				}
+				
+			}
+			
 			@Override
 			public void onSubmit() {
 				
