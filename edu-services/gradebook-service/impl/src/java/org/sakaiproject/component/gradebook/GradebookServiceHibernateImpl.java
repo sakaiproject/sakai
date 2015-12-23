@@ -3011,6 +3011,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		List<CategoryDefinition> newCategoryDefinitions = gbInfo.getCategories();
 		
+		//if we have categories and they are weighted, check the weightings sum up to 100% (or 1 since it's a fraction)
+		if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+			double totalWeight = 0;
+			for(CategoryDefinition newDef: newCategoryDefinitions) {
+				
+				if(newDef.getWeight() == null) {
+					throw new IllegalArgumentException("No weight specified for a category, but weightings enabled");
+				}
+				
+				totalWeight += newDef.getWeight();
+			}
+			if(Math.rint(totalWeight) != 1) {
+				throw new IllegalArgumentException("Weightings for the categories do not equal 100%");
+			}
+		}
+		
 		//get current categories and build a mapping list of Category.id to Category
 		List<Category> currentCategories = this.getCategories(gradebook.getId());
 		Map<Long,Category> currentCategoryMap = new HashMap<>();
@@ -3024,6 +3040,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//If category has an ID it is to be updated. Update and remove from currentCategoryMap.
 		//Any categories remaining in currentCategoryMap are to be removed.
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
+			
+			//preprocessing and validation
+			//Rule 1: If category type = categories only (no weightings), set all weights to 0
+			//Rule 2: If category has no name, it is to be removed/skipped
+			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY) {
+				newDef.setWeight(new Double(0));
+			}
+			
+			if(StringUtils.isBlank(newDef.getName())) {
+				continue;
+			}
 			
 			//new
 			if(newDef.getId() == null) {

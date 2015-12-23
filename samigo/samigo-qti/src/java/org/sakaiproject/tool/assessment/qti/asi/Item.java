@@ -219,7 +219,7 @@ public class Item extends ASIBaseClass
     }
     
     String instruction = item.getInstruction();
-    if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY() || this.isCalculatedQuestion())
+    if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY() || this.isCalculatedQuestion()|| this.isImageMapQuestion())
     {
       if ( instruction != null)
         {
@@ -437,6 +437,12 @@ public class Item extends ASIBaseClass
   public boolean isCalculatedQuestion()
   {
     return AuthoringConstantStrings.CALCQ.equals(this.getItemType()) ? true : false;
+  }
+  
+  //IMAGEMAP_QUESTION
+  public boolean isImageMapQuestion()
+  {
+	return AuthoringConstantStrings.IMAGMQ.equals(this.getItemType()) ? true : false;
   }
 
   /**

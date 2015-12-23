@@ -62,6 +62,7 @@ public abstract class ItemHelperBase
   protected static final long ITEM_MATCHING = TypeIfc.MATCHING.longValue();
   protected static final long ITEM_MXSURVEY = TypeIfc.MATRIX_CHOICES_SURVEY.longValue();
   protected static final long ITEM_CALCQ = TypeIfc.CALCULATED_QUESTION.longValue(); // CALCULATED_QUESTION
+  protected static final long ITEM_IMAGMQ = TypeIfc.IMAGEMAP_QUESTION.longValue(); // IMAGEMAP_QUESTION
   protected static final long ITEM_EMI = TypeIfc.EXTENDED_MATCHING_ITEMS.longValue();
 
   /**
@@ -274,6 +275,11 @@ public abstract class ItemHelperBase
     else if (ITEM_CALCQ == typeId)
     {
       template = AuthoringXml.ITEM_CALCQ;
+    }
+    // IMAGEMAP_QUESTION
+    else if (ITEM_IMAGMQ == typeId)
+    {
+      template = AuthoringXml.ITEM_IMAGMQ; //For future use
     }
 
     log.debug("typeId: " + typeId);

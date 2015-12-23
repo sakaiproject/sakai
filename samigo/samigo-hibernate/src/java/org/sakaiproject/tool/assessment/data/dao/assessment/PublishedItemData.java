@@ -486,6 +486,7 @@ public class PublishedItemData
      String text = "";
      if (getTypeId().equals(TypeIfc.MATCHING) 
              || getTypeId().equals(TypeIfc.CALCULATED_QUESTION)
+             || getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION)
              || getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
          return instruction;
      Set set = this.getItemTextSet();
@@ -961,5 +962,8 @@ public class PublishedItemData
 		  return "width:" + width + "%";
 	  else
 		  return "";
+  }
+  public String getImageMapSrc() {
+	  return getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_SRC);
   }
 }

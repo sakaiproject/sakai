@@ -562,6 +562,29 @@ public class PublishedAssessmentService extends AssessmentService{
       return map;
   }
   
+  /**
+   * IMAGEMAP_QUESTION
+   * @param publishedAssessment
+   * @return the map of item id -> item for image map questions in this map
+   */
+  public Map<Long, ItemDataIfc> prepareImagQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
+      // CALCULATED_QUESTION
+      Map<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+      List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
+      for (int i=0;i<sectionArray.size(); i++) {
+          SectionDataIfc section = sectionArray.get(i);
+          List<ItemDataIfc> itemArray = section.getItemArray();
+          for (int j=0;j<itemArray.size(); j++) {
+              ItemDataIfc item = itemArray.get(j);
+              if (item.getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION)) { // IMAGEMAP_QUESTION
+                  map.put(item.getItemId(), item);
+              }
+          }
+      }
+      return map;
+  }
+  
+  
   public HashMap<Long, ItemDataIfc> prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){
     HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
