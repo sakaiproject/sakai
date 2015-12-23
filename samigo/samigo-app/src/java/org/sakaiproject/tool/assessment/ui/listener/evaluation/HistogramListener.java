@@ -2464,7 +2464,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     double total = calTotal(scores);
     double mean = calMean(scores, total);
     int interval = 0;
-    interval = calInterval(scores, min, max);
+    interval = calInterval(min, max); // SAM-2409
     int[] numStudents = calNumStudents(scores, min, max, interval);
    
     statMap.put("maxScore", castingNum(max,2));
@@ -2621,7 +2621,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
    *
    * @return the interval
    */
-  private static int calInterval(double[] scores, double min, double max)
+  private static int calInterval(double min, double max) // SAM-2409
   {
     int interval;
 
@@ -2631,7 +2631,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     }
     else
     {
-      interval = (int) Math.ceil((max - min) / 10);
+      interval = (int) Math.ceil((Math.ceil(max) - Math.floor(min)) / 10); // SAM-2409
     }
 
     return interval;
@@ -2726,6 +2726,9 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       //log.info("max(" + max + ") <min(" + min + ")");
       max = min;
     }
+    
+    min = Math.floor(min); // SAM-2409
+    max = Math.ceil(max); // SAM-2409
 
     int[] numStudents = new int[(int) Math.ceil((max - min) / interval)];
 
