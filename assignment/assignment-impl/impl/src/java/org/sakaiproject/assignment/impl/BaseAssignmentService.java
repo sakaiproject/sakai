@@ -11355,11 +11355,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		/**
 		 * Get whether this is a final submission.
 		 * 
+		 * SAK-30174 To non-electronic assignement, submissions is always submitted.
 		 * @return True if a final submission, false if still a draft.
 		 */
 		public boolean getSubmitted()
 		{
-			return m_submitted;
+			return m_submitted || getAssignment().getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION;
 		}
 
 		public String getSubmitterId() {
