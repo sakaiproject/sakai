@@ -642,6 +642,10 @@
 }
 .gb-popover-close {
   float: right;
+  text-decoration: none;
+}
+.gb-popover-close:hover {
+  text-decoration: none;
 }
 .gb-popover-close:before {
   font-family: "gradebook-icons";
