@@ -83,7 +83,7 @@ public class SettingsPage extends BasePage {
 				businessService.updateGradebookSettings(model.getGradebookInformation());
 				
 				getSession().info(getString("settingspage.update.success"));
-				setResponsePage(new SettingsPage());
+				setResponsePage(this.getPage());
 			}
 		};
 		
