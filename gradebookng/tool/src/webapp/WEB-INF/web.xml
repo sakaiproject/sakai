@@ -20,6 +20,32 @@
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/fonts/*</url-pattern>
+        <url-pattern>/images/*</url-pattern>
+        <url-pattern>/scripts/*</url-pattern>
+        <url-pattern>/styles/*</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+        <description>Response Header Filter to enable caching</description>
+        <display-name>Cache Filter For One Week</display-name>
+        <filter-name>CacheFilterForWeek</filter-name>
+        <filter-class>org.sakaiproject.util.ResponseHeaderFilter</filter-class>
+        <init-param>
+            <param-name>Cache-Control</param-name>
+            <param-value>max-age=2678400, public</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CacheFilterForWeek</filter-name>
+        <url-pattern>/fonts/*</url-pattern>
+        <url-pattern>/images/*</url-pattern>
+        <url-pattern>/scripts/*</url-pattern>
+        <url-pattern>/styles/*</url-pattern>
+    </filter-mapping>
+
 	<!-- Deploy mode -->
 	<context-param>
             <param-name>configuration</param-name>
