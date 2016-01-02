@@ -191,7 +191,7 @@ $tp_profile->{'@context'} = $tc_profile->{'@context'};
 for($i=0; $i < count($tp_profile->{'@context'}); $i++ ) {
     $ctx = $tp_profile->{'@context'}[$i];
     if ( is_string($ctx) && strpos($ctx,"http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile") !== false ) {
-	$tp_profile->{'@context'}[$i] = "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxy";
+	$tp_profile->{'@context'}[$i] = "http://purl.imsglobal.org/ctx/lti/v2/ToolProxy";
     }
 }
 
