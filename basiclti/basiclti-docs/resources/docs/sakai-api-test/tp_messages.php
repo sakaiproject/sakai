@@ -2,14 +2,11 @@
 $tool_proxy = <<< EOF
 {
   "@context": [
-    "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxy"
+    "http://purl.imsglobal.org/ctx/lti/v2/ToolProxy"
    ],
   "@type": "ToolProxy",
   "lti_version": "LTI-2p0",
   "tool_consumer_profile": "__TODO_SHOULD_THIS_BE_THE_WHOLE_PROFILE_OR_JUST_A_URL_SEE_5_6__",
-  "nasty_json": "How do you handle these characters < > & ' ",
-  "evil_json": "</script><script>alert('evil');</script>",
-  "evil_json2": "\"</script><script>alert('evil');</script>",
   "enabled_capability" : [ ],
   "tool_profile": {
     "product_instance": {

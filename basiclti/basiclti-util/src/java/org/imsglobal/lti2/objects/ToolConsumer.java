@@ -187,6 +187,7 @@ public class ToolConsumer {
     }
 
     public void allowName() {
+        this.capability_offered.add(LTI2Vars.USER_USERNAME);
         this.capability_offered.add(LTI2Vars.PERSON_SOURCEDID);
         this.capability_offered.add(LTI2Vars.PERSON_NAME_FULL);
         this.capability_offered.add(LTI2Vars.PERSON_NAME_GIVEN);
