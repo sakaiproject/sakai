@@ -381,6 +381,10 @@ public class LTI2Util {
 			String keyStr = (String) e.nextElement();
 			String value =  custom.getProperty(keyStr);
 			setProperty(ltiProps,"custom_"+keyStr,value);
+			String mapKeyStr = mapKeyName(keyStr);
+			if ( ! mapKeyStr.equals(keyStr) ) {
+				setProperty(ltiProps,"custom_"+mapKeyStr,value);
+			}
 		}	
 	}
 

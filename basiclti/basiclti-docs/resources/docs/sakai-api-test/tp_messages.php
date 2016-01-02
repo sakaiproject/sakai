@@ -52,7 +52,7 @@ $tool_proxy = <<< EOF
         "support": {
           "email": "support@sakaiproject.org"
         },
-        "provider_name": {
+        "service_provider_name": {
           "default_value": "Dr. Chuck",
           "key": "service_provider.name"
         },
@@ -168,25 +168,28 @@ EOF;
 $desired_parameters = array(
     "User.id",
     "User.image",
-"User.username",
+    "User.username",
     "Person.email.primary",
     "Person.name.full",
     "Person.name.given",
     "Person.name.family",
-"Person.sourcedId",
-"Context.id",
-"CourseOffering.label",
-"CourseOffering.title",
-"CourseOffering.sourcedId",
-"ResourceLink.description",
-"ResourceLink.title",
-"Result.comment",
-"Result.resultScore",
+    "Person.sourcedId",
+    "Context.id",
+    "Context.label",
+    "CourseOffering.label",
+    "CourseOffering.title",
+    "CourseOffering.sourcedId",
+    "ResourceLink.id",
+    "ResourceLink.title",
+    "ResourceLink.description",
+    "Result.comment",
+    "Result.resultScore",
     "Result.url",
     "Membership.role",
     "LtiLink.custom.url",
     "ToolProxy.custom.url",
-    "ToolProxyBinding.custom.url"
+    "ToolProxyBinding.custom.url",
+    "ToolConsumerProfile.url"
 );
 
 sort($desired_parameters);
