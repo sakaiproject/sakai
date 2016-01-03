@@ -754,6 +754,7 @@ public class SakaiBLTIUtil {
 		if ( title != null ) {
 			setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
 			setProperty(lti2subst,LTI2Vars.RESOURCELINK_TITLE,title);
+			setProperty(lti2subst,LTI2Vars.RESOURCELINK_DESCRIPTION,title);
 		}
 
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
