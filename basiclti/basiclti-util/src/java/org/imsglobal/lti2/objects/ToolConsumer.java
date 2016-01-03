@@ -59,6 +59,7 @@ public class ToolConsumer {
         LTI2Vars.PERSON_SOURCEDID, 
         LTI2Vars.RESOURCELINK_ID, 
         LTI2Vars.RESOURCELINK_TITLE, 
+        LTI2Vars.RESOURCELINK_DESCRIPTION, 
         LTI2Vars.CONTEXT_ID, 
         LTI2Vars.CONTEXT_TYPE, 
         LTI2Vars.CONTEXT_LABEL, 
