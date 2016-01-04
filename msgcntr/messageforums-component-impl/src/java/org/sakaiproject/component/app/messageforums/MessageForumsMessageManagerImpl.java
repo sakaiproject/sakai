@@ -97,6 +97,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_MOVED_HISTORY_BY_MESSAGEID = "findMovedHistoryByMessageId";
     //private static final String ID = "id";
 
+    // Oracle's 1000 'in' clause limit
+    private static final int MAX_IN_CLAUSE_SIZE = 1000;
+
     private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
 
     private IdManager idManager;                      
@@ -920,15 +923,35 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     +     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#findMessageCountsForMainPage(java.util.List)
     +     */
     public List<Object[]> findMessageCountsForMainPage(final Collection<Long> topicIds) {
-    	// have to manually check to make sure the Collection isn't empty to prevent Hibernate from 
-    	// producing the "unexpected end of subtree" error.  (SAKAI-399/357 [local UDayton] & SAK-16848)
     	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
 
     	HibernateCallback hcb = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    			Query q = session.getNamedQuery(QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE);
-    			q.setParameterList("topicIds", topicIds);
-    			return q.list();
+    			// would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
+    			Iterator<Long> itTopicIds = topicIds.iterator();
+    			int numTopics = topicIds.size();
+
+    			List<Object[]> retrievedCounts = new ArrayList<Object[]>(numTopics);
+
+    			List<Long> queryTopics = new ArrayList<Long>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    			int querySize = 0;
+    			while (itTopicIds.hasNext())
+    			{
+    				while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
+    				{
+    					queryTopics.add(itTopicIds.next());
+    					querySize++;
+    				}
+
+    				Query q = session.getNamedQuery(QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    				q.setParameterList("topicIds", queryTopics);
+    				retrievedCounts.addAll(q.list());
+
+    				queryTopics.clear();
+    				querySize = 0;
+    			}
+
+    			return retrievedCounts;
     		}
     	};
 
@@ -940,16 +963,37 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findReadMessageCountsForMainPage(java.util.Collection)
      */
     public List<Object[]> findReadMessageCountsForMainPage(final Collection<Long> topicIds) {
-    	// have to manually check to make sure the Collection isn't empty to prevent Hibernate from 
-    	// producing the "unexpected end of subtree" error.  (SAKAI-399/357 [local UDayton] & SAK-16848)
     	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
 
     	HibernateCallback hcb = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    			Query q = session.getNamedQuery(QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE);
-    			q.setParameterList("topicIds", topicIds);
-    			q.setParameter("userId", getCurrentUser());
-    			return q.list();
+    			// would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
+    			Iterator<Long> itTopicIds = topicIds.iterator();
+    			int numTopics = topicIds.size();
+    			String userId = getCurrentUser();
+
+    			List<Object[]> retrievedCounts = new ArrayList<Object[]>(numTopics);
+
+    			List<Long> queryTopics = new ArrayList<Long>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    			int querySize = 0;
+    			while (itTopicIds.hasNext())
+    			{
+    				while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
+    				{
+    					queryTopics.add(itTopicIds.next());
+    					querySize++;
+    				}
+
+    				Query q = session.getNamedQuery(QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    				q.setParameterList("topicIds", queryTopics);
+    				q.setParameter("userId", userId);
+    				retrievedCounts.addAll(q.list());
+
+    				queryTopics.clear();
+    				querySize = 0;
+    			}
+
+    			return retrievedCounts;
     		}
     	};
 
