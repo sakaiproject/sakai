@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Closeables;
 import com.google.inject.Module;
 
+import org.apache.commons.codec.binary.Base64;
+
 import org.jclouds.ContextBuilder;
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.blobstore.BlobStore;
@@ -208,10 +210,11 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
         Payload payload = Payloads.newInputStreamPayload(in);
         BlobStore store = getBlobStore();
+        String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
         Blob blob = store.blobBuilder(can.name)
             .payload(payload)
             .contentLength(size)
-            .userMetadata(ImmutableMap.of("id", id, "path", filePath))
+            .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
             .build();
         store.putBlob(can.container, blob);
 
