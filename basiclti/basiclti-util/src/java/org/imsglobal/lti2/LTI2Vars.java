@@ -46,6 +46,7 @@ public class LTI2Vars {
 	public static final String CONTEXT_LABEL = "Context.label";
 	public static final String CONTEXT_TITLE = "Context.title";
 	public static final String CONTEXT_ID_HISTORY = "Context.id.history";
+	public static final String TOOLCONSUMERPROFILE_URL = "ToolConsumerProfile.url";
 
 	/**
 	 * COURSEOFFERING_ACADEMICSESSION
