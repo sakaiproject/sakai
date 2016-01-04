@@ -53,18 +53,16 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
-
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
- * 
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
 public class GradebookPage extends BasePage {
-	
+
 	private static final long serialVersionUID = 1L;
 
-	public static final String UNCATEGORIZED = "Uncategorized";
 	public static final String CREATED_ASSIGNMENT_ID_PARAM = "createdAssignmentId";
 
 	ModalWindow addOrEditGradeItemWindow;
@@ -75,469 +73,478 @@ public class GradebookPage extends BasePage {
 	ModalWindow deleteItemWindow;
 
 	Form<Void> form;
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
-		
-		//students cannot access this page
-		if(role == GbRole.STUDENT) {
+
+		// students cannot access this page
+		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
 		}
-		
-		StopWatch stopwatch = new StopWatch();
+
+		final StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
 		Temp.time("GradebookPage init", stopwatch.getTime());
 
-		form = new Form<Void>("form");
-		add(form);
-		
+		this.form = new Form<Void>("form");
+		add(this.form);
+
 		/**
 		 * Note that SEMI_TRANSPARENT has a 100% black background and TRANSPARENT is overridden to 10% opacity
 		 */
-		addOrEditGradeItemWindow = new ModalWindow("addOrEditGradeItemWindow");
-		addOrEditGradeItemWindow.setMaskType(MaskType.TRANSPARENT);
-		addOrEditGradeItemWindow.setResizable(false);
-		addOrEditGradeItemWindow.setUseInitialHeight(false);
-		addOrEditGradeItemWindow.showUnloadConfirmation(false);
-		form.add(addOrEditGradeItemWindow);
-		
-		studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
-		studentGradeSummaryWindow.setMaskType(MaskType.TRANSPARENT);
-		studentGradeSummaryWindow.setResizable(false);
-		studentGradeSummaryWindow.setUseInitialHeight(false);
-		studentGradeSummaryWindow.setWidthUnit("%");
-		studentGradeSummaryWindow.setInitialWidth(70);
-		studentGradeSummaryWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
+		this.addOrEditGradeItemWindow = new ModalWindow("addOrEditGradeItemWindow");
+		this.addOrEditGradeItemWindow.setMaskType(MaskType.TRANSPARENT);
+		this.addOrEditGradeItemWindow.setResizable(false);
+		this.addOrEditGradeItemWindow.setUseInitialHeight(false);
+		this.addOrEditGradeItemWindow.showUnloadConfirmation(false);
+		this.form.add(this.addOrEditGradeItemWindow);
+
+		this.studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
+		this.studentGradeSummaryWindow.setMaskType(MaskType.TRANSPARENT);
+		this.studentGradeSummaryWindow.setResizable(false);
+		this.studentGradeSummaryWindow.setUseInitialHeight(false);
+		this.studentGradeSummaryWindow.setWidthUnit("%");
+		this.studentGradeSummaryWindow.setInitialWidth(70);
+		this.studentGradeSummaryWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
 			@Override
-			public boolean onCloseButtonClicked(AjaxRequestTarget target) {
+			public boolean onCloseButtonClicked(final AjaxRequestTarget target) {
 				target.appendJavaScript("GradebookGradeSummaryUtils.clearBlur();");
 				return true;
 			}
 		});
-		form.add(studentGradeSummaryWindow);
-		
-		updateUngradedItemsWindow = new ModalWindow("updateUngradedItemsWindow");
-		updateUngradedItemsWindow.setMaskType(MaskType.TRANSPARENT);
-		updateUngradedItemsWindow.setResizable(false);
-		updateUngradedItemsWindow.setUseInitialHeight(true);
-		form.add(updateUngradedItemsWindow);
-		
-		gradeLogWindow = new ModalWindow("gradeLogWindow");
-		gradeLogWindow.setMaskType(MaskType.TRANSPARENT);
-		gradeLogWindow.setResizable(false);
-		gradeLogWindow.setUseInitialHeight(false);
-		form.add(gradeLogWindow);
-		
-		gradeCommentWindow = new ModalWindow("gradeCommentWindow");
-		gradeCommentWindow.setMaskType(MaskType.TRANSPARENT);
-		gradeCommentWindow.setResizable(false);
-		gradeCommentWindow.setUseInitialHeight(false);
-		form.add(gradeCommentWindow);
-		
-		deleteItemWindow = new ModalWindow("deleteItemWindow");
-		deleteItemWindow.setMaskType(MaskType.TRANSPARENT);
-		deleteItemWindow.setResizable(false);
-		deleteItemWindow.setUseInitialHeight(false);
-		form.add(deleteItemWindow);
-		
-		AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
+		this.form.add(this.studentGradeSummaryWindow);
+
+		this.updateUngradedItemsWindow = new ModalWindow("updateUngradedItemsWindow");
+		this.updateUngradedItemsWindow.setMaskType(MaskType.TRANSPARENT);
+		this.updateUngradedItemsWindow.setResizable(false);
+		this.updateUngradedItemsWindow.setUseInitialHeight(true);
+		this.form.add(this.updateUngradedItemsWindow);
+
+		this.gradeLogWindow = new ModalWindow("gradeLogWindow");
+		this.gradeLogWindow.setMaskType(MaskType.TRANSPARENT);
+		this.gradeLogWindow.setResizable(false);
+		this.gradeLogWindow.setUseInitialHeight(false);
+		this.form.add(this.gradeLogWindow);
+
+		this.gradeCommentWindow = new ModalWindow("gradeCommentWindow");
+		this.gradeCommentWindow.setMaskType(MaskType.TRANSPARENT);
+		this.gradeCommentWindow.setResizable(false);
+		this.gradeCommentWindow.setUseInitialHeight(false);
+		this.form.add(this.gradeCommentWindow);
+
+		this.deleteItemWindow = new ModalWindow("deleteItemWindow");
+		this.deleteItemWindow.setMaskType(MaskType.TRANSPARENT);
+		this.deleteItemWindow.setResizable(false);
+		this.deleteItemWindow.setUseInitialHeight(false);
+		this.form.add(this.deleteItemWindow);
+
+		final AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form form) {
-				ModalWindow window = getAddOrEditGradeItemWindow();
+			public void onSubmit(final AjaxRequestTarget target, final Form form) {
+				final ModalWindow window = getAddOrEditGradeItemWindow();
 				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
 				window.show(target);
 			}
-			
+
 			@Override
 			public boolean isVisible() {
-				if(role != GbRole.INSTRUCTOR){
+				if (GradebookPage.this.role != GbRole.INSTRUCTOR) {
 					return false;
 				}
 				return true;
 			}
-			
+
 		};
 		addGradeItem.setDefaultFormProcessing(false);
-		form.add(addGradeItem);
-		
-		//first get any settings data from the session
-		final GradebookUiSettings settings = this.getUiSettings();
-				
-        //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-        final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+		this.form.add(addGradeItem);
+
+		// first get any settings data from the session
+		final GradebookUiSettings settings = getUiSettings();
+
+		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from
+		// the map
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
-        
-        //get the grade matrix. It should be sorted if we have that info
-        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(), settings.getNameSortOrder(), settings.getGroupFilter());
-        
+
+		// get the grade matrix. It should be sorted if we have that info
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(),
+				settings.getNameSortOrder(), settings.getGroupFilter());
+
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 
-		//get assignment order
-        final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentsOrder();
+		// get assignment order
+		final Map<String, List<Long>> categorizedAssignmentOrder = this.businessService.getCategorizedAssignmentsOrder();
 
-        //get course grade visibility
-        final boolean courseGradeVisible = businessService.isCourseGradeVisible(currentUserUuid);
-        
-        //categories enabled?
-        final boolean categoriesEnabled = businessService.categoriesAreEnabled();
-                
-        //this could potentially be a sortable data provider
-        final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
-        List<IColumn> cols = new ArrayList<IColumn>();
-        
-        //add an empty column that we can use as a handle for selecting the row
-        AbstractColumn handleColumn = new AbstractColumn(new Model("")){
+		// get course grade visibility
+		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
+
+		// categories enabled?
+		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
+
+		// this could potentially be a sortable data provider
+		final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
+		final List<IColumn> cols = new ArrayList<IColumn>();
+
+		// add an empty column that we can use as a handle for selecting the row
+		final AbstractColumn handleColumn = new AbstractColumn(new Model("")) {
 
 			@Override
-			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
 				cellItem.add(new EmptyPanel(componentId));
 			}
-			
+
 			@Override
 			public String getCssClass() {
 				return "gb-row-selector";
 			}
-        };
-        cols.add(handleColumn);
-        
-        //student name column
-        AbstractColumn studentNameColumn = new AbstractColumn(new Model("")) {
+		};
+		cols.add(handleColumn);
 
-        	@Override
-        	public Component getHeader(String componentId) {
-        		return new StudentNameColumnHeaderPanel(componentId, Model.of(settings.getNameSortOrder())); //pass in the sort
-        	}
-        	
-        	@Override
-			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-				GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
-				
-				Map<String,Object> modelData = new HashMap<>();
+		// student name column
+		final AbstractColumn studentNameColumn = new AbstractColumn(new Model("")) {
+
+			@Override
+			public Component getHeader(final String componentId) {
+				return new StudentNameColumnHeaderPanel(componentId, Model.of(settings.getNameSortOrder())); // pass in the sort
+			}
+
+			@Override
+			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+
+				final Map<String, Object> modelData = new HashMap<>();
 				modelData.put("userId", studentGradeInfo.getStudentUuid());
 				modelData.put("eid", studentGradeInfo.getStudentEid());
 				modelData.put("firstName", studentGradeInfo.getStudentFirstName());
 				modelData.put("lastName", studentGradeInfo.getStudentLastName());
 				modelData.put("displayName", studentGradeInfo.getStudentDisplayName());
-				modelData.put("nameSortOrder", settings.getNameSortOrder()); //pass in the sort
-				
+				modelData.put("nameSortOrder", settings.getNameSortOrder()); // pass in the sort
+
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
-				
-				//TODO may need a subclass of Item that does the onComponentTag override and then tag.setName("th");
+
+				// TODO may need a subclass of Item that does the onComponentTag override and then tag.setName("th");
 			}
-        	
-        	@Override
+
+			@Override
 			public String getCssClass() {
 				return "gb-student-cell";
 			}
 
-        };
-        cols.add(studentNameColumn);
-        
-        // course grade column
-        AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
-            @Override
-            public Component getHeader(String componentId) {
-                CourseGradeColumnHeaderPanel panel = new CourseGradeColumnHeaderPanel(componentId);
-                return panel;
-            }
+		};
+		cols.add(studentNameColumn);
 
-            @Override
-            public String getCssClass() {
-                return "gb-course-grade";
-            }
+		// course grade column
+		final AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
+			@Override
+			public Component getHeader(final String componentId) {
+				final CourseGradeColumnHeaderPanel panel = new CourseGradeColumnHeaderPanel(componentId);
+				return panel;
+			}
 
-            @Override
-            public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-                final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+			@Override
+			public String getCssClass() {
+				return "gb-course-grade";
+			}
 
-                String courseGrade;
-                
-                if(courseGradeVisible) {
-                	courseGrade = studentGradeInfo.getCourseGrade();
-                } else {
-                	courseGrade = getString("label.coursegrade.nopermission");
-                }
+			@Override
+			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 
-                Label courseGradeLabel = new Label(componentId, Model.of(courseGrade)) {
-                    @Override
-                    public void onEvent(IEvent<?> event) {
-                        super.onEvent(event);
-                        if (event.getPayload() instanceof ScoreChangedEvent) {
-                            ScoreChangedEvent scoreChangedEvent = (ScoreChangedEvent) event.getPayload();
-                            if (studentGradeInfo.getStudentUuid().equals(scoreChangedEvent.getStudentUuid())) {
-                                CourseGrade courseGrade = businessService.getCourseGrade(scoreChangedEvent.getStudentUuid());
-                                ((Model<String>)getDefaultModel()).setObject(courseGrade.getMappedGrade());
-                                scoreChangedEvent.getTarget().add(this);
-                            }
-                        }
-                    }
-                };
-                courseGradeLabel.setOutputMarkupId(true);
-                cellItem.add(courseGradeLabel);
-            }
-        };
-        cols.add(courseGradeColumn);
-        
-        //build the rest of the columns based on the assignment list       
-        for(final Assignment assignment: assignments) {
-        	
-        	AbstractColumn column = new AbstractColumn(new Model("")) {
+				String courseGrade;
 
-            	@Override
-            	public Component getHeader(String componentId) {
-            		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, new Model<Assignment>(assignment));
-            		
-            		String category = assignment.getCategoryName();
-            		
-            		int order = -1;
-            		if (categorizedAssignmentOrder.containsKey(category)) {
-            			order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
-            		}
-            		
-            		panel.add(new AttributeModifier("data-category", category));
-            		panel.add(new AttributeModifier("data-categorized-order", order));
+				if (courseGradeVisible) {
+					courseGrade = studentGradeInfo.getCourseGrade();
+				} else {
+					courseGrade = getString("label.coursegrade.nopermission");
+				}
 
-            		StringValue createdAssignmentId = getPageParameters().get(CREATED_ASSIGNMENT_ID_PARAM);
-            		if (!createdAssignmentId.isNull() && assignment.getId().equals(createdAssignmentId.toLong())) {
-            			panel.add(new AttributeModifier("class", "gb-just-created"));
-            			getPageParameters().remove(CREATED_ASSIGNMENT_ID_PARAM);
-            		}
+				final Label courseGradeLabel = new Label(componentId, Model.of(courseGrade)) {
+					@Override
+					public void onEvent(final IEvent<?> event) {
+						super.onEvent(event);
+						if (event.getPayload() instanceof ScoreChangedEvent) {
+							final ScoreChangedEvent scoreChangedEvent = (ScoreChangedEvent) event.getPayload();
+							if (studentGradeInfo.getStudentUuid().equals(scoreChangedEvent.getStudentUuid())) {
+								final CourseGrade courseGrade = GradebookPage.this.businessService
+										.getCourseGrade(scoreChangedEvent.getStudentUuid());
+								((Model<String>) getDefaultModel()).setObject(courseGrade.getMappedGrade());
+								scoreChangedEvent.getTarget().add(this);
+							}
+						}
+					}
+				};
+				courseGradeLabel.setOutputMarkupId(true);
+				cellItem.add(courseGradeLabel);
+			}
+		};
+		cols.add(courseGradeColumn);
 
-    				return panel;
-            	}
+		// build the rest of the columns based on the assignment list
+		for (final Assignment assignment : assignments) {
+
+			final AbstractColumn column = new AbstractColumn(new Model("")) {
+
+				@Override
+				public Component getHeader(final String componentId) {
+					final AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId,
+							new Model<Assignment>(assignment));
+
+					final String category = assignment.getCategoryName();
+
+					int order = -1;
+					if (categorizedAssignmentOrder.containsKey(category)) {
+						order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
+					}
+
+					panel.add(new AttributeModifier("data-category", category));
+					panel.add(new AttributeModifier("data-categorized-order", order));
+
+					final StringValue createdAssignmentId = getPageParameters().get(CREATED_ASSIGNMENT_ID_PARAM);
+					if (!createdAssignmentId.isNull() && assignment.getId().equals(createdAssignmentId.toLong())) {
+						panel.add(new AttributeModifier("class", "gb-just-created"));
+						getPageParameters().remove(CREATED_ASSIGNMENT_ID_PARAM);
+					}
+
+					return panel;
+				}
 
 				@Override
 				public String getCssClass() {
 					return "gb-grade-item-column-cell";
 				}
-            	
-            	@Override
-				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-            		GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
-            		
-            		GbGradeInfo gradeInfo = studentGrades.getGrades().get(assignment.getId());
-            		
-            		Map<String,Object> modelData = new HashMap<>();
-    				modelData.put("assignmentId", assignment.getId());
-    				modelData.put("assignmentPoints", assignment.getPoints());
-    				modelData.put("studentUuid", studentGrades.getStudentUuid());
-    				modelData.put("categoryId", assignment.getCategoryId());
-    				modelData.put("isExternal", assignment.isExternallyMaintained());
-    				modelData.put("gradeInfo", gradeInfo);
-    				modelData.put("role", role);
-    				
-    				cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
-    				
-    				cellItem.setOutputMarkupId(true);
-				}   
-            	
-            	
-            };
-                                   
-            cols.add(column);
-        }
-        
-        //render the categories
-        // Display rules:
-        // 1. only show categories if the global setting is enabled
-        // 2. only show categories if they have items
-        //TODO may be able to pass this list into the matrix to save another lookup in there)
-        
-        List<CategoryDefinition> categories = new ArrayList<>();
-                        
-        if(categoriesEnabled) {
-        	
-        	//only work with categories if enabled
-        	categories = this.businessService.getGradebookCategories();
-	        
-        	//remove those that have no assignments
-            categories.removeIf(cat -> cat.getAssignmentList().isEmpty());
-        	
-	        for(final CategoryDefinition category: categories) {
-	        	
-	        	if(category.getAssignmentList().isEmpty()) {
-	        		continue;
-	        	}
-	        	
-	        	AbstractColumn column = new AbstractColumn(new Model("")) {
-	
-	        		@Override
-	            	public Component getHeader(String componentId) {
-	            		CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId, new Model<CategoryDefinition>(category));
-	
-	            		panel.add(new AttributeModifier("data-category", category.getName()));
-	            		
-	            		return panel;
-	        		}
-	            	
-	            	@Override
-	    			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-	    				GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
-	    				
-	            		Double score = studentGrades.getCategoryAverages().get(category.getId());
-	            		
-	            		Map<String,Object> modelData = new HashMap<>();
-	    				modelData.put("score", score);
-	    				modelData.put("studentUuid", studentGrades.getStudentUuid());
-	    				modelData.put("categoryId", category.getId());
-	    				
-	    				cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
-	    				cellItem.setOutputMarkupId(true);
-	    			}
-	            	
-	            	@Override
-	    			public String getCssClass() {
-	    				return "gb-category-item-column-cell";
-	    			} 
-	        		
-	        	};
-	             
-	        	cols.add(column);
-	        }
-        }
-       
+
+				@Override
+				public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+					final GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
+
+					final GbGradeInfo gradeInfo = studentGrades.getGrades().get(assignment.getId());
+
+					final Map<String, Object> modelData = new HashMap<>();
+					modelData.put("assignmentId", assignment.getId());
+					modelData.put("assignmentPoints", assignment.getPoints());
+					modelData.put("studentUuid", studentGrades.getStudentUuid());
+					modelData.put("categoryId", assignment.getCategoryId());
+					modelData.put("isExternal", assignment.isExternallyMaintained());
+					modelData.put("gradeInfo", gradeInfo);
+					modelData.put("role", GradebookPage.this.role);
+
+					cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
+
+					cellItem.setOutputMarkupId(true);
+				}
+
+			};
+
+			cols.add(column);
+		}
+
+		// render the categories
+		// Display rules:
+		// 1. only show categories if the global setting is enabled
+		// 2. only show categories if they have items
+		// TODO may be able to pass this list into the matrix to save another lookup in there)
+
+		List<CategoryDefinition> categories = new ArrayList<>();
+
+		if (categoriesEnabled) {
+
+			// only work with categories if enabled
+			categories = this.businessService.getGradebookCategories();
+
+			// remove those that have no assignments
+			categories.removeIf(cat -> cat.getAssignmentList().isEmpty());
+
+			for (final CategoryDefinition category : categories) {
+
+				if (category.getAssignmentList().isEmpty()) {
+					continue;
+				}
+
+				final AbstractColumn column = new AbstractColumn(new Model("")) {
+
+					@Override
+					public Component getHeader(final String componentId) {
+						final CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId,
+								new Model<CategoryDefinition>(category));
+
+						panel.add(new AttributeModifier("data-category", category.getName()));
+
+						return panel;
+					}
+
+					@Override
+					public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+						final GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
+
+						final Double score = studentGrades.getCategoryAverages().get(category.getId());
+
+						final Map<String, Object> modelData = new HashMap<>();
+						modelData.put("score", score);
+						modelData.put("studentUuid", studentGrades.getStudentUuid());
+						modelData.put("categoryId", category.getId());
+
+						cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
+						cellItem.setOutputMarkupId(true);
+					}
+
+					@Override
+					public String getCssClass() {
+						return "gb-category-item-column-cell";
+					}
+
+				};
+
+				cols.add(column);
+			}
+		}
+
 		Temp.time("all Columns added", stopwatch.getTime());
-        
-        //TODO make this AjaxFallbackDefaultDataTable
-        DataTable table = new DataTable("table", cols, studentGradeMatrix, 100);
-        table.addBottomToolbar(new NavigationToolbar(table));
-        table.addTopToolbar(new HeadersToolbar(table, null));
-        table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
-        
-        WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
-        noAssignments.setVisible(false);
-        form.add(noAssignments);
-        
-        WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
-        noStudents.setVisible(false);
-        form.add(noStudents);
-        
-        form.add(table);
 
-        // Populate the toolbar 
-        Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size() + categories.size(), assignments.size() + categories.size()));
-        gradeItemSummary.setEscapeModelStrings(false);
-        form.add(gradeItemSummary);
-        
-        WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
-        form.add(toggleGradeItemsToolbarItem);
-        
-        AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
-            @Override
-            protected void onInitialize() {
-                super.onInitialize();
-                if (settings.isCategoriesEnabled()) {
-                    add(new AttributeModifier("class", "on"));
-                }
-            }
-            @Override
-            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
-                setUiSettings(settings);
+		// TODO make this AjaxFallbackDefaultDataTable
+		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100);
+		table.addBottomToolbar(new NavigationToolbar(table));
+		table.addTopToolbar(new HeadersToolbar(table, null));
+		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 
-                if (settings.isCategoriesEnabled()) {
-                    add(new AttributeModifier("class", "on"));
-                } else {
-                    add(new AttributeModifier("class", ""));
-                }
-                target.add(this);
-                target.appendJavaScript("sakai.gradebookng.spreadsheet.toggleCategories();");
-            }
-            @Override
-            public boolean isVisible() {
-                return categoriesEnabled && !assignments.isEmpty();
-            }
-        };
-        form.add(toggleCategoriesToolbarItem);
+		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
+		noAssignments.setVisible(false);
+		this.form.add(noAssignments);
 
-        //section and group dropdown
-        List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
-        
-        //add the default ALL group to the list
-        groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
-            
-		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(), groups, new ChoiceRenderer<GbGroup>() {
-		private static final long serialVersionUID = 1L;
-		
+		final WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
+		noStudents.setVisible(false);
+		this.form.add(noStudents);
+
+		this.form.add(table);
+
+		// Populate the toolbar
+		final Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null,
+				assignments.size() + categories.size(), assignments.size() + categories.size()));
+		gradeItemSummary.setEscapeModelStrings(false);
+		this.form.add(gradeItemSummary);
+
+		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
+		this.form.add(toggleGradeItemsToolbarItem);
+
+		final AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
 			@Override
-			public Object getDisplayValue(GbGroup g) {
-				return g.getTitle();
+			protected void onInitialize() {
+				super.onInitialize();
+				if (settings.isCategoriesEnabled()) {
+					add(new AttributeModifier("class", "on"));
+				}
 			}
-			
+
 			@Override
-			public String getIdValue(GbGroup g, int index) {
-				return g.getId();
+			protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+				settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
+				setUiSettings(settings);
+
+				if (settings.isCategoriesEnabled()) {
+					add(new AttributeModifier("class", "on"));
+				} else {
+					add(new AttributeModifier("class", ""));
+				}
+				target.add(this);
+				target.appendJavaScript("sakai.gradebookng.spreadsheet.toggleCategories();");
 			}
-			
-		});
-		
+
+			@Override
+			public boolean isVisible() {
+				return categoriesEnabled && !assignments.isEmpty();
+			}
+		};
+		this.form.add(toggleCategoriesToolbarItem);
+
+		// section and group dropdown
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+
+		// add the default ALL group to the list
+		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
+
+		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(), groups,
+				new ChoiceRenderer<GbGroup>() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public Object getDisplayValue(final GbGroup g) {
+						return g.getTitle();
+					}
+
+					@Override
+					public String getIdValue(final GbGroup g, final int index) {
+						return g.getId();
+					}
+
+				});
+
 		groupFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
 			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				
-				GbGroup selected = (GbGroup) groupFilter.getDefaultModelObject();
-				
-				//store selected group (null ok)
-				GradebookUiSettings settings = getUiSettings();
+			protected void onUpdate(final AjaxRequestTarget target) {
+
+				final GbGroup selected = (GbGroup) groupFilter.getDefaultModelObject();
+
+				// store selected group (null ok)
+				final GradebookUiSettings settings = getUiSettings();
 				settings.setGroupFilter(selected);
 				setUiSettings(settings);
-				
-				//refresh
+
+				// refresh
 				setResponsePage(new GradebookPage());
 			}
-			
-		});
-				
-		//set selected group, or first item in list
-		groupFilter.setModelObject((settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
-        groupFilter.setNullValid(false);
-        form.add(groupFilter);
 
-        ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", assignments);
-        add(gradeItemsTogglePanel);
-        
-        //hide/show components 
-        
-        //no assignments, hide table, show message
-        if(assignments.isEmpty()) {
-        	table.setVisible(false);
-        	toggleGradeItemsToolbarItem.setVisible(false);
-        	noAssignments.setVisible(true);
-        }
-        
-        //no visible students, show table, show message
-        //don't want two messages though, hence the else
-        else if(studentGradeMatrix.size() == 0) {
-        	noStudents.setVisible(true);
-        }
-        
+		});
+
+		// set selected group, or first item in list
+		groupFilter.setModelObject((settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
+		groupFilter.setNullValid(false);
+		this.form.add(groupFilter);
+
+		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel",
+				Model.ofList(assignments));
+		add(gradeItemsTogglePanel);
+
+		// hide/show components
+
+		// no assignments, hide table, show message
+		if (assignments.isEmpty()) {
+			table.setVisible(false);
+			toggleGradeItemsToolbarItem.setVisible(false);
+			noAssignments.setVisible(true);
+		}
+
+		// no visible students, show table, show message
+		// don't want two messages though, hence the else
+		else if (studentGradeMatrix.size() == 0) {
+			noStudents.setVisible(true);
+		}
+
 		Temp.time("Gradebook page done", stopwatch.getTime());
 	}
-	
-	
+
 	/**
 	 * Getters for panels to get at modal windows
+	 *
 	 * @return
 	 */
 	public ModalWindow getAddOrEditGradeItemWindow() {
 		return this.addOrEditGradeItemWindow;
 	}
-	
+
 	public ModalWindow getStudentGradeSummaryWindow() {
 		return this.studentGradeSummaryWindow;
 	}
-	
+
 	public ModalWindow getUpdateUngradedItemsWindow() {
 		return this.updateUngradedItemsWindow;
 	}
-	
+
 	public ModalWindow getGradeLogWindow() {
 		return this.gradeLogWindow;
 	}
-	
+
 	public ModalWindow getGradeCommentWindow() {
 		return this.gradeCommentWindow;
 	}
@@ -548,24 +555,23 @@ public class GradebookPage extends BasePage {
 
 	/**
 	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only.
-	 * 
+	 *
 	 * TODO move this to a helper
 	 */
 	public GradebookUiSettings getUiSettings() {
-		
+
 		GradebookUiSettings settings = (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
-		
-		if(settings == null) {
+
+		if (settings == null) {
 			settings = new GradebookUiSettings();
-			settings.setCategoriesEnabled(businessService.categoriesAreEnabled());
+			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
 		}
-		
+
 		return settings;
 	}
-	
-	public void setUiSettings(GradebookUiSettings settings) {
+
+	public void setUiSettings(final GradebookUiSettings settings) {
 		Session.get().setAttribute("GBNG_UI_SETTINGS", settings);
 	}
-	
-	
+
 }
