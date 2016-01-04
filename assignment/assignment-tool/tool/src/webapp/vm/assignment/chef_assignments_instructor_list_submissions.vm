@@ -9,14 +9,22 @@
 	$(document).ready(function(){
 		ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
 
-		$('#submissionList input:checkbox').click(function(){
-			if ( $("#submissionList input:checked").length ===0){
-				ASN.hideAllowResubmission()
-				ASN.hideSendFeedback()
+		$('#submissionList input:checkbox').click(function()
+		{
+			var feedbackPanel = document.getElementById("sendFeedbackPanelContent");
+			var resubPanel = document.getElementById("allowResubmissionPanelContent");
+			var checkedCount = $("#submissionList input:checked").length;
+
+			if ( (checkedCount === 0 && feedbackPanel.style.display !== "none")
+				|| (checkedCount !== 0 && feedbackPanel.style.display === "none") )
+			{
+				ASN.toggleSendFeedbackPanel();
 			}
-			else{
-				ASN.showAllowResubmission()
-				ASN.showSendFeedback()
+
+			if ( (checkedCount === 0 && resubPanel.style.display !== "none")
+				|| (checkedCount !== 0 && resubPanel.style.display === "none") )
+			{
+				ASN.toggleAllowResubmissionPanel();
 			}
 		});
 
@@ -282,19 +290,15 @@
 					</ul>
 				</div>
 			#end
-			<div id="sendFeedback_hidden" #if (!$!showSendFeedback && $!value_SubmissionType != 4) style="display:block" #else style="display:none" #end>
+
+			#if ($!value_SubmissionType != 4)
+			<div id="sendFeedbackPanel">
 				<p class="discTria">
-					<a href="javascript:void(0)" onclick="ASN.showSendFeedback();">
-						<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("sendFeedback.show")" border="0" width="13" height="13" align="top" />
-						$tlang.getString("sendFeedback.show")
-					</a>
-				</p>
-			</div>
-			<div id="sendFeedback_shown" #if ($!showSendFeedback && $!value_SubmissionType != 4) style="display:block" #else style="display:none"#end>
-				<p class="discTria">
-					<a href="javascript:void(0)" onclick="ASN.hideSendFeedback();">
-						<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("sendFeedback.hide")" border="0" width="13" height="13" align="top" />
-						$tlang.getString("sendFeedback.hide")
+					<a href="javascript:void(0)" onclick="ASN.toggleSendFeedbackPanel();">
+						<img id="expandSendFeedback" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("sendFeedback.show")" border="0" width="13" height="13" align="top" />
+						<img id="collapseSendFeedback" style="display: none;" src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("sendFeedback.hide")" border="0" width="13" height="13" align="top" />
+						<span id="showSendFeedbackLabel">$tlang.getString("sendFeedback.show")</span>
+						<span id="hideSendFeedbackLabel" style="display: none;">$tlang.getString("sendFeedback.hide")</span>
 					</a>
 				</p>
 				#if ($!savedFeedback)
@@ -313,7 +317,7 @@
 						$!tlang.getString("sendFeedback.returned")
 					</div>
 				#end
-				<div id="sendFeedback_shownInner" style="display:none">
+				<div id="sendFeedbackPanelContent" style="display:none;">
 					<p class="instruction">
 						$tlang.getString("sendFeedback.instruction"):
 					</p>
@@ -328,11 +332,12 @@
 					</div>
 				</div>
 			</div>
-			<div id="allowResubmission_hidden" #if (!$!showAllowResubmission && $!value_SubmissionType != 4)style="display:block"#else style="display:none"#end>
-				<input type="hidden" name = "allowResToggle" id = "allowResToggle" value="checked" />
+			<input type="hidden" name = "allowResToggle" id = "allowResToggle" value="" />
+			<div id="allowResubmissionPanel">
 				<p class="discTria">
-					<a href="javascript:void(0)" onclick="ASN.showAllowResubmission();">
-					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("allowResubmission.show")" border="0" width="13" height="13" align="top" />
+				<a href="javascript:void(0)" onclick="ASN.toggleAllowResubmissionPanel();">
+					<img id="expandAllowResub" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("allowResubmission.show")" border="0" width="13" height="13" align="top" />
+					<img id="collapseAllowResub" style="display: none;" src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" />
 						#if ($assignment.isGroup())
 							$tlang.getString("allowResubmission.groups.label")
 						#else
@@ -340,19 +345,7 @@
 						#end
 					</a>
 				</p>
-			</div>
-			<div id="allowResubmission_shown" #if ($!showAllowResubmission && $!value_SubmissionType != 4)style="display:block"#else style="display:none"#end>
-				<p class="discTria">
-					<a href="javascript:void(0)" onclick="ASN.hideAllowResubmission();">
-						<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" />
-						#if ($assignment.isGroup())
-							$tlang.getString("allowResubmission.groups.label")
-						#else
-							$tlang.getString("allowResubmission.label")
-						#end
-					</a>
-				</p>
-				<div id="allowResubmission_shownInner" style="display:none">
+				<div id="allowResubmissionPanelContent" style="display:none; overflow: hidden;">
 				<p class="instruction">
 				#if ($assignment.isGroup())
 					$tlang.getString("allowResubmission.groups.instruction")
@@ -360,7 +353,6 @@
 					$tlang.getString("allowResubmission.instruction")
 				#end
 				</p>
-				##show it only for those assignments not of type non-electronic submission
 							<p class="shorttext" id="allowResubmitNumber">
 								<label for="allowResubmitNumber">
 									$tlang.getString("allow.resubmit.number")
@@ -403,8 +395,9 @@
 									<input type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, escapeList );" name="eventSubmit_doSave_resubmission_option" value="$tlang.getString("update")" accesskey="s" />
 								</div>
 							</p>
-						</div>	
+						</div> <!-- allowResubmissionPanelContent -->
 			</div>
+			#end
 			#if($disableGrade)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.getPeerAssessmentPeriod().toStringLocalFull())</div>
 			#end

@@ -865,10 +865,6 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String ALLPURPOSE_RETRACT_MIN = "allPurpose_retractMin";
 	private static final String ALLPURPOSE_TO_DELETE = "allPurpose.toDelete";
 	
-	private static final String SHOW_ALLOW_RESUBMISSION = "show_allow_resubmission";
-	
-	private static final String SHOW_SEND_FEEDBACK = "show_send_feedback";
-	
 	private static final String RETURNED_FEEDBACK = "feedback_returned_to_selected_users";
 	
 	private static final String OW_FEEDBACK = "feedback_overwritten";
@@ -2048,11 +2044,6 @@ public class AssignmentAction extends PagedResourceActionII
 			// put the resubmit information into context
 			assignment_resubmission_option_into_context(context, state);
 			
-			if(state.getAttribute(SHOW_SEND_FEEDBACK) != null)
-			{
-				context.put("showSendFeedback", Boolean.TRUE);
-				state.removeAttribute(SHOW_SEND_FEEDBACK);
-			}
 			if (state.getAttribute(SAVED_FEEDBACK) != null)
 			{
 				context.put("savedFeedback", Boolean.TRUE);
@@ -4234,11 +4225,6 @@ public class AssignmentAction extends PagedResourceActionII
 			    }
 			}
 
-			// whether to show the resubmission choice
-			if (state.getAttribute(SHOW_ALLOW_RESUBMISSION) != null)
-			{
-				context.put("showAllowResubmission", Boolean.TRUE);
-			}
 			// put the re-submission info into context
 			assignment_resubmission_option_into_state(assignment, null, state);
 			putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
@@ -10875,8 +10861,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// clean state attribute
 		state.removeAttribute(USER_SUBMISSIONS);
-		state.removeAttribute(SHOW_ALLOW_RESUBMISSION);
-		state.removeAttribute(SHOW_SEND_FEEDBACK);
 		state.removeAttribute(SAVED_FEEDBACK);
 		state.removeAttribute(OW_FEEDBACK);
 		state.removeAttribute(RETURNED_FEEDBACK);
@@ -16877,9 +16861,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 		}
-		
-		// make sure the options are exposed in UI 
-		state.setAttribute(SHOW_ALLOW_RESUBMISSION, Boolean.TRUE);
+
 	}
 	
 	public void doSave_send_feedback(RunData data) {
@@ -16936,8 +16918,6 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 
-		// make sure the options are exposed in UI
-		state.setAttribute(SHOW_SEND_FEEDBACK, Boolean.TRUE);
 	}
 
 	
