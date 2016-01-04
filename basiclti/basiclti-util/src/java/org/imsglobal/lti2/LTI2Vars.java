@@ -533,6 +533,8 @@ public class LTI2Vars {
 	 *  <code>membershipRecord/membership/member/role/roleType  </code>
 	 */
 	public static final String MEMBERSHIP_ROLE = "Membership.role";
+	public static final String MEMBERSHIP_ROLE_LEARNER = "Learner";
+	public static final String MEMBERSHIP_ROLE_INSTRUCTOR = "Instructor";
 
 	/**
 	 * MEMBERSHIP_SOURCEDID
