@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://www.opensource.org/licenses/ECL-2.0
+ *   http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -110,9 +110,12 @@ import net.oauth.signature.OAuthSignatureMethod;
 @SuppressWarnings("deprecation")
 public class SakaiBLTIUtil {
 
-    private static Log M_log = LogFactory.getLog(SakaiBLTIUtil.class);
+	private static Log M_log = LogFactory.getLog(SakaiBLTIUtil.class);
 
 	public static final boolean verbosePrint = false;
+
+	// Turns off extensions
+	public static final String LTI_STRICT = "basiclti.strict";
 
 	public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
 	public static final String BASICLTI_OUTCOMES_ENABLED_DEFAULT = "true";
@@ -266,7 +269,7 @@ public class SakaiBLTIUtil {
 			String newsecret = SimpleEncryption.decrypt(encryptionKey, orig);
 			return newsecret;
 		} catch (RuntimeException re) {
-			dPrint("Exception when decrypting secret - this is normal if the secret is unencrypted");      
+			dPrint("Exception when decrypting secret - this is normal if the secret is unencrypted");
 			return orig;
 		}
 	}
@@ -297,6 +300,7 @@ public class SakaiBLTIUtil {
 			setProperty(lti2subst,LTI2Vars.COURSESECTION_LABEL,site.getTitle());
 			setProperty(lti2subst,LTI2Vars.CONTEXT_LABEL,site.getTitle());
 
+			setProperty(props,BasicLTIConstants.CONTEXT_TITLE,site.getTitle());
 			setProperty(lti2subst,LTI2Vars.COURSESECTION_LONGDESCRIPTION,site.getTitle());
 			setProperty(lti2subst,LTI2Vars.CONTEXT_TITLE,site.getTitle());
 
@@ -359,19 +363,26 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp)
+	public static String getRoleString(String context)
 	{
-		String theRole = "Learner";
+		String theRole = LTI2Vars.MEMBERSHIP_ROLE_LEARNER;
 		if ( SecurityService.isSuperUser() )
 		{
-			theRole = "Instructor,Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
+			theRole = LTI2Vars.MEMBERSHIP_ROLE_INSTRUCTOR+",Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
 		}
 		else if ( SiteService.allowUpdateSite(context) ) 
 		{
-			theRole = "Instructor";
+			theRole = LTI2Vars.MEMBERSHIP_ROLE_INSTRUCTOR;
 		}
+		return theRole;
+	}
+
+	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp)
+	{
+		String theRole = getRoleString(context);
+
 		setProperty(props,BasicLTIConstants.ROLES,theRole);
-		setProperty(lti2subst,"Membership.role",theRole);
+		setProperty(lti2subst,LTI2Vars.MEMBERSHIP_ROLE,theRole);
 
 		String realmId = SiteService.siteReference(context);
 		User user = null;
@@ -387,7 +398,7 @@ public class SakaiBLTIUtil {
 				if ( roleId != null && roleId.length() > 0 ) setProperty(props, "ext_sakai_role", roleId);
 				if ( roleMap.containsKey(roleId) ) {
 					setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
-					setProperty(lti2subst, "Membership.role", roleMap.get(roleId));
+					setProperty(lti2subst, LTI2Vars.MEMBERSHIP_ROLE, roleMap.get(roleId));
 				}
 			}
 		} catch (GroupNotDefinedException e) {
@@ -463,22 +474,22 @@ public class SakaiBLTIUtil {
 
 		User user = UserDirectoryService.getCurrentUser();
 
-        PrivacyManager pm = (PrivacyManager) 
-                ComponentManager.get("org.sakaiproject.api.privacy.PrivacyManager");
+		PrivacyManager pm = (PrivacyManager) 
+			ComponentManager.get("org.sakaiproject.api.privacy.PrivacyManager");
 
 		// TODO: Think about anonymous
 		if ( user != null )
 		{
-		    String context = placement.getContext();
-            boolean isViewable = pm.isViewable("/site/" + context, user.getId());
-            setProperty(props,"ext_sakai_privacy", isViewable ? "visible" : "hidden");
+			String context = placement.getContext();
+			boolean isViewable = pm.isViewable("/site/" + context, user.getId());
+			setProperty(props,"ext_sakai_privacy", isViewable ? "visible" : "hidden");
 
 			setProperty(props,BasicLTIConstants.USER_ID,user.getId());
 
 			if(ServerConfigurationService.getBoolean(BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
-                String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";                     
-                setProperty(props,BasicLTIConstants.USER_IMAGE,imageUrl);
-            }
+				String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";
+				setProperty(props,BasicLTIConstants.USER_IMAGE,imageUrl);
+			}
 
 			if ( "on".equals(releasename) ) {
 				setProperty(props,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
@@ -512,11 +523,16 @@ public class SakaiBLTIUtil {
 			if ( ! "on".equals(allowRoster) ) allowRoster = null;
 
 			String result_sourcedid = getSourceDID(user, placement, config);
+		
+			String theRole = getRoleString(context);
 
+			// if ( result_sourcedid != null && theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0 ) {
 			if ( result_sourcedid != null ) {
 
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
-					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
+					if ( theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0 ) {
+						setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
+					}
 					setProperty(props,"ext_outcome_data_values_accepted", "text");  // SAK-25696
 
 					// New Basic Outcomes URL
@@ -795,9 +811,8 @@ public class SakaiBLTIUtil {
 		String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
 		if ( result_sourcedid != null ) {
 
+			String theRole = getRoleString(context);
 			if ( allowoutcomes == 1 ) {
-				setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
-
 				// New Basic Outcomes URL
 				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
 				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
@@ -805,8 +820,12 @@ public class SakaiBLTIUtil {
 				outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
 				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
-				String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
-				setProperty(lti2subst, LTI2Vars.RESULT_URL, result_url);
+
+				if ( theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0 ) {
+					setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
+					String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
+					setProperty(lti2subst, LTI2Vars.RESULT_URL, result_url);
+				}
 			}
 
 			// We continue to support the old settings for LTI 2 see SAK-25621
@@ -881,7 +900,7 @@ public class SakaiBLTIUtil {
 
 	/**
 	 * An LTI 2.0 Registration launch
-         *
+	 *
 	 * This must return an HTML message as the [0] in the array
 	 * If things are successful - the launch URL is in [1]
 	 */
@@ -950,15 +969,15 @@ public class SakaiBLTIUtil {
 		// Figure out the launch URL to use unless we have been told otherwise
 		String launch_url = (String) deploy.get("reg_launch");
 
-                // Find the global message for Reregistration
+		// Find the global message for Reregistration
 		String reg_profile = (String) deploy.get("reg_profile");
 		
-                ToolProxy toolProxy = null;
-                try {
-                        toolProxy = new ToolProxy(reg_profile);
-                } catch (Throwable t ) {
+		ToolProxy toolProxy = null;
+		try {
+			toolProxy = new ToolProxy(reg_profile);
+		} catch (Throwable t ) {
 			return postError("<p>" + getRB(rb, "error.deploy.badproxy" ,"This deployment has a broken reg_profile.")+"</p>" );
-                }
+		}
 
 		JSONObject proxy_message = toolProxy.getMessageOfType("ToolProxyReregistrationRequest");
 		String re_path = toolProxy.getPathFromMessage(proxy_message);
@@ -1028,8 +1047,8 @@ public class SakaiBLTIUtil {
 	 */
 	public static String addCSRFToken(String url)
 	{
-                Session session = SessionManager.getCurrentSession();
-                Object csrfToken = session.getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+		Session session = SessionManager.getCurrentSession();
+		Object csrfToken = session.getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
 		if ( url.indexOf("?") < 0 ) {
 			url = url + "?";
 		} else {
@@ -1045,13 +1064,13 @@ public class SakaiBLTIUtil {
 	public static ContentItem getContentItemFromRequest(Map<String, Object> tool)
 	{
 
-                Placement placement = ToolManager.getCurrentPlacement();
-                String siteId = placement.getContext();
+		Placement placement = ToolManager.getCurrentPlacement();
+		String siteId = placement.getContext();
 
-                String toolSiteId = (String) tool.get(LTIService.LTI_SITE_ID);
-                if ( toolSiteId != null && ! toolSiteId.equals(siteId) ) {
-                        throw new RuntimeException("Incorrect site id");
-                }
+		String toolSiteId = (String) tool.get(LTIService.LTI_SITE_ID);
+		if ( toolSiteId != null && ! toolSiteId.equals(siteId) ) {
+			throw new RuntimeException("Incorrect site id");
+		}
 
 		HttpServletRequest req = ToolUtils.getRequestFromThreadLocal();
 
@@ -1062,17 +1081,17 @@ public class SakaiBLTIUtil {
 
 		ContentItem contentItem = new ContentItem(req);
 
-                String oauth_consumer_key = req.getParameter("oauth_consumer_key");
-                String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
-                oauth_secret = decryptSecret(oauth_secret);
+		String oauth_consumer_key = req.getParameter("oauth_consumer_key");
+		String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+		oauth_secret = decryptSecret(oauth_secret);
 
-                String URL = getOurServletPath(req);
-                if ( ! contentItem.validate(oauth_consumer_key, oauth_secret, URL) ) {
-                        M_log.warn("Provider failed to validate message: "+contentItem.getErrorMessage());
-                        String base_string = contentItem.getBaseString();
-                        if ( base_string != null ) M_log.warn("base_string="+base_string);
-                        throw new RuntimeException("Failed OAuth validation");
-                }
+		String URL = getOurServletPath(req);
+		if ( ! contentItem.validate(oauth_consumer_key, oauth_secret, URL) ) {
+			M_log.warn("Provider failed to validate message: "+contentItem.getErrorMessage());
+			String base_string = contentItem.getBaseString();
+			if ( base_string != null ) M_log.warn("base_string="+base_string);
+			throw new RuntimeException("Failed OAuth validation");
+		}
 		return contentItem;
 	}
 
@@ -1273,7 +1292,7 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.")+"</p>");
 		}
 
-                Map<String,String> extra = new HashMap<String,String> ();
+		Map<String,String> extra = new HashMap<String,String> ();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
 				key, secret, org_guid, org_desc, org_url, extra);
 
@@ -1298,7 +1317,7 @@ public class SakaiBLTIUtil {
 	public static String getSourceDID(User user, String placeStr, String placementSecret)
 	{
 		if ( placementSecret == null ) return null;
-		String suffix = ":::" +  user.getId() + ":::" + placeStr;
+		String suffix = ":::" + user.getId() + ":::" + placeStr;
 		String base_string = placementSecret + suffix;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
 		return signature + suffix;
@@ -1379,28 +1398,28 @@ public class SakaiBLTIUtil {
 	// String implies error
 	// Boolean.TRUE - Sourcedid checks out
 	// Boolean.FALSE - Sourcedid or secret fail
-    public static Object checkSourceDid(String sourcedid, HttpServletRequest request, 
+	public static Object checkSourceDid(String sourcedid, HttpServletRequest request, 
 		LTIService ltiService)
-    {
+	{
 		return handleGradebook(sourcedid, request, ltiService, false, false, null, null);
 	}
 
 	// Grade retrieval Map<String, Object> with "grade" => Double  and "comment" => String
-    public static Object getGrade(String sourcedid, HttpServletRequest request, 
+	public static Object getGrade(String sourcedid, HttpServletRequest request, 
 		LTIService ltiService)
 	{
 		return handleGradebook(sourcedid, request, ltiService, true, false, null, null);
 	}
 
 	// Boolean.TRUE - Grade updated
-    public static Object setGrade(String sourcedid, HttpServletRequest request, 
+	public static Object setGrade(String sourcedid, HttpServletRequest request, 
 		LTIService ltiService, Double grade, String comment)
 	{
 		return handleGradebook(sourcedid, request, ltiService, false, false, grade, comment);
 	}
 
 	// Boolean.TRUE - Grade deleted
-    public static Object deleteGrade(String sourcedid, HttpServletRequest request, 
+	public static Object deleteGrade(String sourcedid, HttpServletRequest request, 
 		LTIService ltiService)
 	{
 		return handleGradebook(sourcedid, request, ltiService, false, true, null, null);
@@ -1762,70 +1781,71 @@ public class SakaiBLTIUtil {
 		return -1;
 	}
 
-    public static String[] positional = { "field", "type" };
-    public static Properties parseFormString(String str) {
-        Properties op = new Properties();
-        String[] pairs = str.split(":");
-        int i = 0;
-        for (String s : pairs) {
-            String[] kv = s.split("=");
-            if (kv.length == 2) {
-                op.setProperty(kv[0], kv[1]);
-            } else if (kv.length == 1 && i < positional.length) {
-                op.setProperty(positional[i++], kv[0]);
-            } else {
-                // TODO : Log something here
-            }
-        }
-        return op;
-    }
+	public static String[] positional = { "field", "type" };
 
-    public static Long getLongKey(Object key) {
-        return getLong(key);
-    }
+	public static Properties parseFormString(String str) {
+		Properties op = new Properties();
+		String[] pairs = str.split(":");
+		int i = 0;
+		for (String s : pairs) {
+			String[] kv = s.split("=");
+			if (kv.length == 2) {
+				op.setProperty(kv[0], kv[1]);
+			} else if (kv.length == 1 && i < positional.length) {
+				op.setProperty(positional[i++], kv[0]);
+			} else {
+				// TODO : Log something here
+			}
+		}
+		return op;
+	}
 
-    public static Long getLong(Object key) {
-        Long retval = getLongNull(key);
-        if (retval != null)
-            return retval;
-        return new Long(-1);
-    }
+	public static Long getLongKey(Object key) {
+		return getLong(key);
+	}
 
-    public static Long getLongNull(Object key) {
-        if (key == null)
-            return null;
-        if (key instanceof Number)
-            return new Long(((Number) key).longValue());
-        if (key instanceof String) {
-            if ( ((String)key).length() < 1 ) return new Long(-1);
-            try {
-                return new Long((String) key);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return null;
-    }
+	public static Long getLong(Object key) {
+		Long retval = getLongNull(key);
+		if (retval != null)
+			return retval;
+		return new Long(-1);
+	}
 
-    /**
-     * Setup a security advisor.
-     */
-    public static void pushAdvisor() {
-        // setup a security advisor
-        SecurityService.pushAdvisor(new SecurityAdvisor() {
-                public SecurityAdvice isAllowed(String userId, String function,
-                    String reference) {
-                return SecurityAdvice.ALLOWED;
-                }
-                });
-    }
+	public static Long getLongNull(Object key) {
+		if (key == null)
+			return null;
+		if (key instanceof Number)
+			return new Long(((Number) key).longValue());
+		if (key instanceof String) {
+			if ( ((String)key).length() < 1 ) return new Long(-1);
+			try {
+				return new Long((String) key);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
+	}
 
-    /**
-     * Remove our security advisor.
-     */
-    public static void popAdvisor() {
-        SecurityService.popAdvisor();
-    }
+	/**
+	 * Setup a security advisor.
+	 */
+	public static void pushAdvisor() {
+		// setup a security advisor
+		SecurityService.pushAdvisor(new SecurityAdvisor() {
+				public SecurityAdvice isAllowed(String userId, String function,
+					String reference) {
+				return SecurityAdvice.ALLOWED;
+				}
+			});
+	}
+
+	/**
+	 * Remove our security advisor.
+	 */
+	public static void popAdvisor() {
+		SecurityService.popAdvisor();
+	}
 
 	/**
 	 * Converts a string from a comma-separated list of role maps to a Map<String, String>.
