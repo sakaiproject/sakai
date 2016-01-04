@@ -574,7 +574,6 @@ public class ServiceServlet extends HttpServlet {
 			Double dGrade;
 			if ( isRead ) {
 				retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
-System.out.println("retval="+retval);
 				if ( retval instanceof Map ) {
 					Map grade = (Map) retval;
 					dGrade = (Double) grade.get("grade");
@@ -583,7 +582,6 @@ System.out.println("retval="+retval);
 				} else {
 					// Read fail with Good SourceDID is treated as empty
 					Object check = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
-System.out.println("check="+check);
 					if ( check instanceof Boolean && ((Boolean) check) ) {
 						theMap.put("/message_response/result/resultscore/textstring", "");
 						theMap.put("/message_response/result/resultdata/text", "");
@@ -955,7 +953,6 @@ System.out.println("check="+check);
 			Double dGrade;
 			if ( isRead ) {
 				retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
-System.out.println("retval2="+retval);
 				String sGrade = "";
 				String comment = "";
 				if ( retval instanceof Map ) {
@@ -967,7 +964,6 @@ System.out.println("retval2="+retval);
 					}
 				} else {
 					Object check = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
-System.out.println("check2="+check);
 					if ( check instanceof Boolean && ((Boolean) check) ) {
 						// Read fail with Good SourceDID is treated as empty
 					} else {
