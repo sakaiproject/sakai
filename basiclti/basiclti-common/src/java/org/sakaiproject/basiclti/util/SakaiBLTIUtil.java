@@ -51,9 +51,11 @@ import org.imsglobal.lti2.ToolProxy;
 import org.imsglobal.lti2.ToolProxyBinding;
 import org.imsglobal.lti2.ContentItem;
 import org.imsglobal.lti2.objects.ToolConsumer;
+import org.imsglobal.lti2.LTI2Config;
 
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti2.SakaiLTI2Config;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -609,6 +611,11 @@ public class SakaiBLTIUtil {
 	{
 		if ( rb != null ) setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE,rb.getLocale().toString()); 
 
+		// Add information about the Tool Consumer for LTI 1.x
+		LTI2Config cnf = new SakaiLTI2Config();
+		setProperty(props,"tool_consumer_info_product_family_code", cnf.getProduct_family_product_code());  // Test 2.4
+		setProperty(props,"tool_consumer_info_version", cnf.getProduct_info_product_version());  // Test 2.5
+
 		// Get the organizational information
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, 
 				ServerConfigurationService.getString("basiclti.consumer_instance_guid",null));
@@ -730,7 +737,7 @@ public class SakaiBLTIUtil {
 		// This is for 1.2 - Not likely to be used
 		// http://www.imsglobal.org/lti/ltiv1p2/ltiIMGv1p2.html
 		if ( deploy != null ) {
-			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
+			setProperty(lti2subst,LTI2Vars.TOOLCONSUMERPROFILE_URL, getOurServerUrl() + 
 				LTI2_PATH + SVC_tc_profile + "/" + 
 				(String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
 		}
@@ -823,6 +830,7 @@ public class SakaiBLTIUtil {
 
 				if ( theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0 ) {
 					setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
+					setProperty(lti2subst,LTI2Vars.RESULT_SOURCEDID, result_sourcedid);  
 					String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
 					setProperty(lti2subst, LTI2Vars.RESULT_URL, result_url);
 				}
@@ -1012,7 +1020,7 @@ public class SakaiBLTIUtil {
 		Properties lti2subst = new Properties();
 		addGlobalData(null, ltiProps, lti2subst, rb);
 		if ( deploy != null ) {
-			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
+			setProperty(lti2subst,LTI2Vars.TOOLCONSUMERPROFILE_URL, getOurServerUrl() + 
 				LTI2_PATH + SVC_tc_profile + "/" + 
 				(String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
 		}
