@@ -138,6 +138,16 @@
 	      <version>1.0</version>
 	      <scope>provided</scope>
       </dependency>
+      <dependency>
+          <groupId>com.google.code.gson</groupId>
+          <artifactId>gson</artifactId>
+          <version>${google.gson.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.nimbusds</groupId>
+          <artifactId>nimbus-jose-jwt</artifactId>
+          <version>${nimbusds.jwt.version}</version>
+      </dependency>
 
   </dependencies>
   <build>
@@ -152,5 +162,7 @@
   </build>
   <properties>
   	<maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+    <google.gson.version>2.3.1</google.gson.version>
+    <nimbusds.jwt.version>4.3</nimbusds.jwt.version>
   </properties>
 </project>
