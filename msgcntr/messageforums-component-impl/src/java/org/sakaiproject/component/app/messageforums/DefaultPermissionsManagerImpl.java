@@ -145,6 +145,11 @@ public class DefaultPermissionsManagerImpl
     return hasPermission(role, DefaultPermissionsManager.FUNCTION_MOVE_POSTINGS);
   }
 
+  public boolean isIdentifyAnonAuthors(String role)
+  {
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_IDENTIFY_ANON_AUTHORS);
+  }
+
   /* (non-Javadoc)
    * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isChangeSettings(java.lang.String)
    */

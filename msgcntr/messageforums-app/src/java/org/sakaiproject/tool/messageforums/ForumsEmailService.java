@@ -32,10 +32,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -52,7 +54,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -85,6 +87,11 @@ public class ForumsEmailService {
 
 	}
 
+	private ToolManager getToolManager()
+	{
+		return ComponentManager.get(ToolManager.class);
+	}
+
 	public void send() {
 		List<Attachment> attachmentList = null;
 		Attachment a = null;
@@ -98,8 +105,9 @@ public class ForumsEmailService {
 					new Object[]{ServerConfigurationService.getString("serverName", "localhost")});
 			log.info(fromEmailAddress);
 			
+			String anonAwareAuthor = getAnonAwareAuthor(reply);
 			String subject = DiscussionForumTool.getResourceBundleString("email.subject", 
-					new Object[]{fromName, reply.getAuthor()});
+					new Object[]{fromName, anonAwareAuthor});
 
 			EmailAddress fromIA = new EmailAddress(fromEmailAddress,
 					fromName);
@@ -135,7 +143,7 @@ public class ForumsEmailService {
 			String sitetitle = "";
 			BaseForum baseforum = reply.getTopic().getBaseForum();
 			try {
-				currentSite = SiteService.getSite(ToolManager
+				currentSite = SiteService.getSite(getToolManager()
 						.getCurrentPlacement().getContext());
 			} catch (IdUnusedException e) {
 				log.error("ForumsEmailService.send(), Site ID not found: "
@@ -169,7 +177,7 @@ public class ForumsEmailService {
 			content.append(newline);
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.author")
-					+ " " + reply.getAuthor());
+					+ " " + anonAwareAuthor);
 			content.append(newline);
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.msgtitle")
@@ -303,7 +311,7 @@ public class ForumsEmailService {
 		// Sitepage.getUrl() takes the user back to the Forums tool of the site
 		// "https://coursework-dev4.stanford.edu:8995/portal/site/W08-UROL-199-01/page/a4b4d8ef-a381-4801-0060-c701d57a527d";
 		String redirecturl = "";
-		String toolid = ToolManager.getCurrentPlacement().getId();
+		String toolid = getToolManager().getCurrentPlacement().getId();
 		redirecturl = currentSite.getTool(toolid).getContainingPage().getUrl();
 		return redirecturl;
 
@@ -345,4 +353,39 @@ public class ForumsEmailService {
 		
 	}
 
+	private String getAnonAwareAuthor(Message message)
+	{
+		if (message == null)
+		{
+			throw new IllegalArgumentException("getAnonAwareAuthor invoked with null message");
+		}
+
+		if (isUseAnonymousId(message.getTopic()))
+		{
+			String siteId = getToolManager().getCurrentPlacement().getContext();
+			String userId = message.getAuthorId();
+			return getAnonymousManager().getOrCreateAnonId(siteId, userId);
+		}
+		return message.getAuthor();
+	}
+
+	private AnonymousManager getAnonymousManager()
+	{
+		return ComponentManager.get(AnonymousManager.class);
+	}
+
+	private boolean isUseAnonymousId(Topic topic)
+	{
+		if (topic == null)
+		{
+			throw new IllegalArgumentException("isUseAnonymousId invoked with null topic");
+		}
+
+		/* 
+		 * TODO: we ignore isRevealIDsToRoles / isIdentifyAnonAuthors here because everybody's getting the same email.
+		 * This is okay, but if isRevealIDsToRoles is enabled, it would be better to send two separate emails (one revealed, one anonymous) 
+		 * so that the instructor can't match the message up with the UI to discover the anonymous mapping for the author
+		 */
+		return getAnonymousManager().isAnonymousEnabled() && topic.getPostAnonymous();
+	}
 }

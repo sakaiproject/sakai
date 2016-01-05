@@ -99,7 +99,8 @@
 		      <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 					<h:outputText value=" #{msgs.cdfm_dash} " styleClass="textPanelFooter"/>
-					<h:outputText value="#{message.message.author}" styleClass="textPanelFooter"/>
+					<h:outputText value="#{message.anonAwareAuthor}" styleClass="textPanelFooter #{message.useAnonymousId ? 'anonymousAuthor' : ''}"/>
+					<h:outputText value=" #{msgs.cdfm_me}" styleClass="textPanelFooter" rendered="#{message.currentUserAndAnonymous}" />
 					<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
 					<h:outputText value="#{message.message.created}" styleClass="textPanelFooter">
 			  	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>

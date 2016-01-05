@@ -534,6 +534,10 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     		return permissionLevel.getMarkAsRead();
     	else if (customPermName.equals(PermissionLevel.MODERATE_POSTINGS))
     		return permissionLevel.getModeratePostings();
+    	else if (customPermName.equals(PermissionLevel.IDENTIFY_ANON_AUTHORS))
+    	{
+    		return permissionLevel.getIdentifyAnonAuthors();
+    	}
     	else if (customPermName.equals(PermissionLevel.MOVE_POSTING))
     		return permissionLevel.getMovePosting();
     	else if (customPermName.equals(PermissionLevel.READ))
@@ -558,6 +562,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		customPerms.add(PermissionLevel.DELETE_OWN);
 		customPerms.add(PermissionLevel.MARK_AS_READ);
 		customPerms.add(PermissionLevel.MODERATE_POSTINGS);
+		customPerms.add(PermissionLevel.IDENTIFY_ANON_AUTHORS);
 		customPerms.add(PermissionLevel.MOVE_POSTING);
 		customPerms.add(PermissionLevel.POST_TO_GRADEBOOK);
 		customPerms.add(PermissionLevel.READ);
@@ -813,6 +818,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
@@ -833,6 +839,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(true));
@@ -853,6 +860,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
@@ -873,6 +881,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(true));
@@ -893,6 +902,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.READ, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(false));
 		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
@@ -913,6 +923,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));

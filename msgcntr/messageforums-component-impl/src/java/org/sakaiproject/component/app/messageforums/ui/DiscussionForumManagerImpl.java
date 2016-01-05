@@ -2537,6 +2537,21 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		return forumManager.getTopicAttachments(topicId);
 	}
 
+	public List<Topic> getTopicsInSite(final String contextId)
+	{
+		return forumManager.getTopicsInSite(contextId);
+	}
+
+	public List<Topic> getAnonymousTopicsInSite(final String contextId)
+	{
+		return forumManager.getAnonymousTopicsInSite(contextId);
+	}
+
+	public boolean isSiteHasAnonymousTopics(final String contextId)
+	{
+		return forumManager.isSiteHasAnonymousTopics(contextId);
+	}
+
 	public MemoryService getMemoryService() {
 		return memoryService;
 	}

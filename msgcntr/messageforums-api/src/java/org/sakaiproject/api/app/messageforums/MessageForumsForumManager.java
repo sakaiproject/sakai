@@ -249,6 +249,23 @@ public interface MessageForumsForumManager {
 	public Topic getTopicByIdWithMemberships(final Long topicId);
 
 	/**
+	 * @param contextId the context in which we are seeking topics
+	 * @return all topics within this context
+	 */
+	public List<Topic> getTopicsInSite(final String contextId);
+
+	/**
+	 * @param contextId the context in which we are seeking anonymous topics
+	 * @return all topics such that postAnonymous is true within this context
+	 */
+	public List<Topic> getAnonymousTopicsInSite(final String contextId);
+
+	/*
+	 * @return true if getAnonymousTopicsInSite(contextId) is not empty
+	 */
+	public boolean isSiteHasAnonymousTopics(String contextId);
+
+	/**
 	 * Returns true/false whether the role has the named permission.
 	 * Created this method to avoid iterating over hundreds of DBMembershipItems.
 	 * @param topicId

@@ -46,6 +46,7 @@
     <property name="reviseAny" column="REVISE_ANY" not-null="true"/>
     <property name="reviseOwn" column="REVISE_OWN" not-null="true"/>
     <property name="moderatePostings" column="MODERATE_POSTINGS" not-null="true"/>        
+    <property name="identifyAnonAuthors" column="IDENTIFY_ANON_AUTHORS" not-null="true"/>
                
   </class>
 

@@ -496,6 +496,12 @@
          	<property-name>userPreferencesManager</property-name>
          	<value>#{Components["org.sakaiproject.api.app.messageforums.UserPreferencesManager"]}</value>
         </managed-property>
+
+        <managed-property>
+            <description>Anonymous Manager</description>
+            <property-name>anonymousManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AnonymousManager"]}</value>
+        </managed-property>
         
     </managed-bean>
     <managed-bean>
@@ -654,6 +660,16 @@
             <description>UI Permissions Manager</description>
             <property-name>uiPermissionsManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Anonymous Manager</description>
+            <property-name>anonymousManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AnonymousManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Tool Manager</description>
+            <property-name>toolManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
         </managed-property>
  	</managed-bean>
  

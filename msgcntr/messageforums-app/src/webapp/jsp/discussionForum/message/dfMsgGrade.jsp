@@ -104,8 +104,9 @@
 			<f:verbatim>
 			<div class="singleMessage">
 			</f:verbatim>
-				<h:outputText value="#{ForumTool.selectedMessage.message.title}" styleClass="title"/>
-				<h:outputText value="#{ForumTool.selectedMessage.message.author}" />
+				<h:outputText value="#{ForumTool.selectedMessage.message.title} " styleClass="title"/>
+				<h:outputText value="#{ForumTool.selectedMessage.anonAwareAuthor}" styleClass="#{ForumTool.selectedMessage.useAnonymousId ? 'anonymousAuthor' : ''}" />
+				<h:outputText value=" #{msgs.cdfm_me}" rendered="#{ForumTool.selectedMessage.currentUserAndAnonymous}" />
 				<h:outputText value=" #{msgs.cdfm_openb} " />
 				<h:outputText value="#{ForumTool.selectedMessage.message.created}" >
 					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>  
