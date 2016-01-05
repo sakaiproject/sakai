@@ -926,6 +926,8 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
 
   self._COLUMN_ORDER = self.$table.find("thead tr th.gb-grade-item-column-cell").map(function() {
     return $(this).data("model");
+  }).sort(function(a, b) {
+    return a.getDefaultOrder() > b.getDefaultOrder();
   });
 
   $.each(self._COLUMN_ORDER, function(i, model) {
@@ -1860,9 +1862,14 @@ GradebookHeaderCell.prototype.hide = function() {
 };
 
 
+GradebookHeaderCell.prototype.getDefaultOrder = function() {
+  return this.$cell.find("[data-order]").data("order");
+};
+
+
 GradebookHeaderCell.prototype.getCategorizedOrder = function() {
   return this.$cell.find("[data-categorized-order]").data("categorized-order");
-}
+};
 
 
 GradebookHeaderCell.prototype.setupTooltip = function() {
