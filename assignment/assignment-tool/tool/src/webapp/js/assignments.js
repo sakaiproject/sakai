@@ -591,6 +591,23 @@ ASN.togglePeerAssessmentOptions = function(checked){
     }
 };
 
+ASN.toggleAddOptions = function(checked){
+        //Disable the peer review area and renable the site property unless this is selected 
+        var section = document.getElementById("peerAssessmentOptions");
+        section.style.display="none";
+        ASN.resizeFrame('shrink');
+        $("#site").prop("disabled", false);
+        //When Peer Assement options is selected
+        if(checked == "peerreview"){
+            section.style.display="block";
+            ASN.resizeFrame('grow');
+        //When Group Submission is checked
+        }else if (checked=="group"){
+            $("#site").prop("disabled", true);
+            $("#groups").prop("checked", true).trigger("click");
+        }
+    }
+    
 ASN.toggleReviewServiceOptions = function(checked){
     var section = document.getElementById("reviewServiceOptions");
     if(checked){

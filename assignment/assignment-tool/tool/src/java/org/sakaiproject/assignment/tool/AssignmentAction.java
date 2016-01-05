@@ -200,6 +200,7 @@ public class AssignmentAction extends PagedResourceActionII
 	/** Is the review service available? */
 	//Peer Assessment
 	private static final String NEW_ASSIGNMENT_USE_PEER_ASSESSMENT= "new_assignment_use_peer_assessment";
+	private static final String NEW_ASSIGNMENT_ADDITIONAL_OPTIONS= "new_assignment_additional_options";
 	private static final String NEW_ASSIGNMENT_PEERPERIODMONTH = "new_assignment_peerperiodmonth";
 	private static final String NEW_ASSIGNMENT_PEERPERIODDAY = "new_assignment_peerperiodday";
 	private static final String NEW_ASSIGNMENT_PEERPERIODYEAR = "new_assignment_peerperiodyear";
@@ -1006,10 +1007,6 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		//Peer Assessment
 		context.put("allowPeerAssessment", allowPeerAssessment);
-		if(allowPeerAssessment){
-			context.put("peerAssessmentName", rb.getFormattedMessage("peerAssessmentName"));
-			context.put("peerAssessmentUse", rb.getFormattedMessage("peerAssessmentUse"));
-		}
 		
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
@@ -2459,6 +2456,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// put the names and values into vm file
 		
 		context.put("name_UsePeerAssessment", NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
+		context.put("name_additionalOptions", NEW_ASSIGNMENT_ADDITIONAL_OPTIONS);
 		context.put("name_PeerAssessmentAnonEval", NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL);
 		context.put("name_PeerAssessmentStudentViewReviews", NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS);
 		context.put("name_PeerAssessmentNumReviews", NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS);
@@ -2524,8 +2522,14 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_CheckAnonymousGrading", NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 
 		context.put("name_CheckIsGroupSubmission", NEW_ASSIGNMENT_GROUP_SUBMIT);
+		//Default value of additional options for now. It's a radio so it can only have one option
+		String contextAdditionalOptions = "none";
+
 		String gs = (String) state.getAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT);
-		if (gs == null) gs = "0";
+		if (gs != null && "1".equals(gs)) {
+			contextAdditionalOptions = "group";
+		}
+
 		// set the values
 		Assignment a = null;
 		String assignmentRef = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
@@ -2534,7 +2538,6 @@ public class AssignmentAction extends PagedResourceActionII
 			a = getAssignment(assignmentRef, "setAssignmentFormContext", state);
 
 		}
-                context.put("value_CheckIsGroupSubmission", gs);
 		
 		// put the re-submission info into context
 		putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
@@ -2563,7 +2566,10 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 		
 		//Peer Assessment
-		context.put("value_UsePeerAssessment", state.getAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT));
+		String peer = (String) state.getAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
+		if (peer != null && "true".equals(peer)) {
+			contextAdditionalOptions = "peerreview";
+		}
 		context.put("value_PeerAssessmentAnonEval", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL));
 		context.put("value_PeerAssessmentStudentViewReviews", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS));
 		context.put("value_PeerAssessmentNumReviews", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS));
@@ -2866,6 +2872,8 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			M_log.warn(this + ":setAssignmentFormContext role cast problem " +  e.getMessage() + " site =" + contextString);
 		}
+		//Add the additional options in
+		context.put("value_additionalOptions", contextAdditionalOptions);
 		
 	} // setAssignmentFormContext
 
@@ -7078,10 +7086,17 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		String order = params.getString(NEW_ASSIGNMENT_ORDER);
 		state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
-
-		String groupAssignment = params.getString(NEW_ASSIGNMENT_GROUP_SUBMIT);
-		state.setAttribute(
-		        NEW_ASSIGNMENT_GROUP_SUBMIT, (groupAssignment == null ? "0": "1"));
+		
+		String additionalOptions = params.getString(NEW_ASSIGNMENT_ADDITIONAL_OPTIONS);
+		
+		boolean groupAssignment = false;
+		if ("group".equals(additionalOptions)) {
+			state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, "1");
+			groupAssignment = true;
+		}
+		else {
+			state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, "0");
+		}
 
 		if (title == null || title.length() == 0)
 		{
@@ -7169,18 +7184,17 @@ public class AssignmentAction extends PagedResourceActionII
 
 		//Peer Assessment
 		boolean peerAssessment = false;
-		String r = params.getString(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
-		String b;
-		if (r == null){
-			b = Boolean.FALSE.toString();
-		}else{
-			b = Boolean.TRUE.toString();
+		if ("peerreview".equals(additionalOptions)) {
+			state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, Boolean.TRUE.toString());
 			peerAssessment = true;
 		}
-		state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, b);
+		else {
+			state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, Boolean.FALSE.toString());
+		}
+
 		if(peerAssessment){
 			//not allowed for group assignments:
-			if("1".equals(groupAssignment)){
+			if(groupAssignment){
 				addAlert(state, rb.getString("peerassessment.invliadGroupAssignment"));
 			}
 			//do not allow non-electronic assignments
@@ -7203,7 +7217,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 		
-		
+		String b,r;
 		r = params.getString(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL);
 		if (r == null) b = Boolean.FALSE.toString();
 		else b = Boolean.TRUE.toString();
@@ -7496,7 +7510,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
                 // check groups for duplicate members here
-                if ("1".equals(params.getString(NEW_ASSIGNMENT_GROUP_SUBMIT))) {
+                if (groupAssignment) {
                     Collection<String> _dupUsers = usersInMultipleGroups(state, "groups".equals(range),("groups".equals(range) ? data.getParameters().getStrings("selectedGroups") : null), false, null);
                     if (_dupUsers.size() > 0) {
                         StringBuilder _sb = new StringBuilder(rb.getString("group.user.multiple.warning") + " ");

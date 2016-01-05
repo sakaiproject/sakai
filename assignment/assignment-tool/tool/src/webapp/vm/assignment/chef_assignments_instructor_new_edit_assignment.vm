@@ -67,7 +67,7 @@
 				reviewSwitchNe1.style.display='none';
 				lblReviewService.className='';
 				reviewSwitchNe2.style.display='none';
-				useReview.disabled=false;
+				ASNseReview.disabled=false;
 			#end
 			## SAK-26640
 			document.getElementById('tempAllowRes').style.display = 'block';
@@ -99,7 +99,6 @@
 			document.getElementById('resubmitNotification').style.display = 'none';
 		}
 	}
-
 	focus_path = [ '$fField' ];
 </script>
 <div class="portletBody">
@@ -861,21 +860,31 @@
 			</p>
 		#end
 		## end anonymous check
+				<h4>
+				$tlang.getString("additionalOptionsName")
+				</h4>
 
+			<p class="checkbox  indnt2">
+			<input id="$name_noAdditionalOptionsName" name="$name_additionalOptions" type="radio" value="1" 
+			#if ($!value_additionalOptions.equals("none"))
+				checked="checked"
+			#end
+			onclick="ASN.toggleAddOptions('none');" />
+			<label for="$name_noAdditionalOptionsName" class="$class">
+			$tlang.getString("noAdditionalOptionsName")
+			</label>
+			</p>
 		## Peer Assessment
 		#if ($allowPeerAssessment)
 			<div style="display:block">
-				<h4>
-				$peerAssessmentName
-				</h4>
 				<div class="checkbox  indnt2">
-					#if ($!value_UsePeerAssessment.equals("true"))
-						<input id="$name_UsePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true" checked="checked" onclick="ASN.togglePeerAssessmentOptions(this.checked)"/>
-					#else
-						<input id="$name_UsePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"  onclick="ASN.togglePeerAssessmentOptions(this.checked)"/>
+					<input id="$name_UsePeerAssessment" name="$name_additionalOptions" type="radio" value="peerreview" 
+					#if ($!value_additionalOptions.equals("peerreview"))
+						checked="checked" 
 					#end
+					onclick="ASN.toggleAddOptions('peerreview')"/>
 					<label for="$name_UsePeerAssessment">
-						$peerAssessmentUse
+						$tlang.getString("peerAssessmentUse")
 					</label>
 				</div>
 				#if ($!value_UsePeerAssessment.equals("true"))
@@ -943,6 +952,32 @@
 				</div>
 			</div>
 		#end
+		#if ($group_submissions_enabled)
+			<p class="checkbox  indnt2">
+			<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="group" onclick="ASN.toggleAddOptions('group');"
+			#if ($!value_additionalOptions.equals("group") && $!groupsList)
+			checked="checked"
+			#end
+			#if( !$!groupsList )
+			disabled="disabled"
+			#end
+			/>
+			<label for="$name_CheckIsGroupSubmission" class="$class">
+			$tlang.getString("group.issubmit")
+			</label>
+			</p>
+		#end
+		#if ($multipleGroupUsers)
+			<p class="checkbox indnt2">
+			<div style="color: red;" class="indnt2">$tlang.getString("group.user.multiple.warning")</div>
+			<div style="color: red;" class="indnt3">
+			#foreach($duser in $!multipleGroupUsers)
+				#if ($velocityCount > 1), #end
+				$duser
+			#end
+		</div>
+		</p>
+		#end
 		
 		
 		## group/section support
@@ -974,34 +1009,6 @@
                         <div id="msgNoGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.noGroupsPresent" )</div>
                     #end
                     </div>
-
-                                 #if ($group_submissions_enabled)
-                                    <p class="checkbox  indnt2">
-                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" onclick="ASN.toggleIsGroupSubmission(this.checked);"
-                            #if ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
-                                checked="checked"
-                                        #end
-                            #if( !$!groupsList )
-                                disabled="disabled"
-                            #end
-                            />
-                            <label for="$name_CheckIsGroupSubmission" class="$class">
-                                            $tlang.getString("group.issubmit")
-                                        </label>
-                                    </p>
-                                #end
-                                #if ($multipleGroupUsers)
-                                                <p class="checkbox indnt2">
-                                                <div style="color: red;" class="indnt2">$tlang.getString("group.user.multiple.warning")</div>
-                                                <div style="color: red;" class="indnt3">
-                                                #foreach($duser in $!multipleGroupUsers)
-                                                        #if ($velocityCount > 1), #end
-                                                        $duser
-                                                #end
-                                                </div>
-                                                </p>
-                                #end
-
 				<p class="checkbox  indnt2">
                     #if( !$!allowGroupAssignmentsInGradebook )
                         <input type="radio" name="range" id="site" value="site" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame()};$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();" 
