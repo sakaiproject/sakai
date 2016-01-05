@@ -883,6 +883,22 @@ public class LTI2Vars {
 	public static final String RESULT_URL = "Result.url";
 
 	/**
+	 * TOOLCONSUMERINFO_PRODUCTFAMILYCODE
+	 *
+	 *  The code for the product (i.e. like "sakai" or "learn")
+	 */
+	public static final String TOOLCONSUMERINFO_PRODUCTFAMILYCODE = "ToolConsumerInfo.productFamilyCode";
+
+	/**
+	 * TOOLCONSUMERINFO_VERSION
+	 *
+	 *  The code for the product (i.e. like "sakai" or "learn")
+	 */
+	public static final String TOOLCONSUMERINFO_VERSION = "ToolConsumerInfo.version";
+
+
+
+	/**
 	 * TOOLPROXY_CUSTOM_URL
 	 *
 	 *  The endpoint URL for accessing system-wide tool settings.

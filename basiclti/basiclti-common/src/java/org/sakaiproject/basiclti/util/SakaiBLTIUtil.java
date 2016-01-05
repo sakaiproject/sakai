@@ -643,9 +643,10 @@ public class SakaiBLTIUtil {
 		// Let tools know we are coming from Sakai
 		String sakaiVersion = ServerConfigurationService.getString("version.sakai","2");
 		setProperty(props,"ext_lms", "sakai-"+sakaiVersion);  
-		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, 
-			"sakai");  
+		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, "sakai");  
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);  
+		setProperty(custom,LTI2Vars.TOOLCONSUMERINFO_PRODUCTFAMILYCODE, "sakai");  
+		setProperty(custom,LTI2Vars.TOOLCONSUMERINFO_VERSION, sakaiVersion);  
 
 		// We pass this along in the Sakai world - it might
 		// might be useful to the external tool
