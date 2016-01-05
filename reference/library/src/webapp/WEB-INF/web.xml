@@ -10,11 +10,6 @@
 		<param-value>/WEB-INF/local.xml</param-value>
 	</context-param>
 
-	<context-param>
-		<param-name>contextSharedLocation</param-name>
-		<param-value>/WEB-INF/components.xml</param-value>
-	</context-param>
-
 	<listener>
 		<listener-class>
 			org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
