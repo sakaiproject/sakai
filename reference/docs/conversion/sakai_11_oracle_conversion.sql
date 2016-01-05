@@ -402,6 +402,8 @@ CREATE TABLE SST_PRESENCE_TOTALS (
                 PRIMARY KEY(ID));
 -- END SAK-29546
 
+CREATE SEQUENCE SST_PRESENCE_TOTALS_ID START WITH 1 INCREMENT BY 1 nomaxvalue;
+                
 -- KNL-1369 Update kernel DDL with new roster.viewsitevisits permission
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'roster.viewsitevisits');
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewsitevisits'));
