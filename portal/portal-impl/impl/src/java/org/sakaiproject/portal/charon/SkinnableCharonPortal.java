@@ -650,11 +650,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
 		M_log.debug("includeTool resetActionUrl="+resetActionUrl);
 
-		String sakaiPanel = req.getParameter("panel");
-		if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
-		if ( sakaiPanel == null ) sakaiPanel="Main";
-		resetActionUrl = URLUtils.addParameter(resetActionUrl, "panel", sakaiPanel);
-
 		// SAK-20462 - Pass through the sakai_action parameter
 		String sakaiAction = req.getParameter("sakai_action");
 		if ( sakaiAction != null && sakaiAction.matches(".*[\"'<>].*" ) ) sakaiAction=null;
