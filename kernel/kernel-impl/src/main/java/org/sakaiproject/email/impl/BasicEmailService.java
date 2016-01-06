@@ -135,6 +135,9 @@ public class BasicEmailService implements EmailService
 	/** Whether to turn on mail debugging */
 	public static final String MAIL_DEBUG = "mail.debug";
 
+	public static final String MAIL_OURDOMAIN = "mail.ourdomain";
+	public static final String MAIL_REPLACEMENTFROM = "mail.replacementfrom";
+
 	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
 
 	protected ServerConfigurationService serverConfigurationService;
@@ -531,6 +534,24 @@ public class BasicEmailService implements EmailService
 		// date
 		if (msg.getHeader(EmailHeaders.DATE) == null)
 			msg.setSentDate(new Date(System.currentTimeMillis()));
+
+		String ourDomain = serverConfigurationService.getString(propName(MAIL_OURDOMAIN), null);
+		String replacementFrom = serverConfigurationService.getString(propName(MAIL_REPLACEMENTFROM), null);
+
+		if (ourDomain != null && replacementFrom != null &&
+		    !from.getAddress().toLowerCase().endsWith("." + ourDomain) &&
+		    !from.getAddress().toLowerCase().endsWith("@" + ourDomain)) {
+		    if ((replyTo == null || replyTo.length == 0 || replyTo[0].getAddress().equals("")) && msg.getHeader(EmailHeaders.REPLY_TO) == null) {
+			replyTo = new InternetAddress[1];
+			replyTo[0] = from;
+		    }
+		    String fromText = from.getPersonal();
+		    from = new InternetAddress(replacementFrom);
+		    try {
+			if (fromText != null && !fromText.equals(""))
+			    from.setPersonal(fromText);
+		    } catch (Exception e) {}
+		}
 
 		// set the message sender
 		msg.setFrom(from);
