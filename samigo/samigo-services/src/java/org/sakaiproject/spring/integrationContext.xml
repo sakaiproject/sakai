@@ -36,7 +36,12 @@
 
    <property name="calendarServiceHelper">
      <ref bean="calendarServiceHelper"/>
+   </property>    
+   
+   <property name="emailServiceHelper">
+     <ref bean="emailServiceHelper"/>
    </property>
+   
 </bean>
 
 <!-- context-sensitive agent behavior -->
@@ -72,6 +77,22 @@
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.CalendarServiceHelperImpl">
      <property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
 </bean>
+
+<bean name="emailServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.EmailServiceHelperImpl" init-method="init" >
+     <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+     <property name="emailTemplateService"><ref bean="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/></property>
+     <property name="emailTemplates" ref="org.sakaiproject.samigo.emailtemplates.List" />
+</bean>
+
+<!-- Setup email templates -->
+	<bean id="org.sakaiproject.samigo.emailtemplates.List" class="java.util.ArrayList">
+		<constructor-arg>
+      		<list>
+        		<value>publishAssessment.xml</value>
+      		</list>      
+    	</constructor-arg>
+  	</bean>
 
 <!-- External Assignment Provider -->
 <!-- This advises Gradebook on information like group access of assessments -->

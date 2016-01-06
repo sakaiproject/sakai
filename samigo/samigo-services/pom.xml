@@ -60,6 +60,10 @@
             <artifactId>sections-api</artifactId>
         </dependency>
         <dependency>
+        	<groupId>org.sakaiproject.emailtemplateservice</groupId>
+        	<artifactId>emailtemplateservice-api</artifactId>
+       </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
@@ -176,6 +180,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
+		<dependency>
+            <artifactId>jdom</artifactId>
+            <groupId>jdom</groupId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -188,6 +197,12 @@
             </resource>
             <resource>
                 <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+			<resource>
+                <directory>${basedir}/src/bundle</directory>
                 <includes>
                     <include>**/*.xml</include>
                 </includes>
