@@ -30,6 +30,7 @@ import java.util.Date;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,6 +59,7 @@ public class AuthorBean implements Serializable
   private String assessmentTypeId;
   private String assessmentDescription;
   private String assessmentID;
+  private String editPublishedAssessmentID;
   private AssessmentFacade assessment;
   private ArrayList assessmentTemplateList;
   private ArrayList assessments;
@@ -123,6 +125,14 @@ public class AuthorBean implements Serializable
   public String getAssessmentID()
   {
     return assessmentID;
+  }
+
+  /**
+   * @return the id for the published assessment being edited.
+   */
+  public String getEditPublishedAssessmentID()
+  {
+    return StringUtils.trimToEmpty( editPublishedAssessmentID );
   }
 
   public AssessmentFacade getAssessment()
@@ -298,6 +308,14 @@ public class AuthorBean implements Serializable
   public void setAssessTitle(String string)
   {
     assessTitle = string;
+  }
+
+  /**
+   * @param string the id
+   */
+  public void setEditPublishedAssessmentID( String string )
+  {
+    editPublishedAssessmentID = string;
   }
 
   /**

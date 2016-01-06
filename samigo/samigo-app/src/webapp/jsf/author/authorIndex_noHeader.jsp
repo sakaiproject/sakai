@@ -307,6 +307,7 @@ $(document).ready(function() {
 		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" itemDisabled="#{!author.canEditPublishedAssessment(publishedAssessment)}"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
 		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessment(publishedAssessment)}"/>
+		<f:param name="publishedId" value="#{publishedAssessment.publishedAssessmentId}"/>
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
 	  <h:selectOneMenu id="publishedSelectAction2" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{(author.isGradeable && publishedAssessment.submittedCount > 0) && !(author.isEditable && (!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
@@ -321,6 +322,7 @@ $(document).ready(function() {
 		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" itemDisabled="#{!author.canEditPublishedAssessment(publishedAssessment)}"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
 		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessment(publishedAssessment)}"/>
+		<f:param name="publishedId" value="#{publishedAssessment.publishedAssessmentId}"/>
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
 	  <h:selectOneMenu id="publishedSelectAction4" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{!(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && !(!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
