@@ -12,6 +12,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -82,6 +84,22 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
         	gradeMappingMap.put(gradeMapping.getId(), gradeMapping.getName());
         }
         		
+		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
+		//Preserve the expand/collapse state of the panel
+		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			@Override
+			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+			}
+		});
+		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			@Override
+			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+			}
+		});
+		add(settingsGradingSchemaPanel);
+
 		//grading scale type chooser
 		List<String> gradingSchemaList = new ArrayList<String>(gradeMappingMap.keySet());
 		final DropDownChoice<String> typeChooser = new DropDownChoice<String>("type", new PropertyModel<String>(model, "gradebookInformation.selectedGradeMappingId"), gradingSchemaList, new ChoiceRenderer<String>() {
@@ -99,7 +117,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
         });        
 		typeChooser.setNullValid(false);
 		typeChooser.setModelObject(currentGradeMappingId);
-		add(typeChooser);
+		settingsGradingSchemaPanel.add(typeChooser);
 		
 		//render the grading schema table
 		schemaWrap = new WebMarkupContainer("schemaWrap");
@@ -129,7 +147,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
   		};
   		schemaWrap.add(schemaView);
   		schemaWrap.setOutputMarkupId(true);
-  		add(schemaWrap);
+  		settingsGradingSchemaPanel.add(schemaWrap);
 		
   		
   		//handle updates on the schema type chooser, to repaint the table

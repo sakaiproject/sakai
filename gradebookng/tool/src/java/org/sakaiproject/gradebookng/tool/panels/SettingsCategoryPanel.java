@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
@@ -82,6 +83,22 @@ public class SettingsCategoryPanel extends Panel {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
 
+		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
+		//Preserve the expand/collapse state of the panel
+		settingsCategoriesPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			@Override
+			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+			}
+		});
+		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			@Override
+			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+			}
+		});
+		add(settingsCategoriesPanel);
+
 		// category types
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
 				new PropertyModel<Integer>(this.model, "gradebookInformation.categoryType"));
@@ -89,7 +106,7 @@ public class SettingsCategoryPanel extends Panel {
 		categoryType.add(new Radio<>("categoriesOnly", new Model<>(2)));
 		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(3)));
 		categoryType.setRequired(true);
-		add(categoryType);
+		settingsCategoriesPanel.add(categoryType);
 
 		// render category related form fields
 		final WebMarkupContainer categoriesWrap = new WebMarkupContainer("categoriesWrap") {
@@ -326,7 +343,7 @@ public class SettingsCategoryPanel extends Panel {
 		categoriesView.setReuseItems(true);
 		categoriesWrap.add(categoriesView);
 		categoriesWrap.setOutputMarkupId(true);
-		add(categoriesWrap);
+		settingsCategoriesPanel.add(categoriesWrap);
 
 		// add category button
 		final AjaxButton addCategory = new AjaxButton("addCategory") {

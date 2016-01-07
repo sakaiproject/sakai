@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -37,7 +39,23 @@ public class SettingsGradeReleasePanel extends Panel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-				
+
+		final WebMarkupContainer settingsGradeReleasePanel = new WebMarkupContainer("settingsGradeReleasePanel");
+		//Preserve the expand/collapse state of the panel
+		settingsGradeReleasePanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			@Override
+			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+			}
+		});
+		settingsGradeReleasePanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			@Override
+			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+			}
+		});
+		add(settingsGradeReleasePanel);
+
 		//display released items to students
         final AjaxCheckBox displayReleased = new AjaxCheckBox("displayReleased", new PropertyModel<Boolean>(model, "gradebookInformation.displayReleasedGradeItemsToStudents")) {
 			private static final long serialVersionUID = 1L;
@@ -48,7 +66,7 @@ public class SettingsGradeReleasePanel extends Panel {
 			}
         };
         displayReleased.setOutputMarkupId(true);
-        add(displayReleased);
+        settingsGradeReleasePanel.add(displayReleased);
         
         //display course grade
         final AjaxCheckBox displayCourseGrade = new AjaxCheckBox("displayCourseGrade", new PropertyModel<Boolean>(model, "gradebookInformation.courseGradeDisplayed")) {
@@ -61,7 +79,7 @@ public class SettingsGradeReleasePanel extends Panel {
 			}
         };
         displayCourseGrade.setOutputMarkupId(true);
-        add(displayCourseGrade);
+        settingsGradeReleasePanel.add(displayCourseGrade);
         
         //course grade type container
         final WebMarkupContainer courseGradeType = new WebMarkupContainer("courseGradeType") {
@@ -74,7 +92,7 @@ public class SettingsGradeReleasePanel extends Panel {
         	
         };
         courseGradeType.setOutputMarkupPlaceholderTag(true);
-        add(courseGradeType);
+        settingsGradeReleasePanel.add(courseGradeType);
         
         //letter grade
         final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade", new PropertyModel<Boolean>(model, "gradebookInformation.courseLetterGradeDisplayed")) {
@@ -163,7 +181,7 @@ public class SettingsGradeReleasePanel extends Panel {
         	
         };
         courseGradePreview.setOutputMarkupPlaceholderTag(true);
-        add(courseGradePreview);
+        settingsGradeReleasePanel.add(courseGradePreview);
         
 		//preview
         preview = new Label("preview", previewModel);
