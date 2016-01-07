@@ -68,7 +68,6 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
-
 		Collections.sort(categoryNames);
 
 		add(new ListView<String>("categoriesList", categoryNames) {
@@ -76,18 +75,18 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 			@Override
 			protected void populateItem(final ListItem<String> categoryItem) {
-				final String category = categoryItem.getModelObject();
+				final String categoryName = categoryItem.getModelObject();
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 
-				categoryItem.add(new Label("category", category));
+				categoryItem.add(new Label("category", categoryName));
 
 				final CheckBox categoryCheckbox = new CheckBox("categoryCheckbox");
-				categoryCheckbox.add(new AttributeModifier("value", category));
+				categoryCheckbox.add(new AttributeModifier("value", categoryName));
 				categoryCheckbox.add(new AttributeModifier("checked", "checked"));
 				categoryItem.add(categoryCheckbox);
 
-				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryNamesToAssignments.get(category)) {
+				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryNamesToAssignments.get(categoryName)) {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -124,9 +123,9 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				});
 
 				final WebMarkupContainer categoryScoreFilter = new WebMarkupContainer("categoryScore");
-				categoryScoreFilter.setVisible(category != getString("gradebookpage.uncategorised"));
+				categoryScoreFilter.setVisible(categoryName != getString(GradebookPage.UNCATEGORISED));
 				categoryScoreFilter.add(new Label("categoryScoreLabel",
-						new StringResourceModel("label.toolbar.categoryscorelabel", null, new Object[] { category })));
+						new StringResourceModel("label.toolbar.categoryscorelabel", null, new Object[] { categoryName })));
 
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
 				if (settings == null) {
@@ -135,8 +134,8 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				}
 
 				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox",
-						new Model<Boolean>(settings.isCategoryScoreVisible(category))) {// Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category))))
-																						// {
+						new Model<Boolean>(settings.isCategoryScoreVisible(categoryName))) {// Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category))))
+					// {
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -144,13 +143,13 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 							settings = new GradebookUiSettings();
 						}
 
-						final Boolean value = settings.isCategoryScoreVisible(category);
-						settings.setCategoryScoreVisibility(category, !value);
+						final Boolean value = settings.isCategoryScoreVisible(categoryName);
+						settings.setCategoryScoreVisibility(categoryName, !value);
 
 						gradebookPage.setUiSettings(settings);
 					}
 				};
-				categoryScoreCheckbox.add(new AttributeModifier("value", category));
+				categoryScoreCheckbox.add(new AttributeModifier("value", categoryName));
 				categoryScoreFilter.add(categoryScoreCheckbox);
 
 				categoryItem.add(categoryScoreFilter);
@@ -160,17 +159,16 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 	/**
 	 * Helper to get the category name. Looks at settings as well.
-	 * 
+	 *
 	 * @param assignment
 	 * @return
 	 */
 	private String getCategoryName(final Assignment assignment) {
 
 		if (!this.categoriesEnabled) {
-			return getString("gradebookpage.uncategorised");
+			return getString(GradebookPage.UNCATEGORISED);
 		}
 
-		return StringUtils.isBlank(assignment.getCategoryName()) ? getString("gradebookpage.uncategorised") : assignment.getCategoryName();
-
+		return StringUtils.isBlank(assignment.getCategoryName()) ? getString(GradebookPage.UNCATEGORISED) : assignment.getCategoryName();
 	}
 }

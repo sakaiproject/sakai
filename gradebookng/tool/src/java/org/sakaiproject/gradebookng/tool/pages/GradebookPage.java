@@ -35,8 +35,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.resource.CssResourceReference;
-import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -70,6 +68,10 @@ public class GradebookPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String CREATED_ASSIGNMENT_ID_PARAM = "createdAssignmentId";
+
+	// flag to indicate a category is uncategorised
+	// doubles as a translation key
+	public static final String UNCATEGORISED = "gradebookpage.uncategorised";
 
 	ModalWindow addOrEditGradeItemWindow;
 	ModalWindow studentGradeSummaryWindow;
@@ -106,8 +108,8 @@ public class GradebookPage extends BasePage {
 		this.addOrEditGradeItemWindow.showUnloadConfirmation(false);
 		this.addOrEditGradeItemWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
 			@Override
-			public boolean onCloseButtonClicked(AjaxRequestTarget target) {
-				//Ensure the date picker is hidden
+			public boolean onCloseButtonClicked(final AjaxRequestTarget target) {
+				// Ensure the date picker is hidden
 				target.appendJavaScript("$('#ui-datepicker-div').hide();");
 				return true;
 			}
@@ -588,21 +590,24 @@ public class GradebookPage extends BasePage {
 		Session.get().setAttribute("GBNG_UI_SETTINGS", settings);
 	}
 
-	public void renderHead(IHeaderResponse response) {
+	@Override
+	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		String version = ServerConfigurationService.getString("portal.cdn.version", "");
+		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
-		//Drag and Drop/Date Picker (requires jQueryUI)
+		// Drag and Drop/Date Picker (requires jQueryUI)
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/jquery/ui/1.11.3/jquery-ui.min.js?version=%s", version)));
 
-		//Include Sakai Date Picker
+		// Include Sakai Date Picker
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js?version=%s", version)));
 
-		//GradebookNG Grade specific styles and behaviour
+		// GradebookNG Grade specific styles and behaviour
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grades.js?version=%s", version)));
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
 	}
 }
