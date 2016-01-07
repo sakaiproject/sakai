@@ -14,6 +14,7 @@
 		</div>
 		<div wicket:id="settingsCategoriesPanel" id="settingsCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsCategoriesHeader">
 			<div class="panel-body">
+			
 				<div wicket:id="categoryType">
 					<div class="radio"><label><input wicket:id="none" type="radio"/><wicket:message key="settingspage.categories.none" /></label></div>
 					<div class="radio"><label><input wicket:id="categoriesOnly" type="radio"/><wicket:message key="settingspage.categories.categoriesonly" /></label></div>
@@ -25,6 +26,11 @@
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropHighest" type="checkbox"/><wicket:message key="settingspage.categories.drophighest" /></label></div>
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropLowest" type="checkbox"/><wicket:message key="settingspage.categories.droplowest" /></label></div>
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><wicket:message key="settingspage.categories.keephighest" /></label></div>
+					</div>
+					
+					<div class="instruction">
+						<div><wicket:message key="settingspage.categories.instructions.1" /></div>
+						<div><wicket:message key="settingspage.categories.instructions.2" /></div>
 					</div>
 
 					<table class="table table-striped table-bordered table-hover">
