@@ -100,6 +100,14 @@ public class GradebookPage extends BasePage {
 		addOrEditGradeItemWindow.setResizable(false);
 		addOrEditGradeItemWindow.setUseInitialHeight(false);
 		addOrEditGradeItemWindow.showUnloadConfirmation(false);
+		addOrEditGradeItemWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
+			@Override
+			public boolean onCloseButtonClicked(AjaxRequestTarget target) {
+				//Ensure the date picker is hidden
+				target.appendJavaScript("$('#ui-datepicker-div').hide();");
+				return true;
+			}
+		});
 		form.add(addOrEditGradeItemWindow);
 		
 		studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
