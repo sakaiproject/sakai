@@ -200,6 +200,7 @@
         <bean class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
           <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
           <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
           <property name="persistenceHelper" ref="persistenceHelper"/>
 	</bean>
@@ -280,6 +281,14 @@
 	<value>true</value>
       </property>
     </bean>
+
+	<!-- Conversion utility for moving media to Content Hosting -->
+	<!-- Doesn't really depend on SakaiBootStrap, but needs to init after it -->
+	<bean id="MediaContentConverter"
+			class="org.sakaiproject.tool.assessment.util.MediaContentConverter"
+			init-method="init" depends-on="org.sakaiproject.tool.assessment.shared.SakaiBootStrap">
+		<property name="persistenceService" ref="PersistenceService" />
+	</bean>
 
   <bean id="QTIService"
     class="org.sakaiproject.tool.assessment.services.qti.QTIService">

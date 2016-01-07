@@ -41,8 +41,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -66,9 +68,9 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -87,6 +89,8 @@ public class MessageForumStatisticsBean {
 		private String siteId;
 		private String siteUser;
 		private String siteUserId;
+		private String siteAnonId = null;
+		private boolean useAnonId;
 		private int authoredForumsAmt;
 		private int readForumsAmt;
 		private int unreadForumsAmt;
@@ -127,6 +131,26 @@ public class MessageForumStatisticsBean {
 		
 		public void setSiteUserId(String newValue){
 			this.siteUserId = newValue;
+		}
+
+		public String getSiteAnonId(){
+			return this.siteAnonId;
+		}
+
+		public void setSiteAnonId(String newValue){
+			this.siteAnonId = newValue;
+		}
+
+		public boolean getUseAnonId(){
+			return this.useAnonId;
+		}
+
+		public void setUseAnonId(boolean newValue){
+			this.useAnonId = newValue;
+		}
+
+		public String getAnonAwareId(){
+			return useAnonId ? siteAnonId : siteUser;
 		}
 		
 		public int getAuthoredForumsAmt(){
@@ -431,6 +455,8 @@ public class MessageForumStatisticsBean {
  	private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
  	private static final String GRADE_INVALID_GENERIC = "cdfm_grade_invalid_warn";
 
+	private boolean m_displayAnonIds; // this will be true in a pure-anon scenario
+
 	
 	public Map getCourseMemberMap(){
 		return this.courseMemberMap;
@@ -450,6 +476,11 @@ public class MessageForumStatisticsBean {
 	private DiscussionForumManager forumManager;
 	
 	private MembershipManager membershipManager;
+
+	/** Manages anonymous IDs */
+	private AnonymousManager anonymousManager;
+
+	private ToolManager toolManager;
 	
 	
 	/** Needed to determine if user has read permission of topic */
@@ -461,6 +492,16 @@ public class MessageForumStatisticsBean {
 	
 	public void setForumManager(DiscussionForumManager forumManager){
 		this.forumManager = forumManager;
+	}
+
+	public void setAnonymousManager(AnonymousManager anonymousManager)
+	{
+		this.anonymousManager = anonymousManager;
+	}
+
+	public void setToolManager(ToolManager toolManager)
+	{
+		this.toolManager = toolManager;
 	}
 	
 	
@@ -498,6 +539,25 @@ public class MessageForumStatisticsBean {
 		selectedAllTopicsTopicTitle = null;
 		//clear any gradebook info:
 		resetGradebookVariables();
+
+		// Determine whether the site is a pure anonymous scenario (Ie. all topics in the site are anonymous)
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		List<Topic> allTopics = forumManager.getTopicsInSite(siteId);
+		// If it's empty, reveal identities, otherwise assume it's pure anonymous until we find a topic on which we need to reveal IDs
+		m_displayAnonIds = !allTopics.isEmpty();
+		for (Topic topic : allTopics)
+		{
+			if (!isUseAnonymousId(topic))
+			{
+				m_displayAnonIds = false;
+				break;
+			}
+		}
+		Map<String, String> userIdAnonIdMap = new HashMap<>();
+		if (m_displayAnonIds)
+		{
+			userIdAnonIdMap.putAll(anonymousManager.getUserIdAnonIdMap(siteId));
+		}
 
 		Map<String, Integer> studentTotalCount = getStudentTopicMessagCount();
 		
@@ -561,8 +621,20 @@ public class MessageForumStatisticsBean {
 					userInfo.setAuthoredForumsAmt(0);
 				}
 				
-				userInfo.setSiteUserId(item.getUser().getId());
+				String userId = item.getUser().getId();
+				userInfo.setSiteUserId(userId);
 				userInfo.setSiteUser(item.getName());
+				if (m_displayAnonIds)
+				{
+					String anonId = userIdAnonIdMap.get(userId);
+					if (StringUtils.isEmpty(anonId))
+					{
+						// AnonymousMapping isn't in the database yet. Create it:
+						anonId = anonymousManager.getOrCreateAnonId(siteId, userId);
+					}
+					userInfo.setSiteAnonId(anonId);
+				}
+				userInfo.setUseAnonId(m_displayAnonIds);
 
 				Integer totalForum = 0;
 				if(studentTotalCount.containsKey(item.getUser().getId())){
@@ -591,11 +663,13 @@ public class MessageForumStatisticsBean {
 
 			if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
 					&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
-				statistics.addAll(messageManager.findAuthoredStatsForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId)));
+				List<UserStatistics> allStatistics = messageManager.findAuthoredStatsForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+				statistics.addAll(filterToAnonAwareStatistics(allStatistics));
 			}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
 				statistics.addAll(messageManager.findAuthoredStatsForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId)));
 			}else{
-				statistics.addAll(messageManager.findAuthoredStatsForStudent(selectedSiteUserId));
+				List<UserStatistics> allStatistics = messageManager.findAuthoredStatsForStudent(selectedSiteUserId);
+				statistics.addAll(filterToAnonAwareStatistics(allStatistics));
 			}
 			sortStatisticsByUser(statistics);
 			userAuthoredStatisticsCache.put(selectedSiteUserId, statistics);
@@ -608,9 +682,31 @@ public class MessageForumStatisticsBean {
 		
 		return userAuthoredStatisticsCache.get(selectedSiteUserId);
 	}
+
+	/**
+	 * Filters out statistics associcated with anonymous topics for which the user is not permitted to see IDs
+	 */
+	private List<UserStatistics> filterToAnonAwareStatistics(List<UserStatistics> statistics)
+	{
+		if (!isAnonymousEnabled() || m_displayAnonIds)
+		{
+			return statistics;
+		}
+		List<UserStatistics> filtered = new ArrayList<>();
+		for (UserStatistics stats : statistics)
+		{
+			Topic topic = forumManager.getTopicById(Long.parseLong(stats.getTopicId()));
+			if (!isUseAnonymousId(topic))
+			{
+				filtered.add(stats);
+			}
+		}
+		return filtered;
+	}
 	
 	public List getTopicStatistics(){
 		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
+		m_displayAnonIds = false;
 				
 		if((selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) || selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId)){
 			Map<String, Integer> userMessageTotal = new HashMap<String, Integer>();
@@ -618,6 +714,7 @@ public class MessageForumStatisticsBean {
 			Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
 			if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
 				DiscussionTopic currTopic = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId));
+				m_displayAnonIds = isUseAnonymousId(currTopic);
 				int topicMessages = messageManager.findMessageCountByTopicId(Long.parseLong(selectedAllTopicsTopicId));
 				userMessageTotal = getStudentTopicMessagCount(forum, currTopic, topicMessages, overridingPermissionMap);
 			}else{
@@ -627,8 +724,14 @@ public class MessageForumStatisticsBean {
 				for(Object[] objArr : totalTopcsCountList){
 					totalTopcsCountMap.put((Long) objArr[0], (Integer) objArr[1]);
 				}
+				// if there are no topics, reveal IDs; otherwise assume we're in a pure anonymous scenario (all topics are anonymous), if we find one that isn't anonymous, we'll flip it to false
+				m_displayAnonIds = !forum.getTopicsSet().isEmpty();
 				for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
 					DiscussionTopic currTopic = (DiscussionTopic)itor.next();
+					if (m_displayAnonIds && (!isUseAnonymousId(currTopic)))
+					{
+						m_displayAnonIds = false;
+					}
 
 					Integer topicCount = totalTopcsCountMap.get(currTopic.getId());
 					if(topicCount == null){
@@ -710,7 +813,7 @@ public class MessageForumStatisticsBean {
 			
 			if(!DEFAULT_GB_ITEM.equals(selectedGroup)){
 				try{
-					Site currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());		
+					Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());		
 					if(currentSite.hasGroups()){
 						Group group = currentSite.getGroup(selectedGroup);
 						
@@ -737,6 +840,19 @@ public class MessageForumStatisticsBean {
 				}
 			}
 
+			Map<String, String> userIdAnonIdMap = null;
+			// If appropriate, get the map of userIds -> anonIds in one query up front
+			if (m_displayAnonIds)
+			{
+				String siteId = toolManager.getCurrentPlacement().getContext();
+				List<String> userIds = new ArrayList<>();
+				for (DecoratedUser dUser : dUsers)
+				{
+					userIds.add(dUser.getId());
+				}
+				userIdAnonIdMap = anonymousManager.getOrCreateUserIdAnonIdMap(siteId, userIds);
+			}
+
 			for (Iterator i = dUsers.iterator(); i.hasNext();) {
 				DecoratedUser item = (DecoratedUser) i.next();
 				userInfo = tmpStatistics.get(item.getId());
@@ -748,6 +864,12 @@ public class MessageForumStatisticsBean {
 
 				userInfo.setSiteUserId(item.getId());
 				userInfo.setSiteUser(item.getName());
+				// Set up the anonId for this userInfo if appropriate
+				userInfo.setUseAnonId(m_displayAnonIds);
+				if (m_displayAnonIds)
+				{
+					userInfo.setSiteAnonId(userIdAnonIdMap.get(item.getId()));
+				}
 				Integer totalForum = 0;
 				if(userMessageTotal.containsKey(item.getId())){
 					totalForum = userMessageTotal.get(item.getId());
@@ -776,6 +898,40 @@ public class MessageForumStatisticsBean {
 		}
 		
 		gradeStatistics = statistics;
+		// gradeStatistics is updated; keep track of which gb assignment / group is being represented
+		m_gradeStatisticsAssign = selectedAssign;
+		m_gradeStatisticsGroup = selectedGroup;
+		m_comparator = determineComparator();
+		return gradeStatistics;
+	}
+
+	// Keep track of the gb assignment / group that's being represented by gradeStatistics
+	String m_gradeStatisticsAssign = null;
+	String m_gradeStatisticsGroup = null;
+	Comparator m_comparator = null;
+	/**
+	 * Retreives topic statistics while determining whether to retrieve them from the cache or by invoking getTopicStatistics()
+	 */
+	public List getGradeStatisticsForStatsListByTopic()
+	{
+		// Determine if something has changed that warrants the cached gradeStatistics to be refreshed
+		// Has the selected gradebook assignment or the selected group changed since the gradeStatistics were cached?
+		boolean refreshCachedStatistics = !StringUtils.equals(m_gradeStatisticsAssign, selectedAssign) || !StringUtils.equals(m_gradeStatisticsGroup, selectedGroup);
+		if (!refreshCachedStatistics)
+		{
+			// Are we sorting on a different column?
+			Comparator comparator = determineComparator();
+			if (comparator != null && !comparator.equals(m_comparator))
+			{
+				refreshCachedStatistics = true;
+			}
+		}
+
+		if (refreshCachedStatistics)
+		{
+			// The selected gradebook assignment or group has changed; our gradeStatistics need to be updated
+			getTopicStatistics();
+		}
 		return gradeStatistics;
 	}
 	
@@ -840,11 +996,13 @@ public class MessageForumStatisticsBean {
 		List<Message> messages;
 		if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
 				&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
-			messages = messageManager.findAuthoredMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+			List<Message> allMessages = messageManager.findAuthoredMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+			messages = filterToAnonAwareMessages(allMessages);
 		}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
 			messages = messageManager.findAuthoredMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
 		}else{
-			messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);
+			List<Message> allMessages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);
+			messages = filterToAnonAwareMessages(allMessages);
 		}
 		 
 		if (messages == null) return statistics;
@@ -883,6 +1041,37 @@ public class MessageForumStatisticsBean {
 		return statistics;
 	}
 	
+	/**
+	 * Filters out messages associated with anonymous topics for which the user is not permitted to see IDs
+	 */
+	private List<Message> filterToAnonAwareMessages(List<Message> messages)
+	{
+		if (!isAnonymousEnabled() || m_displayAnonIds)
+		{
+			return messages;
+		}
+
+		List<Message> filtered = new ArrayList<Message>();
+		// Map topics to value of 'isUseAnonymousId(Topic)' to prevent redundant queries
+		Map<Topic, Boolean> topicToUseAnon = new HashMap<>();
+		for (Message message : messages)
+		{
+			Topic topic = message.getTopic();
+			Boolean useAnon = topicToUseAnon.get(topic);
+			if (useAnon == null)
+			{
+				useAnon = Boolean.valueOf(isUseAnonymousId(topic));
+				topicToUseAnon.put(topic, useAnon);
+			}
+			if (!useAnon)
+			{
+				// User can see IDs for this topic; add it to the result set
+				filtered.add(message);
+			}
+		}
+		return filtered;
+	}
+
 	private String getCurrentUserId() {
 		String currentUserId = SessionManager.getCurrentSessionUserId();;
 		return currentUserId;
@@ -941,11 +1130,13 @@ public class MessageForumStatisticsBean {
 
 			if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
 					&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
-				statistics.addAll(messageManager.findReadStatsForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId)));
+				List<UserStatistics> allStatistics = messageManager.findReadStatsForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+				statistics.addAll(filterToAnonAwareStatistics(allStatistics));
 			}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
 				statistics.addAll(messageManager.findReadStatsForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId)));
 			}else{
-				statistics.addAll(messageManager.findReadStatsForStudent(selectedSiteUserId));	
+				List<UserStatistics> allStatistics = messageManager.findReadStatsForStudent(selectedSiteUserId);
+				statistics.addAll(filterToAnonAwareStatistics(allStatistics));
 			}
 
 			sortStatisticsByUser2(statistics);	
@@ -1508,8 +1699,8 @@ public class MessageForumStatisticsBean {
 		 */
 		nameComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String name1 = ((DecoratedCompiledMessageStatistics) item).getSiteUser().toUpperCase();
-				String name2 = ((DecoratedCompiledMessageStatistics) anotherItem).getSiteUser().toUpperCase();
+				String name1 = ((DecoratedCompiledMessageStatistics) item).getAnonAwareId().toUpperCase();
+				String name2 = ((DecoratedCompiledMessageStatistics) anotherItem).getAnonAwareId().toUpperCase();
 				return name1.compareTo(name2);
 			}
 		};
@@ -1579,8 +1770,8 @@ public class MessageForumStatisticsBean {
 		};
 		nameComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String name1 = ((DecoratedCompiledMessageStatistics) item).getSiteUser().toUpperCase();
-				String name2 = ((DecoratedCompiledMessageStatistics) anotherItem).getSiteUser().toUpperCase();
+				String name1 = ((DecoratedCompiledMessageStatistics) item).getAnonAwareId().toUpperCase();
+				String name2 = ((DecoratedCompiledMessageStatistics) anotherItem).getAnonAwareId().toUpperCase();
 				return name2.compareTo(name1);
 			}
 		};
@@ -1809,39 +2000,8 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				DecoratedCompiledMessageStatistics stat = ((DecoratedCompiledMessageStatistics) item);
 				DecoratedCompiledMessageStatistics stat2 = ((DecoratedCompiledMessageStatistics) anotherItem);
-				
-				if(stat.getGradebookAssignment() == null || !stat.getGradebookAssignment().isAllowedToGrade())
-					return -1;
-				
-				if(stat2.getGradebookAssignment() == null || !stat2.getGradebookAssignment().isAllowedToGrade())
-					return 1;
-				
-				if(stat.getGradebookAssignment().getScore() == null || "".equals(stat.getGradebookAssignment().getScore()))
-					return -1;
-				
-				if(stat2.getGradebookAssignment().getScore() == null || "".equals(stat.getGradebookAssignment().getScore()))
-					return 1;
-				
-				if(!isNumber(stat.getGradebookAssignment().getScore()))
-					return -1;
-				
-				if(!isNumber(stat2.getGradebookAssignment().getScore()))
-					return 1;
-				
-				try{
-					double val = Double.valueOf(stat.getGradebookAssignment().getScore()).doubleValue() - Double.valueOf(stat2.getGradebookAssignment().getScore()).doubleValue();
-					if(val > 0){
-						return 1;
-					}else{
-						return -1;
-					}
-				}catch(NumberFormatException e){					
-				}
-				
-				//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
-				//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
-				//the user enters the data and when it gets submitted in JSP (behind the scenes)
-				return nameComparatorAsc.compare(item, anotherItem);
+
+				return compareGradesFromStats(stat, stat2);
 			}
 		};
 		
@@ -1849,42 +2009,70 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				DecoratedCompiledMessageStatistics stat = ((DecoratedCompiledMessageStatistics) item);
 				DecoratedCompiledMessageStatistics stat2 = ((DecoratedCompiledMessageStatistics) anotherItem);
-				
-				if(stat.getGradebookAssignment() == null || !stat.getGradebookAssignment().isAllowedToGrade())
-					return 1;
-				
-				if(stat2.getGradebookAssignment() == null || !stat2.getGradebookAssignment().isAllowedToGrade())
-					return -1;
-				
-				if(stat.getGradebookAssignment().getScore() == null || "".equals(stat.getGradebookAssignment().getScore()))
-					return 1;
-				
-				if(stat2.getGradebookAssignment().getScore() == null || "".equals(stat.getGradebookAssignment().getScore()))
-					return -1;
-				
-				if(!isNumber(stat.getGradebookAssignment().getScore()))
-					return 1;
-				
-				if(!isNumber(stat2.getGradebookAssignment().getScore()))
-					return -1;
-				
-				try{
-					double val = Double.valueOf(stat.getGradebookAssignment().getScore()).doubleValue() - Double.valueOf(stat2.getGradebookAssignment().getScore()).doubleValue();
-					if(val < 0){
-						return 1;
-					}else{
-						return -1;
-					}
-				}catch(NumberFormatException e){
-				}
-				
-				//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
-				//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
-				//the user enters the data and when it gets submitted in JSP (behind the scenes)
-				return nameComparatorAsc.compare(item, anotherItem);
-				
+
+				return 0 - compareGradesFromStats(stat, stat2);
 			}
 		};
+	}
+
+	/**
+	 * Compares two statistics by grades.
+	 * Higher grades are greater than lower grades.
+	 * Stats with equal grades are compared by name
+	 * If one has a grade, and the other doesn't, treat having a grade as greater than not having a grade
+	 * If neither has a grade, compare by name
+	 */
+	private static int compareGradesFromStats(DecoratedCompiledMessageStatistics stat1, DecoratedCompiledMessageStatistics stat2)
+	{
+		Double grd1 = getGradeFromStat(stat1);
+		Double grd2 = getGradeFromStat(stat2);
+		// If they're both null, or an equal grade, revert to the name comparator
+		if ((grd1 == null && grd2 == null) || (grd1 != null && grd1.equals(grd2)))
+		{
+			return nameComparatorAsc.compare(stat1, stat2);
+		}
+		boolean exists1 = grd1 != null;
+		boolean exists2 = grd2 != null;
+		if (exists1 && exists2)
+		{
+			// Both grades exist, compare them
+			return Double.compare(grd1, grd2);
+		}
+		// One grade exists and the other doesn't, Boolean compare their existence
+		return Boolean.compare(exists1, exists2);
+	}
+
+	/**
+	 * Gets the grade from a statistics if possible, otherwise returns null
+	 */
+	private static Double getGradeFromStat(DecoratedCompiledMessageStatistics stat)
+	{
+		if (stat == null)
+		{
+			return null;
+		}
+		DecoratedGradebookAssignment asn = stat.getGradebookAssignment();
+		if (asn == null || !asn.isAllowedToGrade())
+		{
+			return null;
+		}
+
+		String score = asn.getScore();
+		if (StringUtils.isBlank(score) || !isNumber(score))
+		{
+			return null;
+		}
+
+		try
+		{
+			return Double.valueOf(score);
+		}
+		catch (NumberFormatException e)
+		{
+			// Impossible - isNumber would have caught this
+		}
+
+		return null;
 	}
 	
 	/**
@@ -1907,21 +2095,29 @@ public class MessageForumStatisticsBean {
 	}
 	
 	public String processActionStatisticsUserHelper(){
-		selectedSiteUser = getUserName(selectedSiteUserId);
+		Map<String, String> userIdName = getUserIdName();
+
+		if (!m_displayAnonIds)
+		{
+			selectedSiteUser = getUserName(selectedSiteUserId);
+		}
+		else
+		{
+			// set display name to anonymous id
+			selectedSiteUser = StringUtils.trimToEmpty(userIdName.get(selectedSiteUserId));
+		}
 		
 		isLastParticipant = false;
 		isFirstParticipant = false;
 		
-		Map<String, String> userIdName = getUserIdName();
 		Set<String> userIdSet = userIdName.keySet();
 		String[] userIdArray =(String[]) userIdSet.toArray(new String[userIdSet.size()]);
-		int currentPosition = getCurrentPosition(userIdArray, selectedSiteUserId);
 		
-		if(currentPosition == 0) {
-			isFirstParticipant = true;
-		}
-		if(currentPosition == userIdArray.length - 1) {
-			isLastParticipant = true;
+		int len = userIdArray.length;
+		if (len > 0)
+		{
+			isFirstParticipant = userIdArray[0].equals(selectedSiteUserId);
+			isLastParticipant = userIdArray[len - 1].equals(selectedSiteUserId);
 		}
 		
 		return FORUM_STATISTICS_USER;
@@ -1971,22 +2167,24 @@ public class MessageForumStatisticsBean {
 
 	public String getButtonUserName() {
 		String userName;
-		String firstName;
-		String lastName;
-		int firstIndex = 0;
-		int secondIndex = 0;
-		if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
-			firstIndex = selectedSiteUser.indexOf(",");
-			secondIndex = selectedSiteUser.indexOf("(");
-			lastName = selectedSiteUser.substring(0, firstIndex);
-			firstName = selectedSiteUser.substring(firstIndex + 2, secondIndex-1);
-			userName = firstName + " " + lastName;	
-		} else {
-			firstIndex = selectedSiteUser.indexOf(",");
-			lastName = selectedSiteUser.substring(0, firstIndex);
-			firstName = selectedSiteUser.substring(firstIndex+2);		
-			userName = firstName + " " + lastName;			
+
+		if (m_displayAnonIds)
+		{
+			userName = StringUtils.trimToEmpty(anonymousManager.getAnonId(toolManager.getCurrentPlacement().getContext(), selectedSiteUserId));
 		}
+		else
+		{
+			try
+			{
+				User u = UserDirectoryService.getUser(selectedSiteUserId);
+				userName = u.getDisplayName();
+			}
+			catch (UserNotDefinedException unde)
+			{
+				userName = selectedSiteUser;
+			}
+		}
+
 		buttonUserName = getResourceBundleString("return_to_statistics" , new Object[] {userName}) ;
 		return buttonUserName;
 	}
@@ -2048,19 +2246,59 @@ public class MessageForumStatisticsBean {
 		this.selectedTopicTitle = selectedTopicTitle;
 	}
 	
+	/**
+	 * Builds a map of userid (uuid) to name (for display), or to anonymous id, as determined by bean state
+	 * @return map of Sakai user id to display name/anonymous id
+	 */
 	public Map<String, String> getUserIdName() {
 		Map<String, String> idNameMap = new LinkedHashMap<String, String>();
 		
 		Map courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
-		List members = membershipManager.convertMemberMapToList(courseMemberMap);		
+		List<MembershipItem> members;
+		if (m_displayAnonIds)
+		{
+			members = convertNameToAnonIdAndSort(courseMemberMap);
+		}
+		else
+		{
+			members = membershipManager.convertMemberMapToList(courseMemberMap);
+		}
 
-		for (Iterator i = members.iterator(); i.hasNext();) {
-			MembershipItem item = (MembershipItem) i.next();
+		for (MembershipItem item : members)
+		{
 			if (null != item.getUser()) {				
 				idNameMap.put(item.getUser().getId(), item.getName());
 			}
 		}
 		return idNameMap;
+	}
+
+	/**
+	 * Replace the name for each membership item with the anonid, then sort. Sorting by default uses the name attribute
+	 * @param memberMap map of id (this is NOT the user uuid or eid) to membershipitem
+	 * @return list of memberhip items with names replaced by anonid, sorted by anonid
+	 */
+	private List<MembershipItem> convertNameToAnonIdAndSort(Map<String, MembershipItem> memberMap)
+	{
+		Map<String, String> userIdToAnonIdMap = anonymousManager.getUserIdAnonIdMap(toolManager.getCurrentPlacement().getContext());
+		List<MembershipItem> list = new ArrayList<>();
+		for (MembershipItem item : memberMap.values())
+		{
+			User u = item.getUser();
+			if (u != null)
+			{
+				String anonId = userIdToAnonIdMap.get(u.getId());
+				if (anonId != null)
+				{
+					item.setName(anonId);
+					list.add(item);
+				}
+			}
+		}
+
+		Collections.sort(list);
+
+		return list;
 	}
 
 	private int getCurrentPosition(Object[] userIdArray, String userId)  {
@@ -2167,6 +2405,10 @@ public class MessageForumStatisticsBean {
 			}
 		}
 							
+		// Get topic statistics. For performance, we want this information up front and cached before we render the jsp files.
+		// The default gradebook assignment must be known before we get the statistics, since grades will be included
+		setDefaultSelectedAssign();
+		getTopicStatistics();
 		return FORUM_STATISTICS_BY_TOPIC;
 	}
 
@@ -2212,7 +2454,7 @@ public class MessageForumStatisticsBean {
 			GradebookService gradebookService = getGradebookService();
 
 			if(getGradebookExist()) {
-				List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+				List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext());
 				for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
 					Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
 					if(!thisAssign.isExternallyMaintained()) {
@@ -2252,7 +2494,7 @@ public class MessageForumStatisticsBean {
 			}
 
 			GradebookService g = (GradebookService) og;
-			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			String gradebookUid = toolManager.getCurrentPlacement().getContext();
 			if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
 			{
 				rv = true;
@@ -2276,7 +2518,7 @@ public class MessageForumStatisticsBean {
 
 				GradebookService gradebookService = getGradebookService();
 				if (gradebookService == null) return false;
-				gradebookExist = gradebookService.isGradebookDefined(ToolManager.getCurrentPlacement().getContext());
+				gradebookExist = gradebookService.isGradebookDefined(toolManager.getCurrentPlacement().getContext());
 				gradebookExistChecked = true;
 				return gradebookExist;
 			}
@@ -2305,7 +2547,7 @@ public class MessageForumStatisticsBean {
 			gradebookItemChosen = true;
 			selectedAssign = changeAssign; 
 			if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
-				String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+				String gradebookUid = toolManager.getCurrentPlacement().getContext();
 				selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();	
 			}
 
@@ -2391,7 +2633,7 @@ public class MessageForumStatisticsBean {
 		Map<String, DecoratedGradebookAssignment> returnVal = new HashMap<String, DecoratedGradebookAssignment>();
 
 		if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
-			String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+			String gradebookUid = toolManager.getCurrentPlacement().getContext();
 			selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
 
 
@@ -2499,7 +2741,7 @@ public class MessageForumStatisticsBean {
 			try 
 			{   
 				String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
-				String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
+				String gradebookUuid = toolManager.getCurrentPlacement().getContext();
 				
 				List<GradeDefinition> gradeInfoToSave = new ArrayList<GradeDefinition>();
 				for (DecoratedCompiledMessageStatistics gradeStatistic : gradeStatistics) {
@@ -2552,7 +2794,7 @@ public class MessageForumStatisticsBean {
 	private String getEventReference(String ref) 
 	{
 		String eventMessagePrefix = "";
-		final String toolId = ToolManager.getCurrentTool().getId();
+		final String toolId = toolManager.getCurrentTool().getId();
 
 		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
 			eventMessagePrefix = "/messagesAndForums";
@@ -2580,7 +2822,7 @@ public class MessageForumStatisticsBean {
 		}
 		
 		GradebookService gradebookService = getGradebookService();
-		String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+		String gradebookUid = toolManager.getCurrentPlacement().getContext();
 		List<String> studentsWithInvalidGrades = gradebookService.identifyStudentsWithInvalidGrades(
 		        gradebookUid, studentIdToGradeMap);
 		
@@ -2631,7 +2873,7 @@ public class MessageForumStatisticsBean {
 	private String getContextSiteId()
 	{
 		LOG.debug("getContextSiteId()");
-		return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+		return ("/site/" + toolManager.getCurrentPlacement().getContext());
 	}
 	
 	public static boolean isNumber(String validateString) 
@@ -2668,7 +2910,7 @@ public class MessageForumStatisticsBean {
 		if(groups == null){
 			groups = new ArrayList<SelectItem>();
 			try{
-				Site currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());		
+				Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());		
 				if(currentSite.hasGroups()){					
 					groups.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(DEFAULT_ALL_GROUPS)));
 					Collection siteGroups = currentSite.getGroups();    
@@ -2682,6 +2924,27 @@ public class MessageForumStatisticsBean {
 			}
 		}
 		return groups;
+	}
+
+	List<SelectItem> m_groupsForStatisticsByTopic;
+	public List<SelectItem> getGroupsForStatisticsByTopic()
+	{
+		// Set up the topic statistics, cache things like m_displayAnonIds
+		if (m_displayAnonIds)
+		{
+			// Prevent single-user group exploit of anonymity
+			m_groupsForStatisticsByTopic = Collections.emptyList();
+		}
+		else
+		{
+			m_groupsForStatisticsByTopic = getGroups();
+		}
+		return m_groupsForStatisticsByTopic;
+	}
+
+	public List<SelectItem> getCachedGroupsForStatisticsByTopic()
+	{
+		return m_groupsForStatisticsByTopic;
 	}
 
 	public void setGroups(List<SelectItem> groups) {
@@ -2796,5 +3059,36 @@ public class MessageForumStatisticsBean {
 			}
 		}
 		return overridingPermissionMap;
+	}
+
+	private boolean isAnonymousEnabled()
+	{
+		return anonymousManager.isAnonymousEnabled();
+	}
+
+	public boolean isPureAnon()
+	{
+		if (!isAnonymousEnabled())
+		{
+			return false;
+		}
+		return m_displayAnonIds && isAnonymousEnabled();
+	}
+
+	private boolean isUseAnonymousId(Topic topic)
+	{
+		if (!isAnonymousEnabled())
+		{
+			return false;
+		}
+
+		// if topic.postAnonymous
+		//   if topic.revealIDsToRoles
+		//     return !uiPermissionManager.isIdentifyAnonAuthors
+		//   return true
+		// return false
+
+		// Condenses to:
+		return topic.getPostAnonymous() && (!topic.getRevealIDsToRoles() || !uiPermissionsManager.isIdentifyAnonAuthors(topic));
 	}
 }

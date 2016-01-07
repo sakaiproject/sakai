@@ -596,6 +596,13 @@ public interface DiscussionForumManager
   * to determine permission
   */
   public Set<String> getUsersAllowedForTopic(Long topicId, boolean checkReadPermission, boolean checkModeratePermission);
-  
 
+  /** gets all topics within a site */
+  public List<Topic> getTopicsInSite(final String contextId);
+
+  /** gets all anonymous topics within a site */
+  public List<Topic> getAnonymousTopicsInSite(final String contextId);
+
+  /** returns true if getAnonymousTopicsInSite() is not empty */
+  public boolean isSiteHasAnonymousTopics(final String contextId);
 }

@@ -59,6 +59,7 @@ public class ToolConsumer {
         LTI2Vars.PERSON_SOURCEDID, 
         LTI2Vars.RESOURCELINK_ID, 
         LTI2Vars.RESOURCELINK_TITLE, 
+        LTI2Vars.RESOURCELINK_DESCRIPTION, 
         LTI2Vars.CONTEXT_ID, 
         LTI2Vars.CONTEXT_TYPE, 
         LTI2Vars.CONTEXT_LABEL, 
@@ -66,7 +67,9 @@ public class ToolConsumer {
         LTI2Vars.COURSESECTION_SOURCEDID, 
         LTI2Vars.COURSESECTION_LABEL,
         LTI2Vars.COURSESECTION_LONGDESCRIPTION,
-        LTI2Vars.MEMBERSHIP_ROLE
+        LTI2Vars.MEMBERSHIP_ROLE,
+        LTI2Vars.TOOLCONSUMERPROFILE_URL,
+        LTI2Vars.RESULT_SOURCEDID
     } ;
 
     // Constructor
@@ -187,6 +190,7 @@ public class ToolConsumer {
     }
 
     public void allowName() {
+        this.capability_offered.add(LTI2Vars.USER_USERNAME);
         this.capability_offered.add(LTI2Vars.PERSON_SOURCEDID);
         this.capability_offered.add(LTI2Vars.PERSON_NAME_FULL);
         this.capability_offered.add(LTI2Vars.PERSON_NAME_GIVEN);

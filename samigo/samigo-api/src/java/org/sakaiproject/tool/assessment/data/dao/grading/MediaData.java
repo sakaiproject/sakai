@@ -28,6 +28,8 @@ import java.util.Date;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.ServerOverloadException;
 
 /**
  * 
@@ -55,6 +57,10 @@ public class MediaData implements Serializable {
 	private String lastModifiedBy;
 	private Date lastModifiedDate;
 	private String duration;
+	// Transient field to hold the ContentResource for media storage.
+	// When AssessmentGradingFacadeQueries.saveMedia is called, the byte array is written
+	// to a resource, rather than the blob column.
+	private ContentResource contentResource;
 
 	public MediaData() {
 	}
@@ -137,11 +143,34 @@ public class MediaData implements Serializable {
 	}
 
 	public byte[] getMedia() {
+		if (media == null && contentResource != null) {
+			try {
+				return contentResource.getContent();
+			} catch (ServerOverloadException e) {
+				return null;
+			}
+		}
 		return media;
 	}
 
 	public void setMedia(byte[] media) {
 		this.media = media;
+	}
+
+	public byte[] getDbMedia() {
+		return media;
+	}
+
+	public void setDbMedia(byte[] media) {
+		this.media = media;
+	}
+
+	public ContentResource getContentResource() {
+		return contentResource;
+	}
+
+	public void setContentResource(ContentResource contentResource) {
+		this.contentResource = contentResource;
 	}
 
 	public Long getFileSize() {

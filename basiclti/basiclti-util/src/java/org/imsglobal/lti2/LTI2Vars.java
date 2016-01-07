@@ -46,6 +46,7 @@ public class LTI2Vars {
 	public static final String CONTEXT_LABEL = "Context.label";
 	public static final String CONTEXT_TITLE = "Context.title";
 	public static final String CONTEXT_ID_HISTORY = "Context.id.history";
+	public static final String TOOLCONSUMERPROFILE_URL = "ToolConsumerProfile.url";
 
 	/**
 	 * COURSEOFFERING_ACADEMICSESSION
@@ -533,6 +534,8 @@ public class LTI2Vars {
 	 *  <code>membershipRecord/membership/member/role/roleType  </code>
 	 */
 	public static final String MEMBERSHIP_ROLE = "Membership.role";
+	public static final String MEMBERSHIP_ROLE_LEARNER = "Learner";
+	public static final String MEMBERSHIP_ROLE_INSTRUCTOR = "Instructor";
 
 	/**
 	 * MEMBERSHIP_SOURCEDID
@@ -878,6 +881,22 @@ public class LTI2Vars {
 	 *  request to read, update or delete the resource at this URL.
 	 */
 	public static final String RESULT_URL = "Result.url";
+
+	/**
+	 * TOOLCONSUMERINFO_PRODUCTFAMILYCODE
+	 *
+	 *  The code for the product (i.e. like "sakai" or "learn")
+	 */
+	public static final String TOOLCONSUMERINFO_PRODUCTFAMILYCODE = "ToolConsumerInfo.productFamilyCode";
+
+	/**
+	 * TOOLCONSUMERINFO_VERSION
+	 *
+	 *  The code for the product (i.e. like "sakai" or "learn")
+	 */
+	public static final String TOOLCONSUMERINFO_VERSION = "ToolConsumerInfo.version";
+
+
 
 	/**
 	 * TOOLPROXY_CUSTOM_URL

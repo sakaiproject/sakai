@@ -591,6 +591,23 @@ ASN.togglePeerAssessmentOptions = function(checked){
     }
 };
 
+ASN.toggleAddOptions = function(checked){
+        //Disable the peer review area and renable the site property unless this is selected 
+        var section = document.getElementById("peerAssessmentOptions");
+        section.style.display="none";
+        ASN.resizeFrame('shrink');
+        $("#site").prop("disabled", false);
+        //When Peer Assement options is selected
+        if(checked == "peerreview"){
+            section.style.display="block";
+            ASN.resizeFrame('grow');
+        //When Group Submission is checked
+        }else if (checked=="group"){
+            $("#site").prop("disabled", true);
+            $("#groups").prop("checked", true).trigger("click");
+        }
+    }
+    
 ASN.toggleReviewServiceOptions = function(checked){
     var section = document.getElementById("reviewServiceOptions");
     if(checked){
@@ -820,43 +837,43 @@ ASN.doTagsListAction = function( formID, value, providerID )
     form.providerId.value = providerID;
 };
 
-ASN.showAllowResubmission = function()
+ASN.toggleAllowResubmissionPanel = function()
 {
-    document.getElementById('allowResubmission_shown').style.display="inline";
-    document.getElementById('allowResubmission_hidden').style.display="none";
-    $('#allowResubmission_shownInner').addClass('highLightBlock').fadeIn(2000,function(){
-        $(this).removeClass('highLightBlock');
-    });
-    document.getElementById('allowResToggle').value="checked";
-    ASN.resizeFrame('grow');
-};
+    var panel = document.getElementById("allowResubmissionPanelContent");
+    $(panel).slideToggle(200);
+    var expandImg = document.getElementById("expandAllowResub");
+    var collapseImg = document.getElementById("collapseAllowResub");
+    ASN.swapDisplay(expandImg, collapseImg);
+    
+    var allow = document.getElementById("allowResToggle");
+    if (allow.value === "checked")
+    {
+        allow.value = "";
+    }
+    else
+    {
+        allow.value = "checked";
+    }
+}
 
-ASN.hideAllowResubmission = function()
+ASN.toggleSendFeedbackPanel = function()
 {
-    $('#allowResubmission_shownInner').fadeOut('fast', function() {
-        document.getElementById('allowResubmission_shown').style.display="none";
-        document.getElementById('allowResubmission_hidden').style.display="inline";
-        document.getElementById('allowResToggle').value="";
-    });
-};
+    var panel = document.getElementById("sendFeedbackPanelContent");
+    $(panel).slideToggle(200);
+    var expandImg = document.getElementById("expandSendFeedback");
+    var collapseImg = document.getElementById("collapseSendFeedback");
+    ASN.swapDisplay(expandImg, collapseImg);
+    var showLabel = document.getElementById("showSendFeedbackLabel");
+    var hideLabel = document.getElementById("hideSendFeedbackLabel");
+    ASN.swapDisplay(showLabel, hideLabel);
+}
 
-ASN.showSendFeedback = function()
+ASN.swapDisplay = function(elem1, elem2)
 {
-    document.getElementById('sendFeedback_shown').style.display="inline";
-    document.getElementById('sendFeedback_hidden').style.display="none";
-    $('#sendFeedback_shownInner').addClass('highLightBlock').fadeIn(2000,function(){
-        $(this).removeClass('highLightBlock');
-    });
-   ASN.resizeFrame('grow');
-};
-
-ASN.hideSendFeedback = function()
-{
-    $('#sendFeedback_shownInner').fadeOut('fast', function() {
-        document.getElementById('sendFeedback_shown').style.display="none";
-        document.getElementById('sendFeedback_hidden').style.display="inline";
-    });
-};
+    var tmpDisplay = elem1.style.display;
+    elem1.style.display = elem2.style.display;
+    elem2.style.display = tmpDisplay;
+}
 
 ASN.toggleIsGroupSubmission = function(checked){
     if (checked) {

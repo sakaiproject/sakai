@@ -39,6 +39,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -938,6 +939,34 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       LOG.error(e.getMessage(), e);
       return false;
     }
+    return false;
+  }
+
+  public boolean isIdentifyAnonAuthors(Topic topic)
+  {
+    String currentUserId = getCurrentUserId();
+    if (isSuperUser(currentUserId))
+    {
+      return true;
+    }
+
+    try
+    {
+      Iterator iter = getTopicItemsByUser(topic.getId(), currentUserId, getContextId());
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getIdentifyAnonAuthors())
+        {
+          return true;
+        }
+      }
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+    }
+
     return false;
   }
   

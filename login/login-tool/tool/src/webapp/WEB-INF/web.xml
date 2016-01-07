@@ -24,17 +24,13 @@
     </filter>
 
      <filter>
-         <filter-name>Spring Delegated Filter</filter-name>
+         <filter-name>springSecurityFilterChain</filter-name>
          <filter-class>org.sakaiproject.login.springframework.SafeDelegatingFilterProxy</filter-class>
-         <init-param>
-             <param-name>targetBeanName</param-name>
-             <param-value>org.springframework.security.web.FilterChainProxy</param-value>
-         </init-param>
      </filter>
 
      <filter-mapping>
-         <filter-name>Spring Delegated Filter</filter-name>
-         <url-pattern>/container</url-pattern>
+         <filter-name>springSecurityFilterChain</filter-name>
+         <url-pattern>/container/*</url-pattern>
          <dispatcher>REQUEST</dispatcher>
          <dispatcher>FORWARD</dispatcher>
          <dispatcher>INCLUDE</dispatcher>
@@ -59,7 +55,6 @@
         <servlet-name>sakai.logout.container</servlet-name>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
-    
 
     <servlet>
         <servlet-name>sakai.login</servlet-name>
@@ -98,16 +93,14 @@
         <url-pattern>/container/logout</url-pattern>
     </servlet-mapping>
 
-
      <servlet-mapping>
          <servlet-name>sakai.login</servlet-name>
          <url-pattern>/*</url-pattern>
      </servlet-mapping>
 
      <listener>
-         <listener-class>org.sakaiproject.login.springframework.SakaiHomeContextLoaderListener</listener-class>
+         <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
      </listener>
-
 
 	<listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
