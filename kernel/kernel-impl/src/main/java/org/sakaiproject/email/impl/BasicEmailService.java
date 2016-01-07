@@ -632,8 +632,8 @@ public class BasicEmailService implements EmailService
 	 */
 	private void checkFrom(MimeMessage msg) {
 
-	    String sendFromSakai = serverConfigurationService.getString(propName(MAIL_SENDFROMSAKAI), "true");
-	    String sendExceptions = serverConfigurationService.getString(propName(MAIL_SENDFROMSAKAI_EXCEPTIONS), null);
+	    String sendFromSakai = serverConfigurationService.getString(MAIL_SENDFROMSAKAI, "true");
+	    String sendExceptions = serverConfigurationService.getString(MAIL_SENDFROMSAKAI_EXCEPTIONS, null);
 	    InternetAddress from = null;
 	    InternetAddress[] replyTo = null;
 
@@ -691,7 +691,7 @@ public class BasicEmailService implements EmailService
 
 			String origFromText = from.getPersonal();
 			String origFromAddress = from.getAddress();
-			String fromTextPattern = serverConfigurationService.getString(propName(MAIL_SENDFROMSAKAI_FROMTEXT), "{}");
+			String fromTextPattern = serverConfigurationService.getString(MAIL_SENDFROMSAKAI_FROMTEXT, "{}");
 
 			String fromText = null;
 			if (origFromText != null && !origFromText.equals(""))
