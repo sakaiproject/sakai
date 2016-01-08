@@ -5,12 +5,13 @@ package org.sakaiproject.gradebookng.business;
  *
  */
 public enum SortDirection {
-	
+
 	ASCENDING,
 	DESCENDING;
-	
+
 	/**
 	 * Get the next sort type
+	 * 
 	 * @return
 	 */
 	public SortDirection toggle() {

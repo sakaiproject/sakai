@@ -13,7 +13,7 @@ import lombok.Setter;
 
 /**
  * Class for managing user settings for the gradebook NG tool. This is per user and per site
- * 
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
@@ -25,31 +25,28 @@ public class GradebookUserPreferences {
 	@Setter
 	@XmlElement
 	private String userUuid;
-	
+
 	@Getter
 	@Setter
 	@XmlElement
 	private String siteId;
-	
+
 	@Getter
 	@Setter
 	@XmlElement
 	public int sortOrder;
-	
-	
+
 	private GradebookUserPreferences() {
-		//JAXB constructor
+		// JAXB constructor
 	}
-	
-	public GradebookUserPreferences(String userUuid) {
+
+	public GradebookUserPreferences(final String userUuid) {
 		this.userUuid = userUuid;
 	}
-	
-	
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
-	
-	
+
 }

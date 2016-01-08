@@ -8,26 +8,26 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Generic wrapper for a list of items for XML serialising
- * 
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-@XmlRootElement(name="list")
+@XmlRootElement(name = "list")
 public class XmlList<T> {
 
-    private List<T> items;
+	private final List<T> items;
 
-    public XmlList() {
-        items = new ArrayList<T>();
-    }
+	public XmlList() {
+		this.items = new ArrayList<T>();
+	}
 
-    public XmlList(List<T> items) {
-        this.items = items;
-    }
+	public XmlList(final List<T> items) {
+		this.items = items;
+	}
 
-    @XmlAnyElement(lax=true)
-    public List<T> getItems() {
-        return items;
-    }
+	@XmlAnyElement(lax = true)
+	public List<T> getItems() {
+		return this.items;
+	}
 
 }

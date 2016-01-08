@@ -2,7 +2,6 @@ package org.sakaiproject.gradebookng.business.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,48 +12,43 @@ public class FormatHelper {
 
 	/**
 	 * The value is a double (ie 12.34) that needs to be formatted as a percentage with two decimal places precision.
+	 * 
 	 * @param score as a double
 	 * @return percentage to decimal places with a '%' for good measure
 	 */
-	public static String formatDoubleAsPercentage(Double score) {
-		NumberFormat df = DecimalFormat.getInstance();
+	public static String formatDoubleAsPercentage(final Double score) {
+		final NumberFormat df = NumberFormat.getInstance();
 		df.setMinimumFractionDigits(0);
 		df.setMaximumFractionDigits(2);
 		df.setRoundingMode(RoundingMode.DOWN);
 
-		//TODO does the % need to be internationalised?
+		// TODO does the % need to be internationalised?
 		return df.format(score) + "%";
 	}
 
-
-	public static String formatStringAsPercentage(String string) {
-		if(StringUtils.isBlank(string)) {
+	public static String formatStringAsPercentage(final String string) {
+		if (StringUtils.isBlank(string)) {
 			return null;
 		}
 
-		BigDecimal decimal = new BigDecimal(string);
-		decimal.setScale(2, RoundingMode.HALF_DOWN); //same as GradebookService
+		final BigDecimal decimal = new BigDecimal(string);
+		decimal.setScale(2, RoundingMode.HALF_DOWN); // same as GradebookService
 
 		return formatDoubleAsPercentage(decimal.doubleValue());
 	}
 
-
 	/**
-	 * Format a grade, e.g.
-	 * 00 => 0
-	 * 0001 => 1
-	 * 1.0 => 1
-	 * 1.25 => 1.25
+	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25
+	 * 
 	 * @param grade
 	 * @return
 	 */
-	public static String formatGrade(String grade) {
+	public static String formatGrade(final String grade) {
 		if (StringUtils.isBlank(grade)) {
 			return "";
 		}
 		return StringUtils.removeEnd(String.valueOf(Double.parseDouble(grade)), ".0");
 	}
-
 
 	/**
 	 * Format a date e.g. MM/dd/yyyy
@@ -62,11 +56,10 @@ public class FormatHelper {
 	 * @param date
 	 * @return
 	 */
-	private static String formatDate(Date date) {
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy"); //TODO needs to come from i18n
+	private static String formatDate(final Date date) {
+		final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy"); // TODO needs to come from i18n
 		return df.format(date);
 	}
-
 
 	/**
 	 * Format a date but return ifNull if null
@@ -75,14 +68,13 @@ public class FormatHelper {
 	 * @param ifNull
 	 * @return
 	 */
-	public static String formatDate(Date date, String ifNull) {
-		if(date == null) {
+	public static String formatDate(final Date date, final String ifNull) {
+		if (date == null) {
 			return ifNull;
 		}
 
 		return formatDate(date);
 	}
-
 
 	/**
 	 * Format a date with a time e.g. MM/dd/yyyy HH:mm
@@ -90,8 +82,8 @@ public class FormatHelper {
 	 * @param date
 	 * @return
 	 */
-	public static String formatDateTime(Date date) {
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //TODO needs to come from i18n
+	public static String formatDateTime(final Date date) {
+		final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm"); // TODO needs to come from i18n
 		return df.format(date);
 	}
 }

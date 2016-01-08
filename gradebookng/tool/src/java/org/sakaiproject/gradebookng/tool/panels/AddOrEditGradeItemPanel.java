@@ -28,6 +28,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * The panel for the add and edit grade item window
+ * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
@@ -35,11 +36,11 @@ public class AddOrEditGradeItemPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
-	
+
 	IModel<Long> model;
-	
+
 	/**
 	 * How this panel is rendered
 	 */
@@ -47,57 +48,58 @@ public class AddOrEditGradeItemPanel extends Panel {
 		ADD,
 		EDIT;
 	}
-	
+
 	Mode mode;
 
-	public AddOrEditGradeItemPanel(String id, final ModalWindow window, IModel<Long> model) {
+	public AddOrEditGradeItemPanel(final String id, final ModalWindow window, final IModel<Long> model) {
 		super(id);
 		this.model = model;
-				
-		//determine mode
-		if(model != null) {
-			mode = Mode.EDIT;
+
+		// determine mode
+		if (model != null) {
+			this.mode = Mode.EDIT;
 		} else {
-			mode = Mode.ADD;
+			this.mode = Mode.ADD;
 		}
-		
-		//setup the backing object
+
+		// setup the backing object
 		Assignment assignment;
-		
-		if(mode == Mode.EDIT) {
-			Long assignmentId = this.model.getObject();
+
+		if (this.mode == Mode.EDIT) {
+			final Long assignmentId = this.model.getObject();
 			assignment = this.businessService.getAssignment(assignmentId);
-			
-			//TODO if we are in edit mode and don't have an assignment, need to error here
-			
+
+			// TODO if we are in edit mode and don't have an assignment, need to error here
+
 		} else {
-			//Mode.ADD
+			// Mode.ADD
 			assignment = new Assignment();
 			// Default released to true
 			assignment.setReleased(true);
 			// If no categories, then default counted to true
-			Gradebook gradebook = businessService.getGradebook();
+			final Gradebook gradebook = this.businessService.getGradebook();
 			assignment.setCounted(GradebookService.CATEGORY_TYPE_NO_CATEGORY == gradebook.getCategory_type());
 		}
-		
-		//form model
-		Model<Assignment> formModel = new Model<Assignment>(assignment);
 
-		//form
-		Form<Assignment> form = new Form<Assignment>("addOrEditGradeItemForm", formModel);
+		// form model
+		final Model<Assignment> formModel = new Model<Assignment>(assignment);
 
-		AjaxButton submit = new AjaxButton("submit") {
+		// form
+		final Form<Assignment> form = new Form<Assignment>("addOrEditGradeItemForm", formModel);
+
+		final AjaxButton submit = new AjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
-			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				Assignment assignment =  (Assignment) form.getModelObject();
 
-				if(mode == Mode.EDIT) {
-					
-					//TODO validation of the fields here
-					
-					boolean success = businessService.updateAssignment(assignment);
-					
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+				final Assignment assignment = (Assignment) form.getModelObject();
+
+				if (AddOrEditGradeItemPanel.this.mode == Mode.EDIT) {
+
+					// TODO validation of the fields here
+
+					final boolean success = AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
+
 					if (success) {
 						getSession().info(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
 						setResponsePage(getPage().getPageClass());
@@ -105,63 +107,64 @@ public class AddOrEditGradeItemPanel extends Panel {
 						error(new ResourceModel("message.edititem.error").getObject());
 						target.addChildren(form, FeedbackPanel.class);
 					}
-					
+
 				} else {
-				
+
 					Long assignmentId = null;
-	
+
 					boolean success = true;
 					try {
-						assignmentId = businessService.addAssignment(assignment);
-					} catch (AssignmentHasIllegalPointsException e) {
+						assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(assignment);
+					} catch (final AssignmentHasIllegalPointsException e) {
 						error(new ResourceModel("error.addgradeitem.points").getObject());
 						success = false;
-					} catch (ConflictingAssignmentNameException e) {
+					} catch (final ConflictingAssignmentNameException e) {
 						error(new ResourceModel("error.addgradeitem.title").getObject());
 						success = false;
-					} catch (ConflictingExternalIdException e) {
+					} catch (final ConflictingExternalIdException e) {
 						error(new ResourceModel("error.addgradeitem.exception").getObject());
 						success = false;
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						error(new ResourceModel("error.addgradeitem.exception").getObject());
 						success = false;
 					}
 					if (success) {
 						getSession().info(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
-						setResponsePage(getPage().getPageClass(), new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
+						setResponsePage(getPage().getPageClass(),
+								new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
 					} else {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 				}
-				
+
 			}
 		};
-		
-		//submit button label
-		submit.add(new Label("submitLabel", this.getSubmitButtonLabel()));
-		form.add(submit);
-		
-		//heading
-		form.add(new Label("heading", this.getHeadingLabel()));
 
-		//add the common components
+		// submit button label
+		submit.add(new Label("submitLabel", getSubmitButtonLabel()));
+		form.add(submit);
+
+		// heading
+		form.add(new Label("heading", getHeadingLabel()));
+
+		// add the common components
 		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel));
 
-		//feedback panel
-		FeedbackPanel feedback = new FeedbackPanel("addGradeFeedback") {
+		// feedback panel
+		final FeedbackPanel feedback = new FeedbackPanel("addGradeFeedback") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected Component newMessageDisplayComponent(final String id, final FeedbackMessage message) {
 				final Component newMessageDisplayComponent = super.newMessageDisplayComponent(id, message);
 
-				if(message.getLevel() == FeedbackMessage.ERROR ||
-								message.getLevel() == FeedbackMessage.DEBUG ||
-								message.getLevel() == FeedbackMessage.FATAL ||
-								message.getLevel() == FeedbackMessage.WARNING){
+				if (message.getLevel() == FeedbackMessage.ERROR ||
+						message.getLevel() == FeedbackMessage.DEBUG ||
+						message.getLevel() == FeedbackMessage.FATAL ||
+						message.getLevel() == FeedbackMessage.WARNING) {
 					add(AttributeModifier.replace("class", "messageError"));
 					add(AttributeModifier.append("class", "feedback"));
-				} else if(message.getLevel() == FeedbackMessage.INFO){
+				} else if (message.getLevel() == FeedbackMessage.INFO) {
 					add(AttributeModifier.replace("class", "messageSuccess"));
 					add(AttributeModifier.append("class", "feedback"));
 				}
@@ -172,42 +175,45 @@ public class AddOrEditGradeItemPanel extends Panel {
 		feedback.setOutputMarkupId(true);
 		form.add(feedback);
 
-		//cancel button
-		AjaxButton cancel = new AjaxButton("cancel") {
+		// cancel button
+		final AjaxButton cancel = new AjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
+
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 				window.close(target);
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
-		
+
 		add(form);
 	}
-	
+
 	/**
 	 * Helper to get the model for the button
+	 * 
 	 * @return
 	 */
 	private ResourceModel getSubmitButtonLabel() {
-		if(mode == Mode.EDIT) {
+		if (this.mode == Mode.EDIT) {
 			return new ResourceModel("button.savechanges");
 		} else {
 			return new ResourceModel("button.create");
 		}
 	}
-	
+
 	/**
 	 * Helper to get the model for the heading
+	 * 
 	 * @return
 	 */
 	private ResourceModel getHeadingLabel() {
-		if(mode == Mode.EDIT) {
+		if (this.mode == Mode.EDIT) {
 			return new ResourceModel("heading.editgradeitem");
 		} else {
 			return new ResourceModel("heading.addgradeitem");
 		}
 	}
-	
+
 }
