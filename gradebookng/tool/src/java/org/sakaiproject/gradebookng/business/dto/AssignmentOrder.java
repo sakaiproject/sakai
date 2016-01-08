@@ -13,9 +13,9 @@ import lombok.Setter;
 
 /**
  * Class for storing the categorized order of an assignment.
- * 
+ *
  * A list of these is persisted as XML into the site tool properties and used for sorting
- * 
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
@@ -27,32 +27,30 @@ public class AssignmentOrder {
 	@Setter
 	@XmlElement
 	private Long assignmentId;
-	
+
 	@Getter
 	@Setter
 	@XmlElement
 	private int order;
 
-  @Getter
-  @Setter
-  @XmlElement
-  private String category;
+	@Getter
+	@Setter
+	@XmlElement
+	private String category;
 
-  @SuppressWarnings("unused")
 	private AssignmentOrder() {
-		//JAXB constructor
+		// JAXB constructor
 	}
-	
-	public AssignmentOrder(long assignmentId, String category, int order) {
+
+	public AssignmentOrder(final long assignmentId, final String category, final int order) {
 		this.assignmentId = new Long(assignmentId);
-    this.category = category;
+		this.category = category;
 		this.order = order;
 	}
-	
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
-	
-	
+
 }

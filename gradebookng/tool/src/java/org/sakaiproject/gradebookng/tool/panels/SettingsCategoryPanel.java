@@ -84,16 +84,16 @@ public class SettingsCategoryPanel extends Panel {
 		}
 
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
-		//Preserve the expand/collapse state of the panel
+		// Preserve the expand/collapse state of the panel
 		settingsCategoriesPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
 			@Override
-			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
 			}
 		});
 		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
 			@Override
-			protected void onEvent(AjaxRequestTarget ajaxRequestTarget) {
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
 			}
 		});
@@ -432,7 +432,7 @@ public class SettingsCategoryPanel extends Panel {
 		 * Double will be a decimal fraction between 0 and 1 inclusive.
 		 */
 		@Override
-		public String convertToString(Double value, final Locale locale) {
+		public String convertToString(final Double value, final Locale locale) {
 
 			// set the decimal precision
 			final NumberFormat df = NumberFormat.getInstance();
@@ -441,9 +441,9 @@ public class SettingsCategoryPanel extends Panel {
 			df.setRoundingMode(RoundingMode.DOWN);
 
 			// convert to percentage representation
-			value = value * 100;
+			final Double rval = value * 100;
 
-			return df.format(value);
+			return df.format(rval);
 		}
 
 	}

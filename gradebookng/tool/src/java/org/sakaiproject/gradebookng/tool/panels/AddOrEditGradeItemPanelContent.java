@@ -28,6 +28,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * The panel for the add grade item window
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
@@ -35,118 +36,121 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-    @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-    private GradebookNgBusinessService businessService;
-  
-    private AjaxCheckBox counted;
-    private AjaxCheckBox released;
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
-    public AddOrEditGradeItemPanelContent(String id, Model<Assignment> assignmentModel) {
-        super(id, assignmentModel);
+	private AjaxCheckBox counted;
+	private AjaxCheckBox released;
 
-        final Gradebook gradebook = businessService.getGradebook();
+	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel) {
+		super(id, assignmentModel);
 
-        final AddOrEditGradeItemPanelContent thisPanel = this;
+		final Gradebook gradebook = this.businessService.getGradebook();
 
-        Assignment assignment = assignmentModel.getObject();
+		final Assignment assignment = assignmentModel.getObject();
 
-        add(new TextField<String>("title", new PropertyModel<String>(assignmentModel, "name")));
-        add(new TextField<Double>("points", new PropertyModel<Double>(assignmentModel, "points")));
-        add(new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"), "MM/dd/yyyy")); //TODO needs to come from i18n
+		add(new TextField<String>("title", new PropertyModel<String>(assignmentModel, "name")));
+		add(new TextField<Double>("points", new PropertyModel<Double>(assignmentModel, "points")));
+		add(new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"), "MM/dd/yyyy")); // TODO needs to come from
+																												// i18n
 
-        final List<CategoryDefinition> categories = businessService.getGradebookCategories();
+		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
 
-        final Map<Long, CategoryDefinition> categoryMap = new LinkedHashMap<>();
-        for (CategoryDefinition category : categories) {
-            categoryMap.put(category.getId(), category);
-        }
+		final Map<Long, CategoryDefinition> categoryMap = new LinkedHashMap<>();
+		for (final CategoryDefinition category : categories) {
+			categoryMap.put(category.getId(), category);
+		}
 
-        final DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category", new PropertyModel<Long>(assignmentModel, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
-			private static final long serialVersionUID = 1L;
+		final DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category",
+				new PropertyModel<Long>(assignmentModel, "categoryId"), new ArrayList<Long>(categoryMap.keySet()),
+				new IChoiceRenderer<Long>() {
+					private static final long serialVersionUID = 1L;
 
-			public Object getDisplayValue(Long value) {
-                CategoryDefinition category = categoryMap.get(value);
-                if (GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type()) {
-                    String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
-                    return MessageFormat.format(getString("label.addgradeitem.categorywithweight"), category.getName(), weight);
-                } else {
-                    return category.getName();
-                }
-            }
+					@Override
+					public Object getDisplayValue(final Long value) {
+						final CategoryDefinition category = categoryMap.get(value);
+						if (GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type()) {
+							final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
+							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"), category.getName(), weight);
+						} else {
+							return category.getName();
+						}
+					}
 
-            public String getIdValue(Long object, int index) {
-                return object.toString();
-            }
+					@Override
+					public String getIdValue(final Long object, final int index) {
+						return object.toString();
+					}
 
-        });
-        categoryDropDown.setNullValid(true);
-        categoryDropDown.setVisible(!categories.isEmpty());
-        add(categoryDropDown);
+				});
+		categoryDropDown.setNullValid(true);
+		categoryDropDown.setVisible(!categories.isEmpty());
+		add(categoryDropDown);
 
-        add(new WebMarkupContainer("noCategoriesMessage") {
-            @Override
-            public boolean isVisible() {
-                return categories.isEmpty();
-            }
-        });
-
-        //if an extra credit category is selected, this will be unchecked and disabled
-        final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit", new PropertyModel<Boolean>(assignmentModel, "extraCredit")) {
-			private static final long serialVersionUID = 1L;
-
+		add(new WebMarkupContainer("noCategoriesMessage") {
 			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				//nothing required
+			public boolean isVisible() {
+				return categories.isEmpty();
 			}
-        };
-        extraCredit.setOutputMarkupId(true);
-        add(extraCredit);
-        
-        released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
+		});
+
+		// if an extra credit category is selected, this will be unchecked and disabled
+		final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit", new PropertyModel<Boolean>(assignmentModel, "extraCredit")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				if(!this.getModelObject()) {
-					counted.setModelObject(false);
-					target.add(counted);
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		extraCredit.setOutputMarkupId(true);
+		add(extraCredit);
+
+		this.released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				if (!getModelObject()) {
+					AddOrEditGradeItemPanelContent.this.counted.setModelObject(false);
+					target.add(AddOrEditGradeItemPanelContent.this.counted);
 				}
 			}
-        };
-        released.setOutputMarkupId(true);
-        add(released);
-        
-        //if checked, release must also be checked and then disabled
-        counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
+		};
+		this.released.setOutputMarkupId(true);
+		add(this.released);
+
+		// if checked, release must also be checked and then disabled
+		this.counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				if(this.getModelObject()) {
-					released.setModelObject(true);
+			protected void onUpdate(final AjaxRequestTarget target) {
+				if (getModelObject()) {
+					AddOrEditGradeItemPanelContent.this.released.setModelObject(true);
 				}
-				target.add(released);
+				target.add(AddOrEditGradeItemPanelContent.this.released);
 			}
-        };
+		};
 
-        if (businessService.categoriesAreEnabled()) {
-            counted.setEnabled(assignment.getCategoryId() != null);
-        }
+		if (this.businessService.categoriesAreEnabled()) {
+			this.counted.setEnabled(assignment.getCategoryId() != null);
+		}
 
-        add(counted);
-        
-        //behaviour for when a category is chosen. If the category is extra credit, deselect and disable extra credit checkbox
-        categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		add(this.counted);
+
+		// behaviour for when a category is chosen. If the category is extra credit, deselect and disable extra credit checkbox
+		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
 			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				
-				Long selected = (Long) categoryDropDown.getModelObject();
-				
-				//if extra credit, deselect and disable the 'extraCredit' checkbox
-				CategoryDefinition category = categoryMap.get(selected);
-				
-				if(category != null && category.isExtraCredit()) {
+			protected void onUpdate(final AjaxRequestTarget target) {
+
+				final Long selected = categoryDropDown.getModelObject();
+
+				// if extra credit, deselect and disable the 'extraCredit' checkbox
+				final CategoryDefinition category = categoryMap.get(selected);
+
+				if (category != null && category.isExtraCredit()) {
 					extraCredit.setModelObject(false);
 					extraCredit.setEnabled(false);
 				} else {
@@ -154,23 +158,21 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 				}
 				target.add(extraCredit);
 
-
-				if (businessService.categoriesAreEnabled()) {
+				if (AddOrEditGradeItemPanelContent.this.businessService.categoriesAreEnabled()) {
 					if (category == null) {
-						counted.setEnabled(false);
-						counted.setModelObject(false);
+						AddOrEditGradeItemPanelContent.this.counted.setEnabled(false);
+						AddOrEditGradeItemPanelContent.this.counted.setModelObject(false);
 					} else {
-						counted.setEnabled(true);
-						counted.setModelObject(true);
-						released.setModelObject(true);
+						AddOrEditGradeItemPanelContent.this.counted.setEnabled(true);
+						AddOrEditGradeItemPanelContent.this.counted.setModelObject(true);
+						AddOrEditGradeItemPanelContent.this.released.setModelObject(true);
 					}
 
-					target.add(counted);
-					target.add(released);
+					target.add(AddOrEditGradeItemPanelContent.this.counted);
+					target.add(AddOrEditGradeItemPanelContent.this.released);
 				}
 			}
 		});
-        
-        
-    }
+
+	}
 }

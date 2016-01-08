@@ -5,9 +5,6 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
-import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -25,25 +22,22 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.GbPortalPermission;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
+import lombok.Setter;
+
 /**
- * This entity provider is to support some of the Javascript front end pieces.
- * It never was built to support third party access, and never will support that
- * use case.
- * 
- * The data you need for Gradebook integrations should already be available in
- * the standard gradebook entityprovider
- * 
+ * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
+ * will support that use case.
+ *
+ * The data you need for Gradebook integrations should already be available in the standard gradebook entityprovider
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
- * 
+ *
  */
-@CommonsLog
 public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		EntityProvider, AutoRegisterEntityProvider, ActionsExecutable,
 		Outputable, Describeable {
@@ -60,13 +54,14 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	/**
 	 * site/assignment-list
-	 * @throws IdUnusedException 
+	 *
+	 * @throws IdUnusedException
 	 */
 	@EntityCustomAction(action = "assignments", viewKey = EntityView.VIEW_LIST)
-	public List<Assignment> getAssignmentList(EntityView view) {
+	public List<Assignment> getAssignmentList(final EntityView view) {
 
 		// get siteId
-		String siteId = view.getPathSegment(2);
+		final String siteId = view.getPathSegment(2);
 
 		// check siteId supplied
 		if (StringUtils.isBlank(siteId)) {
@@ -77,34 +72,30 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// check instructor
 		checkInstructor(siteId);
-		
+
 		// get assignment list
-		List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
-				
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
+
 		return assignments;
 	}
-	
+
 	/**
-	 * Update the order of an assignment in the gradebook
-	 * This is a per site setting.
-	 * 
+	 * Update the order of an assignment in the gradebook This is a per site setting.
+	 *
 	 * @param ref
-	 * @param params map, must include:
-	 * siteId
-	 * assignmentId
-	 * new order
-	 * 
-	 * an assignmentorder object will be created and saved as a list in the XML property 'gbng_assignment_order'
+	 * @param params map, must include: siteId assignmentId new order
+	 *
+	 *            an assignmentorder object will be created and saved as a list in the XML property 'gbng_assignment_order'
 	 */
 	@EntityCustomAction(action = "assignment-order", viewKey = EntityView.VIEW_NEW)
-	public void updateAssignmentOrder(EntityReference ref, Map<String, Object> params) {
-		
-		// get params
-		String siteId = (String) params.get("siteId");
-		long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
-		int order = NumberUtils.toInt((String) params.get("order"));
+	public void updateAssignmentOrder(final EntityReference ref, final Map<String, Object> params) {
 
-		// check params supplied are valid 
+		// get params
+		final String siteId = (String) params.get("siteId");
+		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
+		final int order = NumberUtils.toInt((String) params.get("order"));
+
+		// check params supplied are valid
 		if (StringUtils.isBlank(siteId) || assignmentId == 0 || order < 0) {
 			throw new IllegalArgumentException(
 					"Request data was missing / invalid");
@@ -113,24 +104,24 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// check instructor
 		checkInstructor(siteId);
-		
-		//update the order
+
+		// update the order
 		this.businessService.updateAssignmentOrder(siteId, assignmentId, order);
 	}
-	
+
 	/**
-	 * Endpoint for getting the list of cells that have been edited.
-	 * TODO enhance to accept a timestamp so we can filter the list
-	 * This is designed to be polled on a regular basis so must be lightweight
+	 * Endpoint for getting the list of cells that have been edited. TODO enhance to accept a timestamp so we can filter the list This is
+	 * designed to be polled on a regular basis so must be lightweight
+	 *
 	 * @param view
 	 * @return
 	 */
 	@EntityCustomAction(action = "isotheruserediting", viewKey = EntityView.VIEW_LIST)
-	public List<GbGradeCell> isAnotherUserEditing(EntityView view) {
-		
+	public List<GbGradeCell> isAnotherUserEditing(final EntityView view) {
+
 		// get siteId
-		String siteId = view.getPathSegment(2);
-		
+		final String siteId = view.getPathSegment(2);
+
 		// check siteId supplied
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException(
@@ -140,87 +131,86 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// check instructor
 		checkInstructor(siteId);
-		
+
 		// get notification list
 		// NOTE we assume the gradebook id and siteid are equivalent, which they are
 		// unless they have two gradebooks in a site? Is that even possible?
 		return this.businessService.getEditingNotifications(siteId);
 	}
-	
-	
-	
+
 	@EntityCustomAction(action = "categorized-assignment-order", viewKey = EntityView.VIEW_NEW)
-	public void updateCategorizedAssignmentOrder(EntityReference ref, Map<String, Object> params) {
+	public void updateCategorizedAssignmentOrder(final EntityReference ref, final Map<String, Object> params) {
 
 		// get params
-		String siteId = (String) params.get("siteId");
-		long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
-		int order = NumberUtils.toInt((String) params.get("order"));
+		final String siteId = (String) params.get("siteId");
+		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
+		final int order = NumberUtils.toInt((String) params.get("order"));
 
-		// check params supplied are valid 
+		// check params supplied are valid
 		if (StringUtils.isBlank(siteId) || assignmentId == 0 || order < 0) {
 			throw new IllegalArgumentException(
-			"Request data was missing / invalid");
+					"Request data was missing / invalid");
 		}
 		checkValidSite(siteId);
 
 		// check instructor
 		checkInstructor(siteId);
 
-		//update the order
+		// update the order
 		try {
 			this.businessService.updateCategorizedAssignmentOrder(siteId, assignmentId, order);
-		} catch (IdUnusedException e) {
+		} catch (final IdUnusedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (PermissionException e) {
+		} catch (final PermissionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+
 	/**
-	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not.
-	 * We don't currently need the value that this produces so we don't return it.
-	 * 
+	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not. We don't currently need the value that this
+	 * produces so we don't return it.
+	 *
 	 * @param siteId
 	 * @return
 	 * @throws IdUnusedException
 	 */
-	private void checkInstructor(String siteId) {
-		
-		String currentUserId = this.getCurrentUserId();
-		
-		if(StringUtils.isBlank(currentUserId)) {
+	private void checkInstructor(final String siteId) {
+
+		final String currentUserId = getCurrentUserId();
+
+		if (StringUtils.isBlank(currentUserId)) {
 			throw new SecurityException("You must be logged in to access GBNG data");
 		}
-		
-		if(this.businessService.getUserRole(siteId) != GbRole.INSTRUCTOR) {
+
+		if (this.businessService.getUserRole(siteId) != GbRole.INSTRUCTOR) {
 			throw new SecurityException("You do not have instructor-type permissions in this site.");
 		}
 	}
 
 	/**
 	 * Helper to get current user id
-	 * 
+	 *
 	 * @return
 	 */
 	private String getCurrentUserId() {
-		return sessionManager.getCurrentSessionUserId();
+		return this.sessionManager.getCurrentSessionUserId();
 	}
-	
+
 	/**
-	 * Helper to check a site ID is valid. Throws IllegalArgumentException if not.
-	 * We don't currently need the site that this produces so we don't return it.
+	 * Helper to check a site ID is valid. Throws IllegalArgumentException if not. We don't currently need the site that this produces so we
+	 * don't return it.
+	 *
 	 * @param siteId
 	 */
-	@SuppressWarnings("unused")
-	private void checkValidSite(String siteId) {
+	private void checkValidSite(final String siteId) {
 		try {
-			Site site = this.siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
+			this.siteService.getSite(siteId);
+		} catch (final IdUnusedException e) {
 			throw new IllegalArgumentException("Invalid site id");
 		}
 	}
@@ -233,8 +223,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	@Setter
 	private SecurityService securityService;
-	
+
 	@Setter
 	private GradebookNgBusinessService businessService;
-	
+
 }
