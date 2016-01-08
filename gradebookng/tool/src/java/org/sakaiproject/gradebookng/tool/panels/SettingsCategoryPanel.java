@@ -32,6 +32,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
@@ -79,7 +80,8 @@ public class SettingsCategoryPanel extends Panel {
 		}
 
 		// if categories enabled but we don't have any yet, add a default one
-		if (this.model.getObject().getGradebookInformation().getCategoryType() != 1 && categories.isEmpty()) {
+		if (this.model.getObject().getGradebookInformation().getCategoryType() != GbCategoryType.NO_CATEGORY.getValue()
+				&& categories.isEmpty()) {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
 
@@ -102,9 +104,9 @@ public class SettingsCategoryPanel extends Panel {
 		// category types
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
 				new PropertyModel<Integer>(this.model, "gradebookInformation.categoryType"));
-		categoryType.add(new Radio<>("none", new Model<>(1)));
-		categoryType.add(new Radio<>("categoriesOnly", new Model<>(2)));
-		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(3)));
+		categoryType.add(new Radio<>("none", new Model<>(GbCategoryType.NO_CATEGORY.getValue())));
+		categoryType.add(new Radio<>("categoriesOnly", new Model<>(GbCategoryType.ONLY_CATEGORY.getValue())));
+		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(GbCategoryType.WEIGHTED_CATEGORY.getValue())));
 		categoryType.setRequired(true);
 		settingsCategoriesPanel.add(categoryType);
 
@@ -115,8 +117,9 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			public boolean isVisible() {
 				// don't show if 'no categories'
-				final int categoryType = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
-				return (categoryType != 1);
+				final GbCategoryType type = GbCategoryType
+						.valueOf(SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType());
+				return (type != GbCategoryType.NO_CATEGORY);
 			}
 
 		};
@@ -205,18 +208,20 @@ public class SettingsCategoryPanel extends Panel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				// adjust visibility of items depending on category type
-				final int categoryType = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
-				categoriesWrap.setVisible(categoryType != 1);
-				categoriesOptionsWrap.setVisible(categoryType != 1);
+				final GbCategoryType type = GbCategoryType
+						.valueOf(SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType());
+
+				categoriesWrap.setVisible(type != GbCategoryType.NO_CATEGORY);
+				categoriesOptionsWrap.setVisible(type != GbCategoryType.NO_CATEGORY);
 
 				// if categories only (2), the categories table will be visible but the weighting column and tally will not
-				if (categoryType == 2) {
+				if (type == GbCategoryType.ONLY_CATEGORY) {
 					target.appendJavaScript("$('.gb-category-weight').hide();");
 					target.appendJavaScript("$('.gb-category-runningtotal').hide();");
 				}
 
 				// switching to categories but we don't have any, add a default one
-				if (categoryType != 1 && categories.isEmpty()) {
+				if (type != GbCategoryType.NO_CATEGORY && categories.isEmpty()) {
 					SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				}
 
@@ -323,8 +328,9 @@ public class SettingsCategoryPanel extends Panel {
 			public void renderHead(final IHeaderResponse response) {
 				super.renderHead(response);
 
-				final int categoryType = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
-				if (categoryType == 2) {
+				final GbCategoryType type = GbCategoryType
+						.valueOf(SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType());
+				if (type == GbCategoryType.ONLY_CATEGORY) {
 					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-weight').hide();"));
 					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-runningtotal').hide();"));
 				}
