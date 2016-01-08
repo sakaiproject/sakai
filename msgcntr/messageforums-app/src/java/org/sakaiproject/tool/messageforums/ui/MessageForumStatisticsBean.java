@@ -2956,7 +2956,10 @@ public class MessageForumStatisticsBean {
 	}
 
 	public void setSelectedGroup(String selectedGroup) {
-		this.selectedGroup = selectedGroup;
+		if (selectedGroup != null)
+		{
+			this.selectedGroup = selectedGroup;
+		}
 	}
 	
 	private class DecoratedUser{
