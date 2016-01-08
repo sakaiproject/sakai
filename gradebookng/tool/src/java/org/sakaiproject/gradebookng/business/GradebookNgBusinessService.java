@@ -1640,13 +1640,23 @@ public class GradebookNgBusinessService {
 
 		final Map<Assignment, GbGradeInfo> rval = new LinkedHashMap<>();
 
-		// only get grades if released for the site (the service checks it per assignment)
-		if (gradebook.isAssignmentsDisplayed()) {
-			for (final Assignment assignment : assignments) {
-				final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(),
-						assignment.getId(), studentUuid);
-				rval.put(assignment, new GbGradeInfo(def));
+		// iterate all assignments and get the grades
+		// if student, only proceed if grades are released for the site
+		// if instructor or TA, skip this check
+		// permission checks are still applied at the assignment level in the GradebookService
+		final GbRole role = this.getUserRole(siteId);
+
+		if (role == GbRole.STUDENT) {
+			final boolean released = gradebook.isAssignmentsDisplayed();
+			if (!released) {
+				return rval;
 			}
+		}
+
+		for (final Assignment assignment : assignments) {
+			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(),
+					assignment.getId(), studentUuid);
+			rval.put(assignment, new GbGradeInfo(def));
 		}
 
 		return rval;
