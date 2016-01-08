@@ -19,7 +19,7 @@ ASN_SVS.confirmDiscardOrSubmit = function(attachmentsModified)
 	}
 	else
 	{
-		ASN.submitForm( 'addSubmissionForm', 'cancel', null, null, false );
+		ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );
 	}
 };
 

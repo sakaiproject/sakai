@@ -182,9 +182,9 @@
 					#else
 						#set($name=$tlang.getString("gen.subm3"))
 					#end
-				<input type="button" class="active" name="post" accesskey="s" id="post" value="$!name" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null, true );" />
-				<input class="disableme" type="button" accesskey="d" name="save" id="save" value="$tlang.getString("gen.savdra")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null, true );" />
-				<input class="disableme" type="button" name="revise" accesskey="r" id="revise" value="$tlang.getString("gen.revi")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'revise', null, null, true );" />
+				<input type="button" class="active" name="post" accesskey="s" id="post" value="$!name" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null ); return false;" />
+				<input class="disableme" type="button" accesskey="d" name="save" id="save" value="$tlang.getString("gen.savdra")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null ); return false;" />
+				<input class="disableme" type="button" name="revise" accesskey="r" id="revise" value="$tlang.getString("gen.revi")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'revise', null, null ); return false;" />
 			#end
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

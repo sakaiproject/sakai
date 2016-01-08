@@ -113,8 +113,8 @@
 		</ul>
 
 		<p class="act" style="margin:0;padding:.3em 0;">
-			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'reorder', null, null, true );" class="active" accesskey="s" />
-			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'cancelreorder', null, null, true );" accesskey="x" />
+			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'reorder', null, null ); return false;" class="active" accesskey="s" />
+			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'cancelreorder', null, null ); return false;" accesskey="x" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
