@@ -326,7 +326,7 @@ public class SettingsCategoryPanel extends Panel {
 
 						SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().remove(current);
 
-						// to indicate we need a full rerender
+						// indicate to the listview that its model has changed and to rerender correctly
 						lv.modelChanged();
 						lv.removeAll();
 
