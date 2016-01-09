@@ -90,12 +90,16 @@ public class SettingsCategoryPanel extends Panel {
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
 		// Preserve the expand/collapse state of the panel
 		settingsCategoriesPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
 			}
 		});
 		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
@@ -206,6 +210,8 @@ public class SettingsCategoryPanel extends Panel {
 
 		// When category type changes, ensure form is updated to reflect new value
 		categoryType.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
 
@@ -246,7 +252,7 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void populateItem(final ListItem<CategoryDefinition> item) {
 
-				final ListView lv = this; // reference to self
+				final ListView<CategoryDefinition> lv = this; // reference to self
 
 				final CategoryDefinition category = item.getModelObject();
 
@@ -271,6 +277,7 @@ public class SettingsCategoryPanel extends Panel {
 				final TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight")) {
 					private static final long serialVersionUID = 1L;
 
+					@SuppressWarnings("unchecked")
 					@Override
 					public <C> IConverter<C> getConverter(final Class<C> type) {
 						return (IConverter<C>) new PercentConverter();
