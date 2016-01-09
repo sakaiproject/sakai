@@ -484,14 +484,13 @@ public abstract class BaseLTIService implements LTIService {
 			frameHeight = contentHeight;
 		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(frameHeight));
 
-		Integer newProp = null;
-		newProp = getCorrectProperty("debug", content, tool);
-		if (newProp != null)
-			content.put("debug", newProp);
+		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
+		if ( debug == 2 ) debug = getInt(content.get(LTIService.LTI_DEBUG));
+		content.put(LTIService.LTI_DEBUG, debug+"");
 
-		newProp = getCorrectProperty(LTIService.LTI_NEWPAGE, content, tool);
-		if (newProp != null)
-			content.put(LTIService.LTI_NEWPAGE, newProp);
+		int newpage = getInt(tool.get(LTIService.LTI_NEWPAGE));
+		if ( newpage == 2 ) newpage = getInt(content.get(LTIService.LTI_NEWPAGE));
+		content.put(LTIService.LTI_NEWPAGE, newpage+"");
 	}
 
 	/**
