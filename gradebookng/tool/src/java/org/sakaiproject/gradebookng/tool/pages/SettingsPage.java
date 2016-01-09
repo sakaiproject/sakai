@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
@@ -56,7 +57,7 @@ public class SettingsPage extends BasePage {
 				final List<CategoryDefinition> categories = model.getGradebookInformation().getCategories();
 
 				// validate the categories
-				if (model.getGradebookInformation().getCategoryType() == 3) {
+				if (model.getGradebookInformation().getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()) {
 					double totalWeight = 0;
 					for (final CategoryDefinition cat : categories) {
 						if (cat.getWeight() == null) {
