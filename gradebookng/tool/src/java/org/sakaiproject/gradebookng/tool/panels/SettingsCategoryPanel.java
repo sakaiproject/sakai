@@ -11,6 +11,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -249,12 +250,26 @@ public class SettingsCategoryPanel extends Panel {
 
 				final CategoryDefinition category = item.getModelObject();
 
+				// note that all of these fields must have an ajaxform behaviour attached
+				// so that their data is persisted into the model.
+				// if they don't, when the listview repaints, they will be cleared
+				// this can be either an OnChangeAjaxBehavior for those that need something to happen
+				// or an AjaxFormComponentUpdatingBehavior for those that just need the data kept
+
 				// name
 				final TextField<String> name = new TextField<String>("name", new PropertyModel<String>(category, "name"));
+				name.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(name);
 
 				// weight
 				final TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight")) {
+					private static final long serialVersionUID = 1L;
 
 					@Override
 					public <C> IConverter<C> getConverter(final Class<C> type) {
@@ -300,18 +315,39 @@ public class SettingsCategoryPanel extends Panel {
 				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest",
 						new PropertyModel<Integer>(category, "dropHighest"));
 				categoryDropHighest.setOutputMarkupId(true);
+				categoryDropHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(categoryDropHighest);
 
 				// drop lowest
 				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest",
 						new PropertyModel<Integer>(category, "drop_lowest"));
 				categoryDropLowest.setOutputMarkupId(true);
+				categoryDropLowest.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(categoryDropLowest);
 
 				// keep highest
 				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest",
 						new PropertyModel<Integer>(category, "keepHighest"));
 				categoryKeepHighest.setOutputMarkupId(true);
+				categoryKeepHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(categoryKeepHighest);
 
 				// remove button
