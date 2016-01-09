@@ -3042,11 +3042,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
 			//preprocessing and validation
-			//Rule 1: If category type = categories only (no weightings), set all weights to 0
-			//Rule 2: If category has no name, it is to be removed/skipped
-			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY) {
-				newDef.setWeight(new Double(0));
-			}
+			//Rule 1: If category has no name, it is to be removed/skipped
+			//Note that we no longer set weights to 0 even if unweighted category type selected. The weights are not considered if its not a weighted category type
+			//so this allows us to switch back and forth between types without losing information
 			
 			if(StringUtils.isBlank(newDef.getName())) {
 				continue;
