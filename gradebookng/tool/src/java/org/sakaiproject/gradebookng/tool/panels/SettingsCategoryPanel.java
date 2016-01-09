@@ -238,12 +238,14 @@ public class SettingsCategoryPanel extends Panel {
 
 		// categories list
 		final ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView",
-				this.model.getObject().getGradebookInformation().getCategories()) {
+				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories()) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(final ListItem<CategoryDefinition> item) {
+
+				final ListView lv = this; // reference to self
 
 				final CategoryDefinition category = item.getModelObject();
 
@@ -321,12 +323,18 @@ public class SettingsCategoryPanel extends Panel {
 
 						// remove this category from the model
 						final CategoryDefinition current = item.getModelObject();
+
 						SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().remove(current);
+
+						// to indicate we need a full rerender
+						lv.modelChanged();
+						lv.removeAll();
+
+						target.add(categoriesWrap);
 
 						// update running total
 						updateRunningTotal(runningTotal);
-
-						target.add(categoriesWrap);
+						target.add(runningTotal);
 					}
 				};
 				remove.setDefaultFormProcessing(false);
