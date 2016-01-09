@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
@@ -230,14 +231,9 @@ public class SettingsCategoryPanel extends Panel {
 		});
 
 		// running total
-		final Double currentTotal = calculateCategoryWeightTotal(categories);
-		final Label runningTotal = new Label("runningTotal", FormatHelper.formatDoubleAsPercentage(currentTotal * 100));
-		if (currentTotal.equals(new Double(1))) {
-			runningTotal.add(new AttributeModifier("class", "text-success"));
-		} else {
-			runningTotal.add(new AttributeModifier("class", "text-danger"));
-		}
+		final Label runningTotal = new Label("runningTotal");
 		runningTotal.setOutputMarkupId(true);
+		updateRunningTotal(runningTotal);
 		categoriesWrap.add(runningTotal);
 
 		// categories list
@@ -271,15 +267,7 @@ public class SettingsCategoryPanel extends Panel {
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						final Double newTotal = calculateCategoryWeightTotal(categories);
-
-						if (newTotal.equals(new Double(1))) {
-							runningTotal.add(new AttributeModifier("class", "text-success"));
-						} else {
-							runningTotal.add(new AttributeModifier("class", "text-danger"));
-						}
-
-						runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(newTotal * 100)));
+						updateRunningTotal(runningTotal);
 						target.add(runningTotal);
 					}
 				});
@@ -293,6 +281,17 @@ public class SettingsCategoryPanel extends Panel {
 				// extra credit
 				final CheckBox extraCredit = new CheckBox("extraCredit", new PropertyModel<Boolean>(category, "extraCredit"));
 				extraCredit.setOutputMarkupId(true);
+
+				// onchange, update the running total as extra credit items are excluded
+				extraCredit.add(new OnChangeAjaxBehavior() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+						updateRunningTotal(runningTotal);
+						target.add(runningTotal);
+					}
+				});
 				item.add(extraCredit);
 
 				// drop highest
@@ -322,8 +321,11 @@ public class SettingsCategoryPanel extends Panel {
 
 						// remove this category from the model
 						final CategoryDefinition current = item.getModelObject();
-
 						SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().remove(current);
+
+						// update running total
+						updateRunningTotal(runningTotal);
+
 						target.add(categoriesWrap);
 					}
 				};
@@ -375,29 +377,17 @@ public class SettingsCategoryPanel extends Panel {
 
 	}
 
-	// Create a new category definition stub
+	/**
+	 * Create a new category definition stub
+	 *
+	 * @return CategoryDefinition
+	 */
 	private CategoryDefinition stubCategoryDefinition() {
 		final CategoryDefinition cd = new CategoryDefinition();
 		cd.setExtraCredit(false);
 		cd.setWeight(new Double(0));
 		cd.setAssignmentList(Collections.<Assignment> emptyList());
 		return cd;
-	}
-
-	private Double calculateCategoryWeightTotal(final List<CategoryDefinition> categories) {
-		Double total = new Double(0);
-		for (final CategoryDefinition categoryDefinition : categories) {
-
-			Double weight = categoryDefinition.getWeight();
-			if (weight == null) {
-				weight = new Double(0);
-			}
-
-			if (!categoryDefinition.isExtraCredit()) {
-				total += weight;
-			}
-		}
-		return total;
 	}
 
 	/**
@@ -459,5 +449,38 @@ public class SettingsCategoryPanel extends Panel {
 			return df.format(rval);
 		}
 
+	}
+
+	/**
+	 * Helper to handle the value and style updates of the running total label. If done via AJAX, must still be added to target.
+	 *
+	 * @param runningTotal component to update
+	 * @param categories list of categories
+	 * @return
+	 */
+	private void updateRunningTotal(final Component runningTotal) {
+
+		final List<CategoryDefinition> categories = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories();
+
+		Double total = new Double(0);
+		for (final CategoryDefinition categoryDefinition : categories) {
+
+			Double weight = categoryDefinition.getWeight();
+			if (weight == null) {
+				weight = new Double(0);
+			}
+
+			if (!categoryDefinition.isExtraCredit()) {
+				total += weight;
+			}
+		}
+
+		if (total.equals(new Double(1))) {
+			runningTotal.add(new AttributeModifier("class", "text-success"));
+		} else {
+			runningTotal.add(new AttributeModifier("class", "text-danger"));
+		}
+
+		runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(total * 100)));
 	}
 }
