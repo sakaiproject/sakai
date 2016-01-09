@@ -229,11 +229,18 @@ public class SettingsCategoryPanel extends Panel {
 			}
 		});
 
-		final Label runningTotal = new Label("runningTotal",
-				FormatHelper.formatDoubleAsPercentage(calculateCategoryWeightTotal(categories) * 100));
+		// running total
+		final Double currentTotal = calculateCategoryWeightTotal(categories);
+		final Label runningTotal = new Label("runningTotal", FormatHelper.formatDoubleAsPercentage(currentTotal * 100));
+		if (currentTotal.equals(new Double(1))) {
+			runningTotal.add(new AttributeModifier("class", "text-success"));
+		} else {
+			runningTotal.add(new AttributeModifier("class", "text-danger"));
+		}
 		runningTotal.setOutputMarkupId(true);
 		categoriesWrap.add(runningTotal);
 
+		// categories list
 		final ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView",
 				this.model.getObject().getGradebookInformation().getCategories()) {
 
