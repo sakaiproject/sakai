@@ -1690,7 +1690,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the settings for this gradebook
+	 * Get the settings for this gradebook. Note that this CANNOT be called by a student.
 	 *
 	 * @return
 	 */
@@ -1898,8 +1898,22 @@ public class GradebookNgBusinessService {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
-		return GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type() ||
-				GradebookService.CATEGORY_TYPE_ONLY_CATEGORY == gradebook.getCategory_type();
+		return GbCategoryType.ONLY_CATEGORY.getValue() == gradebook.getCategory_type() ||
+				GbCategoryType.WEIGHTED_CATEGORY.getValue() == gradebook.getCategory_type();
+	}
+
+	/**
+	 * Get the currently configured gradebook category type
+	 *
+	 * @return GbCategoryType wrapper around the int value
+	 */
+	public GbCategoryType getGradebookCategoryType() {
+		final String siteId = getCurrentSiteId();
+		final Gradebook gradebook = getGradebook(siteId);
+
+		final int configuredType = gradebook.getCategory_type();
+
+		return GbCategoryType.valueOf(configuredType);
 	}
 
 	/**

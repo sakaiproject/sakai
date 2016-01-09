@@ -19,6 +19,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -26,7 +27,6 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class InstructorGradeSummaryGradesPanel extends Panel {
@@ -39,7 +39,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 	private GbStudentGradeInfo gradeInfo;
 	private List<CategoryDefinition> categories;
 
-	int configuredCategoryType = 0;
+	GbCategoryType configuredCategoryType;
 
 	public InstructorGradeSummaryGradesPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -61,9 +61,8 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
 		this.categories = this.businessService.getGradebookCategories();
 
-		// get settings
-		final GradebookInformation gbInfo = this.businessService.getGradebookSettings();
-		this.configuredCategoryType = gbInfo.getCategoryType();
+		// get configured category type
+		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
 
 		// setup
 		final List<String> categoryNames = new ArrayList<String>();
@@ -224,7 +223,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 	 * @return
 	 */
 	private String getCategoryName(final Assignment assignment) {
-		if (this.configuredCategoryType == 1) {
+		if (this.configuredCategoryType == GbCategoryType.NO_CATEGORY) {
 			return getString(GradebookPage.UNCATEGORISED);
 		}
 		return StringUtils.isBlank(assignment.getCategoryName()) ? getString(GradebookPage.UNCATEGORISED) : assignment.getCategoryName();
@@ -236,6 +235,6 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return (this.configuredCategoryType == 3) ? true : false;
+		return (this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY) ? true : false;
 	}
 }
