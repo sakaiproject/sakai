@@ -283,6 +283,12 @@ public class SettingsCategoryPanel extends Panel {
 						return (IConverter<C>) new PercentConverter();
 					}
 
+					@Override
+					public boolean isEnabled() {
+						// disable the field if extra credit
+						return !category.isExtraCredit();
+					}
+
 				};
 
 				// onchange, update the running total
@@ -306,7 +312,7 @@ public class SettingsCategoryPanel extends Panel {
 				final CheckBox extraCredit = new CheckBox("extraCredit", new PropertyModel<Boolean>(category, "extraCredit"));
 				extraCredit.setOutputMarkupId(true);
 
-				// onchange, update the running total as extra credit items are excluded
+				// onchange, update the running total as extra credit items are excluded, and disable the weighting box
 				extraCredit.add(new OnChangeAjaxBehavior() {
 					private static final long serialVersionUID = 1L;
 
@@ -314,6 +320,12 @@ public class SettingsCategoryPanel extends Panel {
 					protected void onUpdate(final AjaxRequestTarget target) {
 						updateRunningTotal(runningTotal);
 						target.add(runningTotal);
+
+						// toggle the weight field
+						final boolean checked = extraCredit.getModelObject();
+						weight.setEnabled(!checked);
+
+						target.add(weight);
 					}
 				});
 				item.add(extraCredit);
