@@ -159,14 +159,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				window.show(target);
 			}
 
-			@Override
-			public boolean isVisible() {
-				if (assignment.isExternallyMaintained()) {
-					return false;
-				}
-				return true;
-			}
-
 		});
 
 		menu.add(new Link<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())) {
