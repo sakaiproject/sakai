@@ -83,7 +83,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 					}
 
 				});
-		categoryDropDown.setNullValid(true);
+		categoryDropDown.setNullValid(false);
 		categoryDropDown.setVisible(!categories.isEmpty());
 		add(categoryDropDown);
 
