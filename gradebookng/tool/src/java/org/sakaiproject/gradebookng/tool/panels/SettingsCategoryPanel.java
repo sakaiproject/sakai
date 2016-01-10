@@ -283,6 +283,12 @@ public class SettingsCategoryPanel extends Panel {
 						return (IConverter<C>) new PercentConverter();
 					}
 
+					@Override
+					public boolean isEnabled() {
+						// disable the field if extra credit
+						return !category.isExtraCredit();
+					}
+
 				};
 
 				// onchange, update the running total
