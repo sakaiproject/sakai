@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 public class GradeItemCellPopoverPanel extends Panel {
 
@@ -32,6 +33,7 @@ public class GradeItemCellPopoverPanel extends Panel {
 		add(saveErrorNotification);
 
 		final String comment = (String) modelData.get("comment");
+
 		final WebMarkupContainer hasCommentNotification = new WebMarkupContainer("hasCommentNotification");
 		hasCommentNotification.setVisible(
 				notifications.contains(GradeItemCellPanel.GradeCellNotification.HAS_COMMENT) && StringUtils.isNotBlank(comment));
@@ -45,13 +47,24 @@ public class GradeItemCellPopoverPanel extends Panel {
 			hasCommentNotification.add(new AttributeModifier("data-assignmentid", (Long) modelData.get("assignmentId")));
 			hasCommentNotification.add(new AttributeModifier("data-studentUuid", (String) modelData.get("studentUuid")));
 
+			// for editing the comment
 			final WebMarkupContainer editCommentContainer = new WebMarkupContainer("editCommentContainer") {
 				@Override
 				public boolean isVisible() {
-					return (boolean) modelData.get("gradeable");
+					return ((boolean) modelData.get("gradeable") && !(boolean) modelData.get("isExternal"));
 				}
 			};
 			hasCommentNotification.add(editCommentContainer);
+
+			// external comments
+			final Label externalComment = new Label("externalComment",
+					new StringResourceModel("comment.option.external", null, new Object[] { modelData.get("externalAppName") })) {
+				@Override
+				public boolean isVisible() {
+					return (boolean) modelData.get("isExternal");
+				}
+			};
+			hasCommentNotification.add(externalComment);
 		}
 
 		final WebMarkupContainer isOverLimitNotification = new WebMarkupContainer("isOverLimitNotification");

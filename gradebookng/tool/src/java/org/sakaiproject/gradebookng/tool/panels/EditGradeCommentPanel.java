@@ -12,6 +12,7 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.StringValidator;
@@ -110,7 +111,8 @@ public class EditGradeCommentPanel extends Panel {
 				new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })));
 
 		// textarea
-		form.add(new TextArea<String>("comment").add(StringValidator.maximumLength(500)));
+		form.add(new TextArea<String>("comment", new PropertyModel<String>(formModel, "gradeComment"))
+				.add(StringValidator.maximumLength(500)));
 
 		// instant validation
 		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);
