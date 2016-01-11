@@ -238,9 +238,12 @@ public class SettingsCategoryPanel extends Panel {
 		});
 
 		// running total
+		final WebMarkupContainer runningTotalMessage = new WebMarkupContainer("runningTotalMessage");
+		runningTotalMessage.setOutputMarkupPlaceholderTag(true);
+		categoriesWrap.add(runningTotalMessage);
 		final Label runningTotal = new Label("runningTotal");
 		runningTotal.setOutputMarkupId(true);
-		updateRunningTotal(runningTotal);
+		updateRunningTotal(runningTotal, runningTotalMessage);
 		categoriesWrap.add(runningTotal);
 
 		// categories list
@@ -297,8 +300,7 @@ public class SettingsCategoryPanel extends Panel {
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						updateRunningTotal(runningTotal);
-						target.add(runningTotal);
+						updateRunningTotal(target, runningTotal, runningTotalMessage);
 					}
 				});
 				item.add(weight);
@@ -318,8 +320,7 @@ public class SettingsCategoryPanel extends Panel {
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						updateRunningTotal(runningTotal);
-						target.add(runningTotal);
+						updateRunningTotal(target, runningTotal, runningTotalMessage);
 
 						// toggle the weight field
 						final boolean checked = extraCredit.getModelObject();
@@ -388,8 +389,7 @@ public class SettingsCategoryPanel extends Panel {
 						target.add(categoriesWrap);
 
 						// update running total
-						updateRunningTotal(runningTotal);
-						target.add(runningTotal);
+						updateRunningTotal(target, runningTotal, runningTotalMessage);
 					}
 				};
 				remove.setDefaultFormProcessing(false);
@@ -515,13 +515,13 @@ public class SettingsCategoryPanel extends Panel {
 	}
 
 	/**
-	 * Helper to handle the value and style updates of the running total label. If done via AJAX, must still be added to target.
+	 * Helper to handle the value and style updates of the running total label
 	 *
-	 * @param runningTotal component to update
-	 * @param categories list of categories
+	 * @param runningTotal label component to update
+	 * @param runningTotalMessage error message component
 	 * @return
 	 */
-	private void updateRunningTotal(final Component runningTotal) {
+	private void updateRunningTotal(final Component runningTotal, final Component runningTotalMessage) {
 
 		final List<CategoryDefinition> categories = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories();
 
@@ -540,10 +540,26 @@ public class SettingsCategoryPanel extends Panel {
 
 		if (total.equals(new Double(1))) {
 			runningTotal.add(new AttributeModifier("class", "text-success"));
+			runningTotalMessage.setVisible(false);
 		} else {
 			runningTotal.add(new AttributeModifier("class", "text-danger"));
+			runningTotalMessage.setVisible(true);
 		}
 
 		runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(total * 100)));
+	}
+
+	/**
+	 * Helper to handle the value and style updates of the running total label and add to AJAX target
+	 *
+	 * @param target AJAX request target
+	 * @param runningTotal label component to update
+	 * @param runningTotalMessage error message component
+	 * @return
+	 */
+	private void updateRunningTotal(AjaxRequestTarget target, final Component runningTotal, final Component runningTotalMessage) {
+		updateRunningTotal(runningTotal, runningTotalMessage);
+		target.add(runningTotal);
+		target.add(runningTotalMessage);
 	}
 }
