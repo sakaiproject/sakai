@@ -185,23 +185,29 @@ function hookScripts(itemNum) {
 	var s = document.createElement("script");
 	s.type = "text/javascript";	
 	
+	var defaultStartDate = moment(document.getElementById("xt_open"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
 	var startDatePickerOptions = { input: '#xt_open' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		val: defaultStartDate,
 		ashidden: { iso8601: 'xt_open' + itemNum + 'ISO8601' } 
 	}
 	localDatePicker(startDatePickerOptions); 
 	
+	var formattedDueDate = moment(document.getElementById("xt_due"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
 	var dueDatePickerOptions = { input: '#xt_due' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		val: formattedDueDate,
 		ashidden: { iso8601: 'xt_due' + itemNum + 'ISO8601' } 
 	}
 	localDatePicker(dueDatePickerOptions); 
 	
+	var formattedRetractDate = moment(document.getElementById("xt_retract"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
 	var retractDatePickerOptions = { input: '#xt_retract' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		val: formattedRetractDate,
 		ashidden: { iso8601: 'xt_retract' + itemNum + 'ISO8601' } 
 	}
 	localDatePicker(retractDatePickerOptions); 
