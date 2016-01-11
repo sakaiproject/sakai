@@ -331,13 +331,13 @@
 				</p>				
 			#end
 			<div class="act">
-				<input accesskey="s" type="button" class="active" name="post" value="$tlang.getString('gen.pos')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'post', null, null, true );" />
+				<input accesskey="s" type="button" class="active" name="post" value="$tlang.getString('gen.pos')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'post', null, null ); return false;" />
 				#if ($isDraft)
-					<input accesskey ="d" type="button" class="active" name="save" value="$tlang.getString('gen.savdra')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'save', null, null, true );" />
+					<input accesskey ="d" type="button" class="active" name="save" value="$tlang.getString('gen.savdra')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'save', null, null ); return false;" />
 				#end
 				## back to edit assignment page
-				<input accesskey="r" type="button" class="active" name="revise" value="$tlang.getString('gen.revi')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'revise', null, null, true );" />
-				<input accesskey="r" type="button" class="active" name="done" value="$tlang.getString('gen.don')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'done', null, null, true );" />
+				<input accesskey="r" type="button" class="active" name="revise" value="$tlang.getString('gen.revi')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'revise', null, null ); return false;" />
+				<input accesskey="r" type="button" class="active" name="done" value="$tlang.getString('gen.don')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'done', null, null ); return false;" />
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

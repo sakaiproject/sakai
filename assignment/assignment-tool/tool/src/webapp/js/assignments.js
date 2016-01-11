@@ -744,7 +744,7 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
         window.location.href=accessPointUrl;
         document.getElementById('downloadUrl').value=accessPointUrl; 
         document.getElementById('uploadAllForm').action=actionString; 
-        setTimeout("ASN.submitForm( 'uploadAllForm', null, null, null, false )", 1500);
+        setTimeout("ASN.submitForm( 'uploadAllForm', null, null, null )", 1500);
     }
 };
 
@@ -772,7 +772,7 @@ ASN.enableSubmitUnlessNoFile = function(checkForFile)
     }
 };
 
-ASN.submitForm = function( formID, option, submissionID, view, returnFalse )
+ASN.submitForm = function( formID, option, submissionID, view )
 {
     // Get the form
     var form = document.getElementById( formID );
@@ -815,19 +815,13 @@ ASN.submitForm = function( formID, option, submissionID, view, returnFalse )
         {
             form.submit();
         }
-
-        // Return false if requested
-        if( returnFalse )
-        {
-            return false;
-        }
     }
 };
 
 ASN.doStudentViewSubmissionAction = function( formID, option, attachmentID )
 {
     document.getElementById( formID ).currentAttachment.value = attachmentID;
-    ASN.submitForm( formID, option, null, null, true );
+    ASN.submitForm( formID, option, null, null );
 };
 
 ASN.doTagsListAction = function( formID, value, providerID )
