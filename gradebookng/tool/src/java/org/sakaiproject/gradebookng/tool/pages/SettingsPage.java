@@ -60,13 +60,18 @@ public class SettingsPage extends BasePage {
 				if (model.getGradebookInformation().getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()) {
 					double totalWeight = 0;
 					for (final CategoryDefinition cat : categories) {
+
 						if (cat.getWeight() == null) {
 							error(getString("settingspage.update.failure.categorymissingweight"));
 						} else {
-							totalWeight += cat.getWeight();
+							// extra credit items do not participate in the weightings, so exclude from the tally
+							if (!cat.isExtraCredit()) {
+								totalWeight += cat.getWeight();
+							}
 						}
 					}
-					if (Math.rint(totalWeight) != 1) {
+
+					if (totalWeight != 1) {
 						error(getString("settingspage.update.failure.categoryweighttotals"));
 					}
 				}

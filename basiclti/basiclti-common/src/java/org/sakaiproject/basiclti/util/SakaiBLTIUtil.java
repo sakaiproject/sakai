@@ -1691,10 +1691,7 @@ public class SakaiBLTIUtil {
 			if ( tool == null ) return null;
 
 			// Adjust the content items based on the tool items
-			if ( tool != null || content != null )
-			{
-				ltiService.filterContent(content, tool);
-			}
+			ltiService.filterContent(content, tool);
 
 			for (String formInput : LTIService.TOOL_MODEL) {
 				Properties info = parseFormString(formInput);

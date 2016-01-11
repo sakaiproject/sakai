@@ -343,6 +343,7 @@ public class GradebookPage extends BasePage {
 					modelData.put("studentUuid", studentGrades.getStudentUuid());
 					modelData.put("categoryId", assignment.getCategoryId());
 					modelData.put("isExternal", assignment.isExternallyMaintained());
+					modelData.put("externalAppName", assignment.getExternalAppName());
 					modelData.put("gradeInfo", gradeInfo);
 					modelData.put("role", GradebookPage.this.role);
 
