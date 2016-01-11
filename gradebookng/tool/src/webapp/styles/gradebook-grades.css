@@ -992,6 +992,10 @@ ul.feedbackPanel li span {
 .nav>li>a {
   text-decoration: none;
 }
+.checkbox input[type="checkbox"][disabled],
+.radio input[type="radio"][disabled]{
+  background-color: #eee;
+}
 
 /* Mobile bits and pieces */
 /* Disable fixed columns and headers for small devices */
