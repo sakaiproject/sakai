@@ -498,7 +498,7 @@ a.hideDivision {
 
 .mcAnswerText {
 	display:inline-table;
-	width: 80%;
+	/*width: 80%;*/
 	float:unset;
 }
 /* Someone put a paragraph in a multiple choice answer */
