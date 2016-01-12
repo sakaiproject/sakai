@@ -236,6 +236,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	}
     	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
+    	assignmentDefinition.setCategorizedSortOrder(internalAssignment.getCategorizedSortOrder());
     	
     	return assignmentDefinition;
     }   
@@ -3390,5 +3391,93 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return rval;
 		
 	}
-	
+
+
+	/**
+	 * Updates the categorized order of an assignment
+	 *
+	 * @see GradebookService.updateAssignmentCategorizedOrder(java.lang.String gradebookUid, java.lang.Long assignmentId, java.lang.Integer order)
+	 */
+	@Override
+	public void updateAssignmentCategorizedOrder(final String gradebookUid, final Long categoryId, final Long assignmentId, Integer order) {
+
+		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the order of assignment " + assignmentId);
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+
+		if(order == null) {
+			throw new IllegalArgumentException("Categoryized Order cannot be null");
+		}
+
+		final Long gradebookId = getGradebook(gradebookUid).getId();
+
+		//get all assignments for this gradebook
+		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_SORTING, true);
+		List<Assignment> assignmentsInNewCategory = new ArrayList<Assignment>();
+		for (Assignment assignment : assignments) {
+			if (assignment.getCategory() == null) {
+				if (categoryId == null) {
+					assignmentsInNewCategory.add(assignment);
+				}
+			} else if (assignment.getCategory().getId().equals(categoryId)) {
+				assignmentsInNewCategory.add(assignment);
+			}
+		}
+
+		//adjust order to be within bounds
+		if(order < 0) {
+			order = 0;
+		} else if (order > assignmentsInNewCategory.size()) {
+			order = assignmentsInNewCategory.size();
+		}
+
+		//find the assignment
+		Assignment target = null;
+		for(Assignment a: assignmentsInNewCategory){
+			if(a.getId().equals(assignmentId)) {
+				target = a;
+				break;
+			}
+		}
+
+		//add the assignment to the list via a 'pad, remove, add' approach
+		assignmentsInNewCategory.add(null); //ensure size remains the same for the remove
+		assignmentsInNewCategory.remove(target); //remove item
+		assignmentsInNewCategory.add(order, target); //add at ordered position, will shuffle others along
+
+		//the assignments are now in the correct order within the list, we just need to update the sort order for each one
+		//create a new list for the assignments we need to update in the database
+		List<Assignment> assignmentsToUpdate = new ArrayList<>();
+
+		int i = 0;
+		for(Assignment a: assignmentsInNewCategory){
+
+			//skip if null
+			if(a == null) {
+				continue;
+			}
+
+			//if the sort order is not the same as the counter, update the order and add to the other list
+			//this allows us to skip items that have not had their position changed and saves some db work later on
+			//sort order may be null if never previously sorted, so give it the current index
+			if(a.getCategorizedSortOrder() == null || !a.getCategorizedSortOrder().equals(i)) {
+				a.setCategorizedSortOrder(i);
+				assignmentsToUpdate.add(a);
+			}
+
+			i++;
+		}
+
+		//do the updates
+		for(final Assignment assignmentToUpdate: assignmentsToUpdate){
+			getHibernateTemplate().execute(new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException {
+					updateAssignment(assignmentToUpdate, session);
+					return null;
+				}
+			});
+		}
+
+	}
 }

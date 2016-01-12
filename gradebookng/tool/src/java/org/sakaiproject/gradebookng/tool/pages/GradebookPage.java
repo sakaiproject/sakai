@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Comparator;
+import java.util.Collections;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
@@ -159,15 +161,17 @@ public class GradebookPage extends BasePage {
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
 
+		if (settings.isCategoriesEnabled()) {
+			// pre-sort assignments by the categorized sort order
+			Collections.sort(assignments, new CategorizedAssignmentComparator());
+		}
+
 		// get the grade matrix. It should be sorted if we have that info
 		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments,
 				settings.getAssignmentSortOrder(), settings.getNameSortOrder(), settings.getCategorySortOrder(),
 				settings.getGroupFilter());
 
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
-
-		// get assignment order
-		final Map<String, List<Long>> categorizedAssignmentOrder = this.businessService.getCategorizedAssignmentsOrder();
 
 		// get course grade visibility
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
@@ -273,15 +277,8 @@ public class GradebookPage extends BasePage {
 					final AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId,
 							new Model<Assignment>(assignment));
 
-					final String category = assignment.getCategoryName();
-
-					int order = -1;
-					if (categorizedAssignmentOrder.containsKey(category)) {
-						order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
-					}
-
-					panel.add(new AttributeModifier("data-category", category));
-					panel.add(new AttributeModifier("data-categorized-order", order));
+					panel.add(new AttributeModifier("data-category", assignment.getCategoryName()));
+					panel.add(new AttributeModifier("data-category-id", assignment.getCategoryId()));
 
 					final StringValue createdAssignmentId = getPageParameters().get(CREATED_ASSIGNMENT_ID_PARAM);
 					if (!createdAssignmentId.isNull() && assignment.getId().equals(createdAssignmentId.toLong())) {
@@ -598,6 +595,7 @@ public class GradebookPage extends BasePage {
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
 	}
 
+
 	/**
 	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
 	 */
@@ -655,5 +653,35 @@ public class GradebookPage extends BasePage {
 		label.setEscapeModelStrings(false); // to allow embedded HTML
 
 		return label;
+	}
+
+
+	/**
+	 * Comparator class for sorting Assignments in their categorised ordering
+	 */
+	class CategorizedAssignmentComparator implements Comparator<Assignment> {
+		@Override
+		public int compare(final Assignment a1, final Assignment a2) {
+			// if in the same category, sort by their categorized sort order
+			if (a1.getCategoryId() == a2.getCategoryId()) {
+				// handles null orders by putting them at the end of the list
+				if (a1.getCategorizedSortOrder() == null) {
+					return 1;
+				} else if (a2.getCategorizedSortOrder() == null) {
+					return -1;
+				}
+				return Integer.compare(a1.getCategorizedSortOrder(), a2.getCategorizedSortOrder());
+
+			// otherwise, sort by their category name (A-Z), leaving uncategorized (null) at the end
+			} else {
+				if (a1.getCategoryName() == null) {
+					return 1;
+				} else if (a2.getCategoryName() == null) {
+					return -1;
+				} else {
+					return a1.getCategoryName().compareTo(a2.getCategoryName());
+				}
+			}
+		}
 	}
 }

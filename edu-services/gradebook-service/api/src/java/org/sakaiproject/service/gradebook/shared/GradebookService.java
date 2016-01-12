@@ -830,4 +830,13 @@ public interface GradebookService {
 	 * @param grade			the new course grade
 	 */
 	void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String grade);
+
+	/**
+	 * Updates the categorized order of an assignment
+	 * @param gradebookUid 	uuid of the gradebook
+	 * @param categoryId	id of the category
+	 * @param assignmentId	id of the assignment
+	 * @param order	new position of the assignment
+	 */
+	void updateAssignmentCategorizedOrder(final String gradebookUid, final Long categoryId, final Long assignmentId, Integer order);
 }

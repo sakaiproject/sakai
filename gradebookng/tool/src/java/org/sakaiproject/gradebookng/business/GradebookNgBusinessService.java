@@ -980,7 +980,7 @@ public class GradebookNgBusinessService {
 			}
 
 			// also update the categorized order
-			syncCatagorizedAssignmentOrder(getCurrentSiteId(), assignment);
+			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignmentId, Integer.MAX_VALUE);
 
 			return assignmentId;
 
@@ -1025,10 +1025,10 @@ public class GradebookNgBusinessService {
 	 * @throws IdUnusedException
 	 * @throws PermissionException
 	 */
-	public void updateCategorizedAssignmentOrder(final long assignmentId, final int order)
+	public void updateAssignmentCategorizedOrder(final long assignmentId, final int order)
 			throws JAXBException, IdUnusedException, PermissionException {
 		final String siteId = getCurrentSiteId();
-		updateCategorizedAssignmentOrder(siteId, assignmentId, order);
+		updateAssignmentCategorizedOrder(siteId, assignmentId, order);
 	}
 
 	/**
@@ -1037,12 +1037,11 @@ public class GradebookNgBusinessService {
 	 * @param siteId the site's id
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
-	 * @throws JAXBException
 	 * @throws IdUnusedException
 	 * @throws PermissionException
 	 */
-	public void updateCategorizedAssignmentOrder(final String siteId, final long assignmentId, final int order)
-			throws JAXBException, IdUnusedException, PermissionException {
+	public void updateAssignmentCategorizedOrder(final String siteId, final long assignmentId, final int order)
+			throws IdUnusedException, PermissionException {
 
 		// validate site
 		try {
@@ -1068,230 +1067,22 @@ public class GradebookNgBusinessService {
 			return;
 		}
 
-		final String category = assignmentToMove.getCategoryName();
-
-		Map<String, List<Long>> orderedAssignments = getCategorizedAssignmentsOrder(siteId);
-
-		if (!orderedAssignments.containsKey(category)) {
-			orderedAssignments = initializeCategorizedAssignmentOrder(siteId, category);
-		}
-
-		orderedAssignments.get(category).remove(assignmentToMove.getId());
-
-		if (orderedAssignments.get(category).size() == order) {
-			orderedAssignments.get(category).add(assignmentToMove.getId());
-		} else {
-			orderedAssignments.get(category).add(order, assignmentToMove.getId());
-		}
-
-		storeCategorizedAssignmentsOrder(siteId, orderedAssignments);
+		updateAssignmentCategorizedOrder(gradebook.getUid(), assignmentToMove.getCategoryId(), assignmentToMove.getId(), order);
 	}
 
-	/**
-	 * Get the ordered categorized assignment ids for the current site
-	 */
-	public Map<String, List<Long>> getCategorizedAssignmentsOrder() {
-		try {
-			return getCategorizedAssignmentsOrder(getCurrentSiteId());
-		} catch (final JAXBException e) {
-			e.printStackTrace();
-		} catch (final IdUnusedException e) {
-			e.printStackTrace();
-		} catch (final PermissionException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 
 	/**
-	 * Get the ordered categorized assignment ids for the siteId
+	 * Update the categorized order of an assignment via the gradebook service.
 	 *
-	 * @param siteId the siteId
-	 * @throws JAXBException
-	 * @throws IdUnusedException
-	 * @throws PermissionException
+	 * @param gradebookId the gradebook's id
+	 * @param categoryId the id for the cataegory in which we are reordering
+	 * @param assignmentId the assignment we are reordering
+	 * @param order the new order
 	 */
-	private Map<String, List<Long>> getCategorizedAssignmentsOrder(final String siteId)
-			throws JAXBException, IdUnusedException, PermissionException {
-		Site site = null;
-		try {
-			site = this.siteService.getSite(siteId);
-		} catch (final IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-
-		final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
-
-		if (gradebook == null) {
-			log.error(String.format("Gradebook not in site %s", siteId));
-			return null;
-		}
-
-		final ResourceProperties props = site.getProperties();
-		final String xml = props.getProperty(ASSIGNMENT_ORDER_PROP);
-
-		if (StringUtils.isNotBlank(xml)) {
-			try {
-				// goes via the xml list wrapper as that is serialisable
-				final XmlList<AssignmentOrder> xmlList = (XmlList<AssignmentOrder>) XmlMarshaller.unmarshall(xml);
-				final Map<String, List<Long>> result = new HashMap<String, List<Long>>();
-				final List<AssignmentOrder> assignmentOrders = xmlList.getItems();
-
-				// Sort the assignments by their category and then order
-				Collections.sort(assignmentOrders, new AssignmentOrderComparator());
-
-				for (final AssignmentOrder ao : assignmentOrders) {
-					// add the category if the XML doesn't have it already
-					if (!result.containsKey(ao.getCategory())) {
-						result.put(ao.getCategory(), new ArrayList<Long>());
-					}
-
-					result.get(ao.getCategory()).add(ao.getAssignmentId());
-				}
-
-				return result;
-			} catch (final JAXBException e) {
-				e.printStackTrace();
-			}
-		} else {
-			return initializeCategorizedAssignmentOrder(siteId);
-		}
-
-		return null;
+	private void updateAssignmentCategorizedOrder(final String gradebookId, final Long categoryId, final Long assignmentId, final int order) {
+		this.gradebookService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId, new Integer(order));
 	}
 
-	/**
-	 * Get the categorized order for an assignment
-	 *
-	 * @param assignmentId the assignment id
-	 * @throws JAXBException
-	 * @throws IdUnusedException
-	 * @throws PermissionException
-	 */
-	public int getCategorizedSortOrder(final Long assignmentId) throws JAXBException, IdUnusedException, PermissionException {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
-
-		if (gradebook != null) {
-			final Assignment assignment = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
-
-			final Map<String, List<Long>> categorizedOrder = getCategorizedAssignmentsOrder(siteId);
-			return categorizedOrder.get(assignment.getCategoryName()).indexOf(assignmentId);
-		}
-
-		return -1;
-	}
-
-	/**
-	 * Set up initial Categorized Assignment Order
-	 */
-	private Map<String, List<Long>> initializeCategorizedAssignmentOrder(final String siteId)
-			throws JAXBException, IdUnusedException, PermissionException {
-
-		final List<Assignment> assignments = getGradebookAssignments();
-
-		final Map<String, List<Long>> categoriesToAssignments = new HashMap<String, List<Long>>();
-		for (final Assignment assignment : assignments) {
-			final String category = assignment.getCategoryName();
-			if (!categoriesToAssignments.containsKey(category)) {
-				categoriesToAssignments.put(category, new ArrayList<Long>());
-			}
-			categoriesToAssignments.get(category).add(assignment.getId());
-		}
-
-		storeCategorizedAssignmentsOrder(siteId, categoriesToAssignments);
-
-		return categoriesToAssignments;
-	}
-
-	/**
-	 * Set up Categorized Assignment Order for single category This is required if a category is added to the gradebook after the
-	 * categorized assignment order has been initialized.
-	 */
-	private Map<String, List<Long>> initializeCategorizedAssignmentOrder(final String siteId, final String category)
-			throws JAXBException, IdUnusedException, PermissionException {
-		final List<Assignment> assignments = getGradebookAssignments();
-		final List<Long> assignmentIds = new ArrayList<Long>();
-		for (final Assignment assignment : assignments) {
-			if (category.equals(assignment.getCategoryName())) {
-				assignmentIds.add(assignment.getId());
-			}
-		}
-		final Map<String, List<Long>> orderData = getCategorizedAssignmentsOrder();
-		orderData.put(category, assignmentIds);
-		storeCategorizedAssignmentsOrder(siteId, orderData);
-
-		return orderData;
-	}
-
-	/**
-	 * Store categorized assignment order as XML on a site property
-	 *
-	 * @param siteId the site's id
-	 * @param assignments a list of assignments in their new order
-	 * @throws JAXBException * @throws IdUnusedException
-	 * @throws PermissionException
-	 */
-	private void storeCategorizedAssignmentsOrder(final String siteId, final Map<String, List<Long>> categoriesToAssignments)
-			throws JAXBException, IdUnusedException, PermissionException {
-		Site site = null;
-		try {
-			site = this.siteService.getSite(siteId);
-		} catch (final IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
-
-		final List<AssignmentOrder> assignmentOrders = new ArrayList<AssignmentOrder>();
-
-		for (final String category : categoriesToAssignments.keySet()) {
-			final List<Long> assignmentIds = categoriesToAssignments.get(category);
-			for (int i = 0; i < assignmentIds.size(); i++) {
-				assignmentOrders.add(new AssignmentOrder(assignmentIds.get(i), category, i));
-			}
-		}
-
-		final XmlList<AssignmentOrder> newXmlList = new XmlList<AssignmentOrder>(assignmentOrders);
-		final String newXml = XmlMarshaller.marshal(newXmlList);
-
-		final ResourcePropertiesEdit props = site.getPropertiesEdit();
-		props.addProperty(ASSIGNMENT_ORDER_PROP, newXml);
-
-		log.debug("Updated assignment order: " + newXml);
-		this.siteService.save(site);
-	}
-
-	/**
-	 * Ensure the assignment is ordered within their category
-	 */
-	private void syncCatagorizedAssignmentOrder(final String siteId, final Assignment assignment) {
-		final Map<String, List<Long>> orderData = getCategorizedAssignmentsOrder();
-		// remove assignment from existing category
-		if (orderData.containsValue(assignment.getId())) {
-			for (final String category : orderData.keySet()) {
-				orderData.get(category).remove(assignment.getId());
-			}
-		}
-
-		try {
-			// ensure category order data exists
-			if (!orderData.containsKey(assignment.getCategoryName())) {
-				initializeCategorizedAssignmentOrder(siteId, assignment.getCategoryName());
-			}
-
-			// add assignment end of rightful category
-			orderData.get(assignment.getCategoryName()).add(assignment.getId());
-
-			// store in the database
-			storeCategorizedAssignmentsOrder(siteId, orderData);
-		} catch (final Exception e) {
-			log.error("Failed to sync categorized assignment order for: " + assignment.getId());
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * Comparator class for sorting a list of users by last name Secondary sort is on first name to maintain consistent order for those with
@@ -1475,7 +1266,7 @@ public class GradebookNgBusinessService {
 		try {
 			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
 			if (original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
-				syncCatagorizedAssignmentOrder(siteId, assignment);
+				updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(), Integer.MAX_VALUE);
 			}
 			return true;
 		} catch (final Exception e) {
@@ -1752,20 +1543,6 @@ public class GradebookNgBusinessService {
 		final String category = assignment.getCategoryName();
 
 		this.gradebookService.removeAssignment(assignmentId);
-
-		// remove assignment from the categorized sort order XML
-		final Map<String, List<Long>> categorizedOrder = getCategorizedAssignmentsOrder();
-		if (categorizedOrder.containsKey(category)) {
-			final boolean removed = categorizedOrder.get(category).remove(assignmentId);
-			if (removed) {
-				try {
-					storeCategorizedAssignmentsOrder(getCurrentSiteId(), categorizedOrder);
-				} catch (JAXBException | IdUnusedException | PermissionException e) {
-					e.printStackTrace();
-					log.error("Unable to storeCategorizedAssignmentsOrder after removing assignmentId: " + assignmentId);
-				}
-			}
-		}
 	}
 
 	/**

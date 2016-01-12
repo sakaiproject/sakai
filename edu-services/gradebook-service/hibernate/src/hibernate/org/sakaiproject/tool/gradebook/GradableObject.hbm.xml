@@ -21,7 +21,9 @@
 
 		<property name="removed" column="REMOVED" type="boolean" />
 
-        <property name="sortOrder" column="SORT_ORDER" type="java.lang.Integer" />
+		<property name="sortOrder" column="SORT_ORDER" type="java.lang.Integer" />
+
+		<property name="categorizedSortOrder" column="CATEGORIZED_SORT_ORDER" type="java.lang.Integer" />
 
 		<subclass name="org.sakaiproject.tool.gradebook.Assignment" extends="org.sakaiproject.tool.gradebook.GradableObject"  discriminator-value="1">
 			<property name="pointsPossible" column="POINTS_POSSIBLE" type="double" />
