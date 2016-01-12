@@ -6,12 +6,14 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;
 import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.SakaiFsService;
 import org.sakaiproject.elfinder.sakai.SiteVolume;
 import org.sakaiproject.elfinder.sakai.site.SiteFsItem;
 import org.sakaiproject.elfinder.sakai.site.SiteFsVolume;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +28,8 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
 
     private DiscussionForumManager discussionForumManager;
     private MessageForumsForumManager messageForumsForumManager;
+    private UIPermissionsManager uiPermissionsManager;
+    private UserDirectoryService userDirectoryService;
 
     public void setDiscussionForumManager(DiscussionForumManager discussionForumManager) {
         this.discussionForumManager = discussionForumManager;
@@ -33,6 +37,14 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
 
     public void setMessageForumsForumManager(MessageForumsForumManager messageForumsForumManager) {
         this.messageForumsForumManager = messageForumsForumManager;
+    }
+
+    public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
+        this.uiPermissionsManager = uiPermissionsManager;
+    }
+
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
     }
 
     @Override
@@ -77,6 +89,7 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
                 String[] parts = relativePath.split("/");
                 if(parts.length > 2) {
                     String topicId;
+                    String userId = userDirectoryService.getCurrentUser().getId();
                     if("forum".equals(parts[1])) {
                         topicId = parts[2];
                         BaseForum topic1 = messageForumsForumManager.getForumByUuid(topicId);
@@ -86,7 +99,10 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
                     if("topic".equals(parts[1])) {
                         topicId = parts[2];
                         Topic topic = messageForumsForumManager.getTopicByUuid(topicId);
-                        return new TopicMsgCntrFsItem(topic, "", this);
+                        //In Forums permissions work individually on topics therefore adding checks for topics in el-finder
+                        if(uiPermissionsManager.isRead(Long.valueOf(topic.getId()), false, false,userId, this.siteId)){
+                            return new TopicMsgCntrFsItem(topic, "", this);
+                        }
                     }
                 }
 
@@ -192,11 +208,15 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
                 BaseForum forum1 = ((ForumMsgCntrFsItem)fsi).getForum();
                 BaseForum forumAndTopics1 = messageForumsForumManager.getForumByIdWithTopics(forum1.getId());
                 Iterator discussionForum1 = forumAndTopics1.getTopics().iterator();
+                String userId = userDirectoryService.getCurrentUser().getId();
 
                 while(discussionForum1.hasNext()) {
                     Topic topic1 = (Topic)discussionForum1.next();
-                    TopicMsgCntrFsItem childFsi = new TopicMsgCntrFsItem(topic1, "", this);
-                    items.add(childFsi);
+                    //In Forums permissions work individually on topics therefore adding checks for topics in el-finder
+                    if(uiPermissionsManager.isRead(Long.valueOf(topic1.getId()), false, false, userId, this.siteId)) {
+                        TopicMsgCntrFsItem childFsi = new TopicMsgCntrFsItem(topic1, "", this);
+                        items.add(childFsi);
+                    }
                 }
             }
 

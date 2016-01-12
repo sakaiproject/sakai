@@ -29,12 +29,13 @@
 						</bean>
 						<!--
 						  This is disabled because it isn't doing permission checks but it's been useful in development
-						  to have multiple tools working.
+						  to have multiple tools working.-->
 						<bean class="org.sakaiproject.elfinder.sakai.msgcntr.MsgCntrSiteVolumeFactory">
 							<property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
 							<property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+							<property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 						</bean>
-						-->
 					</set>
 				</property>
 			</bean>
