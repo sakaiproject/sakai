@@ -61,12 +61,12 @@
 						<tr class="active gb-category-runningtotal">
 							<td><span class="pull-right"><wicket:message key="settingspage.categories.total" /></span></td>
 							<td><span wicket:id="runningTotal">100%</span></td>
-							<td colspan="6"></td>
+							<td colspan="6"><span wicket:id="runningTotalMessage" class="text-danger"><wicket:message key="settingspage.categories.runningtotalerror" /></span></td>
 						</tr>
 						</tbody>
 					</table>
 					<div>
-						<button wicket:id="addCategory" type="submit" class="btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
+						<button wicket:id="addCategory" type="submit" class="btn btn-link btn-sm"><wicket:message key="settingspage.categories.add" /></button>
 					</div>
 				</div>
 			</div>

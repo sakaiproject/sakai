@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
@@ -129,7 +130,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 		add(new AttributeModifier("data-category", assignment.getCategoryName()));
-		if (assignment.getWeight() != null) {
+		if (GbCategoryType.WEIGHTED_CATEGORY.equals(this.businessService.getGradebookCategoryType()) && assignment.getWeight() != null) {
 			add(new AttributeModifier("data-category-weight", String.format("%s%%", Math.round(assignment.getWeight() * 100))));
 		}
 		add(new AttributeModifier("data-category-extra-credit", assignment.isCategoryExtraCredit()));

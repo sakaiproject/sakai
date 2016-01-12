@@ -246,6 +246,11 @@
   color: #777;
   font-style: italic;
 }
+#gradebookGrades .gb-readonly-grade {
+  line-height: 1em;
+  display: block;
+  padding-top: 10px;
+}
 #gradebookGrades .gb-grade-item-cell > span {
   display: block;
 }
@@ -797,6 +802,7 @@ ul.feedbackPanel li span {
   top: 0;
   width: 18px;
   color: #CCC;
+  line-height: 18px;
 }
 .gb-cell-notification-comment:before {
   font-family: "gradebook-icons";
@@ -923,6 +929,7 @@ ul.feedbackPanel li span {
 }
 .gb-summary-grade-panel .gb-summary-grade-flags {
   padding-left: 10px;
+  float: right;
 }
 #studentGradeSummary {
   margin: 30px 0 0;
@@ -984,6 +991,10 @@ ul.feedbackPanel li span {
 .dropdown-menu>li>a,
 .nav>li>a {
   text-decoration: none;
+}
+.checkbox input[type="checkbox"][disabled],
+.radio input[type="radio"][disabled]{
+  background-color: #eee;
 }
 
 /* Mobile bits and pieces */
