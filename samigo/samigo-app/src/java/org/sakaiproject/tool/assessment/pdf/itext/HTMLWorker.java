@@ -271,10 +271,7 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 						img = Image.getInstance(src);
 					}
 					else {
-						byte[] buffer;
-						String srcResource = src.substring(src.indexOf("/content", 0)).replaceAll("/content", "");
-						buffer = getImageStream(URLDecoder.decode(srcResource));
-						img = Image.getInstance(buffer);
+						img = Image.getInstance(URLDecoder.decode(src));
 					}
 				}
 
