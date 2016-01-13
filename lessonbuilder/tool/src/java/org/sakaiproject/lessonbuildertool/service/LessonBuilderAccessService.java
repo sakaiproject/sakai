@@ -548,7 +548,6 @@ public class LessonBuilderAccessService {
 						simplePageBean.setAssignmentEntity(assignmentEntity);
 						simplePageBean.setBltiEntity(bltiEntity);
 						simplePageBean.setGradebookIfc(gradebookIfc);
-						simplePageBean.setMemoryService(memoryService);
 						simplePageBean.setCurrentSiteId(currentPage.getSiteId());
 						simplePageBean.setCurrentPage(currentPage);
 						simplePageBean.setCurrentPageId(currentPage.getPageId());
