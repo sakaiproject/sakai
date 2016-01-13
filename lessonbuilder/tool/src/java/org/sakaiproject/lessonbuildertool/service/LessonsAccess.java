@@ -488,7 +488,6 @@ public class LessonsAccess {
 	    simplePageBean.setAssignmentEntity(assignmentEntity);
 	    simplePageBean.setBltiEntity(bltiEntity);
 	    simplePageBean.setGradebookIfc(gradebookIfc);
-	    simplePageBean.setMemoryService(memoryService);
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
