@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -104,7 +105,8 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		} else {
 			externalAppFlag.setVisible(true);
 			externalAppFlag.add(new AttributeModifier("data-content",
-					getString("label.gradeitem.externalAppPrefix") + " " + assignment.getExternalAppName()));
+					gradebookPage.generatePopoverContent(new StringResourceModel("label.gradeitem.externalapplabel",
+							null, new Object[] { assignment.getExternalAppName() }).getString())));
 			String iconClass = "icon-sakai";
 			if ("Assignments".equals(assignment.getExternalAppName())) {
 				iconClass = "icon-sakai-assignment-grades";
