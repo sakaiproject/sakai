@@ -213,8 +213,10 @@
         var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getSnapshot(), saveTime: new Date() }));
         localStorage.setItem(autoSaveKey, compressedJSON);
 
-        var notification = new CKEDITOR.plugins.notification( editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' } );
-        notification.show();
+        if (typeof editorInstance.config.autosave_disableNotifications === "undefined" || !editorInstance.config.autosave_disableNotifications) {
+            var notification = new CKEDITOR.plugins.notification( editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' } );
+            notification.show();
+        }
     }
 
     function RemoveStorage(autoSaveKey) {
