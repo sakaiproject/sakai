@@ -1195,7 +1195,7 @@ GradebookSpreadsheet.prototype.setupColoredCategories = function() {
     var category = $(this).find(".gradebook-item-category-filter :input").val();
 
     if (!self._CATEGORY_DATA[category].hasOwnProperty("color")) {
-      self._CATEGORY_DATA[category]["color"] = self.getRandomColor();
+      self._CATEGORY_DATA[category]["color"] = $group.find("[data-category-color]").data("category-color");
     }
 
     var color = self._CATEGORY_DATA[category].color;
@@ -1212,21 +1212,6 @@ GradebookSpreadsheet.prototype.setupColoredCategories = function() {
       data.scoreHeaderModel.$cell.find(".gb-title").before($colorSwatch);
     }
   });
-};
-
-
-GradebookSpreadsheet.prototype.getRandomColor = function() {
-  var getRandom256 = function(min, max) {
-    var initialValue = parseInt(Math.random() * (max - min) + min);
-    // wash out with white to create a pastel.. pastels are so in right now.
-    return parseInt((initialValue + 255) / 2);
-  };
-
-  var r = getRandom256(180, 250);
-  var g = getRandom256(180, 250);
-  var b = getRandom256(180, 250);
-
-  return "rgb("+r+","+g+","+b+")";
 };
 
 

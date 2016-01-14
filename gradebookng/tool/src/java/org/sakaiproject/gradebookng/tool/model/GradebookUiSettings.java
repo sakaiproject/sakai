@@ -42,6 +42,7 @@ public class GradebookUiSettings implements Serializable {
 
 	private final Map<Long, Boolean> assignmentVisibility;
 	private final Map<String, Boolean> categoryScoreVisibility;
+	private Map<String, String> categoryColors;
 
 	/**
 	 * For sorting based on first name / last name
@@ -56,6 +57,7 @@ public class GradebookUiSettings implements Serializable {
 		this.assignmentVisibility = new HashMap<Long, Boolean>();
 		this.categoryScoreVisibility = new HashMap<String, Boolean>();
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
+		this.categoryColors = new HashMap<String, String>();
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {
@@ -77,5 +79,13 @@ public class GradebookUiSettings implements Serializable {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
+
+	public void setCategoryColor(String categoryName, String rgbColorString) {
+		categoryColors.put(categoryName, rgbColorString);
+	}
+
+	public String getCategoryColor(String categoryName) {
+		return categoryColors.get(categoryName);
 	}
 }
