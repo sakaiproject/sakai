@@ -13,6 +13,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.MaskType;
@@ -286,7 +287,11 @@ public class GradebookPage extends BasePage {
 								final CourseGrade courseGrade = GradebookPage.this.businessService
 										.getCourseGrade(scoreChangedEvent.getStudentUuid());
 								((Model<String>) getDefaultModel()).setObject(courseGrade.getMappedGrade());
+
 								scoreChangedEvent.getTarget().add(this);
+								scoreChangedEvent.getTarget().appendJavaScript(
+										String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');",
+												this.getMarkupId()));
 							}
 						}
 					}
