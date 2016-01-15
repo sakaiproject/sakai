@@ -57,7 +57,7 @@ function initializeExtTimeValues(fullExtendedTimeString,itemNum) {
 	document.getElementById("xt_due"+itemNum).value = evaluateDate(fullExtendedTimeString[3]);
 	document.getElementById("xt_retract"+itemNum).value = evaluateDate(fullExtendedTimeString[4]);
 	
-	addExtendedExtDatePickers(itemNum);
+	addExtDatePickers(itemNum);
 }
 
 // Avoid undefined date values
@@ -142,7 +142,7 @@ function showExtendedTime() {
 function addExtTimeEntry() {
 	activeExtTimeEntries++;
 	document.getElementById("xt"+activeExtTimeEntries).style.display = "block";
-	addExtendedExtDatePickers(activeExtTimeEntries);
+	addExtDatePickers(activeExtTimeEntries);
 	if(activeExtTimeEntries == MAXITEMS) { // prevents them from adding more than max
 		document.getElementById("addExtTimeControl").style.display = "none";
 	}
@@ -176,7 +176,7 @@ function deleteAllExtTimeEntries() {
 
 // Add scripts to DOM by creating a script tag dynamically.
 // @param {String=} itemNum itemNum
-function addExtendedExtDatePickers(itemNum) {
+function addExtDatePickers(itemNum) {
 	
 	var s = document.createElement("script");
 	s.type = "text/javascript";	
