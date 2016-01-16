@@ -52,8 +52,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
@@ -66,6 +68,8 @@ import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.email.api.NoRecipientsException;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.Resource;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -157,6 +161,13 @@ public class BasicEmailService implements EmailService
 
 	/** Configuration: smtp server to use. */
 	protected String m_smtp = null;
+
+	/** localized tool properties **/
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.EmailImplProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.emailimpl.email-impl";
+	private static final String RESOURCECLASS = "resource.class.emailimpl";
+	private static final String RESOURCEBUNDLE = "resource.bundle.emailimpl";
+	private ResourceLoader rb = null;
 
 	/**
 	 * Configuration: smtp server to use.
@@ -362,6 +373,11 @@ public class BasicEmailService implements EmailService
 	 */
 	public void init()
 	{
+		// Resource Bundle
+		String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+		String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+		rb = new Resource().getLoader(resourceClass, resourceBundle);
+
 		// set the protocol to be used
 		if (m_smtpUseSSL)
 		{
@@ -534,17 +550,50 @@ public class BasicEmailService implements EmailService
 
 		// date
 		if (msg.getHeader(EmailHeaders.DATE) == null)
+		{
 			msg.setSentDate(new Date(System.currentTimeMillis()));
+		}
 
-		// set the message sender
-		msg.setFrom(from);
+		// Set the FROM to a domain we control not to the Sakai user's email address.
+		InternetAddress sakaiServerFrom = new InternetAddress(m_smtpFrom);
+		try {
+			sakaiServerFrom.setPersonal(serverConfigurationService.getString("ui.service", "Sakai"));
+		} catch (UnsupportedEncodingException uex) {
+			M_log.warn("Could not set the personal part of the from address to the Sakai ui.service property");
+		}
+
+		// KNL-1400: We are attempting to move the tool-provided FROM address into the Reply-To address.
+		// In April 2014, Yahoo began to set a strict DMARC policy that would reject all mail FROM: username@yahoo.com.
+		// So now we need to set a FROM that will be from a domain we can control so we don't run afoul of big email providers.
+		if (from != null && EmailValidator.getInstance().isValid(from.getAddress()))
+		{
+			if ((replyTo == null || replyTo.length == 0 || StringUtils.isBlank(replyTo[0].getAddress())) && msg.getHeader(EmailHeaders.REPLY_TO) == null)
+			{
+				replyTo = new InternetAddress[1];
+				replyTo[0] = from;
+			}
+
+			if (StringUtils.isNotBlank(from.getPersonal()))
+			{
+				String sakaiServiceName = sakaiServerFrom.getPersonal();
+				try {
+					sakaiServerFrom.setPersonal(from.getPersonal() + " " + rb.getString("sentvia") + " " + sakaiServiceName);
+				} catch (UnsupportedEncodingException uex) {
+					M_log.warn("Could not set the personal part of the from address to the tool-set from plus sakai service.", uex);
+				}
+			}
+		}
+
+		msg.setFrom(sakaiServerFrom);
 
 		// set the message recipients (headers)
 		setRecipients(headerTo, msg);
 
 		// set the reply to
 		if ((replyTo != null) && (msg.getHeader(EmailHeaders.REPLY_TO) == null))
+		{
 			msg.setReplyTo(replyTo);
+		}
 
 		// update to be Postmaster if necessary
 		checkFrom(msg);
