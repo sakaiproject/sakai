@@ -1605,16 +1605,14 @@ public class QuestionPoolFacadeQueries
                   boolean autoCommit = conn.getAutoCommit();
   		  String query = "";
   		  if (!"".equals(updateOwnerIdInPoolTableQueryString)) {
-  			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = ? WHERE questionpoolid IN (?) AND accesstypeid = 34";
+  			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = ? WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ") AND accesstypeid = 34";
   			  statement = conn.prepareStatement(query);
   			  statement.setString(1, ownerId);
-  			  statement.setString(2, updateOwnerIdInPoolTableQueryString);
   			  statement.executeUpdate();
   			  
-  			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = ? WHERE questionpoolid IN (?)";
+  			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = ? WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
 			  statement = conn.prepareStatement(query);
   			  statement.setString(1, ownerId);
-  			  statement.setString(2, updateOwnerIdInPoolTableQueryString);
 			  statement.executeUpdate();
                           
                           if (!autoCommit) {
@@ -1624,9 +1622,8 @@ public class QuestionPoolFacadeQueries
   
   		  // if the pool has parent but the parent doesn't transfer, need to remove the child-parent relationship.
   		  if (!"".equals(removeParentPoolString)) {
-  			  query = "UPDATE SAM_QUESTIONPOOL_T SET parentpoolid = 0 WHERE questionpoolid IN (?)";
+  			  query = "UPDATE SAM_QUESTIONPOOL_T SET parentpoolid = 0 WHERE questionpoolid IN (" + removeParentPoolString + ")";
   			  statement = conn.prepareStatement(query);
-  			  statement.setString(1, removeParentPoolString);
   			  statement.executeUpdate();	
                           
                           if (!autoCommit) {
