@@ -1429,6 +1429,8 @@ GradebookSpreadsheet.prototype.refreshCourseGradeForStudent = function(studentUu
 
   var courseGrade = this._cloneCell($courseGradeCell).html();
   $fixedColumnCourseGradeCell.html(courseGrade);
+
+  this.$table.find(".gb-score-dynamically-updated").removeClass("gb-score-dynamically-updated", 1000);
 };
 
 
