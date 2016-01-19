@@ -1,9 +1,15 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.sakaiproject.gradebookng.business.SortDirection;
+import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
@@ -30,8 +36,53 @@ public class CategoryColumnHeaderPanel extends Panel {
 
 		final CategoryDefinition category = this.modelData.getObject();
 
-		// title
-		add(new Label("title", Model.of(category.getName())));
+		final Link<String> title = new Link<String>("title", Model.of(category.getName())) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+
+				// toggle the sort direction on each click
+				final GradebookPage gradebookPage = (GradebookPage) getPage();
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+				// if null, set a default sort, otherwise toggle, save, refresh.
+				if (settings.getCategorySortOrder() == null
+						|| !category.getId().equals(settings.getCategorySortOrder().getCategoryId())) {
+					settings.setCategorySortOrder(new GbCategoryAverageSortOrder(category.getId(), SortDirection.ASCENDING));
+				} else {
+					final GbCategoryAverageSortOrder sortOrder = settings.getCategorySortOrder();
+					SortDirection direction = sortOrder.getDirection();
+					direction = direction.toggle();
+					sortOrder.setDirection(direction);
+					settings.setCategorySortOrder(sortOrder);
+				}
+
+				// clear any assignment sort order to prevent conflicts
+				settings.setAssignmentSortOrder(null);
+
+				// save settings
+				gradebookPage.setUiSettings(settings);
+
+				// refresh
+				setResponsePage(new GradebookPage());
+			}
+
+		};
+		title.add(new AttributeModifier("title", category.getName()));
+		title.add(new Label("label", category.getName()));
+
+		// set the class based on the sortOrder. May not be set for this category so match it
+		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
+		if (settings != null && settings.getCategorySortOrder() != null
+				&& settings.getCategorySortOrder().getCategoryId() == category.getId()) {
+			title.add(
+					new AttributeModifier("class", "gb-sort-" + settings.getCategorySortOrder().getDirection().toString().toLowerCase()));
+		}
+
+		add(title);
+
 	}
 
 }

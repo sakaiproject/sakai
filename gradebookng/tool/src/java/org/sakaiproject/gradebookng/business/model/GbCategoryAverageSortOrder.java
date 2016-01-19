@@ -10,7 +10,7 @@ import lombok.Setter;
 /**
  * Wrapper for the fields we need to know when sorting a category by the subtotals within it
  */
-public class GbCategorySubtotalSortOrder implements Serializable {
+public class GbCategoryAverageSortOrder implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public class GbCategorySubtotalSortOrder implements Serializable {
 	 * @param categoryId
 	 * @param direction
 	 */
-	public GbCategorySubtotalSortOrder(final long categoryId, final SortDirection direction) {
+	public GbCategoryAverageSortOrder(final long categoryId, final SortDirection direction) {
 		this.categoryId = categoryId;
 		this.direction = direction;
 	}

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
-import org.sakaiproject.gradebookng.business.model.GbCategorySubtotalSortOrder;
+import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 
@@ -59,7 +59,7 @@ public class GradebookUiSettings implements Serializable {
 	 */
 	@Getter
 	@Setter
-	private GbCategorySubtotalSortOrder categorySortOrder;
+	private GbCategoryAverageSortOrder categorySortOrder;
 
 	public GradebookUiSettings() {
 		// defaults. Note there is no default for assignmentSortOrder as that requires an assignmentId which will differ between gradebooks

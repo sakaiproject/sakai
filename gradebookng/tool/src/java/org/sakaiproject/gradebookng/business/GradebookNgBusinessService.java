@@ -29,7 +29,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.exception.GbException;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
-import org.sakaiproject.gradebookng.business.model.GbCategorySubtotalSortOrder;
+import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
@@ -521,7 +521,7 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final GbAssignmentGradeSortOrder assignmentSortOrder,
-			final GbStudentNameSortOrder nameSortOrder, final GbCategorySubtotalSortOrder categorySortOrder,
+			final GbStudentNameSortOrder nameSortOrder, final GbCategoryAverageSortOrder categorySortOrder,
 			final GbGroup groupFilter)
 					throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(groupFilter), assignmentSortOrder, nameSortOrder,
@@ -540,7 +540,7 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments, final List<String> studentUuids,
 			final GbAssignmentGradeSortOrder assignmentSortOrder, final GbStudentNameSortOrder nameSortOrder,
-			final GbCategorySubtotalSortOrder categorySortOrder) throws GbException {
+			final GbCategoryAverageSortOrder categorySortOrder) throws GbException {
 
 		final StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
