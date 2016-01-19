@@ -113,7 +113,13 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 					}
 
 				});
+
+		// if we don't have a category assigned we want the 'Choose One' message. setNullValid = false
+		// if we have a category we want to be able to clear it. setNullValid = true
 		categoryDropDown.setNullValid(false);
+		if (assignment.getCategoryId() != null) {
+			categoryDropDown.setNullValid(true);
+		}
 		categoryDropDown.setVisible(!categories.isEmpty());
 		add(categoryDropDown);
 
