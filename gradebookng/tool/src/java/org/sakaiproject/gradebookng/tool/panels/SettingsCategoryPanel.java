@@ -286,12 +286,6 @@ public class SettingsCategoryPanel extends Panel {
 						return (IConverter<C>) new PercentConverter();
 					}
 
-					@Override
-					public boolean isEnabled() {
-						// disable the field if extra credit
-						return !category.isExtraCredit();
-					}
-
 				};
 
 				// onchange, update the running total
@@ -321,12 +315,6 @@ public class SettingsCategoryPanel extends Panel {
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						updateRunningTotal(target, runningTotal, runningTotalMessage);
-
-						// toggle the weight field
-						final boolean checked = extraCredit.getModelObject();
-						weight.setEnabled(!checked);
-
-						target.add(weight);
 					}
 				});
 				item.add(extraCredit);
@@ -557,7 +545,7 @@ public class SettingsCategoryPanel extends Panel {
 	 * @param runningTotalMessage error message component
 	 * @return
 	 */
-	private void updateRunningTotal(AjaxRequestTarget target, final Component runningTotal, final Component runningTotalMessage) {
+	private void updateRunningTotal(final AjaxRequestTarget target, final Component runningTotal, final Component runningTotalMessage) {
 		updateRunningTotal(runningTotal, runningTotalMessage);
 		target.add(runningTotal);
 		target.add(runningTotalMessage);
