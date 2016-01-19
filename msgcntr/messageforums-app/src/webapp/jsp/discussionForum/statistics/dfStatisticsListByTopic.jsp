@@ -1,4 +1,4 @@
-<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+ <%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
                  javax.faces.el.*, org.sakaiproject.tool.messageforums.*,
                  org.sakaiproject.api.app.messageforums.*,
                  org.sakaiproject.site.cover.SiteService,
@@ -235,8 +235,8 @@
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header">
-  					<h:commandLink action="#{mfStatisticsBean.toggleTopicNameSort}" title="#{msgs.stat_name}">
-					   	<h:outputText value="#{msgs.stat_name}" />
+  					<h:commandLink action="#{mfStatisticsBean.toggleTopicNameSort}" title="#{mfStatisticsBean.pureAnon ? msgs.stat_anon_user : msgs.stat_name}">
+					   	<h:outputText value="#{mfStatisticsBean.pureAnon ? msgs.stat_anon_user : msgs.stat_name}" />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.nameSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_name}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.nameSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_name}"/>
 					</h:commandLink>

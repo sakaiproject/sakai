@@ -1,7 +1,15 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -11,6 +19,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -19,58 +28,58 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.Category;
-
-import java.util.*;
 
 public class InstructorGradeSummaryGradesPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
-	private GbStudentGradeInfo gradeInfo;
-	private List<CategoryDefinition> categories;
-	
-	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	public InstructorGradeSummaryGradesPanel(String id, IModel<Map<String, Object>> model) {
+	private GbStudentGradeInfo gradeInfo;
+	private List<CategoryDefinition> categories;
+
+	GbCategoryType configuredCategoryType;
+
+	public InstructorGradeSummaryGradesPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
-		//unpack model
-		Map<String,Object> modelData = (Map<String,Object>) this.getDefaultModelObject();
-		String userId = (String) modelData.get("userId");
-		String displayName = (String) modelData.get("displayName");
-		
-		//build the grade matrix for the user
+
+		// unpack model
+		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
+		final String userId = (String) modelData.get("userId");
+
+		// build the grade matrix for the user
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
-        
-		//TODO catch if this is null, the get(0) will throw an exception
-		//TODO also catch the GbException
+
+		// TODO catch if this is null, the get(0) will throw an exception
+		// TODO also catch the GbException
 		this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
 		this.categories = this.businessService.getGradebookCategories();
 
+		// get configured category type
+		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
+
+		// setup
 		final List<String> categoryNames = new ArrayList<String>();
-		final Map<String, List<Assignment>> categoriesToAssignments = new HashMap<String, List<Assignment>>();
+		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
 
-		Iterator<Assignment> assignmentIterator = assignments.iterator();
-		while (assignmentIterator.hasNext()) {
-			Assignment assignment = assignmentIterator.next();
+		// iterate over assignments and build map of categoryname to list of assignments
+		for (final Assignment assignment : assignments) {
 
-			String categoryName = assignment.getCategoryName() == null ? GradebookPage.UNCATEGORIZED : assignment.getCategoryName();
+			final String categoryName = getCategoryName(assignment);
 
-			if (!categoriesToAssignments.containsKey(categoryName)) {
+			if (!categoryNamesToAssignments.containsKey(categoryName)) {
 				categoryNames.add(categoryName);
-				categoriesToAssignments.put(categoryName, new ArrayList<Assignment>());
+				categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
 			}
 
-			categoriesToAssignments.get(categoryName).add(assignment);
+			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
-
 		Collections.sort(categoryNames);
 
 		final boolean[] categoryScoreHidden = { false };
@@ -79,15 +88,15 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<String> categoryItem) {
+			protected void populateItem(final ListItem<String> categoryItem) {
 				final String categoryName = categoryItem.getModelObject();
 
-				List<Assignment> categoryAssignments = categoriesToAssignments.get(categoryName);
+				final List<Assignment> categoryAssignments = categoryNamesToAssignments.get(categoryName);
 
 				categoryItem.add(new Label("category", categoryName));
 
 				CategoryDefinition categoryDefinition = null;
-				for (CategoryDefinition aCategoryDefinition : categories) {
+				for (final CategoryDefinition aCategoryDefinition : InstructorGradeSummaryGradesPanel.this.categories) {
 					if (aCategoryDefinition.getName().equals(categoryName)) {
 						categoryDefinition = aCategoryDefinition;
 						break;
@@ -95,7 +104,8 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 				}
 
 				if (categoryDefinition != null) {
-					Double score = gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
+					final Double score = InstructorGradeSummaryGradesPanel.this.gradeInfo.getCategoryAverages()
+							.get(categoryDefinition.getId());
 					String grade = "";
 					if (score != null) {
 						grade = FormatHelper.formatDoubleAsPercentage(score);
@@ -118,14 +128,14 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					protected void populateItem(ListItem<Assignment> assignmentItem) {
+					protected void populateItem(final ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
 
-						GbGradeInfo gradeInfo = InstructorGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());
+						final GbGradeInfo gradeInfo = InstructorGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());
 
 						final String rawGrade;
 						String comment;
-						if(gradeInfo != null) {
+						if (gradeInfo != null) {
 							rawGrade = gradeInfo.getGrade();
 							comment = gradeInfo.getGradeComment();
 						} else {
@@ -133,19 +143,24 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 							comment = "";
 						}
 
-						Label title = new Label("title", assignment.getName());
+						final Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
 
-						GradebookPage gradebookPage = (GradebookPage) getPage();
-						WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(gradebookPage.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit")).setVisible(assignment.getExtraCredit()));
-						flags.add(gradebookPage.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted")).setVisible(!assignment.isCounted()));
-						flags.add(gradebookPage.buildFlagWithPopover("isNotReleased", getString("label.gradeitem.notreleased")).setVisible(!assignment.isReleased()));
+						final GradebookPage gradebookPage = (GradebookPage) getPage();
+						final WebMarkupContainer flags = new WebMarkupContainer("flags");
+						flags.add(gradebookPage.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
+								.setVisible(assignment.getExtraCredit()));
+						flags.add(gradebookPage.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted"))
+								.setVisible(!assignment.isCounted()));
+						flags.add(gradebookPage.buildFlagWithPopover("isNotReleased", getString("label.gradeitem.notreleased"))
+								.setVisible(!assignment.isReleased()));
 						assignmentItem.add(flags);
 
-						assignmentItem.add(new Label("dueDate", FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
+						assignmentItem.add(new Label("dueDate",
+								FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
 						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
-						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
+						assignmentItem.add(new Label("outOf",
+								new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
 							@Override
 							public boolean isVisible() {
 								return StringUtils.isNotBlank(rawGrade);
@@ -155,12 +170,23 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 					}
 				});
 			}
+
+			@Override
+			public void renderHead(final IHeaderResponse response) {
+				super.renderHead(response);
+
+				// hide the weight column if weightings are not enabled
+				if (!isCategoryWeightEnabled()) {
+					response.render(OnDomReadyHeaderItem.forScript("$('.weight-col').hide();"));
+				}
+
+			}
 		});
 
-		//course grade
-		final Gradebook gradebook = businessService.getGradebook();
-		
-		String currentUserUuid = this.businessService.getCurrentUser().getId();
+		// course grade
+		final Gradebook gradebook = this.businessService.getGradebook();
+
+		final String currentUserUuid = this.businessService.getCurrentUser().getId();
 		if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
 			add(new Label("courseGrade", new ResourceModel("label.coursegrade.nopermission")));
 		} else {
@@ -188,5 +214,27 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 				return categoryScoreHidden[0];
 			}
 		});
+	}
+
+	/**
+	 * Helper to get the category name. Looks at settings as well.
+	 *
+	 * @param assignment
+	 * @return
+	 */
+	private String getCategoryName(final Assignment assignment) {
+		if (this.configuredCategoryType == GbCategoryType.NO_CATEGORY) {
+			return getString(GradebookPage.UNCATEGORISED);
+		}
+		return StringUtils.isBlank(assignment.getCategoryName()) ? getString(GradebookPage.UNCATEGORISED) : assignment.getCategoryName();
+	}
+
+	/**
+	 * Helper to determine if weightings are enabled
+	 *
+	 * @return
+	 */
+	private boolean isCategoryWeightEnabled() {
+		return (this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY) ? true : false;
 	}
 }

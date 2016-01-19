@@ -7,32 +7,31 @@ import org.apache.wicket.model.Model;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
- * 
+ *
  * Header panel for each category column in the UI
- * 
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
 public class CategoryColumnHeaderPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
-	private IModel<CategoryDefinition> modelData;
-	
-	public CategoryColumnHeaderPanel(String id, IModel<CategoryDefinition> modelData) {
+
+	private final IModel<CategoryDefinition> modelData;
+
+	public CategoryColumnHeaderPanel(final String id, final IModel<CategoryDefinition> modelData) {
 		super(id);
 		this.modelData = modelData;
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		final CategoryDefinition category = this.modelData.getObject();
-		
-		//title
+
+		// title
 		add(new Label("title", Model.of(category.getName())));
-		
 	}
-	
+
 }

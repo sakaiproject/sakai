@@ -648,28 +648,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
 		
-		// This method is for Gradebook-managed assignments only.
-		if (assignmentDefinition.isExternallyMaintained()) {
-			log.error("User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to set assignment " + assignmentId + " to be externally maintained");
-			throw new SecurityException("You do not have permission to perform this operation");
-		}
-
 		getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
-				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
+				final Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 				if (assignment == null) {
 					throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
 				}
-				if (assignment.isExternallyMaintained()) {
-					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the definition of externally maintained assignment " + assignmentId);
-					throw new SecurityException("You do not have permission to perform this operation");
+				
+				//external assessments are supported, but not these fields
+				if (!assignmentDefinition.isExternallyMaintained()) {
+					assignment.setName(assignmentDefinition.getName().trim());
+					assignment.setPointsPossible(assignmentDefinition.getPoints());
+					assignment.setDueDate(assignmentDefinition.getDueDate());
 				}
-				assignment.setCounted(assignmentDefinition.isCounted());
-				assignment.setDueDate(assignmentDefinition.getDueDate());
-				assignment.setName(assignmentDefinition.getName().trim());
-				assignment.setPointsPossible(assignmentDefinition.getPoints());
-				assignment.setReleased(assignmentDefinition.isReleased());
 				assignment.setExtraCredit(assignmentDefinition.isExtraCredit());
+				assignment.setCounted(assignmentDefinition.isCounted());
+				assignment.setReleased(assignmentDefinition.isReleased());
 				
 				//if we have a category, get it and set it
 				if (assignmentDefinition.getCategoryId() != null) {
@@ -3042,11 +3037,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
 			//preprocessing and validation
-			//Rule 1: If category type = categories only (no weightings), set all weights to 0
-			//Rule 2: If category has no name, it is to be removed/skipped
-			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY) {
-				newDef.setWeight(new Double(0));
-			}
+			//Rule 1: If category has no name, it is to be removed/skipped
+			//Note that we no longer set weights to 0 even if unweighted category type selected. The weights are not considered if its not a weighted category type
+			//so this allows us to switch back and forth between types without losing information
 			
 			if(StringUtils.isBlank(newDef.getName())) {
 				continue;

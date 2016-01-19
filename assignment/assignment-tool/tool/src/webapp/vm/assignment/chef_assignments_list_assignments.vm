@@ -51,7 +51,7 @@
 							$tlang.getString("gen.view2")
 						</label>
 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select id="view" name="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null, true );">
+						<select id="view" name="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
 							<option value="lisofass1" #if($!view.equals('lisofass1'))selected="selected"#end >$!tlang.getString('lisofass1')</option>
 							<option value="lisofass2" #if($!view.equals('lisofass2'))selected="selected"#end >$!tlang.getString('lisofass2')</option>
 						</select>

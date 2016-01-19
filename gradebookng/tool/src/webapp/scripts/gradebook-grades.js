@@ -408,7 +408,8 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
     event.preventDefault();
 
     $(document).scrollTop(self.$table.offset().top - 10);
-    var $target = $(self.$table.find("thead tr > *").get($(this).index()));
+    // find the header row (last in the thead) and get the corresponding th element
+    var $target = $(self.$table.find("thead tr:last > *").get($(this).index()));
 
     self.$spreadsheet.data("activeCell", $target);
 
@@ -605,6 +606,11 @@ GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(eve
       $originalCell.find($(event.target).attr("class").split(' ').map(function(cssClass) {return "." + cssClass}).join(" ")).focus();
     });
     return true;
+  // external item flag?
+  } else if ($(event.target).closest(".gb-external-app-flag").length == 1) {
+    setTimeout(function() {
+      $originalCell.find(".gb-external-app-flag").focus();
+    });
   }
   return false;
 };
@@ -1195,7 +1201,7 @@ GradebookSpreadsheet.prototype.setupColoredCategories = function() {
     var category = $(this).find(".gradebook-item-category-filter :input").val();
 
     if (!self._CATEGORY_DATA[category].hasOwnProperty("color")) {
-      self._CATEGORY_DATA[category]["color"] = self.getRandomColor();
+      self._CATEGORY_DATA[category]["color"] = $group.find("[data-category-color]").data("category-color");
     }
 
     var color = self._CATEGORY_DATA[category].color;
@@ -1212,21 +1218,6 @@ GradebookSpreadsheet.prototype.setupColoredCategories = function() {
       data.scoreHeaderModel.$cell.find(".gb-title").before($colorSwatch);
     }
   });
-};
-
-
-GradebookSpreadsheet.prototype.getRandomColor = function() {
-  var getRandom256 = function(min, max) {
-    var initialValue = parseInt(Math.random() * (max - min) + min);
-    // wash out with white to create a pastel.. pastels are so in right now.
-    return parseInt((initialValue + 255) / 2);
-  };
-
-  var r = getRandom256(180, 250);
-  var g = getRandom256(180, 250);
-  var b = getRandom256(180, 250);
-
-  return "rgb("+r+","+g+","+b+")";
 };
 
 
@@ -1444,6 +1435,8 @@ GradebookSpreadsheet.prototype.refreshCourseGradeForStudent = function(studentUu
 
   var courseGrade = this._cloneCell($courseGradeCell).html();
   $fixedColumnCourseGradeCell.html(courseGrade);
+
+  this.$table.find(".gb-score-dynamically-updated").removeClass("gb-score-dynamically-updated", 1000);
 };
 
 

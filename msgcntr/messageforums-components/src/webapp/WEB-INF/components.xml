@@ -695,12 +695,24 @@
         </property> 
     </bean>
  
-    <bean id="org.sakaiproject.api.app.messageforums.AnonymousManager" class="org.sakaiproject.component.app.messageforums.AnonymousManagerImpl">
-        <property name="sessionFactory">
-            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    <bean id="org.sakaiproject.api.app.messageforums.AnonymousManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
-        <property name="serverConfigurationService">
-            <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.AnonymousManagerImpl">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+                <property name="serverConfigurationService">
+                    <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+                </property>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
         </property>
     </bean>
 </beans>

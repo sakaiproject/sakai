@@ -1,8 +1,13 @@
 package org.sakaiproject.gradebookng.business.helpers;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import au.com.bytecode.opencsv.CSVReader;
-import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -22,15 +27,8 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import au.com.bytecode.opencsv.CSVReader;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Created by chmaurer on 1/21/15.
@@ -38,359 +36,303 @@ import java.util.Map;
 @CommonsLog
 public class ImportGradesHelper extends BaseImportHelper {
 
-    private static final String IMPORT_USER_ID="Student ID";
-    private static final String IMPORT_USER_NAME="Student Name";
+	private static final String IMPORT_USER_ID = "Student ID";
+	private static final String IMPORT_USER_NAME = "Student Name";
 
-    protected static final String ASSIGNMENT_HEADER_PATTERN = "{0} [{1}]";
-    protected static final String ASSIGNMENT_HEADER_COMMENT_PATTERN = "*/ {0} Comments */";
-    protected static final String HEADER_STANDARD_PATTERN = "{0}";
+	protected static final String ASSIGNMENT_HEADER_PATTERN = "{0} [{1}]";
+	protected static final String ASSIGNMENT_HEADER_COMMENT_PATTERN = "*/ {0} Comments */";
+	protected static final String HEADER_STANDARD_PATTERN = "{0}";
 
+	/**
+	 * Parse a CSV into a list of ImportedGrade objects. Returns list if ok, or null if error
+	 *
+	 * @param is InputStream of the data to parse
+	 * @return
+	 */
+	public static ImportedGradeWrapper parseCsv(final InputStream is, final Map<String, String> userMap) {
 
-    /**
-     * Parse a CSV into a list of ImportedGrade objects. Returns list if ok, or null if error
-     * @param is InputStream of the data to parse
-     * @return
-     */
-    public static ImportedGradeWrapper parseCsv(InputStream is, Map<String, String> userMap) {
+		// manually parse method so we can support arbitrary columns
+		final CSVReader reader = new CSVReader(new InputStreamReader(is));
+		String[] nextLine;
+		int lineCount = 0;
+		final List<ImportedGrade> list = new ArrayList<ImportedGrade>();
+		Map<Integer, ImportColumn> mapping = null;
 
-        //manually parse method so we can support arbitrary columns
-        CSVReader reader = new CSVReader(new InputStreamReader(is));
-        String [] nextLine;
-        int lineCount = 0;
-        List<ImportedGrade> list = new ArrayList<ImportedGrade>();
-        Map<Integer,ImportColumn> mapping = null;
+		try {
+			while ((nextLine = reader.readNext()) != null) {
 
-        try {
-            while ((nextLine = reader.readNext()) != null) {
+				if (lineCount == 0) {
+					// header row, capture it
+					mapping = mapHeaderRow(nextLine);
+				} else {
+					// map the fields into the object
+					list.add(mapLine(nextLine, mapping, userMap));
+				}
+				lineCount++;
+			}
+		} catch (final Exception e) {
+			log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
+			return null;
+		} finally {
+			try {
+				reader.close();
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
+		}
 
-                if(lineCount == 0) {
-                    //header row, capture it
-                    mapping = mapHeaderRow(nextLine);
-                } else {
-                    //map the fields into the object
-                    list.add(mapLine(nextLine, mapping, userMap));
-                }
-                lineCount++;
-            }
-        } catch (Exception e) {
-            log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
-            return null;
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+		final ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
+		importedGradeWrapper.setColumns(mapping.values());
+		importedGradeWrapper.setImportedGrades(list);
 
-        ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
-        importedGradeWrapper.setColumns(mapping.values());
-        importedGradeWrapper.setImportedGrades(list);
+		return importedGradeWrapper;
+	}
 
-        return importedGradeWrapper;
-    }
+	/**
+	 * Parse an XLS into a list of ImportedGrade objects Note that only the first sheet of the Excel file is supported.
+	 *
+	 * @param is InputStream of the data to parse
+	 * @return
+	 */
+	public static ImportedGradeWrapper parseXls(final InputStream is, final Map<String, String> userMap) {
 
-    /**
-     * Parse an XLS into a list of ImportedGrade objects
-     * Note that only the first sheet of the Excel file is supported.
-     *
-     * @param is InputStream of the data to parse
-     * @return
-     */
-    public static ImportedGradeWrapper parseXls(InputStream is, Map<String, String> userMap) {
+		int lineCount = 0;
+		final List<ImportedGrade> list = new ArrayList<ImportedGrade>();
+		Map<Integer, ImportColumn> mapping = null;
 
-        int lineCount = 0;
-        List<ImportedGrade> list = new ArrayList<ImportedGrade>();
-        Map<Integer,ImportColumn> mapping = null;
+		try {
+			final Workbook wb = WorkbookFactory.create(is);
+			final Sheet sheet = wb.getSheetAt(0);
+			for (final Row row : sheet) {
 
-        try {
-            Workbook wb = WorkbookFactory.create(is);
-            Sheet sheet = wb.getSheetAt(0);
-            for (Row row : sheet) {
+				final String[] r = convertRow(row);
 
-                String[] r = convertRow(row);
+				if (lineCount == 0) {
+					// header row, capture it
+					mapping = mapHeaderRow(r);
+				} else {
+					// map the fields into the object
+					list.add(mapLine(r, mapping, userMap));
+				}
+				lineCount++;
+			}
 
-                if(lineCount == 0) {
-                    //header row, capture it
-                    mapping = mapHeaderRow(r);
-                } else {
-                    //map the fields into the object
-                    list.add(mapLine(r, mapping, userMap));
-                }
-                lineCount++;
-            }
+		} catch (final Exception e) {
+			log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
+			return null;
+		}
 
-        } catch (Exception e) {
-            log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
-            return null;
-        }
+		final ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
+		importedGradeWrapper.setColumns(mapping.values());
+		importedGradeWrapper.setImportedGrades(list);
+		return importedGradeWrapper;
+	}
 
-        ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
-        importedGradeWrapper.setColumns(mapping.values());
-        importedGradeWrapper.setImportedGrades(list);
-        return importedGradeWrapper;
-    }
+	/**
+	 * Takes a row of data and maps it into the appropriate ImportedGrade properties We have a fixed list of properties, anything else goes
+	 * into ResourceProperties
+	 *
+	 * @param line
+	 * @param mapping
+	 * @return
+	 */
+	private static ImportedGrade mapLine(final String[] line, final Map<Integer, ImportColumn> mapping, final Map<String, String> userMap) {
 
-//    private static List<ProcessedGradeItem> processAssignmentNames(Map<Integer,String> mapping) {
-//        List<String> assignmentNames = new ArrayList<String>();
-//        for(Map.Entry<Integer,String> entry: mapping.entrySet()) {
-//            int i = entry.getKey();
-//            //trim in case some whitespace crept in
-//            String col = trim(entry.getValue());
-//
-//            //Find all columns that are not well known
-//            if(!StringUtils.equals(col, IMPORT_USER_ID) && !StringUtils.equals(col, IMPORT_USER_NAME)) {
-//
-//                String assignmentName = parseHeaderForAssignmentName(col);
-//                if (!assignmentNames.contains(assignmentName))
-//                    assignmentNames.add(assignmentName);
-//            }
-//        }
-//        return assignmentNames;
-//    }
+		final ImportedGrade grade = new ImportedGrade();
+		final ResourceProperties p = new BaseResourcePropertiesEdit();
 
-    private static Object[] parseHeaderForAssignmentName(String headerValue) {
-        MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_PATTERN);
-        Object[] parsedObject;
-        try {
-            parsedObject = mf.parse(headerValue);
-        } catch (ParseException e) {
-            mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_COMMENT_PATTERN);
-            try {
-                parsedObject = mf.parse(headerValue);
-            } catch (ParseException e1) {
-                throw new RuntimeException("Error parsing grade import");
-            }
-        }
+		for (final Map.Entry<Integer, ImportColumn> entry : mapping.entrySet()) {
+			final int i = entry.getKey();
+			// trim in case some whitespace crept in
+			final ImportColumn importColumn = entry.getValue();
+			// String col = trim(entry.getValue());
 
-        return parsedObject;
-    }
+			// In case there aren't enough data fields in the line to match up with the number of columns needed
+			String lineVal = null;
+			if (i < line.length) {
+				lineVal = trim(line[i]);
+			}
 
-    private static boolean isCommentsColumn(String headerValue) {
-        MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_COMMENT_PATTERN);
-        try {
-            mf.parse(headerValue);
-        } catch (ParseException e) {
-            return false;
-        }
-        return true;
-    }
+			// now check each of the main properties in turn to determine which one to set, otherwise set into props
+			if (StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_ID)) {
+				grade.setStudentEid(lineVal);
+				grade.setStudentUuid(userMap.get(lineVal));
+			} else if (StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_NAME)) {
+				grade.setStudentName(lineVal);
+			} else if (ImportColumn.TYPE_ITEM_WITH_POINTS == importColumn.getType()) {
+				final String assignmentName = importColumn.getColumnTitle();
+				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
+				if (importedGradeItem == null) {
+					importedGradeItem = new ImportedGradeItem();
+					grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+					importedGradeItem.setGradeItemName(assignmentName);
+				}
+				importedGradeItem.setGradeItemScore(lineVal);
+			} else if (ImportColumn.TYPE_ITEM_WITH_COMMENTS == importColumn.getType()) {
+				final String assignmentName = importColumn.getColumnTitle();
+				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
+				if (importedGradeItem == null) {
+					importedGradeItem = new ImportedGradeItem();
+					grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+					importedGradeItem.setGradeItemName(assignmentName);
+				}
+				importedGradeItem.setGradeItemComment(lineVal);
+			} else {
 
-    private static boolean isGradeColumn(String headerValue) {
-        MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_PATTERN);
-        try {
-            mf.parse(headerValue);
-        } catch (ParseException e) {
-            return false;
-        }
-        return true;
-    }
+				// only add if not blank
+				if (StringUtils.isNotBlank(lineVal)) {
+					p.addProperty(importColumn.getColumnTitle(), lineVal);
+				}
+			}
+		}
 
-    /**
-     * Takes a row of data and maps it into the appropriate ImportedGrade properties
-     * We have a fixed list of properties, anything else goes into ResourceProperties
-     * @param line
-     * @param mapping
-     * @return
-     */
-    private static ImportedGrade mapLine(String[] line, Map<Integer,ImportColumn> mapping, Map<String, String> userMap){
+		grade.setProperties(p);
+		return grade;
+	}
 
-        ImportedGrade grade = new ImportedGrade();
-        ResourceProperties p = new BaseResourcePropertiesEdit();
+	public static List<ProcessedGradeItem> processImportedGrades(final ImportedGradeWrapper importedGradeWrapper,
+			final List<Assignment> assignments, final List<GbStudentGradeInfo> currentGrades) {
+		final List<ProcessedGradeItem> processedGradeItems = new ArrayList<ProcessedGradeItem>();
+		final Map<String, Assignment> assignmentNameMap = new HashMap<String, Assignment>();
+		final Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<String, ProcessedGradeItem>();
 
-        for(Map.Entry<Integer,ImportColumn> entry: mapping.entrySet()) {
-            int i = entry.getKey();
-            //trim in case some whitespace crept in
-            ImportColumn importColumn = entry.getValue();
-//            String col = trim(entry.getValue());
+		final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
 
-            // In case there aren't enough data fields in the line to match up with the number of columns needed
-            String lineVal = null;
-            if (i < line.length) {
-                lineVal = trim(line[i]);
-            }
+		// Map the assignment name back to the Id
+		for (final Assignment assignment : assignments) {
+			assignmentNameMap.put(assignment.getName(), assignment);
+		}
 
-            //now check each of the main properties in turn to determine which one to set, otherwise set into props
-            if(StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_ID)) {
-                grade.setStudentEid(lineVal);
-                grade.setStudentUuid(userMap.get(lineVal));
-            } else if(StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_NAME)) {
-                grade.setStudentName(lineVal);
-            } else if(ImportColumn.TYPE_ITEM_WITH_POINTS==importColumn.getType()) {
-                String assignmentName = importColumn.getColumnTitle();
-                ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
-                if (importedGradeItem == null) {
-                    importedGradeItem = new ImportedGradeItem();
-                    grade.getGradeItemMap().put(assignmentName, importedGradeItem);
-                    importedGradeItem.setGradeItemName(assignmentName);
-                }
-                importedGradeItem.setGradeItemScore(lineVal);
-            } else if(ImportColumn.TYPE_ITEM_WITH_COMMENTS==importColumn.getType()) {
-                String assignmentName = importColumn.getColumnTitle();
-                ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
-                if (importedGradeItem == null) {
-                    importedGradeItem = new ImportedGradeItem();
-                    grade.getGradeItemMap().put(assignmentName, importedGradeItem);
-                    importedGradeItem.setGradeItemName(assignmentName);
-                }
-                importedGradeItem.setGradeItemComment(lineVal);
-            } else {
+		for (final ImportColumn column : importedGradeWrapper.getColumns()) {
+			boolean needsAdded = false;
+			final String assignmentName = column.getColumnTitle();
 
-                //only add if not blank
-                if(StringUtils.isNotBlank(lineVal)) {
-                    p.addProperty(importColumn.getColumnTitle(), lineVal);
-                }
-            }
-        }
+			ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(assignmentName);
+			if (processedGradeItem == null) {
+				processedGradeItem = new ProcessedGradeItem();
+				needsAdded = true;
+			}
 
-        grade.setProperties(p);
-        return grade;
-    }
+			final Assignment assignment = assignmentNameMap.get(assignmentName);
+			final ProcessedGradeItemStatus status = determineStatus(column, assignment, importedGradeWrapper, transformedGradeMap);
 
+			if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
+				processedGradeItem.setItemTitle(assignmentName);
+				processedGradeItem.setItemPointValue(column.getPoints());
+				processedGradeItem.setStatus(status);
+			} else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
+				processedGradeItem.setCommentLabel(assignmentName + " Comments");
+				processedGradeItem.setCommentStatus(status);
+			} else {
+				// Just get out
+				log.warn("Bad column type - " + column.getType() + ".  Skipping.");
+				continue;
+			}
 
-    public static List<ProcessedGradeItem> processImportedGrades(ImportedGradeWrapper importedGradeWrapper,
-                                                                 List<Assignment> assignments, List<GbStudentGradeInfo> currentGrades) {
-        List<ProcessedGradeItem> processedGradeItems = new ArrayList<ProcessedGradeItem>();
-        Map<String, Assignment> assignmentNameMap = new HashMap<String, Assignment>();
-        Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<String, ProcessedGradeItem>();
+			if (assignment != null) {
+				processedGradeItem.setItemId(assignment.getId());
+			}
 
-        Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
+			final List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
+			for (final ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
+				final ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(assignmentName);
+				if (importedGradeItem != null) {
+					final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
+					processedGradeItemDetail.setStudentEid(importedGrade.getStudentEid());
+					processedGradeItemDetail.setStudentUuid(importedGrade.getStudentUuid());
+					processedGradeItemDetail.setGrade(importedGradeItem.getGradeItemScore());
+					processedGradeItemDetail.setComment(importedGradeItem.getGradeItemComment());
+					processedGradeItemDetails.add(processedGradeItemDetail);
+				}
 
-        //Map the assignment name back to the Id
-        for (Assignment assignment : assignments) {
-            assignmentNameMap.put(assignment.getName(), assignment);
-        }
+			}
+			processedGradeItem.setProcessedGradeItemDetails(processedGradeItemDetails);
 
+			if (needsAdded) {
+				processedGradeItems.add(processedGradeItem);
+				assignmentProcessedGradeItemMap.put(assignmentName, processedGradeItem);
+			}
+		}
 
-        for (ImportColumn column : importedGradeWrapper.getColumns()) {
-            boolean needsAdded = false;
-            String assignmentName = column.getColumnTitle();
+		return processedGradeItems;
 
-            ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(assignmentName);
-            if (processedGradeItem == null) {
-                processedGradeItem = new ProcessedGradeItem();
-                needsAdded = true;
-            }
+	}
 
-            Assignment assignment = assignmentNameMap.get(assignmentName);
-            ProcessedGradeItemStatus status = determineStatus(column, assignment, importedGradeWrapper, transformedGradeMap);
+	private static ProcessedGradeItemStatus determineStatus(final ImportColumn column, final Assignment assignment,
+			final ImportedGradeWrapper importedGradeWrapper,
+			final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap) {
+		ProcessedGradeItemStatus status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
+		if (assignment == null) {
+			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NEW);
+		} else if (assignment.getExternalId() != null) {
+			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_EXTERNAL, assignment.getExternalAppName());
+		} else {
+			for (final ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
+				final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
+				final ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(column.getColumnTitle());
 
-            if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
-                processedGradeItem.setItemTitle(assignmentName);
-                processedGradeItem.setItemPointValue(column.getPoints());
-                processedGradeItem.setStatus(status);
-            } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
-                processedGradeItem.setCommentLabel(assignmentName + " Comments");
-                processedGradeItem.setCommentStatus(status);
-            } else {
-                //Just get out
-                log.warn("Bad column type - " + column.getType() + ".  Skipping.");
-                continue;
-            }
+				String actualScore = null;
+				String actualComment = null;
 
-            if (assignment != null) {
-                processedGradeItem.setItemId(assignment.getId());
-            }
+				if (assignmentStudentGradeInfo != null) {
+					final GbGradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentEid());
 
-            List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
-            for (ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
-                ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(assignmentName);
-                if (importedGradeItem != null) {
-                    ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
-                    processedGradeItemDetail.setStudentEid(importedGrade.getStudentEid());
-                    processedGradeItemDetail.setStudentUuid(importedGrade.getStudentUuid());
-                    processedGradeItemDetail.setGrade(importedGradeItem.getGradeItemScore());
-                    processedGradeItemDetail.setComment(importedGradeItem.getGradeItemComment());
-                    processedGradeItemDetails.add(processedGradeItemDetail);
-                }
+					if (actualGradeInfo != null) {
+						actualScore = actualGradeInfo.getGrade();
+						actualComment = actualGradeInfo.getGradeComment();
+					}
+				}
+				String importedScore = null;
+				String importedComment = null;
 
-            }
-            processedGradeItem.setProcessedGradeItemDetails(processedGradeItemDetails);
+				if (importedGradeItem != null) {
+					importedScore = importedGradeItem.getGradeItemScore();
+					importedComment = importedGradeItem.getGradeItemComment();
+				}
 
-            if (needsAdded) {
-                processedGradeItems.add(processedGradeItem);
-                assignmentProcessedGradeItemMap.put(assignmentName, processedGradeItem);
-            }
-        }
+				if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
+					final String trimmedImportedScore = StringUtils.removeEnd(importedScore, ".0");
+					final String trimmedActualScore = StringUtils.removeEnd(actualScore, ".0");
+					if (trimmedImportedScore != null && !trimmedImportedScore.equals(trimmedActualScore)) {
+						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
+						break;
+					}
+				} else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
+					if (importedComment != null && !importedComment.equals(actualComment)) {
+						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
+						break;
+					}
+				}
+			}
+			// If we get here, must not have been any changes
+			if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_UNKNOWN) {
+				status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
+			}
 
-        return processedGradeItems;
+			// TODO - What about if a user was added to the import file?
+			// That probably means that actualGradeInfo from up above is null...but what do I do?
 
-    }
+		}
+		return status;
+	}
 
-    private static ProcessedGradeItemStatus determineStatus(ImportColumn column, Assignment assignment, ImportedGradeWrapper importedGradeWrapper,
-                                       Map<Long, AssignmentStudentGradeInfo> transformedGradeMap) {
-        ProcessedGradeItemStatus status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
-        if (assignment == null) {
-            status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NEW);
-        } else if (assignment.getExternalId() != null) {
-            status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_EXTERNAL, assignment.getExternalAppName());
-        } else {
-            for (ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
-                AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
-                ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(column.getColumnTitle());
+	private static Map<Long, AssignmentStudentGradeInfo> transformCurrentGrades(final List<GbStudentGradeInfo> currentGrades) {
+		final Map<Long, AssignmentStudentGradeInfo> assignmentMap = new HashMap<Long, AssignmentStudentGradeInfo>();
 
-                String actualScore = null;
-                String actualComment = null;
+		for (final GbStudentGradeInfo studentGradeInfo : currentGrades) {
+			for (final Map.Entry<Long, GbGradeInfo> entry : studentGradeInfo.getGrades().entrySet()) {
+				final Long assignmentId = entry.getKey();
+				AssignmentStudentGradeInfo assignmentStudentGradeInfo = assignmentMap.get(assignmentId);
+				if (assignmentStudentGradeInfo == null) {
+					assignmentStudentGradeInfo = new AssignmentStudentGradeInfo();
+					assignmentStudentGradeInfo.setAssignmemtId(assignmentId);
+					assignmentMap.put(assignmentId, assignmentStudentGradeInfo);
+				}
+				assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentEid(), entry.getValue());
+			}
 
-                if (assignmentStudentGradeInfo != null) {
-                    GbGradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentEid());
+		}
 
-                    if (actualGradeInfo != null) {
-                        actualScore = actualGradeInfo.getGrade();
-                        actualComment = actualGradeInfo.getGradeComment();
-                    }
-                }
-                String importedScore = null;
-                String importedComment = null;
-
-                if (importedGradeItem != null) {
-                    importedScore = importedGradeItem.getGradeItemScore();
-                    importedComment = importedGradeItem.getGradeItemComment();
-                }
-
-                if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
-                    String trimmedImportedScore = StringUtils.removeEnd(importedScore, ".0");
-                    String trimmedActualScore = StringUtils.removeEnd(actualScore, ".0");
-                    if (trimmedImportedScore != null && !trimmedImportedScore.equals(trimmedActualScore)) {
-                        status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
-                        break;
-                    }
-                } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
-                    if (importedComment != null && !importedComment.equals(actualComment)) {
-                        status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
-                        break;
-                    }
-                }
-            }
-            // If we get here, must not have been any changes
-            if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_UNKNOWN) {
-                status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
-            }
-
-            //TODO - What about if a user was added to the import file?
-            // That probably means that actualGradeInfo from up above is null...but what do I do?
-
-        }
-        return status;
-    }
-
-    private static Map<Long, AssignmentStudentGradeInfo> transformCurrentGrades(List<GbStudentGradeInfo> currentGrades) {
-        Map<Long, AssignmentStudentGradeInfo> assignmentMap = new HashMap<Long, AssignmentStudentGradeInfo>();
-
-        for (GbStudentGradeInfo studentGradeInfo : currentGrades) {
-            for (Map.Entry<Long, GbGradeInfo> entry : studentGradeInfo.getGrades().entrySet()) {
-                Long assignmentId = entry.getKey();
-                AssignmentStudentGradeInfo assignmentStudentGradeInfo = assignmentMap.get(assignmentId);
-                if (assignmentStudentGradeInfo == null) {
-                    assignmentStudentGradeInfo = new AssignmentStudentGradeInfo();
-                    assignmentStudentGradeInfo.setAssignmemtId(assignmentId);
-                    assignmentMap.put(assignmentId, assignmentStudentGradeInfo);
-                }
-                assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentEid(), entry.getValue());
-            }
-
-        }
-
-        return assignmentMap;
-    }
+		return assignmentMap;
+	}
 }

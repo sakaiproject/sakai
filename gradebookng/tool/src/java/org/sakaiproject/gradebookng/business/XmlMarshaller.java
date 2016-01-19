@@ -14,53 +14,54 @@ import org.sakaiproject.gradebookng.business.util.XmlList;
 
 /**
  * Handles conversion of objects to and from XML
- * 
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
- * 
+ *
  */
 public class XmlMarshaller {
 
 	private static Marshaller marshaller = null;
-    private static Unmarshaller unmarshaller = null;
+	private static Unmarshaller unmarshaller = null;
 
-    static {
-        try {
-        	//ensure the full set of classes are added to this list
-            JAXBContext context = JAXBContext.newInstance(
-            		GradebookUserPreferences.class,
-            		AssignmentOrder.class,
-            		XmlList.class);
-            marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+	static {
+		try {
+			// ensure the full set of classes are added to this list
+			final JAXBContext context = JAXBContext.newInstance(
+					GradebookUserPreferences.class,
+					AssignmentOrder.class,
+					XmlList.class);
+			marshaller = context.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+			marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 
-            unmarshaller = context.createUnmarshaller();
-        } catch (JAXBException e) {
-            throw new RuntimeException("Couldn't create JAXB context", e);
-        }
-    }
+			unmarshaller = context.createUnmarshaller();
+		} catch (final JAXBException e) {
+			throw new RuntimeException("Couldn't create JAXB context", e);
+		}
+	}
 
 	/**
 	 * Convert an object to an XML string
-	 * 
+	 *
 	 * @param object the object to serialise
 	 * @return
 	 * @throws JAXBException
 	 */
-    public static String marshal(Object object) throws JAXBException {
+	public static String marshal(final Object object) throws JAXBException {
 		final StringWriter writer = new StringWriter();
-		marshaller.marshal(object, writer);		
+		marshaller.marshal(object, writer);
 		return writer.toString();
-    }
+	}
 
 	/**
 	 * Convert this XML back into object form
+	 * 
 	 * @param xml the XML string to convert
 	 * @return
 	 * @throws JAXBException
 	 */
-	public static <T> Object unmarshall(String xml) throws JAXBException {
+	public static <T> Object unmarshall(final String xml) throws JAXBException {
 		return unmarshaller.unmarshal(new StringReader(xml));
 	}
 

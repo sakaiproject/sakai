@@ -1,10 +1,10 @@
 package org.sakaiproject.gradebookng.business.model;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 /**
  * Created by chmaurer on 1/21/15.
@@ -14,8 +14,8 @@ import java.io.Serializable;
 @Data
 public class ImportedGradeItem implements Serializable {
 
-    private String gradeItemName;
-    private String gradeItemComment;
-    private String gradeItemScore;
+	private String gradeItemName;
+	private String gradeItemComment;
+	private String gradeItemScore;
 
 }

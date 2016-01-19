@@ -208,7 +208,10 @@ public class EmailNotification implements NotificationAction
 	public void reNotify(String notificationId, String resourceFilter, int eventPriority, Event event)
 	{
 		// ignore events marked for no notification
-		if (eventPriority == NotificationService.NOTI_NONE) return;
+		if (eventPriority == NotificationService.NOTI_NONE
+				|| eventPriority == NotificationService.NOTI_IGNORE) {
+			return;
+		}
 
 		// get the list of potential recipients
 		List recipients = getRecipients(event);

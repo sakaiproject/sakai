@@ -7,8 +7,11 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -31,6 +34,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
@@ -78,18 +82,39 @@ public class SettingsCategoryPanel extends Panel {
 		}
 
 		// if categories enabled but we don't have any yet, add a default one
-		if (this.model.getObject().getGradebookInformation().getCategoryType() != 1 && categories.isEmpty()) {
+		if (this.model.getObject().getGradebookInformation().getCategoryType() != GbCategoryType.NO_CATEGORY.getValue()
+				&& categories.isEmpty()) {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
+
+		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
+		// Preserve the expand/collapse state of the panel
+		settingsCategoriesPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+			}
+		});
+		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+			}
+		});
+		add(settingsCategoriesPanel);
 
 		// category types
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
 				new PropertyModel<Integer>(this.model, "gradebookInformation.categoryType"));
-		categoryType.add(new Radio<>("none", new Model<>(1)));
-		categoryType.add(new Radio<>("categoriesOnly", new Model<>(2)));
-		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(3)));
+		categoryType.add(new Radio<>("none", new Model<>(GbCategoryType.NO_CATEGORY.getValue())));
+		categoryType.add(new Radio<>("categoriesOnly", new Model<>(GbCategoryType.ONLY_CATEGORY.getValue())));
+		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(GbCategoryType.WEIGHTED_CATEGORY.getValue())));
 		categoryType.setRequired(true);
-		add(categoryType);
+		settingsCategoriesPanel.add(categoryType);
 
 		// render category related form fields
 		final WebMarkupContainer categoriesWrap = new WebMarkupContainer("categoriesWrap") {
@@ -98,8 +123,9 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			public boolean isVisible() {
 				// don't show if 'no categories'
-				final int categoryType = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
-				return (categoryType != 1);
+				final GbCategoryType type = GbCategoryType
+						.valueOf(SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType());
+				return (type != GbCategoryType.NO_CATEGORY);
 			}
 
 		};
@@ -184,22 +210,26 @@ public class SettingsCategoryPanel extends Panel {
 
 		// When category type changes, ensure form is updated to reflect new value
 		categoryType.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				// adjust visibility of items depending on category type
-				final int categoryType = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
-				categoriesWrap.setVisible(categoryType != 1);
-				categoriesOptionsWrap.setVisible(categoryType != 1);
+				final GbCategoryType type = GbCategoryType
+						.valueOf(SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType());
+
+				categoriesWrap.setVisible(type != GbCategoryType.NO_CATEGORY);
+				categoriesOptionsWrap.setVisible(type != GbCategoryType.NO_CATEGORY);
 
 				// if categories only (2), the categories table will be visible but the weighting column and tally will not
-				if (categoryType == 2) {
+				if (type == GbCategoryType.ONLY_CATEGORY) {
 					target.appendJavaScript("$('.gb-category-weight').hide();");
 					target.appendJavaScript("$('.gb-category-runningtotal').hide();");
 				}
 
 				// switching to categories but we don't have any, add a default one
-				if (categoryType != 1 && categories.isEmpty()) {
+				if (type != GbCategoryType.NO_CATEGORY && categories.isEmpty()) {
 					SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				}
 
@@ -207,31 +237,59 @@ public class SettingsCategoryPanel extends Panel {
 			}
 		});
 
-		final Label runningTotal = new Label("runningTotal",
-				FormatHelper.formatDoubleAsPercentage(calculateCategoryWeightTotal(categories) * 100));
+		// running total
+		final WebMarkupContainer runningTotalMessage = new WebMarkupContainer("runningTotalMessage");
+		runningTotalMessage.setOutputMarkupPlaceholderTag(true);
+		categoriesWrap.add(runningTotalMessage);
+		final Label runningTotal = new Label("runningTotal");
 		runningTotal.setOutputMarkupId(true);
+		updateRunningTotal(runningTotal, runningTotalMessage);
 		categoriesWrap.add(runningTotal);
 
+		// categories list
 		final ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView",
-				this.model.getObject().getGradebookInformation().getCategories()) {
+				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories()) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(final ListItem<CategoryDefinition> item) {
 
+				final ListView<CategoryDefinition> lv = this; // reference to self
+
 				final CategoryDefinition category = item.getModelObject();
+
+				// note that all of these fields must have an ajaxform behaviour attached
+				// so that their data is persisted into the model.
+				// if they don't, when the listview repaints, they will be cleared
+				// this can be either an OnChangeAjaxBehavior for those that need something to happen
+				// or an AjaxFormComponentUpdatingBehavior for those that just need the data kept
 
 				// name
 				final TextField<String> name = new TextField<String>("name", new PropertyModel<String>(category, "name"));
+				name.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(name);
 
 				// weight
 				final TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight")) {
+					private static final long serialVersionUID = 1L;
 
+					@SuppressWarnings("unchecked")
 					@Override
 					public <C> IConverter<C> getConverter(final Class<C> type) {
 						return (IConverter<C>) new PercentConverter();
+					}
+
+					@Override
+					public boolean isEnabled() {
+						// disable the field if extra credit
+						return !category.isExtraCredit();
 					}
 
 				};
@@ -242,16 +300,7 @@ public class SettingsCategoryPanel extends Panel {
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						final Double newTotal = calculateCategoryWeightTotal(categories);
-
-						if (newTotal.equals(new Double(1))) {
-							runningTotal.add(new AttributeModifier("class", "text-success"));
-						} else {
-							runningTotal.add(new AttributeModifier("class", "text-danger"));
-						}
-
-						runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(newTotal * 100)));
-						target.add(runningTotal);
+						updateRunningTotal(target, runningTotal, runningTotalMessage);
 					}
 				});
 				item.add(weight);
@@ -264,24 +313,61 @@ public class SettingsCategoryPanel extends Panel {
 				// extra credit
 				final CheckBox extraCredit = new CheckBox("extraCredit", new PropertyModel<Boolean>(category, "extraCredit"));
 				extraCredit.setOutputMarkupId(true);
+
+				// onchange, update the running total as extra credit items are excluded, and disable the weighting box
+				extraCredit.add(new OnChangeAjaxBehavior() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+						updateRunningTotal(target, runningTotal, runningTotalMessage);
+
+						// toggle the weight field
+						final boolean checked = extraCredit.getModelObject();
+						weight.setEnabled(!checked);
+
+						target.add(weight);
+					}
+				});
 				item.add(extraCredit);
 
 				// drop highest
 				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest",
 						new PropertyModel<Integer>(category, "dropHighest"));
 				categoryDropHighest.setOutputMarkupId(true);
+				categoryDropHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(categoryDropHighest);
 
 				// drop lowest
 				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest",
 						new PropertyModel<Integer>(category, "drop_lowest"));
 				categoryDropLowest.setOutputMarkupId(true);
+				categoryDropLowest.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(categoryDropLowest);
 
 				// keep highest
 				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest",
 						new PropertyModel<Integer>(category, "keepHighest"));
 				categoryKeepHighest.setOutputMarkupId(true);
+				categoryKeepHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+					}
+				});
 				item.add(categoryKeepHighest);
 
 				// remove button
@@ -295,7 +381,15 @@ public class SettingsCategoryPanel extends Panel {
 						final CategoryDefinition current = item.getModelObject();
 
 						SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().remove(current);
+
+						// indicate to the listview that its model has changed and to rerender correctly
+						lv.modelChanged();
+						lv.removeAll();
+
 						target.add(categoriesWrap);
+
+						// update running total
+						updateRunningTotal(target, runningTotal, runningTotalMessage);
 					}
 				};
 				remove.setDefaultFormProcessing(false);
@@ -306,8 +400,9 @@ public class SettingsCategoryPanel extends Panel {
 			public void renderHead(final IHeaderResponse response) {
 				super.renderHead(response);
 
-				final int categoryType = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
-				if (categoryType == 2) {
+				final GbCategoryType type = GbCategoryType
+						.valueOf(SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType());
+				if (type == GbCategoryType.ONLY_CATEGORY) {
 					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-weight').hide();"));
 					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-runningtotal').hide();"));
 				}
@@ -326,7 +421,7 @@ public class SettingsCategoryPanel extends Panel {
 		categoriesView.setReuseItems(true);
 		categoriesWrap.add(categoriesView);
 		categoriesWrap.setOutputMarkupId(true);
-		add(categoriesWrap);
+		settingsCategoriesPanel.add(categoriesWrap);
 
 		// add category button
 		final AjaxButton addCategory = new AjaxButton("addCategory") {
@@ -345,29 +440,17 @@ public class SettingsCategoryPanel extends Panel {
 
 	}
 
-	// Create a new category definition stub
+	/**
+	 * Create a new category definition stub
+	 *
+	 * @return CategoryDefinition
+	 */
 	private CategoryDefinition stubCategoryDefinition() {
 		final CategoryDefinition cd = new CategoryDefinition();
 		cd.setExtraCredit(false);
 		cd.setWeight(new Double(0));
 		cd.setAssignmentList(Collections.<Assignment> emptyList());
 		return cd;
-	}
-
-	private Double calculateCategoryWeightTotal(final List<CategoryDefinition> categories) {
-		Double total = new Double(0);
-		for (final CategoryDefinition categoryDefinition : categories) {
-
-			Double weight = categoryDefinition.getWeight();
-			if (weight == null) {
-				weight = new Double(0);
-			}
-
-			if (!categoryDefinition.isExtraCredit()) {
-				total += weight;
-			}
-		}
-		return total;
 	}
 
 	/**
@@ -415,7 +498,7 @@ public class SettingsCategoryPanel extends Panel {
 		 * Double will be a decimal fraction between 0 and 1 inclusive.
 		 */
 		@Override
-		public String convertToString(Double value, final Locale locale) {
+		public String convertToString(final Double value, final Locale locale) {
 
 			// set the decimal precision
 			final NumberFormat df = NumberFormat.getInstance();
@@ -424,10 +507,59 @@ public class SettingsCategoryPanel extends Panel {
 			df.setRoundingMode(RoundingMode.DOWN);
 
 			// convert to percentage representation
-			value = value * 100;
+			final Double rval = value * 100;
 
-			return df.format(value);
+			return df.format(rval);
 		}
 
+	}
+
+	/**
+	 * Helper to handle the value and style updates of the running total label
+	 *
+	 * @param runningTotal label component to update
+	 * @param runningTotalMessage error message component
+	 * @return
+	 */
+	private void updateRunningTotal(final Component runningTotal, final Component runningTotalMessage) {
+
+		final List<CategoryDefinition> categories = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories();
+
+		Double total = new Double(0);
+		for (final CategoryDefinition categoryDefinition : categories) {
+
+			Double weight = categoryDefinition.getWeight();
+			if (weight == null) {
+				weight = new Double(0);
+			}
+
+			if (!categoryDefinition.isExtraCredit()) {
+				total += weight;
+			}
+		}
+
+		if (total.equals(new Double(1))) {
+			runningTotal.add(new AttributeModifier("class", "text-success"));
+			runningTotalMessage.setVisible(false);
+		} else {
+			runningTotal.add(new AttributeModifier("class", "text-danger"));
+			runningTotalMessage.setVisible(true);
+		}
+
+		runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(total * 100)));
+	}
+
+	/**
+	 * Helper to handle the value and style updates of the running total label and add to AJAX target
+	 *
+	 * @param target AJAX request target
+	 * @param runningTotal label component to update
+	 * @param runningTotalMessage error message component
+	 * @return
+	 */
+	private void updateRunningTotal(AjaxRequestTarget target, final Component runningTotal, final Component runningTotalMessage) {
+		updateRunningTotal(runningTotal, runningTotalMessage);
+		target.add(runningTotal);
+		target.add(runningTotalMessage);
 	}
 }

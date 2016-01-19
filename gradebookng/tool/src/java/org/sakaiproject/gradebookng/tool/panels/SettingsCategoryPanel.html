@@ -12,8 +12,9 @@
 				</a>
 			</h3>
 		</div>
-		<div id="settingsCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsCategoriesHeader">
+		<div wicket:id="settingsCategoriesPanel" id="settingsCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsCategoriesHeader">
 			<div class="panel-body">
+			
 				<div wicket:id="categoryType">
 					<div class="radio"><label><input wicket:id="none" type="radio"/><wicket:message key="settingspage.categories.none" /></label></div>
 					<div class="radio"><label><input wicket:id="categoriesOnly" type="radio"/><wicket:message key="settingspage.categories.categoriesonly" /></label></div>
@@ -25,6 +26,12 @@
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropHighest" type="checkbox"/><wicket:message key="settingspage.categories.drophighest" /></label></div>
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropLowest" type="checkbox"/><wicket:message key="settingspage.categories.droplowest" /></label></div>
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><wicket:message key="settingspage.categories.keephighest" /></label></div>
+					</div>
+					
+					<div class="instruction">
+						<div><wicket:message key="settingspage.categories.instructions.1" /></div>
+						<div><wicket:message key="settingspage.categories.instructions.2" /></div>
+						<div><wicket:message key="settingspage.categories.instructions.3" /></div>
 					</div>
 
 					<table class="table table-striped table-bordered table-hover">
@@ -54,12 +61,12 @@
 						<tr class="active gb-category-runningtotal">
 							<td><span class="pull-right"><wicket:message key="settingspage.categories.total" /></span></td>
 							<td><span wicket:id="runningTotal">100%</span></td>
-							<td colspan="6"></td>
+							<td colspan="6"><span wicket:id="runningTotalMessage" class="text-danger"><wicket:message key="settingspage.categories.runningtotalerror" /></span></td>
 						</tr>
 						</tbody>
 					</table>
 					<div>
-						<button wicket:id="addCategory" type="submit" class="btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
+						<button wicket:id="addCategory" type="submit" class="btn btn-link btn-sm"><wicket:message key="settingspage.categories.add" /></button>
 					</div>
 				</div>
 			</div>

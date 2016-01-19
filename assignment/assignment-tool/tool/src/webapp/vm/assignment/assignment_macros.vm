@@ -37,12 +37,12 @@
 ## Defining macro to repeat buttons at the top and bottom of the page
 #macro( buttonBar $submitnotif )
     <div class="act">
-        <input accesskey="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'post', null, null, true );" />
-        <input accesskey="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'preview', null, null, true );" />
+        <input accesskey="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'post', null, null ); return false;" />
+        <input accesskey="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'preview', null, null ); return false;" />
         #if (!($!assignment && !$assignment.draft))
-            <input accesskey="d" type="button" name="save" value="$tlang.getString("gen.savdra")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'save', null, null, true );" />
+            <input accesskey="d" type="button" name="save" value="$tlang.getString("gen.savdra")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'save', null, null ); return false;" />
         #end
-        <input accesskey="x" type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'canceledit', null, null, true );" />
+        <input accesskey="x" type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'canceledit', null, null ); return false;" />
     </div>
 #end
 
@@ -75,7 +75,7 @@
         <form id="pagesizeForm" name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
             <input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
             <label for="selectPageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
-            <select id="selectPageSize" name="selectPageSize" onchange="SPNR.insertSpinnerAfter( this, null, 'pagingHeader' ); ASN.submitForm( 'pagesizeForm', null, null, null, false );">
+            <select id="selectPageSize" name="selectPageSize" onchange="SPNR.insertSpinnerAfter( this, null, 'pagingHeader' ); ASN.submitForm( 'pagesizeForm', null, null, null );">
                 #foreach( $i in $!pagesizes )
                     <option value="$i" #if( $pagesize == $i ) selected="selected" #end>$tlang.getString( "list.show" ) $i $tlang.getString( "list.itemsper" )</option>
                 #end
@@ -193,7 +193,7 @@
                     <span class="current">$!tlang.getString( "new" )</span>
                 #else
                     <span>
-                        <a href="javascript:void(0)" title="$!tlang.getString( "new" )" onclick="ASN.submitForm( '$formID', 'new', null, 'new', true );">
+                        <a href="javascript:void(0)" title="$!tlang.getString( "new" )" onclick="ASN.submitForm( '$formID', 'new', null, 'new' ); return false;">
                             $!tlang.getString( "new" )
                         </a>
                     </span
@@ -204,7 +204,7 @@
             #set( $prevAction = true )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 <span>
-                    <a href="javascript:void(0)" title="$!tlang.getString( "lisofass1" )" onclick="ASN.submitForm( '$formID', 'view', null, 'lisofass1', true );">
+                    <a href="javascript:void(0)" title="$!tlang.getString( "lisofass1" )" onclick="ASN.submitForm( '$formID', 'view', null, 'lisofass1' ); return false;">
                         $!tlang.getString( "lisofass1" )
                     </a>
                 </span>
@@ -224,7 +224,7 @@
                     <span class="current">$!tlang.getString( "gen.grarep" )</span>
                 #else
                     <span>
-                        <a href="javascript:void(0)" title="$!tlang.getString( "gen.grarep" )" onclick="ASN.submitForm( '$formID', 'view', null, 'grarep', true );">
+                        <a href="javascript:void(0)" title="$!tlang.getString( "gen.grarep" )" onclick="ASN.submitForm( '$formID', 'view', null, 'grarep' ); return false;">
                             $!tlang.getString( "gen.grarep" )
                         </a>
                     </span>
@@ -235,7 +235,7 @@
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 #if( !$!view.equals( "stuvie" ) )
                     <span>
-                        <a href="javascript:void(0)" title="$!tlang.getString( "gen.stuvie" )" onclick="ASN.submitForm( '$formID', 'view', null, 'stuvie', true );">
+                        <a href="javascript:void(0)" title="$!tlang.getString( "gen.stuvie" )" onclick="ASN.submitForm( '$formID', 'view', null, 'stuvie' ); return false;">
                             $!tlang.getString( "gen.stuvie" )
                         </a>
                     </span>
@@ -252,7 +252,7 @@
                     <span class="current">$tlang.getString( "gen.reorder" )</span>
                 #else
                     <span>
-                        <a href="javascript:void(0)" title="$tlang.getString( "gen.reorder" )" onclick="ASN.submitForm( '$formID', 'reorderNavigation', null, null, true );">
+                        <a href="javascript:void(0)" title="$tlang.getString( "gen.reorder" )" onclick="ASN.submitForm( '$formID', 'reorderNavigation', null, null ); return false;">
                             $tlang.getString( "gen.reorder" )
                         </a>
                     </span>
@@ -262,7 +262,7 @@
         #if( $allowUpdateSite )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 <span>
-                    <a href="javascript:void(0)" title="$tlang.getString( "permis" )" onclick="ASN.submitForm( '$formID', 'permissions', null, null, true );">
+                    <a href="javascript:void(0)" title="$tlang.getString( "permis" )" onclick="ASN.submitForm( '$formID', 'permissions', null, null ); return false;">
                         $tlang.getString( "permis" )
                     </a>
                 </span>
@@ -270,7 +270,7 @@
             #if( $enableViewOption )
                 <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                     <span>
-                        <a href="javascript:void(0)" title="$tlang.getString( "options" )" onclick="ASN.submitForm( '$formID', 'options', null, null, true );">
+                        <a href="javascript:void(0)" title="$tlang.getString( "options" )" onclick="ASN.submitForm( '$formID', 'options', null, null ); return false;">
                             $tlang.getString( "options" )
                         </a>
                     </span>

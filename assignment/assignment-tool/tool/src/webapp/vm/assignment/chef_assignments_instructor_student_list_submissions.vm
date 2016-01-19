@@ -22,7 +22,7 @@
 					<div class="spinnerBesideContainer">
 						<label for="view">$tlang.getString("gen.view2")</label>
 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select name="view" id="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewFormList', null, null, null, false );">
+						<select name="view" id="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewFormList', null, null, null );">
 							<option value="lisofass1" >$!tlang.getString('lisofass1')</option>
 							<option value="lisofass2" selected="selected" >$!tlang.getString('lisofass2')</option>
 						</select>
@@ -40,7 +40,7 @@
  						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 
  						<div class="spinnerBesideContainer">
-							<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null, true );">ASN.disableControls( null, 'studentLink' );ASN.showSpinner( 'groupSpinner' );blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+							<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">ASN.disableControls( null, 'studentLink' );ASN.showSpinner( 'groupSpinner' );blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
 
 							#if (!$showSubmissionByFilterSearchOnly)
 								<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
@@ -59,9 +59,9 @@
 					<label for="$form_search" class="skip">$tlang.getString("search")</label>
 					<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" 
 						name="search" id="search" type="text" class="searchField" size="20" />
-					<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'search', null, null, true );" />
+					<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
 					#if (($!searchString) && (!$searchString.equals("")))
-						<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'clearSearch', null, null, true );" />
+						<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'clearSearch', null, null ); return false;" />
 					#end
 					#end
 
