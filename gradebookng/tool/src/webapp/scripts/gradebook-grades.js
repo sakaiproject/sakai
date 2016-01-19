@@ -408,7 +408,8 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
     event.preventDefault();
 
     $(document).scrollTop(self.$table.offset().top - 10);
-    var $target = $(self.$table.find("thead tr > *").get($(this).index()));
+    // find the header row (last in the thead) and get the corresponding th element
+    var $target = $(self.$table.find("thead tr:last > *").get($(this).index()));
 
     self.$spreadsheet.data("activeCell", $target);
 
@@ -605,6 +606,11 @@ GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(eve
       $originalCell.find($(event.target).attr("class").split(' ').map(function(cssClass) {return "." + cssClass}).join(" ")).focus();
     });
     return true;
+  // external item flag?
+  } else if ($(event.target).closest(".gb-external-app-flag").length == 1) {
+    setTimeout(function() {
+      $originalCell.find(".gb-external-app-flag").focus();
+    });
   }
   return false;
 };
@@ -1429,6 +1435,8 @@ GradebookSpreadsheet.prototype.refreshCourseGradeForStudent = function(studentUu
 
   var courseGrade = this._cloneCell($courseGradeCell).html();
   $fixedColumnCourseGradeCell.html(courseGrade);
+
+  this.$table.find(".gb-score-dynamically-updated").removeClass("gb-score-dynamically-updated", 1000);
 };
 
 

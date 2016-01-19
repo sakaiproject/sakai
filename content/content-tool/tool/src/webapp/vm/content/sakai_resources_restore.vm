@@ -35,10 +35,10 @@
 				<div class="navIntraToolLink viewNav">
 						<span>
 								<input id="restore-button" type="button" value="$tlang.getString("restore.restore")"
-									onclick="submitThis('restoreForm','restore')"
+									onclick="this.disabled = true; submitThis('restoreForm','restore')"
 									disabled="disabled" alt="$tlang.getString("restore.restore")" />
 								<input id="remove-button" type="button" value="$tlang.getString("restore.remove")"
-									onclick="submitThis('restoreForm','remove')"
+									onclick="this.disabled = true; submitThis('restoreForm','remove')"
 									disabled="disabled" alt="$tlang.getString("restore.remove")" />
 								<input id="cancel-button" type="button" value="$tlang.getString("restore.cancel")"
 									onclick="submitThis('restoreForm','cancel');" class="enabled"
