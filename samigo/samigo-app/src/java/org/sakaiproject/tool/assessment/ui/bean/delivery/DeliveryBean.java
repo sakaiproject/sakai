@@ -2137,20 +2137,20 @@ public class DeliveryBean
     log.debug("**** setting username=" + getSettings().getUsername());
     log.debug("**** setting password=" + getSettings().getPassword());
     
-    if (password == null && username == null)
+    if (StringUtils.isBlank(password) && StringUtils.isBlank(username))
     {
     	return "passwordAccessError";
     }
-    if(!"".equals(getSettings().getUsername()))
+    if(StringUtils.isNotBlank(getSettings().getUsername()))
     {
-    	if (username != null && !username.equals(getSettings().getUsername()))
+    	if (!StringUtils.equals(StringUtils.trim(username), StringUtils.trim(getSettings().getUsername())))
     	{
     		return "passwordAccessError";
     	}
     }
-    if(!"".equals(getSettings().getPassword()))
+    if(StringUtils.isNotBlank(getSettings().getPassword()))
     {
-    	if (password != null && !password.equals(getSettings().getPassword()))
+    	if (!StringUtils.equals(StringUtils.trim(password), StringUtils.trim(getSettings().getPassword())))
     	{
     		return "passwordAccessError";
     	}
