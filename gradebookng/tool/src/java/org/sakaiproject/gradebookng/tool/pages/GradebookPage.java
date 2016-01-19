@@ -184,8 +184,9 @@ public class GradebookPage extends BasePage {
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
 
 		// get the grade matrix. It should be sorted if we have that info
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(),
-				settings.getNameSortOrder(), settings.getGroupFilter());
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments,
+				settings.getAssignmentSortOrder(), settings.getNameSortOrder(), settings.getCategorySortOrder(),
+				settings.getGroupFilter());
 
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 
