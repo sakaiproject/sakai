@@ -393,4 +393,23 @@ public interface SqlService
 	 */
 	int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet);
 
+	/**
+	 * Execute the "write/update" sql - no response, using a set of fields from an array plus one more as params and connection.
+	 *
+	 * @param sql
+	 *        The sql statement.
+	 * @param fields
+	 *        The array of fields for parameters.
+	 * @param lastField
+	 *        The value to bind to the last parameter in the sql statement.
+	 * @param callerConnection
+	 *        The connection to use.
+	 * @param failQuiet
+	 *        If 1, log some errors (like if records already exists)
+	 *        If 2, don't log errors from statement failure
+	 * @return the number of records affected or -1 if something goes wrong if not due to unique constraint 
+	 * violation or duplicate key (i.e. the record already exists) OR we are instructed to fail quiet.
+	 */
+	int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, int failQuiet);
+
 }
