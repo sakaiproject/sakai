@@ -29,6 +29,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.exception.GbException;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
+import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
@@ -505,7 +506,7 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments, final List<String> studentUuids)
 			throws GbException {
-		return this.buildGradeMatrix(assignments, studentUuids, null, null);
+		return this.buildGradeMatrix(assignments, studentUuids, null, null, null);
 	}
 
 	/**
@@ -514,13 +515,17 @@ public class GradebookNgBusinessService {
 	 * @param assignments list of assignments
 	 * @param assignmentSortOrder the assignment sort order
 	 * @param nameSortOrder name sort order
+	 * @param categorySortOrder the category subtotal sort order
 	 * @param groupFilter if a specific group has been selected (null for all groups)
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final GbAssignmentGradeSortOrder assignmentSortOrder, final GbStudentNameSortOrder nameSortOrder, final GbGroup groupFilter)
+			final GbAssignmentGradeSortOrder assignmentSortOrder,
+			final GbStudentNameSortOrder nameSortOrder, final GbCategoryAverageSortOrder categorySortOrder,
+			final GbGroup groupFilter)
 					throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers(groupFilter), assignmentSortOrder, nameSortOrder);
+		return this.buildGradeMatrix(assignments, this.getGradeableUsers(groupFilter), assignmentSortOrder, nameSortOrder,
+				categorySortOrder);
 	}
 
 	/**
@@ -530,10 +535,12 @@ public class GradebookNgBusinessService {
 	 * @param list of uuids
 	 * @Param assignmentSortOrder the assignment sort we want. Wraps assignmentId and direction.
 	 * @param nameSortOrder name sort order
+	 * @param categorySortOrder the category sort we want. Wraps categoryId and direction.
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments, final List<String> studentUuids,
-			final GbAssignmentGradeSortOrder assignmentSortOrder, final GbStudentNameSortOrder nameSortOrder) throws GbException {
+			final GbAssignmentGradeSortOrder assignmentSortOrder, final GbStudentNameSortOrder nameSortOrder,
+			final GbCategoryAverageSortOrder categorySortOrder) throws GbException {
 
 		final StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
@@ -811,7 +818,7 @@ public class GradebookNgBusinessService {
 
 		// sort the matrix based on the supplied assignment sort order (if any)
 		if (assignmentSortOrder != null) {
-			final GradeComparator comparator = new GradeComparator();
+			final AssignmentGradeComparator comparator = new AssignmentGradeComparator();
 			comparator.setAssignmentId(assignmentSortOrder.getAssignmentId());
 
 			final SortDirection direction = assignmentSortOrder.getDirection();
@@ -824,7 +831,24 @@ public class GradebookNgBusinessService {
 				Collections.reverse(items);
 			}
 		}
-		Temp.timeWithContext("buildGradeMatrix", "matrix sorted", stopwatch.getTime());
+		Temp.timeWithContext("buildGradeMatrix", "matrix sorted by assignment", stopwatch.getTime());
+
+		// sort the matrix based on the supplied category sort order (if any)
+		if (categorySortOrder != null) {
+			final CategorySubtotalComparator comparator = new CategorySubtotalComparator();
+			comparator.setCategoryId(categorySortOrder.getCategoryId());
+
+			final SortDirection direction = categorySortOrder.getDirection();
+
+			// sort
+			Collections.sort(items, comparator);
+
+			// reverse if required
+			if (direction == SortDirection.DESCENDING) {
+				Collections.reverse(items);
+			}
+		}
+		Temp.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
 
 		return items;
 	}
@@ -1961,11 +1985,13 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Comparator class for sorting an assignment by the grades Note that this must have the assignmentId set into it so we can extract the
-	 * appropriate grade entry from the map that each student has
+	 * Comparator class for sorting an assignment by the grades.
+	 *
+	 * Note that this must have the assignmentId set into it so we can extract the appropriate grade entry from the map that each student
+	 * has.
 	 *
 	 */
-	class GradeComparator implements Comparator<GbStudentGradeInfo> {
+	class AssignmentGradeComparator implements Comparator<GbStudentGradeInfo> {
 
 		@Setter
 		private long assignmentId;
@@ -1982,6 +2008,30 @@ public class GradebookNgBusinessService {
 
 			return new CompareToBuilder()
 					.append(grade1, grade2)
+					.toComparison();
+
+		}
+	}
+
+	/**
+	 * Comparator class for sorting a category by the subtotals
+	 *
+	 * Note that this must have the categoryId set into it so we can extract the appropriate grade entry from the map that each student has.
+	 *
+	 */
+	class CategorySubtotalComparator implements Comparator<GbStudentGradeInfo> {
+
+		@Setter
+		private long categoryId;
+
+		@Override
+		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
+
+			final Double subtotal1 = g1.getCategoryAverages().get(this.categoryId);
+			final Double subtotal2 = g2.getCategoryAverages().get(this.categoryId);
+
+			return new CompareToBuilder()
+					.append(subtotal1, subtotal2)
 					.toComparison();
 
 		}
