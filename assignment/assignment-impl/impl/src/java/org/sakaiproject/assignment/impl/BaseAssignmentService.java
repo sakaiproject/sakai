@@ -4615,29 +4615,39 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        Assignment a = getAssignment(aRef);
 	        if (a != null)
 	        {
-	            Site st = SiteService.getSite(contextString);
-	            if (a.getAccess().equals(Assignment.AssignmentAccess.SITE))
-	            {
-	                Collection<Group> groupRefs = st.getGroups();
-	                for (Iterator gIterator = groupRefs.iterator(); gIterator.hasNext();)
-	                {
-	                    Group _gg = (Group)gIterator.next();
-	                    //if (_gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {		// NO SECTIONS (this might not be valid test for manually created sections)
-	                    rv.add(_gg);
-	                    //}
-	                }
-	            } 
-	            else
-	            {
-	                Collection<String> groupRefs = a.getGroups();
-	                for (Iterator gIterator = groupRefs.iterator(); gIterator.hasNext();)
-	                {
-	                    Group _gg = st.getGroup((String)gIterator.next());		// NO SECTIONS (this might not be valid test for manually created sections)
-	                    if (_gg != null) {// && _gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
+	        	Site st = SiteService.getSite(contextString);
+	        	if (allOrOneGroup.equals(AssignmentConstants.ALL))
+	        	{
+		            if (a.getAccess().equals(Assignment.AssignmentAccess.SITE))
+		            {
+		                Collection<Group> groupRefs = st.getGroups();
+		                for (Iterator gIterator = groupRefs.iterator(); gIterator.hasNext();)
+		                {
+		                    Group _gg = (Group)gIterator.next();
+		                    //if (_gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {		// NO SECTIONS (this might not be valid test for manually created sections)
+		                    rv.add(_gg);
+		                    //}
+		                }
+		            } 
+		            else
+		            {
+		                Collection<String> groupRefs = a.getGroups();
+		                for (Iterator gIterator = groupRefs.iterator(); gIterator.hasNext();)
+		                {
+		                    Group _gg = st.getGroup((String)gIterator.next());		// NO SECTIONS (this might not be valid test for manually created sections)
+		                    if (_gg != null) {
+		                        rv.add(_gg);
+		                    }
+		                }
+		            }
+	        	}
+	        	else
+	        	{
+	        		Group _gg = st.getGroup(allOrOneGroup);
+	        		 if (_gg != null) {// && _gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
 	                        rv.add(_gg);
 	                    }
-	                }
-	            } 
+	        	}
 
 	            for (Iterator uIterator = rv.iterator(); uIterator.hasNext();)
 	            {
@@ -4660,7 +4670,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
                         			M_log.debug(this + " getSubmitterGroupList context " + contextString + " for assignment " + a.getId() + " for group " + g.getId());
                         			AssignmentSubmissionEdit s =
                         					addSubmission(contextString, a.getId(), g.getId());
-                        			s.setSubmitted(false);
+                        			s.setSubmitted(true);
+                        			s.setIsUserSubmission(false);
                         			s.setAssignment(a);
 
                         			// set the resubmission properties

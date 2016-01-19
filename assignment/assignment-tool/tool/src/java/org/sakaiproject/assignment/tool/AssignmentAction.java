@@ -14201,9 +14201,17 @@ public class AssignmentAction extends PagedResourceActionII
 					List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, a.getReference(), contextString);
 					Collection<String> _dupUsers = new ArrayList<String>();
 					if (a.isGroup()) {
+						Collection<Group> submitterGroups = AssignmentService.getSubmitterGroupList(searchFilterOnly.toString(), allOrOneGroup, "", a.getReference(), contextString);
+						if (submitterGroups != null && !submitterGroups.isEmpty())
+						{
+							for (Iterator<Group> iSubmitterGroupsIterator = submitterGroups.iterator(); iSubmitterGroupsIterator.hasNext();)
+							{
+								Group gId = iSubmitterGroupsIterator.next();
+								submitterIds.add(gId.getId());
+							}
 					    _dupUsers = usersInMultipleGroups(a, true);
+						}
 					}
-
 					//get the list of users which are allowed to grade this assignment
 					List allowGradeAssignmentUsers = AssignmentService.allowGradeAssignmentUsers(a.getReference());
 					String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
