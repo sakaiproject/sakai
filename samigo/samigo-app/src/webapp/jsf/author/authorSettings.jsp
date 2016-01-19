@@ -252,16 +252,18 @@
   <!-- *** DELIVERY DATES *** -->
   <h:panelGrid columns="1" columnClasses="samigoCell" border="0">
     <h:panelGroup>
+    <h:panelGroup id="startDateGroup">
       <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
       <h:inputText value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
 	  <h:outputText value="" />
 	  <h:outputText value="" />
-	  
+	</h:panelGroup>
+	<h:panelGroup id="endDateGroup">
       <h:outputLabel for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
       <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
 	  <h:outputText value="" />
 	  <h:outputText value="" />
-	  
+	</h:panelGroup>
     <!-- *** TIMED *** -->
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
         <h:outputText value="#{assessmentSettingsMessages.has_time_limit} " />
