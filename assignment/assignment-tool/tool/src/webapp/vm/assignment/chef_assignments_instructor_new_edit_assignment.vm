@@ -699,6 +699,21 @@
 						#end
 					</div>
 				<!-- End TII custom options -->
+				#elseif($reviewServiceName.equals("VeriCite"))
+						<!-- Exclude Quoted materials -->
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+						<div class="checkbox">
+								#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" type="checkbox" value="true" checked="checked" />
+								#else
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" type="checkbox" value="true" />
+								#end
+								<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
+									$tlang.getString("review.exclude.quoted") 
+								</label>
+						</div>
+						#end
+				<!-- End VeriCite custom options -->	
 				#end
 			</div>
 		#end

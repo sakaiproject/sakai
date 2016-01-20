@@ -667,9 +667,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setReleased(assignmentDefinition.isReleased());
 				
 				//if we have a category, get it and set it
+				//otherwise clear it fully
 				if (assignmentDefinition.getCategoryId() != null) {
 					Category cat = (Category) session.load(Category.class, assignmentDefinition.getCategoryId());
 					assignment.setCategory(cat);
+				} else {
+					assignment.setCategory(null);
 				}
 				
 				updateAssignment(assignment, session);
