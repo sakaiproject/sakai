@@ -110,7 +110,7 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 <script type="text/javascript">
 updateTime = 10000;
 updateUrl = "<h:outputText value="#{ChatTool.courierString}" />";
-scheduleUpdate();
+scheduleUpdate(updateTime,updateUrl);
 </script>
    </sakai:view>
 </f:view>
