@@ -4,7 +4,7 @@
 
 function toggleMinimizeNav(){
 
-  $PBJQ('#container').toggleClass('toggleNav--minimized');
+  $PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
 
   var el = $PBJQ(this);
   var label = $PBJQ('.accessibility-btn-label' , el);

@@ -1,42 +1,28 @@
 ## Adds $viewAsStudentLink options from includeTabs.vm
 
-<div id="roleSwitch" class="Mrphs-roleSwitch">
-
-
+<li id="roleSwitch" class="Mrphs-roleSwitch Mrphs-toolsNav__menuitem">
     #if ($roleSwitchState)
-
-        <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor">
-			<i class="fa fa-user-secret exit"></i>
-            <span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span><i class="fa fa-remove exit close"></i>
+        <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-toolsNav__menuitem--link">
+            <i class="Mrphs-toolsNav__menuitem--icon fa fa-user-secret exit"></i>
+            <span class="Mrphs-toolsNav__menuitem--title">$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span>
         </a>
-
     #else
-
         #if ($roleswapdropdown)
-
-            <i class="fa fa-user-secret clickable"></i>
-            
+        <a href="#" class="Mrphs-roleSwitch__anchor Mrphs-toolsNav__menuitem--link">
+            <i class="Mrphs-toolsNav__menuitem--icon fa fa-user-secret clickable"></i>            
             <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }" class="Mrphs-roleSwitch__dropdown">       
-
             <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>
-
             #foreach ( $role in $siteRoles )
-
                 <option value="$switchRoleUrl$role$panelString">$role</option>
-
             #end ## END of FOREACH ( $role in $siteRoles )
-
             </select>
-
+        </a>
         #else
- 
-            <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link">
-                <i class="fa fa-user-secret"></i>
+            <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link Mrphs-toolsNav__menuitem--link">
+                <i class="Mrphs-toolsNav__menuitem--icon fa fa-user-secret"></i>
                 <span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span>
             </a>
-
         #end ## END OF IF ($roleswapdropdown)
-
     #end ## END of IF ($roleSwitchState)
+</li>
 
-</div>

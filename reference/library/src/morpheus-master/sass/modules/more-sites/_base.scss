@@ -1,12 +1,12 @@
 #portalMask{
-	background: rgba(0,0,0,0.45);
-	position: fixed;
+	/*background: rgba(0,0,0,0.45);
+	position: fixed;*/
 }
 #selectSite{
 	position: fixed;
 	@include transition( left 0.4s linear );
 	&.dhtml_more_tabs{
-		background: $toolMenuColor;
+		background: $toolMenuBGColor;
 		display: block;
 		position: fixed;
 		top: 0;
@@ -19,14 +19,32 @@
 		z-index: 1005;
 		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
 		@media #{$phone}{
-			width: 85% ;
-			left: 15%;
-			padding: 1em 1em 3em 1em;
+			width: 100%;
+			left: 0;
+			top: 2.7em;
+			overflow: visible;
+			position: absolute;
+			@include box-shadow( 0px 0 0px 0px rgba(0,0,0,0) );
+			@include transition( left 0.26s linear );
+			&:after {
+				bottom: 100%;
+				left: 75%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: rgba(255, 255, 255, 0);
+				border-bottom-color: $toolMenuBGColor;
+				border-width: 7px;
+				margin-left: -7px;
+				outline: 0;
+			}
 		}
 	}
 	&.outscreen{
-		left: calc(100% + 2em) ;
-		max-width:1200px;
+		left: -120%;
 	}
 	h4{
 		font-size: 1.8em;
@@ -47,8 +65,8 @@ ul#otherSitesMenu{
 ul.otherSitesCategorList{
 	li{
 		display: inline-block;
-		border: 1px solid darken( $background-color-secondary, 10% );
-		background: darken( $background-color-secondary, 5% );
+		border: 1px solid darken( $background-color, 30% );
+		background: darken( $background-color, 5% );
 		@include border-radius( 4px );
 		margin: 0.3em;
 		padding: 0.1em 0.5em 0.1em 0.5em;
@@ -60,11 +78,12 @@ ul.otherSitesCategorList{
 			}
 		}
 		&.is-selected{
-			background: lighten($background-color, 10%);
+			background: $primary-color;
+			border: 1px solid $primary-color;
 			a{
-				color: $background-color-secondary;
+				color: $background-color;
 				.fullTitle{
-					color: $background-color-secondary;
+					color: $background-color;
 				}
 			}
 		}

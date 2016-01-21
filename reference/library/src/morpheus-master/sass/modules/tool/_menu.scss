@@ -1,16 +1,58 @@
 .navIntraTool{
+	margin: -14px -14px 0 -14px;
+	background: $tool-background-color;
+	border-bottom: 1px solid $toolBorderColor;
+	padding: 0 0 0 1em;
+	@media #{$phone}{
+		border-bottom: 0px none;
+	}
 	li{
 		display: inline-block;
-		margin: 0 0 0.5em 0;
+		margin: 0 0 0 0;
 		span{
 			display: inline;
 			a{
-				@extend .button;
+				background: $toolTabBGColor;
+				border-top: 1px solid $toolBorderColor;
+				border-left: 1px solid $toolBorderColor;
+				border-right: 1px solid $toolBorderColor;
+				color: #666;
+				display: block;
+				font-size: 0.8em;
+				margin: 2px 0.25em 0 0;
+				letter-spacing: 1.2px;
+				padding: 6px 10px;
+				text-decoration: none;
+				text-transform: uppercase;
+				@media #{$phone}{
+					background: transparent;
+					border-top: 0px none;
+					border-left: 0px none;
+					border-right: 0px none;
+					color: $primary-color;
+					display: block;
+					font-size: 0.8em;
+					margin: 2px 0.25em 0 0;
+					letter-spacing: 1.2px;
+					padding: 6px 8px;
+					text-decoration: underline;
+					text-transform: uppercase;
+				}
 			}
 			&.current{
-				@extend .button_color;
+				background: $tool-background-color;
+				border-top: 1px solid $toolBorderColor;
+				border-left: 1px solid $toolBorderColor;
+				border-right: 1px solid $toolBorderColor;
+				display: block;
+				font-size: 0.8em;
+				letter-spacing: 1.2px;
+				margin: 2px 0.25em 0 0;
+				padding: 7px 10px 6px 10px;
+				position: relative;
+				text-transform: uppercase;
+				top: 1px;
 				a{
-					@extend .button_color;
 				}
 			}
 			&.inactive{
@@ -18,10 +60,8 @@
 			}
 		}
 		a{
-			@extend .button;
-
+			
 			&.current{
-				@extend .button_color;
 			}
 		}
 		.searchField{

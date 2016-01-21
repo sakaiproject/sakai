@@ -1912,9 +1912,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String pwWording = null;
 				eidWording = StringUtils.trimToNull(rloader.getString("log.userid"));
 				pwWording = StringUtils.trimToNull(rloader.getString("log.pass"));
+				String eidPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputuserplaceholder"));
+				String pwPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputpasswordplaceholder"));
 
 				if (eidWording == null) eidWording = "eid";
 				if (pwWording == null) pwWording = "pw";
+				if (eidPlaceholder == null ) eidPlaceholder = "";
+				if (pwPlaceholder == null ) pwPlaceholder = "";
 				String loginWording = rloader.getString("log.login");
 
 				rcontext.put("loginPortalPath", ServerConfigurationService
@@ -1922,6 +1926,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginEidWording", eidWording);
 				rcontext.put("loginPwWording", pwWording);
 				rcontext.put("loginWording", loginWording);
+				rcontext.put("eidPlaceholder", eidPlaceholder);
+				rcontext.put("pwPlaceholder", pwPlaceholder);
 
 				// setup for the redirect after login
 				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
