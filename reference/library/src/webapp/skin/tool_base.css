@@ -965,3 +965,25 @@ ul.calendarLegend li{
 .ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_microsec:before { content:'.'; display:inline-block; }
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide,
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide:before{ display: none; }
+/* css for duplicate site alert*/
+#flashNotif  a.flashNotifClose {
+    text-decoration: none;
+    font-size:120%;
+    position:absolute;
+    top:5px;
+    right:5px;
+}
+#flashNotif {
+    position:absolute;
+    top:25px;
+    left:30%;
+    right:30%;
+    padding:15px;
+    border:1px solid #ccc;
+    background: #ffe;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow:2px 2px 2px #cccccc;
+    vertical-align:middle;
+}
