@@ -3956,7 +3956,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	            ContentResource resource = contentService.getResource(resourceId);
 	            ResourceProperties props = resource.getProperties();
 	            String displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-	            Citation citation = citationService.addCitation("unknown");
+	            //As this citation will always have resource url so it should be of type 'electronic' not 'unknown'
+	            Citation citation = citationService.addCitation("electronic");
 	            citation.setDisplayName(displayName);
 	            citation.setCitationProperty("resourceId", resourceId);
 	            //User user = UserDirectoryService.getUser(props.getProperty(ResourceProperties.PROP_CREATOR));
