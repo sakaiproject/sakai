@@ -25,7 +25,6 @@ LABEL.chat-date-label {
     list-style: none;
 }
 #chatList li, .chatList li{
-    text-indent: -3em;
     line-height: 1.2em;
 }
 .chat-block label {
