@@ -84,7 +84,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
     chat2_shownMessages++;
     updateShownText();
 
-}                           
+}
 
 function updateShownText() {
     var countText = chat2_messageCountTemplate + '';
@@ -171,7 +171,7 @@ function updateUsers() {
                 // but the tool will only recognize /portal/tool. Do the mapping
 
 		// fix up the delete links. They use /sakai.chat ... That won't work. without the leading /
-		// it works. 
+		// it works.
 		var urlpath = location.pathname;
 		var frameless = false;
 		if (urlpath.indexOf('/portal/site') == 0) {
@@ -180,12 +180,12 @@ function updateUsers() {
 			frameless = true;
 		    }
 		}
- 
+
 		if (frameless) {
 		    $('.chatList a').each(function(index) {
 			    $(this).attr('onclick', $(this).attr('onclick').replace("'/sakai.chat.deleteMessage.helper","'sakai.chat.deleteMessage.helper"));
 			});
-		    
+
 		    if (deleteUrl.indexOf('/sakai.chat.deleteMessage.helper') == 0)
 			deleteUrl = deleteUrl.substring(1);
 		}
@@ -203,7 +203,7 @@ function updateUsers() {
 	        channelId: document.getElementById("topForm:chatidhidden").value,
 	        enterKeyCheck:''
 	    };
-        
+
 	    //Bind button submit action
 	    options.dom_button_submit.bind('click', function() {
 	    	options.dom_button_submit_raw.disabled = true;
@@ -240,7 +240,10 @@ function updateUsers() {
 	            },
 	            success: function(data) {
 	                //Run dom update from headscripts.js
-	               try { updateNow(); } catch (error) {alert(error);}
+	               try {
+                       var updateUrl = document.getElementById("courierString");
+                       updateNow(updateUrl.value);
+                   } catch (error) {alert(error);}
                     options.dom_textarea
 	                    .val("")
 	                    .focus();

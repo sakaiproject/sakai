@@ -98,7 +98,10 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
             <h:outputText value="#{ChatTool.datesMessage}" />
         </t:div>
 	<p style="clear:both;display:block;"></p>
-			
+
+       <!-- Set the url in a hidden field so that chatscripts can easily grab it -->
+       <input id="courierString" type="hidden" value="<h:outputText value="#{ChatTool.courierString}" />"/>
+
 	<script type="text/javascript">
 		setMainFrameHeight('<h:outputText value="#{ChatTool.framePlacementId}" />');
 	</script>
