@@ -440,6 +440,7 @@ document.links[newindex].onclick();
 <h:outputText value=" #{question.pointsDisplayString} #{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 
         <h:outputText value="#{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
+        <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} " rendered="#{question.itemData.discount!='0.0'}" />
 </h:panelGroup>
 </h:panelGrid>
           <f:verbatim><div class="tier3"></f:verbatim>
