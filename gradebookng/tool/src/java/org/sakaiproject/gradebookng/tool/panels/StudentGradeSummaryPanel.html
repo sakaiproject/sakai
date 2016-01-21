@@ -9,14 +9,18 @@
 			<span wicket:id="tabs" class="tabpanel">[tabbed panel will be here]</span>
 
 			<div class="gb-summary-modal-actions">
-				<div wicket:id="studentNavigation" class="col-md-12">
-					<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
-					<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
+				<div wicket:id="studentNavigation" class="row">
+					<div class="col-md-12">
+						<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
+						<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
+					</div>
 				</div>
 
-				<div class="col-md-12">
-					<button type="submit" class="btn btn-secondary gb-summary-close" wicket:id="done"><wicket:message key="button.done" /></button>
-					<button type="button" class="btn btn-secondary gb-summary-fake-close" style="display: none;"><wicket:message key="button.done" /></button>
+				<div class="row">
+					<div class="col-md-12">
+						<button type="submit" class="btn btn-secondary gb-summary-close" wicket:id="done"><wicket:message key="button.done" /></button>
+						<button type="button" class="btn btn-secondary gb-summary-fake-close" style="display: none;"><wicket:message key="button.done" /></button>
+					</div>
 				</div>
 			</div>
 		</div>
