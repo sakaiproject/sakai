@@ -10866,7 +10866,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			addElementsToList("log",m_submissionLog,el,false);
 			addElementsToList("grade",m_grades,el,false);
-			addElementsToList("submitters",m_submitters,el,false);
+			addElementsToList("submitter",m_submitters,el,false);
+			// for backward compatibility of assignments without submitter ids
+			if (m_submitterId == null && m_submitters.size() > 0) {
+				m_submitterId = (String) m_submitters.get(0);
+			}
 			addElementsToList("feedbackattachment",m_feedbackAttachments,el,true);
 			addElementsToList("submittedattachment",m_submittedAttachments,el,true);
 
@@ -11049,6 +11053,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							addElementsToList("log",m_submissionLog,attributes,false);
 							addElementsToList("grade",m_grades,attributes,false);
 							addElementsToList("submitter",m_submitters,attributes,false);
+							// for backward compatibility of assignments without submitter ids
+							if (m_submitterId == null && m_submitters.size() > 0) {
+								m_submitterId = (String) m_submitters.get(0);
+							}
 							addElementsToList("feedbackattachment",m_feedbackAttachments,attributes,true);
 							addElementsToList("submittedattachment",m_submittedAttachments,attributes,true);
 
