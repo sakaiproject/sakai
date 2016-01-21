@@ -25,6 +25,7 @@
   width: 100%;
   overflow: auto;
   position: relative;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Table */
@@ -927,6 +928,7 @@ ul.feedbackPanel li span {
   padding: 10px 0;
   border-top: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
+  -webkit-overflow-scrolling: touch;
 }
 .gb-summary-grade-panel .gb-summary-grade-flags {
   padding-left: 10px;
@@ -980,6 +982,7 @@ ul.feedbackPanel li span {
   bottom: auto;
   left: 0;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .gb-update-ungraded-extracredit-confirmation {
   z-index: 50000 !important;
