@@ -4564,6 +4564,14 @@ public class SimplePageBean {
 		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
 			return false;
 		} else if (page != null && page.getOwner() != null && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
+
+		    // check for inline types. No resource to check. Since this section is for student page, no groups either
+		    if (item.getType() == SimplePageItem.MULTIMEDIA) {
+			String displayType = item.getAttribute("multimediaDisplayType");
+			if ("1".equals(displayType) || "3".equals(displayType))
+			    return true;
+		    }
+
 		    // This code is taken from LessonBuilderAccessService, mostly
 
 		    // for student pages, we give people access to files in the owner's worksite
