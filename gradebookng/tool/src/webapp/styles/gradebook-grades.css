@@ -308,6 +308,12 @@
 #gradebookGrades .gb-due-date {
   margin-bottom: 1.2em;
 }
+#gradebookGradesTable td:focus,
+#gradebookGradesTable th:focus {
+  outline: 2px solid #3698DB;
+  outline-color: rgba(54, 152, 219, 0.8);
+  outline-offset: -1px;
+}
 /* Row selector/highlights */
 #gradebookGrades .gb-row-selector {
   width: 14px;
@@ -335,7 +341,9 @@
   border-color: #3698DB;
 }
 #gradebookGrades tbody .gb-highlighted-row {
-    outline: 1px solid #3698DB;
+  outline: 1px solid #3698DB;
+  outline-color: rgba(54, 152, 219, 0.8);
+  outline-offset: 0px;
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
