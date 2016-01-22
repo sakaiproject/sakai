@@ -10,6 +10,7 @@
 @import "modules/main";
 @import "modules/navigation/base";
 @import "modules/navigation/skipnav";
+@import "modules/navigation/breadCrumbs";
 @import "modules/toolmenu";
 @import "modules/tool/base";
 @import "modules/tool/menu";
@@ -22,6 +23,8 @@
 @import "modules/tool/announcements/announcements";
 @import "modules/tool/messages/messages";
 @import "modules/tool/polls/polls";
+@import "modules/tool/lessonbuilder/lessonbuilder";
+@import "modules/tool/samigo/samigo";
 
 @import "base/rtl";
 

@@ -13,7 +13,7 @@
         </li>
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
             <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">
-                ${rloader.sit_jumptools}
+                ${rloader.sit_menutools}
             </a>
         </li>
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">

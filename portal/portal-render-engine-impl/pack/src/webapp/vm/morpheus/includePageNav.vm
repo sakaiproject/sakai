@@ -14,12 +14,18 @@
 
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
         <ul>
+        	<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav">
+        		<i class="fa fa-lg fa-angle-double-left"></i>
+        	</li>
+        	#if ($viewAsStudentLink)
+        	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+        	#end ## END of IF ($viewAsStudentLink)
 		#set( $categoryMap = {})
 		#set( $categoryList = [])
 
 		## create a map of tools and categories ,if tool does not belong to category display them now.
 
-	    	#foreach( $page in $sitePages.pageNavTools )
+	    #foreach( $page in $sitePages.pageNavTools )
   		#if (${page.pageProps.get("sitePage.pageCategory")})
 			#if (!$categoryMap.get(${page.pageProps.get("sitePage.pageCategory")}))
 				#set ( $success = $categoryList.add($page.pageProps.get("sitePage.pageCategory")))
@@ -27,6 +33,7 @@
 			#set($dummy = $categoryMap.put($page.pageProps.get("sitePage.pageCategory"), $page.pageProps.get("sitePage.pageCategory").replace(" ","_")))
 		#else
 		        #if (${page.current})
+		        	#set( $breadToolName  = $page.pageTitle )
 
 		            <li class="Mrphs-toolsNav__menuitem is-current">
 		                <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
@@ -190,10 +197,6 @@
         </nav>
 
     #end ## END of IF ( $subSites )
-
-	#if ($viewAsStudentLink)
-	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-	#end ## END of IF ($viewAsStudentLink)
 
 </div>
 

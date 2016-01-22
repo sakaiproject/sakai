@@ -1,17 +1,3 @@
- <ul class="Mrphs-sitesNav__menu" id="topnav" role="menubar">
-	#foreach ( $site in $tabsSites.tabsSites )
-		 #if (${site.isMyWorkspace})    
-		    <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace #if (${site.isCurrentSite}) is-selected #end">
-		        <a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
-		            <i class="fa fa-home"></i>
-		            <span>${rloader.sit_mywor}</span>
-		            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
-		        </a>
-		    </li>			
-		#end ## END of IF (${site.isMyWorkspace})
-	#end		
- </ul>
-
 <nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="Mrphs-sitesNav" data-max-tools-int="$maxToolsInt" data-max-tools-anchor="${rloader.sit_alltools}">
     <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
     <div id="show-all-sites" tabindex="-1" aria-hidden="true"><i class="fa fa-angle-double-left"></i><span>${rloader.sit_more}</span></div>
@@ -19,8 +5,17 @@
 
         #foreach ( $site in $tabsSites.tabsSites )
 
+    		 #if (${site.isMyWorkspace})
+                <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace #if (${site.isCurrentSite}) is-selected #end">
+                    <a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
+                        <i class="fa fa-home"></i>
+                        <span>${rloader.sit_mywor}</span>
+                        <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+                    </a>
+                </li>           
+            #end ## END of IF (${site.isMyWorkspace})
+
             #if (!${site.isMyWorkspace})
-    
                 <li class="Mrphs-sitesNav__menuitem #if (${site.isCurrentSite}) is-selected #end">
                     <a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
                         <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitle}#end</span>

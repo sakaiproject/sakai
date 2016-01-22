@@ -2,6 +2,10 @@
 @import "font-awesome";
 
 .Mrphs-toolsNav__menuitem--icon{
+
+	display: block;
+	line-height: 1.25;
+	text-align: center;
 	
 	@if $skin-with-icons {
 	 	@extend .fa-lg;
@@ -16,6 +20,7 @@
 		&.icon-sakai-assignment-grades{				@extend .fa-tasks;}
 		&.icon-sakai-samigo{					@extend .fa-puzzle-piece;}
 		&.icon-sakai-gradebook-tool{				@extend .fa-check-square-o;}
+		&.icon-sakai-gradebookng{				@extend .fa-check-square-o;}
 		&.icon-sakai-announcements{				@extend .fa-bullhorn;}
 		&.icon-sakai-chat{					@extend .fa-comments-o;}
 		&.icon-sakai-rwiki{ 					@extend .fa-edit;}

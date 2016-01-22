@@ -1,15 +1,31 @@
+.#{$namespace}multipleTools{
+	.#{$namespace}toolTitleNav{
+		.#{$namespace}toolTitleNav__title{
+			display: inline-block;
+			color: rgba(21,21,21,0.5);
+			font-size: 0.85em;
+			font-weight: 400;
+			letter-spacing: 1.2px;
+			margin: 0px;
+			text-transform: uppercase;
+			width: calc(100% - 90px);
+			a{
+				color: rgba(21,21,21,0.5);
+				font-weight: 400;
+				margin-right: 0.25em;
+			}
+		}
+	}
+
+}
+
 .#{$namespace}toolTitleNav{
-	background: $primary-color;
 	margin: 1em 0 0 0;
 	padding: 0.5em;
 	position: relative;
 	.#{$namespace}toolTitleNav__title{
-		color: lighten( $text-color, 70% );
-		display: inline-block;
-		font-size: 1.5em;
-		width: calc(100% - 90px);
-		margin: 0px;
-		& ~ .#{$namespace}directUrl__dropDown{
+		display: none;
+		& ~ .#{$namespace}toolTitleNav__button_container > .#{$namespace}directUrl__dropDown{
 			display: none;
 			&.active{
 				padding: 0.8em;
@@ -25,49 +41,79 @@
 					width: 98%;
 					height: 50px;
 				}
+				@media #{$phone}{
+					margin: -10px 0 0px 0;
+				}
 			}
 		}
-		a{
-			color: lighten( $text-color, 70% );
-			margin-right: 0.25em;
-
-		}
 	}
-
+	.#{$namespace}toolTitleNav__button_container{
+		float: right;
+		display: block;
+		position: relative;
+		margin: 0px 0 -20px 0;
+		top: 9px;
+		z-index: 1;
+	}
 	.#{$namespace}toolTitleNav__link{
-		color: lighten( $text-color, 70% );
+		//color: lighten( $text-color, 70% );
+		border: 1px solid #e0e0e0;
+		background: $toolTabBGColor;
 		margin-right: 0.25em;
-		padding: 5px 0 0 0;
+		padding: 5px 8px;
 		text-decoration :none;
 		vertical-align: 0%;
-		@include icon();
+		&:hover{
+			background: $tool-background-color;
+			color: $primary-color;
+			@include box-shadow( 0 0 6px 0 rgba(0,0,0,.15) );
+		}
+		@media #{$tablet}{
+			border: 0px none;
+			margin-right: 0em;
+		}
+		@media #{$tablet}{
+			background: transparent;
+		}
+		//@include icon();
 		&--directurl{
 			@extend .fa;
 			@extend .fa-link;
-			@extend .fa-lg;
-			position: absolute;
-			right: #{$icon-size * 1.5};
+			//@extend .fa-lg;
+			/*position: absolute;
+			right: #{$icon-size * 1.5};*/
 		}
 		&--help-popup{
 			@extend .fa;
 			@extend .fa-question;
-			@extend .fa-lg;
-			position: absolute;
-			right: 0;
+			//@extend .fa-lg;
+			/*position: absolute;
+			right: 0;*/
 		}
 		&--edit{
 			@extend .fa;
 			@extend .fa-pencil;
-			@extend .fa-lg;	
-			position: absolute;
-			right: #{$icon-size * 3};
+			//@extend .fa-lg;	
+			/*position: absolute;
+			right: #{$icon-size * 3};*/
 		}
 		&--reset{
 			@extend .fa;
 			@extend .fa-share;
-			@extend .fa-lg;	
+			//@extend .fa-lg;	
+			display: none;
 			font-size: 0.9em;
 			float: left;
+		}
+		.#{$namespace}itemTitle{
+			font-family: $font-family;
+			/*font-size: $default-font-size;*/
+			text-transform: uppercase;
+			font-size: 0.8em;
+			letter-spacing: 1.2px;
+			@media #{$tablet}{
+				display: none;
+			}
 		}
 	}
 
@@ -75,16 +121,21 @@
 
 .#{$namespace}toolBody{
 	background: $tool-background-color;
+	border-bottom: 1px solid $toolBorderColor;
 	iframe{
-		margin: 1em 0 0 0;
-		width: 99%;
+		margin: 0 0 0 0;
+		width: 100%;
 	}
 }
 
 .portletBody{
 	background: $tool-background-color;
 	padding: $default-font-size $default-font-size 40px $default-font-size;
-	@media #{$phone}{
+	/*@media #{$phone}{
 		padding: 16px 16px 40px 16px;
+	}*/
+	> * {
+		position: relative;
+		top: -2px;
 	}
 }

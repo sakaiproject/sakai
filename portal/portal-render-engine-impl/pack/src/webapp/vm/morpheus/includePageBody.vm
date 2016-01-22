@@ -18,17 +18,13 @@
 
 <h1 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
 
-    <main id="$pageWrapperClass" class="Mrphs-mainContent" role="main">
-    ## Added Site name to the Nav for Mobile menus
-    #foreach ( $site in $tabsSites.tabsSites )
+    #if ( $pageColumn1Tools ) 
+        #set( $numberTools = $pageColumn0Tools.size() + $pageColumn1Tools.size() )
+    #else
+        #set( $numberTools = $pageColumn0Tools.size() )
+    #end
 
-        #if (${site.isCurrentSite})
-
-            <h2 title="${site.fullTitle}" class="Mrphs-toolsNav__title--current-site">${site.siteTitle}</h2>
-
-        #end ## END of IF (${site.isCurrentSite})
-
-    #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+    <main id="$pageWrapperClass" class="Mrphs-mainContent #if( $numberTools > 1 )Mrphs-multipleTools #end" role="main">
 
         #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
 
@@ -87,16 +83,22 @@
 
                                 #end ## END of IF (${tool.toolShowResetButton})
 
+                                <div class="Mrphs-toolTitleNav__button_container">
+                                
                                 #if (${tool.toolJSR168Edit})
 
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}"></a>
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
+                                        <span class="Mrphs-itemTitle">${rloader.sit_edit}</span>
+                                    </a>
 
                                 #end ## END of IF (${tool.toolJSR168Edit} )
 
-				<span class="Mrphs-toolTitleNav__addRight"></span>
+				                <span class="Mrphs-toolTitleNav__addRight"></span>
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}"></a>
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+                                        <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
+                                    </a>
                                     <div id="${tool.toolPlacementIDJS}_directurl" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
 
                                         #if($toolShortUrlEnabled)
@@ -114,15 +116,23 @@
 
                                     #if (${tool.toolJSR168Help})
 
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"><span class="skip">${rloader.site_newwindow}</span></a>
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
 
                                     #else
 
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
 
                                     #end ## END of IF (${tool.toolJSR168Help})
 
                                 #end ## END of IF (${tool.toolShowHelpButton})
+
+                                </div>
 
                             </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
 
@@ -134,7 +144,9 @@
 
                                     <h2 class="Mrphs-toolTitleNav__title">
                                         <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">
-                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset">
+                                                <span class="Mrphs-itemTitle">${sitReset}</span>
+                                            </span>
                                             ${tool.toolTitle}
                                         </a>
                                     </h2>
@@ -220,12 +232,18 @@
                                 
                                 #end ## END of IF (${tool.toolShowResetButton})
                             
+                                <div class="Mrphs-toolTitleNav__button_container">
+
                                 #if (${tool.toolJSR168Edit})
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}"></a>
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
+                                        <span class="Mrphs-itemTitle">${rloader.sit_edit}</span>
+                                    </a>
                                 #end ## END of IF (${tool.toolJSR168Edit})
                                  
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}"></a>
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+                                        <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
+                                    </a>
                                     <div id="${tool.toolPlacementIDJS}_directurl" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
                                     
                                         #if($toolShortUrlEnabled)
@@ -239,13 +257,21 @@
                                 #if (${tool.toolShowHelpButton})
                                 
                                     #if (${tool.toolJSR168Help})
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"><span class="skip">${rloader.site_newwindow}</span></a>
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
                                     #else
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
                                     #end ## END of IF (${tool.toolJSR168Help})
                                      
                                 #end ## END of IF (${tool.toolShowHelpButton})
 
+                                </div>
+                                
                             </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
                             
                         #else
@@ -264,7 +290,10 @@
                                 #end ## END of IF (${tool.toolShowResetButton})
                                 
                                 #if (${tool.toolShowHelpButton})
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                                        <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                        <span class="skip">${rloader.site_newwindow}</span>
+                                    </a>
                                 #end ## END of IF (${tool.toolShowHelpButton})
                                     
                             </nav><!-- End of nav.portlet portlet-title wrapper -->

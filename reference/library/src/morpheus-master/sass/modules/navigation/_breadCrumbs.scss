@@ -1,0 +1,47 @@
+.#{$namespace}siteHierarchy{
+	$svg-gradient-shim-threshold: 1 !global;
+	@include background-image( linear-gradient( to right, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df ) );
+	@include box-shadow( inset 0px -1px 5px rgba(0,0,0,0.1) );
+	height: $hierarchy-size;
+	padding: 1em;
+	h1{
+		color: $background-color;
+		font-weight: 300;
+		margin: 0 0 0 0;
+	}
+    a{
+    	color: $text-color;
+	    border-bottom: 1px solid #888888;
+	    margin: 0 0.5em 0 0.5em;
+	    padding: 0em 0em 0.2em 0em;
+	    text-decoration: none;
+    }
+	@media #{$phone}{
+		background-color: $primary-color;
+		background-image: none;
+	    color: $background-color;
+		position: fixed;
+	    top: 5.5em;
+	    width: 100%;
+	    z-index: 18;
+	    @include transition( top 0.25s linear );
+		&.moving{
+  			top: -4.2em;
+  		}
+	    h1{
+	    	color: $background-color;
+	    }
+	    a{
+	    	border-bottom: 0px none;
+	    	color: $background-color;
+	    }
+	    .#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{
+	    	display: none;
+	    }
+	}
+}
+
+.#{$namespace}breadCrumbs{
+	margin:auto;
+	max-width: calc( 50% - 3em);
+}

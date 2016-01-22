@@ -1,19 +1,19 @@
-<ul class="Mrphs-loginUser" role="menu" tabindex="999">
+<div id="loginLinksImage" class="Mrphs-loginUser" role="menu" tabindex="999">
 
     #if (${loginHasImage1})
 
-        <li role="menuitem" class="Mrphs-loginUser__menuitem">
+        <p role="menuitem" class="Mrphs-loginUser__menuitem">
             <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__image" data-warning="${logoutWarningMessage}"><img src="${loginImage1}" alt="${loginMessage}"></a>
-        </li>
+        </p>
 
     #else
 
-        <li role="menuitem" class="Mrphs-loginUser__menuitem">
+        <p role="menuitem" class="Mrphs-loginUser__menuitem">
             <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message" data-warning="${logoutWarningMessage}">
                 <i class="login-Icon"></i>
                 <span class="Mrphs-login-Message">${loginMessage}</span>
             </a>
-        </li>
+        </p>
 
     #end ## END of IF (${loginHasImage1})
 
@@ -21,21 +21,21 @@
 
         #if (${loginHasImage2})
 
-            <li role="menuitem" class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitem--alt">
+            <p role="menuitem" class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitem--alt">
                 <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__image"><img src="${loginImage2}" alt="${loginMessage2}"></a>
-            </li>
+            </p>
 
         #else
 
-            <li role="menuitem" class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitemk--alt">
+            <p role="menuitem" class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitemk--alt">
                 <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__message">
                     <i class="login-Icon"></i>
                     <span class="Mrphs-login-Message">${loginMessage2}</span>
                 </a>
-            </li>
+            </p>
 
         #end ## END of IF (${loginHasImage2})
 
    #end ## END of IF (${loginHasLogInOutUrl2})
 
-</ul>
+</div>
