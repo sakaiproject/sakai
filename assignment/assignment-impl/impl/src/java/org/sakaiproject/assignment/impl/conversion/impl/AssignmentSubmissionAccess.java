@@ -194,7 +194,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		submission.setAttribute("datereturned", this.datereturned);
 		submission.setAttribute("lastmod", this.lastmod);
 		submission.setAttribute("submitted", this.submitted);
-                submission.setAttribute("submitterid", this.submitterid);
+		submission.setAttribute("submitterid", this.submitterid);
 		submission.setAttribute("returned",this.returned);
 		submission.setAttribute("graded", this.graded);
 		submission.setAttribute("gradedBy", this.gradedBy);
@@ -483,6 +483,10 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					setSubmitterId(StringUtils.trimToNull(attributes.getValue("submitterid")));
 
 					addElementsToList("submitter",submitters,attributes,false);
+					// for backward compatibility of assignments without submitter ids
+					if (getSubmitterId() == null && submitters.size() > 0) {
+						setSubmitterId(submitters.get(0));
+					}
 					addElementsToList("log",submissionLog,attributes,false);
 					addElementsToList("grade",grades,attributes,false);
 				}
