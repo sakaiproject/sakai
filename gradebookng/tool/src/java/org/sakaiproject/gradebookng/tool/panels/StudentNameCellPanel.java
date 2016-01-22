@@ -6,11 +6,11 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -50,7 +50,7 @@ public class StudentNameCellPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
-				final ModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
+				final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
 
 				final Component content = new StudentGradeSummaryPanel(window.getContentId(), StudentNameCellPanel.this.model, window);
 
@@ -60,14 +60,15 @@ public class StudentNameCellPanel extends Panel {
 					target.add(content);
 				} else {
 					window.setContent(content);
+					window.setComponentToReturnFocusTo(this);
 					window.show(target);
 				}
 
 				content.setOutputMarkupId(true);
 				target.appendJavaScript("new GradebookGradeSummary($(\"#" + content.getMarkupId() + "\"));");
 			}
-
 		};
+		link.setOutputMarkupId(true);
 
 		// name label
 		link.add(new Label("name", getFormattedStudentName(firstName, lastName, nameSortOrder)));

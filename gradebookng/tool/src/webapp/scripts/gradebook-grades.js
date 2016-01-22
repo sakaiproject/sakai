@@ -760,7 +760,7 @@ GradebookSpreadsheet.prototype._cloneCell = function($cell) {
   var $clone = $cell.clone();
 
   // remove any ids
-  $clone.find("[id]").each(function() {
+  $clone.find("[id]").andSelf().each(function() {
     $(this).data("id", $(this).attr("id")).removeAttr("id");
   });
 

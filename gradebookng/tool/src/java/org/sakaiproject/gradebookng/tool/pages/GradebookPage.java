@@ -14,8 +14,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.MaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
@@ -44,6 +42,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
@@ -73,12 +72,12 @@ public class GradebookPage extends BasePage {
 	// doubles as a translation key
 	public static final String UNCATEGORISED = "gradebookpage.uncategorised";
 
-	ModalWindow addOrEditGradeItemWindow;
-	ModalWindow studentGradeSummaryWindow;
-	ModalWindow updateUngradedItemsWindow;
-	ModalWindow gradeLogWindow;
-	ModalWindow gradeCommentWindow;
-	ModalWindow deleteItemWindow;
+	GbModalWindow addOrEditGradeItemWindow;
+	GbModalWindow studentGradeSummaryWindow;
+	GbModalWindow updateUngradedItemsWindow;
+	GbModalWindow gradeLogWindow;
+	GbModalWindow gradeCommentWindow;
+	GbModalWindow deleteItemWindow;
 
 	Form<Void> form;
 
@@ -101,64 +100,32 @@ public class GradebookPage extends BasePage {
 		/**
 		 * Note that SEMI_TRANSPARENT has a 100% black background and TRANSPARENT is overridden to 10% opacity
 		 */
-		this.addOrEditGradeItemWindow = new ModalWindow("addOrEditGradeItemWindow");
-		this.addOrEditGradeItemWindow.setMaskType(MaskType.TRANSPARENT);
-		this.addOrEditGradeItemWindow.setResizable(false);
-		this.addOrEditGradeItemWindow.setUseInitialHeight(false);
+		this.addOrEditGradeItemWindow = new GbModalWindow("addOrEditGradeItemWindow");
 		this.addOrEditGradeItemWindow.showUnloadConfirmation(false);
-		this.addOrEditGradeItemWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
-			@Override
-			public boolean onCloseButtonClicked(final AjaxRequestTarget target) {
-				// Ensure the date picker is hidden
-				target.appendJavaScript("$('#ui-datepicker-div').hide();");
-				return true;
-			}
-		});
 		this.form.add(this.addOrEditGradeItemWindow);
 
-		this.studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
-		this.studentGradeSummaryWindow.setMaskType(MaskType.TRANSPARENT);
-		this.studentGradeSummaryWindow.setResizable(false);
-		this.studentGradeSummaryWindow.setUseInitialHeight(false);
+		this.studentGradeSummaryWindow = new GbModalWindow("studentGradeSummaryWindow");
 		this.studentGradeSummaryWindow.setWidthUnit("%");
 		this.studentGradeSummaryWindow.setInitialWidth(70);
-		this.studentGradeSummaryWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
-			@Override
-			public boolean onCloseButtonClicked(final AjaxRequestTarget target) {
-				target.appendJavaScript("GradebookGradeSummaryUtils.clearBlur();");
-				return true;
-			}
-		});
 		this.form.add(this.studentGradeSummaryWindow);
 
-		this.updateUngradedItemsWindow = new ModalWindow("updateUngradedItemsWindow");
-		this.updateUngradedItemsWindow.setMaskType(MaskType.TRANSPARENT);
-		this.updateUngradedItemsWindow.setResizable(false);
-		this.updateUngradedItemsWindow.setUseInitialHeight(true);
+		this.updateUngradedItemsWindow = new GbModalWindow("updateUngradedItemsWindow");
 		this.form.add(this.updateUngradedItemsWindow);
 
-		this.gradeLogWindow = new ModalWindow("gradeLogWindow");
-		this.gradeLogWindow.setMaskType(MaskType.TRANSPARENT);
-		this.gradeLogWindow.setResizable(false);
-		this.gradeLogWindow.setUseInitialHeight(false);
+		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
 
-		this.gradeCommentWindow = new ModalWindow("gradeCommentWindow");
-		this.gradeCommentWindow.setMaskType(MaskType.TRANSPARENT);
-		this.gradeCommentWindow.setResizable(false);
-		this.gradeCommentWindow.setUseInitialHeight(false);
+		this.gradeCommentWindow = new GbModalWindow("gradeCommentWindow");
 		this.form.add(this.gradeCommentWindow);
 
-		this.deleteItemWindow = new ModalWindow("deleteItemWindow");
-		this.deleteItemWindow.setMaskType(MaskType.TRANSPARENT);
-		this.deleteItemWindow.setResizable(false);
-		this.deleteItemWindow.setUseInitialHeight(false);
+		this.deleteItemWindow = new GbModalWindow("deleteItemWindow");
 		this.form.add(this.deleteItemWindow);
 
 		final AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form form) {
-				final ModalWindow window = getAddOrEditGradeItemWindow();
+				final GbModalWindow window = getAddOrEditGradeItemWindow();
+				window.setComponentToReturnFocusTo(this);
 				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
 				window.show(target);
 			}
@@ -173,6 +140,7 @@ public class GradebookPage extends BasePage {
 
 		};
 		addGradeItem.setDefaultFormProcessing(false);
+		addGradeItem.setOutputMarkupId(true);
 		this.form.add(addGradeItem);
 
 		// first get any settings data from the session
@@ -551,27 +519,27 @@ public class GradebookPage extends BasePage {
 	 *
 	 * @return
 	 */
-	public ModalWindow getAddOrEditGradeItemWindow() {
+	public GbModalWindow getAddOrEditGradeItemWindow() {
 		return this.addOrEditGradeItemWindow;
 	}
 
-	public ModalWindow getStudentGradeSummaryWindow() {
+	public GbModalWindow getStudentGradeSummaryWindow() {
 		return this.studentGradeSummaryWindow;
 	}
 
-	public ModalWindow getUpdateUngradedItemsWindow() {
+	public GbModalWindow getUpdateUngradedItemsWindow() {
 		return this.updateUngradedItemsWindow;
 	}
 
-	public ModalWindow getGradeLogWindow() {
+	public GbModalWindow getGradeLogWindow() {
 		return this.gradeLogWindow;
 	}
 
-	public ModalWindow getGradeCommentWindow() {
+	public GbModalWindow getGradeCommentWindow() {
 		return this.gradeCommentWindow;
 	}
 
-	public ModalWindow getDeleteItemWindow() {
+	public GbModalWindow getDeleteItemWindow() {
 		return this.deleteItemWindow;
 	}
 
