@@ -38,6 +38,9 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 	GbCategoryType configuredCategoryType;
 
+	// used as a visibility flag. if any are released, show the table
+	boolean someAssignmentsReleased = false;
+
 	public StudentGradeSummaryGradesPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
 	}
@@ -80,9 +83,17 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			}
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
+
+			// if an assignment is released, update the flag (but don't set it false again)
+			if (assignment.isReleased()) {
+				this.someAssignmentsReleased = true;
+			}
+
 		}
 		Collections.sort(categoryNames);
 
+		// output all of the categories
+		// within each we then add the assignments in each category
 		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;
 
@@ -163,7 +174,24 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 					}
 				});
 			}
+
+			// used as a general visiblity for the entire table. If no assignments, either there are none or none are released.
+			@Override
+			public boolean isVisible() {
+				return StudentGradeSummaryGradesPanel.this.someAssignmentsReleased;
+			}
 		});
+
+		// no assignmnts message
+		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return !StudentGradeSummaryGradesPanel.this.someAssignmentsReleased;
+			}
+		};
+		add(noAssignments);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
 		if (gradebook.isCourseGradeDisplayed()) {

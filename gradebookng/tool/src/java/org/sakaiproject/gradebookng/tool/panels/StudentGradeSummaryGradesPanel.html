@@ -13,52 +13,57 @@
 				</div>
 			</div>
 
-			<div class="col-md-12">
-				<div class="pull-right">
-					<a href="javascript:void(0);" class="gb-summary-expand-all"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
-					<a href="javascript:void(0);" class="gb-summary-collapse-all"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
+			<wicket:enclosure child="categoriesList">
+				<div class="col-md-12">
+					<div class="pull-right">
+						<a href="javascript:void(0);" class="gb-summary-expand-all"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
+						<a href="javascript:void(0);" class="gb-summary-collapse-all"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
+					</div>
 				</div>
-			</div>
-
-			<table class="table table-bordered table-striped table-hover table-condensed">
-				<thead>
-				<tr>
-					<th class="col-md-5"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
-					<th class="col-md-2"><wicket:message key="column.header.studentsummary.grade" /></th>
-					<th class="col-md-1 weight-col"><wicket:message key="column.header.studentsummary.weight" /></th>
-					<th class="col-md-1"><wicket:message key="column.header.studentsummary.duedate" /></th>
-					<th><wicket:message key="column.header.studentsummary.comments" /></th>
-				</tr>
-				</thead>
-				<tbody wicket:id="categoriesList">
-				<tr class="gb-summary-category-row">
-					<td>
-						<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
-						<span wicket:id="category" class="gb-summary-category-name"></span>
-					</td>
-					<td class="gb-summary-category-grade" wicket:id="categoryGrade"></td>
-					<td class="gb-summary-category-weight weight-col" wicket:id="categoryWeight"></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
-					<td>
-						<span class="gb-summary-grade-flags" wicket:id="flags">
-							<span wicket:id="isExtraCredit" class="gb-flag-extra-credit"></span>
-							<span wicket:id="isNotCounted" class="gb-flag-not-counted"></span>
-						</span>
-						<span class="gb-summary-grade-title" wicket:id="title"></span>
-					</td>
-					<td class="gb-summary-grade-score">
-						<span class="gb-summary-grade-score-raw" wicket:id="grade"></span>
-						<span class="gb-summary-grade-score-outof" wicket:id="outOf"></span>
-					</td>
-					<td class="weight-col"><!-- empty --></td>
-					<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>
-					<td class="gb-summary-grade-comments" wicket:id="comments"></td>
-				</tr>
-				</tbody>
-			</table>
+	
+				<table class="table table-bordered table-striped table-hover table-condensed">
+					<thead>
+						<tr>
+							<th class="col-md-5"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+							<th class="col-md-2"><wicket:message key="column.header.studentsummary.grade" /></th>
+							<th class="col-md-1 weight-col"><wicket:message key="column.header.studentsummary.weight" /></th>
+							<th class="col-md-1"><wicket:message key="column.header.studentsummary.duedate" /></th>
+							<th><wicket:message key="column.header.studentsummary.comments" /></th>
+						</tr>
+					</thead>
+					<tbody wicket:id="categoriesList">
+						<tr class="gb-summary-category-row">
+							<td>
+								<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
+								<span wicket:id="category" class="gb-summary-category-name"></span>
+							</td>
+							<td class="gb-summary-category-grade" wicket:id="categoryGrade"></td>
+							<td class="gb-summary-category-weight weight-col" wicket:id="categoryWeight"></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
+							<td>
+								<span class="gb-summary-grade-flags" wicket:id="flags">
+									<span wicket:id="isExtraCredit" class="gb-flag-extra-credit"></span>
+									<span wicket:id="isNotCounted" class="gb-flag-not-counted"></span>
+								</span>
+								<span class="gb-summary-grade-title" wicket:id="title"></span>
+							</td>
+							<td class="gb-summary-grade-score">
+								<span class="gb-summary-grade-score-raw" wicket:id="grade"></span>
+								<span class="gb-summary-grade-score-outof" wicket:id="outOf"></span>
+							</td>
+							<td class="weight-col"><!-- empty --></td>
+							<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>
+							<td class="gb-summary-grade-comments" wicket:id="comments"></td>
+						</tr>
+					</tbody>
+				</table>
+			</wicket:enclosure>
+			
+			<div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
+			
 		</div>
 	</wicket:panel>
 </body>
