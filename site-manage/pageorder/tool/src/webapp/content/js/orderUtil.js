@@ -28,7 +28,7 @@ function serialize(s)
 }
 
 function doRemovePage(clickedLink) {
-	var name = $(clickedLink).parent().parent().find(".item_label_box").text();
+	var name = $(clickedLink).closest(".sortable_item").find(".item_label_box").text();
 	var conf = confirm($("#del-message").text() + " " + name + "?");
 	var theHref = $(clickedLink).attr('href');
 
@@ -37,7 +37,7 @@ function doRemovePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $(this).find("div#value").text();
 			if (status == "pass") {
-		    	var target = $(clickedLink).parent().parent();
+		    	var target = $(clickedLink).closest("sortable_item");
 				$(this).fadeIn('400');		
 				$(target).slideUp('fast', $(target).remove());
 			}
@@ -58,10 +58,12 @@ function doShowPage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).parent().parent().find(".item_control.show_link").hide();
-				$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
-				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
-				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
+				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").hide();
+				$(clickedLink).closest(".item_control_box").find(".item_control.enable_link").hide();
+				$(clickedLink).closest(".item_control_box").find(".item_control.disable_link").show();
+				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").show();
+				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").hide();
+				$(clickedLink).closest(".sortable_item").find(".item-locked-flag").hide();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
@@ -77,8 +79,9 @@ function doHidePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
-				$(clickedLink).parent().parent().find(".item_control.show_link").show();
+				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").hide();
+				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").show();
+				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
@@ -94,10 +97,12 @@ function doEnablePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
-				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
-				$(clickedLink).parent().parent().find(".item_control.show_link").hide();
-				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
+				$(clickedLink).closest(".item_control_box").find(".item_control.enable_link").hide();
+				$(clickedLink).closest(".item_control_box").find(".item_control.disable_link").show();
+				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").hide();
+				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").show();
+				$(clickedLink).closest(".sortable_item").find(".item-locked-flag").hide();
+				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").hide();
 				$("#call-results").fadeIn('400');
 				$("#call-results").fadeIn('400');
 			}
@@ -114,10 +119,12 @@ function doDisablePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).parent().parent().find(".item_control.disable_link").hide();
-				$(clickedLink).parent().parent().find(".item_control.enable_link").show();
-				$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
-				$(clickedLink).parent().parent().find(".item_control.show_link").show();
+				$(clickedLink).closest(".item_control_box").find(".item_control.disable_link").hide();
+				$(clickedLink).closest(".item_control_box").find(".item_control.enable_link").show();
+				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").hide();
+				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").show();
+				$(clickedLink).closest(".sortable_item").find(".item-locked-flag").show();
+				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
@@ -157,7 +164,7 @@ function showAddPage(clickedLink, init) {
 }
 
 function showEditPage(clickedLink) {
-	li = $(clickedLink).parent().parent();
+	li = $(clickedLink).closest(".sortable_item");
 	$(li).find(".item_label_box").hide();
 	$(li).find(".item_control_box").hide();
 	$(li).find(".item_edit_box").fadeIn('normal');
@@ -169,7 +176,7 @@ function showEditPage(clickedLink) {
 
 function doSaveEdit(clickedLink) {
 	var theHref = $(clickedLink).attr('href');
-	li = $(clickedLink).parent().parent();
+	li = $(clickedLink).closest(".sortable_item");
 	newTitle = $(li).find(".new_title");
 	newConfig = $(li).find(".new_config");
 	$("#call-results").load(clickedLink + "&newTitle=" + encodeURIComponent(newTitle.val()) + "&newConfig=" + encodeURIComponent(newConfig.val()), function() {
@@ -191,7 +198,7 @@ function doSaveEdit(clickedLink) {
 }
 
 function doCancelEdit(clickedLink) {
-	li = $(clickedLink).parent().parent();
+	li = $(clickedLink).closest(".sortable_item");
 	$(li).find(".item_edit_box").hide();
 	$(li).find(".item_label_box").show();
 	$(li).find(".item_label_box").attr("style", "display: inline");
