@@ -1,9 +1,10 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -18,6 +19,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -46,6 +48,8 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
+		getParentCellFor(this).setOutputMarkupId(true);
 
 		final Assignment assignment = this.modelData.getObject();
 
@@ -159,7 +163,8 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
-				final ModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
+				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
+				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, getModel()));
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -263,8 +268,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
-				final ModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
+				final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
 				final UpdateUngradedItemsPanel panel = new UpdateUngradedItemsPanel(window.getContentId(), getModel(), window);
+				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(panel);
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -291,9 +297,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
-				final ModalWindow window = gradebookPage.getDeleteItemWindow();
+				final GbModalWindow window = gradebookPage.getDeleteItemWindow();
 				final DeleteItemPanel panel = new DeleteItemPanel(window.getContentId(), getModel(), window);
 
+				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(panel);
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -310,5 +317,14 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(menu);
 
+	}
+
+
+	private Component getParentCellFor(final Component component) {
+		if (StringUtils.equals(component.getMarkupAttributes().getString("wicket:id"), "header")) {
+			return component;
+		} else {
+			return getParentCellFor(component.getParent());
+		}
 	}
 }

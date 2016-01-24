@@ -32,6 +32,7 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
@@ -325,8 +326,9 @@ public class GradeItemCellPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
-				final ModalWindow window = gradebookPage.getGradeLogWindow();
+				final GbModalWindow window = gradebookPage.getGradeLogWindow();
 
+				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(new GradeLogPanel(window.getContentId(), getModel(), window));
 				window.show(target);
 
@@ -341,12 +343,14 @@ public class GradeItemCellPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
-				final ModalWindow window = gradebookPage.getGradeCommentWindow();
+				final GbModalWindow window = gradebookPage.getGradeCommentWindow();
 
 				final EditGradeCommentPanel panel = new EditGradeCommentPanel(window.getContentId(), getModel(), window);
 				window.setContent(panel);
 				window.showUnloadConfirmation(false);
-				window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+				window.clearWindowClosedCallbacks();
+				window.setComponentToReturnFocusTo(getParentCellFor(GradeItemCellPanel.this.gradeCell));
+				window.addWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
