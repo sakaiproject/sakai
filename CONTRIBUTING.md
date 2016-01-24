@@ -4,6 +4,9 @@ Contributions to Sakai from all comers are welcome and encouraged.
 
 Please use these guidelines and the information in [README.md](README.md) to assure that your contributions are compatible with our (evolving) workflow and practices.
 
+## Contributor License Agreement
+Before a code submission will be accepted, you will need to submit a Contributor License Agreement. This is a one-off process that should only take a few moments to complete. See: https://www.apereo.org/licensing/agreements
+
 ## Jira
 
 Bugs and features against Sakai are tracked in our [Jira instance](https://jira.sakaiproject.org/) and contributions must reflect a Jira reference number in the messages and git branch names (e.g., SAK-29469). To file or comment on a bug or feature, you will need a Jira account.
