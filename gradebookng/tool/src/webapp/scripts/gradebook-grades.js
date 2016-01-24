@@ -388,15 +388,16 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
     if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
       // don't change anything as we don't want the fixed header to scroll to below the table
     } else if (self.$table.offset().top < $(document).scrollTop()) {
-      if ($fixedHeader.is(":not(:visible)")) {
-        setTimeout(function() {
-          self.$spreadsheet.trigger("refreshcategorylabels.aspace");
-        });
-      }
+      var forceCategoryLabelRefresh = $fixedHeader.is(":not(:visible)");
+
       $fixedHeader.
           show().
           css("top", $(document).scrollTop() - self.$spreadsheet.offset().top + "px").
           css("left", "0");
+
+      if (forceCategoryLabelRefresh) {
+        self.updateCategoryLabelPositions(false);
+      }
     } else {
       $fixedHeader.hide();
     }
@@ -853,41 +854,7 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
       // only reposition every 100ms after a scroll.. to avoid too
       // many repositions
       self.$spreadsheet.data("categoryScrollTimeout", setTimeout(function() {
-        self.$spreadsheet.find(".gb-category-label").each(function() {
-          var $label = $(this);
-          var $table = $label.closest("table");
-
-          var viewport = self.$spreadsheet.width();
-          var overlay = self.$fixedColumns.width();
-          var available = viewport - overlay;
-          var scroll = self.$spreadsheet[0].scrollLeft;
-
-          if (available < 0) {
-            return; // screen too small for this awesomeness...
-          }
-
-          var $cell = $label.closest("td");
-
-          var relativeCellOffset = $table.is(".gb-fixed-header-table") ? 
-                                      $cell.position().left - overlay :
-                                      $cell.position().left - $table.position().left - overlay;
-
-          var offset = Math.max(0, scroll - relativeCellOffset);
-          var newLabelWidth = Math.min($cell.width() - offset, Math.min(available - (relativeCellOffset - scroll), available));
-
-          if (newLabelWidth < 180) {
-            newLabelWidth = 180;
-            offset = Math.min(offset, $cell.width() - newLabelWidth);
-          }
-
-          $label.fadeOut(1000, function() {
-            $label.css({
-                        marginLeft: Math.max(offset, 0),
-                        width: newLabelWidth
-                       })
-                  .fadeIn(1000)
-          });
-        });
+        self.updateCategoryLabelPositions();
       }, 100));
     };
 
@@ -897,6 +864,62 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
   });
 
   self.$spreadsheet.trigger("scroll"); // force redraw of the fixed columns
+};
+
+
+GradebookSpreadsheet.prototype.updateCategoryLabelPositions = function(animate) {
+  var self = this;
+
+  animate = (animate == null) ? true : animate;
+
+  self.$spreadsheet.find(".gb-category-label").each(function() {
+    var $label = $(this);
+    var $table = $label.closest("table");
+
+    if ($table.is(":visible")) {
+      var viewport = self.$spreadsheet.width();
+      var overlay = self.$fixedColumns.width();
+      var available = viewport - overlay;
+      var scroll = self.$spreadsheet[0].scrollLeft;
+
+      if (available < 0) {
+        return; // screen too small for this awesomeness...
+      }
+
+      var $cell = $label.closest("td");
+
+      var relativeCellOffset = $table.is(".gb-fixed-header-table") ?
+                                  $cell.position().left - overlay :
+                                  $cell.position().left - $table.position().left - overlay;
+
+      var offset = Math.max(0, scroll - relativeCellOffset);
+      var newLabelWidth = Math.min($cell.width() - offset, Math.min(available - (relativeCellOffset - scroll), available));
+
+      if (newLabelWidth < 180) {
+        newLabelWidth = 180;
+        offset = Math.min(offset, $cell.width() - newLabelWidth);
+      }
+
+      var newLeftOffset = Math.max(offset, 0);
+
+      if ($label.data("leftOffset") != newLeftOffset) {
+        var newStyles = {
+          marginLeft: Math.max(offset, 0),
+          width: newLabelWidth
+        };
+
+        if (animate) {
+          $label.fadeOut(1000, function() {
+            $label.css(newStyles)
+                  .fadeIn(1000)
+          });
+        } else {
+          $label.css(newStyles);
+        }
+        $label.data("leftOffset", newLeftOffset);
+      }
+    }
+  });
 };
 
 
