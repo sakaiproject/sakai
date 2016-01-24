@@ -127,6 +127,11 @@ public class PermissionsPage extends BasePage {
 
 				});
 
+		// hide if no ta's, which will hide the whole section
+		if (teachingAssistants.isEmpty()) {
+			taChooser.setVisible(false);
+		}
+
 		// add the onchange to the chooser
 		taChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;

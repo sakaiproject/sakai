@@ -7,13 +7,15 @@
 
 	<div wicket:id="instructions" class="instruction">Instruction text goes here</div>
 
-	<h3><wicket:message key="permissionspage.instructions.choose" /></h3>
-
-	<div class="form-inline">
-		<select wicket:id="ta" class="form-control">
-			<option>TA 1</option>
-		</select>
-	</div>
+	<wicket:enclosure child="ta">
+		<h3><wicket:message key="permissionspage.instructions.choose" /></h3>
+	
+		<div class="form-inline">
+			<select wicket:id="ta" class="form-control">
+				<option>TA 1</option>
+			</select>
+		</div>
+	</wicket:enclosure>
 
 	<div class="instruction" wicket:id="noPermissions" />
 
