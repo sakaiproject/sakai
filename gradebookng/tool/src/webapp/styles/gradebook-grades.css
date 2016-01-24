@@ -113,13 +113,21 @@
 #gradebookGrades th .gb-title a:hover {
   text-decoration: none;
 }
-#gradebookGrades th .gb-title .gb-sort-ascending:before {
+#gradebookGrades th .gb-title a:after {
   font-family: 'gradebook-icons';
-  content: '\f0d8';
+  content: '\f0dc';
+	position: absolute;
+	right: 0;
+	top: 0;
+	font-style: normal;
 }
-#gradebookGrades th .gb-title .gb-sort-descending:before {
+#gradebookGrades th .gb-title a.gb-sort-descending:after {
   font-family: 'gradebook-icons';
   content: '\f0d7';
+}
+#gradebookGrades th .gb-title a.gb-sort-ascending:after {
+  font-family: 'gradebook-icons';
+  content: '\f0d8';
 }
 #gradebookGrades th .gb-title a:before {
   margin-right: 4px;
@@ -301,6 +309,12 @@
 #gradebookGrades .gb-due-date {
   margin-bottom: 1.2em;
 }
+#gradebookGradesTable td:focus,
+#gradebookGradesTable th:focus {
+  outline: 2px solid #3698DB;
+  outline-color: rgba(54, 152, 219, 0.8);
+  outline-offset: -1px;
+}
 /* Row selector/highlights */
 #gradebookGrades .gb-row-selector {
   width: 14px;
@@ -328,7 +342,9 @@
   border-color: #3698DB;
 }
 #gradebookGrades tbody .gb-highlighted-row {
-    outline: 1px solid #3698DB;
+  outline: 1px solid #3698DB;
+  outline-color: rgba(54, 152, 219, 0.8);
+  outline-offset: 0px;
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
