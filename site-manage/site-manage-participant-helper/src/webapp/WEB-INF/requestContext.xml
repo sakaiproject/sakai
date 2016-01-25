@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
  <bean id="siteAddParticipantHandler" init-method="init"
       class="org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler">
@@ -14,7 +15,6 @@
     <property name="notiProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
-    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
   </bean>
   
   <bean id="AddProducer"

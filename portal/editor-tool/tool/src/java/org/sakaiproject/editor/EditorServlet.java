@@ -139,9 +139,13 @@ public class EditorServlet extends HttpServlet
 				
 				//Note that this is the same stuff as in SkinnableCharonPortal. We should probably do a bit of refactoring.
 				PrintWriter out = res.getWriter();
-				out.print("var sakai = sakai || {}; sakai.editor = sakai.editor || {}; \n");
+				out.print("var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
+						"sakai.editor.editors = sakai.editor.editors || {}; " +
+						"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
+						"\n");
 				out.print("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(tool) + "';\n");
 				out.print("sakai.editor.enableResourceSearch = '" + EditorConfiguration.enableResourceSearch() + "';\n");
+				out.print("sakai.editor.editors.ckeditor.browser = '" + EditorConfiguration.getCKEditorFileBrowser() + "';\n");
 				out.print(editor.getPreloadScript());
 			}
 			else {

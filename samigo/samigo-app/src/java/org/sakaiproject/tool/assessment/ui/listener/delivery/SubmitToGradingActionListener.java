@@ -36,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -385,6 +386,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			HashMap<Long, ItemDataIfc> fibMap = getFIBMap(publishedAssessment);
 			HashMap<Long, ItemDataIfc> finMap = getFINMap(publishedAssessment);
 			HashMap<Long, ItemDataIfc> calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
+			HashMap<Long, ItemDataIfc> imagQuestionMap = getImagQuestionMap(publishedAssessment); // IMAGEMAP_QUESTION
 			HashMap<Long, ItemDataIfc> mcmrMap = getMCMRMap(publishedAssessment);
 			HashMap<Long, ItemDataIfc> emiMap = getEMIMap(publishedAssessment);
 			Set<ItemGradingData> itemGradingSet = adata.getItemGradingSet();
@@ -417,7 +419,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						+ adds.size());
 
 				HashSet<ItemGradingData> updateItemGradingSet = getUpdateItemGradingSet(
-						itemGradingSet, adds, fibMap, finMap, calcQuestionMap, mcmrMap, emiMap, adata);
+						itemGradingSet, adds, fibMap, finMap, calcQuestionMap,imagQuestionMap,mcmrMap, emiMap, adata);
 				adata.setItemGradingSet(updateItemGradingSet);
 			}
 		}
@@ -484,6 +486,14 @@ public class SubmitToGradingActionListener implements ActionListener {
 	    return (HashMap<Long, ItemDataIfc>) publishedAssesmentService.prepareCalcQuestionItemHash(publishedAssessment);
 	}
   
+  	/**
+  	 * IMAGEMAP_QUESTION
+  	 * @param publishedAssessment
+  	 * @return map of image items
+  	 */
+  	private HashMap<Long, ItemDataIfc> getImagQuestionMap(PublishedAssessmentIfc publishedAssessment){
+	    return (HashMap<Long, ItemDataIfc>) publishedAssesmentService.prepareImagQuestionItemHash(publishedAssessment);
+	}  
 
 	private HashMap<Long, ItemDataIfc> getMCMRMap(PublishedAssessmentIfc publishedAssessment) {
 		return publishedAssesmentService.prepareMCMRItemHash(publishedAssessment);
@@ -495,7 +505,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	}
 	
 	private HashSet<ItemGradingData> getUpdateItemGradingSet(Set oldItemGradingSet,
-			Set<ItemGradingData> newItemGradingSet, HashMap<Long, ItemDataIfc> fibMap, HashMap<Long, ItemDataIfc> finMap, HashMap<Long, ItemDataIfc> calcQuestionMap, HashMap<Long, ItemDataIfc> mcmrMap,
+			Set<ItemGradingData> newItemGradingSet, HashMap<Long, ItemDataIfc> fibMap, HashMap<Long, ItemDataIfc> finMap, HashMap<Long, ItemDataIfc> calcQuestionMap, HashMap<Long, ItemDataIfc> imagQuestionMap,HashMap<Long, ItemDataIfc> mcmrMap,
 			HashMap<Long, ItemDataIfc> emiMap, AssessmentGradingData adata) {
 		log.debug("Submitforgrading: oldItemGradingSet.size = "
 				+ oldItemGradingSet.size());
@@ -516,53 +526,32 @@ public class SubmitToGradingActionListener implements ActionListener {
 			ItemGradingData oldItem = map.get(newItem
 					.getItemGradingId());
 			if (oldItem != null) {
-				// itemGrading exists and value has been change, then need
-				// update
-				Boolean oldReview = oldItem.getReview();
-				Boolean newReview = newItem.getReview();
-				Long oldAnswerId = oldItem.getPublishedAnswerId();
-				Long newAnswerId = newItem.getPublishedAnswerId();
-				String oldRationale = oldItem.getRationale();
-				String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
-				String oldAnswerText = oldItem.getAnswerText();
-				// Change to allow student submissions in rich-text [SAK-17021]
-				String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
-				if ((oldReview != null && !oldReview.equals(newReview))
-				    || (newReview!=null && !newReview.equals(oldReview))
-						|| (oldAnswerId != null && !oldAnswerId
-								.equals(newAnswerId))
-						|| (newAnswerId != null && !newAnswerId
-								.equals(oldAnswerId))
-						|| (oldRationale != null && !oldRationale
-								.equals(newRationale))
-						|| (newRationale != null && !newRationale
-								.equals(oldRationale))
-						|| (oldAnswerText != null && !oldAnswerText
-								.equals(newAnswerText))
-						|| (newAnswerText != null && !newAnswerText
-								.equals(oldAnswerText))
-						|| fibMap.get(oldItem.getPublishedItemId()) != null
-						|| emiMap.get(oldItem.getPublishedItemId()) != null 
-						|| finMap.get(oldItem.getPublishedItemId())!=null
-						|| calcQuestionMap.get(oldItem.getPublishedItemId())!=null
-						|| mcmrMap.get(oldItem.getPublishedItemId()) != null) {
-					oldItem.setReview(newItem.getReview());
-					oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
-					oldItem.setRationale(newRationale);
-							
-					oldItem.setAnswerText(newAnswerText);
-					oldItem.setSubmittedDate(new Date());
-					oldItem.setAutoScore(newItem.getAutoScore());
-					oldItem.setOverrideScore(newItem.getOverrideScore());
-					updateItemGradingSet.add(oldItem);
-					// log.debug("**** SubmitToGrading: need update
-					// "+oldItem.getItemGradingId());
-				}
+			    if (!oldItem.equals(newItem) || 
+			    //Now Check all the maps
+			            fibMap.get(oldItem.getPublishedItemId()) != null
+			            || emiMap.get(oldItem.getPublishedItemId()) != null 
+			            || finMap.get(oldItem.getPublishedItemId())!=null
+			            || calcQuestionMap.get(oldItem.getPublishedItemId())!=null
+						|| imagQuestionMap.get(oldItem.getPublishedItemId())!=null
+			            || mcmrMap.get(oldItem.getPublishedItemId()) != null) {
+			        String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
+			        oldItem.setReview(newItem.getReview());
+			        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
+			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
+			        oldItem.setRationale(newRationale);
+			        oldItem.setAnswerText(newAnswerText);
+			        oldItem.setSubmittedDate(new Date());
+			        oldItem.setAutoScore(newItem.getAutoScore());
+			        oldItem.setOverrideScore(newItem.getOverrideScore());
+			        updateItemGradingSet.add(oldItem);
+			        // log.debug("**** SubmitToGrading: need update
+			        // "+oldItem.getItemGradingId());
+			    }
 			} else { // itemGrading from new set doesn't exist, add to set in
 				// this case
 				// log.debug("**** SubmitToGrading: need add new item");
-			        //a new item should always have the grading ID set to null
-			        newItem.setItemGradingId(null);
+				//a new item should always have the grading ID set to null
+				newItem.setItemGradingId(null);
 				newItem.setAgentId(adata.getAgentId());
 				updateItemGradingSet.add(newItem);
 			}
@@ -616,8 +605,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		for (int m = 0; m < grading.size(); m++) {
 			ItemGradingData itemgrading = grading.get(m);
 			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview().booleanValue())  == true) {
-				adds.addAll(grading);
-				break;
+				adds.add(itemgrading);
 			} 
 		}
 		
@@ -717,6 +705,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			break;			
 		case 8: // FIB
 		case 15: // CALCULATED_QUESTION
+		case 16: //IMAGEMAP_QUESTION 	
 		case 11: // FIN
 			boolean addedToAdds = false;
 			for (int m = 0; m < grading.size(); m++) {
@@ -814,8 +803,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
-				if ((itemgrading !=null && itemgrading.getItemGradingId() == null) || itemgrading.getItemGradingId().intValue() <= 0) {
-					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) { 
+				if (itemgrading !=null && (itemgrading.getItemGradingId() == null || itemgrading.getItemGradingId().intValue() <= 0)) {
+					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && StringUtils.isNotBlank(itemgrading.getRationale()))) { 
 						answerModified = true;
 						break;
 					}
@@ -834,10 +823,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 						removes.add(itemgrading);
 					} else {
 						// add new answer
-						if (itemgrading.getPublishedAnswerId() != null
+						if (itemgrading !=null && (itemgrading.getPublishedAnswerId() != null
 							|| itemgrading.getAnswerText() != null
 							|| (itemgrading.getRationale() != null 
-							&& !itemgrading.getRationale().trim().equals(""))) { 
+							&& StringUtils.isNotBlank(itemgrading.getRationale())))) { 
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {

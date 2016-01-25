@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -158,6 +157,28 @@ public class MockStatsManager implements StatsManager {
 	}
 
 	@Override
+	public String getLessonPageTitle(long pageId) {
+		return null;
+	}
+
+	@Override
+	public int getTotalLessonPages(String siteId) {
+		return 0;
+	}
+
+	public int getTotalReadLessonPages(String siteId) {
+		return 0;
+	}
+
+	public String getMostReadLessonPage(final String siteId) {
+		return null;
+	}
+
+	public String getMostActiveLessonPageReader(final String siteId) {
+		return null;
+	}
+
+	@Override
 	public SummaryVisitsTotals getSummaryVisitsTotals(String siteId) {
 		// TODO Auto-generated method stub
 		return null;
@@ -200,15 +221,6 @@ public class MockStatsManager implements StatsManager {
 	@Deprecated
 	public List<EventStat> getEventStats(String siteId, List<String> events,
 			String searchKey, Date iDate, Date fDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	@Deprecated
-	public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId,
-			List<String> events, Date iDate, Date fDate, List<String> userIds,
-			boolean inverseUserSelection, PagingPosition page) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -270,16 +282,6 @@ public class MockStatsManager implements StatsManager {
 	}
 
 	@Override
-	@Deprecated
-	public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(
-			String siteId, String resourceAction, List<String> resourceIds,
-			Date iDate, Date fDate, List<String> userIds,
-			boolean inverseUserSelection, PagingPosition page) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<Stat> getResourceStats(String siteId, String resourceAction,
 			List<String> resourceIds, Date iDate, Date fDate,
 			List<String> userIds, boolean inverseUserSelection,
@@ -296,6 +298,21 @@ public class MockStatsManager implements StatsManager {
 			List<String> totalsBy) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public List<Stat> getLessonBuilderStats(final String siteId,
+			final String resourceAction,
+			final List<String> resourceIds,
+			final Date iDate,
+			final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final List<String> totalsBy,
+			final String sortBy, 
+			final boolean sortAscending,
+			final int maxResults) {
+		return null;
 	}
 
 	@Override

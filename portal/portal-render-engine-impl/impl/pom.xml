@@ -57,6 +57,11 @@
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
         </dependency>
+        <dependency>
+            <groupId>velocity-tools</groupId>
+            <artifactId>velocity-tools</artifactId>
+            <version>1.4</version>
+        </dependency>
 
         <!-- required for unit tests -->
         <dependency>

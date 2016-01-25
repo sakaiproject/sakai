@@ -8,7 +8,7 @@
 %>
 <%--
        		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
-			<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+			<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 <sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 <sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
@@ -89,6 +89,10 @@
         <h:panelGroup styleClass="checkbox">
           <h:selectBooleanCheckbox id="moderatePostings" value="#{permission.moderatePostings}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{(not ForumTool.editMode) || ForumTool.disableModeratePerm}"/>
           <h:outputLabel for="moderatePostings"><h:outputText value="#{msgs.perm_moderate_postings}" /></h:outputLabel>
+        </h:panelGroup>
+        <h:panelGroup styleClass="checkbox" style="display: #{ForumTool.anonymousEnabled ? '' : 'none'}">
+          <h:selectBooleanCheckbox id="identifyAnonAuthors" value="#{permission.identifyAnonAuthors}" onclick="setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="identifyAnonAuthors"><h:outputText value="#{msgs.perm_identify_anon_authors}" /></h:outputLabel>
         </h:panelGroup>
 		</h:panelGroup>
         <h:panelGroup styleClass="permissionRadioGroup">

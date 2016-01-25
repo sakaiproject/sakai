@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
     <!-- database beans -->
-    <bean id="org.sakaiproject.user.impl.UserServiceSqlDefault"   class="org.sakaiproject.user.impl.UserServiceSqlDefault" singleton="true"/>
-    <bean id="org.sakaiproject.user.impl.UserServiceSqlHSql"      class="org.sakaiproject.user.impl.UserServiceSqlHSql"    singleton="true"/>
-    <bean id="org.sakaiproject.user.impl.UserServiceSqlMySql"     class="org.sakaiproject.user.impl.UserServiceSqlMySql"   singleton="true"/>
-    <bean id="org.sakaiproject.user.impl.UserServiceSqlOracle"    class="org.sakaiproject.user.impl.UserServiceSqlOracle"  singleton="true"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlDefault"   class="org.sakaiproject.user.impl.UserServiceSqlDefault"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlHSql"      class="org.sakaiproject.user.impl.UserServiceSqlHSql"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlMySql"     class="org.sakaiproject.user.impl.UserServiceSqlMySql"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlOracle"    class="org.sakaiproject.user.impl.UserServiceSqlOracle"/>
 
 	<bean id="org.sakaiproject.user.api.UserDirectoryService"
 			class="org.sakaiproject.user.impl.PrecachingDbUserService"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
 		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
@@ -56,8 +56,7 @@
 	<bean id="org.sakaiproject.user.api.AuthenticationManager"
 			class="org.sakaiproject.user.impl.UserAuthnComponent"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
 		<lookup-method name="authenticationCache" bean="org.sakaiproject.user.impl.AuthenticationCache" />
@@ -67,8 +66,7 @@
 	<bean id="org.sakaiproject.user.api.PreferencesService"
 			class="org.sakaiproject.user.impl.DbPreferencesService"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
 		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />

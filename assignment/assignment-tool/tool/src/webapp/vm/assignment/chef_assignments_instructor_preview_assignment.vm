@@ -2,42 +2,14 @@
 <!-- start: chef_assignments_instructor_preview_assignment.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_preview_assignment.vm,v 1.9 2005/06/14 14:47:34 zqian.umich.edu Exp $ -->
 <div class="portletBody">
-	<ul class="navIntraTool actionToolBar">
-		#if ($allowAddAssignment)
-			<li  class="firstToolBarItem">
-				<span class="current">$!tlang.getString("new")</span>
-			</li>
-			<li>
-				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title = "$!tlang.getString('lisofass1')">$!tlang.getString("lisofass1")</a></span>
-			</li>				
-			#if ($withGrade && $!allowGradeSubmission)
-				<li>
-					<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
-				</li>
-			#end
-			<li>
-				<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
-			</li>	
-		#end
-		#if (($allowAllGroups) && ($assignmentscheck))
-			<li><span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span></li>
-		#end
-		#if ($allowUpdateSite)
-			<li><span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span></li>
-			#if ($enableViewOption)	
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
-				</li>
-			#end
-		#end
-	</ul>
+	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<h3>
 		$tlang.getString("prevassig.preass")
 	</h3>
 	
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 		<div class="clear"></div>
-		<form name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;"> 
+		<form id="previewAssignmentsForm" name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 			<input type="hidden" name="assignmentId" value="$!value_assignment_id" />
 			<input type="hidden" name="assignmentContentId" value="$!value_assignmentcontent_id" />
 			<input type="hidden" name="$name_order" id="$name_order" value="$!value_position_order" />
@@ -359,18 +331,13 @@
 				</p>				
 			#end
 			<div class="act">
-				<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString('gen.pos')" 
-						onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','post','previewAssignmentsForm');document.getElementById('option').value='post';document.previewAssignmentsForm.submit();return false;" />
+				<input accesskey="s" type="button" class="active" name="post" value="$tlang.getString('gen.pos')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'post', null, null ); return false;" />
 				#if ($isDraft)
-					<input accesskey ="d" type="button" class="active" name="save" value="$tlang.getString('gen.savdra')" 
-							onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','save','previewAssignmentsForm');document.getElementById('option').value='save';document.previewAssignmentsForm.submit();return false;" />
+					<input accesskey ="d" type="button" class="active" name="save" value="$tlang.getString('gen.savdra')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'save', null, null ); return false;" />
 				#end
 				## back to edit assignment page
-				<input accesskey ="r" type="button" class="active" name="revise" value="$tlang.getString('gen.revi')" 
-					onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','revise','previewAssignmentsForm');document.getElementById('option').value='revise';document.previewAssignmentsForm.submit();return false;" />
-				<input accesskey ="r" type="button" class="active" name="done" value="$tlang.getString('gen.don')" 
-					onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','done','previewAssignmentsForm');document.getElementById('option').value='done';document.previewAssignmentsForm.submit();return false;" />
-				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+				<input accesskey="r" type="button" class="active" name="revise" value="$tlang.getString('gen.revi')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'revise', null, null ); return false;" />
+				<input accesskey="r" type="button" class="active" name="done" value="$tlang.getString('gen.don')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'previewAssignmentsForm', 'done', null, null ); return false;" />
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

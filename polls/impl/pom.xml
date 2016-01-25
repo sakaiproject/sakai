@@ -39,9 +39,8 @@
         	<artifactId>emailtemplateservice-api</artifactId>
        </dependency>
         <dependency>
-            <groupId>org.sakaiproject</groupId>
+            <groupId>org.sakaiproject.genericdao</groupId>
             <artifactId>generic-dao</artifactId>
-            <version>${generic-dao.version}</version>
         </dependency>
         <dependency>
             <groupId>antlr</groupId>
@@ -76,9 +75,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>1.2_Java1.3</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -95,7 +94,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>

@@ -21,11 +21,6 @@
     <module>announcement-tool/tool</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/announcement/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

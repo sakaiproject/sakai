@@ -64,7 +64,7 @@
 					#set ($pageTotal=0)
 					#foreach( $pages in ${searchPages})
 					#set ($pageTotal=$pageTotal + 1)
-						<li><a href="${util.escapeHtml(${pages.fullSearchLinkUrl})}" >${pages.page}</a></li>
+						<li><a href="${util.escapeHtml(${pages.fullSearchLinkUrl})}" >${util.escapeHtml($pages.page)}</a></li>
 					#end
 				</ol>
 
@@ -76,8 +76,8 @@
 				#set ($itemCount =$itemCount + 1)
 				<!--is-->
 				<li>
-					<h5> <a href="${result.url}" class="searchTopLink" >${searchBean.pageNameFromSearchTitle(${result.title})}</a></h5> 
-					<div class="searchItemBody" >${result.searchResult}</div>
+					<h5> <a href="${result.url}" class="searchTopLink" >${util.escapeHtml($searchBean.pageNameFromSearchTitle(${result.title}))}</a></h5> 
+					<div class="searchItemBody" >${util.escapeHtml($result.searchResult)}</div>
 					<div class="searchItemFooter" ><a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a></div>
 				</li>	
 				<!--ie-->
@@ -118,7 +118,7 @@
 	<p>
 	${foundItem.index}&nbsp;<a href="${util.escapeHtml(${foundItem.url})}" >${foundItem.title}</a><br />
 	${rlb.jsp_search_content}: <br />
-	${foundItem.searchResult} <br />
+	${util.escapeHtml($foundItem.searchResult)} <br />
 	<span style="font-size: smaller;" >${rlb.jsp_search_realms}:<br />
 	#foreach( $realm in ${foundItem.valueMap.realm} )
 	${realm}<br />

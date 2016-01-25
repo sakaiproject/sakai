@@ -19,7 +19,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.SortedIterator;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;

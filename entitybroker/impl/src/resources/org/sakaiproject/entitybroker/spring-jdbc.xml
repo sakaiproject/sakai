@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<!-- Aaron Zeckoski (aaronz@vt.edu) -->
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- dao beans -->
     <bean id="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget"
@@ -22,7 +21,6 @@
                             <entry key="HSQLDB" value="hsqldb/entityProperty.sql" />
                             <entry key="MYSQL" value="mysql/entityProperty.sql" />
                             <entry key="ORACLE" value="oracle/entityProperty.sql" />
-                            <entry key="DB2" value="db2/entityProperty.sql" />
                         </map>
                     </property>
                 </bean>
@@ -36,7 +34,6 @@
                             <entry key="HSQLDB" value="hsqldb/entityTagApplication.sql" />
                             <entry key="MYSQL" value="mysql/entityTagApplication.sql" />
                             <entry key="ORACLE" value="oracle/entityTagApplication.sql" />
-                            <entry key="DB2" value="db2/entityTagApplication.sql" />
                         </map>
                     </property>
                 </bean>

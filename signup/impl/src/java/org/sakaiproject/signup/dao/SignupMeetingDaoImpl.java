@@ -63,7 +63,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 				.createCriteria("signupSites").add(
 						Restrictions.eq("siteId", siteId));
-		return getHibernateTemplate().findByCriteria(criteria);
+		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				Order.asc("startTime")).createCriteria("signupSites").add(
 				Restrictions.eq("siteId", siteId));
 
-		return getHibernateTemplate().findByCriteria(criteria);
+		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
 
-		return getHibernateTemplate().findByCriteria(criteria);
+		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -109,7 +109,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
 
-		return getHibernateTemplate().findByCriteria(criteria);
+		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 	}
 	
 	/**
@@ -126,7 +126,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
 				.add(Restrictions.in("siteId", siteIds));
 
-		return getHibernateTemplate().findByCriteria(criteria);
+		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				Order.asc("startTime")).createCriteria("signupSites").add(
 				Restrictions.eq("siteId", siteId));
 
-		return getHibernateTemplate().findByCriteria(criteria);
+		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 	}
 
 	/**
@@ -170,8 +170,9 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				}
 
 			}
-
-			getHibernateTemplate().saveOrUpdateAll(signupMeetings);
+			for (SignupMeeting signupMeeting : signupMeetings) {
+				getHibernateTemplate().saveOrUpdate(signupMeeting);
+			}
 		}
 
 	}
@@ -184,7 +185,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				SignupMeeting.class).setResultTransformer(
 				Criteria.DISTINCT_ROOT_ENTITY).add(
 				Restrictions.eq("id", meetingId));
-		List ls = getHibernateTemplate().findByCriteria(criteria);
+		List<SignupMeeting> ls = (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 		if (ls == null || ls.isEmpty())
 			return null;
 
@@ -206,16 +207,19 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 	 */
 	public void updateMeetings(List<SignupMeeting> meetings)
 			throws DataAccessException {
-		getHibernateTemplate().saveOrUpdateAll(meetings);
-
+		for (SignupMeeting meeting : meetings) {
+			getHibernateTemplate().saveOrUpdate(meeting);
+		}
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateModifiedMeetings(List<SignupMeeting> meetings,
-			List<SignupTimeslot> removedTimeslots) throws DataAccessException{
-		getHibernateTemplate().saveOrUpdateAll(meetings);
+	public void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots) 
+			throws DataAccessException {
+		for (SignupMeeting meeting : meetings) {
+			getHibernateTemplate().saveOrUpdate(meeting);
+		}
 		
 		/*remove the deleted timeslot and related attendees/wait-list people*/
 		if(removedTimeslots !=null && removedTimeslots.size() > 0 ){
@@ -294,7 +298,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				.add(Restrictions.ge("endTime",startDate))
 				.addOrder(Order.asc("startTime"));		
 
-		return getHibernateTemplate().findByCriteria(criteria);
+		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
 	}
 
 	@Override
@@ -306,7 +310,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				.addOrder(Order.asc("category")).createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
 		
-		List<String> categorys = getHibernateTemplate().findByCriteria(criteria);
+		List<String> categorys = (List<String>) getHibernateTemplate().findByCriteria(criteria);
 		
 		if(categorys !=null && !categorys.isEmpty()){
 			return categorys;
@@ -324,7 +328,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 				.addOrder(Order.asc("location")).createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
 		
-		List<String> locations = getHibernateTemplate().findByCriteria(criteria);
+		List<String> locations = (List<String>) getHibernateTemplate().findByCriteria(criteria);
 		
 		if(locations !=null && !locations.isEmpty()){
 			return locations;

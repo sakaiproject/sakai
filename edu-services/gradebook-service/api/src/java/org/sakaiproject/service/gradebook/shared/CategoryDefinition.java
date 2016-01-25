@@ -25,6 +25,9 @@ package org.sakaiproject.service.gradebook.shared;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 
 /**
  *  Provides information describing a gradebook category that may be useful
@@ -40,8 +43,18 @@ public class CategoryDefinition implements Serializable {
     private Integer drop_lowest;
     private Integer dropHighest;
     private Integer keepHighest;
+    private Boolean extraCredit;
     
     private List<Assignment> assignmentList;
+    
+    public CategoryDefinition() {
+    	
+    }
+    
+    public CategoryDefinition(Long id, String name) {
+    	this.id = id;
+    	this.name = name;
+    }
     
     /**
      * 
@@ -137,5 +150,18 @@ public class CategoryDefinition implements Serializable {
 
 	public void setKeepHighest(Integer keepHighest) {
 		this.keepHighest = keepHighest;
+	}
+
+	public Boolean isExtraCredit() {
+		return extraCredit;
+	}
+
+	public void setExtraCredit(Boolean extraCredit) {
+		this.extraCredit = extraCredit;
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 }

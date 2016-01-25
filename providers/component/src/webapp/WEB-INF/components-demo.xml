@@ -1,12 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 			class="org.sakaiproject.provider.user.SampleUserDirectoryProvider"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 		<property name="courseStudents"><value>500</value></property>
+	</bean>
+	
+	<bean id="org.sakaiproject.authz.api.RoleProvider"
+		class="edu.amc.sakai.user.UserAttributeRoleProvider"
+		init-method="init">
+		<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+		</property>
+		<property name="statusAttribute" value="rolestatus"/>
+		<property name="statusRoles">
+			<map>
+				<entry key="staff">
+					<set>
+						<value>.role.allstaff</value>
+						<value>.role.allusers</value>
+					</set>
+				</entry>
+				<entry key="student">
+					<set>
+						<value>.role.allstudents</value>
+						<value>.role.allusers</value>
+					</set>
+				</entry>
+				<entry key="provided">
+					<set>
+						<value>.origin.provided</value>
+						<value>.role.allusers</value>
+					</set>
+				</entry>
+				<entry key="internal">
+					<set>
+						<value>.origin.internal</value>
+						<value>.role.allusers</value>
+					</set>
+				</entry>
+			</map>
+		</property>
 	</bean>
 </beans>

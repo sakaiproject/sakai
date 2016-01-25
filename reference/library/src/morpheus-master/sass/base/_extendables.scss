@@ -31,26 +31,146 @@
 
 }
 
-
-@mixin sakai-button($begin-color, $end-color, $border-color, $text-color) {
-	border:  1px solid $border-color;
-	color:   $text-color;
-	cursor:  pointer;
-	display: inline-block;
-	padding: 0.35em 0.55em !important;
-	text-decoration: none;
-	@include background-image( linear-gradient( $begin-color , $end-color ) );
-	@include border-radius( 2px );
-	&:hover{
-		@if $button-gradiant {
-			@include background-image( linear-gradient( $end-color , $begin-color ) );
-		}
-		@else {
-			@include background-image( linear-gradient( darken($begin-color , 10%) , darken($begin-color , 10%) )  );
-		}
-	}
-	a{
-		color:   $text-color;
-		text-decoration: none;
+.select{
+	background-color: $button-background-secondary-color;
+	background-image: inline-image("icon-arrow-down.png");
+	background-position: right 50%;
+	background-repeat: no-repeat;
+	border: 1px solid $button-border-color;
+	color: #777;
+	font-family: $font-family;
+	font-size: #{$default-font-size - 1};
+	max-width: 90%;
+	padding: 0.3em 2.2em 0.3em 0.5em;
+	text-align: left;
+	@include appearance(none);
+	@include border-radius(3px);
+	&::-ms-expand {
+	    display: none;
 	}
 }
+
+.button_color, button {
+	background: $button-color-background-color;
+	border: 1px solid $button-color-border-color;
+	color: $button-color-text-color;
+	cursor: pointer;
+	font-family: $font-family;
+	font-size: #{$default-font-size - 2 };
+	letter-spacing: 0.8px;
+	margin: 0.5em 0.8em 0.5em 0;
+	padding: 0.4em 0.8em 0.45em 0.8em;
+	position: relative;
+	@include appearance(none);
+	@include border-radius(3px);
+	&:hover{
+		@include background-image( linear-gradient( $button-color-background-color, $button-color-background-secondary-color ) );
+	}
+	&:active{
+		outline: 0;
+		@include background-image( linear-gradient( $button-color-background-secondary-color, $button-color-background-color ) );
+	}
+	&[disabled="disabled"],&[disabled],&[disabled="true"]{
+		background: $button-color-background-color;
+		color: darken($button-background-color, 30% );
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+}
+
+.button{
+	background: $button-background-color;
+	border: 1px solid $button-border-color;
+	color: $button-text-color;
+	cursor: pointer;
+	display: inline-block;
+	font-family: $font-family;
+	font-size: #{ $default-font-size - 2 };
+	letter-spacing: 0.8px;
+	margin: 0.5em 0.8em 0.5em 0;
+	padding: 0.4em 0.8em 0.45em 0.8em;
+	text-decoration: none;
+	@include appearance(none);
+	@include border-radius(3px);
+	&:hover{
+		@include background-image( linear-gradient( $button-background-secondary-color, $button-background-color ) );
+	}
+	&:active{
+		outline: 0;
+		@include background-image( linear-gradient( $button-background-color, $button-background-secondary-color ) );
+	}
+	&[disabled="disabled"],&[disabled],&[disabled="true"]{
+		background: $button-background-color;
+		color: lighten( $button-text-color, 5% );
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+}
+
+a.noPointers, input.noPointers {
+	pointer-events: none;
+}
+
+/*** Begin button spinner overlay ***/
+@-moz-keyframes rotate {
+	from {-moz-transform: rotate(0deg);}
+	to {-moz-transform: rotate(360deg);}
+}
+
+@-webkit-keyframes rotate {
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+
+@keyframes rotate {
+	from {transform: rotate(0deg);}
+	to {transform: rotate(360deg);}
+}
+
+.spinButton {
+	position: relative;
+}
+
+.spinButton:after, .spinPlaceholder:after {
+	content: "";
+	background: url("images/ring58.png") center center no-repeat;
+	-moz-animation-name: rotate;
+	-moz-animation-duration: 1.6s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-timing-function: linear;
+	-webkit-animation-name: rotate;
+	-webkit-animation-duration: 1.6s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	animation-name: rotate;
+	animation-duration: 1.6s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	display: inline;
+	vertical-align: middle;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.spinPlaceholder, .allocatedSpinPlaceholder {
+	position: relative;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin-left: 5px;
+}
+
+.spinnerBesideContainer { 
+	@include display-flex;
+	@include align-items( center );
+	label {
+		margin: 0 4px 0 0;
+	}
+	select {
+		margin-bottom: 0px;
+	}
+}
+/*** End button spinner overlay ***/

@@ -6,16 +6,12 @@
         <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
         <link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" rsf:id="resize"/>
-        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
-        </script>
-        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url">
-        </script>
-        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url">
-        </script>
-        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url">
-        </script>
-        <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
-        </script>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+        <script type="text/javascript">includeLatestJQuery('site-manage');</script>
+        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url"></script>
+        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url"></script>
+        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
+        <script type="text/javascript" src="/library/js/spinner.js"></script>
     </head>
     <body>
         <div class="portletBody">
@@ -26,8 +22,9 @@
             </div>
             <form rsf:id="groups-form">
                 <h3 rsf:id="prompt"></h3>
+                <p rsf:id="msg=group.autocreate.instructions" class="instruction">Select a course roster to create a separate group for that roster.</p>
                 <div rsf:id="roster_options:">
-                    <p rsf:id="instruction-roster" class="instruction">Select a course roster to create a separate group for that roster.</p>
+                    <h4 rsf:id="msg=instruction.header.roster">From Rosters</h4>
                     <table id="rosterList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines" summary="placeholder summary">
                         <thead>
                             <tr>
@@ -110,8 +107,8 @@
                     </fieldset>
 
                 </div>
-                <div rsf:id="role_options:">
-                	<p rsf:id="msg=group.autocreate.instruction_role" class="instruction">Select roles</p>
+                <div rsf:id="role_options:" class="autoGroupsRoleContainer">
+                	<h4 rsf:id="msg=instruction.header.role">From Roles</h4>
 	                    <table id ="roleList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines labelizeMe" summary="placeholder summary">
 	                        <thead>
 	                            <tr>
@@ -163,8 +160,7 @@
                 </div>
                 <p class="act">
                     <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" />
-                    <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="disableButtonsActivateSpinner('save', 'cancel', 'autoGroupsSpinner');" />
-                    <img id="autoGroupsSpinner" class="spinner" src="/library/image/indicator.gif" />
+                    <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
                 </p>
             </form>
         </div>

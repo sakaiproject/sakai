@@ -89,11 +89,15 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 	public static final String DURATION_DEFAULT_COLUMN_HEADER = "Duration";
 
-	public static final String START_TIME_PROPERTY_NAME = "Start";
+	public static final String START_TIME_PROPERTY_NAME = "Start Time";
+	
+	public static final String START_TIME_CSV_PROPERTY_NAME = "Start";
 
 	public static final String START_TIME_DEFAULT_COLUMN_HEADER = "Start";
 
-	public static final String DATE_PROPERTY_NAME = "Date";
+	public static final String DATE_PROPERTY_NAME = "Start Date";
+	
+	public static final String DATE_CSV_PROPERTY_NAME = "Date";
 
 	public static final String DATE_DEFAULT_COLUMN_HEADER = "Date";
 

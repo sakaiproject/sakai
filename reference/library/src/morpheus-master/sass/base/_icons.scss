@@ -2,137 +2,77 @@
 @import "font-awesome";
 
 .Mrphs-toolsNav__menuitem--icon{
-	
-	@if $skin-with-icons {
-	 	@extend .fa-lg;
-		@extend .fa; 	 
-		&.icon-sakai-iframe-site{ 				@extend .fa-university;}
-		&.icon-sakai-motd{ 					@extend .fa-university;}
-		&.icon-sakai-syllabus{					@extend .fa-file-text-o;}
-		&.icon-sakai-schedule{					@extend .fa-calendar;}	
-		&.icon-sakai-signup{					@extend .fa-calendar;}
-		&.icon-sakai-resources{					@extend .fa-folder;}
-		&.icon-sakai-dropbox{					@extend .fa-dropbox;}
-		&.icon-sakai-assignment-grades{				@extend .fa-tasks;}
-		&.icon-sakai-samigo{					@extend .fa-puzzle-piece;}
-		&.icon-sakai-gradebook-tool{				@extend .fa-check-square-o;}
-		&.icon-sakai-announcements{				@extend .fa-bullhorn;}
-		&.icon-sakai-chat{					@extend .fa-comments-o;}
-		&.icon-sakai-rwiki{ 					@extend .fa-edit;}
-		&.icon-sakai-mailbox{					@extend .fa-envelope-o;}
-		&.icon-sakai-emailtemplateservice{			@extend .fa-envelope;}
-		&.icon-sakai-news{					@extend .fa-newspaper-o;}
-		&.icon-sakai-basiclti{					@extend .fa-globe;}
-		&.icon-sakai-messages{					@extend .fa-inbox;}
-		&.icon-sakai-dashboard{					@extend .fa-dashboard;}
-		&.icon-sakai-site-roster2{				@extend .fa-users;}
-		&.icon-sakai-sections{					@extend .fa-user;}
-		&.icon-sakai-resetpass{					@extend .fa-user;}
-		&.icon-sakai-createuser{				@extend .fa-user;}
-		&.icon-sakai-realms{					@extend .fa-user;}
-		&.icon-sakai-profile2{					@extend .fa-user;}
-		&.icon-sakai-membership{				@extend .fa-users;}
-		&.icon-sakai-singleuser{				@extend .fa-user;}
-		&.icon-sakai-help{					@extend .fa-question-circle;}
-		&.icon-sakai-preferences{				@extend .fa-gear;}
-		&.icon-sakai-siteinfo{					@extend .fa-gear;}
-		&.icon-sakai-sitesetup{					@extend .fa-gears;}
-		&.icon-sakai-iframe{					@extend .fa-globe;}
-		&.icon-sakai-sitebrowser{				@extend .fa-globe;}
-		&.icon-sakai-search{					@extend .fa-search;}
-		&.icon-sakai-poll{					@extend .fa-check-square;}
-		&.icon-sakai-mailtool{					@extend .fa-envelope-o;}
-		&.icon-sakai-lessonbuildertool{				@extend .fa-leanpub;}
-		&.icon-sakai-lessonbuildertool{				@extend .fa-leanpub;}
-		&.icon-sakai-sitestats{					@extend .fa-pie-chart;}
-		&.icon-sakai-sitestats-admin{				@extend .fa-pie-chart;}
-		&.icon-sakai-forums{					@extend .fa-comments;}
-		&.icon-sakai-podcasts{					@extend .fa-file-audio-o;}
-		&.icon-sakai-postem{					@extend .fa-pencil-square-o;}
-		&.icon-sakai-users{					@extend .fa-users;}
-		&.icon-sakai-su{					@extend .fa-user;}
-		&.icon-sakai-usermembership{				@extend .fa-user;}
-		&.icon-sakai-aliases{					@extend .fa-gear;}
-		&.icon-sakai-sites{					@extend .fa-list;}
-		&.icon-sakai-archive{					@extend .fa-archive;}
-		&.icon-sakai-online{					@extend .fa-gear;}
-		&.icon-sakai-memory{					@extend .fa-hdd-o;}
-		&.icon-sakai-scheduler{					@extend .fa-clock-o;}
-		&.icon-sakai-basiclti-admin{				@extend .fa-globe;}
-		&.icon-sakai-adminsiteperms{				@extend .fa-gear;}
-		&.icon-sakai-message-bundle-manager{			@extend .fa-gear;}
-		&.icon-sakai-delegatedaccess{				@extend .fa-gear;}
-		&.icon-sakai-web-168{					@extend .fa-globe;}
-		&.icon-sakai-pasystem{                                  @extend .fa-bell;}
-		&.icon-sakai-feedback{					@extend .fa-paper-plane-o;}
-	}
+	display: block;
+	line-height: 1.25;
+	text-align: center;
 }
 
 
-.Mrphs-sitesNav__submenuitem{
-	.toolMenuIcon{
-		@if $skin-with-icons {
-	 		@extend .fa-lg;
-			@extend .fa; 	 
-			&.icon-sakai-iframe-site{ 				@extend .fa-university;}
-			&.icon-sakai-motd{ 					@extend .fa-university;}
-			&.icon-sakai-syllabus{					@extend .fa-file-text-o;}
-			&.icon-sakai-schedule{					@extend .fa-calendar;}	
-			&.icon-sakai-signup{					@extend .fa-calendar;}
-			&.icon-sakai-resources{					@extend .fa-folder;}
-			&.icon-sakai-dropbox{					@extend .fa-dropbox;}
-			&.icon-sakai-assignment-grades{				@extend .fa-tasks;}
-			&.icon-sakai-samigo{					@extend .fa-puzzle-piece;}
-			&.icon-sakai-gradebook-tool{				@extend .fa-check-square-o;}
-			&.icon-sakai-announcements{				@extend .fa-bullhorn;}
-			&.icon-sakai-chat{					@extend .fa-comments-o;}
-			&.icon-sakai-rwiki{ 					@extend .fa-edit;}
-			&.icon-sakai-mailbox{					@extend .fa-envelope-o;}
-			&.icon-sakai-emailtemplateservice{			@extend .fa-envelope;}
-			&.icon-sakai-news{					@extend .fa-newspaper-o;}
-			&.icon-sakai-basiclti{					@extend .fa-globe;}
-			&.icon-sakai-messages{					@extend .fa-inbox;}
-			&.icon-sakai-dashboard{					@extend .fa-dashboard;}
-			&.icon-sakai-site-roster2{				@extend .fa-users;}
-			&.icon-sakai-sections{					@extend .fa-user;}
-			&.icon-sakai-resetpass{					@extend .fa-user;}
-			&.icon-sakai-createuser{				@extend .fa-user;}
-			&.icon-sakai-realms{					@extend .fa-user;}
-			&.icon-sakai-profile2{					@extend .fa-user;}
-			&.icon-sakai-membership{				@extend .fa-users;}
-			&.icon-sakai-singleuser{				@extend .fa-user;}
-			&.icon-sakai-help{					@extend .fa-question-circle;}
-			&.icon-sakai-preferences{				@extend .fa-gear;}
-			&.icon-sakai-siteinfo{					@extend .fa-gear;}
-			&.icon-sakai-sitesetup{					@extend .fa-gears;}
-			&.icon-sakai-iframe{					@extend .fa-globe;}
-			&.icon-sakai-sitebrowser{				@extend .fa-globe;}
-			&.icon-sakai-search{					@extend .fa-search;}
-			&.icon-sakai-poll{					@extend .fa-check-square;}
-			&.icon-sakai-mailtool{					@extend .fa-envelope-o;}
-			&.icon-sakai-lessonbuildertool{				@extend .fa-leanpub;}
-			&.icon-sakai-lessonbuildertool{				@extend .fa-leanpub;}
-			&.icon-sakai-sitestats{					@extend .fa-pie-chart;}
-			&.icon-sakai-sitestats-admin{				@extend .fa-pie-chart;}
-			&.icon-sakai-forums{					@extend .fa-comments;}
-			&.icon-sakai-podcasts{					@extend .fa-file-audio-o;}
-			&.icon-sakai-postem{					@extend .fa-pencil-square-o;}
-			&.icon-sakai-users{					@extend .fa-users;}
-			&.icon-sakai-su{					@extend .fa-user;}
-			&.icon-sakai-usermembership{				@extend .fa-user;}
-			&.icon-sakai-aliases{					@extend .fa-gear;}
-			&.icon-sakai-sites{					@extend .fa-list;}
-			&.icon-sakai-archive{					@extend .fa-archive;}
-			&.icon-sakai-online{					@extend .fa-gear;}
-			&.icon-sakai-memory{					@extend .fa-hdd-o;}
-			&.icon-sakai-scheduler{					@extend .fa-clock-o;}
-			&.icon-sakai-basiclti-admin{				@extend .fa-globe;}
-			&.icon-sakai-adminsiteperms{				@extend .fa-gear;}
-			&.icon-sakai-delegatedaccess{				@extend .fa-gear;}
-			&.icon-sakai-web-168{					@extend .fa-globe;}
-			&.icon-sakai-feedback{					@extend .fa-paper-plane-o;}
-			&.icon-sakai-see-all-tools{				@extend .fa-plus-square-o;}
-			&.icon-sakai-pasystem{                                  @extend .fa-bell;}
-		}
+@if $skin-with-icons {
+	[class^="icon-sakai"],
+	[class*=" icon-sakai"] {
+		@extend .fa-lg;
+		@extend .fa;
 	}
+
+	.icon-sakai-iframe-site{ 				@extend .fa-university;}
+	.icon-sakai-motd{ 					@extend .fa-university;}
+	.icon-sakai-syllabus{					@extend .fa-file-text-o;}
+	.icon-sakai-schedule{					@extend .fa-calendar;}
+	.icon-sakai-signup{					@extend .fa-calendar;}
+	.icon-sakai-resources{					@extend .fa-folder;}
+	.icon-sakai-dropbox{					@extend .fa-dropbox;}
+	.icon-sakai-assignment-grades{				@extend .fa-tasks;}
+	.icon-sakai-samigo{					@extend .fa-puzzle-piece;}
+	.icon-sakai-gradebook-tool{				@extend .fa-check-square-o;}
+	.icon-sakai-gradebookng{				@extend .fa-check-square-o;}
+	.icon-sakai-announcements{				@extend .fa-bullhorn;}
+	.icon-sakai-chat{					@extend .fa-comments-o;}
+	.icon-sakai-rwiki{ 					@extend .fa-edit;}
+	.icon-sakai-mailbox{					@extend .fa-envelope-o;}
+	.icon-sakai-emailtemplateservice{			@extend .fa-envelope;}
+	.icon-sakai-news{					@extend .fa-newspaper-o;}
+	.icon-sakai-basiclti{					@extend .fa-globe;}
+	.icon-sakai-messages{					@extend .fa-inbox;}
+	.icon-sakai-dashboard{					@extend .fa-dashboard;}
+	.icon-sakai-site-roster2{				@extend .fa-users;}
+	.icon-sakai-sections{					@extend .fa-user;}
+	.icon-sakai-resetpass{					@extend .fa-user;}
+	.icon-sakai-createuser{					@extend .fa-user;}
+	.icon-sakai-realms{					@extend .fa-user;}
+	.icon-sakai-profile2{					@extend .fa-user;}
+	.icon-sakai-membership{					@extend .fa-users;}
+	.icon-sakai-singleuser{					@extend .fa-user;}
+	.icon-sakai-help{					@extend .fa-question-circle;}
+	.icon-sakai-preferences{				@extend .fa-gear;}
+	.icon-sakai-siteinfo{					@extend .fa-gear;}
+	.icon-sakai-sitesetup{					@extend .fa-gears;}
+	.icon-sakai-iframe{					@extend .fa-globe;}
+	.icon-sakai-sitebrowser{				@extend .fa-globe;}
+	.icon-sakai-search{					@extend .fa-search;}
+	.icon-sakai-poll{					@extend .fa-check-square;}
+	.icon-sakai-mailtool{					@extend .fa-envelope-o;}
+	.icon-sakai-lessonbuildertool{				@extend .fa-leanpub;}
+	.icon-sakai-lessonbuildertool{				@extend .fa-leanpub;}
+	.icon-sakai-sitestats{					@extend .fa-pie-chart;}
+	.icon-sakai-sitestats-admin{				@extend .fa-pie-chart;}
+	.icon-sakai-forums{					@extend .fa-comments;}
+	.icon-sakai-podcasts{					@extend .fa-file-audio-o;}
+	.icon-sakai-postem{					@extend .fa-pencil-square-o;}
+	.icon-sakai-users{					@extend .fa-users;}
+	.icon-sakai-su{						@extend .fa-user;}
+	.icon-sakai-usermembership{				@extend .fa-user;}
+	.icon-sakai-aliases{					@extend .fa-gear;}
+	.icon-sakai-sites{					@extend .fa-list;}
+	.icon-sakai-archive{					@extend .fa-archive;}
+	.icon-sakai-online{					@extend .fa-gear;}
+	.icon-sakai-memory{					@extend .fa-hdd-o;}
+	.icon-sakai-scheduler{					@extend .fa-clock-o;}
+	.icon-sakai-basiclti-admin{				@extend .fa-globe;}
+	.icon-sakai-adminsiteperms{				@extend .fa-gear;}
+	.icon-sakai-message-bundle-manager{			@extend .fa-gear;}
+	.icon-sakai-delegatedaccess{				@extend .fa-gear;}
+	.icon-sakai-web-168{					@extend .fa-globe;}
+	.icon-sakai-pasystem{					@extend .fa-bell;}
+	.icon-sakai-feedback{					@extend .fa-paper-plane-o;}
 }

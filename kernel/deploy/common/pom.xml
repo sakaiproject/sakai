@@ -16,11 +16,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</url>
-  </scm>
 
   <packaging>pom</packaging>
   <properties>
@@ -59,7 +54,6 @@
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
       <artifactId>mariadb-java-client</artifactId>
-      <version>1.1.9</version>
     </dependency>
   </dependencies>
 
@@ -73,7 +67,6 @@
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.35</version>
         </dependency>
       </dependencies>
     </profile>

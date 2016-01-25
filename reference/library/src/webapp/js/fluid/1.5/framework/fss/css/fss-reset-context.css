@@ -1,0 +1,80 @@
+/*
+Based on YUI reset
+
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.5.2
+*/
+
+html.fl-reset {color:#000;}
+
+body.fl-reset,
+.fl-reset body,
+.fl-reset div,
+.fl-reset dl,
+.fl-reset dt,
+.fl-reset dd,
+.fl-reset ul,
+.fl-reset ol,
+.fl-reset li,
+.fl-reset h1,
+.fl-reset h2,
+.fl-reset h3,
+.fl-reset h4,
+.fl-reset h5,
+.fl-reset h6,
+.fl-reset pre,
+.fl-reset code,
+.fl-reset form,
+.fl-reset fieldset,
+.fl-reset legend,
+.fl-reset input,
+.fl-reset textarea,
+.fl-reset p,
+.fl-reset blockquote,
+.fl-reset th,
+.fl-reset td {margin:0; padding:0;}
+
+.fl-reset table {border-collapse:collapse; border-spacing:0;}
+
+.fl-reset fieldset,
+.fl-reset img { border:0;}
+
+.fl-reset address,
+.fl-reset caption,
+.fl-reset cite,
+.fl-reset code,
+.fl-reset dfn,
+.fl-reset em,
+.fl-reset strong,
+.fl-reset th,
+.fl-reset var {font-style:normal; font-weight:normal;}
+
+.fl-reset li {list-style:none;}
+
+.fl-reset caption,
+.fl-reset th {text-align:left;}
+
+.fl-reset h1,
+.fl-reset h2,
+.fl-reset h3,
+.fl-reset h4,
+.fl-reset h5,
+.fl-reset h6 {font-size:100%; font-weight:normal;}
+
+.fl-reset q:before,
+.fl-reset q:after {content:'';}
+
+.fl-reset abbr,
+.fl-reset acronym {border:0; font-variant:normal;}
+
+/* to preserve line-height and selector appearance */
+.fl-reset sup {vertical-align:text-top;}
+.fl-reset sub {vertical-align:text-bottom;}
+
+/* because legend doesn't inherit in IE */
+.fl-reset legend{color:#000;}
+
+/* button font and size inherit from its parent */
+.fl-reset button {font-family: inherit;font-size: inherit;}

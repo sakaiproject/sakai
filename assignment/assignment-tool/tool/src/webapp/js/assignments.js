@@ -1,26 +1,26 @@
 // 'Namespace'
-var ASN = {};
+var ASN = ASN || {};
 
-function getSelect(selectBox) {
+ASN.getSelect = function(selectBox) {
     if (selectBox && selectBox instanceof HTMLSelectElement) { 
         return selectBox.options[selectBox.selectedIndex].value;
     }
-}
+};
 
-function setSelect(selectBox,index) {
+ASN.setSelect = function(selectBox,index) {
     if (selectBox && selectBox instanceof HTMLSelectElement) { 
         selectBox.value = index;
     }
-}
+};
 
 // Parses select fields on a form and returns the date object for a specific prefix
-function getSelectDate (prefix) {
-  var sMonth = parseInt(getSelect(document.getElementById(prefix+"month")));
-  var sDay = parseInt(getSelect(document.getElementById(prefix+"day")));
-  var sYear = parseInt(getSelect(document.getElementById(prefix+"year")));
-  var sHour = parseInt(getSelect(document.getElementById(prefix+"hour")));
-  var sMinute = parseInt(getSelect(document.getElementById(prefix+"min")));
-  var sAmpm = getSelect(document.getElementById(prefix+"ampm"));
+ASN.getSelectDate = function(prefix) {
+  var sMonth = parseInt(ASN.getSelect(document.getElementById(prefix+"month")));
+  var sDay = parseInt(ASN.getSelect(document.getElementById(prefix+"day")));
+  var sYear = parseInt(ASN.getSelect(document.getElementById(prefix+"year")));
+  var sHour = parseInt(ASN.getSelect(document.getElementById(prefix+"hour")));
+  var sMinute = parseInt(ASN.getSelect(document.getElementById(prefix+"min")));
+  var sAmpm = ASN.getSelect(document.getElementById(prefix+"ampm"));
   if (sAmpm === "PM") {
       sHour += 12;
   }
@@ -28,40 +28,27 @@ function getSelectDate (prefix) {
       sHour = 0;
   }
   return new Date(sYear,sMonth-1,sDay,sHour,sMinute,0,0);
-}
+};
 
 // Sets a various fields of a select date with a prefix to the date field
-function setSelectDate (prefix,dateval) {
+ASN.setSelectDate = function(prefix,dateval) {
     if (dateval && dateval instanceof Date) {
-        setSelect(document.getElementById(prefix+"year"),dateval.getFullYear());
-        setSelect(document.getElementById(prefix+"month"),dateval.getMonth()+1);
-        setSelect(document.getElementById(prefix+"day"),dateval.getDate());
+        ASN.setSelect(document.getElementById(prefix+"year"),dateval.getFullYear());
+        ASN.setSelect(document.getElementById(prefix+"month"),dateval.getMonth()+1);
+        ASN.setSelect(document.getElementById(prefix+"day"),dateval.getDate());
         var sHour = dateval.getHours();
         var sAmpm = sHour >= 12 ? 'PM' : 'AM';
         sHour = sHour % 12;
         if (sHour === 0) {
            sHour = 12; 
         }
-        setSelect(document.getElementById(prefix+"hour"),sHour);
-        setSelect(document.getElementById(prefix+"ampm"),sAmpm);
-        setSelect(document.getElementById(prefix+"min"),dateval.getMinutes());
+        ASN.setSelect(document.getElementById(prefix+"hour"),sHour);
+        ASN.setSelect(document.getElementById(prefix+"ampm"),sAmpm);
+        ASN.setSelect(document.getElementById(prefix+"min"),dateval.getMinutes());
     }
-}
+};
 
-function dueDateChange(field) {
-  var dueprefix = "new_assignment_due";
-  var acceptprefix = "new_assignment_close";
-
-  var dueDate = getSelectDate(dueprefix);
-  var acceptDate = getSelectDate(acceptprefix);
-
-  if (dueDate.getTime() > acceptDate.getTime()) {
-    //Due date > accept date, update acceptDate field to match
-    setSelectDate(acceptprefix,dueDate); 
-  }
-
-}
-function setupAssignNew(){
+ASN.setupAssignNew = function(){
     // show the previously opened field
     $('.extraNode').hide();
     showNode = $('#attachments_for').val();
@@ -72,7 +59,7 @@ function setupAssignNew(){
         $('#noAllPurpose').hide('');
         $('#hasAllPurpose').show('');
     }
-    resizeFrame('grow');
+    ASN.resizeFrame('grow');
     
     $(".toggleRoleLink").click(function(){
         var actionType;
@@ -84,13 +71,13 @@ function setupAssignNew(){
             $('#roleDiv_' + roleType).show('');
             $('#collapse_' + roleType).show('');
             $('#expand_' + roleType).hide('');
-            resizeFrame('grow');
+            ASN.resizeFrame('grow');
         }
         else {
             $('#roleDiv_' + roleType).hide('');
             $('#expand_' + roleType).show('');
             $('#collapse_' + roleType).hide('');
-            resizeFrame('grow');
+            ASN.resizeFrame('grow');
         }
     });
     
@@ -120,13 +107,13 @@ function setupAssignNew(){
             $('#' + 'has' + nodeType).hide('');
             $('.extraNode').hide();
             $('#extraNodeLinkList').show();
-            resizeFrame('grow');
+            ASN.resizeFrame('grow');
         }
         if (linkType === "add" || linkType === "edit") {
             $('.extraNode').hide();
             $('#' + this.id.substring(0, this.id.indexOf('_')) + '-node').fadeIn('slow');
             $('#extraNodeLinkList').hide();
-            resizeFrame('grow');
+            ASN.resizeFrame('grow');
         }
         location.href = '#extraNodesTop';
     });
@@ -240,7 +227,7 @@ function setupAssignNew(){
                 $('#extraNodeLinkList').show();			
             }
             else {
-                resizeFrame('grow');
+                ASN.resizeFrame('grow');
                 location.href = '#extraNodesBoxTop';
             }
         }
@@ -281,9 +268,9 @@ function setupAssignNew(){
         }
     });
     
-}
+};
 
-function resizeFrame(updown) 
+ASN.resizeFrame = function(updown)
 {
     if (top.location !== self.location)
     {
@@ -303,17 +290,16 @@ function resizeFrame(updown)
     } 
     else 
     {
-//			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+        //throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
     }
-}
+};
 
 // toggle a fade
 jQuery.fn.fadeToggle = function(speed, easing, callback) {
     return this.animate({opacity: 'toggle'}, speed, easing, callback);
-}; 
+};
 
-
-function setupToggleAreas(toggler, togglee, openInit, speed){
+ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     // toggler=class of click target
     // togglee=class of container to expand
     // openInit=true - all togglee open on enter
@@ -324,28 +310,13 @@ function setupToggleAreas(toggler, togglee, openInit, speed){
     else {
         $('.' + togglee).hide();
         $('.collapse').hide();
-        resizeFrame();
+        ASN.resizeFrame();
     }
     $('.' + toggler).click(function(){
         $(this).next('.' + togglee).fadeToggle(speed);
         $(this).find('.expand').toggle();
         $(this).find('.collapse').toggle();
-        resizeFrame();
-    });
-}
-
-// SAK-29314 - onclick on any of the nav panel buttons...
-ASN.setupItemNavigator = function()
-{
-    $( ".navigator input:button" ).click( function()
-    {
-        // Disable all buttons
-        $( ".navigator input:button" ).attr( "disabled", "disabled" ).addClass( "disabled" );
-
-        // Show the progress indicator and hide the return to list button
-        $( ".messageProgress" ).css( "display", "inline" );
-        $( ".cancelgradesubmission" ).css( "display", "none" );
-        
+        ASN.resizeFrame();
     });
 };
 
@@ -445,7 +416,7 @@ ASN.toggleGroups = function(clickedElement) {
     }
 };
 
-function highlightSelectedAttachment()
+ASN.highlightSelectedAttachment = function()
 {
     endsWith = function(str, suffix)
     {
@@ -475,32 +446,39 @@ function highlightSelectedAttachment()
             }
         }
     }
-}
+};
 
-ASN.enableLinks = function()
-{
-    var downloadAll = document.getElementById( "downloadAll" );
-    var uploadAll = document.getElementById( "uploadAll" );
-    var releaseGrades = document.getElementById( "releaseGrades" );
-    var helpItems = document.getElementById( "helpItems" );
-    var links = [downloadAll, uploadAll, releaseGrades, helpItems];
-    for( i = 0; i < links.length; i++ )
-    {
-        if( links[i] !== null )
-        {
-            links[i].className = "";
+ASN.saveChanges = function(formName, textAreaId) {
+    var _textArea = document.getElementById(textAreaId);
+    if (_textArea !== null) {
+        if (typeof FCKeditorAPI !== "undefined") {
+            var editor = FCKeditorAPI.GetInstance(textAreaId);
+            document[formName].savedText.value = editor.GetXHTML(false);
         }
     }
 };
 
-// SAK-29314
-ASN.navPanelAction = function( submissionID, action )
+ASN.allowClick = function(object)
 {
-    document.gradeForm.action += "&submissionId=" + submissionID;
-    document.gradeForm.onsubmit();
-    document.getElementById( "option" ).value = action;
-    document.gradeForm.submit();
-    return false;
+    object.onclick='';
+    object.style.color='#000';
+    var rv = linkFlag;
+    // set the flag to be false
+    linkFlag = false;
+    //return the current flag status
+    return rv;
+};
+
+ASN.params_unserialize = function(p){
+    var ret = [],
+    seg = p.replace(/^\?/,'').split('&'),
+    len = seg.length, i = 0, s;
+    for (;i<len;i++) {
+        if (!seg[i]) { continue; }
+        s = seg[i].split('=');
+        ret.push({'name':s[0],'value':s[1]});
+    }
+    return ret;
 };
 
 // SAK-29314
@@ -547,253 +525,32 @@ ASN.toggleSubNavButtons = function( checkBoxClicked )
 };
 
 // SAK-29314
-ASN.toggleElements = function( buttons, disabled )
+ASN.toggleElements = function( elements, disabled )
 {
-    for( i = 0; i < buttons.length; i ++ )
+    for( i = 0; i < elements.length; i++ )
     {
-        buttons[i].disabled = disabled;
+        elements[i].disabled = disabled;
     }
 };
 
-// SAK-29314
-ASN.disableControls = function( escape )
+ASN.enableLinks = function()
 {
-    // Clone and disable all drop downs (disable the clone, hide the original)
-    var dropDowns = ASN.nodeListToArray( document.getElementsByTagName( "select" ) );
-    for( i = 0; i < dropDowns.length; i++ )
-    {
-        // Hide the original drop down
-        var select = dropDowns[i];
-        select.style.display = "none";
+    var links = [
+        document.getElementById( "downloadAll" ),
+        document.getElementById( "uploadAll" ),
+        document.getElementById( "releaseGrades" ),
+        document.getElementById( "helpItems" )
+    ];
 
-        // Create the cloned element and disable it
-        var newSelect = document.createElement( "select" );
-        newSelect.setAttribute( "id", select.getAttribute( "id" ) + "Disabled" );
-        newSelect.setAttribute( "name", select.getAttribute( "name" ) + "Disabled" );
-        newSelect.setAttribute( "className", select.getAttribute( "className" ) );
-        newSelect.setAttribute( "disabled", "true" );
-        newSelect.innerHTML = select.innerHTML;
-
-        // Add the clone to the DOM where the original was
-        var parent = select.parentNode;
-        parent.insertBefore( newSelect, select );
-    }
-
-    // Get all the input elements, separate into lists by type
-    var allInputs = ASN.nodeListToArray( document.getElementsByTagName( "input" ) );
-    var buttons = [];
-    var textFields = [];
-    for( i = 0; i < allInputs.length; i++ )
-    {
-        if( (allInputs[i].type === "submit" || allInputs[i].type === "button") && allInputs[i].id !== escape )
-        {
-            buttons.push( allInputs[i] );
-        }
-        else if( allInputs[i].type === "text" && allInputs[i].id !== escape )
-        {
-            textFields.push( allInputs[i] );
-        }
-    }
-
-    // Disable all buttons
-    ASN.toggleElements( textFields, true );
-    for( i = 0; i < buttons.length; i++ )
-    {
-        ASN.disableButton( "", buttons[i] );
-    }
-
-    // Get the download/upload links
-    var downAll = document.getElementById( "downloadAll" );
-    var upAll = document.getElementById( "uploadAll" );
-    var release = document.getElementById( "releaseGrades" );
-    var helpItems = document.getElementById( "helpItems" );
-    var links = [downAll, upAll, release, helpItems];
     for( i = 0; i < links.length; i++ )
     {
         if( links[i] !== null )
         {
-            ASN.disableLink( links[i] );
+            links[i].className = "";
         }
     }
 };
 
-// SAK-29314
-ASN.nodeListToArray = function( nodeList )
-{
-    var array = [];
-    for( var i = nodeList.length >>> 0; i--; )
-    {
-        array[i] = nodeList[i];
-    }
-
-    return array;
-};
-
-// SAK-29314
-ASN.changePageSize = function()
-{
-    ASN.disableControls();
-    ASN.showSpinner( "navSpinner" );
-    document.pagesizeForm.submit();
-};
-
-// SAK-29314
-ASN.changeView = function()
-{
-    document.getElementById( "option" ).value = "changeView";
-    ASN.disableControls();
-    ASN.showSpinner( "viewSpinner" );
-    document.viewForm.submit();
-    return false;
-};
-
-// SAK-29314
-ASN.applySearchFilter = function( searchOption )
-{
-    document.getElementById( "option" ).value = searchOption;
-
-    // Disable everything but the search field
-    ASN.disableControls( "search" );
-
-    // Clone and disable the search field (disable the clone, hide the original)
-    var original = document.getElementById( "search" );
-    var clone = document.createElement( "input" );
-    var parent = original.parentNode;
-    clone.setAttribute( "type", "text" );
-    clone.setAttribute( "id", "searchDisabled" );
-    clone.setAttribute( "name", "searchDisabled" );
-    clone.setAttribute( "className", original.getAttribute( "className" ) );
-    clone.value = original.value;
-    clone.setAttribute( "disabled", "true" );
-    original.style.display = "none";
-    parent.insertBefore( clone, original );
-
-    ASN.showSpinner( "userFilterSpinner" );
-    document.viewForm.submit();
-    return false;
-};
-
-// SAK-29314
-ASN.doLinkAction = function( action )
-{
-    document.getElementById( "option" ).value = action;
-    ASN.disableControls();
-    ASN.showSpinner( "navSpinner" );
-};
-
-// SAK-29314
-ASN.applyDefaultGrade = function()
-{
-    // If the default grade field is a text field, we need to do the clone & hide approach
-    var defaultGradeTextField = document.getElementById( "defaultGrade_2" );
-    if( defaultGradeTextField !== null )
-    {
-        // Disable everything but the text field
-        ASN.disableControls( "defaultGrade_2" );
-
-        // Clone and disable the text field (disable the clone, hide the original)
-        var clone = document.createElement( "input" );
-        var parent = defaultGradeTextField.parentNode;
-        clone.setAttribute( "type", "text" );
-        clone.setAttribute( "id", "defaultGrade_2Disabled" );
-        clone.setAttribute( "name", "defaultGrade_2Disabled" );
-        clone.setAttribute( "size", defaultGradeTextField.getAttribute( "size" ) );
-        clone.setAttribute( "className", defaultGradeTextField.getAttribute( "className" ) );
-        clone.value = defaultGradeTextField.value;
-        clone.setAttribute( "disabled", "true" );
-        defaultGradeTextField.style.display = "none";
-        parent.insertBefore( clone, defaultGradeTextField );
-    }
-
-    // Otherwise, it's a drop down, so we can just take the normal approach
-    else
-    {
-        ASN.disableControls();
-    }
-
-    ASN.showSpinner( "applyGradeSpinner" );
-    document.defaultGradeForm.submit();
-};
-
-// SAK-29314
-ASN.showSpinner = function( spinnerID )
-{
-    document.getElementById( spinnerID ).style.visibility = "visible";
-};
-
-// SAK-29314
-ASN.disableButton = function( divId, button )
-{
-    // first set the button to be invisible
-    button.style.display = "none";
-
-    // now create a new disabled button with the same attributes as the existing button
-    var newButton = document.createElement( "input" );
-
-    newButton.setAttribute( "type", "button" );
-    newButton.setAttribute( "id", button.getAttribute( "id" ) + "Disabled" );
-    newButton.setAttribute( "name", button.getAttribute( "name" ) + "Disabled" );
-    newButton.setAttribute( "value", button.getAttribute( "value" ) );
-    newButton.className = button.className + " noPointers";
-    newButton.setAttribute( "disabled", "true" );
-
-    if( "" !== divId )
-    {
-        var div = document.getElementById( divId );
-        div.insertBefore( newButton, button );
-    }
-    else
-    {
-        var parent = button.parentNode;
-        parent.insertBefore( newButton, button );
-    }
-};
-
-// SAK-29314
-ASN.doGradingFormAction = function( reference, option )
-{
-    // Apply the reference to the form's action handler if necessary
-    if( reference !== null )
-    {
-        document.gradeForm.action = document.gradeForm.action + "&submissionId=" + reference;
-    }
-
-    // Call the form's onSubmit function; change the hidden option value
-    document.gradeForm.onsubmit();
-    document.getElementById( "option" ).value = option;
-
-    // 'Disable' all form controls to prevent click happy users, except the grade text field; show the spinner
-    ASN.disableControls( "grade" );
-    ASN.showSpinner( "gradeFormSpinner" );
-
-    // Submit the form
-    document.gradeForm.submit();
-    return false;
-};
-
-// SAK-29314
-ASN.doGradingPreviewAction = function()
-{
-    var buttons = ASN.nodeListToArray( document.getElementsByTagName( "input" ) );
-    for( i = 0; i < buttons.length; i++ )
-    {
-        if( buttons[i].type === "submit" || buttons[i].type === "button" )
-        {
-            ASN.disableButton( "", buttons[i] );
-        }
-    }
-
-    ASN.showSpinner( "gradeFormPreviewSpinner" );
-};
-
-// SAK-29314
-ASN.disableLink = function( link )
-{
-    link.className = "noPointers";
-    link.disabled = true;
-};
-
-// SAK-29708
 ASN.checkEnableRemove = function()
 {
     var selected = false;
@@ -808,4 +565,326 @@ ASN.checkEnableRemove = function()
     }
 
     document.getElementById( "btnRemove" ).disabled = !selected;
+    document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
+};
+
+ASN.toggleResubmitTimePanel = function()
+{
+    if( document.getElementById( "allowResubmitNumber" ).value !== 0 && document.getElementById( "allowResubmitTime" ) !== null )
+    {
+        document.getElementById( "allowResubmitTime" ).style.display = "block";
+    }
+    else
+    {
+        document.getElementById( "allowResubmitTime" ).style.display = "none";
+    }
+};
+
+ASN.togglePeerAssessmentOptions = function(checked){
+    var section = document.getElementById("peerAssessmentOptions");
+    if(checked){
+        section.style.display="block";
+        ASN.resizeFrame('grow');
+    }else{
+        section.style.display="none";
+        ASN.resizeFrame('shrink');
+    }
+};
+
+ASN.toggleAddOptions = function(checked){
+        //Disable the peer review area and renable the site property unless this is selected 
+        var section = document.getElementById("peerAssessmentOptions");
+        section.style.display="none";
+        ASN.resizeFrame('shrink');
+        $("#site").prop("disabled", false);
+        //When Peer Assement options is selected
+        if(checked == "peerreview"){
+            section.style.display="block";
+            ASN.resizeFrame('grow');
+        //When Group Submission is checked
+        }else if (checked=="group"){
+            $("#site").prop("disabled", true);
+            $("#groups").prop("checked", true).trigger("click");
+        }
+    }
+    
+ASN.toggleReviewServiceOptions = function(checked){
+    var section = document.getElementById("reviewServiceOptions");
+    if(checked){
+        section.style.display="block";
+        ASN.resizeFrame('grow');
+    }else{
+        section.style.display="none";
+        ASN.resizeFrame('shrink');
+    }
+};
+
+ASN.toggleSmallMatchesOptions = function(checked){
+    var section = document.getElementById("smallMatchesOptions");
+    if(checked){
+        section.style.display="inline-block";
+        ASN.resizeFrame('grow');
+    }else{
+        section.style.display="none";
+        ASN.resizeFrame('shrink');
+    }
+};
+
+ASN.toggleSmallMatchesDisabled = function(){
+    var radioOption1 = document.getElementById("wordCount");
+    var radioOption2 = document.getElementById("percentage");
+    var excludeWords = document.getElementById("tiiExcludeValueWords");
+    var excludePercentages = document.getElementById("tiiExcludeValuePercentages");
+
+    excludeWords.disabled = true;
+    excludeWords.value = "";
+    excludePercentages.disabled = true;
+    excludePercentages.value = "";
+    if(radioOption1.checked){
+        excludeWords.disabled = false;
+    }else if(radioOption2.checked){
+        excludePercentages.disabled = false;
+    }
+};
+
+ASN.toggleSelectAll = function(caller, elementName)
+{
+    var newValue = caller.checked;
+    var elements = document.getElementsByName(elementName);
+    if(elements)
+    {
+        //SAK-19147 don't toggle last "Save all submissions in one folder"
+        for(var i = 0; i < elements.length; i++)
+        {
+            if( elements[i].id !== "withoutFolders" )
+            {
+                elements[i].checked = newValue;
+            }
+        }
+    }
+};
+
+ASN.deselectSelectAll = function( caller )
+{
+    var checked = caller.checked;
+    if( !checked )
+    {
+        document.getElementById( "selectall" ).checked = checked;
+    }
+};
+
+ASN.handleEnterKeyPress = function(ev)
+{
+    if (!ev)
+    {
+        ev = window.event;
+    }
+
+    if (ev && ev.keyCode === 13)
+    {
+         return false; 
+    }
+};
+
+ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, param0, param1, param2, param3, clickedElement)
+{
+     var extraInfoArray = [];
+    if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
+    }
+
+     if (document.getElementById('studentSubmissionAttachment') && document.getElementById('studentSubmissionAttachment').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="studentSubmissionAttachment=true";
+    }
+    if (document.getElementById('gradeFile') && document.getElementById('gradeFile').checked)
+    {
+        if (document.getElementById('gradeFileFormat_excel').checked)
+        {
+            extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_excel').value;
+        } else {
+            extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_csv').value;
+        }
+    }
+    if (document.getElementById('feedbackTexts') && document.getElementById('feedbackTexts').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="feedbackTexts=true";
+    }
+    if (document.getElementById('feedbackComments') && document.getElementById('feedbackComments').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="feedbackComments=true";
+    }
+    if (document.getElementById('feedbackAttachments') && document.getElementById('feedbackAttachments').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
+    }
+    if (extraInfoArray.length === 0)
+    {
+        alert(alertMessage);
+    }
+    else
+    {
+        SPNR.disableControlsAndSpin( clickedElement, null );
+
+        if (document.getElementById('withoutFolders') && document.getElementById('withoutFolders').checked)
+        {
+            extraInfoArray[extraInfoArray.length]="withoutFolders=true";
+        }
+
+        accessPointUrl = accessPointUrl + "?";
+        for(i=0; i<extraInfoArray.length; i++) 
+        { 
+            accessPointUrl = accessPointUrl + extraInfoArray[i] + "&"; 
+        }
+        // cut the & in the end
+        accessPointUrl = accessPointUrl.substring(0, accessPointUrl.length-1);
+        // attach the assignment reference
+        accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + param1 + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
+        window.location.href=accessPointUrl;
+        document.getElementById('downloadUrl').value=accessPointUrl; 
+        document.getElementById('uploadAllForm').action=actionString; 
+        setTimeout("ASN.submitForm( 'uploadAllForm', null, null, null )", 1500);
+    }
+};
+
+/* Enables the submit/resubmit button. If checkForFile is true, then it disables the submit/resubmit button if the clonableUpload button has no value*/
+ASN.enableSubmitUnlessNoFile = function(checkForFile)
+{
+    var btnPost = document.getElementById('post');
+    var doEnable = true;
+    if (checkForFile)
+    {
+        var btnClonableUpload = document.getElementById('clonableUpload');
+        if (btnClonableUpload && btnClonableUpload.value === "")
+        {
+             doEnable = false;
+        }
+    }
+
+    if (doEnable)
+    {
+        btnPost.removeAttribute('disabled');
+    }
+    else
+    {
+        btnPost.setAttribute('disabled', 'disabled');
+    }
+};
+
+ASN.submitForm = function( formID, option, submissionID, view )
+{
+    // Get the form
+    var form = document.getElementById( formID );
+    if( form !== null )
+    {
+        // Apply the submission ID to the form's action if one is supplied
+        if( submissionID !== null )
+        {
+            form.action += "&submissionId=" + submissionID;
+        }
+
+        // Do the onsubmit() if the form has one
+        if( form && form.onsubmit )
+        {
+            form.onsubmit();
+        }
+
+        // If an option was given, apply it to the element
+        if( option !== null )
+        {
+            var optionElement = document.getElementById( "option" );
+            if( optionElement !== null )
+            {
+                optionElement.value = option;
+            }
+        }
+
+        // If a view was given, apply it to the element
+        if( view !== null )
+        {
+            var viewElement = document.getElementById( "view" );
+            if( viewElement !== null )
+            {
+                viewElement.value = view;
+            }
+        }
+
+        // Do the submit() if the form has one
+        if( form && form.submit )
+        {
+            form.submit();
+        }
+    }
+};
+
+ASN.doStudentViewSubmissionAction = function( formID, option, attachmentID )
+{
+    document.getElementById( formID ).currentAttachment.value = attachmentID;
+    ASN.submitForm( formID, option, null, null );
+};
+
+ASN.doTagsListAction = function( formID, value, providerID )
+{
+    var form = document.getElementById( formID );
+    form.sakai_action.value = value;
+    form.providerId.value = providerID;
+};
+
+ASN.toggleAllowResubmissionPanel = function()
+{
+    var panel = document.getElementById("allowResubmissionPanelContent");
+    $(panel).slideToggle(200);
+    var expandImg = document.getElementById("expandAllowResub");
+    var collapseImg = document.getElementById("collapseAllowResub");
+    ASN.swapDisplay(expandImg, collapseImg);
+    
+    var allow = document.getElementById("allowResToggle");
+    if (allow.value === "checked")
+    {
+        allow.value = "";
+    }
+    else
+    {
+        allow.value = "checked";
+    }
+}
+
+ASN.toggleSendFeedbackPanel = function()
+{
+    var panel = document.getElementById("sendFeedbackPanelContent");
+    $(panel).slideToggle(200);
+    var expandImg = document.getElementById("expandSendFeedback");
+    var collapseImg = document.getElementById("collapseSendFeedback");
+    ASN.swapDisplay(expandImg, collapseImg);
+    var showLabel = document.getElementById("showSendFeedbackLabel");
+    var hideLabel = document.getElementById("hideSendFeedbackLabel");
+    ASN.swapDisplay(showLabel, hideLabel);
+}
+
+ASN.swapDisplay = function(elem1, elem2)
+{
+    var tmpDisplay = elem1.style.display;
+    elem1.style.display = elem2.style.display;
+    elem2.style.display = tmpDisplay;
+}
+
+ASN.toggleIsGroupSubmission = function(checked){
+    if (checked) {
+        $("#site").prop("disabled", true);
+        $("#groups").prop("checked", true).trigger("click");
+    } else {
+        $("#site").prop("disabled", false);
+    }
+};
+
+ASN.toggleAutoAnnounceOptions = function(checked){
+    var section = document.getElementById("selectAutoAnnounceOptions");
+    if(checked){
+        section.style.display="block";
+        resizeFrame('grow');
+    }else{
+        section.style.display="none";
+        resizeFrame('shrink');
+    }
 };

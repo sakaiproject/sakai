@@ -48,6 +48,11 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
    </dependency>
+   <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+   </dependency>
   </dependencies>
   
   <build>

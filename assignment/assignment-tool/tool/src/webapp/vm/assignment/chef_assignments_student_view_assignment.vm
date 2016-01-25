@@ -3,7 +3,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
 <script type="text/javascript">
     $(document).ready(function(){
-        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+        ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });
 </script>
 
@@ -272,7 +272,7 @@
 		#end
 		#else
 			<p class="discTria">
-				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
+				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
 				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 			</p>	
@@ -281,7 +281,7 @@
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
 		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
 			<div class="act">
-				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" />
+				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

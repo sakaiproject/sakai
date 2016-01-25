@@ -32,8 +32,10 @@ $result = ob_get_clean();
 error_log($result);
 
 if ( $method == "PUT" || $method == "DELETE" ) {
+	error_log("Returning 200");
 	http_response_code(200);
 } else {
+	error_log("Returning 400");
 	http_response_code(400);
 }
 

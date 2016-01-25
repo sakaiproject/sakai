@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- Contains bean overrides and new definitions for request-scope beans required for integration of RSF apps into Sakai -->
+
+	<bean id="httpServletFactory" class="org.sakaiproject.rsf.servlet.SakaiHttpServletFactory">
+		<property name="entityReference" ref="sakai-UrlEntityReference" />
+	</bean>
+
+	<!-- Placeholder bean for whatever the current URL information determines is the current entity for this access - currently disused, 
+		both sources of into overlay onto EntityReference -->
+	<bean id="sakai-UrlEntityReference" class="java.lang.String" />
+
+	<!-- NB this does not coincide with the global BaseURLProvider, which is now in app scope! Actually used only to initialise the CRIBUP. 
+		When running locally, it can be the global BUP once more. -->
+	<bean id="sakai-BaseURLProvider" class="org.sakaiproject.rsf.servlet.SakaiBaseURLProviderFactory">
+		<property name="httpServletRequest" ref="httpServletRequest" />
+	</bean>
+
+	<bean id="sakaiRequestParser" class="org.sakaiproject.rsf.servlet.SakaiRequestParser" init-method="init">
+		<property name="httpServletRequest" ref="httpServletRequest" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="baseURLProvider" ref="sakai-BaseURLProvider" />
+	</bean>
+
+	<bean id="consumerStaticRenderers" factory-bean="sakaiRequestParser" factory-method="getConsumerStaticRenderers">
+	</bean>
+
+	<bean id="consumerInfo" factory-bean="sakaiRequestParser" factory-method="getConsumerInfo">
+	</bean>
+
+	<bean id="sakai-User" factory-bean="org.sakaiproject.user.api.UserDirectoryService" factory-method="getCurrentUser" />
+
+	<bean id="sakai-UserDisplayName" factory-bean="sakai-User" factory-method="getDisplayName" />
+
+	<bean id="sakai-UserEID" factory-bean="sakai-User" factory-method="getEid" />
+
+	<bean id="sakai-UserID" factory-bean="org.sakaiproject.tool.api.SessionManager" factory-method="getCurrentSessionUserId" />
+
+	<bean id="sakai-Locale" class="org.sakaiproject.rsf.locale.SakaiLocaleDeterminer">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
+    <bean id="requestLocale" class="uk.org.ponder.springutil.BeanReferenceFactoryBean">
+        <property name="targetBeanName" value="sakai-Locale" />
+    </bean>
+	
+	<bean id="requestTimeZone" factory-bean="sakaiRequestParser" factory-method="getTimeZone" />
+
+	<bean id="sakai-Placement" factory-bean="sakaiRequestParser" factory-method="getPlacement" />
+
+	<bean id="sakai-Site" factory-bean="sakaiRequestParser" factory-method="getSite" />
+
+	<bean id="sakai-SitePage" factory-bean="sakaiRequestParser" factory-method="getSitePage" />
+
+	<bean id="sakai-Context" factory-bean="sakaiRequestParser" factory-method="getContext" />
+
+	<bean id="sakai-EntityReference" factory-bean="sakaiRequestParser" factory-method="getEntityReference" />
+
+	<bean id="genericDAOEntityBeanManagerParent" class="org.sakaiproject.rsf.genericdao.GenericDAOEntityBeanManager"
+		abstract="true" init-method="init">
+		<property name="mappingContext" ref="ELMappingContext" />
+	</bean>
+
+	<bean id="helperHandlerHookBean" class="org.sakaiproject.rsf.helper.HelperHandlerHookBean" lazy-init="true">
+		<property name="activeToolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="actionResultInterpreter" ref="actionResultInterpreter" />
+		<property name="beanLocator" ref="requestBeanLocator" />
+		<property name="beanModelAlterer" ref="DARApplier" />
+		<property name="httpServletRequest" ref="httpServletRequest" />
+		<property name="httpServletResponse" ref="httpServletResponse" />
+		<property name="statePreservationManager" ref="statePreservationManager" />
+		<property name="tokenStateHolder" ref="flowTokenStateHolder" />
+		<property name="viewParameters" ref="viewParameters" />
+		<property name="viewResolver" ref="viewResolver" />
+		<property name="viewStateHandler" ref="viewStateHandler" />
+		<property name="baseURLProvider" ref="baseURLProvider" />
+		<property name="pathInfo" ref="requestPathInfo" />
+		<property name="ariProcessor" ref="actionResultInterceptorProcessor" />
+	</bean>
+
+	<!-- This may belong in AppScope. Would need a proxy for the Sakai Flow TSH -->
+	<bean id="MultipartResolverFactory" class="org.sakaiproject.rsf.helper.MultipartResolverFactoryBean">
+		<property name="tokenStateHolder" ref="flowTokenStateHolder" />
+		<property name="commonsMultipartResolver" ref="commonsMultipartResolver" />
+		<property name="blankMultipartResolver" ref="blankMultipartResolver" />
+	</bean>
+	<bean id="multipartResolver" factory-bean="MultipartResolverFactory" factory-method="getMultipartResolver" />
+</beans>

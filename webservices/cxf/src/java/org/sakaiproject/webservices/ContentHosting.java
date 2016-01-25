@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.webservices;
 
 import java.util.Iterator;
@@ -13,9 +28,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -813,6 +830,64 @@ public class ContentHosting extends AbstractWebService {
 			LOG.error ("syncResources(): " + e.getClass().getName() + " : " + e.getMessage());
 		 	return e.getClass().getName() + " : " + e.getMessage();
 		}
+		return "success";
+	}
+
+    /**
+	 *  Hide or un-hide a sites resources
+	 *
+	 *  @param sessionId a valid sessionId
+	 *  @param siteId the site to set the hidden status on
+	 *  @param isHidden whether the collection is hidden or not
+	 *  @return "success" or "failure"
+	 */
+    @WebMethod
+    @Path("/siteHideResources")
+    @Produces("text/plain")
+    @GET
+    public String siteHideResources(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionId,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteId,
+            @WebParam(name = "hidden", partName = "hidden") @QueryParam("hidden") Boolean isHidden) {
+
+		if (StringUtils.isBlank(sessionId) || StringUtils.isBlank(siteId) || isHidden == null) {
+			LOG.warn("WebService siteHideResources: sessionid, siteid, hidden are required");
+			return "failure";
+		}
+
+		// establish the session
+		establishSession(sessionId);
+
+		Site site = null;
+		try {
+			 site = siteService.getSite(siteId);
+		} catch (IdUnusedException iue) {
+			LOG.warn("WebService siteHideResources: site " + siteId + " doesn't exist");
+			return "failure";
+		}
+
+		String rootCollection = contentHostingService.getSiteCollection(site.getId());
+		try {
+			ContentCollection collection = contentHostingService.getCollection(rootCollection);
+			List<ContentEntity> entities = collection.getMemberResources();
+			for (ContentEntity entity : entities) {
+				if (isHidden != entity.isHidden()) {
+					if (entity.isCollection()) {
+						ContentCollectionEdit edit = contentHostingService.editCollection(entity.getId());
+						edit.setAvailability(isHidden, null, null);
+						contentHostingService.commitCollection(edit);
+					} else if (entity.isResource()) {
+						ContentResourceEdit edit = contentHostingService.editResource(entity.getId());
+						edit.setAvailability(isHidden, null, null);
+						contentHostingService.commitResource(edit);
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOG.warn("WebService siteHideResources: cannot hide items in the root collection, " + e.getMessage());
+			return "failure";
+		}
+
 		return "success";
 	}
 }

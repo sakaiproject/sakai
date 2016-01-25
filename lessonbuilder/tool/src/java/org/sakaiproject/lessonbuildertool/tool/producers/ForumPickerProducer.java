@@ -192,6 +192,7 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 			}
 
 			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
+			UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 
 			UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addForum}");
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");

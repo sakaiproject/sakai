@@ -63,6 +63,10 @@
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-component-shared</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lessonbuilder</groupId>
+            <artifactId>lessonbuilder-api</artifactId>
+      	</dependency>
 
         <!-- Spring & Hibernate -->
         <dependency>
@@ -292,7 +296,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.6</version>
                         <configuration>
                             <includes>
                                 <include>**/*Test.java</include>

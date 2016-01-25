@@ -10,7 +10,7 @@
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 		<h:form id="msgForum" styleClass="specialLink">
 			
-	       		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+	       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 
@@ -99,7 +99,8 @@
 		      <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 					<h:outputText value=" #{msgs.cdfm_dash} " styleClass="textPanelFooter"/>
-					<h:outputText value="#{message.message.author}" styleClass="textPanelFooter"/>
+					<h:outputText value="#{message.anonAwareAuthor}" styleClass="textPanelFooter #{message.useAnonymousId ? 'anonymousAuthor' : ''}"/>
+					<h:outputText value=" #{msgs.cdfm_me}" styleClass="textPanelFooter" rendered="#{message.currentUserAndAnonymous}" />
 					<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
 					<h:outputText value="#{message.message.created}" styleClass="textPanelFooter">
 			  	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>

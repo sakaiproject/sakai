@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                               http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd"
+       default-lazy-init="false">
+
+    <bean
+            id="org.sakaiproject.login.filter.SakaiCasAuthenticationFilter"
+            class="org.sakaiproject.login.filter.SakaiCasAuthenticationFilter">
+        <!-- the cas server location browsers should be redirected to for logon -->
+        <property name="casServerLoginUrl" value="https://cas.tappakegga.edu/cas/login"/>
+        <property name="renew" value="false"/>
+        <property name="gateway" value="false"/>
+        <!-- the serv-->
+        <property name="service" value="https://smartsite-stage.tappakegga.edu/sakai-login-tool/container"/>
+    </bean>
+
+    <bean id="org.jasig.cas.client.validation.Cas20ServiceTicketValidator.serverUrl" class="java.lang.String">
+        <constructor-arg value="https://cas.tappakegga.edu/cas"/>
+    </bean>
+
+    <bean
+            id="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter"
+            class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter">
+        <property name="service" value="https://smartsite-stage.tappakegga.edu/sakai-login-tool/container"/>
+        <property name="redirectAfterValidation" value="false"/>
+        <property name="ticketValidator">
+            <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+                <constructor-arg ref="org.jasig.cas.client.validation.Cas20ServiceTicketValidator.serverUrl"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="org.jasig.cas.client.util.HttpServletRequestWrapperFilter" class="org.jasig.cas.client.util.HttpServletRequestWrapperFilter"></bean> 
+
+    <bean id="springSecurityFilterChain"
+          class="org.springframework.security.web.FilterChainProxy">
+        <sec:filter-chain-map path-type="ant">
+            <sec:filter-chain pattern="/container/**"
+                              filters="org.sakaiproject.login.filter.SakaiCasAuthenticationFilter,org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter,org.jasig.cas.client.util.HttpServletRequestWrapperFilter"/>
+        </sec:filter-chain-map>
+    </bean>
+
+
+</beans>

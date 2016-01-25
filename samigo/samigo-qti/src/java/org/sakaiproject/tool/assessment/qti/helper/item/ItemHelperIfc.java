@@ -57,6 +57,7 @@ public interface ItemHelperIfc
   public static final long ITEM_EMI = TypeIfc.EXTENDED_MATCHING_ITEMS.longValue();
   public static final long ITEM_MXSURVEY = TypeIfc.MATRIX_CHOICES_SURVEY.longValue();
   public static final long ITEM_CALCQ = TypeIfc.CALCULATED_QUESTION.longValue(); // CALCULATED_QUESTION
+  public static final long ITEM_IMAGMQ = TypeIfc.IMAGEMAP_QUESTION.longValue(); // IMAGEMAP_QUESTION
 
   public String[] itemTypes =
     {
@@ -74,6 +75,7 @@ public interface ItemHelperIfc
     "Extended Matching Items",
     "Matrix Choices Survey",
     "Calculated Question", // CALCULATED_QUESTION
+    "Image Map Question",  // IMAGEMAP_QUESTION
   };
 
   

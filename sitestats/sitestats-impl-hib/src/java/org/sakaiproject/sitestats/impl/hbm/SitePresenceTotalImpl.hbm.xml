@@ -8,7 +8,7 @@
         lazy="true">
         <id name="id" type="long" column="ID" unsaved-value="0">
             <generator class="native">
-                <param name="sequence">SST_PRESENCE_ID</param>
+                <param name="sequence">SST_PRESENCE_TOTALS_ID</param>
             </generator>
         </id>
         <property name="siteId" type="string" not-null="true">

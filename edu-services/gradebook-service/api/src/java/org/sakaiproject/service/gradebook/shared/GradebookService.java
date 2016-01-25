@@ -23,7 +23,7 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Collection;
+import java.util.Set;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +54,10 @@ public interface GradebookService {
 	public static final String[] validLetterGrade = {"a+", "a", "a-", "b+", "b", "b-",
     "c+", "c", "c-", "d+", "d", "d-", "f"};
 	
-	public static final String gradePermission = "grade";
-	public static final String viewPermission = "view";
+	// These Strings have been kept for backwards compatibility as they are used everywhere,
+	// however the {@link GraderPermission} enum should be used going forward.
+	@Deprecated public static final String gradePermission = GraderPermission.GRADE.toString();
+	@Deprecated public static final String viewPermission = GraderPermission.VIEW.toString();
 	
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 	
@@ -88,39 +90,37 @@ public interface GradebookService {
         INVALID_DECIMAL
     }
 	
-	@SuppressWarnings("rawtypes")
-	public static Comparator lettergradeComparator = new Comparator() 
-	{
-		public int compare(Object o1, Object o2) 
-		{
-			if(((String)o1).toLowerCase().charAt(0) == ((String)o2).toLowerCase().charAt(0))
-			{
-				if(((String)o1).length() == 2 && ((String)o2).length() == 2)
-				{
-					if(((String)o1).charAt(1) == '+')
-						return 0;
-					else
+    /**
+     * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
+     */
+    public static Comparator<String> lettergradeComparator = new Comparator<String>() {
+		public int compare(String o1, String o2){
+			if(o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
+				if(o1.length() == 2 && o2.length() == 2) {
+					if(o1.charAt(1) == '+') {
+						return -1; //SAK-30094
+					} else {
 						return 1;
+					}
 				}
-				if(((String)o1).length() == 1 && ((String)o2).length() == 2)
-				{
-					if(((String)o2).charAt(1) == '+')
-						return 1;
-					else
-						return 0;
+				if(o1.length() == 1 && o2.length() == 2) {
+					if(o2.charAt(1) == '+') {
+						return 1; //SAK-30094
+					} else {
+						return -1;
+					}
 				}
-				if(((String)o1).length() == 2 && ((String)o2).length() == 1)
-				{
-					if(((String)o1).charAt(1) == '+')
-						return 0;
-					else
+				if(o1.length() == 2 && o2.length() == 1) {
+					if(o1.charAt(1) == '+') {
+						return -1; //SAK-30094
+					} else {
 						return 1;
+					}
 				}
 				return 0;
 			}
-			else
-			{
-				return ((String)o1).toLowerCase().compareTo(((String)o2).toLowerCase());
+			else {
+				return o1.toLowerCase().compareTo(o2.toLowerCase());
 			}
 		}
 	};
@@ -365,14 +365,14 @@ public interface GradebookService {
 	public Long addAssignment(String gradebookUid, Assignment assignmentDefinition);
 	
 	/**
-	 * Modify the definition of an existing Gradebook-managed assignment.
+	 * Modify the definition of an existing Gradebook item.
 	 * 
 	 * Clients should be aware that it's allowed to change the points value of an
 	 * assignment even if students have already been scored on it. Any existing
 	 * scores will not be adjusted.
 	 * 
-	 * This method cannot be used to modify the definitions of externally-managed
-	 * assessments or to make Gradebook-managed assignments externally managed. 
+	 * This method can be used to manage both internal and external gradebook items,
+	 * however the title, due date and total points will not be edited for external gradebook items.
 	 * 
 	 * @param assignmentId the id of the assignment that needs to be changed
 	 * @param assignmentDefinition the new properties of the assignment
@@ -518,6 +518,11 @@ public interface GradebookService {
 	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
 	
 	/**
+	 * Get the grade records for the given list of students and the given assignment.
+	 * This can only be called by an instructor or TA that has access, not student.
+	 * 
+	 * See {@link #getGradeDefinitionForStudentForItem} for the method call that can be made as a student.
+	 * 
 	 * @param gradebookUid
 	 * @param assignmentId
 	 * @param studentIds
@@ -527,6 +532,20 @@ public interface GradebookService {
 	 * or grade a student in the passed list
 	 */
 	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long assignmentId, List<String> studentIds);
+
+	/**
+	 * This method gets grades for multiple gradebook items with emphasis on performance. This is particularly useful for reporting tools
+	 * @param gradebookUid
+	 * @param gradableObjectIds
+	 * @param studentIds
+	 * @return a Map of GradableObjectIds to a List of GradeDefinitions containing the grade information for the given
+	 * students for the given gradableObjectIds. Comments are excluded which can be useful for performance.
+	 * If a student does not have a grade on a gradableObject, the GradeDefinition will be omitted
+	 * @throws SecurityException if the current user is not authorized with gradeAll in this gradebook
+	 * @throws IllegalArgumentException if gradableObjectIds is null/empty,
+	 * or if gradableObjectIds contains items that are not members of the gradebook with uid = gradebookUid
+	 */
+	public Map<Long, List<GradeDefinition>> getGradesWithoutCommentsForStudentsForItems(String gradebookUid, List<Long> gradableOjbectIds, List<String> studentIds);
 	
 	/**
 	 * 
@@ -721,11 +740,24 @@ public interface GradebookService {
     /**
      * Calculate a student's score for a category given the category definition and grades for that student.
      * 
+     * Note that this cannot be run as a student due to permission checks. 
+     * Use {@link GradebookService#calculateCategoryScore(List, String)} if in context of a student.
+     * 
      * @param category category to perform the calculations for
      * @param gradeMap map of assignmentId to grade, to use for the calculations
      * @return percentage or null if no calculations were made
      */
     Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap);
+    
+    /**
+     * Calculate the category score given the viewable assignments and grades for that student.
+     * 
+     * @param categoryId id of category, used for validation that the assignments and grades match
+     * @param assignments list of assignments the student can view
+     * @param gradeMap map of assignmentId to grade, to use for the calculations
+     * @return percentage or null if no calculations were made
+     */
+    Double calculateCategoryScore(final Long categoryId, final List<Assignment> viewableAssignments, final Map<Long,String> gradeMap);
 
     /**
      * Get the course grade for a student
@@ -735,4 +767,36 @@ public interface GradebookService {
      * @return The CourseGrade for the student
      */
 	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
+	
+	/**
+	 * Get a list of CourseSections that the current user has access to in the given gradebook.
+	 * This is a combination of sections and groups and is permission filtered.
+	 * @param gradebookUid
+	 * @return list of CourseSection objects.
+	 */
+	@SuppressWarnings("rawtypes")
+	List getViewableSections(String gradebookUid);
+
+	/**
+	 * Update the settings for this gradebook
+	 * 
+	 * @param gradebookUid
+	 * @param gbInfo GradebookInformation object
+	 */
+	void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo);
+
+	/**
+	 * Return the GradeMappings for the given gradebook. The normal getGradebook(siteId)
+	 * doesn't return the GradeMapping.
+	 * @param gradebookId
+	 * @return Set of GradeMappings for the gradebook
+	 */
+	Set getGradebookGradeMappings(Long gradebookId);
+	
+	/**
+	 * Return the GradeMappings for the given gradebook.
+	 * @param gradebookUid
+	 * @return Set of GradeMappings for the gradebook
+	 */
+	Set getGradebookGradeMappings(String gradebookUid);
 }

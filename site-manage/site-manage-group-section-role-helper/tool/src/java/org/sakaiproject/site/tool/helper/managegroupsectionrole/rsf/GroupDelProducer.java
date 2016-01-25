@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -17,8 +17,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
-import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -64,6 +64,7 @@ implements ViewComponentProducer, ActionResultInterceptor{
     public MessageLocator messageLocator;
     public SiteManageGroupSectionRoleHandler handler;
     public FrameAdjustingProducer frameAdjustingProducer;
+    public AuthzGroupService authzGroupService;
     
     public String getViewID() {    
         return VIEW_ID;
@@ -109,7 +110,7 @@ implements ViewComponentProducer, ActionResultInterceptor{
     			int size = 0;
     			try
     			{
-    				size=AuthzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
+    				size=authzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
     			}
     			catch (GroupNotDefinedException e)
     			{

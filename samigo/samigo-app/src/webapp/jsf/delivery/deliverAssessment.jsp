@@ -18,7 +18,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*      http://www.osedu.org/licenses/ECL-2.0
+*      http://www.opensource.org/licenses/ECL-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,6 +46,19 @@
          border-width: 0.5px;
          border-color: light grey;
        }
+       
+       #delivPageWrapper
+       {
+            height:1800px;
+            width: 100%
+            float: left;
+       }
+       
+       #delivAssessmentWrapper
+       {
+            width: 96%;
+            float: left;
+       }
       </style>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
@@ -54,13 +67,11 @@
       <script type="text/javascript">
 		
 		function whichradio(obj){ 
-
           var myId = String(obj.id);
           //such as : takeAssessmentForm:_id48:0:_id105:1:deliverMatrixChoicesSurvey:matrixSurveyRadioTable:0:_id1198_0:myRadioId1
           //find the table id for mutiple matrix questions tables on the same display page 
           //take care of two different question, one set as forceRanking, another is not
           var myIdParts = myId.split(":");
-
           var node_list = document.getElementsByTagName('input');
           for (var i=0; i<node_list.length; i++) {
             var node = node_list[i];		
@@ -69,7 +80,6 @@
               if(nodeIdParts[4]==myIdParts[4] && node.value == 'true'){
                 //find the radio button table(s)
                 var tables = document.getElementsByTagName('table');
-
                 for(var i=0; i<tables.length; i++){
                   var mytable = tables[i];
                   var mytableParts = mytable.id.split(":");
@@ -78,7 +88,6 @@
                     break;
                   }
                 }
-
                 //index will be the begining of 'matrixSurveyRadioTable'
                 var index = myId.indexOf("matrixSurveyRadioTable");
                 var strBefore = myId.substring(0,index+'matrixSurveyRadioTable'.length);
@@ -105,8 +114,6 @@
             }
           }
 		}
-
-
       </script>
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       
@@ -177,13 +184,12 @@
 
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
-   onsubmit="saveTime()">
+   onsubmit="saveTime(); serializeImagePoints()">
 
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/JavaScript">
-
 function checkRadio()
 {
   for (i=0; i<document.forms[0].elements.length; i++)
@@ -197,7 +203,6 @@ function checkRadio()
     }
   }
 }
-
 var formatByQuestion = '<h:outputText value="#{delivery.settings.formatByQuestion}" />';
 function setLocation()
 {
@@ -206,7 +211,6 @@ function setLocation()
 	questionIndex = document.forms[0].elements['takeAssessmentForm:questionIndex'].value;
  	if (!formatByQuestion)
            document.forms[0].elements['takeAssessmentForm:questionIndex'].value = "0";
-
 	formatByPart = document.forms[0].elements['takeAssessmentForm:formatByPart'].value;
 	formatByAssessment = document.forms[0].elements['takeAssessmentForm:formatByAssessment'].value;
 	
@@ -225,7 +229,6 @@ function setLocation()
 		//alert("from TOC:" + window.location);
 	}
 }
-
 var redrawAnchorName = '<h:outputText value="#{delivery.redrawAnchorName}" />';
 function setLocation2()
 {
@@ -235,11 +238,9 @@ function setLocation2()
 		//alert("from redraw: window.location..." + window.location);
 	}
 }
-
 function noenter(){
 return!(window.event && window.event.keyCode == 13);
 }
-
 function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
@@ -247,7 +248,6 @@ function saveTime()
   document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
  }
 }
-
 function disableRationale(){
 	var textAreas = document.getElementsByTagName("textarea");
 	//alert(textAreas[0].id);
@@ -256,7 +256,6 @@ function disableRationale(){
 		textAreas[0].disabled = true;
 	}
 }
-
 function enableRationale(){
 	var textAreas = document.getElementsByTagName("textarea");
 	//alert(textAreas[0].id);
@@ -264,7 +263,6 @@ function enableRationale(){
 	if (textAreas.length == 1 && textAreas[0].id.endsWith('rationale')) {
 		textAreas[0].disabled = false;
 	}
-
 	/* Somehow the following for-loop becomes an infinite look of enableRationale(). No time to look into this now. Use above work around. 
 	   Should come back later to figure out the reason.
 	for(i=0; i < textAreas.length; i++){
@@ -276,19 +274,15 @@ function enableRationale(){
     }
 	*/
 }
-
 // modified from tompuleo.com
 String.prototype.endsWith = function(txt)
 {
   var rgx;
   rgx = new RegExp(txt+"$");
-
   return this.match(rgx) != null; 
 }
-
 function clickSaCharCountLink(field){
 var insertlinkid= field.id.replace("getAaCharCount", "hiddenlink");
-
 var newindex = 0;
 for (i=0; i<document.links.length; i++) {
   if(document.links[i].id == insertlinkid)
@@ -297,12 +291,73 @@ for (i=0; i<document.links.length; i++) {
     break;
   }
 }
-
 document.links[newindex].onclick();
 }
-
 </script>
 
+
+<h:panelGroup rendered="#{delivery.actionString =='gradeAssessment' || delivery.actionString =='reviewAssessment' }" >
+	<f:verbatim>
+		<script language='javascript' src='/samigo-app/js/jquery.dynamiclist.student.preview.js'></script>
+		<script language='javascript' src='/samigo-app/js/selection.student.preview.js'></script>
+		<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+	</f:verbatim>
+</h:panelGroup>
+
+<h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment' }" >
+	<f:verbatim>
+		<script language='javascript' src='/samigo-app/js/jquery.dynamiclist.student.js'></script>
+		<script language='javascript' src='/samigo-app/js/selection.student.js'></script>
+		<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+	</f:verbatim>
+</h:panelGroup>
+
+<link href="/samigo-app/css/imageQuestion.student.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
+
+<script type="text/JavaScript">
+	var dynamicListMap = [];		
+	jQuery(window).load(function(){
+		
+		$('div[id^=sectionImageMap_]').each(function(){
+			var myregexp = /sectionImageMap_(\d+_\d+)/
+			var matches = myregexp.exec(this.id);
+			var sequence = matches[1];
+			var serializedImageMapId = $(this).find('input:hidden[id$=serializedImageMap]').attr('id').replace(/:/g, '\\:');
+			
+			var dynamicList = new DynamicList(serializedImageMapId, 'imageMapTemplate_'+sequence, 'pointerClass', 'imageMapContainer_'+sequence);
+			dynamicList.fillElements();
+			
+			dynamicListMap[sequence] = dynamicList;
+			
+		});	
+		
+		$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
+			var myregexp = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/
+			var matches = myregexp.exec(this.id);
+			var sequence = matches[1];
+			var label = parseInt(matches[2])+1;
+			
+			var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'answerImageMapContainer_'+sequence);
+			try {
+				sel.setCoords(jQuery.parseJSON(this.value));
+				sel.setText(label);
+			}catch(err){}
+			
+		});	
+	});
+	
+	function resetImageMap(key) {
+		if(dynamicListMap[key] !== undefined)
+			dynamicListMap[key].resetElements();
+	}
+	
+	function serializeImagePoints(){
+		for(var key in dynamicListMap)
+			dynamicListMap[key].serializeElements();
+	}
+
+</script>
 
 <h:inputHidden id="partIndex" value="#{delivery.partIndex}"/>
 <h:inputHidden id="questionIndex" value="#{delivery.questionIndex}"/>
@@ -322,6 +377,10 @@ document.links[newindex].onclick();
      <h:commandButton id="done" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
+
+<f:verbatim><div id="delivPageWrapper">
+<div id="delivAssessmentWrapper">
+</f:verbatim>
 
 <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
 <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
@@ -412,6 +471,11 @@ document.links[newindex].onclick();
           <h:panelGroup rendered="#{question.itemData.typeId == 15}"><!-- // CALCULATED_QUESTION -->
            <f:subview id="deliverCalculatedQuestion">
             <%@ include file="/jsf/delivery/item/deliverCalculatedQuestion.jsp" %>
+           </f:subview>
+          </h:panelGroup>
+           <h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- // IMAGEMAP_QUESTION -->
+           <f:subview id="deliverImageMapQuestion">
+            <%@ include file="/jsf/delivery/item/deliverImageMapQuestion.jsp" %>
            </f:subview>
           </h:panelGroup>
           <h:panelGroup
@@ -585,7 +649,13 @@ document.links[newindex].onclick();
 	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
 	</h:commandLink>
 
-<f:verbatim></p></f:verbatim>
+<f:verbatim></p><br /><br /></f:verbatim>
+
+<!-- CLOSING THE WRAPPER DIVS -->
+<f:verbatim></div></f:verbatim>
+<%@ include file="/jsf/delivery/questionProgress.jspf" %>
+<f:verbatim></div>
+</f:verbatim>
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -598,6 +668,7 @@ document.links[newindex].onclick();
 <!-- end content -->
 </div>
 <f:verbatim></div></f:verbatim>
+<script type="text/javascript" src="/samigo-app/js/questionProgress.js"></script>
 <script type="text/JavaScript">
 	<%= request.getAttribute("html.body.onload") %> 
 	setLocation(); 
@@ -605,6 +676,9 @@ document.links[newindex].onclick();
 	fixImplicitLabeling();
 	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
 	setTimeout('setLocation2()',2);
+	questionProgress.transposeTOCTables();
+	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
+    questionProgress.setUp();
 </script>
     </body>
   </html>

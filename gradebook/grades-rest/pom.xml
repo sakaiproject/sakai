@@ -171,6 +171,7 @@
                         <exclude>m2-target/**</exclude>
                         <exclude>**/*.properties</exclude>
                         <exclude>**/*.txt</exclude>
+                        <exclude>**/*.xml</exclude>
                         <exclude>LICENSE*</exclude>
                         <exclude>**/README.txt</exclude>
                         <exclude>bin/**</exclude>

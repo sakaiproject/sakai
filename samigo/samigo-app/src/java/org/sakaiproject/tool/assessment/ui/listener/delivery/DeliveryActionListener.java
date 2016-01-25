@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -71,6 +72,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -87,6 +89,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FibBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ImageMapQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
@@ -98,6 +101,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -331,6 +335,8 @@ public class DeliveryActionListener
                       }    	  
                   }
               }
+
+              populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
               
               // If this is a linear access and user clicks on Show Feedback, we do not
               // get data from db. Use delivery bean instead
@@ -653,8 +659,10 @@ public class DeliveryActionListener
   {
     if (ContextUtil.lookupParam("partnumber") != null &&
           !ContextUtil.lookupParam("partnumber").trim().equals("") && 
+            !ContextUtil.lookupParam("partnumber").trim().equals("null") &&
           ContextUtil.lookupParam("questionnumber") != null &&
-          !ContextUtil.lookupParam("questionnumber").trim().equals(""))
+          !ContextUtil.lookupParam("questionnumber").trim().equals("") &&
+            !ContextUtil.lookupParam("questionnumber").trim().equals("null"))
     {
         delivery.setPartIndex(Integer.valueOf
                 (ContextUtil.lookupParam("partnumber")).intValue() - 1);
@@ -1427,12 +1435,15 @@ public class DeliveryActionListener
     	  }
       }
 
-      // Never randomize Fill-in-the-blank or Numeric Response, always randomize matching
-      if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||
-    		  item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) || 
-    		  item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY) ||
-    		  item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) || // CALCULATED_QUESTION
-    		  item.getTypeId().equals(TypeIfc.MATCHING))
+      List<Long> alwaysRandomizeTypes = Arrays.asList(TypeIfc.MATCHING);
+      List<Long> neverRandomizeTypes = Arrays.asList(TypeIfc.FILL_IN_BLANK,
+              TypeIfc.FILL_IN_NUMERIC,
+              TypeIfc.MATRIX_CHOICES_SURVEY,
+              TypeIfc.CALCULATED_QUESTION,
+    		  TypeIfc.IMAGEMAP_QUESTION);
+
+      if (alwaysRandomizeTypes.contains(item.getTypeId()) ||
+              (randomize && !neverRandomizeTypes.contains(item.getTypeId())))
       {
             ArrayList shuffled = new ArrayList();
             Iterator i1 = text.getAnswerArraySorted().iterator();
@@ -1454,8 +1465,9 @@ public class DeliveryActionListener
 			agentString = getAgentString();
 		}
 
+        String itemText = (item.getText() == null) ? "" : item.getText();
         Collections.shuffle(shuffled, 
-        		new Random( (long) item.getText().hashCode() + (getAgentString() + "_" + item.getItemId().toString()).hashCode()));
+        		new Random( (long) itemText.hashCode() + (getAgentString() + "_" + item.getItemId().toString()).hashCode()));
         /*
         if (item.getTypeId().equals(TypeIfc.MATCHING))
         {
@@ -1498,7 +1510,8 @@ public class DeliveryActionListener
           if ((!item.getPartialCreditFlag() && item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)) ||
               item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
               item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
-              item.getTypeId().equals(TypeIfc.MATCHING))
+              item.getTypeId().equals(TypeIfc.MATCHING) ||
+              item.getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION))
           {
             answer.setLabel(Character.toString(alphabet.charAt(k++)));
             if (answer.getIsCorrect() != null &&
@@ -1749,6 +1762,10 @@ public class DeliveryActionListener
     else if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
     {
         populateCalculatedQuestion(item, itemBean, delivery);
+    }
+    else if (item.getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION))
+    {
+        populateImageMapQuestion(item, itemBean, publishedAnswerHash);
     }
     
     return itemBean;
@@ -2302,6 +2319,22 @@ public class DeliveryActionListener
   }
 */
 
+  public void populateSubmissionsRemaining(PublishedAssessmentService service, PublishedAssessmentIfc pubAssessment, DeliveryBean delivery) {
+      AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+
+      int totalSubmissions = service.getTotalSubmission(AgentFacade.getAgentString(), pubAssessment.getPublishedAssessmentId().toString()).intValue();
+      delivery.setTotalSubmissions(totalSubmissions);
+
+      if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
+        // when re-takes are allowed always display 1 as number of remaining submission
+        int submissionsRemaining = control.getSubmissionsAllowed().intValue() - totalSubmissions;
+        if (submissionsRemaining < 1) {
+            submissionsRemaining = 1;
+        }
+        delivery.setSubmissionsRemaining(submissionsRemaining);
+      }
+  }
+
   /**
    * CALCULATED_QUESTION
    * This method essentially will convert a CalculatedQuestion item which is initially structured
@@ -2372,14 +2405,7 @@ public class DeliveryActionListener
                       {
                           answer.setText("");
                       }
-
-                      double score = new GradingService().getCalcQScore(data, item, answersMap, i);
-                      // mark answer as correct if score > 0
-                      if (score > 0.0) {
-                          fbean.setIsCorrect(true);
-                      } else {
-                          fbean.setIsCorrect(false);
-                      }
+                      fbean.setIsCorrect(service.getCalcQResult(data, item, answersMap, i));
                   }
               }
           }
@@ -2398,6 +2424,62 @@ public class DeliveryActionListener
 
   }
 
+  public void populateImageMapQuestion(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash)
+  {	
+	bean.setImageSrc(item.getImageMapSrc());
+	
+	Iterator iter = item.getItemTextArraySorted().iterator();
+    int j = 1;
+    ArrayList beans = new ArrayList();
+    ArrayList newAnswers = new ArrayList();
+    while (iter.hasNext())
+    {
+      
+      ItemTextIfc text = (ItemTextIfc) iter.next();
+      ImageMapQuestionBean mbean = new  ImageMapQuestionBean();
+      mbean.setText(Integer.toString(j++) + ". " + text.getText());
+      mbean.setItemText(text);
+      mbean.setItemContentsBean(bean);
+
+      Iterator iter2 = text.getAnswerArraySorted().iterator();
+      
+      ResourceLoader rb = null;
+      if (rb == null) { 	 
+  		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+  	  }
+      
+      while (iter2.hasNext())
+      {
+
+        AnswerIfc answer = (AnswerIfc) iter2.next();
+        newAnswers.add(answer.getText());
+      }
+      
+      GradingService gs = new GradingService();
+      
+      iter2 = bean.getItemGradingDataArray().iterator();
+      while (iter2.hasNext())
+      {
+        ItemGradingData data = (ItemGradingData) iter2.next();
+        if (data.getPublishedItemTextId().equals(text.getId()))
+        {
+          mbean.setItemGradingData(data);
+		  mbean.setIsCorrect(data.getIsCorrect());
+          if (data.getAnswerText() != null)
+          {
+            mbean.setResponse(data.getAnswerText());
+          }
+          break;
+        }
+      }
+
+      beans.add(mbean);
+    }
+    bean.setMatchingArray(beans);
+    bean.setAnswers(newAnswers); // Change the answers to just text
+  
+  }
+  
   public String getAgentString(){
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agentString = person.getId();
@@ -2589,6 +2671,16 @@ public class DeliveryActionListener
     AssessmentGradingData ag = delivery.getAssessmentGrading();
 
     delivery.setBeginTime(ag.getAttemptDate());
+
+		// Handle Extended Time Information
+		ExtendedTimeService extendedTimeService = new ExtendedTimeService(publishedAssessment);
+		if (extendedTimeService.hasExtendedTime()) {
+			if (extendedTimeService.getTimeLimit() > 0)
+				publishedAssessment.setTimeLimit(extendedTimeService.getTimeLimit());
+			publishedAssessment.setDueDate(extendedTimeService.getDueDate());
+			publishedAssessment.setRetractDate(extendedTimeService.getRetractDate());
+		}
+    
     String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
     String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(timeLimitInSetting);
     boolean isTimedAssessmentBySetting = delivery.getHasTimeLimit() && 
@@ -2620,17 +2712,18 @@ public class DeliveryActionListener
     }
 
     if (isTimedAssessmentBySetting) {
-    	if (fromBeginAssessment) {
-    		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
-    	}
-    	else {
-    		if (delivery.getTimeLimit() != null) {
-    			timeLimit = Integer.parseInt(delivery.getTimeLimit());
-    		}
-    	}
+//    	if (fromBeginAssessment) {
+//    		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
+//    	}
+//    	else {
+//    		if (delivery.getTimeLimit() != null) {
+//    			timeLimit = Integer.parseInt(delivery.getTimeLimit());
+//    		}
+//    	}
+    	timeLimit = delivery.evaluateTimeLimit(publishedAssessment,fromBeginAssessment, extendedTimeService.getTimeLimit());
     }
     else if (delivery.getTurnIntoTimedAssessment()) {
-   		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
+   		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting));
     }
     
 

@@ -25,6 +25,9 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
 import org.sakaiproject.poll.model.Option;
@@ -32,37 +35,29 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.service.impl.PollListManagerImpl;
 import org.sakaiproject.poll.service.impl.PollVoteManagerImpl;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-public class PollListManagerTest extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={
+		"/hibernate-test.xml",
+		"classpath:org/sakaiproject/poll/spring-hibernate.xml" })
+public class PollListManagerTest extends AbstractJUnit4SpringContextTests {
 
 	private static Log log = LogFactory.getLog(PollListManagerTest.class);	
 	
 	private TestDataPreload tdp = new TestDataPreload();
 
+	@Autowired
+	@Qualifier("org.sakaiproject.poll.dao.impl.PollDaoTarget")
+	private PollDao dao;
 	private PollListManagerImpl pollListManager;
 	private PollVoteManagerImpl pollVoteManager;
 	private ExternalLogicStubb externalLogicStubb;
 	
-	protected String[] getConfigLocations() {
-		// point to the needed spring config files, must be on the classpath
-		// (add component/src/webapp/WEB-INF to the build path in Eclipse),
-		// they also need to be referenced in the project.xml file
-		return new String[] { "hibernate-test.xml", "classpath:org/sakaiproject/poll/spring-hibernate.xml" };
-	}
-
-	// run this before each test starts
-	protected void onSetUpBeforeTransaction() throws Exception {
-	}
-	
-	// run this before each test starts and as part of the transaction
-	protected void onSetUpInTransaction() {
-		PollDao dao = (PollDao) applicationContext.getBean("org.sakaiproject.poll.dao.impl.PollDaoTarget");
-		if (dao == null) {
-			log.error("onSetUpInTransaction: DAO could not be retrieved from spring context");
-			return;
-		}
-		
+	@Before
+	public void onSetUp() {
 		pollListManager = new PollListManagerImpl();
 		pollListManager.setDao(dao);
 		
@@ -79,34 +74,35 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		tdp.preloadTestData(dao);
 	}
 	
+	@Test
     public void testGetPollById() {
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
     	
     	//we shouldNot find this poll
     	Poll pollFail = pollListManager.getPollById(Long.valueOf(9999999));
-    	assertNull(pollFail);
+    	Assert.assertNull(pollFail);
     	
     	//this one should exist -- the preload saves one poll and remembers its ID
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
     	Poll poll1 = pollListManager.getPollById(tdp.getFirstPollId());
-    	assertNotNull(poll1);
+    	Assert.assertNotNull(poll1);
     	
     	//it should have options
-    	assertNotNull(poll1.getPollOptions());
-    	assertTrue(poll1.getPollOptions().size() > 0);
+    	Assert.assertNotNull(poll1.getPollOptions());
+    	Assert.assertTrue(poll1.getPollOptions().size() > 0);
     	
     	//we expect this one to fails
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
 		try {
 			Poll poll2 = pollListManager.getPollById(tdp.getFirstPollId());
-			fail("should not be allowed to read this poll");
+			Assert.fail("should not be allowed to read this poll");
 		} 
 		catch (SecurityException e) {
 			e.printStackTrace();
 		}
     }
-	
-    
+
+	@Test
     public void testSavePoll() {
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
 		
@@ -122,16 +118,16 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		
 		
 		//If this has a value something is wrong without POJO
-		assertNull(poll1.getPollId());
+		Assert.assertNull(poll1.getPollId());
 		
 		pollListManager.savePoll(poll1);
 		
 		//if this is null we have a problem
-		assertNotNull(poll1.getPollId());
+		Assert.assertNotNull(poll1.getPollId());
 		
 		Poll poll2 = pollListManager.getPollById(poll1.getPollId());
-		assertNotNull(poll2);
-		assertEquals(poll1.getPollText(), poll2.getPollText());
+		Assert.assertNotNull(poll2);
+		Assert.assertEquals(poll1.getPollText(), poll2.getPollText());
 		
 		//TODO add failure cases - null parameters
 		
@@ -140,7 +136,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		//a user needs privileges to save the poll
 		try {
 			pollListManager.savePoll(null);
-			fail();
+			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -152,7 +148,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 			Poll poll = new Poll();
 			poll.setText("sdfgsdf");
 			pollListManager.savePoll(poll);
-			fail();
+			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -161,7 +157,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
 		try {
 			pollListManager.savePoll(poll1);
-			fail();
+			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -172,7 +168,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		
     }
 	
-    
+	@Test
     public void testDeletePoll() {
     	
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
@@ -190,7 +186,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		//we should not be able to delete a poll that hasn't been saved
 		try {
 			pollListManager.deletePoll(poll1);
-			fail();
+			Assert.fail();
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -230,7 +226,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		
     	try {
 			pollListManager.deletePoll(poll1);
-			fail();
+			Assert.fail();
 		} catch (SecurityException e) {
 			// Successful tests should be quiet. SecurityException is expected here.
 			//e.printStackTrace();
@@ -243,18 +239,18 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 		
 		
 		//check that child options are deteled
 		Vote v1 = pollVoteManager.getVoteById(voteId);
-		assertNull(v1);
+		Assert.assertNull(v1);
 		
 		Option o1 = pollListManager.getOptionById(option1Id);
 		Option o2 = pollListManager.getOptionById(option2Id);
-		assertNull(o1);
-		assertNull(o2);
+		Assert.assertNull(o1);
+		Assert.assertNull(o2);
 		
 		
     }

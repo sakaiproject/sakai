@@ -1,3 +1,4 @@
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
@@ -16,10 +17,6 @@
 <!-- Grade Display -->
 		<h4><h:outputText value="#{msgs.feedback_options_grade_display}"/></h4>
 		<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-			<%/*  Moved to gradebook setup page
-			<h:selectBooleanCheckbox id="displayAssignmentGrades" value="#{feedbackOptionsBean.localGradebook.assignmentsDisplayed}"
-				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
-			<h:outputLabel for="displayAssignmentGrades" value="#{msgs.feedback_options_grade_display_assignment_grades}" />*/%>
 		</h:panelGrid>
 		<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
 			<h:selectBooleanCheckbox id="displayCourseGrades" value="#{feedbackOptionsBean.localGradebook.courseGradeDisplayed}"
@@ -47,7 +44,7 @@
 					<f:selectItems value="#{feedbackOptionsBean.gradeMappingsSelectItems}" />
 				</h:selectOneMenu>
 				<f:verbatim> </f:verbatim>
-				<h:commandButton actionListener="#{feedbackOptionsBean.changeGradeType}" value="#{msgs.feedback_options_change_grade_type}" />
+				<h:commandButton actionListener="#{feedbackOptionsBean.changeGradeType}" value="#{msgs.feedback_options_change_grade_type}" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</h:panelGroup>
 		</h:panelGrid>
 
@@ -113,13 +110,15 @@
 				id="saveButton"
 				styleClass="active"
 				value="#{msgs.feedback_options_submit}"
-				action="#{feedbackOptionsBean.save}" >
+				action="#{feedbackOptionsBean.save}"
+				onclick="SPNR.disableControlsAndSpin( this, null );" >
 				<f:param name="pageName" value="gradebookSetup" />
 			</h:commandButton>
 			<h:commandButton
 				value="#{msgs.feedback_options_cancel}"
 				action="#{feedbackOptionsBean.cancel}"
-				immediate="true" >
+				immediate="true"
+				onclick="SPNR.disableControlsAndSpin( this, null );" >
 				<f:param name="pageName" value="gradebookSetup" />
 			</h:commandButton>
 		</p>

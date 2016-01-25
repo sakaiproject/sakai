@@ -39,6 +39,15 @@ public class LTI2Vars {
 	 */
 	public static final String CONTEXT_ORG = "Context.org";
 
+	/* New for LTI 2.1 */
+	public static final String CONTEXT_ID = "Context.id";
+	public static final String CONTEXT_TYPE = "Context.type";
+	public static final String CONTEXT_TYPE_DEFAULT = "CourseSection";
+	public static final String CONTEXT_LABEL = "Context.label";
+	public static final String CONTEXT_TITLE = "Context.title";
+	public static final String CONTEXT_ID_HISTORY = "Context.id.history";
+	public static final String TOOLCONSUMERPROFILE_URL = "ToolConsumerProfile.url";
+
 	/**
 	 * COURSEOFFERING_ACADEMICSESSION
 	 *
@@ -525,6 +534,8 @@ public class LTI2Vars {
 	 *  <code>membershipRecord/membership/member/role/roleType  </code>
 	 */
 	public static final String MEMBERSHIP_ROLE = "Membership.role";
+	public static final String MEMBERSHIP_ROLE_LEARNER = "Learner";
+	public static final String MEMBERSHIP_ROLE_INSTRUCTOR = "Instructor";
 
 	/**
 	 * MEMBERSHIP_SOURCEDID
@@ -787,6 +798,26 @@ public class LTI2Vars {
 	public static final String PERSON_WEBADDRESS = "Person.webaddress";
 
 	/**
+	 * RESOURCELINK_ID
+	 *
+	 *  This is the local identifier for the resource link within the Tool 
+	 *  Consumer system from which the launch occurred.
+	 */
+	public static final String RESOURCELINK_ID = "ResourceLink.id";
+
+	/**
+	 * RESOURCELINK_ID_HISTORY
+	 *
+	 *  A comma-separated list of URL-encoded resource link ID values 
+         *  representing the ID of the link from a previous copy of the context; 
+         *  the most recent copy should appear first in the list followed by 
+         *  any earlier IDs in reverse chronological order.  If the link was 
+         *  first added to the current context then this variable should have 
+         *  an empty value.
+	 */
+	public static final String RESOURCELINK_ID_HISTORY = "ResourceLink.id.history";
+
+	/**
 	 * RESOURCELINK_DESCRIPTION
 	 *
 	 *  A plain text description of the links destination, suitable for
@@ -850,6 +881,22 @@ public class LTI2Vars {
 	 *  request to read, update or delete the resource at this URL.
 	 */
 	public static final String RESULT_URL = "Result.url";
+
+	/**
+	 * TOOLCONSUMERINFO_PRODUCTFAMILYCODE
+	 *
+	 *  The code for the product (i.e. like "sakai" or "learn")
+	 */
+	public static final String TOOLCONSUMERINFO_PRODUCTFAMILYCODE = "ToolConsumerInfo.productFamilyCode";
+
+	/**
+	 * TOOLCONSUMERINFO_VERSION
+	 *
+	 *  The code for the product (i.e. like "sakai" or "learn")
+	 */
+	public static final String TOOLCONSUMERINFO_VERSION = "ToolConsumerInfo.version";
+
+
 
 	/**
 	 * TOOLPROXY_CUSTOM_URL
@@ -930,7 +977,9 @@ public class LTI2Vars {
 		PERSON_NAME_MIDDLE, PERSON_NAME_PREFIX, PERSON_NAME_SUFFIX,
 		PERSON_PHONE_HOME, PERSON_PHONE_MOBILE, PERSON_PHONE_PRIMARY,
 		PERSON_PHONE_WORK, PERSON_SMS, PERSON_SOURCEDID,
-		PERSON_WEBADDRESS, RESOURCELINK_DESCRIPTION, RESOURCELINK_TITLE,
+		PERSON_WEBADDRESS, 
+		RESOURCELINK_ID, RESOURCELINK_ID_HISTORY,
+		RESOURCELINK_DESCRIPTION, RESOURCELINK_TITLE,
 		RESULT_COMMENT, RESULT_CREATEDTIMESTAMP, RESULT_DATASOURCE,
 		RESULT_RESULTSCORE, RESULT_SOURCEDID, RESULT_URL,
 		TOOLPROXY_CUSTOM_URL, TOOLPROXYBINDING_CUSTOM_URL, USER_ID,

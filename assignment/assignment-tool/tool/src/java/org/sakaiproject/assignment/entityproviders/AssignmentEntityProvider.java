@@ -295,32 +295,39 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			this.access = a.getAccess();
 					
 			String gradebookAssignmentProp = a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-			if (gradebookAssignmentProp != null)
+			if (gradebookService.isGradebookDefined(a.getContext())) 
 			{
-				// try to get internal gradebook assignment first
-				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getAssignment(a.getContext(), gradebookAssignmentProp);
-				if (gAssignment != null)
+				if (gradebookAssignmentProp != null)
 				{
-					// linked Gradebook item is internal
-					this.gradebookItemId = gAssignment.getId();
-					this.gradebookItemName = gAssignment.getName();
-				}
-				else
-				{
-					// If the linked assignment is not internal to Gradebook, try the external assignment service
-					// However, there is no API available in GradebookExternalAssessmentService of getExternalAssignment()
-					// We will first check whether the external assignment is defined, and then get it through GradebookService 
-					boolean isExternalAssignmentDefined = gradebookExternalService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
-					if (isExternalAssignmentDefined)
+					// try to get internal gradebook assignment first
+					org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getAssignment(a.getContext(), gradebookAssignmentProp);
+					if (gAssignment != null)
 					{
-						// since the gradebook item is externally defined, the item is named after the external object's title
-						gAssignment = gradebookService.getAssignment(a.getContext(), a.getTitle());
-						if (gAssignment != null)
+						// linked Gradebook item is internal
+						this.gradebookItemId = gAssignment.getId();
+						this.gradebookItemName = gAssignment.getName();
+					}
+					else
+					{
+						// If the linked assignment is not internal to Gradebook, try the external assignment service
+						// However, there is no API available in GradebookExternalAssessmentService of getExternalAssignment()
+						// We will first check whether the external assignment is defined, and then get it through GradebookService 
+						boolean isExternalAssignmentDefined = gradebookExternalService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
+						if (isExternalAssignmentDefined)
 						{
-							this.gradebookItemId = gAssignment.getId();
-							this.gradebookItemName = gAssignment.getName();
+							// since the gradebook item is externally defined, the item is named after the external object's title
+							gAssignment = gradebookService.getAssignment(a.getContext(), a.getTitle());
+							if (gAssignment != null)
+							{
+								this.gradebookItemId = gAssignment.getId();
+								this.gradebookItemName = gAssignment.getName();
+							}
 						}
 					}
+				}
+				else 
+				{
+					M_log.warn("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
 				}
 			}
 			if (a.getContent() != null){

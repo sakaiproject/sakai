@@ -65,6 +65,8 @@ public class NotificationService
 
 	public static java.lang.String SECURE_REMOVE_NOTIFICATION = org.sakaiproject.event.api.NotificationService.SECURE_REMOVE_NOTIFICATION;
 
+	public static final int NOTI_IGNORE = org.sakaiproject.event.api.NotificationService.NOTI_IGNORE;
+
 	public static int NOTI_NONE = org.sakaiproject.event.api.NotificationService.NOTI_NONE;
 
 	public static int NOTI_REQUIRED = org.sakaiproject.event.api.NotificationService.NOTI_REQUIRED;

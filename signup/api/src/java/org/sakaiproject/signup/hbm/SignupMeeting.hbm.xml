@@ -15,7 +15,7 @@
 		<version name="version" access="field" column="version"/>
 		
 		<property name="title" column="title" type="string" length="255" not-null="true" />
-		<property name="description" column="description" type="text" not-null="false"  />
+		<property name="description" column="description" type="materialized_clob" not-null="false"  />
 		<property name="location" column="location" type="string" length="255" not-null="true" />
 		<property name="category" column="category" type="string" length="255" not-null="false" />
 		<property name="meetingType" column="meeting_type" type="string" length="50" not-null="true" />

@@ -23,7 +23,14 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,22 +41,35 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
-import java.text.Collator;
 
-import javax.faces.context.FacesContext;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -61,29 +81,17 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
-
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
-
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-
-
 
 //import org.osid.shared.*;
 
@@ -1324,6 +1332,208 @@ public class ItemAuthorBean
 	  }
   }
 
+  public static final String REFERENCE_ROOT = Entity.SEPARATOR + "samigoDocs";
+
+  public String getPrivateCollection() {
+		String collectionId = Entity.SEPARATOR + "private" + REFERENCE_ROOT + Entity.SEPARATOR + ToolManager.getCurrentPlacement().getContext() + Entity.SEPARATOR;
+		
+		try {
+			AssessmentService.getContentHostingService().checkCollection(collectionId);
+		}catch(IdUnusedException e){
+			try {
+				ResourcePropertiesEdit resourceProperties = AssessmentService.getContentHostingService().newResourceProperties();
+				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, ToolManager.getCurrentPlacement().getContext());
+				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
+				
+				ContentCollectionEdit edit = (ContentCollectionEdit)AssessmentService.getContentHostingService().addCollection(collectionId, resourceProperties);
+				
+				edit.setPublicAccess();
+				AssessmentService.getContentHostingService().commitCollection(edit);
+			}catch(Exception ee){
+				log.warn(ee.getMessage());
+			}
+		}
+		catch(Exception e){
+			log.warn(e.getMessage());
+		}
+
+		try {
+			if(/*!"true".equals(AssessmentService.getContentHostingService().getProperties(Entity.SEPARATOR + "private"+ Entity.SEPARATOR).get(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT)) || */!AssessmentService.getContentHostingService().isPubView(collectionId))
+			{
+			
+				ContentCollectionEdit edit = AssessmentService.getContentHostingService().editCollection(collectionId);
+				ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
+				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
+
+				edit.setPublicAccess();
+				
+				AssessmentService.getContentHostingService().commitCollection(edit);
+				
+			}
+		}
+		catch(Exception e){
+			log.warn(e.getMessage());
+		}
+		
+	    return  collectionId + "uploads" + Entity.SEPARATOR;
+	  }
+	  
+	  /**
+	   * This method is used by jsf/author/imageMapQuestion.jsp
+	   *   <corejsf:upload
+	   *     target="jsf/upload_tmp/assessment#{assessmentBean.assessmentId}/question#{itemauthor.currentItem.itemId}/#{person.eid}"
+	   *     valueChangeListener="#{itemauthor.addImageToQuestion}" />
+	   */
+	  public void addImageToQuestion(javax.faces.event.ValueChangeEvent e)
+	  {
+
+	    String mediaLocation = (String) e.getNewValue();
+	    
+		if (!mediaIsValid()) {
+			setOutcome(null);
+	        return;
+	    }
+	    PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
+	    String agent = person.getId();
+
+	    // 3. get the questionId (which is the PublishedItemData.itemId)
+	    int questionIndex = mediaLocation.indexOf("question");
+	    int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
+	    int myfileIndex = mediaLocation.lastIndexOf("/");
+	    //cwen
+	    if(agentIndex < 0 )
+	    {
+	      agentIndex = mediaLocation.indexOf("\\", questionIndex + 8);
+	    }
+	    String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
+	    log.debug("***3a. addImageToQuestion, questionId =" + questionId);
+	    if (agent == null){
+	      String agentId = mediaLocation.substring(agentIndex, myfileIndex -1);
+	      log.debug("**** agentId="+agentId);
+	      agent = agentId;
+	    }
+	    log.debug("***3b. addImageToQuestion, agent =" + agent);
+
+	    saveMedia(agent, mediaLocation);
+	    setOutcome(null);
+	  }
+
+	  public void saveMedia(String agent, String mediaLocation){
+		try {
+			
+			SecurityService.pushAdvisor(new SecurityAdvisor() {
+				public SecurityAdvice isAllowed(String userId, String function, String reference) {
+					return SecurityAdvice.ALLOWED;
+				}
+			});
+			File media = new File(mediaLocation);
+			byte[] mediaByte = getMediaStream(mediaLocation);
+			String mimeType = MimeTypesLocator.getInstance().getContentType(media);
+			
+			String fullname = media.getName().trim();
+			String collectionId = getPrivateCollection();
+			currentItem.setImageMapSrc("/access/content"+collectionId+fullname);
+		
+			ResourcePropertiesEdit resourceProperties = AssessmentService.getContentHostingService().newResourceProperties();
+			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fullname);
+			
+			AssessmentService.getContentHostingService().addResource(collectionId+fullname, mimeType, mediaByte, resourceProperties, NotificationService.NOTI_NONE);
+		}catch(Exception e)	{
+			log.warn(e);
+		}
+		finally {
+			SecurityService.popAdvisor();
+		}
+	  }
+	   
+	  private byte[] getMediaStream(String mediaLocation)
+	  {
+	    FileInputStream mediaStream = null;
+	    FileInputStream mediaStream2 = null;
+	    byte[] mediaByte = new byte[0];
+	    try
+	    {
+	      int i;
+	      int size = 0;
+	      mediaStream = new FileInputStream(mediaLocation);
+	      if (mediaStream != null)
+	      {
+	        while ( (i = mediaStream.read()) != -1)
+	        {
+	          size++;
+	        }
+	      }
+	      mediaStream2 = new FileInputStream(mediaLocation);
+	      mediaByte = new byte[size];
+	      if (mediaStream2 != null) {
+	    	  mediaStream2.read(mediaByte, 0, size);
+	      }
+	    }
+	    catch (FileNotFoundException ex)
+	    {
+	      log.error("file not found=" + ex.getMessage());
+	    }
+	    catch (IOException ex)
+	    {
+	      log.error("io exception=" + ex.getMessage());
+	    }
+	    finally
+	    {
+	      if (mediaStream != null) {
+	    	  try
+	    	  {
+	    		  mediaStream.close();
+	    	  }
+	    	  catch (IOException ex1)
+	    	  {
+	    		  log.warn(ex1.getMessage());
+	    	  }
+	      }
+	    if (mediaStream2 != null) {
+	  	  try
+	  	  {
+	  		  mediaStream2.close();
+	  	  }
+	  	  catch (IOException ex1)
+	  	  {
+	  		  log.warn(ex1.getMessage());
+	  	  }
+	    }
+	  }
+	    return mediaByte;
+	  }
+
+	  public boolean mediaIsValid()
+	  {
+	    boolean returnValue =true;
+	    // check if file is too big
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    ExternalContext external = context.getExternalContext();
+	    Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
+	    Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
+	    //log.info("**** filesize is ="+fileSize);
+	    //log.info("**** maxsize is ="+maxSize);
+	    ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
+	    if (fileSize!=null){
+	      float fileSize_float = fileSize.floatValue()/1024;
+	      int tmp = Math.round(fileSize_float * 10.0f);
+	      fileSize_float = (float)tmp / 10.0f;
+	      float maxSize_float = maxSize.floatValue()/1024;
+	      int tmp0 = Math.round(maxSize_float * 10.0f);
+	      maxSize_float = (float)tmp0 / 10.0f;
+
+	      String err1=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "file_upload_error");
+	      String err2=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "file_uploaded");
+	      String err3=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "max_size_allowed");
+	      String err4=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "upload_again");
+	      String err = err2 + fileSize_float + err3 + maxSize_float + err4;
+	      context.addMessage("file_upload_error",new FacesMessage(err1));
+	      context.addMessage("file_upload_error",new FacesMessage(err));
+	      returnValue = false;
+	    }
+	    return returnValue;
+	  }
+  
    public AnswerBean getCurrentAnswer() {
 		return currentAnswer;
    }

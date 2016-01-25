@@ -2,6 +2,7 @@
                  javax.faces.el.*, org.sakaiproject.tool.messageforums.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -9,8 +10,7 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.cdfm_discussion_topic_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
-	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>      
 	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
@@ -18,7 +18,7 @@
 	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>
 	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+	<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	
 	<%
 	  	String thisId = request.getParameter("panel");
@@ -47,6 +47,18 @@
 	function setAutoCreatePanel(radioButton) {
 		$(".createOneTopicPanel").slideToggle("fast");
 		$(".createTopicsForGroupsPanel").slideToggle("fast");
+	}
+
+	function togglePostAnonymousOption(checked) {
+		var revealIDsToRoles = $("#revise\\:revealIDsToRolesContainer");
+		if (checked)
+		{
+			revealIDsToRoles.css("display", "");
+		}
+		else
+		{
+			revealIDsToRoles.css("display", "none");
+		}
 	}
 	</script>
 
@@ -196,6 +208,31 @@
 						id="topic_postFirst">
 					</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>	
+				<t:htmlTag value="p" styleClass="checkbox" rendered="#{ForumTool.anonymousEnabled}">
+					<h:selectBooleanCheckbox
+						title="postAnonymous" value="#{ForumTool.selectedTopic.topicPostAnonymous}"
+						id="topic_postAnonymous"
+						onclick='togglePostAnonymousOption(this.checked);'
+						disabled="#{!ForumTool.newTopicOrPostAnonymousRevisable}">
+					</h:selectBooleanCheckbox> 
+					<h:outputLabel for="topic_postAnonymous"> 
+						<h:outputText value="#{msgs.cdfm_postAnonymous}"/>
+						<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="messageInstruction" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
+						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="messageInstruction" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
+					</h:outputLabel>
+				</t:htmlTag>
+				<t:htmlTag value="p" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="checkbox indnt1" rendered="#{ForumTool.anonymousEnabled}">
+					<h:selectBooleanCheckbox
+						title="revealIDsToRoles" value="#{ForumTool.selectedTopic.topicRevealIDsToRoles}"
+						id="topic_revealIDsToRoles"
+						disabled="#{!ForumTool.newTopicOrRevealIDsToRolesRevisable}">
+					</h:selectBooleanCheckbox> 
+					<h:outputLabel for="topic_revealIDsToRoles">
+						<h:outputText value="#{msgs.cdfm_revealIDsToRoles}"/>
+						<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="messageInstruction" rendered="#{!ForumTool.revealIDsToRolesRevisable && !ForumTool.existingTopic}"/>
+						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="messageInstruction" rendered="#{!ForumTool.revealIDsToRolesRevisable && ForumTool.existingTopic}"/>
+					</h:outputLabel>
+				</t:htmlTag>
 			</div>	
 			<h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>
 			<div class="indnt1">

@@ -33,10 +33,11 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
+      <script type="text/javascript" src="../../js/extendedTime.js"/>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
       <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-      <samigo:script path="/js/authoring.js"/>
+      <samigo:script path="/js/authoring.js"/>        
 
       <script type="text/javascript">
         $(document).ready(function() {
@@ -84,7 +85,10 @@
           lockdownQuestionLayout(navVal);
           lockdownMarkForReview(navVal);
           showHideReleaseGroups();
+          initTimedCheckBox();
+          extendedTimeInitialize();
           checkUncheckTimeBox();
+          checkLastHandling();
         });
       </script>
 
@@ -214,6 +218,9 @@
     <f:selectItems value="#{publishedSettings.groupsForSite}" />
   </h:selectManyCheckbox>
   <f:verbatim></div></f:verbatim>
+  
+  <!-- Extended Time -->
+  <%@ include file="inc/publishedExtendedTime.jspf"%>
 
     <!-- NUMBER OF SUBMISSIONS -->
   <h:panelGrid columns="2" columnClasses="alignTop" border="0" rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
@@ -266,7 +273,7 @@
     <h:outputText value="#{assessmentSettingsMessages.late_accept}" />
     <h:panelGrid columns="4" border="0" columnClasses="alignBottom">
       <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-      <h:selectOneRadio id="lateHandling" value="#{publishedSettings.lateHandling}"  layout="pageDirection">
+      <h:selectOneRadio id="lateHandling" onclick="checkLastHandling();" value="#{publishedSettings.lateHandling}"  layout="pageDirection">
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
       </h:selectOneRadio>
@@ -553,7 +560,7 @@
 <p class="act">
 
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();updateItemNavigation(false);" >
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   

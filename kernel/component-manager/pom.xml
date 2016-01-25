@@ -15,11 +15,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/component-manager</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/component-manager</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/component-manager</url>
-  </scm>
 
   <packaging>jar</packaging>
   <properties>
@@ -47,7 +42,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-    </dependency>    
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

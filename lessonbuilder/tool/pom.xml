@@ -28,6 +28,18 @@
         </dependency>
 
         <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-util</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-common</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>
@@ -164,27 +176,21 @@
             <artifactId>spring-webmvc</artifactId>
 	</dependency>
          <dependency>
-            <groupId>uk.org.ponder.sakairsf</groupId>
-            <artifactId>sakairsf</artifactId>
-            <version>${sakairsf.version}</version>
+            <groupId>org.sakaiproject.rsf</groupId>
+            <artifactId>sakai-rsf-core</artifactId>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>uk.org.ponder.sakairsf</groupId>
-            <artifactId>SakaiRSFComponents-evolvers</artifactId>
-            <version>${sakairsf.components.version}</version>
+            <groupId>org.sakaiproject.rsf</groupId>
+            <artifactId>sakai-rsf-web-evolvers</artifactId>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>uk.org.ponder.sakairsf</groupId>
-            <artifactId>SakaiRSFComponents-templates</artifactId>
-            <version>${sakairsf.components.version}</version>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>uk.org.ponder.rsfutil</groupId>
-            <artifactId>RSFComponents-templates</artifactId>
-            <version>${rsfutil.version}</version>
+            <groupId>org.sakaiproject.rsf</groupId>
+            <artifactId>sakai-rsf-web-templates</artifactId>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <dependency>

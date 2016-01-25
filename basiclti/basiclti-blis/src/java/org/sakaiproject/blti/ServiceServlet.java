@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
@@ -89,15 +89,11 @@ import org.imsglobal.basiclti.BasicLTIConstants;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.util.FormattedText;
 
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-
 import org.imsglobal.pox.IMSPOXRequest;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.util.foorm.FoormUtil;
-
-import org.sakaiproject.blti.LessonsFacade;
 
 /**
  * Notes:
@@ -127,18 +123,9 @@ public class ServiceServlet extends HttpServlet {
 	private static Log M_log = LogFactory.getLog(ServiceServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
 
-    protected static SakaiFoorm foorm = new SakaiFoorm();
+	protected static SakaiFoorm foorm = new SakaiFoorm();
 
-    protected static LTIService ltiService = null;
-
-	protected static XPath xpath = null;
-	protected static XPathExpression LESSONS_RESOURCES_EXPR = null;
-	protected static XPathExpression LESSONS_FOLDER_EXPR = null;
-	protected static XPathExpression LESSONS_TYPE_EXPR = null;
-	protected static XPathExpression LESSONS_TITLE_EXPR = null;
-	protected static XPathExpression LESSONS_TEMPID_EXPR = null;
-	protected static XPathExpression LESSONS_URL_EXPR = null;
-	protected static XPathExpression LESSONS_CUSTOM_EXPR = null;
+	protected static LTIService ltiService = null;
 
 	private final String returnHTML = 
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" + 
@@ -165,41 +152,27 @@ public class ServiceServlet extends HttpServlet {
 
 	public void doError(HttpServletRequest request,HttpServletResponse response, 
 			Map<String, Object> theMap, String s, String message, Exception e) 
-		throws java.io.IOException 
-		{
-			if (e != null) {
-				M_log.error(e.getLocalizedMessage(), e);
-			}
-			theMap.put("/message_response/statusinfo/codemajor", "Fail");
-			theMap.put("/message_response/statusinfo/severity", "Error");
-			String msg = rb.getString(s) + ": " + message;
-			M_log.info(msg);
-			theMap.put("/message_response/statusinfo/description", FormattedText.escapeHtmlFormattedText(msg));
-			String theXml = XMLMap.getXML(theMap, true);
-			PrintWriter out = response.getWriter();
-			out.println(theXml);
-			M_log.info("doError="+theXml);
+	throws java.io.IOException 
+	{
+		if (e != null) {
+			M_log.error(e.getLocalizedMessage(), e);
 		}
+		theMap.put("/message_response/statusinfo/codemajor", "Fail");
+		theMap.put("/message_response/statusinfo/severity", "Error");
+		String msg = rb.getString(s) + ": " + message;
+		M_log.info(msg);
+		theMap.put("/message_response/statusinfo/description", FormattedText.escapeHtmlFormattedText(msg));
+		String theXml = XMLMap.getXML(theMap, true);
+		PrintWriter out = response.getWriter();
+		out.println(theXml);
+		M_log.info("doError="+theXml);
+	}
 
 	@Override
-		public void init(ServletConfig config) throws ServletException {
-			super.init(config);
-            LessonsFacade.init();
-			if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-			try {
-				xpath = XPathFactory.newInstance().newXPath();
-				LESSONS_RESOURCES_EXPR = xpath.compile("params/resources/*");
-				LESSONS_FOLDER_EXPR = xpath.compile("resources/*");
-				LESSONS_TYPE_EXPR = xpath.compile("type");
-				LESSONS_TITLE_EXPR = xpath.compile("title");
-				LESSONS_TEMPID_EXPR = xpath.compile("tempId");
-				LESSONS_URL_EXPR = xpath.compile("launchUrl");
-				LESSONS_CUSTOM_EXPR = xpath.compile("launchParams");
-			} catch (Exception e) {
-				M_log.error("Error compiling XPath expressions.");
-				throw new ServletException();
-			}
-		}
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+	}
 
 	/* launch_presentation_return_url=http://lmsng.school.edu/portal/123/page/988/
 
@@ -260,258 +233,282 @@ public class ServiceServlet extends HttpServlet {
 	}
 
 	@SuppressWarnings("unchecked")
-		protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-			String contentType = request.getContentType();
-			if ( contentType != null && contentType.startsWith("application/json") ) {
-				doPostJSON(request, response);
-			} else if ( contentType != null && contentType.startsWith("application/xml") ) {
-				doPostXml(request, response);
-			} else {
-				doPostForm(request, response);
-			}
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String contentType = request.getContentType();
+		if ( contentType != null && contentType.startsWith("application/json") ) {
+			doPostJSON(request, response);
+		} else if ( contentType != null && contentType.startsWith("application/xml") ) {
+			doPostXml(request, response);
+		} else {
+			doPostForm(request, response);
 		}
+	}
 
 	@SuppressWarnings("unchecked")
-		protected void doPostForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-			String ipAddress = request.getRemoteAddr();
+	protected void doPostForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String ipAddress = request.getRemoteAddr();
 
-			M_log.debug("Basic LTI Service request from IP=" + ipAddress);
+		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
 
-			String allowOutcomes = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+		String allowOutcomes = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-			String allowSettings = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
-			if ( ! "true".equals(allowSettings) ) allowSettings = null;
+		String allowSettings = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
+		if ( ! "true".equals(allowSettings) ) allowSettings = null;
 
-			String allowRoster = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
-			if ( ! "true".equals(allowRoster) ) allowRoster = null;
+		String allowRoster = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+		if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
-			if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
-				M_log.warn("LTI Services are disabled IP=" + ipAddress);
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				return;
-			}
-
-			// Lets return an XML Response
-			Map<String,Object> theMap = new TreeMap<String,Object>();
-
-			Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
-			for (Map.Entry<String,String[]> param : params.entrySet()) {
-				M_log.debug(param.getKey() + ":" + param.getValue()[0]);
-			}
-
-			//check lti_message_type
-			String lti_message_type = request.getParameter(BasicLTIConstants.LTI_MESSAGE_TYPE);
-			theMap.put("/message_response/lti_message_type", lti_message_type);
-			String sourcedid = null;
-			String message_type = null;
-			if( BasicLTIUtil.equals(lti_message_type, "basic-lis-replaceresult") || 
-					BasicLTIUtil.equals(lti_message_type, "basic-lis-createresult") || 
-					BasicLTIUtil.equals(lti_message_type, "basic-lis-updateresult") || 
-					BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult") || 
-					BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult") ) {
-				sourcedid = request.getParameter("sourcedid");
-				if ( allowOutcomes != null ) message_type = "basicoutcome";
-			} else if( BasicLTIUtil.equals(lti_message_type, "basic-lti-loadsetting") || 
-					BasicLTIUtil.equals(lti_message_type, "basic-lti-savesetting") || 
-					BasicLTIUtil.equals(lti_message_type, "basic-lti-deletesetting") ) {
-				sourcedid = request.getParameter("id");
-				if ( allowSettings != null ) message_type = "toolsetting";
-			} else if( BasicLTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
-				sourcedid = request.getParameter("id");
-				if ( allowRoster != null ) message_type = "roster";
-			} else {
-				doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
-				return;
-			}
-
-			// If we have not gotten one of our allowed message types, stop now
-			if ( message_type == null ) {
-				doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
-				return;
-			}
-
-			// Perform the Outcomee first because we use the SakaiBLTIUtil code for this
-			if ( "basicoutcome".equals(message_type) ) {
-				processOutcome(request, response, lti_message_type, sourcedid, theMap);
-				return;
-			}
-
-			// No point continuing without a sourcedid
-			if(BasicLTIUtil.isBlank(sourcedid)) {
-				doError(request, response, theMap, "outcomes.missing", "sourcedid", null);
-				return;
-			}
-
-			String lti_version = request.getParameter(BasicLTIConstants.LTI_VERSION);
-			if(!BasicLTIUtil.equals(lti_version, "LTI-1p0")) {
-				doError(request, response, theMap, "outcomes.invalid", "lti_version="+lti_version, null);
-				return;
-			}
-
-			String oauth_consumer_key = request.getParameter("oauth_consumer_key");
-			if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
-				doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
-				return;
-			}
-
-			// Truncate this to the maximum length to insure no cruft at the end
-			if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
-
-			// Attempt to parse the sourcedid, any failure is fatal
-			String placement_id = null;
-			String signature = null;
-			String user_id = null;
-			try {
-				int pos = sourcedid.indexOf(":::");
-				if ( pos > 0 ) {
-					signature = sourcedid.substring(0, pos);
-					String dec2 = sourcedid.substring(pos+3);
-					pos = dec2.indexOf(":::");
-					user_id = dec2.substring(0,pos);
-					placement_id = dec2.substring(pos+3);
-				}
-			} catch (Exception e) {
-				// Log some detail for ourselves
-				M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
-				signature = null;
-				placement_id = null;
-				user_id = null;
-			}
-
-			// Send a more generic message back to the caller
-			if ( placement_id == null || user_id == null ) {
-				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-
-			M_log.debug("signature="+signature);
-			M_log.debug("user_id="+user_id);
-			M_log.debug("placement_id="+placement_id);
-
-			Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
-			if ( pitch == null ) {
-				M_log.debug("Error retrieving result_sourcedid information");
-				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-	
-			String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
-			Site site = null;
-			try { 
-				site = SiteService.getSite(siteId);
-			} catch (Exception e) {
-				M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
-			}
-
-			// Send a more generic message back to the caller
-			if (  site == null ) {
-				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-
-			// Check the message signature using OAuth
-			String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
-			M_log.debug("oauth_secret: "+oauth_secret);
-			oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
-			M_log.debug("oauth_secret (decrypted): "+oauth_secret);
-
-			String URL = SakaiBLTIUtil.getOurServletPath(request);
-			OAuthMessage oam = OAuthServlet.getMessage(request, URL);
-			OAuthValidator oav = new SimpleOAuthValidator();
-			OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
-
-			OAuthAccessor acc = new OAuthAccessor(cons);
-
-			String base_string = null;
-			try {
-				base_string = OAuthSignatureMethod.getBaseString(oam);
-			} catch (Exception e) {
-				M_log.error(e.getLocalizedMessage(), e);
-				base_string = null;
-			}
-
-			try {
-				oav.validateMessage(oam, acc);
-			} catch (Exception e) {
-				M_log.warn("Provider failed to validate message");
-				M_log.warn(e.getLocalizedMessage(), e);
-				if (base_string != null) {
-					M_log.warn(base_string);
-				}
-				doError(request, response, theMap, "outcome.no.validate", oauth_consumer_key, null);
-				return;
-			}
-
-			// Check the signature of the sourcedid to make sure it was not altered
-			String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
-
-			// Send a generic message back to the caller
-			if ( placement_secret == null ) {
-				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-
-			String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-			String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-			M_log.debug("Received signature="+signature+" received="+received_signature);
-			boolean matched = signature.equals(received_signature);
-
-			String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
-			if ( old_placement_secret != null && ! matched ) {
-				pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-				received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-				M_log.debug("Received signature II="+signature+" received="+received_signature);
-				matched = signature.equals(received_signature);
-			}
-
-			// Send a message back to the caller
-			if ( ! matched ) {
-				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-
-			// Perform the message-specific handling
-			if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
-
-			if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
+		if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
+			M_log.warn("LTI Services are disabled IP=" + ipAddress);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return;
 		}
+
+		// Lets return an XML Response
+		Map<String,Object> theMap = new TreeMap<String,Object>();
+
+		Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
+		for (Map.Entry<String,String[]> param : params.entrySet()) {
+			M_log.debug(param.getKey() + ":" + param.getValue()[0]);
+		}
+
+		//check lti_message_type
+		String lti_message_type = request.getParameter(BasicLTIConstants.LTI_MESSAGE_TYPE);
+		theMap.put("/message_response/lti_message_type", lti_message_type);
+		String sourcedid = null;
+		String message_type = null;
+		if( BasicLTIUtil.equals(lti_message_type, "basic-lis-replaceresult") || 
+				BasicLTIUtil.equals(lti_message_type, "basic-lis-createresult") || 
+				BasicLTIUtil.equals(lti_message_type, "basic-lis-updateresult") || 
+				BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult") || 
+				BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult") ) {
+			sourcedid = request.getParameter("sourcedid");
+			if ( allowOutcomes != null ) message_type = "basicoutcome";
+		} else if( BasicLTIUtil.equals(lti_message_type, "basic-lti-loadsetting") || 
+				BasicLTIUtil.equals(lti_message_type, "basic-lti-savesetting") || 
+				BasicLTIUtil.equals(lti_message_type, "basic-lti-deletesetting") ) {
+			sourcedid = request.getParameter("id");
+			if ( allowSettings != null ) message_type = "toolsetting";
+		} else if( BasicLTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
+			sourcedid = request.getParameter("id");
+			if ( allowRoster != null ) message_type = "roster";
+		} else {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+		}
+
+		// If we have not gotten one of our allowed message types, stop now
+		if ( message_type == null ) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+		}
+
+		// Perform the Outcomee first because we use the SakaiBLTIUtil code for this
+		if ( "basicoutcome".equals(message_type) ) {
+			processOutcome(request, response, lti_message_type, sourcedid, theMap);
+			return;
+		}
+
+		// No point continuing without a sourcedid
+		if(BasicLTIUtil.isBlank(sourcedid)) {
+			doError(request, response, theMap, "outcomes.missing", "sourcedid", null);
+			return;
+		}
+
+		String lti_version = request.getParameter(BasicLTIConstants.LTI_VERSION);
+		if(!BasicLTIUtil.equals(lti_version, "LTI-1p0")) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_version="+lti_version, null);
+			return;
+		}
+
+		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
+		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
+			doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
+			return;
+		}
+
+		// Truncate this to the maximum length to insure no cruft at the end
+		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
+
+		// Attempt to parse the sourcedid, any failure is fatal
+		String placement_id = null;
+		String signature = null;
+		String user_id = null;
+		try {
+			int pos = sourcedid.indexOf(":::");
+			if ( pos > 0 ) {
+				signature = sourcedid.substring(0, pos);
+				String dec2 = sourcedid.substring(pos+3);
+				pos = dec2.indexOf(":::");
+				user_id = dec2.substring(0,pos);
+				placement_id = dec2.substring(pos+3);
+			}
+		} catch (Exception e) {
+			// Log some detail for ourselves
+			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
+			signature = null;
+			placement_id = null;
+			user_id = null;
+		}
+
+		// Send a more generic message back to the caller
+		if ( placement_id == null || user_id == null ) {
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		M_log.debug("signature="+signature);
+		M_log.debug("user_id="+user_id);
+		M_log.debug("placement_id="+placement_id);
+
+		Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
+		if ( pitch == null ) {
+			M_log.debug("Error retrieving result_sourcedid information");
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
+		Site site = null;
+		try { 
+			site = SiteService.getSite(siteId);
+		} catch (Exception e) {
+			M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
+		}
+
+		// Send a more generic message back to the caller
+		if (  site == null ) {
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		// Check the message signature using OAuth
+		String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
+		M_log.debug("oauth_secret: "+oauth_secret);
+		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+		M_log.debug("oauth_secret (decrypted): "+oauth_secret);
+
+		String URL = SakaiBLTIUtil.getOurServletPath(request);
+		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
+		OAuthValidator oav = new SimpleOAuthValidator();
+		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
+
+		OAuthAccessor acc = new OAuthAccessor(cons);
+
+		String base_string = null;
+		try {
+			base_string = OAuthSignatureMethod.getBaseString(oam);
+		} catch (Exception e) {
+			M_log.error(e.getLocalizedMessage(), e);
+			base_string = null;
+		}
+
+		try {
+			oav.validateMessage(oam, acc);
+		} catch (Exception e) {
+			M_log.warn("Provider failed to validate message");
+			M_log.warn(e.getLocalizedMessage(), e);
+			if (base_string != null) {
+				M_log.warn(base_string);
+			}
+			doError(request, response, theMap, "outcome.no.validate", oauth_consumer_key, null);
+			return;
+		}
+
+		// Check the signature of the sourcedid to make sure it was not altered
+		String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+
+		// Send a generic message back to the caller
+		if ( placement_secret == null ) {
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+		String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
+		M_log.debug("Received signature="+signature+" received="+received_signature);
+		boolean matched = signature.equals(received_signature);
+
+		String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
+		if ( old_placement_secret != null && ! matched ) {
+			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+			received_signature = LegacyShaUtil.sha256Hash(pre_hash);
+			M_log.debug("Received signature II="+signature+" received="+received_signature);
+			matched = signature.equals(received_signature);
+		}
+
+		// Send a message back to the caller
+		if ( ! matched ) {
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		// Perform the message-specific handling
+		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
+
+		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
+	}
 
 	protected void processSetting(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
 			Site site, String siteId, String placement_id, Properties pitch,
 			String user_id,  Map<String, Object> theMap)
 		throws java.io.IOException
-		{
-			String setting = null;
+	{
+		String setting = null;
 
-			// Check for permission in placement
-			String allowSetting = pitch.getProperty(LTIService.LTI_ALLOWSETTINGS);
-			if ( ! "on".equals(allowSetting) ) {
-				doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
-				return;
-			}
+		// Check for permission in placement
+		String allowSetting = pitch.getProperty(LTIService.LTI_ALLOWSETTINGS);
+		if ( ! "on".equals(allowSetting) ) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+		}
 
-			SakaiBLTIUtil.pushAdvisor();
-			boolean success = false;
-			try { 
-				if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
-					setting = pitch.getProperty(LTIService.LTI_SETTINGS_EXT);
-					// Remove this after the DB conversion for SAK-25621 is completed
-					// It is harmless until LTI 2.0 starts to get heavy use.
-					if ( setting == null ) {
-						setting = pitch.getProperty(LTIService.LTI_SETTINGS);
+		SakaiBLTIUtil.pushAdvisor();
+		boolean success = false;
+		try { 
+			if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
+				setting = pitch.getProperty(LTIService.LTI_SETTINGS_EXT);
+				// Remove this after the DB conversion for SAK-25621 is completed
+				// It is harmless until LTI 2.0 starts to get heavy use.
+				if ( setting == null ) {
+					setting = pitch.getProperty(LTIService.LTI_SETTINGS);
+				}
+				if ( setting != null ) {
+					theMap.put("/message_response/setting/value", setting);
+				}
+				success = true;
+			} else {
+				if ( SakaiBLTIUtil.isPlacement(placement_id) ) {
+					ToolConfiguration placement = SiteService.findTool(placement_id);
+					if ( "basic-lti-savesetting".equals(lti_message_type) ) {
+						setting = request.getParameter("setting");
+						if ( setting == null ) {
+							M_log.warn("No setting parameter");
+							doError(request, response, theMap, "setting.empty", "", null);
+						} else {
+							if ( setting.length() > 8096) setting = setting.substring(0,8096);
+							placement.getPlacementConfig().setProperty("toolsetting", setting);
+						}
+					} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
+						placement.getPlacementConfig().remove("toolsetting");
 					}
-					if ( setting != null ) {
-						theMap.put("/message_response/setting/value", setting);
+					try {
+						placement.save();
+						success = true;
+					} catch(Exception e) {
+						doError(request, response, theMap, "setting.save.fail", "", e);
 					}
-					success = true;
 				} else {
-					if ( SakaiBLTIUtil.isPlacement(placement_id) ) {
-						ToolConfiguration placement = SiteService.findTool(placement_id);
+					Map<String,Object> content = null;
+					String contentStr = pitch.getProperty("contentKey");
+					Long contentKey = foorm.getLongKey(contentStr);
+					if ( contentKey >= 0 ) content = ltiService.getContentDao(contentKey, siteId);
+					if ( content != null ) {
 						if ( "basic-lti-savesetting".equals(lti_message_type) ) {
 							setting = request.getParameter("setting");
 							if ( setting == null ) {
@@ -519,863 +516,510 @@ public class ServiceServlet extends HttpServlet {
 								doError(request, response, theMap, "setting.empty", "", null);
 							} else {
 								if ( setting.length() > 8096) setting = setting.substring(0,8096);
-								placement.getPlacementConfig().setProperty("toolsetting", setting);
-							}
-						} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
-							placement.getPlacementConfig().remove("toolsetting");
-						}
-						try {
-							placement.save();
-							success = true;
-						} catch(Exception e) {
-							doError(request, response, theMap, "setting.save.fail", "", e);
-						}
-					} else {
-						Map<String,Object> content = null;
-						String contentStr = pitch.getProperty("contentKey");
-						Long contentKey = foorm.getLongKey(contentStr);
-						if ( contentKey >= 0 ) content = ltiService.getContentDao(contentKey, siteId);
-						if ( content != null ) {
-							if ( "basic-lti-savesetting".equals(lti_message_type) ) {
-								setting = request.getParameter("setting");
-								if ( setting == null ) {
-									M_log.warn("No setting parameter");
-									doError(request, response, theMap, "setting.empty", "", null);
-								} else {
-									if ( setting.length() > 8096) setting = setting.substring(0,8096);
-									content.put(LTIService.LTI_SETTINGS_EXT,setting);
-									success = true;
-								}
-							} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
-								content.put(LTIService.LTI_SETTINGS_EXT,null);
+								content.put(LTIService.LTI_SETTINGS_EXT,setting);
 								success = true;
 							}
-							if ( success ) {
-								Object result = ltiService.updateContentDao(contentKey,content, siteId);
-								if ( result instanceof String ) {
-									M_log.warn("Setting update failed: "+result);
-									doError(request, response, theMap, "setting.fail", "", null);
-									success = false;
-								}
+						} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
+							content.put(LTIService.LTI_SETTINGS_EXT,null);
+							success = true;
+						}
+						if ( success ) {
+							Object result = ltiService.updateContentDao(contentKey,content, siteId);
+							if ( result instanceof String ) {
+								M_log.warn("Setting update failed: "+result);
+								doError(request, response, theMap, "setting.fail", "", null);
+								success = false;
 							}
 						}
 					}
 				}
-			} catch (Exception e) {
-				doError(request, response, theMap, "setting.fail", "", e);
-			} finally {
-				SakaiBLTIUtil.popAdvisor();
 			}
-
-			if ( ! success ) return;
-
-			theMap.put("/message_response/statusinfo/codemajor", "Success");
-			theMap.put("/message_response/statusinfo/severity", "Status");
-			theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
-			String theXml = XMLMap.getXML(theMap, true);
-			PrintWriter out = response.getWriter();
-			out.println(theXml);
+		} catch (Exception e) {
+			doError(request, response, theMap, "setting.fail", "", e);
+		} finally {
+			SakaiBLTIUtil.popAdvisor();
 		}
+
+		if ( ! success ) return;
+
+		theMap.put("/message_response/statusinfo/codemajor", "Success");
+		theMap.put("/message_response/statusinfo/severity", "Status");
+		theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
+		String theXml = XMLMap.getXML(theMap, true);
+		PrintWriter out = response.getWriter();
+		out.println(theXml);
+	}
 
 	protected void processOutcome(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, String sourcedid, Map<String, Object> theMap)
 		throws java.io.IOException
-		{
-			// Things look good - time to process the grade
-			boolean isRead = BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult");
-			boolean isDelete = BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult");
+	{
+		// Things look good - time to process the grade
+		boolean isRead = BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult");
+		boolean isDelete = BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult");
 
-			String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
-			String result_resultdata_text = request.getParameter("result_resultdata_text");
+		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
+		String result_resultdata_text = request.getParameter("result_resultdata_text");
 
-			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
-				doError(request, response, theMap, "outcomes.missing", "result_resultscore_textstring", null);
-				return;
-			}
+		if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
+			doError(request, response, theMap, "outcomes.missing", "result_resultscore_textstring", null);
+			return;
+		}
 
-			String theGrade = null;
-			boolean success = false;
-			Object retval = null;
+		String theGrade = null;
+		boolean success = false;
+		Object retval = null;
 
-			try {
-				Double dGrade;
-				if ( isRead ) {
-					retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
-					if ( ! (retval instanceof Map) ) {
-						doError(request, response, theMap, "outcome.fail", (String) retval, null);
-						return;
-					}
+		try {
+			Double dGrade;
+			if ( isRead ) {
+				retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
+				if ( retval instanceof Map ) {
 					Map grade = (Map) retval;
 					dGrade = (Double) grade.get("grade");
 					theMap.put("/message_response/result/resultscore/textstring", dGrade.toString());
 					theMap.put("/message_response/result/resultdata/text", (String) grade.get("comment"));
-                } else if ( isDelete ) {
-                    retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
-				} else { 
-					dGrade = new Double(result_resultscore_textstring);
-					retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
+				} else {
+					// Read fail with Good SourceDID is treated as empty
+					Object check = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
+					if ( check instanceof Boolean && ((Boolean) check) ) {
+						theMap.put("/message_response/result/resultscore/textstring", "");
+						theMap.put("/message_response/result/resultdata/text", "");
+					} else {
+						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						return;
+					}
 				}
-				success = true;
-				theMap.put("/message_response/statusinfo/codemajor", "Success");
-				theMap.put("/message_response/statusinfo/severity", "Status");
-				theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
-			} catch (Exception e) {
-				doError(request, response, theMap, "outcome.grade.fail", "", e);
+		    } else if ( isDelete ) {
+				retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
+			} else { 
+				dGrade = new Double(result_resultscore_textstring);
+				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 			}
-
-			if ( ! success ) return;
-
-			String theXml = XMLMap.getXML(theMap, true);
-			PrintWriter out = response.getWriter();
-			out.println(theXml);
+			success = true;
+			theMap.put("/message_response/statusinfo/codemajor", "Success");
+			theMap.put("/message_response/statusinfo/severity", "Status");
+			theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
+		} catch (Exception e) {
+			doError(request, response, theMap, "outcome.grade.fail", "", e);
 		}
+
+		if ( ! success ) return;
+
+		String theXml = XMLMap.getXML(theMap, true);
+		PrintWriter out = response.getWriter();
+		out.println(theXml);
+	}
 
 	protected void processRoster(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
 			Site site, String siteId, String placement_id, Properties pitch,
 			String user_id,  Map<String, Object> theMap)
 		throws java.io.IOException
-		{
-			// Check for permission in placement
-			String allowRoster = pitch.getProperty(LTIService.LTI_ALLOWROSTER);
-			if ( ! "on".equals(allowRoster) ) {
-				doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
-				return;
-			}
-
-			String roleMapProp = pitch.getProperty("rolemap");
-			String releaseName = pitch.getProperty(LTIService.LTI_SENDNAME);
-			String releaseEmail = pitch.getProperty(LTIService.LTI_SENDEMAILADDR);
-			String assignment = pitch.getProperty("assignment");
-			String allowOutcomes = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
-
-			String maintainRole = site.getMaintainRole();
-
-			SakaiBLTIUtil.pushAdvisor();
-			boolean success = false;
-			try { 
-				List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
-				Set<Member> members = site.getMembers();
-				Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
-				for (Member member : members ) {
-					Map<String,Object> mm = new TreeMap<String,Object>();
-					Role role = member.getRole();
-					String ims_user_id = member.getUserId();
-					mm.put("/user_id",ims_user_id);
-					String ims_role = "Learner";
-
-					// If there is a role mapping, it has precedence over site.update
-					if ( roleMap.containsKey(role.getId()) ) {
-						ims_role = roleMap.get(role.getId());
-					} 
-					else if (AuthzGroupService.isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/"+siteId))
-					{
-						ims_role = "Instructor";
-					}
-
-					// Using "/role" is inconsistent with to
-					// http://developers.imsglobal.org/ext_membership.html. It
-					// should be roles. If we can determine that nobody is using
-					// the role tag, we should remove it.
-
-					mm.put("/role",ims_role);
-					mm.put("/roles",ims_role);
-					User user = null;
-					if ( "true".equals(allowOutcomes) && assignment != null ) {
-						user = UserDirectoryService.getUser(ims_user_id);
-						String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
-						String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
-						if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
-					}
-
-					if ( "on".equals(releaseName) || "on".equals(releaseEmail) ) {
-						if ( user == null ) user = UserDirectoryService.getUser(ims_user_id);
-						if ( "on".equals(releaseName) ) {
-							mm.put("/person_name_given",user.getFirstName());
-							mm.put("/person_name_family",user.getLastName());
-							mm.put("/person_name_full",user.getDisplayName());
-						}
-						if ( "on".equals(releaseEmail) ) {
-							mm.put("/person_contact_email_primary",user.getEmail());
-							mm.put("/person_sourcedid",user.getEid());
-						}
-					}
-
-                    Collection groups = site.getGroupsWithMember(ims_user_id);
-
-                    if (groups.size() > 0) {
-                        List<Map<String, Object>> lgm = new ArrayList<Map<String, Object>>();
-                        for (Iterator i = groups.iterator();i.hasNext();) {
-                            Group group = (Group) i.next();
-                            Map<String, Object> groupMap = new HashMap<String, Object>();
-                            groupMap.put("/id", group.getId());
-                            groupMap.put("/title", group.getTitle());
-                            groupMap.put("/set", new HashMap(groupMap));
-                            lgm.add(groupMap);
-                        }
-                        mm.put("/groups/group", lgm);
-                    }
-
-					lm.add(mm);
-				}
-				theMap.put("/message_response/members/member", lm);
-				success = true;
-			} catch (Exception e) {
-				doError(request, response, theMap, "memberships.fail", "", e);
-			} finally {
-				SakaiBLTIUtil.popAdvisor();
-			}
-
-			if ( ! success ) return;
-
-			theMap.put("/message_response/statusinfo/codemajor", "Success");
-			theMap.put("/message_response/statusinfo/severity", "Status");
-			theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
-			String theXml = XMLMap.getXML(theMap, true);
-			PrintWriter out = response.getWriter();
-			out.println(theXml);
-			M_log.debug(theXml);
+	{
+		// Check for permission in placement
+		String allowRoster = pitch.getProperty(LTIService.LTI_ALLOWROSTER);
+		if ( ! "on".equals(allowRoster) ) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
 		}
+
+		String roleMapProp = pitch.getProperty("rolemap");
+		String releaseName = pitch.getProperty(LTIService.LTI_SENDNAME);
+		String releaseEmail = pitch.getProperty(LTIService.LTI_SENDEMAILADDR);
+		String assignment = pitch.getProperty("assignment");
+		String allowOutcomes = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+
+		String maintainRole = site.getMaintainRole();
+
+		SakaiBLTIUtil.pushAdvisor();
+		boolean success = false;
+		try { 
+			List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
+			Set<Member> members = site.getMembers();
+			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+			for (Member member : members ) {
+				Map<String,Object> mm = new TreeMap<String,Object>();
+				Role role = member.getRole();
+				String ims_user_id = member.getUserId();
+				mm.put("/user_id",ims_user_id);
+				String ims_role = "Learner";
+
+				// If there is a role mapping, it has precedence over site.update
+				if ( roleMap.containsKey(role.getId()) ) {
+					ims_role = roleMap.get(role.getId());
+				} 
+				else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + siteId))
+				{
+					ims_role = "Instructor";
+				}
+
+				// Using "/role" is inconsistent with to
+				// http://developers.imsglobal.org/ext_membership.html. It
+				// should be roles. If we can determine that nobody is using
+				// the role tag, we should remove it.
+
+				mm.put("/role",ims_role);
+				mm.put("/roles",ims_role);
+				User user = null;
+				if ( "true".equals(allowOutcomes) && assignment != null ) {
+					user = UserDirectoryService.getUser(ims_user_id);
+					String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
+					if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
+				}
+
+				if ( "on".equals(releaseName) || "on".equals(releaseEmail) ) {
+					if ( user == null ) user = UserDirectoryService.getUser(ims_user_id);
+					if ( "on".equals(releaseName) ) {
+						mm.put("/person_name_given",user.getFirstName());
+						mm.put("/person_name_family",user.getLastName());
+						mm.put("/person_name_full",user.getDisplayName());
+					}
+					if ( "on".equals(releaseEmail) ) {
+						mm.put("/person_contact_email_primary",user.getEmail());
+						mm.put("/person_sourcedid",user.getEid());
+					}
+				}
+
+				Collection groups = site.getGroupsWithMember(ims_user_id);
+
+				if (groups.size() > 0) {
+					List<Map<String, Object>> lgm = new ArrayList<Map<String, Object>>();
+					for (Iterator i = groups.iterator();i.hasNext();) {
+						Group group = (Group) i.next();
+						Map<String, Object> groupMap = new HashMap<String, Object>();
+						groupMap.put("/id", group.getId());
+						groupMap.put("/title", group.getTitle());
+						groupMap.put("/set", new HashMap(groupMap));
+						lgm.add(groupMap);
+					}
+					mm.put("/groups/group", lgm);
+				}
+
+				lm.add(mm);
+			}
+			theMap.put("/message_response/members/member", lm);
+			success = true;
+		} catch (Exception e) {
+			doError(request, response, theMap, "memberships.fail", "", e);
+		} finally {
+			SakaiBLTIUtil.popAdvisor();
+		}
+
+		if ( ! success ) return;
+
+		theMap.put("/message_response/statusinfo/codemajor", "Success");
+		theMap.put("/message_response/statusinfo/severity", "Status");
+		theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
+		String theXml = XMLMap.getXML(theMap, true);
+		PrintWriter out = response.getWriter();
+		out.println(theXml);
+		M_log.debug(theXml);
+	}
 
 	/* IMS POX XML versions of this service */
 	public void doErrorXML(HttpServletRequest request,HttpServletResponse response, 
 			IMSPOXRequest pox, String s, String message, Exception e) 
 		throws java.io.IOException 
-		{
-			if (e != null) {
-				M_log.error(e.getLocalizedMessage(), e);
-			}
-			String msg = rb.getString(s) + ": " + message;
-			M_log.info(msg);
-			response.setContentType("application/xml");
-			PrintWriter out = response.getWriter();
-            String output = null;
-            if ( pox == null ) {
-                output = IMSPOXRequest.getFatalResponse(msg);
-            } else {
-				String body = null;
-				String operation = pox.getOperation();
-				if ( operation != null ) {
-					body = "<"+operation.replace("Request", "Response")+"/>";
-				}
-                output = pox.getResponseFailure(msg, null, body);
-            }
-			out.println(output);
-			M_log.debug(output);
+	{
+		if (e != null) {
+			M_log.error(e.getLocalizedMessage(), e);
 		}
+		String msg = rb.getString(s) + ": " + message;
+		M_log.info(msg);
+		response.setContentType("application/xml");
+		PrintWriter out = response.getWriter();
+		String output = null;
+		if ( pox == null ) {
+			output = IMSPOXRequest.getFatalResponse(msg);
+		} else {
+			String body = null;
+			String operation = pox.getOperation();
+			if ( operation != null ) {
+				body = "<"+operation.replace("Request", "Response")+"/>";
+			}
+			output = pox.getResponseFailure(msg, null, body);
+		}
+		out.println(output);
+		M_log.debug(output);
+	}
 
 
 	@SuppressWarnings("unchecked")
-    protected void doPostJSON(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException 
-    {
-        String ipAddress = request.getRemoteAddr();
+	protected void doPostJSON(HttpServletRequest request, HttpServletResponse response) 
+		throws ServletException, IOException 
+	{
+		String ipAddress = request.getRemoteAddr();
 
-        M_log.warn("LTI JSON Services not implemented IP=" + ipAddress);
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
-    }
+		M_log.warn("LTI JSON Services not implemented IP=" + ipAddress);
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+		return;
+	}
 
 	@SuppressWarnings("unchecked")
 	protected void doPostXml(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		String ipAddress = request.getRemoteAddr();
 
-			String ipAddress = request.getRemoteAddr();
+		M_log.debug("LTI POX Service request from IP=" + ipAddress);
 
-			M_log.debug("LTI POX Service request from IP=" + ipAddress);
+		String allowOutcomes = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-			String allowOutcomes = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
-
-			String allowLori = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-			if ( ! "true".equals(allowLori) ) allowLori = null;
-
-			if (allowOutcomes == null && allowLori == null ) {
-				M_log.warn("LTI Services are disabled IP=" + ipAddress);
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				return;
-			}
-
-			IMSPOXRequest pox = new IMSPOXRequest(request);
-			if ( ! pox.valid ) {
-				doErrorXML(request, response, pox, "pox.invalid", pox.errorMessage, null);
-				return;
-			}
-
-			//check lti_message_type
-			String lti_message_type = pox.getOperation();
-
-			String sourcedid = null;
-			String message_type = null;
-            if ( M_log.isDebugEnabled() ) M_log.debug("POST\n"+XMLMap.prettyPrint(pox.postBody));
-			Map<String,String> bodyMap = pox.getBodyMap();
-			if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
-                   "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
-				sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
-				message_type = "basicoutcome";
-			} else if ( "getCourseStructureRequest".equals(lti_message_type) ) {
-                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
-				message_type = "getstructure";
-			} else if ( "addCourseResourcesRequest".equals(lti_message_type) ) {
-                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
-				message_type = "addstructure";
-			} else {
-				String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
-				response.setContentType("application/xml");
-				PrintWriter out = response.getWriter();
-				out.println(output);
-				return;
-			}
-
-			// No point continuing without a sourcedid
-			if(BasicLTIUtil.isBlank(sourcedid)) {
-				doErrorXML(request, response, pox, "outcomes.missing", "sourcedid", null);
-				return;
-			}
-
-			// Handle the outcomes here using the new SakaiBLTIUtil code
-			if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
-				processOutcomeXml(request, response, lti_message_type, sourcedid, pox);
-				return;
-			}
-
-			// Truncate this to the maximum length to insure no cruft at the end
-			if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
-
-			// Attempt to parse the sourcedid, any failure is fatal
-			String placement_id = null;
-			String signature = null;
-			String user_id = null;
-			try {
-				int pos = sourcedid.indexOf(":::");
-				if ( pos > 0 ) {
-					signature = sourcedid.substring(0, pos);
-					String dec2 = sourcedid.substring(pos+3);
-					pos = dec2.indexOf(":::");
-					user_id = dec2.substring(0,pos);
-					placement_id = dec2.substring(pos+3);
-				}
-			} catch (Exception e) {
-				// Log some detail for ourselves
-				M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
-				signature = null;
-				placement_id = null;
-				user_id = null;
-			}
-
-			// Send a more generic message back to the caller
-			if ( placement_id == null || user_id == null ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "missing user_id or placement_id", null);
-				return;
-			}
-
-			M_log.debug("signature="+signature);
-			M_log.debug("user_id="+user_id);
-			M_log.debug("placement_id="+placement_id);
-
-			Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
-			if ( pitch == null ) {
-				M_log.debug("Error retrieving result_sourcedid information");
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-	
-			String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
-			Site site = null;
-			try { 
-				site = SiteService.getSite(siteId);
-			} catch (Exception e) {
-				M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
-			}
-
-			// Send a more generic message back to the caller
-			if (  site == null ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-
-			// Check the message signature using OAuth
-			String oauth_consumer_key = pox.getOAuthConsumerKey();
-			String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
-			M_log.debug("oauth_secret: "+oauth_secret);
-			oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
-			M_log.debug("oauth_secret (decrypted): "+oauth_secret);
-
-			String URL = SakaiBLTIUtil.getOurServletPath(request);
-			pox.validateRequest(oauth_consumer_key, oauth_secret, request, URL);
-			if ( ! pox.valid ) {
-				if (pox.base_string != null) {
-					M_log.warn(pox.base_string);
-				}
-				doErrorXML(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
-				return;
-			}
-
-			// Check the signature of the sourcedid to make sure it was not altered
-			String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
-
-			// Send a generic message back to the caller
-			if ( placement_secret ==null ) {
-				M_log.debug("placement_secret is null");
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-
-			String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-			String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-			M_log.debug("Received signature="+signature+" received="+received_signature);
-			boolean matched = signature.equals(received_signature);
-
-			String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
-			if ( old_placement_secret != null && ! matched ) {
-				pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-				received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-				M_log.debug("Received signature II="+signature+" received="+received_signature);
-				matched = signature.equals(received_signature);
-			}
-
-			// Send a message back to the caller
-			if ( ! matched ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				return;
-			}
-
-			String placementLori = pitch.getProperty("allowlori");
-
-			// Outcomes handled above
-			if ( allowLori != null && "on".equals(placementLori) && "getstructure".equals(message_type) ) {
-				processCourseStructureXml(request, response, lti_message_type, siteId, pox);
-			} else if ( allowLori != null && "on".equals(placementLori) && "addstructure".equals(message_type) ) {
-				processAddResourceXML(request, response, lti_message_type, siteId, pox);
-			} else {
-				response.setContentType("application/xml");
-				PrintWriter writer = response.getWriter();
-				String desc = "Message received and validated operation="+pox.getOperation();
-				String output = pox.getResponseUnsupported(desc);
-				writer.println(output);
-			}
-		}
-
-	protected void processCourseStructureXml(HttpServletRequest request, HttpServletResponse response, 
-			String lti_message_type, String siteId, IMSPOXRequest pox)
-		throws java.io.IOException
-	{
-            // userId is irrelevant as this is server to server
-			Map<String,String> bodyMap = pox.getBodyMap();
-			String context_id = bodyMap.get("/params/courseId");
-			if ( context_id == null || ! context_id.equals(siteId) ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				M_log.warn("mis-match courseId="+context_id+" siteId="+siteId);
-				return;
-			}
-
-			// First make sure that we have Lessons in the site
-			SitePage lessonsPage = null;
-			ToolConfiguration lessonsConfig = null;
-			try {
-				Site site = SiteService.getSite(siteId);
-				for (SitePage page : (List<SitePage>)site.getPages()) {
-					for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
-						String tid = tool.getToolId();
-						if ( "sakai.lessonbuildertool".equals(tid) ) {
-							lessonsPage = page;
-							lessonsConfig = tool;
-							break;
-						}
-					}
-				}
-			} catch (IdUnusedException ex) {
-				doErrorXML(request, response, pox, "outcomes.notools", "sourcedid", null);
-				M_log.warn("Could not scan site for Lessons tool.");
-				return;
-			}
-
-			if ( lessonsConfig == null ) {
-				M_log.warn("Could not find sakai.lessonbulder in site="+siteId);
-				doErrorXML(request, response, pox, "outcomes.nolessons", "sourcedid", null);
-				return;
-			}
-
-			// Now lets find the structure within Lessons
-			List<Long> structureList = new ArrayList<Long>();
-
-			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
-			List<Map<String,Object>> structureMap = iteratePagesXML(sitePages,structureList,0);
-
-			if ( structureMap.size() < 1 ) {
-				Map<String,Object> cMap = new TreeMap<String,Object>();
-				cMap.put("/folderId","0");
-				cMap.put("/title",lessonsPage.getTitle());
-				cMap.put("/description",lessonsPage.getTitle());
-				cMap.put("/type","folder");
-				structureMap.add(cMap);
-			}
-
-			Map<String,Object> theMap = new TreeMap<String,Object>();
-			theMap.put("/getCourseStructureResponse/resources/resource",structureMap);
-			String theXml = XMLMap.getXMLFragment(theMap, true);
-			String output = pox.getResponseSuccess("processCourseStructureXml", theXml);
-
-			PrintWriter out = response.getWriter();
-			out.println(output);
-			M_log.debug(output);
+		if (allowOutcomes == null ) {
+			M_log.warn("LTI Services are disabled IP=" + ipAddress);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
-	}
+		}
 
-	protected void processAddResourceXML(HttpServletRequest request, HttpServletResponse response, 
-			String lti_message_type, String siteId, IMSPOXRequest pox)
-		throws java.io.IOException
-	{
-            // userId is irrelevant because this is server to server
-			Map<String,String> bodyMap = pox.getBodyMap();
-			String context_id = bodyMap.get("/params/courseId");
+		IMSPOXRequest pox = new IMSPOXRequest(request);
+		if ( ! pox.valid ) {
+			doErrorXML(request, response, pox, "pox.invalid", pox.errorMessage, null);
+			return;
+		}
 
-			if ( context_id == null || ! context_id.equals(siteId) ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				M_log.warn("mis-match courseId="+context_id+" siteId="+siteId);
-				return;
-			}
+		//check lti_message_type
+		String lti_message_type = pox.getOperation();
 
-			String folder_id = bodyMap.get("/params/folderId");
-			Long folderId = null;
-			try { folderId = new Long(folder_id); }
-			catch (Exception e) { folderId = null; }
-
-			List<Long> structureList = new ArrayList<Long>();
-			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
-			SimplePageItem thePage = LessonsFacade.findFolder(sitePages, folderId, structureList, 1);
-
-			// Something wrong, add on the first page
-			if ( thePage == null ) {
-				M_log.debug("Inserting at top...");
-				for (SimplePageItem i : sitePages) {
-					if (i.getType() != SimplePageItem.PAGE) continue;
-					// System.out.println("item="+i.getName()+"id="+i.getId()+" sakaiId="+i.getSakaiId());
-					thePage = i;
-					break;
-				}
-			}
-
-			// No pages in Lessons yet... 
-			// If we can find the Lessons tool, lets add its first page. 
-			if ( thePage == null ) {
-				M_log.debug("Creating top page...");
-				SitePage lessonsPage = null;
-				ToolConfiguration lessonsConfig = null;
-				try {
-					Site site = SiteService.getSite(siteId);
-					for (SitePage page : (List<SitePage>)site.getPages()) {
-						for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
-							String tid = tool.getToolId();
-							if ( "sakai.lessonbuildertool".equals(tid) ) {
-								lessonsPage = page;
-								lessonsConfig = tool;
-								break;
-							}
-						}
-					}
-				} catch (IdUnusedException ex) {
-					M_log.warn("Could not load site.");
-				}
-				if ( lessonsConfig == null ) {
-					M_log.warn("Could not find sakai.lessonbulder in site="+siteId);
-				} else {
-					String title = lessonsPage.getTitle();
-					String toolId = lessonsConfig.getPageId();
-					thePage = LessonsFacade.addFirstPage(siteId, toolId, title);
-				}
-			}
-
-			if ( thePage == null ) {
-				doErrorXML(request, response, pox, "lessons.page.notfound", 
-					"Unable to find page in structure at "+folderId, null);
-				return;
-			}
-
-			Element bodyElement = pox.bodyElement;
-			// System.out.println(XMLMap.nodeToString(bodyElement));
-			// System.out.println(XMLMap.nodeToString(bodyElement, true));
-			NodeList nl = null;
-			try {
-				Object result = LESSONS_RESOURCES_EXPR.evaluate(bodyElement, XPathConstants.NODESET);
-				nl = (NodeList) result;
-				// System.out.println("result = "+result+" count="+nl.getLength());
-			} catch(Exception e) {
-				e.printStackTrace();
-				nl = null;
-			}
-
-			if ( nl == null || nl.getLength() < 1 ) {
-				doErrorXML(request, response, pox, "lessons.page.noresources", 
-					"No resources to add", null);
-				return;
-			}
-
-
-            Long pageNum = Long.valueOf(thePage.getSakaiId());
-            List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
-			int seq = items.size() + 1;
-            List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
-
-			recursivelyAddResourcesXML(context_id, thePage, nl, seq, resultList);
-			// One success means overall status is a success
-			boolean success = false;
-			for ( Map<String,String> result : resultList ) {
-				if ( "success".equals(result.get("/status")) ) success = true;
-			}
-
-            Map<String,Object> theMap = new TreeMap<String,Object>();
-            theMap.put("/addCourseResourcesResponse/resources/resource",resultList);
-            String theXml = XMLMap.getXMLFragment(theMap, true);
-
+		String sourcedid = null;
+		String message_type = null;
+		if ( M_log.isDebugEnabled() ) M_log.debug("POST\n"+XMLMap.prettyPrint(pox.postBody));
+		Map<String,String> bodyMap = pox.getBodyMap();
+		if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
+			  "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
+			sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
+			message_type = "basicoutcome";
+		} else {
+			String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
 			response.setContentType("application/xml");
-			String output = null;
-			if ( success ) {
-				output = pox.getResponseSuccess("Items Added",theXml);
-			} else {
-				output = pox.getResponseFailure("Items were not added", null);
-			}
-
 			PrintWriter out = response.getWriter();
 			out.println(output);
-			M_log.debug(output);
-	}
-
-	protected void recursivelyAddResourcesXML(String siteId, SimplePageItem thePage, NodeList nl, 
-        int startPos, List<Map<String,String>> resultList)
-	{
-		for(int i=0, cnt=nl.getLength(); i<cnt; i++)
-		{
-			Node node = nl.item(i);
-			if ( node.getNodeType() != Node.ELEMENT_NODE ) continue;
-			M_log.debug("Node="+node.getNodeName());
-
-			if ( ! "resource".equals(node.getNodeName()) ) {
-				continue;
-			}
-
-			String typeStr = null;
-			try {
-				typeStr = (String) LESSONS_TYPE_EXPR.evaluate(node);
-			} catch (Exception e) {
-				typeStr = null;
-			}
-			String titleStr = null;
-			try {
-				titleStr = (String) LESSONS_TITLE_EXPR.evaluate(node);
-			} catch (Exception e) {
-				titleStr = null;
-			}
-			String tempId = null;
-			try {
-				tempId = (String) LESSONS_TEMPID_EXPR.evaluate(node);
-			} catch (Exception e) {
-				tempId = null;
-			}
-			
-			if ( "folder".equals(typeStr) ) {
-				SimplePageItem subPageItem = LessonsFacade.addLessonsFolder(thePage, titleStr, startPos);
-                if ( tempId != null ) {
-                    Map<String,String> result = new TreeMap<String,String> ();
-                    result.put("/tempId",tempId);
-                    result.put("/id", subPageItem.getSakaiId());
-                    resultList.add(result);
-                }
-				startPos++;
-				NodeList childNodes = null;
-				try {
-					Object result = LESSONS_FOLDER_EXPR.evaluate(node, XPathConstants.NODESET);
-					childNodes = (NodeList) result;
-					M_log.debug("children of the folder = "+result+" count="+childNodes.getLength());
-				} catch(Exception e) {
-					e.printStackTrace();
-					nl = null;
-				}
-
-				M_log.debug("===== DOWN THE RABIT HOLE ==========");
-				recursivelyAddResourcesXML(siteId, subPageItem, childNodes, 1, resultList);
-				continue;
-			}
-
-			if ( ! "lti".equals(typeStr) ) {
-				M_log.warn("No support for type:"+typeStr);
-				continue;
-			}
-
-			String launchUrl = null;
-			try {
-				launchUrl = (String) LESSONS_URL_EXPR.evaluate(node);
-			} catch (Exception e) {
-				launchUrl = null;
-			}
-			String launchParams = null;
-			try {
-				launchParams = (String) LESSONS_CUSTOM_EXPR.evaluate(node);
-			} catch (Exception e) {
-				launchParams = null;
-			}
-
-			if ( titleStr == null || launchUrl == null || launchParams == null ) {
-				M_log.warn("Missing required value type, name, url, launch, parms");
-				continue;
-			}
-
-            M_log.debug("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" lanchParams="+launchParams);
-
-            Map<String,String> result = new TreeMap<String,String> ();
-            result.put("/tempId",tempId);
-
-			// Time to add the launch tool
-			String sakaiId = null;
-            try {
-			    sakaiId = LessonsFacade.doImportTool(siteId, launchUrl, titleStr, null, launchParams);
-                if ( sakaiId == null ) {
-                    result.put("/status", "failure");
-                    result.put("/description","doImportTool failed");
-				    M_log.warn("Unable to add LTI Placement "+titleStr);
-                } else {
-                    result.put("/status", "success");
-                    result.put("/description","doImportTool success");
-                    result.put("/id", sakaiId);
-                }
-            } catch (Exception e) {
-                sakaiId = null;
-                e.printStackTrace();
-                result.put("/status", "failure");
-                result.put("/description", e.getMessage());
-            }
-            resultList.add(result);
-
-			if ( sakaiId == null ) continue;
-
-			LessonsFacade.addLessonsLaunch(thePage, sakaiId, titleStr, startPos);
+			return;
 		}
-	}
 
-	protected List<Map<String,Object>> iteratePagesXML(List<SimplePageItem> sitePages, 
-		List<Long> structureList, int depth)
-	{
-		List<Map<String,Object>> structureMap = new ArrayList<Map<String,Object>>();
-
-		if ( depth > 10 ) return null;
-		for (SimplePageItem i : sitePages) {
-			if ( structureList.size() > 50 ) return structureMap;
-            // System.out.println("d="+depth+" o="+structureList.size()+" Page ="+i.getSakaiId()+" title="+i.getName());
-			if (i.getType() != SimplePageItem.PAGE) continue;
-			Long pageNum = Long.valueOf(i.getSakaiId());
-
-			String title = i.getName();
-			if ( structureList.size() == 50 ) title = " ... ";
-			structureList.add(i.getId());
-
-			Map<String,Object> cMap = new TreeMap<String,Object>();
-			cMap.put("/folderId",i.getSakaiId());
-			cMap.put("/title",title);
-			cMap.put("/description",title);
-			cMap.put("/type","folder");
-
-			List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
-            // System.out.println("Items="+items);
-		    List<Map<String,Object>> subMap = iteratePagesXML(items, structureList, depth+1);
-            if (subMap != null && subMap.size() > 0 ) {
-			    cMap.put("/resources/resource",subMap);
-            }
-			structureMap.add(cMap);
+		// No point continuing without a sourcedid
+		if(BasicLTIUtil.isBlank(sourcedid)) {
+			doErrorXML(request, response, pox, "outcomes.missing", "sourcedid", null);
+			return;
 		}
-        return structureMap;
+
+		// Handle the outcomes here using the new SakaiBLTIUtil code
+		if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
+			processOutcomeXml(request, response, lti_message_type, sourcedid, pox);
+			return;
+		}
+
+		// Truncate this to the maximum length to insure no cruft at the end
+		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
+
+		// Attempt to parse the sourcedid, any failure is fatal
+		String placement_id = null;
+		String signature = null;
+		String user_id = null;
+		try {
+			int pos = sourcedid.indexOf(":::");
+			if ( pos > 0 ) {
+				signature = sourcedid.substring(0, pos);
+				String dec2 = sourcedid.substring(pos+3);
+				pos = dec2.indexOf(":::");
+				user_id = dec2.substring(0,pos);
+				placement_id = dec2.substring(pos+3);
+			}
+		} catch (Exception e) {
+			// Log some detail for ourselves
+			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
+			signature = null;
+			placement_id = null;
+			user_id = null;
+		}
+
+		// Send a more generic message back to the caller
+		if ( placement_id == null || user_id == null ) {
+			doErrorXML(request, response, pox, "outcomes.sourcedid", "missing user_id or placement_id", null);
+			return;
+		}
+
+		M_log.debug("signature="+signature);
+		M_log.debug("user_id="+user_id);
+		M_log.debug("placement_id="+placement_id);
+
+		Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
+		if ( pitch == null ) {
+			M_log.debug("Error retrieving result_sourcedid information");
+			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
+		Site site = null;
+		try { 
+			site = SiteService.getSite(siteId);
+		} catch (Exception e) {
+			M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
+		}
+
+		// Send a more generic message back to the caller
+		if (  site == null ) {
+			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		// Check the message signature using OAuth
+		String oauth_consumer_key = pox.getOAuthConsumerKey();
+		String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
+		M_log.debug("oauth_secret: "+oauth_secret);
+		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+		M_log.debug("oauth_secret (decrypted): "+oauth_secret);
+
+		String URL = SakaiBLTIUtil.getOurServletPath(request);
+		pox.validateRequest(oauth_consumer_key, oauth_secret, request, URL);
+		if ( ! pox.valid ) {
+			if (pox.base_string != null) {
+				M_log.warn(pox.base_string);
+			}
+			doErrorXML(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
+			return;
+		}
+
+		// Check the signature of the sourcedid to make sure it was not altered
+		String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+
+		// Send a generic message back to the caller
+		if ( placement_secret ==null ) {
+			M_log.debug("placement_secret is null");
+			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+		String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
+		M_log.debug("Received signature="+signature+" received="+received_signature);
+		boolean matched = signature.equals(received_signature);
+
+		String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
+		if ( old_placement_secret != null && ! matched ) {
+			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+			received_signature = LegacyShaUtil.sha256Hash(pre_hash);
+			M_log.debug("Received signature II="+signature+" received="+received_signature);
+			matched = signature.equals(received_signature);
+		}
+
+		// Send a message back to the caller
+		if ( ! matched ) {
+			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		response.setContentType("application/xml");
+		PrintWriter writer = response.getWriter();
+		String desc = "Message received and validated operation="+pox.getOperation();
+		String output = pox.getResponseUnsupported(desc);
+		writer.println(output);
 	}
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, String sourcedid, IMSPOXRequest pox)
 		throws java.io.IOException
-		{
-			// Things look good - time to process the grade
-			boolean isRead = BasicLTIUtil.equals(lti_message_type, "readResultRequest");
-			boolean isDelete = BasicLTIUtil.equals(lti_message_type, "deleteResultRequest");
+	{
+		// Things look good - time to process the grade
+		boolean isRead = BasicLTIUtil.equals(lti_message_type, "readResultRequest");
+		boolean isDelete = BasicLTIUtil.equals(lti_message_type, "deleteResultRequest");
 
-			Map<String,String> bodyMap = pox.getBodyMap();
-			String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
-			String result_resultdata_text = bodyMap.get("/resultRecord/result/resultData/text");
-			String sourced_id = bodyMap.get("/resultRecord/result/sourcedId");
-			// System.out.println("comment="+result_resultdata_text);
-			// System.out.println("grade="+result_resultscore_textstring);
+		Map<String,String> bodyMap = pox.getBodyMap();
+		String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
+		String result_resultdata_text = bodyMap.get("/resultRecord/result/resultData/text");
+		String sourced_id = bodyMap.get("/resultRecord/result/sourcedId");
+		// System.out.println("comment="+result_resultdata_text);
+		// System.out.println("grade="+result_resultscore_textstring);
 
-			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
-				doErrorXML(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
-				return;
-			}
+		if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
+			doErrorXML(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
+			return;
+		}
 
-			// Lets return an XML Response
-			Map<String,Object> theMap = new TreeMap<String,Object>();
-			String theGrade = null;
-			boolean success = false;
-			String message = null;
-			Object retval = null;
+		// Lets return an XML Response
+		Map<String,Object> theMap = new TreeMap<String,Object>();
+		String theGrade = null;
+		boolean success = false;
+		String message = null;
+		Object retval = null;
+		boolean strict = ServerConfigurationService.getBoolean(SakaiBLTIUtil.LTI_STRICT, false);
 
-			try {
-				Double dGrade;
-				if ( isRead ) {
-					retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
-					if ( ! (retval instanceof Map) ) {
-						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
-						return;
-					}
+		try {
+			Double dGrade;
+			if ( isRead ) {
+				retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
+				String sGrade = "";
+				String comment = "";
+				if ( retval instanceof Map ) {
 					Map grade = (Map) retval;
-					String sGrade = "";
+					comment = (String) grade.get("comment");
 					dGrade = (Double) grade.get("grade");
 					if ( dGrade != null ) {
 						sGrade = dGrade.toString();
 					}
+				} else {
+					Object check = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
+					if ( check instanceof Boolean && ((Boolean) check) ) {
+						// Read fail with Good SourceDID is treated as empty
+					} else {
+						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
+						return;
+					}
 
-					theMap.put("/readResultResponse/result/sourcedId", sourced_id);
-					theMap.put("/readResultResponse/result/resultScore/textString", sGrade);
-					theMap.put("/readResultResponse/result/resultScore/language", "en");
-					theMap.put("/readResultResponse/result/resultData/text", (String) grade.get("comment"));
-					message = "Result read";
-				} else if ( isDelete ) { 
-					retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
-					if ( retval instanceof String ) {
-						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
-						return;
-					}
-					theMap.put("/deleteResultResponse", "");
-					message = "Result deleted";
-				} else { 
-					dGrade = new Double(result_resultscore_textstring);
-					if ( dGrade < 0.0 || dGrade > 1.0 ) {
-						throw new Exception("Grade out of range");
-					}
-					dGrade = new Double(result_resultscore_textstring);
-					retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
-					if ( retval instanceof String ) {
-						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
-						return;
-					}
-					theMap.put("/replaceResultResponse", "");
-					message = "Result replaced";
 				}
 
-				success = true;
-			} catch (Exception e) {
-				doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage(), e);
+				theMap.put("/readResultResponse/result/sourcedId", sourced_id);
+				theMap.put("/readResultResponse/result/resultScore/textString", sGrade);
+				theMap.put("/readResultResponse/result/resultScore/language", "en");
+				if ( ! strict ) {
+					theMap.put("/readResultResponse/result/resultData/text", comment);
+				}
+				message = "Result read";
+			} else if ( isDelete ) { 
+				retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
+				if ( retval instanceof String ) {
+					doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
+					return;
+				}
+				theMap.put("/deleteResultResponse", "");
+				message = "Result deleted";
+			} else { 
+				dGrade = new Double(result_resultscore_textstring);
+				if ( dGrade < 0.0 || dGrade > 1.0 ) {
+					throw new Exception("Grade out of range");
+				}
+				dGrade = new Double(result_resultscore_textstring);
+				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
+				if ( retval instanceof String ) {
+					doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
+					return;
+				}
+				theMap.put("/replaceResultResponse", "");
+				message = "Result replaced";
 			}
 
-			if ( !success ) return;
-
-			String output = null;
-			String theXml = "";
-			if ( theMap.size() > 0 ) theXml = XMLMap.getXMLFragment(theMap, true);
-			output = pox.getResponseSuccess(message, theXml);
-
-			response.setContentType("application/xml");
-			PrintWriter out = response.getWriter();
-			out.println(output);
-			M_log.debug(output);
+			success = true;
+		} catch (Exception e) {
+			doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage(), e);
 		}
+
+		if ( !success ) return;
+
+		String output = null;
+		String theXml = "";
+		if ( theMap.size() > 0 ) theXml = XMLMap.getXMLFragment(theMap, true);
+		output = pox.getResponseSuccess(message, theXml);
+
+		response.setContentType("application/xml");
+		PrintWriter out = response.getWriter();
+		out.println(output);
+		M_log.debug(output);
+	}
 
 
 	public void destroy() {

@@ -27,8 +27,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.Collator;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,12 +59,19 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -115,6 +125,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   
   public void setContentHostingService(ContentHostingService contentHostingService) {
 	  this.contentHostingService = contentHostingService;
+  }
+
+  private SecurityService securityService;
+
+  public void setSecurityService(SecurityService securityService) {
+    this.securityService = securityService;
   }
 
   private UserDirectoryService userDirectoryService;
@@ -601,29 +617,190 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   public Long saveMedia(byte[] media, String mimeType){
-    log.debug("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
     MediaData mediaData = new MediaData(media, mimeType);
-    int retryCount = persistenceHelper.getRetryCount().intValue();
-    while (retryCount > 0){ 
-      try {
-        getHibernateTemplate().save(mediaData);
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem saving media with mimeType: "+e.getMessage());
-        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
-      }
-    }
-    log.debug("****"+AgentFacade.getAgentString()+"saved media."+(new Date()));
-    return mediaData.getMediaId();
+    mediaData.setFileSize((long)media.length);
+    return saveMedia(mediaData);
   }
+
+	protected void pushAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	protected void popAdvisor() {
+		securityService.popAdvisor();
+	}
+
+	protected boolean checkMediaCollection(String id) {
+		pushAdvisor();
+		try {
+			contentHostingService.checkCollection(id);
+		} catch (Exception e) {
+			return false;
+		} finally {
+			popAdvisor();
+		}
+		return true;
+	}
+
+	protected boolean ensureMediaCollection(String id) {
+		pushAdvisor();
+		try {
+			ContentCollection coll = contentHostingService.getCollection(id);
+		} catch (IdUnusedException ie) {
+			log.debug("Creating collection: " + id);
+			String name = id;
+			if (name.endsWith("/")) {
+				name = id.substring(0, id.length() - 1);
+			}
+			name = name.substring(name.lastIndexOf('/') + 1);
+
+			try {
+				ContentCollectionEdit edit = contentHostingService.addCollection(id);
+				ResourcePropertiesEdit props = edit.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				contentHostingService.commitCollection(edit);
+			} catch (Exception collex) {
+				log.warn("[Samigo Media Attachments] Exception while creating collection (" + id + "): " + collex.toString());
+				return false;
+			}
+		} catch (Exception e) {
+			log.warn("[Samigo Media Attachments] General exception while ensuring collection: " + e.toString());
+		} finally {
+			popAdvisor();
+		}
+		return true;
+	}
+
+	protected boolean ensureMediaPath(String path) {
+		if (!path.startsWith("/")) {
+			throw new IllegalArgumentException("[Samigo Media Attachments] Relative media paths are not acceptable. (" + path + ")");
+		}
+
+		int lastSlash = path.lastIndexOf("/");
+
+		// Fast track already existing collections
+		if (lastSlash != 0 && checkMediaCollection(path.substring(0, lastSlash+1))) {
+			return true;
+		}
+
+		// Ensure everything exists from the root
+		int slash = 1;
+		while (slash != lastSlash) {
+			slash = path.indexOf("/", slash+1);
+			if (!ensureMediaCollection(path.substring(0, slash+1))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Create or update a ContentResource for the media payload of this MediaData.
+	 * @param mediaData the complete MediaData item to save if the media byte array is not null
+	 * @return the ID in Content Hosting of the stored item; null on failure
+	 */
+	protected String saveMediaToContent(MediaData mediaData) {
+		String mediaPath = getMediaPath(mediaData);
+		if (mediaData.getMedia() != null && ensureMediaPath(mediaPath)) {
+			log.debug("=====> Saving media: " + mediaPath);
+			pushAdvisor();
+			boolean newResource = true;
+
+			try {
+				contentHostingService.checkResource(mediaPath);
+				newResource = false;
+			} catch (Exception e) {
+				// Just a check, no handling
+			}
+
+			try {
+				ContentResource chsMedia = null;
+				if (newResource) {
+					ContentResourceEdit edit = contentHostingService.addResource(mediaPath);
+					edit.setContentType(mediaData.getMimeType());
+					edit.setContent(mediaData.getMedia());
+					ResourcePropertiesEdit props = edit.getPropertiesEdit();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, mediaData.getFilename());
+					contentHostingService.commitResource(edit);
+					chsMedia = contentHostingService.getResource(mediaPath);
+				} else {
+					chsMedia = contentHostingService.updateResource(mediaPath, mediaData.getMimeType(), mediaData.getMedia());
+				}
+				// Free the byte array since it has been stored in content. Hold the new ContentResource
+				mediaData.setDbMedia(null);
+				mediaData.setContentResource(chsMedia);
+				return mediaPath;
+			} catch (Exception e) {
+				log.warn("Exception while saving media to content: " + e.toString());
+			} finally {
+				popAdvisor();
+			}
+		}
+		return null;
+	}
+
+	protected ContentResource getMediaContentResource(MediaData mediaData) {
+		if (mediaData.getContentResource() != null) {
+			return mediaData.getContentResource();
+		}
+
+		String id = getMediaPath(mediaData);
+		log.debug("=====> Reading media: " + id);
+		if (id != null) {
+			pushAdvisor();
+			try {
+				ContentResource res = contentHostingService.getResource(id);
+				return res;
+			} catch (IdUnusedException ie) {
+				log.info("Nonexistent resource when trying to load media (id: " + mediaData.getMediaId() + "): " + id);
+			} catch (Exception e) {
+				log.debug("Exception while reading media from content ("+ mediaData.getMediaId() + "):" + e.toString());
+			} finally {
+				popAdvisor();
+			}
+		}
+		return null;
+	}
+
+	protected String getMediaPath(MediaData mediaData) {
+		String mediaBase = "/private/samigo/";
+		String mediaPath = null;
+
+		ItemGradingData itemGrading = mediaData.getItemGradingData();
+
+		if (itemGrading != null) {
+			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+			PublishedAssessmentIfc assessment = getPublishedAssessmentByAssessmentGradingId(
+					itemGrading.getAssessmentGradingId());
+			String assessmentId = assessment.getPublishedAssessmentId().toString();
+			String siteId = publishedAssessmentService.getPublishedAssessmentSiteId(assessmentId);
+			String userId = itemGrading.getAgentId();
+			String questionId = itemGrading.getPublishedItemId().toString();
+
+			if (questionId != null && assessmentId != null) {
+				mediaPath = mediaBase + siteId + "/" + assessmentId + "/" + userId + "/" + questionId + "_"
+						+ mediaData.getFilename();
+			}
+		}
+
+		return mediaPath;
+	}
 
   public Long saveMedia(MediaData mediaData){
     log.debug("****"+mediaData.getFilename()+" saving media...size="+mediaData.getFileSize()+" "+(new Date()));
     int retryCount = persistenceHelper.getRetryCount().intValue();
+
+    String mediaPath = getMediaPath(mediaData);
+
     while (retryCount > 0){ 
       try {
-        getHibernateTemplate().save(mediaData);
+        saveMediaToContent(mediaData);
+        getHibernateTemplate().saveOrUpdate(mediaData);
         retryCount = 0;
       }
       catch (Exception e) {
@@ -724,6 +901,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public MediaData getMedia(Long mediaId){
 
     MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class, mediaId);
+
+    // Only try to read from Content Hosting if this isn't a link and
+    // there is no media content in the database
+    if (mediaData.getLocation() == null && mediaData.getDbMedia() == null) {
+        mediaData.setContentResource(getMediaContentResource(mediaData));
+    }
     return mediaData;
   }
 
@@ -741,7 +924,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     List list = getHibernateTemplate().executeFind(hcb);
 
     for (int i=0;i<list.size();i++){
-      a.add((MediaData)list.get(i));
+        MediaData mediaData = (MediaData)list.get(i);
+        mediaData.setContentResource(getMediaContentResource(mediaData));
+        a.add(mediaData);
     }
     log.debug("*** no. of media ="+a.size());
     return a;
@@ -798,7 +983,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     List list = getHibernateTemplate().find(
         "from MediaData m where m.itemGradingData=?", item );
     for (int i=0;i<list.size();i++){
-      a.add((MediaData)list.get(i));
+        MediaData mediaData = (MediaData)list.get(i);
+        mediaData.setContentResource(getMediaContentResource(mediaData));
+        a.add(mediaData);
     }
     log.debug("*** no. of media ="+a.size());
     return a;
@@ -850,6 +1037,48 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     	}
   }
   
+	public List<Long> getMediaConversionBatch() {
+		final HibernateCallback<List<Long>> hcb = new HibernateCallback<List<Long>>() {
+			public List<Long> doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NULL");
+				q.setMaxResults(10);
+				return q.list();
+			}
+		};
+		return getHibernateTemplate().execute(hcb);
+	}
+
+	public boolean markMediaForConversion(List<Long> mediaIds) {
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Integer doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("UPDATE MediaData SET location = 'CONVERTING' WHERE id in (:ids)");
+				q.setParameterList("ids", mediaIds);
+				return q.executeUpdate();
+			}
+		};
+		return getHibernateTemplate().execute(hcb).equals(mediaIds.size());
+	}
+
+	public List<Long> getMediaWithDataAndLocation() {
+		final HibernateCallback<List<Long>> hcb = new HibernateCallback<List<Long>>() {
+			public List<Long> doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NOT NULL");
+				return q.list();
+			}
+		};
+		return getHibernateTemplate().execute(hcb);
+	}
+
+	public List<Long> getMediaInConversion() {
+		final HibernateCallback<List<Long>> hcb = new HibernateCallback<List<Long>>() {
+			public List<Long> doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("SELECT id FROM MediaData WHERE location = 'CONVERTING'");
+				return q.list();
+			}
+		};
+		return getHibernateTemplate().execute(hcb);
+	}
+
   public ItemGradingData getLastItemGradingDataByAgent(
       final Long publishedItemId, final String agentId)
   {
@@ -1570,13 +1799,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
 
-  public void saveOrUpdateAll(Collection c) {
+  public void saveOrUpdateAll(Collection<ItemGradingData> c) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     
     c.removeAll(Collections.singleton(null));
     while (retryCount > 0){ 
       try {
-        getHibernateTemplate().saveOrUpdateAll(c);
+          for (ItemGradingData itemGradingData : c) {
+              getHibernateTemplate().saveOrUpdate(itemGradingData);
+          }
         retryCount = 0;
       }
       catch (Exception e) {
@@ -2374,6 +2605,54 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 						  count++;
 					  }
+					  else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
+						  log.debug("MATCHING");
+						  
+						  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+						  Long sequence = itemTextIfc.getSequence();
+						  String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+						  
+						  String thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
+					  else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
+						  log.debug("MATCHING");
+						  
+						  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+						  Long sequence = itemTextIfc.getSequence();
+						  String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+						  
+						  String thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
+					  else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
+						  log.debug("MATCHING");
+						  
+						  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+						  Long sequence = itemTextIfc.getSequence();
+						  String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+						  
+						  String thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
 					  else if (typeId.equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) { 
 						  log.debug("EXTENDED_MATCHING_ITEMS");
 						  String thistext = "";
@@ -2808,49 +3087,58 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 */
 	private static class ResponsesComparator implements Comparator {
 		boolean anonymous;
+		private Log log = LogFactory.getLog(ResponsesComparator.class);
+		
 		public ResponsesComparator(boolean anony) {
 			anonymous = anony;
 		}
 
 		public int compare(Object a, Object b) {
-			// For anonymous, it should return after the first element comparison
-			if (anonymous) {
-				Long aFirstElement = (Long) ((ArrayList) a).get(0);
-				Long bFirstElement = (Long) ((ArrayList) b).get(0);
-				if (aFirstElement.compareTo(bFirstElement) < 0)
-					return -1;
-				else if (aFirstElement.compareTo(bFirstElement) > 0)
-					return 1;
-				else
-					return 0;
-			}
-			// For non-anonymous, it compares last names first, if it is the same,
-			// compares first name, and then Eid
-			else {
-				String aFirstElement = (String) ((ArrayList) a).get(0);
-				String bFirstElement = (String) ((ArrayList) b).get(0);
-				if (aFirstElement.compareTo(bFirstElement) < 0)
-					return -1;
-				else if (aFirstElement.compareTo(bFirstElement) > 0)
-					return 1;
-				else {
-					String aSecondElement = (String) ((ArrayList) a).get(1);
-					String bSecondElement = (String) ((ArrayList) b).get(1);
-					if (aSecondElement.compareTo(bSecondElement) < 0)
+			RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
+			try{
+				RuleBasedCollator collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+				// For anonymous, it should return after the first element comparison
+				if (anonymous) {
+					Long aFirstElement = (Long) ((ArrayList) a).get(0);
+					Long bFirstElement = (Long) ((ArrayList) b).get(0);
+					if (collator.compare(aFirstElement,bFirstElement) < 0)
 						return -1;
-					else if (aSecondElement.compareTo(bSecondElement) > 0)
+					else if (collator.compare(aFirstElement,bFirstElement) > 0)
+						return 1;
+					else
+						return 0;
+				}
+				// For non-anonymous, it compares last names first, if it is the same,
+				// compares first name, and then Eid
+				else {
+					String aFirstElement = (String) ((ArrayList) a).get(0);
+					String bFirstElement = (String) ((ArrayList) b).get(0);
+					if (collator.compare(aFirstElement, bFirstElement) < 0)
+						return -1;
+					else if (collator.compare(aFirstElement, bFirstElement) > 0)
 						return 1;
 					else {
-						String aThirdElement = (String) ((ArrayList) a).get(2);
-						String bThirdElement = (String) ((ArrayList) b).get(2);
-						if (aThirdElement.compareTo(bThirdElement) < 0)
+						String aSecondElement = (String) ((ArrayList) a).get(1);
+						String bSecondElement = (String) ((ArrayList) b).get(1);
+						if (collator.compare(aSecondElement,bSecondElement) < 0)
 							return -1;
-						else if (aThirdElement.compareTo(bThirdElement) > 0)
+						else if (collator.compare(aSecondElement,bSecondElement) > 0)
 							return 1;
+						else {
+							String aThirdElement = (String) ((ArrayList) a).get(2);
+							String bThirdElement = (String) ((ArrayList) b).get(2);
+							if (collator.compare(aThirdElement,bThirdElement) < 0)
+								return -1;
+							else if (collator.compare(aThirdElement,bThirdElement) > 0)
+								return 1;
+						}
 					}
+					return 0;
 				}
-				return 0;
-			}
+			} catch (ParseException e) {
+	  			log.error("ERROR compare: ",e);
+	  		}
+			return Collator.getInstance().compare(a, b);	
 		}
 	}
 
@@ -3357,8 +3645,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 	  }
 
-	  public void saveOrUpdateAttachments(List list) {
-		  getHibernateTemplate().saveOrUpdateAll(list);
+	  public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list) {
+		  for (AssessmentAttachmentIfc attachment : list) {
+		      getHibernateTemplate().saveOrUpdate(attachment);
+		  }
 	  }
 
 	  public HashMap getInProgressCounts(String siteId) {

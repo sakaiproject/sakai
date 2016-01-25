@@ -1178,6 +1178,19 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		super.doGet(req, res);
 	}
 
+	// Set up RunData if it's not already set up    
+
+        protected void checkRunData(HttpServletRequest req)
+	{
+		if (req.getAttribute(ATTR_RUNDATA) != null)
+		    return;
+
+		// set in VmServlet
+		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
+		JetspeedRunData rundata = new JetspeedRunData(req, getState(req), getPid(req), params);
+		req.setAttribute(ATTR_RUNDATA, rundata);
+	}
+
 	/** Tool session attribute name used to schedule a peer frame refresh. */
 	public static final String ATTR_FRAME_REFRESH = "sakai.vppa.frame.refresh";
 

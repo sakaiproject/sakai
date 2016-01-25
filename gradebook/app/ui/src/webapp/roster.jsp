@@ -2,10 +2,8 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="const" value="32"/>
 
-
 <f:view>
-	<script type="text/javascript" language="JavaScript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" language="JavaScript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+	<script type="text/javascript">includeLatestJQuery('gradebook_roster');</script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/js/spreadsheetUI.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dialog.js"></script>
 			<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/dialog.css" />

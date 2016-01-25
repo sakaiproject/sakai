@@ -12,11 +12,6 @@
   <artifactId>authz-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/authz/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/authz/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/authz/trunk</url>
-  </scm>
   <modules>
     <module>authz-tool/tool</module>
   </modules>

@@ -3,7 +3,7 @@ var utils = utils || {};
 var selTools = new Array();
 var ltiPrefix = "lti_";
 // SAK-22384
-var MATHJAX = {};
+var MATHJAX = MATHJAX || {};
 MATHJAX.isInstalled = false;
 MATHJAX.checkBoxIdPrefix = "jax-";
  
@@ -137,6 +137,7 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
             $('#' + list + ' input:checkbox').prop('checked', false);
             $('#' + list + ' tbody tr').removeClass(highlightClass);
         }
+        utils.checkEnableUnjoin();
     });
     
     $('#' + list + ' input:checkbox').click(function(){
@@ -172,7 +173,7 @@ sakai.siteTypeSetup = function(){
         templateControls = eval('(' + $('#templateControls').val() + ')');
     }
     else {
-        templateControls =='';
+        templateControls ='';
     }
      //the #courseSiteTypes input[type=text] contains what site types are associated with the course category
      // if there are none associated in sakai.properties, the value will be just one ('course')
@@ -358,7 +359,7 @@ sakai.siteTypeSetup = function(){
                             $('#copyContentWrapper input').prop('checked', true);
                         }
                         else {
-                            $('#copyContentWrapper input').prop('checked', false)
+                            $('#copyContentWrapper input').prop('checked', false);
                         }
                         //SAK25401
                         if (this.copyContentLocked === true) {
@@ -384,7 +385,7 @@ sakai.siteTypeSetup = function(){
                             $('#copyUsersWrapper input').prop('checked', true);
                         }
                         else {
-                            $('#copyUsersWrapper input').prop('checked', false)
+                            $('#copyUsersWrapper input').prop('checked', false);
                         }
                         if (this.copyUsersLocked === true) {
                             $('#copyUsersWrapper input').prop('disabled', true);
@@ -459,9 +460,9 @@ sakai.siteTypeSetup = function(){
     
     // this handles selections on the site type list (trad course, project, portfolio, etc.)
     $('#siteTypeList input').click(function(e){
-        if ($(this).attr('id') == 'course') {
+        if ($(this).attr('id') === 'course') {
 
-        	if( $( '#selectTerm option' ).length == 0)
+        	if( $( '#selectTerm option' ).length === 0)
         	{
         		$( '#submitBuildOwn' ).attr( 'disabled', true );
         	}
@@ -548,6 +549,41 @@ utils.endDialog = function(ev, dialogTarget){
 
 };
 
+utils.checkEnableUnjoin = function()
+{
+    var disabled = $( ".joinable:checked" ).length > 0 ? false : true;
+    $( "#reset" ).prop( "disabled", disabled );
+    $( "#unjoin" ).prop( "disabled", disabled );
+    if( disabled )
+    {
+        $( "#unjoin" ).removeClass( "active" );
+    }
+    else
+    {
+        $( "#unjoin" ).addClass( "active" );
+    }
+};
+
+utils.clearSelections = function()
+{
+    $( "#currentSites input:checkbox" ).prop( "checked", false);
+    $( "#currentSites tbody tr").removeClass( "selectedSelected" );
+    utils.checkEnableUnjoin();
+};
+
+utils.labelFor = function(elementId)
+{
+    var labels = document.getElementsByTagName("label");
+    for (var i = 0; i < labels.length; i++)
+    {
+	    if (labels[i].htmlFor === elementId)
+	    {
+		    return labels[i];
+	    }
+    }
+	
+	return null;
+};
 
 // toggle a fade
 jQuery.fn.fadeToggle = function(speed, easing, callback){
@@ -692,7 +728,7 @@ var setupCategTools = function(){
         // ignore if item is disabled
         myId = myId.replace(/\./g,"\\.");
         if (!item.is(':disabled')) {
-                if (checkVal== true){
+                if (checkVal=== true){
                         sorttoolSelectionList();
                        showToolSelection(myId,200);
                        // make toolholder text bold
@@ -912,6 +948,12 @@ var setupCategTools = function(){
         } else {
             // for each tool with this id, set check to false and fade in/out selectedTool display
             setChecked(selectedId,false);
+            var originalInputId = selectedId.replace(/_/g, ".");
+            var label = utils.labelFor(originalInputId);
+            if (label !== null)
+            {
+                label.style.fontWeight = "normal";
+            }
         }
         
         // SAK-22384
@@ -925,6 +967,8 @@ var setupCategTools = function(){
         
         noTools();
     });
+	
+	
  
     $('.moreInfoTool').click(function(e){
         e.preventDefault();
@@ -961,7 +1005,7 @@ var setupRecentSite = function(){
         e.preventDefault();
         $(this).closest('div').fadeOut('fast');
         sessionStorage.setItem(target, true);
-    })
+    });
 
     $('#newSiteAlertPublish').click(function(e){
         e.preventDefault();
@@ -973,7 +1017,7 @@ var setupRecentSite = function(){
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(){
                 $('#newSiteAlertPublish').fadeOut('fast', function(){
-                    $('#' + target).closest('tr').addClass('selectedSelected')
+                    $('#' + target).closest('tr').addClass('selectedSelected');
                     $('#newSiteAlertPublishMess').fadeIn('5000');
                     $('#' + target).closest('tr').fadeOut('fast', function(){
                         var publishedString = $('#newSiteAlertPublishMess').text();
@@ -986,23 +1030,187 @@ var setupRecentSite = function(){
         });
         
         
-    })
-}
+    });
+};
 if (!Array.prototype.indexOf) { 
     Array.prototype.indexOf = function(obj, start) {
          for (var i = (start || 0), j = this.length; i < j; i++) {
              if (this[i] === obj) { return i; }
          }
          return -1;
+    };
+}
+
+function toggle(toggleKey, begin, end) {
+    var checkboxes = document.getElementsByName("providerCourseAdd");
+    for (i=begin; i<end; i++){
+        if (checkboxes[toggleKey].checked){
+           checkboxes[i].checked = true;
+        }
+    else{
+           checkboxes[i].checked = false;
+    }
+    }
+    setContinueButton();
+}
+
+function setContinueButton(){
+    var selected = false;
+    var checkboxes = document.getElementsByName("providerCourseAdd");
+    for (i=0; i<checkboxes.length; i++){
+        if (checkboxes[i].checked){
+          selected = true;
+          break;
+        }
+    }
+    if (!selected) {
+    disableContinueButton();
+    }
+    else{
+    enableContinueButton();
     }
 }
 
+function enableContinueButton(){
+    var continueButton = document.getElementById("continueButton");
+    var addClassButton = document.getElementById("addClassButton");
+    if (continueButton !== null){
+      continueButton.disabled = false;
+    }
+    if (addClassButton !== null){
+      addClassButton.disabled = false;
+    }
+}
+
+function disableContinueButton(){
+    var continueButton = document.getElementById("continueButton");
+    var addClassButton = document.getElementById("addClassButton");
+    if (continueButton !== null){
+      continueButton.disabled = true;
+    }
+    if (addClassButton !== null){
+      addClassButton.disabled = true;
+    }
+}
+
+function selectAll(begin, end) {
+    var checkboxes = document.getElementsByName("providerCourseAdd");
+    for (i=begin; i<end; i++){
+    document.getElementById('row-course' + i).className='selectedSelected';
+    checkboxes[i].checked = true;
+    checkboxes[i].disabled = false;
+    }
+    document.getElementById("selectAll"+begin).style.display = "none";    
+    document.getElementById("unselectAll"+begin).style.display = "block";    
+    enableContinueButton();
+}
+
+function unselectAll(begin, end) {
+    var checkboxes = document.getElementsByName("providerCourseAdd");
+    for (i=begin; i<end; i++){
+        document.getElementById('row-course' + i).className='';
+        checkboxes[i].checked = false;
+        checkboxes[i].disabled = false;
+    }
+    document.getElementById("unselectAll"+begin).style.display = "none";    
+    document.getElementById("selectAll"+begin).style.display = "block";    
+    setContinueButton();
+}
+
+function enableCheckBox(index) {
+    var checkboxes = document.getElementsByName("providerCourseAdd");
+    checkboxes[index].disabled = false;
+    checkboxes[index].checked = true;
+    enableContinueButton();
+}
+
+function submitAddNotListed(){
+    manual_add = document.getElementById("manual_add");
+    manual_add.value="true";
+    continueButton = document.getElementById("continueButton");
+    continueButton.click();
+    return false;
+}
+
+function submitFindCourse(){
+    find_course = document.getElementById("find_course");
+    find_course.value="true";
+    var option = document.getElementById("option");
+    option.value='continue';
+    document.addCourseForm.submit();
+    return false;
+}
+
+function submitChangeUser(){
+    index = document.getElementById("index");
+    index.value="1";
+    document.addCourseForm.submit();  // SAK-22915
+}
+
+function redirectBasedOnSelection(){
+   var selected = false;
+   var checkboxes = document.getElementsByName("providerCourseAdd");
+    for (i=0; i<checkboxes.length; i++){
+        if (checkboxes[i].checked){
+          selected = true;
+          break;
+        }
+    }
+    if (!selected) {
+        find_course = document.getElementById("find_course");
+        find_course.value="true";
+    }
+    continueButton = document.getElementById("continueButton");
+    continueButton.click();
+    document.addCourseForm.submit(); 
+    return false;
+}
+
 var toggleArchiveTermList = function() {
-    if ($('#archiveSiteType').val() == 'course') {
+    if ($('#archiveSiteType').val() === 'course') {
         $('#archiveTermList').show();
     } else {
         $('#archiveTermList').hide();
     }
 
+};
+
+function checkEnableRemove()
+{
+    var selected = false;
+    var checkboxes = document.getElementsByName( "providerClassDeletes" );
+    if( checkboxes !== null )
+    {
+        selected = findSelectedInCheckboxes( checkboxes );
+    }
+
+    checkboxes = document.getElementsByName( "cmRequestedClassDeletes" );
+    if( checkboxes !== null && !selected )
+    {
+        selected = findSelectedInCheckboxes( checkboxes );
+    }
+
+    checkboxes = document.getElementsByName( "manualClassDeletes" );
+    if( checkboxes !== null && !selected )
+    {
+        selected = findSelectedInCheckboxes( checkboxes );
+    }
+
+    var btnRemove = document.getElementById( "btnRemove" );
+    btnRemove.disabled = !selected;
+    btnRemove.className = (selected ? "active" : "");
 }
 
+function findSelectedInCheckboxes( checkboxes )
+{
+    if( checkboxes !== null )
+    {
+        for( var i = 0; i < checkboxes.length; i++ )
+        {
+            if( checkboxes[i].checked )
+            {
+                return true;
+            }
+        }
+    }
+}

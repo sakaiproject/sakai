@@ -32,7 +32,7 @@ $return = '{
     { "@type" : "FileItem",
       "@id" : ":item3",
       "url" : "http://developers.imsglobal.org/images/imscertifiedsm.png",
-      "mediaType" : "application/imsccml+xml",
+      "mediaType" : "application/vnd.ims.imsccv1p3", 
       "copyAdvice" : true
     }
   ]

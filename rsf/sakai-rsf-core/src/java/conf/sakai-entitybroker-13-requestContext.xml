@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- Contains bean overrides and new definitions for application-scope beans required for integration of RSF apps into Sakai with the 
+	"Entity Broker" system -->
+
+	<!-- On a request handled by the EntityViewAccessProvider system holds the EntityView object in question - on other requests holds 
+		this dummy default-constructed value. -->
+	<bean id="sakai-EntityView" class="org.sakaiproject.entitybroker.EntityView" />
+</beans>

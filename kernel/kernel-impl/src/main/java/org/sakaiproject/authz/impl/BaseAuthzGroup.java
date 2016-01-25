@@ -762,21 +762,14 @@ public class BaseAuthzGroup implements AuthzGroup
 			if (grant.role.isAllowed(lock)) return true;
 		}
 
-		// consider auth role
-		if (!userDirectoryService.getAnonymousUser().getId().equals(user))
+		Set<String> userRoles = baseAuthzGroupService.getEmptyRoles(user);
+		for (String userRole: userRoles)
 		{
-			Role auth = (Role) m_roles.get(AuthzGroupService.AUTH_ROLE);
-			if (auth != null)
+			Role role = (Role) m_roles.get(userRole);
+			if (role != null)
 			{
-				if (auth.isAllowed(lock)) return true;
+				if (role.isAllowed(lock)) return true;
 			}
-		}
-
-		// consider anon role
-		Role anon = (Role) m_roles.get(AuthzGroupService.ANON_ROLE);
-		if (anon != null)
-		{
-			if (anon.isAllowed(lock)) return true;
 		}
 
 		return false;

@@ -42,6 +42,7 @@ confirmation dialog
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
 	<title><h:outputText value="#{authorMessages.item_display_author}"/></title>
+	<script type="text/javascript" src="/samigo-app/js/info.js"></script>
 	<!-- AUTHORING -->
 	<samigo:script path="/js/authoring.js"/>
 	<script type="text/javascript">
@@ -116,14 +117,32 @@ confirmation dialog
     <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
     <br/></div>
 	<div class="tier2">
-	
-	  	<h:outputText value="#{authorMessages.calc_question_define_vars}" /><br/>
-	  	<h:outputText value="#{authorMessages.calc_question_answer_expression}" /><br/>
-	  	<h:outputText value="#{authorMessages.calc_question_answer_variance}" /><br/><br/>
-	
-		<h:outputLink onclick="$('#calcQInstructions').toggle();" value="#">
+	  	<p><h:outputText value="#{authorMessages.calc_question_general_instructions1 }" /></p>
+	  	<label><h:outputText value="#{authorMessages.calc_question_instructions_label}"/></label>
+		<ol>
+			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1}" /></li>
+			<ul>
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1a}" /></li>
+			</ul>
+			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2}" /></li>
+			<ul>
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2a}" /></li>
+			</ul>
+			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3}" /></li>
+			<ol type="a">
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3a}" /></li>
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3b}" /></li>
+			</ol>
+		</ol>
+		<label><h:outputText value="#{authorMessages.calc_question_example_label}"/></label>
+		<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example1}"/></p>
+		<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example1_formula}"/></p>
+
+		<div id="calcQShowHide" class="collapsed">
+		<h:outputLink onclick="$('#calcQInstructions').toggle();toggleCollapse(document.getElementById('calcQShowHide'));" value="#">
 			<h:outputText value="#{authorMessages.calc_question_hideshow}"/> 
 		</h:outputLink>
+		</div>
 		<div id="calcQInstructions" style='display:none;'>
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_general_instructsion_label}" /></div>
 			<div class="tier2">
@@ -146,18 +165,13 @@ confirmation dialog
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_define_vars}" />
 			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
-			<div class="tier2">
-				<h:outputText value="#{authorMessages.calc_question_example1}" />
-			</div>
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_formula_label}" /></div>
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_answer_expression}" />
 			</div>
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
-			<div class="tier2">
-				<h:outputText value="#{authorMessages.calc_question_example2}" />
-			</div>
+			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example2}" /></p>
+			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example2_formula}" /></p>
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_additional_label}" /></div>
 			<div class="tier2">
 				<ul>
@@ -166,6 +180,7 @@ confirmation dialog
 					<li><h:outputText value="#{authorMessages.calc_question_operators}" /></li>
 					<li><h:outputText value="#{authorMessages.calc_question_functions}" /></li>
 					<li><h:outputText value="#{authorMessages.calc_question_constants}" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_var_names}"/></li>
 					<li><h:outputText value="#{authorMessages.calc_question_unique_names}"/></li>
 				</ul>
 			</div>
@@ -181,18 +196,19 @@ confirmation dialog
 	
 	  	</h:panelGrid>
 	  
-	  	<h:commandButton rendered="#{itemauthor.target=='assessment' || itemauthor.target=='questionpool'}" 
-	  			value="#{authorMessages.calc_question_extract_button}" 
-	  			action="calculatedQuestion" 
-	  			styleClass="active">
-	  		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionExtractListener" />
-		</h:commandButton>
 	</div>
 
   	<!-- 2a ATTACHMENTS -->
   	<%@ include file="/jsf/author/item/attachment.jsp" %>
 
   	<!-- 3 ANSWER -->
+
+	  	<h:commandButton rendered="#{itemauthor.target=='assessment' || itemauthor.target=='questionpool'}" 
+	  			value="#{authorMessages.calc_question_extract_button}" 
+	  			action="calculatedQuestion" 
+	  			styleClass="active">
+	  		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionExtractListener" />
+		</h:commandButton>
 	<!-- display variables -->
 	<div class="longtext"> <h:outputLabel value="#{authorMessages.calc_question_var_label} " /></div>
 	<div class="tier2">
@@ -247,7 +263,15 @@ confirmation dialog
 	</div>
 
 	<!-- display formulas -->
-	<div class="longtext"> <h:outputLabel value="#{authorMessages.calc_question_formula_label} " /></div>
+	<div class="longtext">
+		<h:outputLabel value="#{authorMessages.calc_question_formula_label} " />
+		<ul>
+			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3b}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_operators}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_functions}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_constants}" /></li>
+		</ul>
+	</div>
 	<div class="tier2">
 		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulas" 
 				value="#{itemauthor.currentItem.calculatedQuestion.formulasList}" var="formula">
@@ -343,7 +367,7 @@ confirmation dialog
 	<br/>
     <!-- 6 PART -->
 
-	<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
+	<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
 		<f:verbatim>&nbsp;</f:verbatim>
 		<h:outputLabel value="#{authorMessages.assign_to_p}" />
 	  	<h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">

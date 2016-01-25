@@ -80,6 +80,8 @@ import org.sakaiproject.util.ResourceLoader;
 public class SaveAssessmentSettings
 {
   private static Log log = LogFactory.getLog(SaveAssessmentSettings.class);
+  
+  private static String EXTENDED_TIME_KEY = "extendedTime";
 
   public AssessmentFacade save(AssessmentSettingsBean assessmentSettings, boolean isFromConfirmPublishAssessmentListener)
   {
@@ -193,9 +195,9 @@ public class SaveAssessmentSettings
     // e. set Submission Messages
     control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
     // f. set username
-    control.setUsername(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getUsername()));
+    control.setUsername(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, StringUtils.trim(assessmentSettings.getUsername())));
     // g. set password
-    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getPassword()));
+    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, StringUtils.trim(assessmentSettings.getPassword())));
     // h. set finalPageUrl
 
     String finalPageUrl = "";
@@ -286,6 +288,7 @@ public class SaveAssessmentSettings
     // hasUsernamePassword,
     // hasTimeAssessment,hasAutoSubmit, hasPartMetaData, hasQuestionMetaData
     HashMap h = assessmentSettings.getValueMap();
+    h = addExtendedTimeValuesToMetaData(assessment, assessmentSettings);
     updateMetaWithValueMap(assessment, h);
 
     // i. set Graphics
@@ -522,4 +525,42 @@ public class SaveAssessmentSettings
 
 	  return releaseToGroupsAsString.toString();
   }
+
+	/**
+	 * This will clear out the old extended time values and update them with new
+	 * ones.
+	 * 
+	 * @param assessment
+	 * @param assessmentSettings
+	 * @return
+	 */
+	private HashMap addExtendedTimeValuesToMetaData(AssessmentFacade assessment,
+			AssessmentSettingsBean assessmentSettings) {
+
+		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");
+		HashMap<String, String> metaDataMap = assessment.getAssessmentMetaDataMap();
+		String metaKey = "";
+
+		// clear out the old extended Time values
+		int itemNum = 1;
+		String extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
+		while ((extendedTimeData != null) && (!extendedTimeData.equals(""))) {
+			metaKey = EXTENDED_TIME_KEY + itemNum;
+			metaDataMap.put(metaKey, ""); // set to empty string TODO: actually
+											// delete it.
+			extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
+			itemNum++;
+		}
+
+		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
+			String extendedTimeEntry = allExtendedTimeEntries[itemNum];
+			metaKey = "extendedTime" + (itemNum + 1);
+
+			// Add in the new extended time values
+			metaDataMap.put(metaKey, extendedTimeEntry);
+		}
+
+		return metaDataMap;
+	}
+
 }

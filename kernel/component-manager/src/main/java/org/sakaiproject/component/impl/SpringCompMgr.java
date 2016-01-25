@@ -48,7 +48,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * ApplicationContext.
  * </p>
  * <p>
- * See the {@link org.sakaiproject.api.kernel.component.ComponentManager}interface
+ * See the {@link org.sakaiproject.component.api.ComponentManager}interface
  * for details.
  * </p>
  */
@@ -154,6 +154,7 @@ public class SpringCompMgr implements ComponentManager {
 			});
 		}
 
+		// skip during tests
 		if (!lateRefresh) {
 			try {
 				// get the singletons loaded
@@ -165,40 +166,40 @@ public class SpringCompMgr implements ComponentManager {
 					M_log.fatal("Shutting down JVM");
 					System.exit(1);
 				} else {
-					M_log.warn(e.getMessage(), e);
+					M_log.error(e.getMessage(), e);
 				}
 			}
-		}
 
-		// dump the configuration values out
-		try {
-		    final ServerConfigurationService scs = (ServerConfigurationService) this.get(ServerConfigurationService.class);
-		    if (scs != null) {
-	            ConfigData cd = scs.getConfigData();
-	            M_log.info("Configuration loaded "+cd.getTotalConfigItems()+" values, "+cd.getRegisteredConfigItems()+" registered");
-	            if (scs.getBoolean("config.dump.to.log", false)) {
-	                // output the config logs now and then output then again in 120 seconds
-	                M_log.info("Configuration values:\n" + cd.toString());
-	                Timer timer = new Timer(true);
-	                timer.schedule(new TimerTask() {
-	                    @Override
-	                    public void run() {
-	                        M_log.info("Configuration values: (delay 1):\n" + scs.getConfigData().toString());
-	                    }
-	                }, 120*1000);
-	                timer.schedule(new TimerTask() {
-	                    @Override
-	                    public void run() {
-	                        M_log.info("Configuration values: (delay 2):\n" + scs.getConfigData().toString());
-	                    }
-	                }, 300*1000);
-	            }
-		    } else {
-		        // probably testing so just say we cannot dump the config
-	            M_log.warn("Configuration: Unable to get and dump out the registered server config values because no ServerConfigurationService is available - this is OK if this is part of a test, this is very bad otherwise");
-		    }
-		} catch (Exception e) {
-		    M_log.error("Configuration: Unable to get and dump out the registered server config values (config.dump.to.log): "+e, e);
+			// dump the configuration values out
+			try {
+			    final ServerConfigurationService scs = (ServerConfigurationService) this.get(ServerConfigurationService.class);
+			    if (scs != null) {
+		            ConfigData cd = scs.getConfigData();
+		            M_log.info("Configuration loaded "+cd.getTotalConfigItems()+" values, "+cd.getRegisteredConfigItems()+" registered");
+		            if (scs.getBoolean("config.dump.to.log", false)) {
+		                // output the config logs now and then output then again in 120 seconds
+		                M_log.info("Configuration values:\n" + cd.toString());
+		                Timer timer = new Timer(true);
+		                timer.schedule(new TimerTask() {
+		                    @Override
+		                    public void run() {
+		                        M_log.info("Configuration values: (delay 1):\n" + scs.getConfigData().toString());
+		                    }
+		                }, 120*1000);
+		                timer.schedule(new TimerTask() {
+		                    @Override
+		                    public void run() {
+		                        M_log.info("Configuration values: (delay 2):\n" + scs.getConfigData().toString());
+		                    }
+		                }, 300*1000);
+		            }
+			    } else {
+			        // probably testing so just say we cannot dump the config
+		            M_log.warn("Configuration: Unable to get and dump out the registered server config values because no ServerConfigurationService is available - this is OK if this is part of a test, this is very bad otherwise");
+			    }
+			} catch (Exception e) {
+			    M_log.error("Configuration: Unable to get and dump out the registered server config values (config.dump.to.log): "+e, e);
+			}
 		}
 	}
 
@@ -214,8 +215,8 @@ public class SpringCompMgr implements ComponentManager {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object get(Class iface) {
-		Object component = null;
+	public <T> T get(Class<T> iface) {
+		T component = null;
 
 		try {
 			component = m_ac.getBean(iface.getName(), iface);
@@ -225,7 +226,7 @@ public class SpringCompMgr implements ComponentManager {
 				M_log.debug("get(" + iface.getName() + "): " + e, e);
 			}
 		} catch (Exception e) {
-			M_log.warn("get(" + iface.getName() + "): ", e);
+			M_log.error("get(" + iface.getName() + "): ", e);
 		}
 
 		return component;
@@ -245,7 +246,7 @@ public class SpringCompMgr implements ComponentManager {
 				M_log.debug("get(" + ifaceName + "): " + e, e);
 			}
 		} catch (Exception e) {
-			M_log.warn("get(" + ifaceName + "): ", e);
+			M_log.error("get(" + ifaceName + "): ", e);
 		}
 
 		return component;
@@ -428,9 +429,8 @@ public class SpringCompMgr implements ComponentManager {
 
 		// strange case...
 		if (sakaiHomePath == null) {
-			sakaiHomePath = File.separatorChar + "usr" + File.separatorChar
-					+ "local" + File.separatorChar + "sakai"
-					+ File.separatorChar;
+			// last resort try /tmp/sakai
+			sakaiHomePath = File.separatorChar + "tmp" + File.separatorChar + "sakai" + File.separatorChar;
 		}
 		if (!sakaiHomePath.endsWith(File.separator))
 			sakaiHomePath = sakaiHomePath + File.separatorChar;

@@ -3,77 +3,33 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
 #set( $H = '-' )
-
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
-<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" />
+<!-- jQuery already loaded in assignment_chef_header -->
+<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript">
-$(document).ready(function() {
- 	setupAssignNew();
- 	#if($turnitin_forceSingleAttachment)
-	 	$("#new_assignment_use_review_service").click(function (){
-	 		var checked = this.checked;
-	 		if(checked){
-	 			$("#subType").val(5);
-	 		}
-	 		$("#subType > option").each(function(){
-	 			if(checked){
-	 				if($(this).val() != 5){
-	 					$(this).prop('disabled', 'disabled');
-	 				}
-	 			}else{
-	 				$(this).removeProp('disabled');
-	 			
-	 			}
-	 		});
-	 	});
- 	#end
-	SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
-});
-</script>
+	$(document).ready(function() {
+		ASN.setupAssignNew();
+		#if($turnitin_forceSingleAttachment)
+		 	$("#new_assignment_use_review_service").click(function (){
+		 		var checked = this.checked;
+		 		if(checked){
+		 			$("#subType").val(5);
+		 		}
+		 		$("#subType > option").each(function(){
+		 			if(checked){
+		 				if($(this).val() != 5){
+		 					$(this).prop('disabled', 'disabled');
+		 				}
+		 			}else{
+		 				$(this).removeProp('disabled');
+		 			
+		 			}
+		 		});
+		 	});
+		#end
+		SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
+	});
 
-<style type="text/css">
-	.extraNode {
-		border:1px solid #69d;
-		padding: 0  1.5em 1em 1.5em;
-		width:50%;
-		min-width:500px;
-	}
-	.extraNodeLink{
-		cursor:pointer;
-	}
-	.extraNode legend{
-		padding:0 .5em;
-		color:#555
-	}
-	.userList {
-		margin-left:36px !important
-	}
-	.userList .selectedItem{
-		background:#def;
-		color:#000;
-		font-weight:bold
-	}
-	.userList li label:hover{
-		cursor:pointer;
-		background:#ffe
-	}		
-
-	fieldset .alertMessageInline,fieldset .alertMessage {
-		border:none
-	}
-
-	.smallMatches{
-		background-color: lightyellow;
-		border-style: solid;
-		border-width: 1px;
-		border-color: lightgray;
-		padding: 1em 1em 1em 2em;
-	}
-</style>
-<script type="text/javascript">
     function SetMaxPoint(obj_option, obj_textfield)
     {
 		if (obj_option === null || obj_textfield === null)
@@ -98,79 +54,6 @@ $(document).ready(function() {
 		}
 	}
 
-	#*
-	## This function is deprecated
-		function SetCloseDate(obj_checkbox, obj_1, obj_2, obj_3, obj_4, obj_5, obj_6)
-		{
-			if (obj_checkbox.checked)
-			{
-				obj_1.disabled = false;
-				obj_2.disabled = false;
-				obj_3.disabled = false;
-				obj_4.disabled = false;
-				obj_5.disabled = false;
-				obj_6.disabled = false;
-			}
-			else
-			{
-				obj_1.disabled = true;
-				obj_2.disabled = true;
-				obj_3.disabled = true;
-				obj_4.disabled = true;
-				obj_5.disabled = true;
-				obj_6.disabled = true;
-			}
-		}
-	*#
-	
-	function togglePeerAssessmentOptions(checked){
-		var section = document.getElementById("peerAssessmentOptions");
-		if(checked){
-			section.style.display="block";
-			resizeFrame('grow');
-		}else{
-			section.style.display="none";
-			resizeFrame('shrink');
-		}
-	}
-	
-	function toggleReviewServiceOptions(checked){
-		var section = document.getElementById("reviewServiceOptions");
-		if(checked){
-			section.style.display="block";
-			resizeFrame('grow');
-		}else{
-			section.style.display="none";
-			resizeFrame('shrink');
-		}
-	}
-	
-	function toggleSmallMatchesOptions(checked){
-		var section = document.getElementById("smallMatchesOptions");
-		if(checked){
-			section.style.display="inline-block";
-		}else{
-			section.style.display="none";
-		}
-	}
-	
-	function toggleSmallMatchesDisabled(){
-		var radioOption1 = document.getElementById("wordCount");
-		var radioOption2 = document.getElementById("percentage")
-		var excludeWords = document.getElementById("tiiExcludeValueWords");
-		var excludePercentages = document.getElementById("tiiExcludeValuePercentages");
-		
-		excludeWords.disabled = true;
-		excludeWords.value = "";
-		excludePercentages.disabled = true;
-		excludePercentages.value = "";
-		if(radioOption1.checked){
-			excludeWords.disabled = false;
-		}else if(radioOption2.checked){
-			excludePercentages.disabled = false;
-		}
-	}
-
 	## handles the Student Submissions dropdown
 	function switchAssignmentSubmissionType()
 	{
@@ -184,7 +67,7 @@ $(document).ready(function() {
 				reviewSwitchNe1.style.display='none';
 				lblReviewService.className='';
 				reviewSwitchNe2.style.display='none';
-				useReview.disabled=false;
+				ASNseReview.disabled=false;
 			#end
 			## SAK-26640
 			document.getElementById('tempAllowRes').style.display = 'block';
@@ -193,7 +76,7 @@ $(document).ready(function() {
 				document.getElementById('allowResubmitNumber').style.display = 'block';
 				document.getElementById('allowResubmitTime').style.display = 'block';
 				document.getElementById('resubmitNotification').style.display = 'block';
-				resizeFrame();
+				ASN.resizeFrame();
 			}
 		}
 		else
@@ -202,7 +85,7 @@ $(document).ready(function() {
 				if (useReview.checked)
 				{
 					reviewSwitchNe2.style.removeProperty('display');
-					toggleReviewServiceOptions(this.checked);
+					ASN.toggleReviewServiceOptions(this.checked);
 				}
 				useReview.checked=false;
 				useReview.disabled=true;
@@ -216,48 +99,10 @@ $(document).ready(function() {
 			document.getElementById('resubmitNotification').style.display = 'none';
 		}
 	}
-
-	function toggleIsGroupSubmission(checked){
-		if (checked) {
-			$("#site").prop("disabled", true);
-			$("#groups").prop("checked", true).trigger("click");
-		} else {
-			$("#site").prop("disabled", false);
-		}
-	}
-</script>
-<script type="text/javascript">
 	focus_path = [ '$fField' ];
 </script>
 <div class="portletBody">
-	<ul class="navIntraTool actionToolBar">
-		#if ($allowAddAssignment)
-			<li class="firstToolBarItem">
-				<span class="current">$!tlang.getString("new")</span>
-			</li>
-			<li>
-				<span><a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.newAssignmentForm.submit();return false;">$!tlang.getString("lisofass1")</a></span>
-			</li>	
-			#if ($withGrade && $!allowGradeSubmission)
-				<li>
-					<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
-				</li>
-			#end
-				<li>
-					<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
-				</li>				
-		#end
-		#if (($allowAllGroups) && ($assignmentscheck))
-			<li>		
-				<span><a href="#" title="$tlang.getString('gen.reorder')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='reorderNavigation';document.newAssignmentForm.submit();return false;">$tlang.getString('gen.reorder')</a></span>
-			</li>
-		#end
-		#if ($allowUpdateSite)
-			<li>
-				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='permissions';document.newAssignmentForm.submit();return false;">$tlang.getString('permis')</a></span>
-			</li>	
-		#end
-	</ul>
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 	<h3>
 		#if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
 			$validator.escapeHtml($!value_title) <span class="highlight">	$tlang.getString("edit")</span>
@@ -277,7 +122,10 @@ $(document).ready(function() {
 		</div>
 	#end
 
-	<form name = "newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	#set($submitnotif="submitnotifTop")
+	#buttonBar($submitnotif)
+
+	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="assignmentId" value="$!assignment.Reference" />
 		<input type="hidden" name="assignmentContentId" value="$!assignment.ContentReference" />
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
@@ -315,7 +163,7 @@ $(document).ready(function() {
                 #if ($visible_date_enabled) 
                <p class="shorttext">
                 <p class="checkbox" id="tempVisibleDate" >
-                    <input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!new_assignment_visibletoggle)checked="checked"#end onclick="if(checked){jQuery('.visibleDatePanel').show();resizeFrame();}else{jQuery('.visibleDatePanel').hide();}" />
+                    <input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!new_assignment_visibletoggle)checked="checked"#end onclick="if(checked){jQuery('.visibleDatePanel').show();ASN.resizeFrame();}else{jQuery('.visibleDatePanel').hide();}" />
                     <label for="allowVisibleDateToggle">$tlang.getString("allowVisibleDate")</label>
                 </p>
                <p class="shorttext visibleDatePanel" #if(!$!new_assignment_visibletoggle)style="display:none;"#end>
@@ -507,7 +355,7 @@ $(document).ready(function() {
 			#set($resubmitStyle="display:none")
 		#end
 		<p class="checkbox" id="tempAllowRes" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" /> 
+			<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" /> 
 			<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
 	    </p>
 		<p class="shorttext" id="allowResubmitNumber" style="$!resubmitStyle">
@@ -622,14 +470,27 @@ $(document).ready(function() {
 		#if ($!name_CheckAutoAnnounce)
 			<p class="checkbox  indnt2">
 				#if ($value_CheckAutoAnnounce.equals("true"))
-					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
+					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceOptions(this.checked)" />
 				#else
-					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" />
+					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" onclick="ASN.toggleAutoAnnounceOptions(this.checked)" />
 				#end
 				<label for="$name_CheckAutoAnnounce">
 					$tlang.getString("gen.anntheope") 
 				</label>
 			</p>
+			#if ($!$value_CheckAutoAnnounce.equals("true"))
+			<div id="selectAutoAnnounceOptions" class="indnt3">
+			#else
+			<div id="selectAutoAnnounceOptions" style="display:none" class="indnt3">
+			#end
+				<p class="checkbox  indnt2">
+					<select name="$name_OpenDateNotification" id="$name_OpenDateNotification">
+						<option value="$value_opendate_notification_none" #if($value_OpenDateNotification.equals($value_opendate_notification_none)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.none')</option>
+						<option value="$value_opendate_notification_low" #if($value_OpenDateNotification.equals($value_opendate_notification_low)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.low')</option>
+						<option value="$value_opendate_notification_high" #if($value_OpenDateNotification.equals($value_opendate_notification_high)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.high')</option>
+					</select> 
+			    </p>
+			</div>
 		#end
 		<p class="checkbox  indnt2">
 			#if (!$!value_CheckAddHonorPledge.equals("1"))
@@ -649,7 +510,7 @@ $(document).ready(function() {
 				#if (4 == $value_SubmissionType)
 					<div id="review.switch.ne.1" class="information">$reviewSwitchNe1</div>
 					<div class="checkbox  indnt2">
-						<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true"  onclick="toggleReviewServiceOptions(this.checked)" disabled="disabled"/>
+						<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)" disabled="disabled"/>
 
 						<label id="lblReviewService" for="$name_UseReviewService" class="instruction">
 							$reviewServiceUse
@@ -659,9 +520,9 @@ $(document).ready(function() {
 					<div id="review.switch.ne.1" class="information" style="display:none;">$reviewSwitchNe1</div>
 					<div class="checkbox indnt2">
 						#if($!value_UseReviewService.equals("true"))
-							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" onclick="toggleReviewServiceOptions(this.checked)"/>
+							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>
 						#else
-							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="toggleReviewServiceOptions(this.checked)"/>
+							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>
 						#end
 
 						<label id="lblReviewService" for="$name_UseReviewService">
@@ -752,9 +613,9 @@ $(document).ready(function() {
 					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES)
 						<div class="checkbox indnt1">
 							#if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 1 || $value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2)
-								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" checked="checked"  onclick="toggleSmallMatchesOptions(this.checked)"/>
+								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" checked="checked" onclick="ASN.toggleSmallMatchesOptions(this.checked)"/>
 							#else
-								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" onclick="toggleSmallMatchesOptions(this.checked)"/>
+								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" onclick="ASN.toggleSmallMatchesOptions(this.checked)"/>
 							#end
 							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE">
 								$tlang.getString("review.exclude.smallMatches") 
@@ -767,14 +628,14 @@ $(document).ready(function() {
 								#end
 								$tlang.getString("review.exclude.matches.by")<span class="reqStar">*</span>
 								<br/>
-								<input onchange="toggleSmallMatchesDisabled()" type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE" id="wordCount" value="1" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE ==  1) checked="checked" #end/>
+								<input onchange="ASN.toggleSmallMatchesDisabled()" type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE" id="wordCount" value="1" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE ==  1) checked="checked" #end/>
 								<label for="wordCount">
 									$tlang.getString("review.exclude.matches.wordmax") 
 								</label>
 								<input type="text" size="3" maxlength="3" id="tiiExcludeValueWords" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE ==  1) value="$value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE" #else disabled="disabled" #end/>
 								<br/>
 								
-								<input onchange="toggleSmallMatchesDisabled()" type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE" id="percentage" value="2" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2) checked="checked" #end/>
+								<input onchange="ASN.toggleSmallMatchesDisabled()" type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE" id="percentage" value="2" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2) checked="checked" #end/>
 								<label for="percentage">
 									$tlang.getString("review.exclude.matches.percentage") 
 								</label>
@@ -838,6 +699,21 @@ $(document).ready(function() {
 						#end
 					</div>
 				<!-- End TII custom options -->
+				#elseif($reviewServiceName.equals("VeriCite"))
+						<!-- Exclude Quoted materials -->
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+						<div class="checkbox">
+								#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" type="checkbox" value="true" checked="checked" />
+								#else
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" type="checkbox" value="true" />
+								#end
+								<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
+									$tlang.getString("review.exclude.quoted") 
+								</label>
+						</div>
+						#end
+				<!-- End VeriCite custom options -->	
 				#end
 			</div>
 		#end
@@ -999,21 +875,31 @@ $(document).ready(function() {
 			</p>
 		#end
 		## end anonymous check
+				<h4>
+				$tlang.getString("additionalOptionsName")
+				</h4>
 
+			<p class="checkbox  indnt2">
+			<input id="$name_noAdditionalOptionsName" name="$name_additionalOptions" type="radio" value="1" 
+			#if ($!value_additionalOptions.equals("none"))
+				checked="checked"
+			#end
+			onclick="ASN.toggleAddOptions('none');" />
+			<label for="$name_noAdditionalOptionsName" class="$class">
+			$tlang.getString("noAdditionalOptionsName")
+			</label>
+			</p>
 		## Peer Assessment
 		#if ($allowPeerAssessment)
 			<div style="display:block">
-				<h4>
-				$peerAssessmentName
-				</h4>
 				<div class="checkbox  indnt2">
-					#if ($!value_UsePeerAssessment.equals("true"))
-						<input id="$name_UsePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true" checked="checked" onclick="togglePeerAssessmentOptions(this.checked)"/>
-					#else
-						<input id="$name_UsePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"  onclick="togglePeerAssessmentOptions(this.checked)"/>
+					<input id="$name_UsePeerAssessment" name="$name_additionalOptions" type="radio" value="peerreview" 
+					#if ($!value_additionalOptions.equals("peerreview"))
+						checked="checked" 
 					#end
+					onclick="ASN.toggleAddOptions('peerreview')"/>
 					<label for="$name_UsePeerAssessment">
-						$peerAssessmentUse
+						$tlang.getString("peerAssessmentUse")
 					</label>
 				</div>
 				#if ($!value_UsePeerAssessment.equals("true"))
@@ -1081,6 +967,32 @@ $(document).ready(function() {
 				</div>
 			</div>
 		#end
+		#if ($group_submissions_enabled)
+			<p class="checkbox  indnt2">
+			<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="group" onclick="ASN.toggleAddOptions('group');"
+			#if ($!value_additionalOptions.equals("group") && $!groupsList)
+			checked="checked"
+			#end
+			#if( !$!groupsList )
+			disabled="disabled"
+			#end
+			/>
+			<label for="$name_CheckIsGroupSubmission" class="$class">
+			$tlang.getString("group.issubmit")
+			</label>
+			</p>
+		#end
+		#if ($multipleGroupUsers)
+			<p class="checkbox indnt2">
+			<div style="color: red;" class="indnt2">$tlang.getString("group.user.multiple.warning")</div>
+			<div style="color: red;" class="indnt3">
+			#foreach($duser in $!multipleGroupUsers)
+				#if ($velocityCount > 1), #end
+				$duser
+			#end
+		</div>
+		</p>
+		#end
 		
 		
 		## group/section support
@@ -1112,43 +1024,15 @@ $(document).ready(function() {
                         <div id="msgNoGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.noGroupsPresent" )</div>
                     #end
                     </div>
-
-                                 #if ($group_submissions_enabled)
-                                    <p class="checkbox  indnt2">
-                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" onclick="toggleIsGroupSubmission(this.checked);"
-                            #if ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
-                                checked="checked"
-                                        #end
-                            #if( !$!groupsList )
-                                disabled="disabled"
-                            #end
-                            />
-                            <label for="$name_CheckIsGroupSubmission" class="$class">
-                                            $tlang.getString("group.issubmit")
-                                        </label>
-                                    </p>
-                                #end
-                                #if ($multipleGroupUsers)
-                                                <p class="checkbox indnt2">
-                                                <div style="color: red;" class="indnt2">$tlang.getString("group.user.multiple.warning")</div>
-                                                <div style="color: red;" class="indnt3">
-                                                #foreach($duser in $!multipleGroupUsers)
-                                                        #if ($velocityCount > 1), #end
-                                                        $duser
-                                                #end
-                                                </div>
-                                                </p>
-                                #end
-
 				<p class="checkbox  indnt2">
                     #if( !$!allowGroupAssignmentsInGradebook )
-                        <input type="radio" name="range" id="site" value="site" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); resizeFrame()};$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); resizeFrame();" 
+                        <input type="radio" name="range" id="site" value="site" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame()};$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();" 
                         #if( $!range == "site" || $selectedGroupsNotFound )
                             checked="checked"
                         #end
                         />
 					#else
-                        <input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); resizeFrame();" 
+                        <input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();" 
                         #if( $!range == "site" || $selectedGroupsNotFound )
                             checked="checked"
                         #elseif ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
@@ -1169,7 +1053,7 @@ $(document).ready(function() {
 			## added group awareness
 			<p class="checkbox indnt2">
                 #if( !$!allowGroupAssignmentsInGradebook )
-                    <input type="radio" name="range" id="groups" value="groups" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); resizeFrame();" 
+                    <input type="radio" name="range" id="groups" value="groups" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();" 
                     #if( $!range == "groups" && !$selectedGroupsNotFound )
                         checked="checked"
                     #elseif( !$!groupsList )
@@ -1177,7 +1061,7 @@ $(document).ready(function() {
                     #end
                     />
 				#else
-                    <input type="radio" name="range" id="groups" value="groups" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); resizeFrame();" 
+                    <input type="radio" name="range" id="groups" value="groups" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
                     #if( $!range == "groups" && !$selectedGroupsNotFound )
                         checked="checked"
                     #elseif( !$!groupsList )
@@ -1201,7 +1085,7 @@ $(document).ready(function() {
 			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
 					<tr>
 						<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
-                            <input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="toggleSelectAll(this, 'selectedGroups'); ASN.showOrHideSelectGroupsMessage();"  />
+                            <input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="ASN.toggleSelectAll(this, 'selectedGroups'); ASN.showOrHideSelectGroupsMessage();"  />
 						</th>
 						<th id ="groupname">
 								$tlang.getString('gen.title')
@@ -1330,10 +1214,10 @@ $(document).ready(function() {
 				</td>
 				<td class="itemAction" style="white-space:nowrap">
 					<div id="nomodelanswer"  #if(!$!modelanswer) style="display:block"#else style="display:none" #end>
-						<a id="modelanswer_add" class="extraNodeLink" href="#">$tlang.getString("new")<span class="skip"> $tlang.getString("modelAnswer")</span></a>
+						<a id="modelanswer_add" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("new")<span class="skip"> $tlang.getString("modelAnswer")</span></a>
 					</div>
 					<div id="hasmodelanswer"  #if($!modelanswer) style="display:block"#else style="display:none" #end>
-						<a id="modelanswer_edit" class="extraNodeLink" href="#">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("modelAnswer")</span></a> | <a id="modelanswer_delete" class="extraNodeLink" href="#">$tlang.getString("delet")<span class="skip"> $tlang.getString("modelAnswer")</span></a>
+						<a id="modelanswer_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("modelAnswer")</span></a> | <a id="modelanswer_delete" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("delet")<span class="skip"> $tlang.getString("modelAnswer")</span></a>
 						<input id = "modelanswer_to_delete" name = "modelanswer_to_delete" type= "hidden" value = "false" />
 					</div>
 				</td>
@@ -1346,14 +1230,14 @@ $(document).ready(function() {
 					</td>
 					<td class="itemAction" style="white-space:nowrap">
 						<div id="nonote"  #if(!$!note) style="display:block"#else style="display:none" #end> 
-							<a id="note_add" class="extraNodeLink" href="#">$tlang.getString("new")<span class="skip"> $tlang.getString("note")</span></a>
+							<a id="note_add" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("new")<span class="skip"> $tlang.getString("note")</span></a>
 						</div>
 						<div id="hasnote"  #if($!note) style="display:block"#else style="display:none" #end>
 							#if ($!allowEditAssignmentNoteItem)
-								<a id="note_edit" class="extraNodeLink" href="#">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("note")</span></a> | <a id="note_delete" class="extraNodeLink" href="#">$tlang.getString("delet")<span class="skip"> $tlang.getString("note")</span></a>
+								<a id="note_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("note")</span></a> | <a id="note_delete" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("delet")<span class="skip"> $tlang.getString("note")</span></a>
 							#else
 								#if ($!allowReadAssignmentNoteItem)
-									<a id="note_edit" class="extraNodeLink" href="#">$tlang.getString("gen.view2")</a>
+									<a id="note_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.view2")</a>
 								#end
 							#end
 						</div>
@@ -1367,19 +1251,19 @@ $(document).ready(function() {
 				</td>
 				<td class="itemAction" style="white-space:nowrap">
 					<div id="noallPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
-						<a id="allPurpose_add" class="extraNodeLink" href="#">$tlang.getString("new")<span class="skip"> $tlang.getString("allPurpose")</span></a>
+						<a id="allPurpose_add" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("new")<span class="skip"> $tlang.getString("allPurpose")</span></a>
 					</div>
 					<div id="hasallPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
-						<a id="allPurpose_edit" class="extraNodeLink" href="#">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("allPurpose")</span></a> | <a id="allPurpose_delete" class="extraNodeLink" href="#">$tlang.getString("delet")<span class="skip"> $tlang.getString("allPurpose")</span></a>
+						<a id="allPurpose_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("allPurpose")</span></a> | <a id="allPurpose_delete" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("delet")<span class="skip"> $tlang.getString("allPurpose")</span></a>
 					</div>
 					<input type="hidden" name="value_allPurpose" #if($!allPurpose) value="true" #else value="false" #end />
 					<input id = "allPurpose_to_delete" name = "allPurpose_to_delete" type= "hidden" value = "false" />
 					#*
 						<div id="noAllPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
-							<a id="allPurpose_add" class="extraNodeLink" href="#">$tlang.getString("new")</a>
+							<a id="allPurpose_add" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("new")</a>
 						</div>
 						<div id="hasAllPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
-							<a id="allPurpose_edit" class="extraNodeLink" href="#">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink" href="#">$tlang.getString("delet")</a>
+							<a id="allPurpose_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("delet")</a>
 						</div>
 					*#
 				</td>
@@ -1802,10 +1686,10 @@ $(document).ready(function() {
 	            		#set($showInputString = $showInputString.concat($role))
 						<tr>
 							<td class="groupCell">					
-								<a href="#" id="collapse_$roleCount" class="toggleRoleLink" style="display:none;" title="$collapseString">
+								<a href="javascript:void(0)" id="collapse_$roleCount" class="toggleRoleLink" style="display:none;" title="$collapseString">
 									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><img src="/library/image/silk/group.png"/>
 								</a>
-								<a href="#" id="expand_$roleCount" class="toggleRoleLink" style="display:inline" title="$expandString">
+								<a href="javascript:void(0)" id="expand_$roleCount" class="toggleRoleLink" style="display:inline" title="$expandString">
 									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><img src="/library/image/silk/group.png"/>
 								</a>
 								<input id="$showInputString" name="showInputString_$roleCount" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
@@ -1837,37 +1721,9 @@ $(document).ready(function() {
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
-			<div class="act">
-				<input accesskey="s" type="button" class="active" name="post" id="post" value="$tlang.getString("gen.pos")" 
-						onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','post','newAssignmentForm');document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
-				<input accesskey="v" type="button" name="preview" id="preview" value="$tlang.getString("gen.pre")" 
-						onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','preview','newAssignmentForm');document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
-				#if (!($!assignment && !$assignment.draft))
-					<input accesskey="d" type="button" name="save" id="save" value="$tlang.getString("gen.savdra")" 
-							onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','save','newAssignmentForm');document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
-				#end
-				<input accesskey="x" type="button" name="cancel" id="cancel" value="$tlang.getString("gen.can")" 
-							onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
-				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
-			</div>
+		#set($submitnotif="submitnotifBottom")
+		#buttonBar($submitnotif)
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
-	<script type="text/JavaScript">
-		<!--
-			function toggleSelectAll(caller, elementName)
-			{
-				var newValue = caller.checked;
-				var elements = document.getElementsByName(elementName);
-				
-				if(elements)
-				{
-					for(var i = 0; i < elements.length; i++)
-					{
-						elements[i].checked = newValue;
-					}
-				}
-			}
-		-->
-	</script>
-</div>	
+</div>
 <!-- end: chef_assignments_instructor_new_edit_assignment.vm  -->

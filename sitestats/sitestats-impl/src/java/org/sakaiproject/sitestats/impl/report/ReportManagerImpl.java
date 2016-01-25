@@ -24,6 +24,7 @@ import org.apache.fop.apps.*;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.util.WorkbookUtil;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -69,6 +70,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -241,35 +243,35 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		// generate report
 		Report report = new Report();
 		List<Stat> data = null;
-		if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
+		if (reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)) {
 			data = M_sm.getResourceStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
-		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
-				|| reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
+		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
+				|| reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)) {
 			data = M_sm.getEventStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
-		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES)){
+		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES)) {
 			data = M_sm.getPresenceStats(rpp.siteId, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
-		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS)){
+		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS)) {
 			data = M_sm.getVisitsTotalsStats(rpp.siteId, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
-		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
+		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)) {
 			data = M_sm.getActivityTotalsStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+		} else if (reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_LESSONPAGES)) {
+			data = M_sm.getLessonBuilderStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		}
 		
 		// add missing info in report and its parameters
-		if(report != null) {
-			reportDef.getReportParams().setWhenFrom(rpp.iDate);
-			reportDef.getReportParams().setWhenTo(rpp.fDate);
-			reportDef.getReportParams().setWhoUserIds(rpp.userIds);
-			reportDef.getReportParams().setHowTotalsBy(rpp.totalsBy);
-			report.setReportData(data);
-			report.setReportDefinition(reportDef);
-			report.setReportGenerationDate(new Date());
-			if(log && reportDef.getId() != 0) {
-				String siteId = reportDef.getSiteId();
-				if(siteId == null) {
-					siteId = reportDef.getReportParams().getSiteId();
-				}
-				M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_VIEW, siteId, true);
+		reportDef.getReportParams().setWhenFrom(rpp.iDate);
+		reportDef.getReportParams().setWhenTo(rpp.fDate);
+		reportDef.getReportParams().setWhoUserIds(rpp.userIds);
+		reportDef.getReportParams().setHowTotalsBy(rpp.totalsBy);
+		report.setReportData(data);
+		report.setReportDefinition(reportDef);
+		report.setReportGenerationDate(new Date());
+		if (log && reportDef.getId() != 0) {
+			String siteId = reportDef.getSiteId();
+			if (siteId == null) {
+				siteId = reportDef.getReportParams().getSiteId();
 			}
+			M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}
 
 		return report;
@@ -316,10 +318,24 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(params.isWhatLimitedResourceIds() && params.getWhatResourceIds() != null){
 				rpp.resourceIds = new ArrayList<String>();
 				Iterator<String> iR = params.getWhatResourceIds().iterator();
-				while (iR.hasNext())
-					rpp.resourceIds.add("/content" + iR.next());
+				while (iR.hasNext()) {
+					String next = iR.next();
+					rpp.resourceIds.add("/content" + next);
+				}
 			}
 			if(params.isWhatLimitedAction() && params.getWhatResourceAction() != null) {
+				rpp.resourceAction = params.getWhatResourceAction();			
+			}
+		} else if (params.getWhat().equals(ReportManager.WHAT_LESSONPAGES)){
+			rpp.resourceIds = null;
+			rpp.resourceAction = null;
+			if (params.isWhatLimitedResourceIds() && params.getWhatResourceIds() != null) {
+				rpp.resourceIds = new ArrayList<String>();
+				for (String iR : params.getWhatResourceIds()) {
+					rpp.resourceIds.add("/lessonbuilder" + iR);
+				}
+			}
+			if (params.isWhatLimitedAction() && params.getWhatResourceAction() != null) {
 				rpp.resourceAction = params.getWhatResourceAction();			
 			}
 		}
@@ -333,6 +349,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}else rpp.fDate = new Date();
 		if(params.getWhen().equals(ReportManager.WHEN_ALL)){
 			if(rpp.siteId != null) {
+                // ADRIAN
 				rpp.iDate = M_sm.getInitialActivityDate(rpp.siteId);
 			}else{
 				rpp.iDate = null;
@@ -407,7 +424,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			rpp.maxResults = 0;
 		}
 
-		return rpp;		
+		return rpp;
 	}
 	
 	
@@ -443,6 +460,12 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			
 		}else if(column.equals(StatsManager.T_RESOURCE_ACTION)) {
 			return totalsBy.contains(StatsManager.T_RESOURCE_ACTION) && !ReportManager.WHO_NONE.equals(params.getWho());
+
+		}else if(column.equals(StatsManager.T_PAGE)) {
+			return totalsBy.contains(StatsManager.T_PAGE) && !ReportManager.WHO_NONE.equals(params.getWho());
+
+		}else if(column.equals(StatsManager.T_PAGE_ACTION)) {
+			return totalsBy.contains(StatsManager.T_PAGE_ACTION) && !ReportManager.WHO_NONE.equals(params.getWho());
 			
 		}else if(column.equals(StatsManager.T_DATE)) {
 			return totalsBy.contains(StatsManager.T_DATE) && !ReportManager.WHO_NONE.equals(params.getWho());
@@ -668,7 +691,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	public byte[] getReportAsExcel(Report report, String sheetName) {
 		List<Stat> statsObjects = report.getReportData();
 		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFSheet sheet = wb.createSheet(getFixedExcelSheetName(sheetName));
+		HSSFSheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
 		HSSFRow headerRow = sheet.createRow(0);
 		
 		// Add the column headers
@@ -818,20 +841,6 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			return baos.toByteArray();
 		}else{
 			return new byte[0];
-		}
-	}
-	
-	private String getFixedExcelSheetName(String sheetName) {
-		if(sheetName == null || sheetName.trim().length() == 0) {
-			return "Sheet";
-		}else{
-			sheetName = sheetName.replaceAll("\\/", "_").replaceAll("\\\\", "_")
-								.replaceAll("\\*", "_").replaceAll("\\?", "_")
-								.replaceAll("\\[", "(").replaceAll("\\]", ")");
-			if(sheetName.length() > 31) {
-				sheetName = sheetName.substring(0, 31);
-			}
-			return sheetName;
 		}
 	}
 
@@ -1424,7 +1433,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					}
 					return buff.toString();
 				}
-			}else{
+			}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
 				// resources
 				List<String> list = report.getReportDefinition().getReportParams().getWhatResourceIds();
 				if(report.getReportDefinition().getReportParams().getWhatResourceIds() == null
@@ -1481,7 +1490,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					}
 				}
 				return buff.toString();
-			}
+			}else {
+                return null;
+            }
 		}
 		
 		/* (non-Javadoc)

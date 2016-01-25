@@ -117,4 +117,12 @@ public interface Topic extends MutableEntity {
     public Boolean getPostFirst();
     
     public void setPostFirst(Boolean postFirst);
+
+    public Boolean getPostAnonymous();
+
+    public void setPostAnonymous(Boolean postAnonymous);
+
+    public Boolean getRevealIDsToRoles();
+
+    public void setRevealIDsToRoles(Boolean revealIDsToRoles);
 }

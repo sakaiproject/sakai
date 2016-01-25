@@ -23,10 +23,13 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 
 public class GradingScale implements Serializable, Comparable {
 	private Long id;
@@ -97,4 +100,31 @@ public class GradingScale implements Serializable, Comparable {
         return new ToStringBuilder(this).
             append(getUid()).toString();
     }
+
+    /**
+     * Convert this GradeingScale instance to a GradingScaleDefinition
+     * @return
+     */
+	public GradingScaleDefinition toGradingScaleDefinition(){
+		GradingScaleDefinition scaleDef = new GradingScaleDefinition();
+		scaleDef.setUid(this.getUid());
+		scaleDef.setName(this.getName());
+		
+		Map<String, Double> mapBottomPercents = this.getDefaultBottomPercents();
+		scaleDef.setDefaultBottomPercents(mapBottomPercents);
+
+		//build the bottom percents as a list as well
+		List<Object> listBottomPercents = new ArrayList<>();
+		List<String> grades = new ArrayList<>();
+		for(Map.Entry<String, Double> pair : mapBottomPercents.entrySet()) {
+			listBottomPercents.add(pair.getValue());
+			grades.add(pair.getKey());
+		}
+		scaleDef.setGrades(grades);
+		scaleDef.setDefaultBottomPercentsAsList(listBottomPercents);
+		
+		return scaleDef;
+	}
+
+
 }

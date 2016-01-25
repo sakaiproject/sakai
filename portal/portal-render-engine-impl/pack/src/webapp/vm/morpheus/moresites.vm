@@ -31,9 +31,7 @@
             <div id="otherSiteCloseW">
                 <a href="#" onclick="closeDrawer()" class="toggler" title="${rloader.sit_othersitesclose}">
                     <span class="hamburger">
-                        <span class="top">&mdash;</span>
-                        <span class="middle">&mdash;</span>
-                        <span class="bottom">&mdash;</span>
+                        <i class="fa fa-close"></i>
                     </span>
                     <span class="skip">
                         ${rloader.sit_othersitesclose}
@@ -62,7 +60,7 @@
 
                                 #if (${site.isMyWorkspace})
 
-                                    <li>
+                                    <li #if (${site.isCurrentSite})class="is-selected" #end>
                                         <a href="${site.siteUrl}" title="${rloader.sit_mywor}">
                                             <span class="fullTitle">${rloader.sit_mywor}</span>
                                         </a>
@@ -71,9 +69,9 @@
 
                                 #else
 
-                                    <li>
+                                    <li #if (${site.isCurrentSite})class="is-selected" #end>
 
-                                        #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+                                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
                                             <a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.shortDescription}</span></a><a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
 
                                         #else

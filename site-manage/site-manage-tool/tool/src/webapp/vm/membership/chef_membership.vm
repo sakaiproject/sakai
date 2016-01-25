@@ -141,6 +141,7 @@
 				</tr>
 				<tbody>
 					#set ($rowCount =0)
+					#set ($checkboxCount = 0)
 					#foreach ($site in $unjoinableSites)
 					#set ($rowCount =$rowCount + 1)
 						<tr>
@@ -148,7 +149,8 @@
 								#set($siteType=$site.Type)
 								## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
 								#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
-									<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable"/>
+									<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
+									#set ($checkboxCount = $checkboxCount + 1)
 								#end
 							</td>	
 	
@@ -170,11 +172,13 @@
 					#end
 				</tbody>	
 			</table>
-		
-		<p class="act">
-    		<input type="submit" class="active" name="eventSubmit_doGoto_unjoinconfirm" value="$tlang.getString('mb.unjoin')" accesskey="s" />
-    		<input type="reset" name="reset" id="reset" value="$tlang.getString('mb.cancel')"  accesskey="x" />
-		</p>
+
+		#if( $checkboxCount > 0 )
+			<p class="act">
+				<input type="submit" id="unjoin" name="eventSubmit_doGoto_unjoinconfirm" value="$tlang.getString('mb.unjoin')" accesskey="s" disabled="disabled" />
+				<input type="button" id="reset" name="reset" value="$tlang.getString('mb.clear')" accesskey="x" disabled="disabled" onclick="utils.clearSelections();" />
+			</p>
+		#end
 
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>

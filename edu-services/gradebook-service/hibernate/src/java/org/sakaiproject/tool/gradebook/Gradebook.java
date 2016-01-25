@@ -45,6 +45,7 @@ public class Gradebook implements Serializable {
     private Set<GradeMapping> gradeMappings;
     private boolean assignmentsDisplayed;
     private boolean courseGradeDisplayed;
+    private boolean courseLetterGradeDisplayed;
     private boolean coursePointsDisplayed;
     private boolean totalPointsDisplayed;
     private boolean courseAverageDisplayed;
@@ -210,15 +211,15 @@ public class Gradebook implements Serializable {
 	public void setVersion(int version) {
 		this.version = version;
 	}
-    /**
-     * @return Returns the courseGradeDisplayed.
-     */
+	
+	/**
+	 * Is the course grade to be shown at all?
+	 * @return boolean
+	 */
     public boolean isCourseGradeDisplayed() {
         return courseGradeDisplayed;
     }
-    /**
-     * @param courseGradeDisplayed The courseGradeDisplayed to set.
-     */
+   
     public void setCourseGradeDisplayed(boolean courseGradeDisplayed) {
         this.courseGradeDisplayed = courseGradeDisplayed;
     }
@@ -231,6 +232,10 @@ public class Gradebook implements Serializable {
       this.totalPointsDisplayed = totalPointsDisplayed;
     }
 
+    /**
+	 * If the course grade is displayed, should the total points be displayed?
+	 * @return true/false if total points should be displayed
+	 */
     public boolean isCoursePointsDisplayed() {
 		return coursePointsDisplayed;
 	}
@@ -239,6 +244,10 @@ public class Gradebook implements Serializable {
 		this.coursePointsDisplayed = coursePointsDisplayed;
 	}
 
+	/**
+	 * If the course grade is displayed, should the percentage be displayed?
+	 * @return true/false if percentage should be displayed
+	 */
 	public boolean isCourseAverageDisplayed() {
       return courseAverageDisplayed;
     }
@@ -355,6 +364,23 @@ public class Gradebook implements Serializable {
 		public void setShowStatisticsChart(Boolean showStatisticsChart) {
 			this.showStatisticsChart = showStatisticsChart;
 		}
+
+	/**
+	 * If the course grade is displayed, should the letter grade be displayed?
+	 * @return true/false if letter grade should be displayed
+	 */
+	public boolean isCourseLetterGradeDisplayed() {
+		return courseLetterGradeDisplayed;
+	}
+
+	/**
+	 * Set whether or not the letter grade should be displayed. Only consulted if course grade is displayed.
+	 * @param courseLetterGradeDisplayed true/false to show letter grade or not
+	 */
+	public void setCourseLetterGradeDisplayed(boolean courseLetterGradeDisplayed) {
+		this.courseLetterGradeDisplayed = courseLetterGradeDisplayed;
+	}
+	
 }
 
 

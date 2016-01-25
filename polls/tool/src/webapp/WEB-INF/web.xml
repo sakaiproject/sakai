@@ -75,7 +75,7 @@
       new Sakai dispatching architecture. Note that this must agree with tool id -->
     <servlet-name>sakai.poll</servlet-name>
     <servlet-class>
-      uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet
+      org.sakaiproject.rsf.servlet.ReasonableSakaiServlet
     </servlet-class>
     <!--<load-on-startup>1</load-on-startup>-->
   </servlet>
@@ -92,7 +92,7 @@
 	</listener>
 	<listener>
 		<listener-class>
-			org.sakaiproject.util.ContextLoaderListener
+			org.sakaiproject.util.SakaiContextLoaderListener
 		</listener-class>
 	</listener>
 </web-app>

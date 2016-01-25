@@ -115,7 +115,7 @@ public class ComponentsLoader
 			}
 		}
 		catch (Exception e) {
-			M_log.warn("load: exception: " + e, e);
+			M_log.error("load: exception: " + e, e);
 		}
 	}
 
@@ -185,7 +185,7 @@ public class ComponentsLoader
 		}
 		catch (Exception e)
 		{
-			M_log.warn("loadComponentPackage: exception loading: " + xml + " : " + e, e);
+			M_log.error("loadComponentPackage: exception loading: " + xml + " : " + e, e);
 		}
 		finally
 		{

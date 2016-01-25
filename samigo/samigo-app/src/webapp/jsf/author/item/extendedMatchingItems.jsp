@@ -526,7 +526,7 @@
 
 			<!-- 6 PART -->
 			<h:panelGrid columns="3" columnClasses="shorttext"
-				rendered="#{itemauthor.target == 'assessment'}">
+				rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
 				<f:verbatim>&nbsp;</f:verbatim>
 				<h:outputLabel value="#{authorMessages.assign_to_p} " />
 				<h:selectOneMenu id="assignToPart"

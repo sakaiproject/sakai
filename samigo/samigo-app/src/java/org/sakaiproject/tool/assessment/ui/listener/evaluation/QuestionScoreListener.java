@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
@@ -195,6 +196,7 @@ public class QuestionScoreListener implements ActionListener,
 		log.debug("questionScores()");
 		try {
 			PublishedAssessmentService pubService = new PublishedAssessmentService();
+			PublishedItemService pubItemService = new PublishedItemService();
 			// get the PublishedAssessment based on publishedId
 			QuestionScoresBean questionBean = (QuestionScoresBean) ContextUtil
 					.lookupBean("questionScores");
@@ -217,6 +219,17 @@ public class QuestionScoreListener implements ActionListener,
 					+ publishedItemTextHash.size());
 			HashMap publishedAnswerHash = pubService
 					.preparePublishedAnswerHash(publishedAssessment);
+			// re-attach session and load all lazy loaded parent/child stuff
+
+//			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
+//
+//			for (Long key : publishedAnswerHashKeySet) {
+//				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
+//
+//				if (!Hibernate.isInitialized(answer.getChildAnswerSet())) {
+//					pubItemService.eagerFetchAnswer(answer);
+//				}
+//			}
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
 			HashMap agentResultsByItemGradingIdMap = new HashMap();
@@ -624,7 +637,15 @@ public class QuestionScoreListener implements ActionListener,
 						setDurationIsOver(item, mediaList);
 						gdata.setMediaArray(mediaList);
 					}
-
+					if (bean.getTypeId().equals("16")) {
+						if (gdataPubItemText == null) {
+							// the matching pair is deleted
+							answerText = "";
+						}
+						else {
+							answerText = gdataPubItemText.getSequence() + ":"+ answerText;
+						}
+					}
 					if (answerText == null)
 						answerText = noAnswer;
 					else {
@@ -676,6 +697,7 @@ public class QuestionScoreListener implements ActionListener,
 						String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
 						
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
+							answerText = FormattedText.escapeHtml(answerText, true);
 							if (gdata.getIsCorrect() == null) {
 								boolean result = false;
 								if (bean.getTypeId().equals("8")) {
@@ -701,6 +723,7 @@ public class QuestionScoreListener implements ActionListener,
 							}
 						}
 						else if (bean.getTypeId().equals("15")) {  // CALCULATED_QUESTION
+							answerText = FormattedText.escapeHtml(answerText, true);
 							//need to do something here for fill in the blanks
 							if(gdataAnswer.getScore() > 0){
 								//if score is 0, there is no way to tell if user got the correct answer

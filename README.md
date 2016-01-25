@@ -63,7 +63,11 @@ https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists
 [Sakai 2.9](https://confluence.sakaiproject.org/display/DOC/Sakai+2.9+release+notes) is still supported, almost solely for security patches at this point in time.
 
 ## Under Development
-[Sakai 11] (https://docs.google.com/presentation/d/1OaF04Kli51nYtsLw_0plmU829NarYUDtQkBnFJtB250/edit#slide=id.p4) is under development. Expected release is Q4 2015. Some of the key features include Responsive Design (code name Morpheus); spreadsheet entry Gradebook; improved Assessment (test and quizzes) delivery options to accommodate special needs; PA system for managing system-wide announcements; a Dashboard summary of activities and assignments for more efficient student access to content; user interface enhancements to Lessons, a community favorite tool that allows instructors to organize their course activities the way they would like, by leveraging other Sakai tools and adding workflow and adaptive release options.
+[Sakai 11] (https://docs.google.com/presentation/d/1OaF04Kli51nYtsLw_0plmU829NarYUDtQkBnFJtB250/edit#slide=id.p4) is under development. Expected release is first half of 2016. Some of the key features include Responsive Design (code name Morpheus); spreadsheet entry Gradebook; improved Assessment (test and quizzes) delivery options to accommodate special needs; PA system for managing system-wide announcements; a Dashboard summary of activities and assignments for more efficient student access to content; user interface enhancements to Lessons, a community favorite tool that allows instructors to organize their course activities the way they would like, by leveraging other Sakai tools and adding workflow and adaptive release options.
 
+## Contrib tools
+A number of institutions have written additional tools that they add to Sakai. This section has pointers to some of them.
+
+Rutgers has a repository for versions of Assignment 2, Gradebook 2, and OSP that work with Sakai 11,  https://github.com/clhedrick/sakai-contrib. If other institutions are willing to help maintain these tools, we'd be happy to add additional committers. OSP is a Rutgers version, which has minor Rutgers features.
 
 test

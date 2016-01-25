@@ -7,7 +7,7 @@
 	<sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_organize}">
 <!--jsp/privateMsg/pvtMsgOrganize.jsp-->
 			<h:form id="pvtMsgOrganize">
-			       		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+			       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 				<hr />

@@ -22,12 +22,11 @@
 
 package org.sakaiproject.user.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -73,28 +72,21 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	// This is the implementation class because there's no way to inject the
 	// test provider or to clear the user cache through the official API.
 	private static DbUserService dbUserService;
-	private static Cache callCache;
+	private static Cache<String, User> callCache;
 	private static AuthzGroupService authzGroupService;
 	private static ThreadLocalManager threadLocalManager;
 	private static SessionManager sessionManager;
 
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(GetUsersByEidTest.class)) {
-			protected void setUp() throws Exception {
-				try {
-					oneTimeSetup("disable_user_cache");
-					oneTimeSetupAfter();
-				} catch (Exception e) {
-					log.warn(e);
-				}
-			}
-			protected void tearDown() throws Exception {	
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+			oneTimeSetup("disable_user_cache");
+			oneTimeSetupAfter();
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
-	
+
 	public static void oneTimeSetupAfter() throws Exception {
 		TestProvider userDirectoryProvider = new TestProvider();
 		
@@ -103,14 +95,14 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		dbUserService = (DbUserService)getService("org.sakaiproject.user.api.UserDirectoryService");
 		dbUserService.setProvider(userDirectoryProvider);
 		
-		callCache = ((MemoryService) getService("org.sakaiproject.memory.api.MemoryService")).newCache(
+		callCache = ((MemoryService) getService("org.sakaiproject.memory.api.MemoryService")).getCache(
 				"org.sakaiproject.user.api.UserDirectoryService.callCache");
 
-		authzGroupService = (AuthzGroupService) getService(AuthzGroupService.class);
+		authzGroupService = getService(AuthzGroupService.class);
 
-		threadLocalManager = (ThreadLocalManager) getService(ThreadLocalManager.class);
+		threadLocalManager = getService(ThreadLocalManager.class);
 
-		sessionManager = (SessionManager) getService(SessionManager.class);
+		sessionManager = getService(SessionManager.class);
 		
 		// Sakai provides no way to undo a EID-to-ID mapping, and so we can't use
 		// a normal setUp and tearDown approach to loading test data.
@@ -157,6 +149,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		if (callCache != null) { callCache.remove(ref); }
 	}
 	
+	@Test
 	public void testGetUsersByEid() throws Exception {
 		// Our big search list should contain:
 		//   - All the legitimate provided user EIDs.
@@ -199,6 +192,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 	}
 
+	@Test
 	public void testGetUsersById() throws Exception {
 		// Our big search list should contain:
 		//   - All the existing IDs for legitimate provided users.
@@ -214,6 +208,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		TestProvider.GET_USERS_CALLS_COUNTER = 0;
+		@SuppressWarnings("unchecked")
 		List<User> users = dbUserService.getUsers(searchIds);
 		Assert.assertEquals(mappedUserIds.size(), users.size());	// Everyone but the NO_SUCH_EID
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
@@ -232,14 +227,15 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 	}
 	
+	@Test
 	public void testSearchUsers() {
 		List<User> users = dbUserService.searchUsers("Joe", 1, 1);
 		if (users == null) {
 			log.error("empty list from search");
-			fail();
+			Assert.fail();
 		} else if (users.size() == 0 || users.size() > 1) {
 			log.error("list of size 1 expected list contained: " + users.size());
-			fail();
+			Assert.fail();
 		}
  	}
 
@@ -278,8 +274,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 			return fillUserRecord(userEdit);
 		}
 
-		@SuppressWarnings("unchecked")
-		public void getUsers(Collection users) {
+		public void getUsers(Collection<UserEdit> users) {
 			GET_USERS_CALLS_COUNTER++;
 			
 			// This is where an efficient single DB query might

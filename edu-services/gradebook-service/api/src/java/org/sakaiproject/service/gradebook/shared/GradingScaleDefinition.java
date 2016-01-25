@@ -21,17 +21,35 @@
 **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
+ * DTO for the persistent GradingScale
  */
-public class GradingScaleDefinition {
+public class GradingScaleDefinition implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
 	private String uid;
 	private String name;
 	private List<String> grades;
-	private List<Double> defaultBottomPercents;
+	
+	/**
+	 * This was added specifically to support CXF and is a different pattern to the original
+	 */
+	private List<Double> defaultBottomPercentsAsList;
+	
+	/**
+	 * The original map
+	 */
+	private Map<String, Double> defaultBottomPercents;
 
 	public String getUid() {
 		return uid;
@@ -51,14 +69,14 @@ public class GradingScaleDefinition {
 	public void setGrades(List<String> grades) {
 		this.grades = grades;
 	}
-	public List<Double> getDefaultBottomPercents() {
-		return defaultBottomPercents;
+	public List<Double> getDefaultBottomPercentsAsList() {
+		return defaultBottomPercentsAsList;
 	}
-	public void setDefaultBottomPercents(List<Object> defaultBottomPercents) {
+	public void setDefaultBottomPercentsAsList(List<Object> defaultBottomPercentsList) {
 		// Depending on how this was called, the list may
 		// be of Double, String, emtpy String, or null objects. Convert the strings.
 		List<Double> doubleScores = new ArrayList<Double>();
-		for (Iterator iter = defaultBottomPercents.iterator(); iter.hasNext(); ) {
+		for (Iterator<Object> iter = defaultBottomPercentsList.iterator(); iter.hasNext(); ) {
 			Object obj = iter.next();
 			if (obj instanceof String) {
 				String str = (String)obj;
@@ -70,7 +88,19 @@ public class GradingScaleDefinition {
 			}
 			doubleScores.add((Double)obj);
 		}
-		this.defaultBottomPercents = doubleScores;
+		this.defaultBottomPercentsAsList = doubleScores;
+	}
+	
+	public Map<String, Double> getDefaultBottomPercents() {
+		return defaultBottomPercents;
+	}
+	public void setDefaultBottomPercents(Map<String, Double> defaultBottomPercents) {
+		this.defaultBottomPercents = defaultBottomPercents;
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 
 }

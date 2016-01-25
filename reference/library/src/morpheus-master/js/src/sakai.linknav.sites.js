@@ -17,19 +17,19 @@ var setupLinkNav = function(){
 		});
 	}
 
-	if( howManyHidden !== 0 ){
+	/*if( howManyHidden !== 0 ){
 		$PBJQ('#show-all-sites').css( 'display','block' );
 	  	$PBJQ('#linkNav').addClass( 'scrolled-sites' );
 		$PBJQ('#show-all-sites-mobile').css( 'display','block' );
 	}else{
 	  	$PBJQ('#linkNav').removeClass( 'scrolled-sites' );
 		$PBJQ('#show-all-sites').css( 'display','none' );
-	}
+	}*/
 };
 
 $PBJQ(document).ready(function(){
 	setupLinkNav();
-	$( window ).resize(function() {
+	$PBJQ( window ).resize(function() {
 		setupLinkNav();
 	});
 });

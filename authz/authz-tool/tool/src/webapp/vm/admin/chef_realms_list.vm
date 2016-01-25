@@ -1,4 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 <script type="text/javascript">
 	focus_path = ["search"];
 </script>
@@ -13,38 +14,26 @@
 				
 		<div class="listNav">
 						#if ($realms.size() > 0)
-						<div class="instruction">
+						<div class="instruction" id="pagingHeader">
 						$tlang.getString("realm.list.youare") $topMsgPos - $btmMsgPos $tlang.getString("realm.list.of") $allMsgNumber $tlang.getString("realm.list.results")
 						</div>
 						#end
 						#if ($pagesize != 0)
-							#if ($goFPButton == "true")
-								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#else
-								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#end
-							#if ($goPPButton == "true")
-								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#else
-								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#end
+							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" 
+									#if ($goFPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p"
+									#if ($goPPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
 						#end
 						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("gen.listnavselect")</span>
-							<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+							<select name="selectPageSize" onchange="SPNR.insertSpinnerAfter( this, null, 'pagingHeader' ); document.pagesizeForm.submit();">
 								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("gen.show5")</option>
 								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("gen.show10")</option>
 								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("gen.show20")</option>
@@ -55,28 +44,16 @@
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 						#if ($pagesize != 0)
-							#if ($goNPButton == "true")
-								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#else
-								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#end
-							#if ($goLPButton == "true")
-								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#else
-								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-							#end
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="n"
+									#if ($goNPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')"
+									#if ($goLPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
 						#end
 					</div>
 				</div> ##end navPanel

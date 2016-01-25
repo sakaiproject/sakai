@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="org.sakaiproject.portal.api.PortalService"
           class="org.sakaiproject.portal.service.PortalServiceImpl"
-          singleton="true"
           init-method="init"
           >
 	       <property name="siteNeighbourhoodService" ><ref bean="org.sakaiproject.portal.api.SiteNeighbourhoodService" /></property>
@@ -16,7 +14,6 @@
     </bean>
     <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
           class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"
-          singleton="true"
           init-method="init"
           destroy-method="destroy" >
        <property name="activeToolManager" ><ref bean="org.sakaiproject.tool.api.ActiveToolManager" /></property>
@@ -24,7 +21,6 @@
     
     <bean id="org.sakaiproject.portal.api.SiteNeighbourhoodService"
           class="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl"
-          singleton="true"
           init-method="init"
           destroy-method="destroy" >
 	       <property name="siteService" ><ref bean="org.sakaiproject.site.api.SiteService" /></property>
@@ -36,7 +32,7 @@
     </bean>
     
     <bean id="org.sakaiproject.portal.service.AliasingSiteAdvisor"
-          class="org.sakaiproject.portal.service.AliasingSiteAdvisor" singleton="true" init-method="init" lazy-init="false">
+          class="org.sakaiproject.portal.service.AliasingSiteAdvisor" init-method="init" lazy-init="false">
         <property name="siteService">
             <ref bean="org.sakaiproject.site.api.SiteService" />
         </property>
@@ -56,12 +52,12 @@
     </bean>
     
     <bean id="org.sakaiproject.portal.api.EditorRegistry"
-    	class="org.sakaiproject.portal.service.EditorRegistryImpl" singleton="true" init-method="init" lazy-init="false" destroy-method="destroy">
+    	class="org.sakaiproject.portal.service.EditorRegistryImpl" init-method="init" lazy-init="false" destroy-method="destroy">
     </bean>
 
 	<bean id="org.sakaiproject.portal.api.PortalChatPermittedHelper"
     	class="org.sakaiproject.portal.service.PortalChatPermittedHelperImpl"
-        singleton="true" init-method="init">
+        init-method="init">
 		<property name="securityService" ><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
 	    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
 	    <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager" /></property>

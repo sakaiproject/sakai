@@ -48,8 +48,11 @@
 						<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;margin:0;font-size:110%;color:#000;font-weight:bold"></f:verbatim>
 							<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
 								<h:outputText value="#{msgDecorateBean.message.title}" />
-								<h:outputText  value= " - #{msgDecorateBean.message.author} " />
-								<h:outputText value="#{msgDecorateBean.message.created}">
+								<h:outputText  value= " - #{msgDecorateBean.anonAwareAuthor}" />
+								<%-- TODO: include an option to display "(me)" in anonymous contexts.
+									The inclusion / exclusion of "(me)" depends on the user's intention with the printout, so the user must be able to toggle this --%>
+								<%-- h:outputText rendered="#{msgDecorateBean.currentUserAndAnonymous}" value=" #{msgs.cdfm_me}" / --%>
+								<h:outputText value=" #{msgDecorateBean.message.created}">
 									<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 								</h:outputText>	
 							</h:panelGroup>
@@ -71,8 +74,11 @@
 			
 							<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
 								<h:outputText value="#{msgDecorateBean.message.title}" />
-								<h:outputText  value= " - #{msgDecorateBean.message.author} " />
-								<h:outputText value="#{msgDecorateBean.message.created}">
+								<h:outputText  value= " - #{msgDecorateBean.anonAwareAuthor}" />
+								<%-- TODO: include an option to display "(me)" in anonymous contexts.
+									The inclusion / exclusion of "(me)" depends on the user's intention with the printout, so the user must be able to toggle this --%>
+								<%-- h:outputText rendered="#{msgDecorateBean.currentUserAndAnonymous}" value=" #{msgs.cdfm_me}" / --%>
+								<h:outputText value=" #{msgDecorateBean.message.created}">
 									<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 								</h:outputText>
 							</h:panelGroup>

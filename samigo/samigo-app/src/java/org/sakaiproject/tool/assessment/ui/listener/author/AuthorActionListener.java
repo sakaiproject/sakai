@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -41,9 +40,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -57,18 +53,12 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
-
-// UVa: add ability to get the site information for site property query per SAK-2438
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.entity.api.ResourceProperties;
 
@@ -82,10 +72,10 @@ import org.sakaiproject.entity.api.ResourceProperties;
 public class AuthorActionListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(AuthorActionListener.class);
+  private static final Log log = LogFactory.getLog(AuthorActionListener.class);
   private HashMap<String, ArrayList<String>> groupUsersIdMap = new HashMap<String, ArrayList<String>>();
   private ArrayList<String> siteUsersIdList = new ArrayList<String>();
-  private TimeUtil tu = new TimeUtil();
+  private final TimeUtil tu = new TimeUtil();
 
   // UVa, per SAK-2438 
   private ResourceProperties siteProperties = null;
@@ -133,7 +123,6 @@ public class AuthorActionListener
     //      If this site property exists (Admin user adds it per site), obey it.
     //      Otherwise, use the global sakai-wide property by the same name. 
     //
-    String editPubAssessmentSiteProperty = "true";
 
     // First, get the site object
     Site site = null;
@@ -141,7 +130,7 @@ public class AuthorActionListener
 	site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
     }
     catch (IdUnusedException ex) {
-	// No site available
+		log.warn( ex );
     }
 
     // Does a site property 'samigo.editPubAssessment.restricted' exist?
@@ -151,6 +140,7 @@ public class AuthorActionListener
             // get the site properties
             siteProperties = site.getProperties();
         } catch (Exception e) {
+            log.warn( e );
         }
             
         if (siteProperties != null) {
@@ -185,7 +175,7 @@ public class AuthorActionListener
     } 
 
 	author.setEditPubAssessmentRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted.afterStart", false));
-	author.setCanRemovePublishedAssessmentsAfterStarted(ServerConfigurationService.getBoolean("samigo.removePubAssessment.restricted.afterStart", false));
+	author.setRemovePubAssessmentsRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.removePubAssessment.restricted.afterStart", false));
 
 	AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 	author.setIsGradeable(authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment());
@@ -240,7 +230,7 @@ public class AuthorActionListener
 					  String role = (String) iter2.next();
 					  groupUsersIdList.addAll(group.getUsersHasRole(role));
 				  }
-				  if (groupUsersIdList.size() != 0) {
+				  if (!groupUsersIdList.isEmpty()) {
 					  String groupId = group.getId();
 					  groupUsersIdMap.put(groupId, groupUsersIdList);
 				  }
@@ -253,15 +243,10 @@ public class AuthorActionListener
 	  
 	  ArrayList dividedPublishedAssessmentList = getTakeableList(publishedAssessmentList, gradingService);
 	  
-	  //prepareActivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(0));
 	  prepareRetractWarningText(author, (ArrayList) dividedPublishedAssessmentList.get(1)); 
 	  author.setPublishedAssessments(publishedAssessmentList);
   }
-  /*
-  public void prepareActivePublishedAssessmentsList(AuthorBean author, ArrayList<PublishedAssessmentFacade> activePublishedList) {
-	  author.setPublishedAssessments(activePublishedList);  
-  }
-  */
+
   public void prepareRetractWarningText(AuthorBean author, ArrayList inactivePublishedList) {	  
 	  author.setInactivePublishedAssessments(inactivePublishedList);
 	  boolean isAnyAssessmentRetractForEdit = false;
@@ -302,12 +287,12 @@ public class AuthorActionListener
 	  HashMap actualNumberRetake = gradingService.getSiteActualNumberRetakeHash(siteId);
 	  List needResubmitList = gradingService.getSiteNeedResubmitList(siteId);
 
-	  for (int i = 0; i < assessmentList.size(); i++) {
-		  PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
+	  for( Object assessmentList1 : assessmentList ) {
+		  PublishedAssessmentFacade f = (PublishedAssessmentFacade) assessmentList1;
 		  f.setTitle(FormattedText.convertFormattedTextToPlaintext(f.getTitle()));
 		  Long publishedAssessmentId = f.getPublishedAssessmentId();
-		  if (isActive(f, (HashMap) submissionCountHash.get(publishedAssessmentId), (HashMap) inProgressCountHash.get(publishedAssessmentId), 
-				  (HashMap) numberRetakeHash.get(publishedAssessmentId), (HashMap) actualNumberRetake.get(publishedAssessmentId), needResubmitList)) {
+		  if (isActive(f, (HashMap) submissionCountHash.get(publishedAssessmentId), (HashMap) inProgressCountHash.get(publishedAssessmentId),
+																					(HashMap) numberRetakeHash.get(publishedAssessmentId), (HashMap) actualNumberRetake.get(publishedAssessmentId), needResubmitList)) {
 			  f.setActiveStatus(true);
 			  activeList.add(f);
 		  }
@@ -316,11 +301,11 @@ public class AuthorActionListener
 			  inActiveList.add(f);
 		  }
 		  try {
-				String lastModifiedDateDisplay = tu.getIsoDateWithLocalTime(f.getLastModifiedDate());
-				f.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
-			}
-			catch (Exception ex) {
-				log.warn("Unable to format date: " + ex.getMessage());
+			  String lastModifiedDateDisplay = tu.getIsoDateWithLocalTime(f.getLastModifiedDate());
+			  f.setLastModifiedDateForDisplay(lastModifiedDateDisplay);
+		  }
+		  catch (Exception ex) {
+			  log.warn("Unable to format date: " + ex.getMessage());
 			}
 	  }
 	  list.add(activeList);
@@ -341,12 +326,12 @@ public class AuthorActionListener
 	  boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
 	  int maxSubmissionsAllowed = 9999;
 	  if ((Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
-		  maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
+		  maxSubmissionsAllowed = f.getSubmissionsAllowed();
 	  }
 	  
 	  ArrayList<String> userIdList = new ArrayList<String>();
 	  if (f.getReleaseTo() != null && !("").equals(f.getReleaseTo())) {
-		  if (f.getReleaseTo().indexOf("Anonymous Users") >= 0) {
+		  if (f.getReleaseTo().contains( "Anonymous Users" )) {
 			  if (submissionCountHash != null) {
 				  f.setSubmittedCount(submissionCountHash.size());
 			  }
@@ -374,13 +359,15 @@ public class AuthorActionListener
 				  //Use a set to avoid duplicated entries in the userList
 				  HashSet<String> uuser = new HashSet<String>();                
 				  if(groupsAuthorized != null && groupsAuthorized.length > 0) {
-				  for (int i = 0; i < groupsAuthorized.length; i++) {
-					  if (groupUsersIdMap.get(groupsAuthorized[i]) != null) {
-						  for (String userId : groupUsersIdMap.get(groupsAuthorized[i])) {							
-							  uuser.add(userId);
+					  for( String groupsAuthorized1 : groupsAuthorized ) {
+						  if( groupUsersIdMap.get( groupsAuthorized1 ) != null )
+						  {
+							  for( String userId : groupUsersIdMap.get( groupsAuthorized1 ) )
+							  {
+								  uuser.add(userId);
+							  }
 						  }
 					  }
-				  }
 				  userIdList = new ArrayList<String>(uuser);
 			  }
 			  }
@@ -392,20 +379,20 @@ public class AuthorActionListener
 			  int inProgressCounts = 0;
 			  if (userIdList != null) {
 				  Iterator iter = userIdList.iterator();
-				  String userId = null;
-				  boolean isStillAvailable = false;
+				  String userId;
+				  boolean isStillAvailable;
 				  while(iter.hasNext()) {
 					  userId = (String) iter.next();
 					  int totalSubmitted = 0;
-					  int totalInProgress = 0;
+					  int totalInProgress;
 					  if (submissionCountHash != null && submissionCountHash.get(userId) != null){
-						  totalSubmitted = ( (Integer) submissionCountHash.get(userId)).intValue();
+						  totalSubmitted = ( (Integer) submissionCountHash.get(userId));
 						  if (totalSubmitted > 0) {
 							  submittedCounts++;
 						  }
 					  }
 					  if (inProgressCountHash != null && inProgressCountHash.get(userId) != null){
-						  totalInProgress = ( (Integer) inProgressCountHash.get(userId)).intValue();
+						  totalInProgress = ( (Integer) inProgressCountHash.get(userId));
 						  if (totalInProgress > 0) {
 							  inProgressCounts++;
 						  }
@@ -460,11 +447,10 @@ public class AuthorActionListener
 		  String userId, Date currentDate, Date dueDate, 
 		  boolean acceptLateSubmission, int maxSubmissionsAllowed) {
 	  boolean isStillAvailable = false;
-	  boolean hasSubmittedAtLeastOnce = false;
 
 	  int numberRetake = 0;
 	  if (numberRetakeHash != null && numberRetakeHash.get(userId) != null) {
-		  numberRetake = ((Integer) numberRetakeHash.get(userId)).intValue();
+		  numberRetake = ((Integer) numberRetakeHash.get(userId));
 	  }
 
 	  //2. time to go through all the criteria
@@ -476,9 +462,9 @@ public class AuthorActionListener
 		  }
 		  int actualNumberRetake = 0;
 		  if (actualNumberRetakeHash != null && actualNumberRetakeHash.get(userId) != null) {
-			  actualNumberRetake = ((Integer) actualNumberRetakeHash.get(userId)).intValue();
+			  actualNumberRetake = ((Integer) actualNumberRetakeHash.get(userId));
 		  }
-		  if (actualNumberRetake < numberRetake) {
+		  if (actualNumberRetake < numberRetake && acceptLateSubmission) {
 			  isStillAvailable = true;
 		  }
 	  }

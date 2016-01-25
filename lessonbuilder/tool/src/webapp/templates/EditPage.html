@@ -28,9 +28,6 @@
 				<textarea rsf:id="page:">
 				</textarea>
             </div>
-	 <div rsf:id="break-block">
-            <input type="checkbox" id="question-break" rsf:id="question-break"/><span rsf:id="msg=simplepage.break-above"></span>
-	 </div>
 	 <div rsf:id="prerequisite-block">
             <input type="checkbox" id="question-prerequisite" rsf:id="question-prerequisite"/><span rsf:id="msg=simplepage.prerequisites_label"></span>
 	 </div>
@@ -72,6 +69,7 @@ jQuery(document).ready(function($) {
 			</div>
 
 			<p class="act">
+				<input type="hidden" rsf:id="addBefore" />
 				<input accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
 				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
                 <input type="submit" rsf:id="delete" class="deleteButton" />

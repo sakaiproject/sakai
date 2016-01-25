@@ -35,11 +35,6 @@
         <module>portal-util/util</module>
     </modules>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/portal/trunk</url>
-    </scm>
 
     <distributionManagement>
         <site>

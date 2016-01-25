@@ -104,7 +104,9 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 
 	public void saveSynopticMsgcntrItems(List<SynopticMsgcntrItem> items){
-		getHibernateTemplate().saveOrUpdateAll(items);
+		for (SynopticMsgcntrItem item : items) {
+			getHibernateTemplate().saveOrUpdate(item);
+		}
 	}
 	
 	public void deleteSynopticMsgcntrItem(SynopticMsgcntrItem item){

@@ -31,7 +31,9 @@ import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -70,7 +72,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
     /**
      *  Queue of method invocations to save or update message bundle data
      */
-    private List queue = Collections.synchronizedList(new ArrayList());
+    private List<SaveOrUpdateCall> queue = Collections.synchronizedList(new ArrayList<>());
 
     public void init() {
         timer.schedule(new SaveOrUpdateTask(), 0, scheduleDelay);
@@ -125,7 +127,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
             }
             Integer count = null;
             try {
-                Query query = getSession().createQuery(queryString.toString());
+                Query query = getSessionFactory().getCurrentSession().createQuery(queryString.toString());
                 query.setParameters(values.toArray(), (Type[]) types.toArray(new Type[types.size()]));
                 count= (Integer) query.uniqueResult();
             } catch (HibernateException e) {
@@ -249,7 +251,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
                 queryString.insert(0, "from MessageBundleProperty");
             }
 
-            return getHibernateTemplate().find(queryString.toString(), values.toArray() );
+            return (List<MessageBundleProperty>) getHibernateTemplate().find(queryString.toString(), values.toArray() );
 
         } catch (Exception e) {
             logger.error("problem searching the message bundle data", e);
@@ -278,12 +280,8 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         if (mbp == null) return;
         if (mbp.getDefaultValue() == null) {
             mbp.setDefaultValue(""); 
-        } 
-        try {
-            getHibernateTemplate().saveOrUpdate(mbp);
-        } catch (Exception e) {
-            logger.warn("Cound not save MessageBundleProperty " + mbp + ", " + e.getMessage(), e);
         }
+        getHibernateTemplate().saveOrUpdate(mbp);
     }
 
     public void deleteMessageBundleProperty(MessageBundleProperty mbp) {
@@ -316,7 +314,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         Object[] values = new Object[]{baseName, moduleName, loc.toString()};
         String sql = "from MessageBundleProperty where baseName = ? and moduleName = ? and locale = ? and value != null";
 
-        List<MessageBundleProperty> results = getHibernateTemplate().find(sql, values);
+        List<MessageBundleProperty> results = (List<MessageBundleProperty>) getHibernateTemplate().find(sql, values);
 
         for (MessageBundleProperty mbp : results) {
             map.put(mbp.getPropertyName(), mbp.getValue());
@@ -344,13 +342,13 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
     @SuppressWarnings("unchecked")
     public List<MessageBundleProperty> getAllProperties(String locale, String module) {
         if (StringUtils.isEmpty(locale) && StringUtils.isEmpty(module)) {
-            return getHibernateTemplate().find("from MessageBundleProperty");
+            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty");
         } else if (module == null || module.length() == 0) {
-            return getHibernateTemplate().find("from MessageBundleProperty where locale = ?", locale);
+            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty where locale = ?", locale);
         } else if (locale == null || locale.length() == 0) {
-            return getHibernateTemplate().find("from MessageBundleProperty where moduleName = ?", module);
+            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty where moduleName = ?", module);
         } else {
-            return getHibernateTemplate().find("from MessageBundleProperty where locale = ? and moduleName = ?",
+            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty where locale = ? and moduleName = ?",
                     new String[]{locale, module});
         }
     }
@@ -395,8 +393,8 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
 
     @SuppressWarnings("unchecked")
     public List<String> getAllModuleNames() {
-        List<String> retValue = getHibernateTemplate().find("select distinct(moduleName) from MessageBundleProperty  order by moduleName");
-        if (retValue == null) return new ArrayList();
+        List<String> retValue = (List<String>) getHibernateTemplate().find("select distinct(moduleName) from MessageBundleProperty  order by moduleName");
+        if (retValue == null) return new ArrayList<>();
         //force deep load
         retValue.size();
         return retValue;
@@ -404,8 +402,8 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
 
     @SuppressWarnings("unchecked")
     public List<String> getAllBaseNames() {
-         List<String> retValue = getHibernateTemplate().find("select distinct(baseName) from MessageBundleProperty  order by baseName");
-        if (retValue == null) return new ArrayList();
+         List<String> retValue = (List<String>) getHibernateTemplate().find("select distinct(baseName) from MessageBundleProperty  order by baseName");
+        if (retValue == null) return new ArrayList<>();
         //force deep load
         retValue.size();
         return retValue;
@@ -425,7 +423,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
     protected int executeCountQuery(String query) {
       Integer count = null;
       try {
-         count = (Integer) getSession().createQuery(query).uniqueResult();
+         count = (Integer) getSessionFactory().getCurrentSession().createQuery(query).uniqueResult();
       } catch (HibernateException e) {
          throw new RuntimeException(e.getMessage(),e);
       }
@@ -454,7 +452,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         org.hibernate.Query query = null;
         String queryString = "from MessageBundleProperty where value != null order by " + sortFieldName + " " + orderBy;
         try {
-            query = getSession().createQuery(queryString);
+            query = getSessionFactory().getCurrentSession().createQuery(queryString);
             query.setFirstResult(startingIndex);
             query.setMaxResults(pageSize);
             return query.list();
@@ -481,7 +479,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
 
     @SuppressWarnings("unchecked")
     public List<String> getLocales() {
-        return getHibernateTemplate().find("select distinct(locale) from MessageBundleProperty");
+        return (List<String>) getHibernateTemplate().find("select distinct(locale) from MessageBundleProperty");
     }
 
     public void setScheduleDelay(long scheduleDelay) {
@@ -511,18 +509,36 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         /**
          * step through queue and call the real saveOrUpdateInternal method to do the work
          */
-        public void run() {
-            List queueList = new ArrayList(queue);
-            for (Iterator i = queueList.iterator(); i.hasNext(); ) {
-                SaveOrUpdateCall call = (SaveOrUpdateCall) i.next();
-                try {
-                    saveOrUpdateInternal(call.baseName, call.moduleName, call.bundleData, call.loc);
-                } catch (Throwable e) {
-                    logger.error("problem saving bundle data:", e);
-                } finally {
-                    queue.remove(call);
-                }
-            }
+		public void run() {
+			List<SaveOrUpdateCall> queueList = new ArrayList<>(queue);
+			Session session = null;
+			try {
+				// Since we are in a thread that doesn't have a hibernate session
+				// we need to manage it here
+				session = getSessionFactory().openSession();
+				TransactionSynchronizationManager.bindResource(getSessionFactory(), new SessionHolder(session));
+
+				for (SaveOrUpdateCall call : queueList) {
+					try {
+						session.beginTransaction();
+						saveOrUpdateInternal(call.baseName, call.moduleName, call.bundleData, call.loc);
+					} catch (Throwable e) {
+						logger.error("problem saving bundle data:", e);
+						session.getTransaction().rollback();
+					} finally {
+						if (!session.getTransaction().wasRolledBack()) {
+							session.flush();
+							session.getTransaction().commit();
+						}
+						queue.remove(call);
+					}
+				}
+			} finally {
+				if (session != null) {
+					session.close();
+				}
+				TransactionSynchronizationManager.unbindResource(getSessionFactory());
+			}
         }
     }
 }

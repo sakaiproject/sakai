@@ -1,5 +1,6 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
@@ -17,12 +18,11 @@
 	  		action="#{courseGradeDetailsBean.processCalculateCourseGrades}"
 	  		value="#{msgs.calculate_course_grade_continue}"
 	  		styleClass="active"
-	  		onclick="setUngradedItems_disableButtonsActivateSpinner( 'gbForm:setUngradedItemsSpinner' );" />
+	  		onclick="SPNR.disableControlsAndSpin( this, null );" />
 	  	<h:commandButton
 	  		action="courseGradeDetails"
 	  		value="#{msgs.calculate_course_grade_cancel}"
-	  		onclick="setUngradedItems_disableButtonsActivateSpinner( 'gbForm:setUngradedItemsSpinner' );" />
-	  	<h:graphicImage id="setUngradedItemsSpinner" value="/../library/image/indicator.gif" styleClass="setUngradedItemsSpinner" />
+	  		onclick="SPNR.disableControlsAndSpin( this, null );" />
 	  </p>
 
 	  </h:form>

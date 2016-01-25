@@ -64,6 +64,15 @@ public class ComponentManager {
 	 * has no effect if the CM is already initialized
 	 */
 	public static boolean testingMode = false;
+
+	/**
+	 * Prevent Direct Instantiation of the ComponentManager
+	 * 
+	 * Use the factory method getInstance()
+	 */
+	private ComponentManager() {
+	}
+
 	/**
 	 * @return true if this CM is in testing mode
 	 */
@@ -113,7 +122,7 @@ public class ComponentManager {
 		return m_componentManager;
 	}
 
-	public static Object get(Class iface) {
+	public static <T> T get(Class<T> iface) {
 		return getInstance().get(iface);
 	}
 

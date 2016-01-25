@@ -5,11 +5,27 @@
     <display-name>sakai-access</display-name>
     <description>Sakai Access</description>
 
-	<!-- Sakai request filter -->
+    <!-- Sakai request filter -->
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
     </filter>
+
+    <!-- OAuth Filters -->
+    <filter>
+        <filter-name>oauth.pre</filter-name>
+        <filter-class>org.sakaiproject.oauth.filter.OAuthPreFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>oauth.post</filter-name>
+        <filter-class>org.sakaiproject.oauth.filter.OAuthPostFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>oauth.pre</filter-name>
+        <servlet-name>sakai.access</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
 
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
@@ -17,6 +33,12 @@
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>oauth.post</filter-name>
+        <servlet-name>sakai.access</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 
 	<!-- the vm handling servlet : used direct by name, not by URL path -->

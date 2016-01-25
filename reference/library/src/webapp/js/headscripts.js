@@ -666,7 +666,7 @@ function disableBackButton() {
 	}
 }
 
-// Load the latest JQuery, compatibility library, and UI - mimic functionality in PortalUtils
+// Load the latest JQuery, compatibility library, BootStrap, and UI - mimic functionality in PortalUtils
 function includeLatestJQuery(where) {
 	var psp = "/library/js/";
 	var ver = "";
@@ -676,12 +676,25 @@ function includeLatestJQuery(where) {
 	}
 
 	if ( window.jQuery ) {
-		window.console && console.log("jQuery already loaded "+jQuery.fn.jquery+" in "+where);
+		window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
+		if (typeof jQuery.migrateWarnings == 'undefined') { 
+			document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/jquery-migrate-1.2.1.min.js'+ver+'">'+'\x3C/script>')
+			window.console && console.log('Adding jQuery migrate');
+		}
+		if ( typeof jQuery.fn.popover == 'undefined') {
+			document.write('\x3Cscript type="text/javascript" src="'+psp+'bootstrap/3.3.5/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
+			window.console && console.log('Adding Bootstrap');
+		}
+		if (typeof jQuery.ui == 'undefined') {
+			document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/ui/1.11.3/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
+			window.console && console.log('Adding jQuery UI');
+		}
 	} else {
-		document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/jquery-1.9.1.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/jquery-1.11.3.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/jquery-migrate-1.2.1.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+psp+'bootstrap/3.3.5/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/ui/1.11.3/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
-		window.console && console.log("jQuery Loaded by "+where+" from "+psp);
+		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+psp);
 	}
 }
 

@@ -114,7 +114,76 @@
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
     <listener>
-        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
     </listener>
+	<!-- Convert template for metadata into actual template files -->
+	<context-param>
+		<param-name>meta_display_string</param-name>
+		<param-value>vm/metadata/meta_display_string.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_display_group</param-name>
+		<param-value>vm/metadata/meta_display_group.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_display_user</param-name>
+		<param-value>vm/metadata/meta_display_user.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_display_list</param-name>
+		<param-value>vm/metadata/meta_display_list.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_display_duration</param-name>
+		<param-value>vm/metadata/meta_display_duration.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_display_boolean</param-name>
+		<param-value>vm/metadata/meta_display_boolean.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_display_number</param-name>
+		<param-value>vm/metadata/meta_display_number.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_display_date</param-name>
+		<param-value>vm/metadata/meta_display_date.vm</param-value>
+	</context-param>
 
+	<context-param>
+		<param-name>meta_edit_enum</param-name>
+		<param-value>vm/metadata/meta_edit_enum.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_group</param-name>
+		<param-value>vm/metadata/meta_edit_group.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_user</param-name>
+		<param-value>vm/metadata/meta_edit_user.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_list</param-name>
+		<param-value>vm/metadata/meta_edit_list.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_string</param-name>
+		<param-value>vm/metadata/meta_edit_string.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_duration</param-name>
+		<param-value>vm/metadata/meta_edit_duration.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_boolean</param-name>
+		<param-value>vm/metadata/meta_edit_boolean.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_number</param-name>
+		<param-value>vm/metadata/meta_edit_number.vm</param-value>
+	</context-param>
+	<context-param>
+		<param-name>meta_edit_date</param-name>
+		<param-value>vm/metadata/meta_edit_date.vm</param-value>
+	</context-param>
 </web-app>

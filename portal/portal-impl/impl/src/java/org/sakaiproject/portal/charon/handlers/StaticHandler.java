@@ -26,7 +26,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,9 +52,10 @@ import org.sakaiproject.portal.util.URLUtils;
 public abstract class StaticHandler extends BasePortalHandler
 {
 
+	public static final int MAX_SIZE_KB = 100;
 	private Properties contentTypes = null;
 
-	private static final ThreadLocal<StaticCache[]> staticCacheHolder = new ThreadLocal<StaticCache[]>();
+	private static final ThreadLocal<StaticCache[]> staticCacheHolder = new ThreadLocal<>();
 
 	private static final Log log = LogFactory.getLog(StaticHandler.class);
 
@@ -109,21 +113,48 @@ public abstract class StaticHandler extends BasePortalHandler
 				res.sendError(404);
 				return;
 			}
+			InputStream inputStream;
+			String filename = path.substring(path.lastIndexOf("/"));
+			long lastModified = -1;
+			long length = -1;
 			String realPath = servletContext.getRealPath(path);
-			File f = new File(realPath);
-			if (f.length() < 100 * 1024)
+			if (realPath == null) {
+				// We not uncompressing the webapps.
+				URL url = servletContext.getResource(path);
+				inputStream = url.openStream();
+				if (url != null) {
+					try {
+						ZipEntry zipEntry = ((JarURLConnection)url.openConnection()).getJarEntry();
+						lastModified = zipEntry.getLastModifiedTime().toMillis();
+						length = zipEntry.getSize();
+					} catch (ClassCastException cce) {
+						// Can't get extra data, but should all work.
+						log.debug("We don't seem to be a JAR either.", cce);
+					}
+				} else {
+					res.sendError(404);
+					return;
+				}
+			} else {
+				File f = new File(realPath);
+				inputStream = new FileInputStream(f);
+				lastModified = f.lastModified();
+				length = f.length();
+			}
+			if (length >= 0 && length < MAX_SIZE_KB * 1024)
 			{
 				for (int i = 0; i < staticCache.length; i++)
 				{
 					StaticCache sc = staticCache[i];
 					if (sc != null && path.equals(sc.path))
 					{
-						if (f.lastModified() > sc.lastModified)
+						// If we don't have a good last modified time it's cached forever
+						if (lastModified > sc.lastModified)
 						{
-							sc.buffer = loadFileBuffer(f);
+							sc.buffer = loadFileBuffer(inputStream, (int)length);
 							sc.path = path;
-							sc.lastModified = f.lastModified();
-							sc.contenttype = getContentType(f);
+							sc.lastModified = lastModified;
+							sc.contenttype = getContentType(filename);
 							sc.added = System.currentTimeMillis();
 						}
 						// send the output
@@ -152,10 +183,10 @@ public abstract class StaticHandler extends BasePortalHandler
 						sc = current;
 					}
 				}
-				sc.buffer = loadFileBuffer(f);
+				sc.buffer = loadFileBuffer(inputStream, (int)length);
 				sc.path = path;
-				sc.lastModified = f.lastModified();
-				sc.contenttype = getContentType(f);
+				sc.lastModified = lastModified;
+				sc.contenttype = getContentType(filename);
 				sc.added = System.currentTimeMillis();
 				sendContent(res, sc);
 				return;
@@ -163,12 +194,11 @@ public abstract class StaticHandler extends BasePortalHandler
 			}
 			else
 			{
-				res.setContentType(getContentType(f));
-				res.addDateHeader("Last-Modified", f.lastModified());
-				res.setContentLength((int) f.length());
-				sendContent(res, f);
+				res.setContentType(getContentType(filename));
+				res.addDateHeader("Last-Modified", lastModified);
+				res.setContentLength((int) length);
+				sendContent(res, inputStream);
 				return;
-
 			}
 
 		}
@@ -206,28 +236,22 @@ public abstract class StaticHandler extends BasePortalHandler
 	/**
 	 * send the static content from the file
 	 * 
-	 * @param res
-	 * @param f
+	 * @param res The ServletResponse to write the content to.
+	 * @param inputStream The InputStream to read from
 	 * @throws IOException
 	 */
-	private void sendContent(HttpServletResponse res, File f) throws IOException
+	private void sendContent(HttpServletResponse res, InputStream inputStream) throws IOException
 	{
-		FileInputStream fin = null;
 		try
 		{
-			fin = new FileInputStream(f);
-			res.setContentType(getContentType(f));
-			res.addDateHeader("Last-Modified", f.lastModified());
-			res.setContentLength((int) f.length());
 			byte[] buffer = new byte[4096];
-			int pos = 0;
 			int bsize = buffer.length;
-			int nr = fin.read(buffer, 0, bsize);
+			int nr = inputStream.read(buffer, 0, bsize);
 			OutputStream out = res.getOutputStream();
 			while (nr > 0)
 			{
 				out.write(buffer, 0, nr);
-				nr = fin.read(buffer, 0, bsize);
+				nr = inputStream.read(buffer, 0, bsize);
 			}
 
 		}
@@ -235,7 +259,7 @@ public abstract class StaticHandler extends BasePortalHandler
 		{
 			try
 			{
-				fin.close();
+				inputStream.close();
 			}
 			catch (Exception ex)
 			{
@@ -247,25 +271,24 @@ public abstract class StaticHandler extends BasePortalHandler
 	/**
 	 * load a file into a byte[]
 	 * 
-	 * @param f
-	 * @return
+	 * @param inputStream The InputStream to read from.
+	 * @param length The length of the input.
+	 * @return The loaded bytes
 	 * @throws IOException
 	 */
-	private byte[] loadFileBuffer(File f) throws IOException
+	private byte[] loadFileBuffer(InputStream inputStream, int length) throws IOException
 	{
-		FileInputStream fin = null;
 		try
 		{
-			fin = new FileInputStream(f);
-			byte[] buffer = new byte[(int) f.length()];
+			byte[] buffer = new byte[length];
 			int pos = 0;
 			int remaining = buffer.length;
-			int nr = fin.read(buffer, pos, remaining);
+			int nr = inputStream.read(buffer, pos, remaining);
 			while (nr > 0)
 			{
 				pos = pos + nr;
 				remaining = remaining - nr;
-				nr = fin.read(buffer, pos, remaining);
+				nr = inputStream.read(buffer, pos, remaining);
 			}
 			return buffer;
 		}
@@ -273,7 +296,7 @@ public abstract class StaticHandler extends BasePortalHandler
 		{
 			try
 			{
-				fin.close();
+				inputStream.close();
 			}
 			catch (Exception ex)
 			{
@@ -284,12 +307,11 @@ public abstract class StaticHandler extends BasePortalHandler
 	/**
 	 * get the content type of the file
 	 * 
-	 * @param f
-	 * @return
+	 * @param name The file name.
+	 * @return The content type.
 	 */
-	String getContentType(File f)
+	String getContentType(String name)
 	{
-		String name = f.getName();
 		int dot = name.lastIndexOf(".");
 		String contentType = null;
 		if (dot >= 0 && dot < name.length())

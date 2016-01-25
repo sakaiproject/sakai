@@ -8,20 +8,20 @@ $(document).ready(function(){
     $(':checked').parents('td').addClass('defaultSelected');
     
     $('.permissionDescription').hover(function(e){
-        $(this).parents('tr').children('td').toggleClass('rowHover', e.type == "mouseenter");
+        $(this).parents('tr').children('td').toggleClass('rowHover', e.type === "mouseenter");
     });
     
     $('th').hover(function(event){
     	var col = ($(this).prevAll().size());
-        $('.' + col).add(this).toggleClass('rowHover', event.type == "mouseenter");
+        $('.' + col).add(this).toggleClass('rowHover', event.type === "mouseenter");
     });
     
     $('th#permission').hover(function(event){
-        $('.checkGrid td.checkboxCell').toggleClass('rowHover', event.type == "mouseenter");
+        $('.checkGrid td.checkboxCell').toggleClass('rowHover', event.type === "mouseenter");
     });
     
     $('th#permission a').click(function(e){
-        $('.checkGrid input').prop('checked', ($('.checkGrid :checked').length == 0)).change();
+        $('.checkGrid input').prop('checked', ($('.checkGrid :checked').length === 0)).change();
         e.preventDefault();
     });
     $('.permissionDescription a').click(function(e){
@@ -40,10 +40,4 @@ $(document).ready(function(){
         $("input").not('[disabled]').prop("checked", false).change();
         e.preventDefault();
     });
-    $('#restdef').click(function(e){
-        $("input").prop("checked", false);
-        $(".defaultSelected input").prop("checked", true).change();
-        e.preventDefault();
-    });
-    
 });

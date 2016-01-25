@@ -35,7 +35,7 @@ import org.apache.commons.validator.UrlValidator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -214,7 +214,8 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	/** For tracking event */
 	private static EventTrackingService m_eventTrackingService = null;
-	
+
+	private AuthzGroupService authzGroupService;
 	/**
 	 * Populate the state with configuration settings
 	 */
@@ -345,6 +346,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		if (m_eventTrackingService == null)
 		{
 			m_eventTrackingService = (EventTrackingService) ComponentManager.get("org.sakaiproject.event.api.EventTrackingService");
+		}
+		if (authzGroupService == null)
+		{
+			authzGroupService = ComponentManager.get(AuthzGroupService.class);
 		}
 		
 	}
@@ -593,7 +598,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		AuthzGroup 	group;
 		Role 				role;
 
-		group = AuthzGroupService.getAuthzGroup("/site/" + getSiteId());
+		group = authzGroupService.getAuthzGroup("/site/" + getSiteId());
 		if (group == null)
 		{
 			throw new SessionDataException("No current group");

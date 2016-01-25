@@ -130,6 +130,7 @@ public class SiteManageGroupHandler {
 			deleteGroupIds=new String[]{};
 			selectedGroupMembers = new String[]{};
 			selectedSiteMembers = new String[]{};
+			memberList = new String();
 		}
 	}
 	 

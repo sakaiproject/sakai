@@ -40,11 +40,6 @@
 		</contributor>
 	</contributors>
 
-	<scm>
-		<connection>scm:https://source.sakaiproject.org/svn/signup/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/signup/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/signup/trunk</url>
-	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -93,12 +88,6 @@
 				<artifactId>entitybroker-utils</artifactId>
 				<version>${sakai.version}</version>
 				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject</groupId>
-				<artifactId>generic-dao</artifactId>
-				<version>${generic-dao.version}</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.jsf</groupId>

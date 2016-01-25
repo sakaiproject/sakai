@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
@@ -99,17 +100,18 @@
 				<!-- Assignment / Assessment link -->
 				
 				<h:panelGroup rendered="#{gradebookItem.assignment}">
-					<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}" rendered="#{gradebookItem.released}">
+					<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}" rendered="#{gradebookItem.released}" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'spinnerContainer' );">
 						<h:outputText value="#{gradebookItem.name}" />
 						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 					</h:commandLink>
 					<h:panelGroup rendered="#{!gradebookItem.released}" styleClass="inactive">
-						<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}">
+						<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'spinnerContainer' );">
 							<h:outputText value="#{gradebookItem.name}"/>
 							<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 						</h:commandLink>
 					</h:panelGroup>
 					<h:outputText value=" (#{msgs.extra_credit})" rendered="#{gradebookItem.isExtraCredit && (gradebookItem.category == null || !gradebookItem.category.isExtraCredit) }"/>
+					<t:div styleClass="allocatedSpinPlaceholder" id="spinnerContainer"></t:div>
 				</h:panelGroup>
 				
 				

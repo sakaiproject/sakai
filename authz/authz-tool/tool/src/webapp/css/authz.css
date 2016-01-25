@@ -13,3 +13,7 @@
 .checkGrid .rowHover{background:#c4dffb !important}
 .checkGrid td.active{background:#DDECFC  !important}
 .checkGrid td.active:hover{background:#cde !important}
+
+div#groupSelector {
+    margin-top: 0.5em;
+}

@@ -1,86 +1,44 @@
-#skipNav{
+.#{$namespace}skipNav__menu{
 	display: none;
 	@media #{$phone}{
-		display: block;
-		.js-toggle-tools-nav{
-			position: absolute;
-			top: 2em;
-			left: 0em;
-			height:1.5em;
-			width:1.1em;
-			display: block;
-			color: $background-color-secondary;
-			background: lighten( $background-color, 5% );
-			font-size: 1.5em;
-			padding-left:15px;
-			padding-bottom:4px;
-			padding-right:5px;		
-			z-index: 10;
-			text-decoration: none;
-			@include transition( left 0.5s linear );
-			span{
+		position: fixed;
+		z-index: 20;
+		top: 3.2em;
+		left: 0;
+		background: lighten($toolMenuColor, 15% );
+		width: 100%;
+		margin:  0 0 0 0;
+
+		@include align-items(center);
+		@include box-shadow( inset 0 0 5px rgba(0,0,0,0.25) );
+		@include display-flex(inline-flex);
+		@include flex-direction(row);
+		@include justify-content(space-between);
+		@include transition(top 0.25s linear);
+		&.moving{
+			top: -4.2em;
+		}
+		li{
+			@include flex-basis( 50% );
+			&.#{$namespace}skipNav__menuitem--content{
 				display: none;
 			}
-		}
-		.js-toggle-sites-nav{
-			display: block;
-			height: 42px;
-			right: 0px;
-			position: absolute;
-			text-decoration: none;
-			top: 46px;
-			width: 50px;
-			overflow: hidden;
-			z-index: 0;
-			@include transition(left 0.5s linear);
-			span{
-				display: none;
-				&.hamburger{
-					width: 32px;
-					height: 32px;
-					font-size: 2.7em;
-					/*@include display-flex(inline-flex);*/
-			  		@include flex-direction(column);
-			  		@include align-items(flex-end);
-			  		@include justify-content(space-between);
-				  	@include transition( all 0.5s linear );
-			  		> span{
-			  			display: block;
-			  			height: 8px;
-			  			color: $background-color-secondary;
-				  		@include transition( all 0.5s linear );
-			  			&.top{
-			  				position: relative;
-			  				top: -25px;
-			  			}
-			  			&.middle{
-			  				position: relative;
-			  				top: -27px;
-			  				opacity: 1;
-			  			}
-			  			&.bottom{
-			  				position: relative;
-			  				top: -29px;
-			  			}
-			  		}
-				}
+			&.#{$namespace}skipNav__menuitem--tools{
+				border-right: 1px solid #999;
+			}
+			a{
+				color: $background-color;
+				display: block;
+				text-align: center;
+				font-size: 11px;
+				padding: 0.7em 0.5em;
+				text-decoration: none;
+				text-transform: uppercase;
+				white-space: nowrap;
+				max-width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
-	}
-}
-body.is-logged-out{
-	#skipNav{
-		@media #{$phone}{
-			.js-toggle-tools-nav{
-				top:3em;
-			 }
-		}
-	}
-	&.toolsNav--displayed{
-			#skipNav{
-				.js-toggle-tools-nav{
-					top:3em;
-				}
-			}
 	}
 }

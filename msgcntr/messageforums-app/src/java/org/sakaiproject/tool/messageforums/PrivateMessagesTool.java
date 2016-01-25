@@ -1438,7 +1438,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    selectedTopicTitle = getExternalParameterByKey(EXTERNAL_WHICH_TOPIC);
 
 	    //set prev/next topic details
-	    PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNullWithAllTopics(getUserId());
+	    PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(getUserId());
 	    
 	    if (pf == null)
 	    {

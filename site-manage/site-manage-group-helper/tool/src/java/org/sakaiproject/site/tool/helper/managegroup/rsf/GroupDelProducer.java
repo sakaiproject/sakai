@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -45,6 +45,7 @@ public class GroupDelProducer implements ViewComponentProducer, ActionResultInte
     public static final String VIEW_ID = "GroupDel";
     public MessageLocator messageLocator;
     public SiteManageGroupHandler handler;
+	public AuthzGroupService authzGroupService;
     public FrameAdjustingProducer frameAdjustingProducer;
     
     public String getViewID() {    
@@ -92,7 +93,7 @@ public class GroupDelProducer implements ViewComponentProducer, ActionResultInte
     			int size = 0;
     			try
     			{
-    				size=AuthzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
+    				size=authzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
     			}
     			catch (GroupNotDefinedException e)
     			{

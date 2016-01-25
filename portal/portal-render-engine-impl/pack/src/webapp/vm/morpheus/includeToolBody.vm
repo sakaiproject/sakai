@@ -55,7 +55,10 @@
             #end ## END of IF (${tool.toolShowResetButton})
 
             #if (${tool.toolShowHelpButton})
-                <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                <span class="Mrphs-itemTitle">${rloader.sit_helpfor}</span>
+                <span class="skip">${rloader.site_newwindow}</span>
+            </a>
             #end ## END of IF (${tool.toolShowHelpButton})
 
         </nav>

@@ -93,11 +93,11 @@
 			
 		</script>
 		
-  	    <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-   		<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+  	    <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 		<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
        	
   	
   		<script type="text/javascript">
@@ -128,11 +128,11 @@
 			      		rendered="#{ForumTool.messagesandForums}" />
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
-			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      <h:outputText value=" / "/>
 			      <h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{empty mfStatisticsBean.selectedAllTopicsTopicId && empty mfStatisticsBean.selectedAllTopicsForumId}"/>
 			      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId || !empty mfStatisticsBean.selectedAllTopicsForumId}"/>
 			      <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsForumId}">
-				      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+				      <h:outputText value=" / "/>
 				      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
 	  				    <f:param value="" name="topicId"/>
 	  				    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
@@ -140,14 +140,14 @@
 		          	  </h:commandLink>
 				  </h:panelGroup>
 				  <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId}">
-			      	  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      	  <h:outputText value=" / "/>
 				      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
 	  				    <f:param value="#{mfStatisticsBean.selectedAllTopicsTopicId}" name="topicId"/>
 	  				    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
 	  				    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsTopicTitle}" />
 		          	  </h:commandLink>
 		          </h:panelGroup>  
-			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      <h:outputText value=" / "/>
 			      <h:outputText value="#{mfStatisticsBean.selectedSiteUser}" />
 			    <f:verbatim></div></f:verbatim>
           </h:panelGroup>
@@ -178,6 +178,9 @@
 	  	<f:verbatim>
 	  		</div>
 	  	</f:verbatim>
+
+	  	<h:outputText rendered="#{ForumTool.anonymousEnabled && ForumTool.siteHasAnonymousTopics && !mfStatisticsBean.pureAnon}" value="#{msgs.stat_forum_anonymous_omitted}" styleClass="instruction" />
+
 	  	<h:panelGrid columns="2" width="100%" style="margin:0">
    			<h:panelGroup>
     			<f:verbatim><h4 style="margin:0;padding:0"></f:verbatim>

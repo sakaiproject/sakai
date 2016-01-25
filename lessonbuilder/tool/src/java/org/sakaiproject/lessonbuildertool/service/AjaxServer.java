@@ -52,7 +52,7 @@ import javax.servlet.ServletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -100,6 +100,7 @@ public class AjaxServer extends HttpServlet
 
    private static MessageSource messageSource;
    private static SiteService siteService;
+   private static AuthzGroupService authzGroupService;
    private static SimplePageToolDao simplePageToolDao;
 
    public void setSimplePageToolDao(Object dao) {
@@ -394,8 +395,8 @@ public class AjaxServer extends HttpServlet
 	    site = siteService.getSite(siteId);
 	    HashSet<String> siteGroup = new HashSet<String>();
 	    siteGroup.add("/site/" + siteId);
-	    // not in 2.8   users = AuthzGroupService.getAuthzUsersInGroups(siteGroup);
-	    users = AuthzGroupService.getUsersIsAllowed("site.visit", siteGroup);
+	    // not in 2.8   users = authzGroupService.getAuthzUsersInGroups(siteGroup);
+	    users = authzGroupService.getUsersIsAllowed("site.visit", siteGroup);
 
 	    for (String userId: users) {
 		user2groups.put(userId, null);
@@ -464,10 +465,183 @@ public class AjaxServer extends HttpServlet
     }	    
 
 
-    public static String toggleGrouped(String itemId, String csrfToken) {
+    public static String insertBreakBefore(String itemId, String type, String cols, String csrfToken) {
 
 	if (itemId == null) {
-	    log.error("Ajax togglegrouped passed null itemid");
+	    log.error("Ajax insertBreakBefore passed null itemid");
+	    return null;
+	}
+
+	if (!"section".equals(type) && !"column".equals(type)) {
+	    log.error("Ajax insertBreakBefore passed illegal type " + type);
+	    return null;
+	}
+	
+	itemId = itemId.trim();
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax insertBreakBefore passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax insertBreakBefore passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax insertBreakBefore passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+
+	// we have an item id. insert before it
+	int nseq = 0;  // sequence number of new item
+	boolean after = false; // we found the item to insert before
+	// have an item number specified, look for the item to insert before
+	long before = item.getId();
+	for (SimplePageItem i: items) {
+	    if (i.getId() == before) {
+		// found item to insert before
+		// use its sequence and bump up it and all after
+		nseq = i.getSequence();
+		after = true;
+	    }
+	    if (after) {
+		i.setSequence(i.getSequence() + 1);
+		simplePageToolDao.quickUpdate(i);
+	    }
+	}			    
+
+	// if after not set, we didn't find the item; either no item specified or it
+	if (!after) {
+	    log.error("Ajax insertBreakBefore passed item not on its page " + before);
+	    return null;
+	}
+		    
+	SimplePageItem i = simplePageToolDao.makeItem(item.getPageId(), nseq, SimplePageItem.BREAK, null, null);
+	i.setFormat(type);
+	
+	simplePageToolDao.quickSaveItem(i);
+	return "" + i.getId();
+
+    }
+
+    public static String setColumnProperties(String itemId, String width, String split, String color, String csrfToken) {
+
+	if (itemId == null || width == null || split == null) {
+	    log.error("Ajax setColumnProperties passed null argument");
+	    return null;
+	}
+
+	itemId = itemId.trim();
+	// we don't actually use the integers. Just for syntax checking
+	int widthi = 0;
+	int spliti = 0;
+	try {
+	    widthi = Integer.parseInt(width);
+	    spliti = Integer.parseInt(split);
+	} catch (Exception e) {
+	    log.error("Ajax setColumnProperties passwd non-numeric width or split");
+	    return null;
+	}
+
+	if (color != null) {
+	    if (color.equals(""))
+		color = null;
+	    else if (!color.matches("^[a-z]*$")) {
+		log.error("Ajax setColumnProperties passwd unreasonable color");
+		return null;
+	    }
+	}
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    Long itemNum = Long.parseLong(itemId);
+	    item = simplePageToolDao.findItem(itemNum);
+	    if (item.getType() != SimplePageItem.BREAK) {
+		// hopefully this is the first item, in an old page that doesnbt' begin with a page break
+		List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+		if (items.get(0).getId() == itemNum) {
+		    // this is first item on page, add a section break before it
+		    item = simplePageToolDao.makeItem(item.getPageId(), 1, SimplePageItem.BREAK, null, null);
+		    item.setFormat("section");
+		    simplePageToolDao.quickSaveItem(item);
+		    int seq = 2;
+		    // and bump sequence numbers
+		    for (SimplePageItem i: items) {
+			i.setSequence(seq);
+			simplePageToolDao.quickUpdate(i);
+			seq++;
+		    }
+		} else if (items.get(0).getType() == SimplePageItem.BREAK &&
+			   items.get(1).getId() == itemNum) {
+		    // maybe we just inserted a break before our item. 
+		    // If so, use the break;
+		    item = items.get(0);
+		} else {
+		    log.error("Ajax setcolumnproperties passed item not a break: " + itemId);
+		}
+		    
+	    }
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax setcolumnproperties passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax setcolumnproperties passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax setcolumnproperties passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	if (width.trim().equals("1"))
+	    item.removeAttribute("colwidth");
+	else
+	    item.setAttribute("colwidth", width);
+
+	if (split.trim().equals("1"))
+	    item.removeAttribute("colsplit");
+	else
+	    item.setAttribute("colsplit", split);
+	
+
+	if (color == null)
+	    item.removeAttribute("colcolor");
+	else
+	    item.setAttribute("colcolor", color);
+
+	simplePageToolDao.quickUpdate(item);
+	return "ok";
+
+    }
+
+
+    public static String deleteItem(String itemId, String csrfToken) {
+	if (itemId == null) {
+	    log.error("Ajax deleteBreak passed null itemid");
 	    return null;
 	}
 
@@ -484,32 +658,39 @@ public class AjaxServer extends HttpServlet
 	    siteId = page.getSiteId();
 	} catch (Exception e) {
 	    e.printStackTrace();
-	    log.error("Ajax togglegrouped passed invalid data " + e);
+	    log.error("Ajax deleteBreak passed invalid data " + e);
 	    return null;
 	}
 	if (siteId == null) {
-	    log.error("Ajax togglegrouped passed null site id");
+	    log.error("Ajax deleteBreak passed null site id");
 	    return null;
 	}
 
 	String ref = "/site/" + siteId;
 	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
-	    log.error("Ajax togglegrouped passed itemid " + itemId + " but user doesn't have permission");
+	    log.error("Ajax deleteBreak passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
 	
-	String grouped = item.getAttribute("groupedWithAbove");
-	if ("true".equals(grouped)) {
-	    item.removeAttribute("groupedWithAbove");
-	    grouped = "false";
-	} else {
-	    item.setAttribute("groupedWithAbove", "true");
-	    grouped = "true";
-	}
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
 
-	simplePageToolDao.quickUpdate(item);
+	// we have an item id. adjust sequence for items after it
+	boolean after = false; // we found the item to delete
+	// have an item number specified, look for it
+	long before = item.getId();
+	for (SimplePageItem i: items) {
+	    if (item.getId() == before) {
+		after = true;
+	    } else if (after) {
+		item.setSequence(item.getSequence() - 1);
+		simplePageToolDao.quickUpdate(item);
+	    }
+	}			    
 
-	return grouped;
+	simplePageToolDao.quickDelete(item);
+
+	return "ok";
+
     }
 
     public static boolean checkCsrf(String csrfToken) {
@@ -560,11 +741,25 @@ public class AjaxServer extends HttpServlet
 	  String locale = req.getParameter("locale");
 	  String groups = req.getParameter("groups");
 	  out.print(groupErrors(siteid, locale, groups));
-      } else if (op.equals("togglegrouped")) {
+      } else if (op.equals("insertbreakbefore")) {
+	  String itemId = req.getParameter("itemid");
+	  String type = req.getParameter("type");
+	  String cols = req.getParameter("cols");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(insertBreakBefore(itemId, type, cols, csrfToken));
+      } else if (op.equals("setcolumnproperties")) {
+	  String itemId = req.getParameter("itemid");
+	  String width = req.getParameter("width");
+	  String split = req.getParameter("split");
+	  String color = req.getParameter("color");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(setColumnProperties(itemId, width, split, color, csrfToken));
+      } else if (op.equals("deleteitem")) {
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");
-	  out.println(toggleGrouped(itemId, csrfToken));
+	  out.println(deleteItem(itemId, csrfToken));
       }
+
    }
    
     public void setMessageSource(MessageSource s) {
@@ -573,6 +768,10 @@ public class AjaxServer extends HttpServlet
 
     public void setSiteService(SiteService s) {
 	siteService = s;
+    }
+
+    public void setAuthzGroupService(AuthzGroupService s) {
+        authzGroupService = s;
     }
 
 }

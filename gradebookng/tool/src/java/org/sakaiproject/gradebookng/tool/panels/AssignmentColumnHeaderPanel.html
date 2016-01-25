@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+	
+	<div class="gb-title">
+		<span wicket:id="externalAppFlag"></span>
+		<a wicket:id="title"><wicket:container wicket:id="label" /></a>
+	</div>
+	
+	<div class="gb-grade-section">
+		<span wicket:message="value:label.total">Total: </span><span wicket:id="totalPoints" class="gb-total-points">100</span>
+	</div>
+	
+	<div class="gb-due-date">
+		<span wicket:message="value:label.due">Due: </span><span wicket:id="dueDate">23/5/2014</span>
+	</div>
+	
+	<div class="gb-grade-item-flags">
+		<span wicket:id="extraCreditFlag" class="gb-flag-extra-credit"></span>
+		<span wicket:id="isReleasedFlag" class="gb-flag-is-released"></span>
+		<span wicket:id="notReleasedFlag" class="gb-flag-not-released"></span>
+		<span wicket:id="isCountedFlag" class="gb-flag-is-counted"></span>
+		<span wicket:id="notCountedFlag" class="gb-flag-not-counted"></span>
+	</div>
+
+	<!-- dropdown -->
+	<div class="btn-group" wicket:id="menu">
+	    <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
+	    	<span class="caret"></span>
+	    </a>
+	    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+	   		<li><a wicket:id="editAssignmentDetails" href="#" role="menuitem"><wicket:message key="assignment.option.edit" /></a></li>
+	   		<li><a wicket:id="viewAssignmentGradeStatistics" href="#" role="menuitem"><wicket:message key="assignment.option.viewgradestatistics" /></a></li>
+			<li><a wicket:id="moveAssignmentLeft" href="#" class="move-assignment-left" role="menuitem"><wicket:message key="assignment.option.moveleft" /></a></li>
+			<li><a wicket:id="moveAssignmentRight" href="#" class="move-assignment-right" role="menuitem"><wicket:message key="assignment.option.moveright" /></a></li>
+			<li><a wicket:id="hideAssignment" href="#" role="menuitem"><wicket:message key="assignment.option.hide" /></a></li>
+	    	<li><a wicket:id="setUngraded" href="#" role="menuitem" aria-haspopup="true"><wicket:message key="assignment.option.setungraded" /></a></li>
+			<li><a wicket:id="deleteGradeItem" href="#" role="menuitem" aria-haspopup="true" class="gb-delete-item"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
+	    </ul>
+    </div>
+	
+</wicket:panel>
+</body>
+</html>

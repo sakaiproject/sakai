@@ -124,7 +124,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 						}
 						catch (SQLException se)
 						{
-							LOG.warn("Error trying to build event on read", se);
+							LOG.error("Error trying to build event on read", se);
 						}
 						return e;
 					}

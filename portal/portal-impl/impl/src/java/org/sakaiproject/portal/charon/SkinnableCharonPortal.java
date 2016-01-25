@@ -89,6 +89,7 @@ import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.TimeoutDialogHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
+import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
@@ -648,11 +649,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
 		M_log.debug("includeTool resetActionUrl="+resetActionUrl);
-
-		String sakaiPanel = req.getParameter("panel");
-		if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
-		if ( sakaiPanel == null ) sakaiPanel="Main";
-		resetActionUrl = URLUtils.addParameter(resetActionUrl, "panel", sakaiPanel);
 
 		// SAK-20462 - Pass through the sakai_action parameter
 		String sakaiAction = req.getParameter("sakai_action");
@@ -1347,12 +1343,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("/library/js/headscripts.js");
 		headJs.append(PortalUtils.getCDNQuery());
 		headJs.append("\"></script>\n");
-		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
+		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
+				"sakai.editor.editors = sakai.editor.editors || {}; " +
+				"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
+				"sakai.locale = sakai.locale || {};\n");
 		headJs.append("sakai.locale.userCountry = '" + rloader.getLocale().getCountry() + "';\n");
 		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
 		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
 		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';\n");
-		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";</script>\n");
+		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";\n");
+		headJs.append("sakai.editor.editors.ckeditor.browser = '"+ EditorConfiguration.getCKEditorFileBrowser()+ "';\n");
+		headJs.append("</script>\n");
 		headJs.append(preloadScript);
 		headJs.append(editorScript);
 		headJs.append(launchScript);
@@ -1797,6 +1798,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String logInOutUrl2 = null;
 			String message2 = null;
 			String image2 = null;
+			String logoutWarningMessage = "";
 
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
@@ -1876,8 +1878,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				// since we are doing logout, cancel top.login
 				topLogin = false;
+				
+				logoutWarningMessage = rloader.getString("sit_logout_warn");
 			}
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
+			rcontext.put("logoutWarningMessage", logoutWarningMessage);
 
 			// display portal links - SAK-22983
 			String portalLinks = portalService.getPortalLinks();
@@ -1907,9 +1912,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String pwWording = null;
 				eidWording = StringUtils.trimToNull(rloader.getString("log.userid"));
 				pwWording = StringUtils.trimToNull(rloader.getString("log.pass"));
+				String eidPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputuserplaceholder"));
+				String pwPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputpasswordplaceholder"));
 
 				if (eidWording == null) eidWording = "eid";
 				if (pwWording == null) pwWording = "pw";
+				if (eidPlaceholder == null ) eidPlaceholder = "";
+				if (pwPlaceholder == null ) pwPlaceholder = "";
 				String loginWording = rloader.getString("log.login");
 
 				rcontext.put("loginPortalPath", ServerConfigurationService
@@ -1917,6 +1926,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginEidWording", eidWording);
 				rcontext.put("loginPwWording", pwWording);
 				rcontext.put("loginWording", loginWording);
+				rcontext.put("eidPlaceholder", eidPlaceholder);
+				rcontext.put("pwPlaceholder", pwPlaceholder);
 
 				// setup for the redirect after login
 				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
@@ -2006,6 +2017,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		addHandler(new ToolHandler());
 		addHandler(new ToolResetHandler());
+		addHandler(new PageResetHandler());
 		addHandler(new PageHandler());
 		addHandler(worksiteHandler);
 		addHandler(new WorksiteResetHandler());

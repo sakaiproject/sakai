@@ -227,7 +227,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			M_log.error("init(): ", t);
 		}
 		setUsageSessionServiceSql(sqlService().getVendor());
 		
@@ -321,9 +321,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 					String hashedSessionId = byteArray2Hex(digest);					
 					s.setAttribute(SAKAI_CSRF_SESSION_ATTRIBUTE, hashedSessionId);
 				} catch (NoSuchAlgorithmException e) {
-					M_log.warn("Failed to create a hashed session id for use as CSRF token because no SHA-256 support", e);
+					M_log.error("Failed to create a hashed session id for use as CSRF token because no SHA-256 support", e);
 				} catch (UnsupportedEncodingException e) {
-					M_log.warn("Failed to create a hashed session id for use as CSRF token because could not get UTF-8 bytes of session id", e);
+					M_log.error("Failed to create a hashed session id for use as CSRF token because could not get UTF-8 bytes of session id", e);
 				}
 				
 				// set as the current session
@@ -769,7 +769,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				}
 				catch (Exception e)
 				{
-					M_log.warn("unBindAttributeValue: unbinding exception: ", e);
+					M_log.error("unBindAttributeValue: unbinding exception: ", e);
 				}
 			}
 		}
@@ -793,7 +793,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				}
 				catch (Exception e)
 				{
-					M_log.warn("bindAttributeValue: unbinding exception: ", e);
+					M_log.error("bindAttributeValue: unbinding exception: ", e);
 				}
 			}
 		}
@@ -1060,7 +1060,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				totalSessionsCount = counts.get(0);
 			}
 		} catch (Exception e) {
-			M_log.warn("Could not get count of sessions.", e);
+			M_log.error("Could not get count of sessions.", e);
 		}
 		return totalSessionsCount;
 	}

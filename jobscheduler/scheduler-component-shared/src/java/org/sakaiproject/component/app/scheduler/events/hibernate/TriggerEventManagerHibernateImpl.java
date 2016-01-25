@@ -6,8 +6,11 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
 import org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
+import org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -26,24 +29,18 @@ public class TriggerEventManagerHibernateImpl
     implements TriggerEventManager
 {
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.api.app.scheduler.events.TriggerEventManager#createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, java.lang.String, java.lang.String, java.util.Date, java.lang.String)
-     */
-    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message) {
-        return createTriggerEvent(type, jobName, triggerName, time, message, null);
+    @Override
+    public TriggerEvent createTriggerEvent(TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message) {
+        return createTriggerEvent(type, jobKey, triggerKey, time, message, null);
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.api.app.scheduler.events.TriggerEventManager#createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, java.lang.String, java.lang.String, java.util.Date, java.lang.String, java.lang.String)
-     */
-    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName,
-            Date time, String message, String serverId)
-    {
+    @Override
+    public TriggerEvent createTriggerEvent(TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message, String serverId) {
         TriggerEventHibernateImpl event = new TriggerEventHibernateImpl();
 
         event.setEventType(type);
-        event.setJobName(jobName);
-        event.setTriggerName(triggerName);
+        event.setJobName(jobKey.getName());
+        event.setTriggerName(triggerKey.getName());
         event.setTime(time);
         event.setMessage(message);
         event.setServerId(serverId);

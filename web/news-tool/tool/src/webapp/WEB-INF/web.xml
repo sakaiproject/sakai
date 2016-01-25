@@ -75,7 +75,7 @@
     </listener>
 	<listener>
 		<listener-class>
-			org.sakaiproject.util.ContextLoaderListener
+			org.sakaiproject.util.SakaiContextLoaderListener
 		</listener-class>
 	</listener>    
 

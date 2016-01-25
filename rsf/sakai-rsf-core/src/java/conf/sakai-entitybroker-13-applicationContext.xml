@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- Contains bean overrides and new definitions for application-scope beans required for integration of RSF apps into Sakai with the 
+	"Entity Broker" system, when used at version 1.3 or greater (support for "EntityView" system) -->
+
+	<bean id="sakai-EntityViewProxy" parent="RSACBridgeProxy">
+		<property name="targetBeanName" value="sakai-EntityView" />
+	</bean>
+
+	<bean id="entityViewAccessRegistrar" class="org.sakaiproject.rsf.entitybroker.EntityViewAccessRegistrar">
+		<property name="commonAccessHandler" ref="commonAccessProvider" />
+		<property name="entityViewAccessProviderManager" ref="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager" />
+	</bean>
+
+	<bean parent="defaultViewInferrerParent">
+		<property name="valueRef" value="EVVPIManager" />
+	</bean>
+
+	<bean id="EVVPIManager" class="org.sakaiproject.rsf.entitybroker.EVVPIManager" init-method="init">
+		<property name="accessRegistrar" ref="entityViewAccessRegistrar" />
+		<property name="sakaiEntityView" ref="sakai-EntityViewProxy" />
+	</bean>
+
+	<bean class="uk.org.ponder.springutil.ByClassTLAB">
+		<property name="targetPath" value="EVVPIManager.entityViewViewParamsInferrers" />
+		<property name="targetClass" value="org.sakaiproject.rsf.entitybroker.EntityViewViewParamsInferrer" />
+	</bean>
+
+</beans>

@@ -1,0 +1,76 @@
+/* selection buttons */
+.non_selected_button{
+	background: url('/samigo-app/images/button_gray.png');
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-size: 32px;
+	vertical-align:bottom;
+	cursor:pointer;
+}
+
+.non_selected_button:hover{
+	background-position: 0px 64px;
+}
+
+.non_selected_button:active{
+	background-position: 0px 32px;
+}
+
+.selected_button{
+	background: url('/samigo-app/images/button_green.png');
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-size: 32px;
+	vertical-align:bottom;
+}
+
+/* selector div */
+.pointerClass{
+	/*width:32px;*/
+	height:16px;
+	background: url('/samigo-app/images/crosshair.png') no-repeat;
+	background-position:left bottom;;
+	padding-left:18px;
+	position:absolute;
+	display:none;
+	color: red;
+	text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff;
+	font-size: 16px;
+}
+
+.pointerClass_selected{
+	/*width:32px;*/
+	height:16px;
+	background: url('/samigo-app/images/crosshair.png') no-repeat;
+	background-position:left top;;
+	padding-left:18px;
+	position:absolute;
+	display:none;
+	color: red;
+	text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff;
+	font-size: 16px;
+}
+
+.studentImageContainer{
+	position:relative;	
+	display:inline-block;
+}
+
+.resetButtonContainer{
+	margin-top:10px;
+	margin-bottom:5px;
+}
+div[id^=dlContainer] {
+	padding-bottom: 5px;
+}
+
+h4.imagemap_legend {
+	margin-bottom: 1em;
+}
+span.imagemap_legend {
+	color: #555;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, sans-serif;
+}

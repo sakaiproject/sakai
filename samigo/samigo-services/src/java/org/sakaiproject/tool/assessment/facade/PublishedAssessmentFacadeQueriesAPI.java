@@ -115,6 +115,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId);
   
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo);
+  
+  public PublishedAssessmentFacade getPublishedAssessmentQuick(Long assessmentId);
 
   public Long getPublishedAssessmentId(Long assessmentId);
 
@@ -365,7 +367,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void removeSectionAttachment(Long sectionAttachmentId);
 
-  public void saveOrUpdateAttachments(List list);
+  public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
   
   public TreeMap getGroupsForSite();
   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);
@@ -374,4 +376,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(	final String agentId, final String siteId, boolean allAssessments);
      
+  public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId);
 }

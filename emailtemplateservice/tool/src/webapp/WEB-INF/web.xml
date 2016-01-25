@@ -48,14 +48,14 @@
 		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
 	</listener>
 	<listener>
-		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+		<listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
 	</listener>
 
 	<!-- tool servlet -->
 	<servlet>
 		<!-- servlet name must match tool.id in tools xml file -->
 		<servlet-name>sakai.emailtemplateservice</servlet-name>
-		<servlet-class>uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet</servlet-class>
+		<servlet-class>org.sakaiproject.rsf.servlet.ReasonableSakaiServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>sakai.emailtemplateservice</servlet-name>

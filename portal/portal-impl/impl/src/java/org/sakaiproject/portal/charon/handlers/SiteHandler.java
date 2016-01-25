@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -61,6 +63,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
@@ -94,8 +97,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String URL_FRAGMENT = "site";
 
-	private int configuredTabsToDisplay = 5;
-
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -128,8 +129,6 @@ public class SiteHandler extends WorksiteHandler
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
-		configuredTabsToDisplay = ServerConfigurationService.getInt(
-				Portal.CONFIG_DEFAULT_TABS, 5);
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
@@ -196,6 +195,63 @@ public class SiteHandler extends WorksiteHandler
 			}
 			portalService.setResetState("true");
 			res.sendRedirect(toolUrl);
+			return RESET_DONE;
+		}
+
+		// Page resetting URL - clear state and forward to the real page
+		// URL
+		// /portal/site/site-id/page-reset/pageId
+		// 0 1 2 3 4
+		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("page-reset")))
+		{
+			pageId = parts[4];
+			Site site = null;
+			try
+			{
+				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
+				if (advisors != null) {
+					for (SecurityAdvisor advisor:advisors) {
+						SecurityService.pushAdvisor(advisor);
+						//session.removeAttribute("sitevisit.security.advisor");
+					}
+				}
+				// This should understand aliases as well as IDs
+				site = portal.getSiteHelper().getSiteVisit(siteId);
+			}
+			catch (Exception e)
+			{
+				site = null;
+			}
+
+			SitePage page = null;
+			if (site != null ) page = portal.getSiteHelper().lookupSitePage(pageId, site);
+
+			boolean hasJSR168 = false;
+			if (page != null)
+			{
+				Session s = SessionManager.getCurrentSession();
+				Iterator<ToolConfiguration> toolz = page.getTools().iterator();
+				while(toolz.hasNext()){
+					ToolConfiguration pageTool = toolz.next();
+					ToolSession ts = s.getToolSession(pageTool.getId());
+					ts.clearAttributes();
+					if ( portal.isPortletPlacement(pageTool) ) hasJSR168 = true;
+				}
+			}
+
+			String pageUrl = req.getContextPath() + "/site/" + siteId + "/page"
+					+ Web.makePath(parts, 4, parts.length);
+
+			String queryString = Validator.generateQueryString(req);
+			if (queryString != null)
+			{
+				pageUrl = pageUrl + "?" + queryString;
+				if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
+			} else {
+				if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
+			}
+			portalService.setResetState("true");
+			res.sendRedirect(pageUrl);
 			return RESET_DONE;
 		}
 
@@ -794,36 +850,24 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
-			int tabsToDisplay = configuredTabsToDisplay;
 			int tabDisplayLabel = 1;
-
-			if (!loggedIn)
+			
+			if (loggedIn) 
 			{
-				tabsToDisplay = ServerConfigurationService.getInt(
-						"gatewaySiteListDisplayCount", tabsToDisplay);
-			}
-			else
-			{
-				Preferences prefs = PreferencesService
-						.getPreferences(session.getUserId());
+				Preferences prefs = PreferencesService.getPreferences(session.getUserId());
 				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-				try
-				{
-					tabsToDisplay = (int) props.getLongProperty("tabs");					 
-				}
-				catch (Exception any)
-				{
-				}
-				try
+				try 
 				{
 					tabDisplayLabel = (int) props.getLongProperty("tab:label");
-				}
-				catch (Exception any)
+				} 
+				catch (Exception any) 
 				{
+					tabDisplayLabel = 1;
 				}
 			}
-
+			
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
+			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
 			siteView.setPrefix(prefix);
@@ -1036,6 +1080,18 @@ public class SiteHandler extends WorksiteHandler
 		{
 			Map m = new HashMap<String,String> ();
 			String headString = responseStr.substring(headStart + 1, headEnd);
+			
+			// SAK-29908 
+			// Titles come twice to view and tool title overwrites main title because
+			// it is printed before.
+
+			int titleStart = headString.indexOf("<title");
+			int titleEnd = headString.indexOf("</title");
+			titleEnd = findEndOfTag(headString, titleEnd);
+			
+			headString = (titleStart != -1 && titleEnd != -1)?headString.substring(0, titleStart) + headString.substring(titleEnd + 1):headString;
+			// End SAK-29908
+			
 			String bodyString = responseStr.substring(bodyStart + 1, bodyEnd);
 			if (tidAllow.indexOf(":debug:") >= 0)
 			{

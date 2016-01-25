@@ -35,11 +35,11 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -52,6 +52,7 @@ import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuField;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.entity.api.Entity;
@@ -108,6 +109,15 @@ public class AdminSitesAction extends PagedResourceActionII
 	
 	/** Name of state attribute for Site instance id */
 	private static final String STATE_SITE_INSTANCE_ID = "site.instance.id";
+
+	private AliasService aliasService;
+	private AuthzGroupService authzGroupService;
+
+	public AdminSitesAction() {
+		super();
+		aliasService = ComponentManager.get(AliasService.class);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -461,7 +471,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put("sites", sites);
 
 		// we need the Realms, too!
-		context.put("realms", AuthzGroupService.getInstance());
+		context.put("realms", authzGroupService);
 
 		// build the menu
 		Menu bar = new MenuImpl();
@@ -954,7 +964,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				Site site = SiteService.getSite(id);
 				state.setAttribute("site", site);
 
-				// RealmEdit realm = AuthzGroupService.editRealm("/site/" + id); // %%% use a site service call -ggolden
+				// RealmEdit realm = authzGroupService.editRealm("/site/" + id); // %%% use a site service call -ggolden
 				// state.setAttribute("realm", realm);
 
 				state.setAttribute("mode", "edit");
@@ -1136,7 +1146,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 			// save the realm, too
 			// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
-			// AuthzGroupService.commitEdit(realm);
+			// authzGroupService.commitEdit(realm);
 		}
 
 		// cleanup
@@ -1246,7 +1256,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
 		// if (realm != null)
 		// {
-		// AuthzGroupService.cancelEdit(realm);
+		// authzGroupService.cancelEdit(realm);
 		// }
 
 		// get the site
@@ -1317,7 +1327,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// cancel the realm edit - the site remove will remove the realm
 		// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
-		// AuthzGroupService.cancelEdit(realm);
+		// authzGroupService.cancelEdit(realm);
 
 		// remove the site
 		try
@@ -1432,7 +1442,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				AuthzGroup realm = null;
 				try
 				{
-					realm = AuthzGroupService.getAuthzGroup(site.getReference());
+					realm = authzGroupService.getAuthzGroup(site.getReference());
 					roles.addAll(realm.getRoles());
 				}
 				catch (GroupNotDefinedException e)
@@ -1445,14 +1455,14 @@ public class AdminSitesAction extends PagedResourceActionII
 					}
 					try
 					{
-						AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
+						AuthzGroup r = authzGroupService.getAuthzGroup(realmTemplate);
 						roles.addAll(r.getRoles());
 					}
 					catch (GroupNotDefinedException err)
 					{
 						try
 						{
-							AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
+							AuthzGroup rr = authzGroupService.getAuthzGroup("!site.template");
 							roles.addAll(rr.getRoles());
 						}
 						catch (GroupNotDefinedException ee)
@@ -2633,7 +2643,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		if (reference != null)
 		{
 			// get the email alias when an Email Archive tool has been selected
-			List aliases = AliasService.getAliases(reference, 1, 1);
+			List aliases = aliasService.getAliases(reference, 1, 1);
 			if (aliases.size() > 0) {
 				alias = ((Alias) aliases.get(0)).getId();
 			}
@@ -2664,7 +2674,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			if (currentAlias == null || !currentAlias.equals(alias))
 			{
 				try {
-					AliasService.setAlias(alias, siteReference);
+					aliasService.setAlias(alias, siteReference);
 				} catch (IdUsedException ee) {
 					addAlert(state, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
 					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));

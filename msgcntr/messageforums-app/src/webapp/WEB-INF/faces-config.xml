@@ -481,6 +481,11 @@
             <value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
         </managed-property>
         <managed-property>
+            <description>Authz Group Service</description>
+            <property-name>authzGroupService</property-name>
+            <value>#{Components["org.sakaiproject.authz.api.AuthzGroupService"]}</value>
+        </managed-property>
+        <managed-property>
             <description>Rank Manager</description>
             <property-name>rankManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.RankManager"]}</value>
@@ -490,6 +495,12 @@
          	<description>User Preferences Manager</description>
          	<property-name>userPreferencesManager</property-name>
          	<value>#{Components["org.sakaiproject.api.app.messageforums.UserPreferencesManager"]}</value>
+        </managed-property>
+
+        <managed-property>
+            <description>Anonymous Manager</description>
+            <property-name>anonymousManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AnonymousManager"]}</value>
         </managed-property>
         
     </managed-bean>
@@ -649,6 +660,16 @@
             <description>UI Permissions Manager</description>
             <property-name>uiPermissionsManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Anonymous Manager</description>
+            <property-name>anonymousManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AnonymousManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Tool Manager</description>
+            <property-name>toolManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
         </managed-property>
  	</managed-bean>
  

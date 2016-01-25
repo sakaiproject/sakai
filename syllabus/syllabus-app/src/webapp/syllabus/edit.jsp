@@ -11,9 +11,8 @@
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
 
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-<link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
+<script>includeLatestJQuery('edit.jsp');</script>
+<link rel="stylesheet" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
 
@@ -202,9 +201,9 @@
 					<h:commandButton
 						action="#{SyllabusTool.processEditPost}"
 						styleClass="active"
-						value="#{msgs.bar_post}" 
+						value="#{msgs.bar_publish}"
 						accesskey="s"
-						title="#{msgs.button_post}" />
+						title="#{msgs.button_publish}" />
 					<h:commandButton
 						action="#{SyllabusTool.processEditPreview}"
 						value="#{msgs.bar_preview}"

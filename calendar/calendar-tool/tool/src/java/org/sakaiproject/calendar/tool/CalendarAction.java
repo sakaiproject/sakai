@@ -49,9 +49,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
@@ -207,6 +206,8 @@ extends VelocityPortletStateAction
 
 	// Dependency: setup in init
 	private OpaqueUrlDao opaqueUrlDao;
+
+	private AliasService aliasService;
    
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
 	private final static String ASSN_ENTITY_ID     = "assignment";
@@ -214,6 +215,11 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
+
+	public CalendarAction() {
+		super();
+		aliasService = ComponentManager.get(AliasService.class);
+	}
 	
 	/**
 	 * Converts a string that is used to store additional attribute fields to an array of strings.
@@ -4023,7 +4029,7 @@ extends VelocityPortletStateAction
 
 		if ( calendarObj != null )
 		{
-			List aliasList =	AliasService.getAliases( calendarObj.getReference() );
+			List aliasList =	aliasService.getAliases( calendarObj.getReference() );
 			if ( ! aliasList.isEmpty() )
 			{
 				String alias[] = ((Alias)aliasList.get(0)).getId().split("\\.");
@@ -4032,7 +4038,11 @@ extends VelocityPortletStateAction
 		}
 
 		context.put("serverName", ServerConfigurationService.getServerName());
-		
+
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		context.put("icalInfoStr",icalInfoStr);
 			
 		// Add iCal Export URL
 		Reference calendarRef = EntityManager.newReference(calId);
@@ -4060,6 +4070,10 @@ extends VelocityPortletStateAction
 		context.put("isMyWorkspace", isOnWorkspaceTab());
 		context.put("form-generate", BUTTON + "doOpaqueUrlGenerate");
 		context.put("form-cancel", BUTTON + "doCancel");
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		context.put("icalInfoStr",icalInfoStr);
 	}
 	
 	/**
@@ -4071,6 +4085,12 @@ extends VelocityPortletStateAction
 		Reference calendarRef = EntityManager.newReference(calId);
 		String opaqueUrl = ServerConfigurationService.getAccessUrl()
 			+ CalendarService.calendarOpaqueUrlReference(calendarRef);
+
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		context.put("icalInfoStr",icalInfoStr);
+
 		context.put("opaqueUrl", opaqueUrl);
 		context.put("webcalUrl", opaqueUrl.replaceFirst("http", "webcal"));
 		context.put("isMyWorkspace", isOnWorkspaceTab());
@@ -5751,7 +5771,7 @@ extends VelocityPortletStateAction
 		{
 			calendarObj = CalendarService.getCalendar(calId);
 		
-			List aliasList =	AliasService.getAliases( calendarObj.getReference() );
+			List aliasList =	aliasService.getAliases( calendarObj.getReference() );
 			String oldAlias = null;
 			if ( ! aliasList.isEmpty() )
 			{
@@ -5763,10 +5783,10 @@ extends VelocityPortletStateAction
 			if ( alias != null && (oldAlias == null || !oldAlias.equals(alias)) )
 			{
 				// first, clear any alias set to this calendar
-				AliasService.removeTargetAliases(calendarObj.getReference());
+				aliasService.removeTargetAliases(calendarObj.getReference());
 				
 				alias += ICAL_EXTENSION;
-				AliasService.setAlias(alias, calendarObj.getReference());
+				aliasService.setAlias(alias, calendarObj.getReference());
 			}
 		}
 		catch (IdUnusedException ie)

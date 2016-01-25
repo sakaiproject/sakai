@@ -28,6 +28,7 @@ import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
+import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
@@ -62,7 +63,12 @@ public class ReorderQuestionsListener implements ValueChangeListener
    */
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
-    log.info("ReorderQuestionsListener valueChangeLISTENER.");
+    if (ae.getPhaseId() != PhaseId.INVOKE_APPLICATION) {
+        ae.setPhaseId(PhaseId.INVOKE_APPLICATION);
+        ae.queue();
+        return;
+    }
+    log.debug("ReorderQuestionsListener valueChangeLISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     FacesContext context = FacesContext.getCurrentInstance();

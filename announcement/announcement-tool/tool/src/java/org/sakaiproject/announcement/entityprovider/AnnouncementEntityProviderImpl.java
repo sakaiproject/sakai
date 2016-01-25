@@ -285,7 +285,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		for (Reference attachment : (List<Reference>) a.getHeader().getAttachments()) {
 			String url = attachment.getUrl();
 			String name = attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName());
-			DecoratedAttachment decoratedAttachment = new DecoratedAttachment(name, url);
+			String attachId = attachment.getId();
+			String type = attachment.getProperties().getProperty(attachment.getProperties().getNamePropContentType());
+			String attachRef = attachment.getReference();								
+			DecoratedAttachment decoratedAttachment = new DecoratedAttachment(attachId,name,type,url,attachRef);
 			attachments.add(decoratedAttachment);
 		}
 		da.setAttachments(attachments);

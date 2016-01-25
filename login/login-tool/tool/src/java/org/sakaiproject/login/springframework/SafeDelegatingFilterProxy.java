@@ -20,13 +20,17 @@
  **********************************************************************************/
 package org.sakaiproject.login.springframework;
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
-
-import javax.servlet.*;
-import java.io.IOException;
 
 /**
  * Extends the ootb Spring proxy by becoming a no op in the situation where
@@ -56,27 +60,17 @@ public class SafeDelegatingFilterProxy extends DelegatingFilterProxy {
         // make sure context is valid and bean exists before enabling this filter
         synchronized (this.delegateMonitor) {
             WebApplicationContext wac = findWebApplicationContext();
-            if (validContext(wac)) {
-                super.initFilterBean();
-                enabled = true;
+            if (wac != null) {
+                if (wac.containsBean(getTargetBeanName())) {
+                    super.initFilterBean();
+                    enabled = true;
+                } else {
+                    log.info("Can't find a bean with name: " + getTargetBeanName() + ", safely disable proxying");
+                }
             } else {
-                log.info("can't find a valid Spring context or a bean with name: " + getTargetBeanName() +
-                        " so no servlet filter proxying for you!");
+                log.warn("Can't find web application context");
             }
         }
-    }
-
-    private boolean validContext(WebApplicationContext wac) {
-        if (wac != null) {
-            try {
-                wac.getBean(getTargetBeanName(), Filter.class);
-                log.debug("setup checks out, enabling servlet filter proxing");
-                return true;
-            } catch (Exception e) {
-                log.debug(e.getMessage(), e);
-            }
-        }
-        return false;
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
@@ -87,7 +81,6 @@ public class SafeDelegatingFilterProxy extends DelegatingFilterProxy {
         }
 
         filterChain.doFilter(request, response);
-
     }
 
     @Override

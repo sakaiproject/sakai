@@ -1,34 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- File parsers -->
 	<bean id="org.sakaiproject.importer.api.ImportFileParser-Sakai"
-			class="org.sakaiproject.importer.impl.SakaiArchiveFileParser"
-			singleton="false">
+			class="org.sakaiproject.importer.impl.SakaiArchiveFileParser">
 	</bean>
 	
 	<bean id="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"
-			class="org.sakaiproject.importer.impl.LBCommonCartridgeFileParser"
-			singleton="false">
+			class="org.sakaiproject.importer.impl.LBCommonCartridgeFileParser">
 	</bean>
 	
 	<bean id="org.sakaiproject.importer.api.ImportFileParser-Bb6"
-	      class="org.sakaiproject.importer.impl.Blackboard6FileParser" 
-	      singleton="false"> 
+	      class="org.sakaiproject.importer.impl.Blackboard6FileParser"> 
 	</bean> 
 
 	<bean id="org.sakaiproject.importer.api.ImportFileParser-Bb55"
-	      class="org.sakaiproject.importer.impl.Blackboard55FileParser" 
-	      singleton="false"> 
+	      class="org.sakaiproject.importer.impl.Blackboard55FileParser"> 
 	</bean> 
 
 	<!-- Handlers -->
 
 	<bean id="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
-			class="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
-			singleton="true">
+			class="org.sakaiproject.importer.impl.handlers.ResourcesHandler">
 			<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 			<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 			<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
@@ -37,30 +32,25 @@
 	
 	
 	<bean id="org.sakaiproject.importer.impl.handlers.LBCCHandler"
-	      class="org.sakaiproject.importer.impl.handlers.LBCCHandler"
-	      singleton="true">
+	      class="org.sakaiproject.importer.impl.handlers.LBCCHandler">
 	</bean>
 
 	<bean id="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"
-                        class="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"
-                        singleton="true">
+                        class="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler">
         </bean>
 
 	<bean id="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"
-                        class="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"
-                         singleton="true">    
+                        class="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler">
 	</bean>
 
 	<bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
-              class="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
-              singleton="true">    
+              class="org.sakaiproject.importer.impl.handlers.AnnouncementHandler">
 	</bean>
 
 	<!-- Import service -->
 	<!-- Add your handlers to the property list -->
 	<bean id="org.sakaiproject.importer.api.ImportService"
-			class="org.sakaiproject.importer.impl.BasicImportService"
-			singleton="true">
+			class="org.sakaiproject.importer.impl.BasicImportService">
 		<property name="parsers">
 			<list>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Sakai"/>

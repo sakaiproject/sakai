@@ -299,7 +299,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					} 
 					else
 					{ 
-						retval = SakaiBLTIUtil.postReRegisterHTML(deployKey, deploy, rb, placementId);
+						retval = SakaiBLTIUtil.postReregisterHTML(deployKey, deploy, rb, placementId);
 					} 
 				} 
 				else if ( refId.startsWith("tool:") && refId.length() > 5 ) 
@@ -361,11 +361,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							}
 						}
 
-						// Adjust the content items based on the tool items
-						if ( tool != null || content != null ) 
-						{
-							ltiService.filterContent(content, tool);
-						}
+						ltiService.filterContent(content, tool);
 					}
 					String splash = null;
 					if ( tool != null ) splash = (String) tool.get("splash");

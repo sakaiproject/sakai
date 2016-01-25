@@ -21,12 +21,12 @@
 
 package org.sakaiproject.content.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.impl.BaseContentService;
@@ -52,31 +52,21 @@ public class VirusScannerTest extends SakaiKernelTestBase {
     //private static final String SIMPLE_FOLDER1 = "/admin/folder1/";
     private static final Log log = LogFactory.getLog(VirusScannerTest.class);
 
-
-    public static Test suite()
-    {
-        TestSetup setup = new TestSetup(new TestSuite(VirusScannerTest.class))
-        {
-            protected void setUp() throws Exception
-            {
-                log.debug("starting oneTimeSetup");
-                oneTimeSetup("antivirus");
-                log.debug("finished oneTimeSetup");
-            }
-            protected void tearDown() throws Exception
-            {
-                log.debug("starting tearDown");
-                oneTimeTearDown();
-                log.debug("finished tearDown");
-            }
-        };
-        return setup;
-    }
-
-
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+            log.debug("starting oneTimeSetup");
+            oneTimeSetup("antivirus");
+            log.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
+	}
+	
     /**
      * Checks the resources of zero bytes are handled correctly.
      */
+	@Test
     public void testVirusFound() throws Exception {
         ContentHostingService ch = getService(ContentHostingService.class);
         SessionManager sm = getService(SessionManager.class);
@@ -95,10 +85,10 @@ public class VirusScannerTest extends SakaiKernelTestBase {
         try {
             ch.getResource("/fileStream1");
         } catch (IdUnusedException e) {
-            assertTrue("file not found, this is expected because a virus was detected", true);
+            Assert.assertTrue("file not found, this is expected because a virus was detected", true);
             return;
         }
-        assertTrue("the file was found, this is not expected, since a virus was found it should have been removed", false);
+        Assert.assertTrue("the file was found, this is not expected, since a virus was found it should have been removed", false);
     }
 
 }

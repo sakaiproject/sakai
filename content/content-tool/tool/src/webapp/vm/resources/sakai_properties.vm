@@ -209,7 +209,7 @@
 						<option value="$model.copyrightStatus" selected="selected">${model.copyrightStatus}</option>
 					#end
 				</select>
-				(<a href="#" onclick="javascript:openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
+				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</p>
 			<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) style="display:block;"#else style="display:none;"#end>
 				<p class="shorttext">
@@ -230,7 +230,7 @@
 					<td style="vertical-align:top;padding:.25em 0;">
 						<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end style="border:none" />
 						$tlang.getString("cright.display") 
-						(<a href="#" onclick="javascript:openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
+						(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
 					</td>
 				</tr>
 			</table>
@@ -245,7 +245,7 @@
 	
 	######### begin access section ##########
 	#if(!$model.isDropbox() && ! $model.isSiteCollection())
-		<p class="instruction">$model.longAccessLabel</p>
+		<p class="instruction">$model.getAccessInstruction()</p>
 		<div  class="labelindnt">
 			#set ($listDisplay="none")
 			#if($model.isSiteOnly())
@@ -275,21 +275,27 @@
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" />
 					<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
-			#elseif($model.isPubviewInherited())
-				## Public access inherited from parent (report that to user)
-				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#else
-				## Site is possible and either group or public is possible
+				## Site is possible; group and additional roles (including pubview) may be possible.
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && "$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
 					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end</label>
 				</p>
-				#if($model.isPubviewPossible())
-					## Public is possible
-					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!model.isPubview()) checked="checked"#end style="border:none" />
-						<label for="access_mode_public${DOT}$i">#if($model.isCollection())$tlang.getString("access.public.fldr")#else$tlang.getString("access.public.choice")#end</label>
-					</p>
+				#if($model.rolesAreAvailable())
+				<h4 style="margin-left: 40px;">$tlang.getString("access.additional")</h4>
+				<ul style="list-style: none;">
+					#foreach ($roleId in $model.availableRoleIds())
+						<li>
+							<input type="checkbox" name="access_roles${DOT}$i" id="access_role_$roleId${DOT}$i" value="$roleId"
+							       #if($model.hasRoleEnabled($roleId) || $model.inheritsRole($roleId)) checked="checked"#end
+							       #if($model.inheritsRole($roleId))   disabled="disabled"#end />
+							<label for="access_mode_$roleId${DOT}$i">
+								#if($model.inheritsRole($roleId))$tlang.getString("access.inherited")#end
+								#if($model.isCollection())$tlang.getString("access.role${roleId}.fldr")#else$tlang.getString("access.role${roleId}.choice")#end
+							</label>
+						</li>
+					#end
+				</ul>
 				#end
 				#if($model.isGroupPossible())
 					## Group is possible
@@ -305,6 +311,14 @@
 				#end
 			#end
 		</div>
+
+		#if($model.groupsAreMissing())
+			<div class="labelindnt">
+				<p class="alertMessageInline">
+					$tlang.getString("access.groups.missing")
+				</p>
+			</div>
+		#end
 
 		#if($model.isGroupPossible())
 			<table id="groupTable${DOT}$i" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
@@ -606,14 +620,14 @@
 				</th>
 				<td>
 					<div>
-						<a class="textPanelFooter" href="javascript:document.getElementById('fileURLHolder').style.overflow='auto';
+						<a class="textPanelFooter" href="#" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
 						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
 						|
 						<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
 						#if($shortUrlEnabled)
 						|
 						<span class="textPanelFooter">
-							<input type="checkbox" id="doShortUrl" onclick="javascript:toggleShortUrlOutput('$model.accessUrl');" />
+							<input type="checkbox" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
 							<span>$tlang.getString("props.shorturl")</span>
 						</span>
 						#end

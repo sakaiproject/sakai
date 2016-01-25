@@ -6,7 +6,7 @@
 	width: 29em;
 	min-height: 14em;
 
-	background: $background-color-secondary;
+	background: $background-color;
 	@include box-shadow( 0 0 5px rgba( $text-color , 0.25 ) );
 	.logo{
 		background: $primary-color url($logo) no-repeat center center;
@@ -32,8 +32,6 @@
 	fieldset{
 		padding: 1em;
 		label{
-			font-family: $header-font-family;
-			font-weight: $header-font-weight;
 			font-size: 1.2em;
 			display: inline-block;
 			min-width: 38%;

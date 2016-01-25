@@ -6,11 +6,11 @@
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
-	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-	<link type="text/css" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" media="screen" />
-	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<link type="text/css" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" media="screen" />
+	<script type="text/javascript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
 	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
 
 <body rsf:id="scr=sakai-body">
@@ -47,9 +47,8 @@
 </table>
 
 <p class="act">
-<input type="submit" class="active" rsf:id="delete-groups" id="delete-groups" value="Update"  accesskey="s" onclick="disableButtonsActivateSpinner( 'delete-groups', 'cancel', 'deleteGroupsSpinner');" />
-<input type="submit" rsf:id="cancel" id="cancel" value="Cancel"  accesskey="x" onclick="disableButtonsActivateSpinner( 'delete-groups', 'cancel', 'deleteGroupsSpinner');" />
-<img id="deleteGroupsSpinner" class="spinner" src="/library/image/indicator.gif" />
+<input type="submit" class="active" rsf:id="delete-groups" id="delete-groups" value="Update"  accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+<input type="submit" rsf:id="cancel" id="cancel" value="Cancel" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 </p>
 </form>
 </div>

@@ -557,6 +557,50 @@ public class BaseSitePage implements SitePage, Identifiable
 		}
 		return false;
 	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean isHomePage()
+	{
+		String isHomePage = (String)getProperties().get(IS_HOME_PAGE);
+		if (isHomePage != null ) return Boolean.parseBoolean(isHomePage);
+		else return false;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean getHomeToolsTitleCustom(String toolId)
+	{
+		String homeToolsTitleCustom = (String)getProperties().get(PAGE_HOME_TOOLS_CUSTOM_TITLE_PROP);
+		if (homeToolsTitleCustom == null)
+			return false;
+		else
+		{
+			String[] toolIds = homeToolsTitleCustom.split(",");
+			for (int i=0;i<toolIds.length;i++)
+			{
+				if (toolIds[i].equals(toolId)) return true;
+			}
+			return false;
+		}
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public void setHomeToolsTitleCustom(String toolId)
+	{
+		String homeToolsTitleCustom = (String)getProperties().get(PAGE_HOME_TOOLS_CUSTOM_TITLE_PROP);
+		if (homeToolsTitleCustom == null)
+			getProperties().addProperty(PAGE_HOME_TOOLS_CUSTOM_TITLE_PROP, toolId);
+		else
+		{
+			if (!homeToolsTitleCustom.contains(toolId))
+				getProperties().addProperty(PAGE_HOME_TOOLS_CUSTOM_TITLE_PROP, homeToolsTitleCustom+","+toolId);
+		}
+	}
    
 	/**
 	 * @inheritDoc

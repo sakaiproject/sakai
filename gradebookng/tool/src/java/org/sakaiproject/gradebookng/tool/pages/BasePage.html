@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+ 
+<head>
+	<title><wicket:message key="app.title" /></title>
+</head>     
+<body>
+	<div class="portletBody">
+		<ul class="navIntraTool actionToolbar" wicket:id="gradebookPageNav">
+			<li class="firstToolBarItem">
+				<span>
+					<a wicket:id="gradebookPageLink" wicket:message="title:link.gradebook.tooltip">
+						<wicket:message key="link.gradebook" />
+					</a>
+				</span>
+			</li>    
+			<li>
+				<span>
+					<a wicket:id="settingsPageLink" wicket:message="title:link.settings.tooltip">
+						<wicket:message key="link.settings" />
+					</a>
+				</span>
+			</li>
+			<li>
+				<span>
+					<a wicket:id="importExportPageLink" wicket:message="title:link.importexport.tooltip">
+						<wicket:message key="link.importexport" />
+					</a>
+				</span>
+			</li>
+			<li>
+				<span>
+					<a wicket:id="permissionsPageLink" wicket:message="title:link.permissions.tooltip">
+						<wicket:message key="link.permissions" />
+					</a>
+				</span>
+			</li>
+		</ul>
+		
+		<div wicket:id="feedback">Feedback messages go here</div>
+		
+		<wicket:child />
+	
+	</div>
+</body>
+</html>

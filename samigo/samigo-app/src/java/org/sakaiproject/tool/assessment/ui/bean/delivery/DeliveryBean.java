@@ -93,6 +93,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -279,6 +280,8 @@ public class DeliveryBean
   private String secureDeliveryHTMLFragment; 
   
   private boolean isFromPrint;
+  
+  private ExtendedTimeService extendedTimeService = null;
 
   private boolean showTimeWarning;
   private boolean hasShowTimeWarning;
@@ -295,6 +298,12 @@ public class DeliveryBean
 
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
+  private static String EXTENDED_TIME_KEY = "extendedTime";
+
+  private static String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
+  private static String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
+  private static String questionProgressMardPath = ServerConfigurationService.getString("samigo.questionprogress.mardpath", "/images/questionMarkBubble15.png");
+  
   /**
    * Creates a new DeliveryBean object.
    */
@@ -809,6 +818,16 @@ public class DeliveryBean
   //Settings
   public String getQuestionLayout()
   {
+      if(getSettings().isFormatByQuestion()) {
+          questionLayout = "1";
+      }
+      else if (getSettings().isFormatByPart()) {
+          questionLayout = "2";
+      }
+      else if (getSettings().isFormatByAssessment()) {
+          questionLayout = "3";
+      }
+
     return questionLayout;
   }
 
@@ -1847,8 +1866,20 @@ public class DeliveryBean
     // removeTimedAssessmentFromQueue();
     return returnValue;
   }
-
+  
   public String next_page()
+  {
+
+   return next_helper(false);
+  }
+
+  public String goto_question()
+  {
+    return next_helper(true);
+  }
+
+
+  private String next_helper(boolean isGoToQuestion)
   {
     String nextAction = checkBeforeProceed();
     log.debug("***** next Action="+nextAction);
@@ -1859,14 +1890,14 @@ public class DeliveryBean
     forGrade = false;
 
     if (this.actionMode == TAKE_ASSESSMENT
-        || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+            || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
       syncTimeElapsedWithServer();
-	
+
       SubmitToGradingActionListener listener =
-        new SubmitToGradingActionListener();
+              new SubmitToGradingActionListener();
       try {
-    	  listener.processAction(null);
+        listener.processAction(null);
       }
       catch (FinFormatException e) {
 		  log.debug(e.getMessage());
@@ -1877,23 +1908,40 @@ public class DeliveryBean
 		  return "takeAssessment";
 	  }
     }
-    
+
+    int oPartIndex = partIndex;
+    int oQuestionIndex = questionIndex;
+
     if (getSettings().isFormatByPart())
     {
-      partIndex++;
+      String partIndexString = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("partnumber");
+      if(isGoToQuestion) {
+        partIndex = Integer.parseInt(partIndexString);
+      } else {
+        partIndex++;
+      }
     }
     if (getSettings().isFormatByQuestion())
     {
-      questionIndex++;
-
+      String questionIndexString = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("questionnumber");
+      if(isGoToQuestion) {
+        questionIndex = Integer.parseInt(questionIndexString);
+      } else {
+        questionIndex++;
+      }
     }
-    
+
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
 
+
     if ("1".equals(navigation) && this.actionMode != PREVIEW_ASSESSMENT) {
-    	LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
-    	linearAccessDeliveryActionListener.saveLastVisitedPosition(this, partIndex, questionIndex);
+      LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
+      if(isGoToQuestion) {
+        linearAccessDeliveryActionListener.saveLastVisitedPosition(this, oPartIndex, oQuestionIndex);
+      } else {
+        linearAccessDeliveryActionListener.saveLastVisitedPosition(this, partIndex, questionIndex);
+      }
     }
     reload = false;
     return "takeAssessment";
@@ -2089,20 +2137,20 @@ public class DeliveryBean
     log.debug("**** setting username=" + getSettings().getUsername());
     log.debug("**** setting password=" + getSettings().getPassword());
     
-    if (password == null && username == null)
+    if (StringUtils.isBlank(password) && StringUtils.isBlank(username))
     {
     	return "passwordAccessError";
     }
-    if(!"".equals(getSettings().getUsername()))
+    if(StringUtils.isNotBlank(getSettings().getUsername()))
     {
-    	if (username != null && !username.equals(getSettings().getUsername()))
+    	if (!StringUtils.equals(StringUtils.trim(username), StringUtils.trim(getSettings().getUsername())))
     	{
     		return "passwordAccessError";
     	}
     }
-    if(!"".equals(getSettings().getPassword()))
+    if(StringUtils.isNotBlank(getSettings().getPassword()))
     {
-    	if (password != null && !password.equals(getSettings().getPassword()))
+    	if (!StringUtils.equals(StringUtils.trim(password), StringUtils.trim(getSettings().getPassword())))
     	{
     		return "passwordAccessError";
     	}
@@ -3014,6 +3062,9 @@ public class DeliveryBean
   }
 
   private void removeTimedAssessmentFromQueue(){
+    if (adata==null) {
+      return;
+    }
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
                                              get(adata.getAssessmentGradingId());
@@ -3025,6 +3076,12 @@ public class DeliveryBean
 
   public void syncTimeElapsedWithServer(){
 	    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
+	      if (adata==null) {
+	         if (log.isDebugEnabled()) {
+	            log.debug("aData is null for actionString"+actionString);
+	         }
+	         return;
+	      }
 	      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 	      if (timedAG != null){
@@ -3044,6 +3101,12 @@ public class DeliveryBean
 	  
 	  public void syncTimeElapsedWithServerLinear(){
 		    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
+		      if (adata==null) {
+		          if (log.isDebugEnabled()) {
+		              log.debug("aData is null for actionString"+actionString);
+		          }
+		          return;
+		      }
 		      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 		      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 		      if (timedAG != null){
@@ -3214,6 +3277,8 @@ public class DeliveryBean
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
     
+    extendedTimeService = new ExtendedTimeService(publishedAssessment);
+    
     // log.debug("check 0");
     if (isRemoved()){
         return "isRemoved";
@@ -3374,7 +3439,12 @@ public class DeliveryBean
   private boolean isAvailable(){
 	  boolean isAvailable = true;
 	  Date currentDate = new Date();
-	  Date startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
+		Date startDate = new Date();
+		if (extendedTimeService.hasExtendedTime()) {
+			startDate = extendedTimeService.getStartDate();
+		} else {
+			startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
+		}
 	  if (startDate != null && startDate.after(currentDate)){
 		  isAvailable = false;
 	  }
@@ -3384,7 +3454,12 @@ public class DeliveryBean
   private boolean pastDueDate(){
     boolean pastDue = true;
     Date currentDate = new Date();
-    Date dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+		Date dueDate = new Date();
+		if (extendedTimeService.hasExtendedTime()) {
+			dueDate = extendedTimeService.getDueDate();
+		} else {
+			dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+		}
     if (dueDate == null || dueDate.after(currentDate)){
         pastDue = false;
     }
@@ -3395,10 +3470,8 @@ public class DeliveryBean
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate = null;
-    if (isSubmitForGrade) {
-    	PublishedAssessmentService pubService = new PublishedAssessmentService();
-    	PublishedAssessmentData publishedAssessmentData = pubService.getBasicInfoOfPublishedAssessment(getPublishedAssessment().getPublishedAssessmentId().toString());
-    	retractDate = publishedAssessmentData.getRetractDate();
+    if (extendedTimeService.hasExtendedTime()) {
+    	retractDate = extendedTimeService.getRetractDate();
     }
     else {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
@@ -3575,7 +3648,7 @@ public class DeliveryBean
 	    this.assessmentGradingId = assessmentGradingId;
 	  }
 
-	  public String updateTimeLimit(String timeLimit, String timeBeforeDueRetract) {  
+	  public String updateTimeLimit(String timeLimit) {  
   	    if (numberRetake == -1 || actualNumberRetake == -1) {
 		    	GradingService gradingService = new GradingService();
 		    	numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
@@ -3585,7 +3658,7 @@ public class DeliveryBean
 		 }
 		
 		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake && beginTime != null) { 
-			timeLimit = timeBeforeDueRetract;
+			timeLimit = getTimeBeforeDueRetract(timeLimit);
 		}
 		
 		return timeLimit;
@@ -3702,6 +3775,7 @@ public class DeliveryBean
 	  }
 	  
 	  private String getTimeBeforeRetract(String timeLimit) {
+		  
 		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0) {
 			  int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
 			  if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
@@ -3942,7 +4016,38 @@ public class DeliveryBean
 	    return recURL;
 	  }
 
-	  
+	/**
+	 * Return the time limit as a String
+	 * 
+	 * @param delivery
+	 * @param publishedAssessment
+	 * @param fromBeginAssessment
+	 * @return
+	 */
+	public int evaluateTimeLimit(PublishedAssessmentFacade pubAssessment, Boolean fromBeginAssessment, int extTimeVal) {
+		publishedAssessment = pubAssessment; // synchronize the passed in values
+		Integer timeLimit = 0;
+		Integer originalTimeLimit = publishedAssessment.getAssessmentAccessControl().getTimeLimit();
+		int extTimeAdjust = 0;
+
+		// Calcuate the adjustment due to extended time if necessary
+		if (extTimeVal > 0) {
+			extTimeAdjust = extTimeVal - originalTimeLimit; // adjustment to add
+															// to time remaining
+		}
+
+		if (fromBeginAssessment) {
+			timeLimit = Integer.parseInt(this.updateTimeLimit(originalTimeLimit.toString())) + extTimeAdjust;
+		} else {
+			if (this.getTimeLimit() != null) {
+				timeLimit = Integer.parseInt(this.getTimeLimit());
+			}
+		}
+		this.setTimeLimit(timeLimit.toString());
+
+		return timeLimit;
+	}
+
 	  public void setNumberRetake(int numberRetake) {
 		  this.numberRetake = numberRetake;
 	  }
@@ -4034,6 +4139,17 @@ public class DeliveryBean
 		  headMJ.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n");
 		  return headMJ.toString();
 	  }
-	  
+
+    public String getQuestionProgressUnansweredPath () {
+      return questionProgressUnansweredPath;
+    }
+
+    public String getQuestionProgressAnsweredPath () {
+      return questionProgressAnsweredPath;
+    }
+
+    public String getQuestionProgressMardPath () {
+      return questionProgressMardPath;
+    }
 }
 

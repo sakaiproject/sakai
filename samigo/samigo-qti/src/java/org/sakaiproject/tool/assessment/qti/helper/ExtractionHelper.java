@@ -44,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 //import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -3121,7 +3122,7 @@ public class ExtractionHelper
 					text, answers);
 			itemText.setRequiredOptionsCount(required);
 			index = itemdata.indexOf("@ANSWERS@");
-//			itemText.setItemTextAttachmentSet(makeEMIItemTextAttachmentSet(itemText, itemdata.substring(0, index)));
+			itemText.setItemTextAttachmentSet(makeEMIItemTextAttachmentSet(itemText, itemdata.substring(0, index)));
 			itemTextSet.add(itemText);
 			itemdata = itemdata.substring(index + "@ANSWERS@".length()).trim();
 			index = itemdata.indexOf("[");
@@ -3143,14 +3144,13 @@ public class ExtractionHelper
 		return itemTextSet;
 	}
 
-	private Set<ItemTextAttachmentIfc> makeEMIItemTextAttachmentSet(
-			ItemText itemText,  String attachments) {
+	private Set<ItemTextAttachmentIfc> makeEMIItemTextAttachmentSet(ItemText itemText,  String attachments) {
 		attachments = attachments.trim();
 		if(attachments.length() == 0){
 			return null;
 		}
 		List<String> attachList = Arrays.asList(attachments.split("@"));
-		Set<ItemTextAttachmentIfc> attachSet = new TreeSet<ItemTextAttachmentIfc>();
+		Set<ItemTextAttachmentIfc> attachSet = new HashSet<ItemTextAttachmentIfc>();
 		for(String attach: attachList){
 			attach = attach.trim();
 			if(attach.length() == 0) continue;
@@ -3162,13 +3162,19 @@ public class ExtractionHelper
 			index = attach.indexOf("(");
 			attach = attach.substring(index);
 			index = attach.indexOf(")");
-			Long size = Long.valueOf(attach.substring(1, index));
-			attach = attach.substring(index+1);
-			String location = attach;
-			String resourceId = location.replace("%2B", "+").replace("%20", " ").replace("/access/content", "");
-			attachSet.add(new ItemTextAttachment(null, itemText, resourceId, 
-					fileName, mimeType, size, null, location, 
-					false, ItemTextAttachmentIfc.ACTIVE_STATUS, null, null, null, null));
+			if (index > 1) {
+				Long size = Long.valueOf(attach.substring(1, index));
+				attach = attach.substring(index+1);
+				String resourceId = attach.replace("%2B", "+").replace("%20", " ").replace("/access/content", "");
+				try {
+					ContentResource cr = new AssessmentService().createCopyOfContentResource(resourceId, fileName);
+
+					attachSet.add(new ItemTextAttachment(null, itemText, cr.getId(), fileName, mimeType, size, null, cr.getUrl(true),
+							false, ItemTextAttachmentIfc.ACTIVE_STATUS, itemText.getItem().getCreatedBy(), new Date(), itemText.getItem().getLastModifiedBy(), new Date()));
+				} catch (Exception e) {
+					log.warn("Unable to add EMI attachment " + resourceId + ", " + e.getMessage());
+				}
+			}
 		}
 		return attachSet;
 	}

@@ -227,7 +227,7 @@ setupValidation = function(){
             return false;
         }
         else{
-            disableButtonsActivateSpinner( "save", "cancel", "autoGroupsSpinner" );
+            SPNR.disableControlsAndSpin( this, null );
             return true;
         }
     });
@@ -254,52 +254,16 @@ function resizeFrame(updown){
     }
 }
 
-function disableButtonsActivateSpinner( primaryActionID, secondaryActionID, spinnerID ) 
-{
-    // Clone & disable the buttons (disable the clone, hide the original)
-    var btnPrimary = document.getElementById( primaryActionID );
-    var btnSecondary = document.getElementById( secondaryActionID );
-    var btnDelete = document.getElementById( "delete" );
-    var btnGenerate = document.getElementById( "generate-row::generate" );
-    var list = [btnPrimary, btnSecondary];
-    
-    if( btnDelete !== null )
-    {
-        list.push(btnDelete);
-    }
-    if( btnGenerate !== null )
-    {
-        list.push(btnGenerate);
-    }
-    
-    for( i = 0; i < list.length; i++ )
-    {
-        
-        var original = list[i];
-        var clone = document.createElement( "input" );
-        var parent = original.parentNode;
-        clone.setAttribute( "type", "button" );
-        clone.setAttribute( "id", original.getAttribute( "id" ) + "Disabled" );
-        clone.setAttribute( "name", original.getAttribute( "name" ) + "Disabled" );
-        clone.setAttribute( "className", original.getAttribute( "className" ) );
-        clone.setAttribute( "disabled", "true" );
-        clone.value = original.value;
-        original.style.display = "none";
-        parent.insertBefore( clone, original );
-    }
-    
-    // Show the spinner
-    document.getElementById( spinnerID ).style.visibility = "visible";
-}
-
 function toggleCheckboxes( clickedElement )
 {
     var checkboxes = document.getElementsByName( "delete-group-selection" );
     for( i = 0; i < checkboxes.length; i++ )
     {
         checkboxes[i].checked = clickedElement.checked;
-        adjustCount( checkboxes[i], "removeCount", "delete-groups" );
+        adjustCount( checkboxes[i], "removeCount" );
     }
+
+    checkEnableRemove();
 }
 
 function syncSelectAll()
@@ -316,24 +280,26 @@ function syncSelectAll()
     }
 
     document.getElementById( "selectAll" ).checked = allSelected;
+    checkEnableRemove();
 }
 
-function adjustCount(caller, countName, buttonName)
+function checkEnableRemove()
 {
-    var counter = document.getElementById(countName);
-    var button = document.getElementById(buttonName);
-    if(caller && caller.checked && caller.checked === true)
+    var button = document.getElementById( "delete-groups" );
+    if( button )
     {
-        counter.value = parseInt(counter.value) + 1;
-    }
-    else
-    {
-        counter.value = parseInt(counter.value) - 1;
-    }
+        var anySelected = false;
+        var checkboxes = document.getElementsByName( "delete-group-selection" );
+        for( i = 0; i < checkboxes.length; i++ )
+        {
+            if( checkboxes[i].checked )
+            {
+                anySelected = true;
+                break;
+            }
+        }
 
-    if(button)
-    {
-        if(counter.value > 0)
+        if( anySelected )
         {
             button.disabled = false;
             button.className='enabled active';
@@ -343,5 +309,68 @@ function adjustCount(caller, countName, buttonName)
             button.disabled = true;
             button.className='disabled';
         }
+    }
+}
+
+function togglePanel( clickedElement, isUserPanel )
+{
+    var div = clickedElement.parentNode;
+    if( div.className === "edit collapsed" )
+    {
+        div.className = "edit expanded";
+        if( isUserPanel )
+        {
+            $( "#userRowsContainer" ).show();
+            $( "#userRowsContainer" ).children().show();
+        }
+        else
+        {
+            $( div ).siblings().show();
+        }
+    }
+    else
+    {
+        div.className = "edit collapsed";
+        if( isUserPanel )
+        {
+            $( "#userRowsContainer" ).hide();
+            $( "#userRowsContainer" ).children().hide();
+        }
+        else
+        {
+            $( div ).siblings().hide();
+        }
+    }
+}
+
+function adjustDivHeights()
+{
+    var userRowsHeader = document.getElementById( "usersNotInSet-title-row::" );
+    var userPanelExpanded = userRowsHeader.classList.contains( "expanded" );
+    var groupFieldsHeight = document.getElementById( "groupFields" ).offsetHeight;
+    var userRowsHeaderHeight = userRowsHeader.offsetHeight;
+    var actualHeight = groupFieldsHeight - userRowsHeaderHeight;
+    var userRowsContainer = document.getElementById( "userRowsContainer" );
+    var style = "height: " + actualHeight + "px" + (userPanelExpanded ? "; overflow-y: scroll;" : ";" );
+    userRowsContainer.setAttribute( "style", style );
+    userRowsContainer.style.height = actualHeight + "px";
+    if( userPanelExpanded )
+    {
+        userRowsContainer.style.overflowY = "scroll";
+    }
+
+     resizeFrame( "grow" );
+}
+
+function adjustCount(caller, countName)
+{
+    var counter = document.getElementById(countName);
+    if(caller && caller.checked && caller.checked === true)
+    {
+        counter.value = parseInt(counter.value) + 1;
+    }
+    else
+    {
+        counter.value = parseInt(counter.value) - 1;
     }
 }

@@ -1,7 +1,7 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_view.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
 
 <link type="text/css" href="/sakai-user-tool/css/sakai-user-tool.css" rel="stylesheet" media="screen" />
-
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
@@ -66,7 +66,7 @@
                 </div>
                            
 				<div class="act">
-					<input type="submit" id="eventSubmit_doModify" name="eventSubmit_doModify" class="active" value="$tlang.getString("usevie.mod2")"  accesskey="s" />
+					<input type="submit" id="eventSubmit_doModify" name="eventSubmit_doModify" class="active" value="$tlang.getString("usevie.mod2")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</div>
 #end
 				<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />

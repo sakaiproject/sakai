@@ -1,6 +1,5 @@
 ## version: $Id$
 <link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
-<link rel="stylesheet" href="/library/js/bootstrap/3.1.1/css/bootstrap.min.css" />
 
 <div class="portletBody specialLink">
 	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">
@@ -36,10 +35,10 @@
 				<div class="navIntraToolLink viewNav">
 						<span>
 								<input id="restore-button" type="button" value="$tlang.getString("restore.restore")"
-									onclick="submitThis('restoreForm','restore')"
+									onclick="this.disabled = true; submitThis('restoreForm','restore')"
 									disabled="disabled" alt="$tlang.getString("restore.restore")" />
 								<input id="remove-button" type="button" value="$tlang.getString("restore.remove")"
-									onclick="submitThis('restoreForm','remove')"
+									onclick="this.disabled = true; submitThis('restoreForm','remove')"
 									disabled="disabled" alt="$tlang.getString("restore.remove")" />
 								<input id="cancel-button" type="button" value="$tlang.getString("restore.cancel")"
 									onclick="submitThis('restoreForm','cancel');" class="enabled"
@@ -55,7 +54,7 @@
 			<tr>
 				<th id="checkboxes">
 						<input type="checkbox" name="selectall" id="selectall" title="$clang.getString("list.select")"
-							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$tlang.getString('list.select')"</label>
+							onclick="toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$tlang.getString('list.select')"</label>
 				</th>
 				<th id="title">
 					$tlang.getString("gen.title")

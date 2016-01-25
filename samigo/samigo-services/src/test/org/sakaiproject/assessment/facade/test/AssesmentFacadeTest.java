@@ -23,28 +23,27 @@
 package org.sakaiproject.assessment.facade.test;
 
 import org.hibernate.SessionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-
-public class AssesmentFacadeTest  extends AbstractTransactionalSpringContextTests{
-
-	protected String[] getConfigLocations() {
-		return new String[] {"/spring-hibernate.xml"};
-	}
+@ContextConfiguration(locations={"/spring-hibernate.xml"})
+public class AssesmentFacadeTest  extends AbstractJUnit4SpringContextTests{
 
 	//our object
 	AssessmentFacadeQueries queries = null;
 
-	protected void onSetUpInTransaction() throws Exception {
+	@Before
+	public void onSetUpInTransaction() throws Exception {
 		queries = new AssessmentFacadeQueries();
 		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
-
-
-
 	}
 
+	@Test
 	public void testGetAssesment() {
 		/*
 		 * We expect a item that doesn't exist to return null
@@ -52,13 +51,9 @@ public class AssesmentFacadeTest  extends AbstractTransactionalSpringContextTest
 		 */
 		try {
 			AssessmentFacade item = queries.getAssessment(999999L);
-			assertNull(item);
+			Assert.assertNull(item);
 		} catch (Exception e) {
-			fail("unexpected exception");
+			Assert.fail("unexpected exception");
 		}
-
 	}
-
-
-
 }

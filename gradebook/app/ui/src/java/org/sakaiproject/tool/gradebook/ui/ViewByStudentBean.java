@@ -622,7 +622,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     				for (Category category : (List<Category>) categoryList) {
     					catIds.add(category.getId());
     				}
-    				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUserForStudentView(getGradebookId(), getUserUid(), studentUid, catIds, getGradebook().getCategory_type(), getViewableSectionIds());
+    				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUserForStudentView(getGradebookId(), getUserUid(), studentUid, catIds, getViewableSectionIds());
     				List<Category> tmpCatList = new ArrayList<Category>();
     				for (Category category : (List<Category>) categoryList) {
     					if(viewableCats.contains(category.getId())){

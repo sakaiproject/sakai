@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
-
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- 
 	create a simple advisor providor 
 	-->
 	<bean id="org.sakaiproject.content.providers.CourseManagement"
 			class="org.sakaiproject.content.providers.SimpleSiteContentAdvisorProvider"
-            init-method="init" singleton="true">
+            init-method="init">
         <property name="siteContentAdvisorTypeRegistry"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
         <property name="siteContentAdvisor"><ref bean="org.sakaiproject.content.providers.CourseManagement.advisor"/></property>
         <property name="siteType"><value>course</value></property>
@@ -19,17 +18,16 @@
     give the simple provider a coursemanagement advisor 
     -->
 	<bean id="org.sakaiproject.content.providers.CourseManagement.advisor"
-			class="org.sakaiproject.content.providers.cm.CourseManagementSiteContentAdvisor"
-            singleton="true">
+			class="org.sakaiproject.content.providers.cm.CourseManagementSiteContentAdvisor">
         <property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
     </bean>
 
 	<!-- database beans -->
-    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault" singleton="true"/>
-    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlHSql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlHSql" singleton="true"/>
-    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlOracle" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlOracle" singleton="true"/>
-    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMsSql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMsSql" singleton="true"/>
-    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMySql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMySql" singleton="true"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlHSql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlHSql"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlOracle" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlOracle"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMsSql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMsSql"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMySql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMySql"/>
     
 	<bean id="org.sakaiproject.content.providers.BaseEventDelayHandler"
 		  class="org.sakaiproject.content.providers.BaseEventDelayHandler"

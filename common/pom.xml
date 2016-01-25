@@ -24,7 +24,7 @@
     <module>privacy-comp-impl</module>
     <module>privacy-components</module>
     <module>privacy-hbm</module>
-    <module>privacy-integration-test</module>
+    <!-- module>privacy-integration-test</module -->
     <!-- archive and import -->
     <module>archive-api</module>
     <module>archive-impl/impl2</module>
@@ -40,11 +40,6 @@
     <module>import-parsers/blackboard_6/impl</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/common/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

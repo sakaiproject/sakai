@@ -41,6 +41,7 @@ import org.json.simple.JSONValue;
 import static org.imsglobal.lti2.LTI2Util.getArray;
 import static org.imsglobal.lti2.LTI2Util.getObject;
 import static org.imsglobal.lti2.LTI2Util.getString;
+import static org.imsglobal.lti2.LTI2Util.compareServiceIds;
 
 public class ToolProxy {
 
@@ -119,7 +120,41 @@ public class ToolProxy {
 	}
 
 	/**
-	 * Retrieve a particular message type from an individual tool_profile
+	 * Retrieve a global message type from  the ToolProxy
+	 * 
+	 * @param String messageType - Which message type you are looking for
+	 */
+	public JSONObject getMessageOfType(String messageType)
+	{
+		return getMessageOfType(getToolProfile(), messageType);
+	}
+
+	/**
+	 * Retrieve a path for a message from  the ToolProxy
+	 * 
+	 * @param JSONObject message - The message entry
+	 */
+	public String getPathFromMessage(JSONObject message)
+	{
+		if ( message == null ) return null;
+		String path = getString(message,"path");
+		return path;
+	}
+
+	/**
+	 * Retrieve a parameter bundle for a message from  the ToolProxy
+	 * 
+	 * @param JSONObject message - The message entry
+	 */
+	public JSONArray getParameterFromMessage(JSONObject message)
+	{
+		if ( message == null ) return null;
+		JSONArray parameter = getArray(message,"parameter");
+		return parameter;
+	}
+
+	/**
+	 * Retrieve a particular message type from an individual resource handler
 	 * 
 	 * @param String resourceHandler - JSONObject for the resource_handler
 	 * @param String messageType - Which message type you are looking for
@@ -135,9 +170,13 @@ public class ToolProxy {
 		for ( Object m : messages ) {
 			if ( ! (m instanceof JSONObject) ) return null;
 			JSONObject message = (JSONObject) m;
-			String message_type = getString(message,LTI2Constants.MESSAGE_TYPE);
-			if ( message_type == null ) continue;
-			if ( message_type.equals(messageType) ) return message;
+			JSONArray message_array = getArray(message,LTI2Constants.MESSAGE_TYPE);
+			if ( message_array == null ) continue;
+			// String message_type = getString(message,LTI2Constants.MESSAGE_TYPE);
+			for ( Object message_type : message_array ) {
+				if ( ! (message_type instanceof String) ) continue;
+				if ( ((String) message_type).equals(messageType) ) return message;
+			}
 		}
 		return null;
 	}
@@ -204,7 +243,8 @@ public class ToolProxy {
 				boolean found = false;
 				for (Service_offered service : services_offered ) {
 					String service_id = service.get_id();
-					if ( service_id.equals(json_service) ) {
+					// if ( service_id.equals(json_service) ) {
+					if ( compareServiceIds(service_id,json_service) ) {
 						found = true;
 						break;
 					}
@@ -308,19 +348,19 @@ public class ToolProxy {
 		String vendorDescription = getString(description,LTI2Constants.DEFAULT_VALUE);
 		String vendorCode = getString(product_vendor,LTI2Constants.CODE);
 
-		if ( productTitle == null || productDescription == null ) {
-			return "JSON missing product_name or description ";
+		if ( productTitle == null ) {
+			return "JSON missing product_name";
 		}
-		if ( productCode == null || vendorCode == null || vendorDescription == null ) {
-			return "JSON missing product code, vendor code or description";
+		if ( productCode == null || vendorCode == null ) {
+			return "JSON missing product code or vendor code";
 		}
 
 		info.put("product_name", productTitle);
-		info.put("description", productDescription);  // Backwards compatibility
-		info.put("product_description", productDescription);
+		if ( productDescription != null ) info.put("description", productDescription);  // Backwards compatibility
+		if ( productDescription != null ) info.put("product_description", productDescription);
 		info.put("product_code", productCode);
 		info.put("vendor_code", vendorCode);
-		info.put("vendor_description", vendorDescription);
+		if ( vendorDescription != null ) info.put("vendor_description", vendorDescription);
 
 		JSONArray base_url_choices = getArray(tool_profile,LTI2Constants.BASE_URL_CHOICE);
 		if ( base_url_choices == null  ) {
@@ -381,16 +421,20 @@ public class ToolProxy {
 			for ( Object m : messages ) {
 				JSONObject message = (JSONObject) m;
 				String message_type = (String) message.get(LTI2Constants.MESSAGE_TYPE);
-				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
-				if ( path != null ) {
-					return "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type_code;
+				if ( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST.equals(message_type) || 
+				     LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST.equals(message_type) ) {
+					if ( path != null ) {
+						return "A resource_handler cannot have more than one message_type RT="+resource_type_code;
+					}
+					path = (String) message.get(LTI2Constants.PATH);
+					if ( path == null ) {
+						return "A launch message must have a path RT="+resource_type_code;
+					} 
+					parameter = getArray(message,LTI2Constants.PARAMETER);
+					enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
+				} else {
+					return "Only "+LTI2Messages.BASIC_LTI_LAUNCH_REQUEST+" and "+LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST+ " are allowed message_types RT="+resource_type_code;
 				}
-				path = (String) message.get(LTI2Constants.PATH);
-				if ( path == null ) {
-					return "A basic-lti-launch-request message must have a path RT="+resource_type_code;
-				} 
-				parameter = getArray(message,LTI2Constants.PARAMETER);
-				enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
 			}
 
 			// Ignore everything except launch handlers

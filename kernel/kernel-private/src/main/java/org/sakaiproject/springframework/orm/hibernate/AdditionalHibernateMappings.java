@@ -29,4 +29,5 @@ import org.hibernate.cfg.Configuration;
 public interface AdditionalHibernateMappings
 {
 	void processConfig(Configuration config) throws IOException, MappingException;
+	Integer getSortOrder();
 }

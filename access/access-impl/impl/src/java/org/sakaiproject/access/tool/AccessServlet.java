@@ -35,8 +35,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log; 
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.VmServlet;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
@@ -46,13 +47,13 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ActiveToolManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ParameterParser;
@@ -110,6 +111,11 @@ public class AccessServlet extends VmServlet
 	
 	protected BasicAuth basicAuth = null;
 
+	protected SecurityService securityService;
+	protected EntityManager entityManager;
+	protected ActiveToolManager activeToolManager;
+	protected SessionManager sessionManager;
+
 	/** init thread - so we don't wait in the actual init() call */
 	public class AccessServletInit extends Thread
 	{
@@ -145,7 +151,11 @@ public class AccessServlet extends VmServlet
 		startInit();
 		basicAuth = new BasicAuth();
 		basicAuth.init();
-		
+		// Grab our services
+		securityService = ComponentManager.get(SecurityService.class);
+		entityManager = ComponentManager.get(EntityManager.class);
+		activeToolManager = ComponentManager.get(ActiveToolManager.class);
+		sessionManager = ComponentManager.get(SessionManager.class);
 	}
 
 	/**
@@ -250,10 +260,10 @@ public class AccessServlet extends VmServlet
 			String acceptedRef = req.getParameter(COPYRIGHT_ACCEPT_REF);
 			String returnPath = req.getParameter(COPYRIGHT_ACCEPT_URL);
 
-			Reference aRef = EntityManager.newReference(acceptedRef);
+			Reference aRef = entityManager.newReference(acceptedRef);
 
 			// get the properties - but use a security advisor to avoid needing end-user permission to the resource
-			SecurityService.pushAdvisor(new SecurityAdvisor()
+			securityService.pushAdvisor(new SecurityAdvisor()
 			{
 				public SecurityAdvice isAllowed(String userId, String function, String reference)
 				{
@@ -261,7 +271,7 @@ public class AccessServlet extends VmServlet
 				}
 			});
 			ResourceProperties props = aRef.getProperties();
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 
 			// send the copyright agreement interface
 			if (props == null)
@@ -283,18 +293,18 @@ public class AccessServlet extends VmServlet
 		}
 
 		// make sure we have a collection for accepted copyright agreements
-		Collection accepted = (Collection) SessionManager.getCurrentSession().getAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR);
+		Collection accepted = (Collection) sessionManager.getCurrentSession().getAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR);
 		if (accepted == null)
 		{
 			accepted = new Vector();
-			SessionManager.getCurrentSession().setAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR, accepted);
+			sessionManager.getCurrentSession().setAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR, accepted);
 		}
 
 		// for accepted copyright, mark it and redirect to the entity's access URL
 		if (COPYRIGHT_ACCEPT.equals(path))
 		{
 			String acceptedRef = req.getParameter(COPYRIGHT_ACCEPT_REF);
-			Reference aRef = EntityManager.newReference(acceptedRef);
+			Reference aRef = entityManager.newReference(acceptedRef);
 
 			// save this with the session's other accepted refs
 			accepted.add(aRef.getReference());
@@ -318,7 +328,7 @@ public class AccessServlet extends VmServlet
 		path = preProcessPath(path, req);
 
 		// what is being requested?
-		Reference ref = EntityManager.newReference(path);
+		Reference ref = entityManager.newReference(path);
 
 		// get the incoming information
 		AccessServletInfo info = newInfo(req);
@@ -349,7 +359,7 @@ public class AccessServlet extends VmServlet
 		{
 			// the end user does not have permission - offer a login if there is no user id yet established
 			// if not permitted, and the user is the anon user, let them login
-			if (SessionManager.getCurrentSessionUserId() == null)
+			if (sessionManager.getCurrentSessionUserId() == null)
 			{
 				try {
 					doLogin(req, res, origPath);
@@ -460,7 +470,7 @@ public class AccessServlet extends VmServlet
 		}
 
 		// get the Sakai session
-		Session session = SessionManager.getCurrentSession();
+		Session session = sessionManager.getCurrentSession();
 
 		// set the return path for after login if needed (Note: in session, not tool session, special for Login helper)
 		if (path != null)
@@ -476,7 +486,7 @@ public class AccessServlet extends VmServlet
 		}
 
 		// map the request to the helper, leaving the path after ".../options" for the helper
-		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
+		ActiveTool tool = activeToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/login";
 		tool.help(req, res, context, "/login");
 	}

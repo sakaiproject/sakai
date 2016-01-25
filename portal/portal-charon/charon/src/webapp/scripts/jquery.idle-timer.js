@@ -37,26 +37,26 @@
 
  // idleTimer() takes an optional argument that defines the idle timeout
  // timeout is in milliseconds; defaults to 30000
- $.idleTimer(10000);
+ $PBJQ.idleTimer(10000);
 
 
- $(document).bind("idle.idleTimer", function(){
+ $PBJQ(document).bind("idle.idleTimer", function(){
     // function you want to fire when the user goes idle
  });
 
 
- $(document).bind("active.idleTimer", function(){
+ $PBJQ(document).bind("active.idleTimer", function(){
   // function you want to fire when the user becomes active again
  });
 
  // pass the string 'destroy' to stop the timer
- $.idleTimer('destroy');
+ $PBJQ.idleTimer('destroy');
 
  // you can query if the user is idle or not with data()
- $.data(document,'idleTimer');  // 'idle'  or 'active'
+ $PBJQ.data(document,'idleTimer');  // 'idle'  or 'active'
 
  // you can get time elapsed since user when idle/active
- $.idleTimer('getElapsedTime'); // time since state change in ms
+ $PBJQ.idleTimer('getElapsedTime'); // time since state change in ms
 
  ********/
 
@@ -66,10 +66,10 @@
  /*************************
 
  // bind to specific elements, allows for multiple timer instances
- $(elem).idleTimer(timeout|'destroy'|'getElapsedTime');
- $.data(elem,'idleTimer');  // 'idle'  or 'active'
+ $PBJQ(elem).idleTimer(timeout|'destroy'|'getElapsedTime');
+ $PBJQ.data(elem,'idleTimer');  // 'idle'  or 'active'
 
- // if you're using the old $.idleTimer api, you should not do $(document).idleTimer(...)
+ // if you're using the old $PBJQ.idleTimer api, you should not do $PBJQ(document).idleTimer(...)
 
  // element bound timers will only watch for events inside of them.
  // you may just want page-level activity, in which case you may set up
@@ -77,7 +77,7 @@
 
  // You can optionally provide a second argument to override certain options.
  // Here are the defaults, so you can omit any or all of them.
- $(elem).idleTimer(timeout, {
+ $PBJQ(elem).idleTimer(timeout, {
    startImmediately: true, //starts a timeout as soon as the timer is set up; otherwise it waits for the first event.
    idle:    false,         //indicates if the user is idle
    enabled: true,          //indicates if the idle timer is enabled
@@ -88,11 +88,11 @@
 
 (function($){
 
-$.idleTimer = function(newTimeout, elem, opts){
+$PBJQ.idleTimer = function(newTimeout, elem, opts){
 
     // defaults that are to be stored as instance props on the elem
 
-	opts = $.extend({
+	opts = $PBJQ.extend({
 		startImmediately: true, //starts a timeout as soon as the timer is set up
 		idle:    false,         //indicates if the user is idle
 		enabled: true,          //indicates if the idle timer is enabled
@@ -114,7 +114,7 @@ $.idleTimer = function(newTimeout, elem, opts){
             myelem = undefined;
         }
 
-        var obj = $.data(myelem || elem,'idleTimerObj');
+        var obj = $PBJQ.data(myelem || elem,'idleTimerObj');
 
         //toggle the state
         obj.idle = !obj.idle;
@@ -126,9 +126,9 @@ $.idleTimer = function(newTimeout, elem, opts){
         // handle Chrome always triggering idle after js alert or comfirm popup
         if (obj.idle && (elapsed < opts.timeout)) {
                 obj.idle = false;
-                clearTimeout($.idleTimer.tId);
+                clearTimeout($PBJQ.idleTimer.tId);
                 if (opts.enabled)
-                  $.idleTimer.tId = setTimeout(toggleIdleState, opts.timeout);
+                  $PBJQ.idleTimer.tId = setTimeout(toggleIdleState, opts.timeout);
                 return;
         }
         
@@ -136,11 +136,11 @@ $.idleTimer = function(newTimeout, elem, opts){
 
         // create a custom event, but first, store the new state on the element
         // and then append that string to a namespace
-        var event = jQuery.Event( $.data(elem,'idleTimer', obj.idle ? "idle" : "active" )  + '.idleTimer'   );
+        var event = jQuery.Event( $PBJQ.data(elem,'idleTimer', obj.idle ? "idle" : "active" )  + '.idleTimer'   );
 
         // we do want this to bubble, at least as a temporary fix for jQuery 1.7
         // event.stopPropagation();
-        $(elem).trigger(event);
+        $PBJQ(elem).trigger(event);
     },
 
     /**
@@ -152,7 +152,7 @@ $.idleTimer = function(newTimeout, elem, opts){
      */
     stop = function(elem){
 
-        var obj = $.data(elem,'idleTimerObj') || {};
+        var obj = $PBJQ.data(elem,'idleTimerObj') || {};
 
         //set to disabled
         obj.enabled = false;
@@ -161,7 +161,7 @@ $.idleTimer = function(newTimeout, elem, opts){
         clearTimeout(obj.tId);
 
         //detach the event handlers
-        $(elem).off('.idleTimer');
+        $PBJQ(elem).off('.idleTimer');
     },
 
 
@@ -172,7 +172,7 @@ $.idleTimer = function(newTimeout, elem, opts){
      */
     handleUserEvent = function(){
 
-        var obj = $.data(this,'idleTimerObj');
+        var obj = $PBJQ.data(this,'idleTimerObj');
 
         //clear any existing timeout
         clearTimeout(obj.tId);
@@ -200,12 +200,12 @@ $.idleTimer = function(newTimeout, elem, opts){
      * and starts the first timeout.
      * @param {int} newTimeout (Optional) A new value for the timeout period in ms.
      * @return {void}
-     * @method $.idleTimer
+     * @method $PBJQ.idleTimer
      * @static
      */
 
 
-    var obj = $.data(elem,'idleTimerObj') || {};
+    var obj = $PBJQ.data(elem,'idleTimerObj') || {};
 
     obj.olddate = obj.olddate || +new Date();
 
@@ -220,7 +220,7 @@ $.idleTimer = function(newTimeout, elem, opts){
     }
 
     //assign appropriate event handlers
-    $(elem).on($.trim((opts.events+' ').split(' ').join('.idleTimer ')),handleUserEvent);
+    $PBJQ(elem).on($PBJQ.trim((opts.events+' ').split(' ').join('.idleTimer ')),handleUserEvent);
 
 
     obj.idle    = opts.idle;
@@ -234,25 +234,25 @@ $.idleTimer = function(newTimeout, elem, opts){
 	}
 
     // assume the user is active for the first x seconds.
-    $.data(elem,'idleTimer',"active");
+    $PBJQ.data(elem,'idleTimer',"active");
 
     // store our instance on the object
-    $.data(elem,'idleTimerObj',obj);
+    $PBJQ.data(elem,'idleTimerObj',obj);
 
 
 
-}; // end of $.idleTimer()
+}; // end of $PBJQ.idleTimer()
 
 
 // v0.9 API for defining multiple timers.
-$.fn.idleTimer = function(newTimeout,opts){
+$PBJQ.fn.idleTimer = function(newTimeout,opts){
 	// Allow omission of opts for backward compatibility
 	if (!opts) {
 		opts = {};
 	}
 
     if(this[0]){
-        $.idleTimer(newTimeout,this[0],opts);
+        $PBJQ.idleTimer(newTimeout,this[0],opts);
     }
 
     return this;

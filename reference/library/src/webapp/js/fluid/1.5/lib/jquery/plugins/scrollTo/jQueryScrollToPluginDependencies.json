@@ -1,0 +1,12 @@
+{
+    "jQueryScrollToPlugin": {
+        "name": "jQuery scrollTo Plugin",
+        "description": "Provides a way to scroll the browser's view to a specific element or location on the page.",
+        "files": [
+            "./js/jquery.scrollTo.js"
+        ],
+        "dependencies": [
+            "jQuery"
+        ]
+    }
+}

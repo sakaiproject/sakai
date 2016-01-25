@@ -31,11 +31,6 @@
         <module>tool</module>
     </modules>
     
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/polls/trunk</url>
-    </scm>
 
     <distributionManagement>
         <site>

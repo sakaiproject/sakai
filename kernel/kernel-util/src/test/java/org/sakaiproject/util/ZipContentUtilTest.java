@@ -21,10 +21,8 @@
 
 package org.sakaiproject.util;
 
-import static org.junit.Assert.*;
-
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sakaiproject.content.util.ZipContentUtil;
 
@@ -38,47 +36,36 @@ import org.sakaiproject.content.util.ZipContentUtil;
 public class ZipContentUtilTest {
 
     /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    /**
      * Test method for {@link org.sakaiproject.content.util.ZipContentUtil#getMaxZipExtractFiles()}.
+     * 
+     * Ignored since this test requires a running CHS
      */
+	@Ignore
     @Test
     public void testGetMaxZipExtractSize() {
         long max = ZipContentUtil.getMaxZipExtractFiles();
-        assertNotNull(max);
-        assertTrue(max > 0);
+        Assert.assertNotNull(max);
+        Assert.assertTrue(max > 0);
     }
 
-    /* No real way to test this without a running CHS -AZ
+    /* No real way to test this without a running CHS -AZ */
+    @Ignore
     @Test
     public void testCompressFolder() {
     }
-    */
 
-    /* No real way to test this without a running CHS -AZ
+    /* No real way to test this without a running CHS -AZ */
+    @Ignore
     @Test
     public void testExtractArchive() {
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
-    */
 
-    /* No real way to test this without a running CHS -AZ
+    /* No real way to test this without a running CHS -AZ */
+    @Ignore
     @Test
     public void testGetZipManifest() {
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
-    */
 
 }

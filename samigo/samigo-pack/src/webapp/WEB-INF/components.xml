@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-  "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"
 		class="org.sakaiproject.tool.assessment.samlite.impl.SamLiteServiceImpl"
-		singleton="true"
 		init-method="init"/>
+		
+	<bean id="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"
+		class="org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl"
+		scope="singleton"/>
 
   <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.samigo"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
@@ -198,6 +200,7 @@
         <bean class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
           <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
           <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
           <property name="persistenceHelper" ref="persistenceHelper"/>
 	</bean>
@@ -245,6 +248,7 @@
       <property name="target">
         <bean class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 	</bean>
       </property>
       <property name="transactionAttributes">
@@ -278,13 +282,21 @@
       </property>
     </bean>
 
+	<!-- Conversion utility for moving media to Content Hosting -->
+	<!-- Doesn't really depend on SakaiBootStrap, but needs to init after it -->
+	<bean id="MediaContentConverter"
+			class="org.sakaiproject.tool.assessment.util.MediaContentConverter"
+			init-method="init" depends-on="org.sakaiproject.tool.assessment.shared.SakaiBootStrap">
+		<property name="persistenceService" ref="PersistenceService" />
+	</bean>
+
   <bean id="QTIService"
     class="org.sakaiproject.tool.assessment.services.qti.QTIService">
   </bean>
 
     <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
               class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
-              singleton="true" init-method="init" destroy-method="destroy">
+              init-method="init" destroy-method="destroy">
 	  <property name="qtiService" ref="QTIService"/>
     </bean>
 
@@ -306,11 +318,12 @@
    <!--  Add a job to auto-submit assessments -->
    <bean id="AutoSubmitAssessments" class="org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob" 
    	init-method="init" destroy-method="destroy">
+       <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
    </bean>
 
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AutoSubmitAssessments"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      singleton="true" init-method="init">
+      init-method="init">
       <property name="beanId">
          <value>AutoSubmitAssessments</value>
       </property>

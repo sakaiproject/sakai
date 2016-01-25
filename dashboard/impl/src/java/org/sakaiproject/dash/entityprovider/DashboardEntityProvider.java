@@ -51,16 +51,16 @@ public class DashboardEntityProvider extends AbstractEntityProvider implements E
         		
             		//only return hidden items
             		if(hidden){
-                    			return dashboardCommonLogic.getHiddenNewsLinks(userUuid, siteId);
+                    			return dashboardCommonLogic.getHiddenNewsLinks(userUuid, siteId,true);
                     		}
             		
             		//only return starred items
             		if(starred){
-                    			return dashboardCommonLogic.getStarredNewsLinks(userUuid, siteId);
+                    			return dashboardCommonLogic.getStarredNewsLinks(userUuid, siteId,true);
                     		}
             		
             		//return everything
-            		return dashboardCommonLogic.getCurrentNewsLinks(userUuid, siteId);
+            		return dashboardCommonLogic.getCurrentNewsLinks(userUuid, siteId, true);
             	}
     	
     	@EntityCustomAction(action="calendar",viewKey=EntityView.VIEW_LIST)
@@ -80,16 +80,16 @@ public class DashboardEntityProvider extends AbstractEntityProvider implements E
             				
             		//only return starred items
             		if(starred){
-                    			return dashboardCommonLogic.getStarredCalendarLinks(userUuid, siteId);
+                    			return dashboardCommonLogic.getStarredCalendarLinks(userUuid, siteId,true);
                     		}
             		
             		//only return past items. Could be hidden depending on param
             		if(past){
-                    			return dashboardCommonLogic.getPastCalendarLinks(userUuid, siteId, hidden);
+                    			return dashboardCommonLogic.getPastCalendarLinks(userUuid, siteId, hidden,true);
                     		}
             		
             		//return everything. Could be hidden depending on param
-            		return dashboardCommonLogic.getFutureCalendarLinks(userUuid, siteId, hidden);
+            		return dashboardCommonLogic.getFutureCalendarLinks(userUuid, siteId, hidden, true);
             	}
     	
     	

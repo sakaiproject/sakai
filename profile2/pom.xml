@@ -89,11 +89,6 @@
 				<version>6.18.0</version>
 			</dependency>
 			<dependency>
-				<groupId>org.sakaiproject</groupId>
-				<artifactId>generic-dao</artifactId>
-				<version>${generic-dao.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.imgscalr</groupId>
 				<artifactId>imgscalr-lib</artifactId>
 				<version>4.2</version>
@@ -111,11 +106,6 @@
 		<system>JIRA</system>
 		<url>http://jira.sakaiproject.org/browse/SAK</url>
 	</issueManagement>
-	<scm>
-		<connection>scm:git:https://source.sakaiproject.org/svn/profile2/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/profile2/trunk</url>
-	</scm>
 	
 	<build>
 		<plugins>

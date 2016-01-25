@@ -1,20 +1,11 @@
 ## version: $Id:  $
 <!-- sakai_resources_list.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
 <!-- this is the new list template, which uses the resources type registry -->
-<script type="text/javascript">
-if ( window.jQuery ) {
-    window.console && console.log("jQuery already loaded "+jQuery.fn.jquery);
-} else {
-    document.write('\x3Cscript type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js?version=">'+'\x3C/script>')
-    window.console && console.log("Loaded jQuery");
-}
-</script>
+<script type="text/javascript">includeLatestJQuery('content');</script>
 
-<script type="text/javascript" src="/library/js/bootstrap/3.1.1/js/bootstrap.min.js">
 <!-- // -->
 </script>
 <link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
-<link rel="stylesheet" href="/library/js/bootstrap/3.1.1/css/bootstrap.min.css" />
 <script type="text/javascript" src="/sakai-content-tool/js/content.js">
 <!-- // -->
 </script>
@@ -113,7 +104,7 @@ if ( window.jQuery ) {
                         </button>
 					#elseif($item.canRead())
 						<button class="btn btn-default btn-sm breadProp" style="z-index:$breadCrumbNum" 
-							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
+							onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('sh.go')">
 							<span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp;$validator.escapeHtml("$item.name")
 						</button>
@@ -133,7 +124,7 @@ if ( window.jQuery ) {
 		    <span class="instruction">
                 $tlang.getString("grp.view"): 
             </span> 
-            <select name="dropboxGroupFilter_groupId" id="dropboxGroupFilter_groupId" onchange="javascript:document.getElementById('sakai_action').value='doSetDropboxGroupIdFilter';document.getElementById('showForm').submit();">
+            <select name="dropboxGroupFilter_groupId" id="dropboxGroupFilter_groupId" onchange="document.getElementById('sakai_action').value='doSetDropboxGroupIdFilter';document.getElementById('showForm').submit();">
                 <option value=""#if($!dropboxGroupFilter_groupId || $dropboxGroupFilter_groupId.equals("")) selected="selected"#end>$tlang.getString("grp.all")</option>
                 #foreach($group in $dropboxGroupFilter_groups)
                     <option value="$group.getId()"#if($group.getId().equals($dropboxGroupFilter_groupId)) selected="selected"#end>$validator.escapeHtml($group.getTitle())</option>
@@ -153,7 +144,7 @@ if ( window.jQuery ) {
 							#foreach($key in $listActions.keySet())
 								#set($action = $listActions.get("$key"))
 								<button class="btn btn-default" id="${action.id}-button"
-									onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
+									onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
 									disabled="disabled" >$!action.label
                                 </button>
 							#end
@@ -164,11 +155,11 @@ if ( window.jQuery ) {
                             #if (!$dropboxMode)
                                 #if($canShowHide)
                                         <button class="btn btn-default" id="show-button" type="button"
-                                            onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
+                                            onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
                                             disabled="disabled">$tlang.getString('avail.show')
                                         </button>
                                         <button class="btn btn-default" id="hide-button" type="button"
-                                            onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
+                                            onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
                                             disabled="disabled">$tlang.getString('avail.hide')
                                         </button>
                                 #end
@@ -186,7 +177,7 @@ if ( window.jQuery ) {
                         $clang.getString("dropbox_highlight")
                     </div>
                     <div class="col-xs-3">
-                        <select class="form-control" name="dropboxHighlight" id="dropboxHighlight" onchange="javascript:document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
+                        <select class="form-control" name="dropboxHighlight" id="dropboxHighlight" onchange="document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
                             <option value="1"#if("$!dropboxHighlight" == "1") selected="selected"#end>$clang.getString("sh.1day")</option>
                             <option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>$clang.getString("sh.2day")</option>
                             <option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>$clang.getString("sh.3day")</option>
@@ -220,14 +211,14 @@ if ( window.jQuery ) {
 			<tr>
 				<th id="expansion" class="attach" scope="col">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
-						<a href="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
+						<a href="#" onclick="document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$clang.getString('collapseall')">
 							<span class="sr-only">$clang.getString('collapseall')</span>
                             <span class="glyphicon glyphicon-chevron-up"></span>
                             ##<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$clang.getString('collapseall')" alt="$clang.getString('collapseall')" hspace="0" />
 						</a>								 
 					#else
-						<a href="javascript:document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
+						<a href="#" onclick="document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$slang.getString('label.expand.all')">
                             <span class="sr-only">$slang.getString('label.expand.all')</span>
                             <span class="glyphicon glyphicon-chevron-down"></span>
@@ -237,11 +228,11 @@ if ( window.jQuery ) {
 				</th>
 				<th id="checkboxes" class="attach" scope="col">
 						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$clang.getString("list.select")"
-						onclick="javascript:toggleSelectAll(this, 'selectedMembers'); adjustShowHideCount(this)" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
+						onclick="toggleSelectAll(this, 'selectedMembers'); adjustShowHideCount(this)" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
 
 				</th>
 				<th id="title" scope="col">
-					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sorttit')">
 						$clang.getString("gen.title1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropDisplayName)) 
@@ -263,7 +254,7 @@ if ( window.jQuery ) {
 					$clang.getString("gen.access")
 				</th>
 				<th id="creator" class="creator" scope="col">
-					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortaut')">
 						$clang.getString("gen.created")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
@@ -276,7 +267,7 @@ if ( window.jQuery ) {
 					</a>
 				</th>
 				<th id="modified" class="modified" scope="col">
-					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortdate')">
 						$clang.getString("gen.last1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropModifiedDate)) 
@@ -289,7 +280,7 @@ if ( window.jQuery ) {
 					</a>
 				</th>
 				<th id="size" class="size" scope="col">
-					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortsize')">
 						$clang.getString("gen.size")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropContentLength)) 
@@ -353,9 +344,9 @@ if ( window.jQuery ) {
 									#else
 										<a href="#"
 											#if($item.isExpanded())
-												onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#else
-												onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#end
 											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel"  /><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a></span>
 									#end
@@ -389,7 +380,7 @@ if ( window.jQuery ) {
 										$validator.escapeHtml($item.name)
 									#else
 										<a href="#"
-    										onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+    										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
     										title= "$item.hoverText">
     										$validator.escapeHtml(${item.name})
     									</a>
@@ -420,7 +411,7 @@ if ( window.jQuery ) {
 							#set ($itemsOnLine = 0)
 							#foreach($action in $item.pasteActions)
 								#if($itemsOnLine > 0)|#end
-								<a class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+								<a href="#" class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
 								#set ($itemsOnLine = $itemsOnLine + 1)
 							#end
 						#end
@@ -438,7 +429,7 @@ if ( window.jQuery ) {
                                     <li role="presentation" class="dropdown-header">$clang.getString('gen.add')</li>
                                     <li class="divider"></li>
                                     #foreach($action in $item.addActions)
-                                        <li><a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+                                        <li><a href="#" role="menuitem" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
                                     #end
                                 #end
                                 #if($item.addActions && !$item.addActions.isEmpty() && $item.otherActions && !$item.otherActions.isEmpty())
@@ -449,7 +440,7 @@ if ( window.jQuery ) {
                                     <li class="divider"></li>
                                     #foreach($action in $item.otherActions)
                                     <li>
-                                        <a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+                                        <a href="#" role="menuitem" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
                                             $labeler.getLabel($action)
                                         </a>
                                     </li>
@@ -459,16 +450,8 @@ if ( window.jQuery ) {
                         </div>
 					</td>
 					#if($item.depth > 0)
-						<td headers="access" class="access" title="$item.effectiveGroupsLabel">
-							#if($item.isPubviewInherited() || $item.isPubview())
-								$tlang.getString("access.public")
-							#elseif($item.isDropbox())
-								$tlang.getString("access.dropbox")
-							#elseif($item.effectiveAccess == $GROUP_ACCESS)
-								$tlang.getString("access.group")
-							#else
-								$tlang.getString("access.site")
-							#end
+						<td headers="access" title="$item.getShortAccessLabel()">
+							$item.getShortAccessLabel()
 						</td>
 						<td headers="creator" class="creator">
 							$validator.escapeHtml($item.createdBy)
@@ -502,7 +485,7 @@ if ( window.jQuery ) {
 					<tr>
 						<td colspan="12">
 						<h3>
-							<a href="javascript:document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
+							<a href="#" onclick="document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
 								title= "$clang.getString('list.copycontent')">
 								<img src="#imageLink("sakai/collapse.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
 								$validator.escapeHtml("$clang.getString('list.copycontent')")
@@ -517,7 +500,7 @@ if ( window.jQuery ) {
 							<td colspan="9">
 							    <div class="pull-left">
                                     <button class="btn btn-default btn-sm" id="copy-button-other" type="button"
-                                        onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
+                                        onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
                                         disabled="disabled">$tlang.getString('action.copy')
                                     </button>
                                 </div>
@@ -526,12 +509,12 @@ if ( window.jQuery ) {
 								
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
- 											<input type="button" name="List_first" id="List_first" value="|&lt;" title="$clang.getString("gen.first")" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_first" id="List_first" value="|&lt;" title="$clang.getString("gen.first")" onclick=" document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_first" value="|&lt;" disabled="disabled" />
 										#end
 										#if ($goPPButton == "true")
- 											<input type="button" name="List_prev" id="List_prev" value="&lt;" title="$clang.getString("gen.previous") $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_prev" id="List_prev" value="&lt;" title="$clang.getString("gen.previous") $pagesize" onclick=" document.getElementById('sakai_action').value='doList_prev';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_prev" value="&lt;" disabled="disabled" />
 										#end
@@ -547,12 +530,12 @@ if ( window.jQuery ) {
 									</select>
 									#if ("$pagesize" != "0")
 										#if ($goNPButton == "true")
- 											<input type="button" name="List_next" id="List_next" value="&gt;" title="$clang.getString("gen.next") $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_next" id="List_next" value="&gt;" title="$clang.getString("gen.next") $pagesize" onclick=" document.getElementById('sakai_action').value='doList_next';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_next" value="&gt;" disabled="disabled" />
 										#end
 										#if ($goNPButton == "true")
- 											<input type="button" name="List_last" id="List_last" value="&gt;|" title="$clang.getString("gen.last")" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_last" id="List_last" value="&gt;|" title="$clang.getString("gen.last")" onclick=" document.getElementById('sakai_action').value='doList_last';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
 										#end
@@ -564,7 +547,7 @@ if ( window.jQuery ) {
 						<tr class="exclude">
 							<td colspan="9">
 								<button class="btn btn-default btn-sm" id="copy-button-other" type="button"
-									onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
+									onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
 									disabled="disabled">$tlang.getString('action.copy')
                                 </button>
 							</td>
@@ -612,9 +595,9 @@ if ( window.jQuery ) {
 											#else
 												<a href="#"
 													#if($item.isExpanded())
-														onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+														onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 													#else
-														onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+														onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 													#end
 													title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" /></a></span>
 											#end
@@ -648,7 +631,7 @@ if ( window.jQuery ) {
 												$validator.escapeHtml($item.name)    											
 											#else
 													<a href="#"
-														onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+														onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
 														title= "$item.hoverText">
 														$validator.escapeHtml(${item.name})
 													</a>
@@ -680,7 +663,9 @@ if ( window.jQuery ) {
 							<td headers="actions2" class="attach"></td>
 							<td headers="actions3" class="attach"></td>
 							#if($item.depth > 0)
-								<td class="access" headers="access" title="$item.effectiveGroups"></td>
+								<td headers="access" title="$item.getShortAccessLabel()">
+									$item.getShortAccessLabel()
+								</td>
 								<td class="creator" headers="creator">
 									$validator.escapeHtml($item.createdBy)
 								</td>
@@ -706,7 +691,7 @@ if ( window.jQuery ) {
 					<tr>
 						<th colspan="10">
 						<h3>
-							<a href="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
+							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
 								title= "$clang.getString('list.copycontent')">
 								<img src="#imageLink("sakai/expand.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
 								$validator.escapeHtml("$clang.getString('list.copycontent')")

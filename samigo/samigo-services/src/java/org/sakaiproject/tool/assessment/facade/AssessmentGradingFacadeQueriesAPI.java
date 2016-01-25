@@ -34,6 +34,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 
@@ -133,6 +134,18 @@ public interface AssessmentGradingFacadeQueriesAPI
   public HashMap getMediaItemGradingHash(Long assessmentGradingId);
   
   public List getMediaArray(Long publishedItemId, Long agentId, String which);
+
+  /** Get a batch of IDs for Media objects that have blobs in the database */
+  public List<Long> getMediaConversionBatch();
+
+  /** Sanity check query for Media objects with conflicting state of holding a blob and location */
+  public List<Long> getMediaWithDataAndLocation();
+
+  /** Sanity check for Media objects left in the converting state */
+  public List<Long> getMediaInConversion();
+
+  /** Mark a list of Media objects as being converted */
+  public boolean markMediaForConversion(List<Long> mediaIds);
   
   public ItemGradingData getLastItemGradingDataByAgent(Long publishedItemId,
       String agentId);
@@ -189,7 +202,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void deleteAll(Collection c);
 
-  public void saveOrUpdateAll(Collection c);
+  public void saveOrUpdateAll(Collection<ItemGradingData> c);
 
   public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(Long assessmentGradingId);
 
@@ -248,7 +261,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public void removeItemGradingAttachment(Long attachmentId);
   
-  public void saveOrUpdateAttachments(List list);
+  public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
   
   public HashMap getInProgressCounts(String siteId);
 

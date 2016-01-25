@@ -2,7 +2,8 @@
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
 <script src="/library/js/jquery.js" type="text/javascript"></script>
-<script src="js/scoringAgent/integration.js" type="text/javascript"></script> 
+<script src="js/scoringAgent/integration.js" type="text/javascript"></script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 
 <f:view>
 	<div class="portletBody">
@@ -111,7 +112,7 @@
 						accesskey="s"
 						title="#{msgs.inst_view_save}"
 						disabled="#{instructorViewBean.allItemsViewOnly}"
-						onclick="disableButton('buttonDiv2', this)"/>
+						onclick="SPNR.disableControlsAndSpin( this, null );"/>
 					<h:commandButton
 						id="clearButton2"
 						value="#{msgs.inst_view_clear}"
@@ -120,7 +121,7 @@
 						accesskey="c"
 						title="#{msgs.inst_view_clear}"
 						disabled="#{instructorViewBean.allItemsViewOnly}"
-						onclick="disableButton('buttonDiv2', this)"/>
+						onclick="SPNR.disableControlsAndSpin( this, null );"/>
 				</div>
 			</div>
 
@@ -323,7 +324,7 @@
 					accesskey="s"
 					title="#{msgs.inst_view_save}"
 					disabled="#{instructorViewBean.allItemsViewOnly}"
-					onclick="disableButton('buttonDiv1', this)"/>
+					onclick="SPNR.disableControlsAndSpin( this, null );"/>
 				<h:commandButton
 					id="clearButton1"
 					value="#{msgs.inst_view_clear}"
@@ -332,7 +333,7 @@
 					accesskey="c"
 					title="#{msgs.inst_view_clear}"
 					disabled="#{instructorViewBean.allItemsViewOnly}"
-					onclick="disableButton('buttonDiv1', this)"/>
+					onclick="SPNR.disableControlsAndSpin( this, null );"/>
 			</div>
 				
 			<h:panelGrid styleClass="instruction gbSection" cellpadding="0" cellspacing="0" columns="1">

@@ -9,7 +9,7 @@
   <sakai:view>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 				<!-- discussionForum/statistics/dfStatisticsDisplayInThread.jsp -->
-  	    <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+  	    <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
        	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
@@ -22,6 +22,7 @@
 				});
 			});
 		</script>
+		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
   	
   		<sakai:tool_bar>
 			<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
@@ -34,11 +35,11 @@
 			      	rendered="#{ForumTool.messagesandForums}" />
 		<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      	rendered="#{ForumTool.forumsTool}" />
-		<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+		<h:outputText value=" / "/>
 		<h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{empty mfStatisticsBean.selectedAllTopicsTopicId && empty mfStatisticsBean.selectedAllTopicsForumId}"/>
 		<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId || !empty mfStatisticsBean.selectedAllTopicsForumId}"/>				
 	      <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsForumId}">
-		      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+		      <h:outputText value=" / "/>
 		      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
 			    <f:param value="" name="topicId"/>
 			    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
@@ -46,22 +47,20 @@
 	      	  </h:commandLink>
 		  </h:panelGroup>
 		  <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId}">
-	      	  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+	      	  <h:outputText value=" / "/>
 		      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
 			    <f:param value="#{mfStatisticsBean.selectedAllTopicsTopicId}" name="topicId"/>
 			    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
 			    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsTopicTitle}" />
 	      	  </h:commandLink>
 	      </h:panelGroup> 
-	    <f:verbatim><h:outputText value="" /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-		<h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.selectedSiteUser}">
-		</h:commandLink>
-		<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-		<h:commandLink action="#{ForumTool.processActionShowFullTextForAll}" value="#{msgs.stat_authored}">
-		</h:commandLink>
-		<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+	    <h:outputText value=" / "/>
+		<h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.selectedSiteUser}" />
+		<h:outputText value=" / "/>
+		<h:commandLink action="#{ForumTool.processActionShowFullTextForAll}" value="#{msgs.stat_authored}" />
+		<h:outputText value=" / "/>
 		<h:outputText value="#{ForumTool.selectedForum.forum.title}" />
-		<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+		<h:outputText value=" / "/>
 		<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 		<f:verbatim></h3></div></f:verbatim>
           	  
@@ -70,9 +69,11 @@
    			<h:panelGroup rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}" style="display:block;padding:0 5px;">
 				<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
 					<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
-						<h:outputText value="#{msgDecorateBean.message.title}" />
-						<h:outputText  value= " - #{msgDecorateBean.message.author} " />		
-						<h:outputText value="#{msgDecorateBean.message.created}">
+						<h:outputText value="#{msgDecorateBean.message.title} - " />
+						<h:outputText rendered="#{mfStatisticsBean.pureAnon}" styleClass="anonymousAuthor" value="#{msgDecorateBean.anonAwareAuthor}" />
+						<h:outputText rendered="#{!mfStatisticsBean.pureAnon}" value="#{msgDecorateBean.anonAwareAuthor}" />
+						<h:outputText rendered="#{mfStatisticsBean.pureAnon && msgDecorateBean.currentUserAndAnonymous}" value=" #{msgs.cdfm_me}" />
+						<h:outputText value=" #{msgDecorateBean.message.created}">
 							<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 						</h:outputText>
 					</h:panelGroup>
@@ -111,9 +112,11 @@
 					<f:verbatim><a name="boldMsg"></a></f:verbatim>
 					<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
 						<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
-							<h:outputText value="#{msgDecorateBean.message.title}" />
-							<h:outputText  value= " - #{msgDecorateBean.message.author} " />			
-							<h:outputText value="#{msgDecorateBean.message.created}">
+							<h:outputText value="#{msgDecorateBean.message.title} - " />
+							<h:outputText rendered="#{mfStatisticsBean.pureAnon}" styleClass="anonymousAuthor" value="#{msgDecorateBean.anonAwareAuthor}" />
+							<h:outputText rendered="#{!mfStatisticsBean.pureAnon}" value="#{msgDecorateBean.anonAwareAuthor}" />
+							<h:outputText rendered="#{mfStatisticsBean.pureAnon && msgDecorateBean.currentUserAndAnonymous}" value=" #{msgs.cdfm_me}" />
+							<h:outputText value=" #{msgDecorateBean.message.created}">
 								<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 							</h:outputText>
 						</h:panelGroup>

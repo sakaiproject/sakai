@@ -13,6 +13,7 @@ var dhtml_view_sites = function(){
 
     if ($PBJQ('#selectSite').hasClass('outscreen') ) {
 
+      $PBJQ('body').toggleClass('active-more-sites');
       $PBJQ('#selectSite').toggleClass('outscreen');
 
       $PBJQ('#txtSearch').focus();
@@ -97,7 +98,9 @@ var dhtml_view_sites = function(){
     else {
 
       // hide the dropdown
+      $PBJQ('body').toggleClass('active-more-sites');
       $PBJQ('#selectSite').toggleClass('outscreen'); //hide the box
+
       $PBJQ('#selectSite').attr('tabindex', '-1');
       removeDHTMLMask()
       $PBJQ('#otherSiteTools').remove();
@@ -123,7 +126,7 @@ function closeDrawer() {
 
 function createDHTMLMask(callback){
 
-  $PBJQ('body').append('<div id="portalMask">&nbsp;</div>');
+  /*$PBJQ('body').append('<div id="portalMask">&nbsp;</div>');
 
   $PBJQ('#portalMask').css('height', browserSafeDocHeight()).css({
     'width': '100%',
@@ -135,11 +138,11 @@ function createDHTMLMask(callback){
     return false;
   });
 
-  $PBJQ('#portalMask').bgiframe();
+  $PBJQ('#portalMask').bgiframe();*/
 }
 
 function removeDHTMLMask(){
-  $PBJQ('#portalMask').remove();
+  //$PBJQ('#portalMask').remove();
 }
 
 /** Shows a drawer site tool dropdown **/

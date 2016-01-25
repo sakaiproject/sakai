@@ -308,29 +308,29 @@ $(document).ready(function() {
 	  <h:selectOneMenu id="publishedSelectAction1" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
 		<f:selectItem itemLabel="#{authorMessages.action_scores}" itemValue="scores" />
-		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" itemDisabled="#{author.editPubAssessmentRestrictedAfterStarted && (publishedAssessment.submittedCount > 0 || publishedAssessment.inProgressCount > 0) && (publishedAssessment.retractDate == null || publishedAssessment.retractDate > author.currentTime)}"/>
+		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" itemDisabled="#{!author.canEditPublishedAssessment(publishedAssessment)}"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessments || (author.canRemovePublishedAssessmentsAfterStarted && (publishedAssessment.submittedCount > 0 || publishedAssessment.inProgressCount > 0) && (publishedAssessment.retractDate == null || publishedAssessment.retractDate > author.currentTime))}"/>
+		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessment(publishedAssessment)}"/>
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
-	  <h:selectOneMenu id="publishedSelectAction2" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{(author.isGradeable && publishedAssessment.submittedCount > 0) && !(author.isEditable && (!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
+	  <h:selectOneMenu id="publishedSelectAction2" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && !(!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
 		<f:selectItem itemLabel="#{authorMessages.action_scores}" itemValue="scores"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessments || (author.canRemovePublishedAssessmentsAfterStarted && (publishedAssessment.submittedCount > 0 || publishedAssessment.inProgressCount > 0) && (publishedAssessment.retractDate == null || publishedAssessment.retractDate > author.currentTime))}"/>
+		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessment(publishedAssessment)}"/>
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
 	  <h:selectOneMenu id="publishedSelectAction3" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{!(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
-		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" itemDisabled="#{author.editPubAssessmentRestrictedAfterStarted && (publishedAssessment.submittedCount > 0 || publishedAssessment.inProgressCount > 0) && (publishedAssessment.retractDate == null || publishedAssessment.retractDate > author.currentTime)}"/>
+		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" itemDisabled="#{!author.canEditPublishedAssessment(publishedAssessment)}"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessments || (author.canRemovePublishedAssessmentsAfterStarted && (publishedAssessment.submittedCount > 0 || publishedAssessment.inProgressCount > 0) && (publishedAssessment.retractDate == null || publishedAssessment.retractDate > author.currentTime))}"/>
+		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessment(publishedAssessment)}"/>
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
 	  <h:selectOneMenu id="publishedSelectAction4" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{!(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && !(!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessments || (author.canRemovePublishedAssessmentsAfterStarted && (publishedAssessment.submittedCount > 0 || publishedAssessment.inProgressCount > 0) && (publishedAssessment.retractDate == null || publishedAssessment.retractDate > author.currentTime))}"/>
+		<f:selectItem itemLabel="#{commonMessages.remove_action}" itemValue="remove_published" itemDisabled="#{!author.canRemovePublishedAssessment(publishedAssessment)}"/>
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
 
@@ -409,14 +409,14 @@ $(document).ready(function() {
       <h:outputText value="#{authorFrontDoorMessages.entire_site}" rendered="#{publishedAssessment.releaseTo ne 'Anonymous Users' && publishedAssessment.releaseTo ne 'Selected Groups'}" />
       
         <t:div rendered="#{publishedAssessment.releaseTo eq 'Selected Groups'}">
-            <t:div id="groupsHeader" onclick="#{publishedAssessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{publishedAssessment.groupCount ge 1 ? 'collapse' : 'alertMessage'}">
+            <t:div id="groupsHeader" onclick="#{publishedAssessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{publishedAssessment.groupCount ge 1 ? 'collapsed' : 'messageError'}">
                 <h:outputText value="#{publishedAssessment.groupCount} " rendered ="#{publishedAssessment.releaseTo eq 'Selected Groups' and publishedAssessment.groupCount gt 0}" />
                 <h:outputText value="#{authorFrontDoorMessages.selected_groups} " rendered="#{publishedAssessment.releaseTo eq 'Selected Groups' and publishedAssessment.groupCount gt 1}"/>
                 <h:outputText value="#{authorFrontDoorMessages.selected_group} " rendered="#{publishedAssessment.releaseTo eq 'Selected Groups' and publishedAssessment.groupCount eq 1}"/>
                 <h:outputText value="#{authorFrontDoorMessages.no_selected_groups_error}" rendered="#{publishedAssessment.releaseTo eq 'Selected Groups' and publishedAssessment.groupCount eq 0}"/>
             </t:div>
             <t:div id="groupsPanel" style="display: none;">
-                <t:dataList layout="unorderedList" value="#{publishedAssessment.releaseToGroupsList}" var="group">
+                <t:dataList layout="unorderedList" value="#{publishedAssessment.releaseToGroupsList}" var="group" styleClass="groupList">
                     <h:outputText value="#{group}" />
                 </t:dataList>
             </t:div>

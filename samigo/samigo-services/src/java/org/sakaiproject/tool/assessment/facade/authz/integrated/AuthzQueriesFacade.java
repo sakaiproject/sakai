@@ -33,7 +33,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
@@ -75,6 +75,12 @@ public class AuthzQueriesFacade
     "org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as authz " +
     "where asset.assessmentBaseId=authz.qualifierId and " +
     "authz.agentIdString = :agentId and authz.functionId = :functionId";
+
+  private AuthzGroupService authzGroupService;
+
+  public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+    this.authzGroupService = authzGroupService;
+  }
 
   public boolean hasPrivilege(String functionName)
   {
@@ -318,7 +324,7 @@ public class AuthzQueriesFacade
   }
 
   public List<AuthorizationData> getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
-  return getHibernateTemplate().find(
+  return (List<AuthorizationData>) getHibernateTemplate().find(
 		"select a from AuthorizationData a where a.functionId=?"+
 		" and a.qualifierId=?",new String[]{functionId,qualifierId});
   }
@@ -327,7 +333,7 @@ public class AuthzQueriesFacade
     boolean isMember = false;
     try{
       String realmName = "/site/" + siteId;
-      AuthzGroup siteAuthzGroup = AuthzGroupService.getAuthzGroup(realmName);
+      AuthzGroup siteAuthzGroup = authzGroupService.getAuthzGroup(realmName);
       if (siteAuthzGroup.getUserRole(AgentFacade.getAgentString()) != null)
         isMember = true;
     }

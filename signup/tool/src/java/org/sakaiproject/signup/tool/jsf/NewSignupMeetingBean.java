@@ -301,7 +301,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		String toolProperty = sakaiFacade.getToolManager().getCurrentPlacement().getConfig().getProperty("signup.other.sites.availability", "default");
 		if (toolProperty.equals("default")) {
 			//If tool property is not set, then consider sakai property
-			String sakaiProperty= "false".equalsIgnoreCase(sakaiFacade.getServerConfigurationService().getString("signup.otherSitesAvailability", "true"))? "false" : "true" ;
+			String sakaiProperty = Boolean.valueOf(sakaiFacade.getServerConfigurationService().getBoolean("signup.otherSitesAvailability", true)).toString();
 			toolProperty = sakaiProperty;
 		}
 		//tool property would take precedence over sakai property

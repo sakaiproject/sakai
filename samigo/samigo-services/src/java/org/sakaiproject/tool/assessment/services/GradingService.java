@@ -297,8 +297,22 @@ public class GradingService
       else{ // if new is different from old, include it for update
         AssessmentGradingData b = (AssessmentGradingData) o;
         if ((a.getFinalScore()!=null && b.getFinalScore()!=null) 
-            && !a.getFinalScore().equals(b.getFinalScore()))
-          l.add(a);
+            && !a.getFinalScore().equals(b.getFinalScore())) {
+            l.add(a);
+        }
+        // if scores are not modified but comments are added, include it for update
+        else if (a.getComments()!=null)
+        	{
+            	if (b.getComments()!=null)
+            	{
+                    if (!a.getComments().equals(b.getComments())) {
+                            l.add(a);
+                    }
+            	}
+            	else {
+                    l.add(a);
+            	}
+        	}
       }
     }
     return l;
@@ -800,6 +814,9 @@ public class GradingService
          throws GradebookServiceException, FinFormatException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
+    	boolean imageMapAllOk=true;
+    	boolean NeededAllOk = false;
+    	
       String agent = data.getAgentId();
       
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
@@ -869,6 +886,24 @@ public class GradingService
         	log.error("unable to retrive itemDataIfc for: " + publishedItemHash.get(itemId));
         	continue;
         }
+        Iterator i = item.getItemMetaDataSet().iterator();
+        while (i.hasNext())
+        {
+          ItemMetaDataIfc meta = (ItemMetaDataIfc) i.next();
+          if (meta.getLabel().equals(ItemMetaDataIfc.REQUIRE_ALL_OK))
+          {
+            if (meta.getEntry().equals("true"))
+            {
+          	  NeededAllOk = true;
+              break;
+            }
+            if (meta.getEntry().equals("false"))
+            {
+          	  NeededAllOk = false;
+              break;
+            }
+          }
+        }
         Long itemType = item.getTypeId();  
     	autoScore = (double) 0;
 
@@ -905,6 +940,10 @@ public class GradingService
         		}
         	}
         }
+        if ((TypeIfc.IMAGEMAP_QUESTION.equals(itemType))&&(NeededAllOk)&&((autoScore==-123456789)||!imageMapAllOk)){
+        	autoScore=0;
+        	imageMapAllOk=false;
+        } 
         
         log.debug("**!regrade, autoScore="+autoScore);
         if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType) && !(TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType))
@@ -1301,6 +1340,46 @@ public class GradingService
                 totalItems.put(itemId, Double.valueOf(accumelateScore));
               }
               break;
+      case 16:    	  
+    	  initScore = getImageMapScore(itemGrading,item, (HashMap) publishedItemTextHash,publishedAnswerHash);
+    	  //if one answer is 0 or negative, and need all OK to be scored, then autoScore=-123456789
+    	  //and we break the case...
+    	  
+    	  boolean NeededAllOk = false;
+    	  Iterator i = item.getItemMetaDataSet().iterator();
+          while (i.hasNext())
+          {
+            ItemMetaDataIfc meta = (ItemMetaDataIfc) i.next();
+            if (meta.getLabel().equals(ItemMetaDataIfc.REQUIRE_ALL_OK))
+            {
+              if (meta.getEntry().equals("true"))
+              {
+            	  NeededAllOk = true;
+                break;
+    }
+            }
+          }
+    	  if (NeededAllOk&&initScore<=0){
+    		  autoScore=-123456789;
+    		  break;
+    	  }
+          //if (initScore > 0) {
+      	         autoScore += initScore ;
+          //}
+    	  
+          //overridescore?
+          if (itemGrading.getOverrideScore() != null)
+            autoScore += itemGrading.getOverrideScore().doubleValue();
+          
+          if (!totalItems.containsKey(itemId)){
+            totalItems.put(itemId,  Double.valueOf(autoScore));
+          }else {
+            accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
+            accumelateScore += autoScore;
+            totalItems.put(itemId,  Double.valueOf(accumelateScore));
+          }
+          
+          break;
     }
     return autoScore;
   }
@@ -1395,6 +1474,16 @@ public class GradingService
     if(!(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
     	data.setFinalScore(originalFinalScore);
     }
+    
+    try {
+        	Long publishedAssessmentId = data.getPublishedAssessmentId();
+        	String agent = data.getAgentId();
+        	String comment = data.getComments();
+        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, g);
+    }
+    catch (Exception ex) {
+          log.warn("Error sending comments to gradebook: " + ex.getMessage());
+          }
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
@@ -1747,6 +1836,66 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  return matchresult;
   }  
+  
+  
+  public double getImageMapScore(ItemGradingData data, ItemDataIfc itemdata, HashMap publishedItemTextHash, HashMap publishedAnswerHash)
+  {
+	  // Final score must be... 
+	  // IF NOT PARTIALCREDIT THEN 0 or total
+	  // IF PARTIALCREDIT EACH PART ADDED. 
+	  
+	  
+	  data.setIsCorrect(Boolean.FALSE);
+	  double totalScore; 
+	 
+	 Iterator iter = publishedAnswerHash.keySet().iterator();
+	 int answerNumber = 0;
+	 while (iter.hasNext()){
+		 Long answerId = Long.valueOf(iter.next().toString());
+		 AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerId);
+		 
+		 if (answer.getItem().getItemId().equals(data.getPublishedItemId())) 
+			 answerNumber=answerNumber+1;
+		 	 
+	 }
+	 
+	 double answerScore=itemdata.getScore();
+	 	 
+	 if (answerNumber!=0){
+		 answerScore=answerScore/answerNumber;
+	 }
+	 
+	 ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
+	 
+	 ArrayList answerArray = (ArrayList) itemTextIfc.getAnswerArray();
+	 AnswerIfc answerIfc= (AnswerIfc) answerArray.get(0); 
+	 
+	 try{
+		 String area = answerIfc.getText();
+		 Integer areax1=Integer.valueOf(area.substring(area.indexOf("\"x1\":")+5,area.indexOf(",", area.indexOf("\"x1\":"))));
+		 Integer areay1=Integer.valueOf(area.substring(area.indexOf("\"y1\":")+5,area.indexOf(",", area.indexOf("\"y1\":"))));
+		 Integer areax2=Integer.valueOf(area.substring(area.indexOf("\"x2\":")+5,area.indexOf(",", area.indexOf("\"x2\":"))));
+		 Integer areay2=Integer.valueOf(area.substring(area.indexOf("\"y2\":")+5,area.indexOf("}", area.indexOf("\"y2\":"))));
+		 
+		 String point = data.getAnswerText();
+		 Integer pointx=Integer.valueOf(point.substring(point.indexOf("\"x\":")+4,point.indexOf(",", point.indexOf("\"x\":"))));
+		 Integer pointy=Integer.valueOf(point.substring(point.indexOf("\"y\":")+4,point.indexOf("}", point.indexOf("\"y\":"))));
+		
+				 
+		 if (((pointx>=areax1)&&(pointx<=areax2))&&((pointy>=areay1)&&(pointy<=areay2))) {
+			 totalScore=answerScore;
+			 data.setIsCorrect(Boolean.TRUE);
+		 }else{
+			 totalScore=0;
+		 }
+	}catch(Exception ex){
+		 totalScore=0;
+	 }
+	 	  
+    
+    return totalScore;
+  }
+  
 
   /**
    * Validate a students numeric answer 
@@ -1931,7 +2080,51 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return totalScore;
 	  
   }
-  
+
+  public boolean getCalcQResult(ItemGradingData data,  ItemDataIfc itemdata, Map<Integer, String> calculatedAnswersMap, int calcQuestionAnswerSequence)
+  {
+	  boolean result = false;
+
+	  if (data.getAnswerText() == null) return result;
+
+	  if (!calculatedAnswersMap.containsKey(calcQuestionAnswerSequence)) {
+		  return result;
+	  }
+	  // this variable should look something like this "42.1|2,2"
+	  String allAnswerText = calculatedAnswersMap.get(calcQuestionAnswerSequence).toString();
+
+	  // NOTE: this correctAnswer will already have been trimmed to the appropriate number of decimals
+	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
+
+	  // Determine if the acceptable variance is a constant or a % of the answer
+	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
+	  BigDecimal acceptableVariance = BigDecimal.ZERO;
+	  if (varianceString.contains("%")){
+		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
+		  acceptableVariance = correctAnswer.multiply( new BigDecimal(percentage / 100) );
+	  }
+	  else {
+		  acceptableVariance = new BigDecimal(varianceString);
+	  }
+
+	  String userAnswerString = data.getAnswerText().replaceAll(",", "").trim();
+	  BigDecimal userAnswer;
+	  try {
+		  userAnswer = new BigDecimal(userAnswerString);
+	  } catch(NumberFormatException nfe) {
+		  return result;
+	  }
+
+	  // this compares the correctAnswer against the userAnsewr
+	  BigDecimal answerDiff = (correctAnswer.subtract(userAnswer));
+	  boolean closeEnough = (answerDiff.abs().compareTo(acceptableVariance.abs()) <= 0);
+	  if (closeEnough){
+		  result = true;
+	  }
+	  return result;
+
+  }
+
   public double getTotalCorrectScore(ItemGradingData data, Map publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
@@ -2005,7 +2198,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
      }
   }
 
-  public void saveOrUpdateAll(Collection c)
+  public void saveOrUpdateAll(Collection<ItemGradingData> c)
   {
     try {
       PersistenceService.getInstance().

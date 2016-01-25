@@ -94,6 +94,12 @@ function displayEMIHelp(){
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
     </h:commandLink>
 <f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
+	<h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
+		<h:outputText value="#{generalMessages.section_activity}" />
+		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
+	</h:commandLink>
+<f:verbatim></span></li> 
 </ul>
 <br/></f:verbatim>
 
@@ -193,6 +199,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 14}" value="#{authorMessages.extended_matching_items}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 13}" value="#{authorMessages.matrix_choices_surv}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 15}" value="#{authorMessages.calculated_question}"/><!-- // CALCULATED_QUESTION -->
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 16}" value="#{authorMessages.image_map_question}"/><!-- // IMAGE MAP_QUESTION -->
    </b>
  </span>
  <span class="rightNav">

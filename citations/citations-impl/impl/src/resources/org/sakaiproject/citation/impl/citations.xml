@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
 	<!-- ConfigurationService bean handles institution-specific configuration 
 		for the Citations Helper -->
 	<bean id="org.sakaiproject.citation.api.ConfigurationService"
 		class="org.sakaiproject.citation.impl.BaseConfigurationService"
-		init-method="init" destroy-method="destroy" singleton="true">
+		init-method="init" destroy-method="destroy">
 
 		<property name="adminSiteName">
 			<value>citationsAdmin</value>
@@ -93,7 +94,7 @@
 	</bean>
 
 	<bean id="org.sakaiproject.citation.api.CitationService" class="org.sakaiproject.citation.impl.DbCitationService"
-		init-method="init" destroy-method="destroy" singleton="true">
+		init-method="init" destroy-method="destroy">
 
 		<property name="sqlService">
 			<ref bean="org.sakaiproject.db.api.SqlService" />
@@ -127,8 +128,10 @@
 		</property>
 	</bean>
 
+	<bean id="org.sakaiproject.citation.api.CitationValidator" class="org.sakaiproject.citation.impl.NestedCitationValidator"/>
+
 	<bean id="org.sakaiproject.citation.api.SearchManager" class="org.sakaiproject.citation.impl.BaseSearchManager"
-		init-method="init" destroy-method="destroy" singleton="true">
+		init-method="init" destroy-method="destroy">
 
 		<property name="memoryService">
 			<ref bean="org.sakaiproject.memory.api.MemoryService" />

@@ -116,7 +116,6 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 		Collection<String> groups = null;
 
 		boolean isPrerequisite = false;
-		boolean hasBreak = false;
 
 		if (itemId != null && itemId != -1) {
 			SimplePageItem i = simplePageBean.findItem(itemId);
@@ -131,7 +130,6 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			}
 
 			isPrerequisite = i.isPrerequisite();
-			hasBreak = "true".equals(i.getAttribute("groupedWithAbove"));
 		}
 
 		if (simplePageBean.canEditPage()) {
@@ -154,9 +152,6 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 			richTextEvolver.evolveTextInput(instructions);
 
-			UIOutput.make(form, "break-block");
-			UIBoundBoolean.make(form, "question-break", "#{simplePageBean.breakabove}",hasBreak);
-
 			if (page.getOwner() == null) {
 			    // these options don't apply on student pages
 			    showPageProducer.createGroupList(form, groups, "", "#{simplePageBean.selectedGroups}");
@@ -164,6 +159,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			    UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",isPrerequisite);
 			}
 
+			UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", gparams.getAddBefore());
 			UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.cancel_message")));

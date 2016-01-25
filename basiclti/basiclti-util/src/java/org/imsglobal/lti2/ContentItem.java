@@ -57,7 +57,7 @@ import net.oauth.signature.OAuthSignatureMethod;
 /* {
 	"@context": "http:\/\/purl.imsglobal.org\/ctx\/lti\/v1\/ContentItem",
 	"@graph": [ {
-		"@type": "LtiLink",
+		"@type": "LtiLinkItem",
 		"@id": ":item2",
 		"text": "The mascot for the Sakai Project",
 		"title": "The fearsome mascot of the Sakai Project",
@@ -76,11 +76,14 @@ public class ContentItem {
 	private static Logger M_log = Logger.getLogger(ContentItem.class.toString());
 
 	public static final String ACCEPT_MEDIA_TYPES = "accept_media_types";
-	public static String MEDIA_LTILINK = "application/vnd.ims.lti.v1.ltilink";
-	// http://www.ietf.org/mail-archive/web/ietf-types/current/msg00754.html
-	public static final String MEDIA_CC = "application/imsccml+xml";
+	public static String MEDIA_LTILINKITEM = "application/vnd.ims.lti.v1.ltilink";
+	// http://www.iana.org/assignments/media-types/media-types.xhtml
+	public static final String MEDIA_CC_1_1 = "application/vnd.ims.imsccv1p1";
+	public static final String MEDIA_CC_1_2 = "application/vnd.ims.imsccv1p2";
+	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
+	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
-	public static final String TYPE_LTILINK = "LtiLink";
+	public static final String TYPE_LTILINKITEM = "LtiLinkItem";
 	public static final String TYPE_CONTENTITEM = "ContentItem";
 	public static final String TYPE_FILEITEM = "FileItem";
 	public static final String TYPE_IMPORTITEM = "ImportItem";
@@ -155,7 +158,7 @@ public class ContentItem {
 		String req_oauth_consumer_key = servletRequest.getParameter("oauth_consumer_key");
 		if ( req_oauth_consumer_key == null || req_oauth_consumer_key.length() < 1 ) {
 			errorMessage = "Missing oauth_consumer_key from incoming request";
-			return false;
+			return true;
 		}
 		if ( ! req_oauth_consumer_key.equals(oauth_consumer_key) ) {
 			errorMessage = "Mis-match of oauth_consumer_key from incoming request";
@@ -247,14 +250,6 @@ public class ContentItem {
 	public String getErrorMessage()
 	{
 		return errorMessage;
-	}
-
-	/**
-	 * Get an LTI 2.x Capability String
-	 */
-	public static String getCapability(String type)
-	{
-		return "ContentItem." + type;
 	}
 
 	/**

@@ -26,13 +26,18 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Rank;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
  
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 /** 
@@ -67,6 +72,8 @@ public class DiscussionMessageBean
   private boolean moved;
   private int authorPostCount;
   private Rank authorRank = null;
+  private Boolean useAnonymousId = null;
+  private String anonId;
 
   public Rank getAuthorRank() {
     return authorRank;
@@ -77,8 +84,12 @@ public class DiscussionMessageBean
   }
 
   public void setAuthorPostCount(String userEid) {
-    int authorCount = messageManager.findAuthoredMessageCountForStudent(userEid);
-    authorPostCount = authorCount;
+    // This is invoked a lot, but it's only relevant when a student has a rank.
+    if (authorRank != null)
+    {
+      int authorCount = messageManager.findAuthoredMessageCountForStudent(userEid);
+      authorPostCount = authorCount;
+    }
   }
 
   public int getAuthorPostCount() {
@@ -243,7 +254,7 @@ public class DiscussionMessageBean
   
   public boolean getIsOwn()
   {
-  	if(this.getMessage().getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
+  	if(this.getMessage().getCreatedBy().equals(getSessionManager().getCurrentSessionUserId()))
   		return true;
   	return false;
   }
@@ -445,4 +456,150 @@ LOG.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
 		String userEid = this.getMessage().getCreatedBy();
  		return userEid;
 	}	
+
+	private boolean isAnonymousEnabled()
+	{
+		return getAnonymousManager().isAnonymousEnabled();
+	}
+
+	public void setAnonId(String anonId)
+	{
+		this.anonId = anonId;
+	}
+
+	/**
+	 * Returns the author's anonymousID regardless of whether we're in an anonymous context (unless anonymous is disabled system wide)
+	 */
+	public String getAnonId()
+	{
+		if (!isAnonymousEnabled())
+		{
+			return message.getAuthor();
+		}
+
+		if (anonId != null)
+		{
+			// anonId has already been supplied
+			return anonId;
+		}
+
+		// get / create the anonId from the AnonymousManager
+		String siteId = getToolManager().getCurrentPlacement().getContext();
+		anonId = getAnonymousManager().getOrCreateAnonId(siteId, message.getAuthorId());
+		return anonId;
+	}
+
+	private ToolManager getToolManager()
+	{
+		return ComponentManager.get(ToolManager.class);
+	}
+
+	private AnonymousManager getAnonymousManager()
+	{
+		return ComponentManager.get(AnonymousManager.class);
+	}
+
+	/**
+	 * Returns the author's name and eid, or their anonymousID as appropriate
+	 */
+	public String getAnonAwareAuthor()
+	{
+		return isUseAnonymousId() ? getAnonId() : message.getAuthor();
+	}
+
+	/**
+	 * Sets whether the message's author should display as an anonymousID
+	 */
+	public void setUseAnonymousId(boolean useAnonymousId)
+	{
+		this.useAnonymousId = useAnonymousId;
+	}
+
+	/**
+	 * Determines whether the message's author should display as an anonymousID.
+	 * If setUseAnonymousId has not yet been invoked against 'this', 
+	 * this method will go to the database, and then cache the result for any subsequent calls.
+	 * It's preferable to use setUseAnonymousId up front wherever possible for performance gains
+	 */
+	public boolean isUseAnonymousId()
+	{
+		if (!isAnonymousEnabled())
+		{
+			return false;
+		}
+
+		if (useAnonymousId != null)
+		{
+			// useAnonymousId has already been supplied
+			return useAnonymousId;
+		}
+
+		// Determine if the containing topic is anonymous
+		Topic topic = message.getTopic();
+		if (topic != null)
+		{
+			// Determine if topic is anonymous
+			// Topic may or may not be detached (ie. it may have been retrieved as the surrogate key of this mesage, so its only initialized attribute may be the topic ID).
+			// Retrieve the full topic only when this is an issue via a try / catch
+			Boolean postAnonymous = null;
+			try
+			{
+				postAnonymous = topic.getPostAnonymous();
+			}
+			catch (RuntimeException e)
+			{
+				// Topic must be detached, retrieve it via ForumManager
+				MessageForumsForumManager forumManager = (MessageForumsForumManager)ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
+				topic = forumManager.getTopicById(true, topic.getId());
+				postAnonymous = topic.getPostAnonymous();
+			}
+
+			if (postAnonymous)
+			{
+				// Are we supposed to reveal authors' identities to certain roles in this topic?
+				if (topic.getRevealIDsToRoles())
+				{
+					if (getUIPermissionsManager().isIdentifyAnonAuthors(topic))
+					{
+						// This user has permission to identify authors in this topic
+						useAnonymousId = Boolean.FALSE;
+						return false;
+					}
+				}
+
+				/*
+				 * The topic is anonymous, and either
+				 *   a) the topic is not configured to reveal identities to anymous, or
+				 *   b) the topic is configured to reveal identities to some roles, but the current user does not have such a role
+				 *
+				 * Use the anonymous identity
+				 */
+				useAnonymousId = Boolean.TRUE;
+				return true;
+			}
+		}
+
+		// Topic is not anonymous; reveal identities
+		useAnonymousId = Boolean.FALSE;
+		return false;
+	}
+
+	/**
+	 * Determines whether the author is the current user and the message is in an anonymous context
+	 * This is useful to determine whether to display "(me)" beside the author's anon ID
+	 */
+	public boolean isCurrentUserAndAnonymous()
+	{
+		return isUseAnonymousId() && message.getAuthorId().equals(getSessionManager().getCurrentSessionUserId());
+	}
+
+	private SessionManager getSessionManager()
+	{
+		return ComponentManager.get(SessionManager.class);
+	}
+
+	private UIPermissionsManager getUIPermissionsManager()
+	{
+		return ComponentManager.get(UIPermissionsManager.class);
+	}
 }

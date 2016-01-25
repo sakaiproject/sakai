@@ -41,7 +41,7 @@ public interface ComponentManager
 	 *        The interface Class.
 	 * @return a component instance, or null if not found.
 	 */
-	Object get(Class iface);
+	<T> T get(Class <T> iface);
 
 	/**
 	 * Find a component that is registered to provide this interface.

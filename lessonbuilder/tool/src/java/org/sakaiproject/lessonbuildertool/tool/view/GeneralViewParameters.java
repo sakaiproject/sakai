@@ -31,7 +31,6 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public static final int STUDENT_CONTENT = 2;
 	public static final int STUDENT_PAGE = 3;
 	
-	
 	private String errorMessage = "";
 	private long sendingPage = -1;
 
@@ -53,6 +52,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public long studentItemId;
 	
 	public String author; // An author whose comments should be highlighted
+	public String addBefore = ""; // itemid to add a new item before that item
 	public String placementId = null;
 
 	public GeneralViewParameters() {
@@ -176,6 +176,18 @@ public class GeneralViewParameters extends SimpleViewParameters {
 
 	public String getClearAttr() {
 		return clearAttr;
+	}
+
+	public void setAddBefore(String s) {
+		this.addBefore = s;
+	}
+
+	public String getAddBefore() {
+	    // don't see how it could be null, but be safe, so calling
+	    // code doesn't have to check this
+		if (addBefore == null)
+		    return "";
+		return addBefore;
 	}
 
 	public void setPlacementId(String s) {

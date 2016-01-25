@@ -6,6 +6,12 @@
 	<display-name>sakai-mailsender</display-name>
 	<description>Sakai Mail Sender</description>
 
+	<!-- param-value must match the id from tool/project.xml -->
+	<context-param>
+		<param-name>resourceurlbase</param-name> 
+		<param-value>/mailsender-tool/</param-value>
+	</context-param>
+
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
@@ -54,14 +60,14 @@
 		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
 	</listener>
 	<listener>
-		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+		<listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
 	</listener>
 
 	<!-- tool servlet -->
 	<servlet>
 		<!-- servlet name must match tool.id in tools xml file -->
 		<servlet-name>sakai.mailtool</servlet-name>
-		<servlet-class>uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet</servlet-class>
+		<servlet-class>org.sakaiproject.rsf.servlet.ReasonableSakaiServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>sakai.mailtool</servlet-name>

@@ -1,22 +1,42 @@
 //.#{$namespace}
 .is-logged-out{
 	#content, .#{$namespace}container--footer{
-		margin: 3em 0 0 #{$tool-menu-width};
+		margin: 0 0 0 0;
 		@media #{$phone}{
-			margin: 3em 0 0 35px;
+			margin: 6em 0 0 0;
 		}
 	}
+	.#{$namespace}topHeader {
+		@media #{$phone}{
+			&.moving{
+	    		top: -12em;
+	    	}
+	    }
+    }
 }
 
 .#{$namespace}portalWrapper {
 	position: relative;
 }
 
+#pageBody{
+	@include align-items(stretch);
+	@include display-flex(flex);
+	@include flex-direction(row);
+	> .#{$namespace}pagebody{
+		width: 100%;
+	}
+	@media #{$phone}{
+		padding: 12px;
+	}
+}
+
 #content, .#{$namespace}container--footer{
-	margin: 0 0 0 #{$tool-menu-width};
+	margin: 0 0 0 0;
+	width: 100%;
 
 	@media #{$phone}{
-		margin: calc(#{$header-size} - 1em) 0 0 0;
+		margin: 5.6em 0 0 0;
 	}
 	
 	#col1of2, #col2of2{
@@ -32,12 +52,11 @@
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
-	/* Optimal Typography for 16px Fonts 		//
-	// http://www.pearsonified.com/typography/	//
-	// Approx CPL 97 							*/
-	/*max-width: #{$default-font-size * 2 + $measure };*/
 	margin: 0 1em 1em 1em;
 	clear: both;
+	@media #{$phone}{
+		margin: 0 0 0 0;
+	}
 }
 
 .#{$namespace}footer{

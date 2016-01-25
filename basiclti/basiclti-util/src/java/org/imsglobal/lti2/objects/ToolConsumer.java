@@ -11,6 +11,7 @@ import javax.annotation.Generated;
 
 import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Vars;
+import org.imsglobal.lti2.LTI2Messages;
 import org.imsglobal.lti2.LTI2Caps;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -53,12 +54,22 @@ public class ToolConsumer {
 
     public static String[] STANDARD_CAPABILITIES = {
         LTI2Caps.LTI_LAUNCH, 
+        LTI2Messages.TOOLPROXY_RE_REGISTRATION_REQUEST, 
         LTI2Vars.USER_ID, 
         LTI2Vars.PERSON_SOURCEDID, 
-        LTI2Vars.COURSEOFFERING_SOURCEDID, 
-        LTI2Vars.COURSEOFFERING_LABEL,
-        LTI2Vars.COURSEOFFERING_LONGDESCRIPTION,
-        LTI2Vars.MEMBERSHIP_ROLE
+        LTI2Vars.RESOURCELINK_ID, 
+        LTI2Vars.RESOURCELINK_TITLE, 
+        LTI2Vars.RESOURCELINK_DESCRIPTION, 
+        LTI2Vars.CONTEXT_ID, 
+        LTI2Vars.CONTEXT_TYPE, 
+        LTI2Vars.CONTEXT_LABEL, 
+        LTI2Vars.CONTEXT_TITLE, 
+        LTI2Vars.COURSESECTION_SOURCEDID, 
+        LTI2Vars.COURSESECTION_LABEL,
+        LTI2Vars.COURSESECTION_LONGDESCRIPTION,
+        LTI2Vars.MEMBERSHIP_ROLE,
+        LTI2Vars.TOOLCONSUMERPROFILE_URL,
+        LTI2Vars.RESULT_SOURCEDID
     } ;
 
     // Constructor
@@ -179,6 +190,7 @@ public class ToolConsumer {
     }
 
     public void allowName() {
+        this.capability_offered.add(LTI2Vars.USER_USERNAME);
         this.capability_offered.add(LTI2Vars.PERSON_SOURCEDID);
         this.capability_offered.add(LTI2Vars.PERSON_NAME_FULL);
         this.capability_offered.add(LTI2Vars.PERSON_NAME_GIVEN);

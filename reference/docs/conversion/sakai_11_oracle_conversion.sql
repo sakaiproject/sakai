@@ -402,6 +402,8 @@ CREATE TABLE SST_PRESENCE_TOTALS (
                 PRIMARY KEY(ID));
 -- END SAK-29546
 
+CREATE SEQUENCE SST_PRESENCE_TOTALS_ID START WITH 1 INCREMENT BY 1 nomaxvalue;
+                
 -- KNL-1369 Update kernel DDL with new roster.viewsitevisits permission
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'roster.viewsitevisits');
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewsitevisits'));
@@ -434,3 +436,64 @@ INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '',
 INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 'sakai.feedback', 1, 'Contact Us', NULL );
 -- END SAK-29271
+
+--KNL-1379 Bigger SESSION_USER_AGENT
+ALTER TABLE SAKAI_SESSION MODIFY SESSION_USER_AGENT VARCHAR2 (255 CHAR);
+-- END KNL-1379
+
+-- SAK-29974 Nested citation lists
+ALTER TABLE CITATION_COLLECTION_ORDER ADD SECTION_TYPE ENUM('HEADING1','HEADING2', 'HEADING3', 'DESCRIPTION', 'CITATION') DEFAULT NULL;
+ALTER TABLE CITATION_COLLECTION_ORDER ADD VALUE TEXT DEFAULT NULL;
+ALTER TABLE CITATION_COLLECTION_ORDER MODIFY ( CITATION_ID VARCHAR(36) NULL);
+-- End SAK-29974
+
+--  SAK-29733 Change Schedule to Calendar for existing sites
+UPDATE SAKAI_SITE_TOOL SET TITLE="Calendar" WHERE REGISTRATION = "sakai.schedule" AND TITLE = "Schedule";
+UPDATE SAKAI_SITE_PAGE SET TITLE="Calendar" WHERE TITLE = "Schedule";
+
+-- SAK-30000 Site creation notification email template updates
+UPDATE email_template_item
+SET message = '
+From Worksite Setup to ${serviceName} support:
+
+<#if courseSite ="true">Official Course Site<#else>Site </#if> ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} <#if courseSite ="true">for ${termTitle} </#if>
+<#if numSections = "1">with access to the roster for this section:<#elseif numSections != "0">with access to rosters for these ${numSections} sections:</#if>
+
+${sections}
+'
+WHERE template_key = 'sitemanage.notifySiteCreation' AND template_locale = 'default';
+UPDATE email_template_item
+SET subject = 'Site "${siteTitle}" was successfully created by ${currentUserDisplayName}', message = '
+Hi, ${currentUserDisplayName}:
+
+Your site "${siteTitle}" has been successfully created. The following is a copy of the site creation notification email sent to ${serviceName} support:
+
+
+From Worksite Setup to ${serviceName} support:
+
+<#if courseSite ="true">Official Course Site<#else>Site </#if> ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} <#if courseSite ="true">for ${termTitle} </#if>
+<#if numSections = "1">with access to the roster for this section:<#elseif numSections != "0">with access to rosters for these ${numSections} sections:</#if>
+
+${sections}
+'
+WHERE template_key = 'sitemanage.notifySiteCreation.confirmation' AND template_locale = 'default';
+-- END SAK-30000
+
+-- SAK-29740 update gradebook settings
+ALTER TABLE gb_gradebook_t ADD course_letter_grade_displayed NUMBER(1,0) DEFAULT 1 NOT NULL;
+
+-- SAK-29401/SAK-29977 Role based access to sites --
+INSERT INTO SAKAI_REALM_ROLE VALUES (DEFAULT, '.default');
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.roles'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.default'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'));
+
+-- SAK-25099 Anonymous topics in forums
+ALTER TABLE MFR_TOPIC_T ADD POST_ANONYMOUS NUMBER(1,0) DEFAULT 0 NOT NULL;
+ALTER TABLE MFR_TOPIC_T ADD REVEAL_IDS_TO_ROLES NUMBER(1,0) DEFAULT 0 NOT NULL;
+ALTER TABLE MFR_PERMISSION_LEVEL_T ADD IDENTIFY_ANON_AUTHORS NUMBER(1,0) DEFAULT 0 NOT NULL;
+UPDATE MFR_PERMISSION_LEVEL_T SET IDENTIFY_ANON_AUTHORS = 1 WHERE NAME = 'Owner';
