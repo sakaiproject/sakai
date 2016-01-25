@@ -240,7 +240,12 @@ function updateUsers() {
 	            },
 	            success: function(data) {
 	                //Run dom update from headscripts.js
-	               try { updateNow(); } catch (error) {alert(error);}
+	               try { 
+	               	var updateUrl = document.getElementById("courierString");
+	               	updateNow(updateUrl.value);
+	               } catch (error) {
+	               	alert(error);
+	               }
                     options.dom_textarea
 	                    .val("")
 	                    .focus();
