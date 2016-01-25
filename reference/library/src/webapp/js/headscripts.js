@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
- 
+
 var courierRunning = false;
 
 var focus_path;
@@ -41,7 +41,7 @@ function openWindow(url, name, options)
 	return win;
 }
 
-function sitehelp(whereto) 
+function sitehelp(whereto)
 {
 	umcthelp=window.open(whereto,'umcthelpWindow','toolbar=yes,scrollbars=yes,resizable=yes,menubar=no,status=yes,directories=no,location=no,width=600,height=400');
 }
@@ -62,7 +62,7 @@ function showSubmitMessage()
 {
 	var submitDiv = document.getElementById('SubmitMessage');
 	var normalDiv = document.getElementById('chefPortletContainer')
-	if (submitDiv != null) 
+	if (submitDiv != null)
 	{
 		submitDiv.style.display = '';
 		if (normalDiv != null)
@@ -75,14 +75,14 @@ function showSubmitMessage()
 // PLEASE SEE http://www.worldtimzone.com/res/encode/
 // before modifying any of this UTF-8 encoding JavaScript!
 /* ***************************
-** Most of this code was kindly 
+** Most of this code was kindly
 ** provided to me by
 ** Andrew Clover (and at doxdesk dot com)
-** http://and.doxdesk.com/ 
-** in response to my plea in my blog at 
+** http://and.doxdesk.com/
+** in response to my plea in my blog at
 ** http://worldtimzone.com/blog/date/2002/09/24
 ** It was unclear whether he created it.
-*/ 
+*/
 // Uses the JavaScript built-in function encodeURIComponent()
 // which properly encodes UTF-8.  If the function isn't available,
 // emulates the function (older browsers like IE 5.0)
@@ -95,7 +95,7 @@ function myEscape(value)
 		// IE 5.5+ and Netscape 6+ and Mozilla
 		return encodeURIComponent(value);
 	}
-	else 
+	else
 	{
 		// Need to mimic the JavaScript version
 		// Netscape 4 and IE 4 and IE 5.0
@@ -212,7 +212,7 @@ function formSubmitOnEnter(field, event)
 		field.form.submit();
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -237,7 +237,7 @@ function clickOnEnter(event, element)
 		}
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -264,24 +264,24 @@ function setMainFrameHeightNow(id, maxHeight)
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
 	if (typeof window.name !== "undefined" && id !== window.name) return;
 
-	//SAK-21209 check we can access the document, 
+	//SAK-21209 check we can access the document,
 	//ie this could be a Basic LTI request and therefore we are not allowed
 	try {
 		var frame = parent.document.getElementById(id);
 	} catch (e) {
 		return;
 	}
-	
+
 	if (frame)
 	{
 		// reset the scroll
 		parent.window.scrollTo(0,0);
 
 		var objToResize = (frame.style) ? frame.style : frame;
-  
+
     // SAK-11014 revert           if ( false ) {
 
-		var height; 		
+		var height;
 		var offsetH = document.body.offsetHeight;
 		var innerDocScrollH = null;
 
@@ -293,7 +293,7 @@ function setMainFrameHeightNow(id, maxHeight)
  			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
 			innerDocScrollH = (innerDoc !== null) ? innerDoc.body.scrollHeight : null;
 		}
-	
+
 		if (document.all && innerDocScrollH !== null)
 		{
 			// IE on Windows only
@@ -304,7 +304,7 @@ function setMainFrameHeightNow(id, maxHeight)
 			// every other browser!
 			height = offsetH;
 		}
-   // SAK-11014 revert		} 
+   // SAK-11014 revert		}
 
    // SAK-11014 revert             var height = getFrameHeight(frame);
 
@@ -329,7 +329,7 @@ function setMainFrameHeightNow(id, maxHeight)
 
 // optional hook triggered after the head script fires.
 
-		if (parent.postIframeResize){ 
+		if (parent.postIframeResize){
 			parent.postIframeResize(id);
 		}
 	}
@@ -388,7 +388,7 @@ function findScroll()
 		x = document.body.scrollLeft;
 		y = document.body.scrollTop;
 	}
-	
+
 	return [x,y];
 }
 
@@ -427,7 +427,7 @@ function setFocus(elements)
 		{
 			focal_point = focal_point.getElementById(elements[i]);
 		}
-		
+
 		if(focal_point.contentDocument)
 		{
 			focal_point = focal_point.contentDocument;
@@ -445,7 +445,7 @@ function setFocus(elements)
 			break;
 		}
 	}
-	
+
 	if(focal_point && focal_point.focus)
 	{
 		focal_point.focus();
@@ -459,7 +459,7 @@ function addAuto(loc)
 
 	// not if already there
 	if (str.indexOf("auto=courier") !== -1) return str;
-	
+
 	if (str.indexOf("?") !== -1)
 	{
 		// has a ?
@@ -485,18 +485,18 @@ function showNotif(item, button,formName)
 
 		document.showItem.style.visibility = "visible";
 	}
-	
-	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
+
+	for (var i=0;i<document.getElementsByTagName("input").length; i++)
 	{
 		if (document.getElementsByTagName("input").item(i).className === "disableme")
 		{
 			document.getElementsByTagName("input").item(i).disabled = "disabled";
 		}
-	}		
+	}
 }
 
 // stuff to do auto-update using the XMLHttpRequest object
-var updateReq;
+var updateReq = null;
 var updateTime = 0;
 var updateUrl = "";
 var updateWaiting = 0;
@@ -578,30 +578,33 @@ function swapUpdateIndicator()
 	}
 }
 
-function checkForUpdate()
-{
-	updateWaiting = 0;
-	if ((updateUrl !== "") && (updateReq === null))
-	{
-		loadXMLDoc(updateUrl);
-	}
+function checkForUpdate(url) {
+    if (url !== undefined || url !== "") {
+        updateUrl = url;
+    }
+    updateWaiting = 0;
+    if ((updateUrl !== "") && (updateReq === null)) {
+        loadXMLDoc(updateUrl);
+    }
 }
 
-function scheduleUpdate()
-{
-	if ((updateTime > 0) && (updateWaiting === 0))
-	{
-		updateWaiting = setTimeout('checkForUpdate()', updateTime);
-	}
+function scheduleUpdate(updTime, updUrl) {
+    if (updTime !== undefined || updTime !== "") {
+        updateTime = updTime;
+    }
+    if (updUrl !== undefined || updUrl !== "") {
+        updateUrl = updUrl;
+    }
+    if ((updateTime > 0) && (updateWaiting === 0)) {
+        updateWaiting = setTimeout('checkForUpdate()', updateTime);
+    }
 }
 
-function updateNow()
-{
-	if (updateWaiting !== 0)
-	{
-		clearTimeout(updateWaiting);
-	}
-	checkForUpdate();
+function updateNow(url) {
+    if (updateWaiting !== 0) {
+        clearTimeout(updateWaiting);
+    }
+    checkForUpdate(url);
 }
 
 function portalWindowRefresh(url)
@@ -650,7 +653,7 @@ function browserSafeDocHeight() {
 	} else if (document.body) { // other Explorers
 		winHeight =  document.body.clientHeight;
 	}
-	return Math.max(winHeight,docHeight); 
+	return Math.max(winHeight,docHeight);
 }
 
 function supports_history_api() {
@@ -677,7 +680,7 @@ function includeLatestJQuery(where) {
 
 	if ( window.jQuery ) {
 		window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
-		if (typeof jQuery.migrateWarnings == 'undefined') { 
+		if (typeof jQuery.migrateWarnings == 'undefined') {
 			document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/jquery-migrate-1.2.1.min.js'+ver+'">'+'\x3C/script>')
 			window.console && console.log('Adding jQuery migrate');
 		}
@@ -699,8 +702,8 @@ function includeLatestJQuery(where) {
 }
 
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
-function portalSmallBreakPoint() { return 800; } 
-function portalMediumBreakPoint() { return 800; } 
+function portalSmallBreakPoint() { return 800; }
+function portalMediumBreakPoint() { return 800; }
 
 // A function to add an icon picker to a text input field
 var fontawesome_icons = false;
@@ -721,8 +724,8 @@ function fontawesome_icon_picker(selector) {
 				placeHolder: '',
 				emptyIconValue: 'none'
 			});
-		}).error(function() { 
-			window.console && console.log("Could not load icons for icon picker."); 
+		}).error(function() {
+			window.console && console.log("Could not load icons for icon picker.");
 		});
 	}
 }
@@ -732,7 +735,7 @@ function modalDialogWidth() {
 	var wWidth = $(window).width();
 	var pbr = portalSmallBreakPoint();
 	var dWidth = wWidth * 0.8;
-	if ( wWidth <= pbr ) { 
+	if ( wWidth <= pbr ) {
 		dWidth = pbr * 0.8;
 		if ( dWidth > (wWidth * 0.95) ) {
 			dWidth = wWidth * 0.95;
