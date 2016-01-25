@@ -94,7 +94,8 @@ public interface GradebookService {
      * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
      */
     public static Comparator<String> lettergradeComparator = new Comparator<String>() {
-		public int compare(String o1, String o2){
+		@Override
+    	public int compare(String o1, String o2){
 			if(o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
 				if(o1.length() == 2 && o2.length() == 2) {
 					if(o1.charAt(1) == '+') {
@@ -335,6 +336,7 @@ public interface GradebookService {
      * 
      * @deprecated 
      */
+    @Deprecated
     public List getCategories(final Long gradebookId);
     
     /**
@@ -758,6 +760,16 @@ public interface GradebookService {
      * @return percentage or null if no calculations were made
      */
     Double calculateCategoryScore(final Long categoryId, final List<Assignment> viewableAssignments, final Map<Long,String> gradeMap);
+
+    /**
+     * Calculate the category score for the given gradebook, category and student
+     * 
+     * @param gradebookUid uuid of the gradebook
+     * @param categoryId id of category
+     * @param studentUuid uuid of the student
+     * @return percentage or null if no calculations were made
+     */
+	Double calculateCategoryScore(String gradebookUid, Long categoryId, String studentUuid);
 
     /**
      * Get the course grade for a student

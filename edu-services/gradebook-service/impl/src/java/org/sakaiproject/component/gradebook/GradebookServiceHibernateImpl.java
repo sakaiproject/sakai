@@ -2914,6 +2914,58 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	return Double.valueOf(mean.doubleValue());
 	}
 	
+	@Override
+	public Double calculateCategoryScore(String gradebookUid, Long categoryId, String studentUuid) {
+	
+		//setup
+		//int numScored = 0;
+		//int numOfAssignments = 0;
+		//BigDecimal totalEarned = new BigDecimal("0");
+		//BigDecimal totalPossible = new BigDecimal("0");
+		
+		Gradebook gradebook = this.getGradebook(gradebookUid);
+		
+		//get all grade records for the student
+		//will return null if there are none
+		@SuppressWarnings({ "unchecked", "rawtypes"})
+		Map<String, List<AssignmentGradeRecord>> gradeRecMap = (Map<String, List<AssignmentGradeRecord>>)getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
+                return getGradeRecordMapForStudents(session, gradebook.getId(), Collections.singletonList(studentUuid));
+            }
+		});
+		
+		if(gradeRecMap == null) {
+			log.debug("No grade records for student: " + studentUuid + ". Nothing to do.");
+			return null;
+		}
+				
+		//apply the settings
+		List<AssignmentGradeRecord> gradeRecords = gradeRecMap.get(studentUuid);
+		this.applyDropScores(gradeRecords);
+		
+		//iterate every grade record, check its for the category we want
+		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
+			
+			Assignment a = gradeRecord.getAssignment();
+			
+			//check match
+			if(categoryId != a.getCategory().getId()){
+				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + gradeRecord.getAssignment().getCategory().getId());
+				return null;
+			}
+			
+			
+			//System.out.println("pp: " + a.getPointsPossible());
+			//System.out.println("pe: " + gradeRecord.getPointsEarned());
+			
+		}
+		
+    	
+		
+		return null;
+	}
+	
 
 	@Override
 	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid) {
