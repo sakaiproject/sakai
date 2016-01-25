@@ -69,7 +69,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 
     private static Object LOCK = new Object();
 
-    private static FormattedText formattedText;
+    private volatile static FormattedText formattedText;
 
 	private SecurityService securityService;
 	private ServerConfigurationService serverConfigurationService;
@@ -80,13 +80,15 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
     protected static FormattedText getFormattedText() {
         if (formattedText == null) {
             synchronized (LOCK) {
-                FormattedText component = (FormattedText) ComponentManager.get(FormattedText.class);
-                if (component == null) {
-                    throw new IllegalStateException("Unable to find the FormattedText using the ComponentManager");
-                } else {
-                    formattedText = component;
-                }
-            }
+		if(formattedText == null){
+		    FormattedText component = (FormattedText) ComponentManager.get(FormattedText.class);
+		    if (component == null) {
+			throw new IllegalStateException("Unable to find the FormattedText using the ComponentManager");
+		    } else {
+			formattedText = component;
+		    }
+		}
+             }
         }
         return formattedText;
     }
