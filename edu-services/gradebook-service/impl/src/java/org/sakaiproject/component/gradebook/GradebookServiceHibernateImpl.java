@@ -2894,15 +2894,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				totalPossible = totalPossible.add(new BigDecimal(assignment.getPoints().toString()));
 				numOfAssignments++;
 				numScored++;
+				
+				//sanitise grade
+				if(StringUtils.isBlank(grade)) {
+					grade = "0";
+				}
+				
+				//update total points earned
+				totalEarned = totalEarned.add(new BigDecimal(grade));
 			}
 			
-			//sanitise grade
-			if(StringUtils.isBlank(grade)) {
-				grade = "0";
-			}
-			
-			//update total points earned
-			totalEarned = totalEarned.add(new BigDecimal(grade));
 		}
 		
     	if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
