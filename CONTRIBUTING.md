@@ -5,7 +5,9 @@ Contributions to Sakai from all comers are welcome and encouraged.
 Please use these guidelines and the information in [README.md](README.md) to assure that your contributions are compatible with our (evolving) workflow and practices.
 
 ## Contributor License Agreement
-Before a code submission will be accepted, you will need to submit a Contributor License Agreement. This is a one-off process that should only take a few moments to complete. See: https://www.apereo.org/licensing/agreements
+Before a code submission will be accepted, you will need to submit a Contributor License Agreement (CLA). This is a one-off process that should only take a few moments to complete. See: https://www.apereo.org/licensing/agreements
+
+To check the status of a CLA, please visit: http://licensing.apereo.org/
 
 ## Jira
 
