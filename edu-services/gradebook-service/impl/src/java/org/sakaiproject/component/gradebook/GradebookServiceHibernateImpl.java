@@ -2944,12 +2944,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		List<AssignmentGradeRecord> gradeRecords = gradeRecMap.get(studentUuid);
 		this.applyDropScores(gradeRecords);
 		
-		//iterate every grade record, check its for the category we want
+		//iterate every grade record, check it's for the category we want
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
 			Assignment assignment = gradeRecord.getAssignment();
 			
-			//check match
+			//check category match
 			if(categoryId != assignment.getCategory().getId()){
 				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + assignment.getCategory().getId());
 				return null;
@@ -2957,10 +2957,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						
 			//only update the variables for the calculation if:
 			// 1. the assignment has points to be assigned
-			// 2. there is a grade for the student 
-			// 3. it's included in course grade calculations
-			// 4. it's released to the student (safety check against condition 3)
-			if(assignment.getPointsPossible() != null && gradeRecord.getPointsEarned() != null && assignment.isCounted() && assignment.isReleased()) {
+			// 2. there is a grade for the student
+			// 3. the assignment is included in course grade calculations
+			// 4. the assignment is  released to the student (safety check against condition 3)
+			// 5. the grade is not dropped from the calc
+			if(assignment.getPointsPossible() != null && gradeRecord.getPointsEarned() != null && assignment.isCounted() && assignment.isReleased() && !gradeRecord.getDroppedFromGrade()) {
 				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
 				numOfAssignments++;
 				numScored++;
