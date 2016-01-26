@@ -14309,11 +14309,11 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch( EntityPropertyNotDefinedException ex )
 			{
-				M_log.warn( ":sizeResources: property not defined for assignment  " + aRef + " " + ex.getMessage() );
+				M_log.debug( ":sizeResources: property not defined for assignment  " + aRef + " " + ex.getMessage() );
 			}
 			catch( EntityPropertyTypeException ex )
 			{
-				M_log.warn( ":sizeResources: property type exception for assignment  " + aRef + " " + ex.getMessage() );
+				M_log.debug( ":sizeResources: property type exception for assignment  " + aRef + " " + ex.getMessage() );
 			}
 
 			if ( assignment != null && assignment.isGroup()) {

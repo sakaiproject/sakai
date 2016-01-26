@@ -5759,10 +5759,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					return properties.getBooleanProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 			}
 			catch (EntityPropertyNotDefinedException e) {
-					M_log.warn("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " not defined " + e.getMessage());
+					M_log.debug("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " not defined " + e.getMessage());
 			}
 			catch (EntityPropertyTypeException e) {
-					M_log.warn("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " type not defined " + e.getMessage());
+					M_log.debug("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " type not defined " + e.getMessage());
 			}
 			return false;
 	}
