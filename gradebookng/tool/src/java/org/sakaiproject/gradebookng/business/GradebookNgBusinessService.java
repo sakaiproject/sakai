@@ -1691,33 +1691,13 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param categoryId id of category
 	 * @param studentUuid uuid of student
-	 * @param grades Map of grades obtained from getGradesForStudent.
 	 * @return
 	 */
-	public Double getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final Map<Assignment, GbGradeInfo> grades) {
+	public Double getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
 
-		// get assignments (filtered to just the category ones later)
-		final List<Assignment> assignments = new ArrayList<Assignment>(grades.keySet());
+		final Gradebook gradebook = getGradebook();
 
-		// build map of just the grades and assignments we want for the assignments in the given category
-		final Map<Long, String> gradeMap = new HashMap<>();
-
-		final Iterator<Assignment> iter = assignments.iterator();
-		while (iter.hasNext()) {
-			final Assignment assignment = iter.next();
-			if (categoryId == assignment.getCategoryId()) {
-				final GbGradeInfo gradeInfo = grades.get(assignment);
-				if (gradeInfo != null) {
-					gradeMap.put(assignment.getId(), gradeInfo.getGrade());
-				}
-			} else {
-				iter.remove();
-			}
-		}
-
-		// get the score
-		final Double score = this.gradebookService.calculateCategoryScore(categoryId, assignments, gradeMap);
-
+		final Double score = this.gradebookService.calculateCategoryScore(gradebook.getUid(), categoryId, studentUuid);
 		log.info("Category score for category: " + categoryId + ", student: " + studentUuid + ":" + score);
 
 		return score;

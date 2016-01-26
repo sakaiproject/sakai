@@ -11,10 +11,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
-import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
  *
@@ -58,16 +56,14 @@ public class CategoryColumnCellPanel extends Panel {
 					if (studentUuid.equals(scoreChangedEvent.getStudentUuid()) &&
 							categoryId.equals(scoreChangedEvent.getCategoryId())) {
 
-						final Map<Assignment, GbGradeInfo> grades = CategoryColumnCellPanel.this.businessService
-								.getGradesForStudent(studentUuid);
 						final Double categoryAverage = CategoryColumnCellPanel.this.businessService.getCategoryScoreForStudent(categoryId,
-								studentUuid, grades);
+								studentUuid);
 
 						final String newCategoryAverage = (categoryAverage == null) ? getString("label.nocategoryscore")
 								: FormatHelper.formatDoubleAsPercentage(categoryAverage);
 						((Model<String>) getDefaultModel()).setObject(newCategoryAverage);
 
-						this.getParent().add(new AttributeAppender("class", "gb-score-dynamically-updated"));
+						getParent().add(new AttributeAppender("class", "gb-score-dynamically-updated"));
 
 						scoreChangedEvent.getTarget().add(this);
 						scoreChangedEvent.getTarget().appendJavaScript(

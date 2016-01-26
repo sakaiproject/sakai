@@ -74,7 +74,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 				categoryNames.add(categoryName);
 				categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
 
-				final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId, grades);
+				final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
 				if (categoryAverage == null || categoryName.equals(GradebookPage.UNCATEGORISED)) {
 					categoryAverages.put(categoryName, getString("label.nocategoryscore"));
 				} else {
