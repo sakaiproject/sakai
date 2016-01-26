@@ -2918,10 +2918,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Double calculateCategoryScore(String gradebookUid, Long categoryId, String studentUuid) {
 	
 		//setup
-		//int numScored = 0;
-		//int numOfAssignments = 0;
-		//BigDecimal totalEarned = new BigDecimal("0");
-		//BigDecimal totalPossible = new BigDecimal("0");
+		int numScored = 0;
+		int numOfAssignments = 0;
+		BigDecimal totalEarned = new BigDecimal("0");
+		BigDecimal totalPossible = new BigDecimal("0");
 		
 		Gradebook gradebook = this.getGradebook(gradebookUid);
 		
@@ -2947,23 +2947,39 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//iterate every grade record, check its for the category we want
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
-			Assignment a = gradeRecord.getAssignment();
+			Assignment assignment = gradeRecord.getAssignment();
 			
 			//check match
-			if(categoryId != a.getCategory().getId()){
-				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + gradeRecord.getAssignment().getCategory().getId());
+			if(categoryId != assignment.getCategory().getId()){
+				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + assignment.getCategory().getId());
 				return null;
 			}
-			
-			
-			//System.out.println("pp: " + a.getPointsPossible());
-			//System.out.println("pe: " + gradeRecord.getPointsEarned());
+						
+			//only update the variables for the calculation if:
+			// 1. the assignment has points to be assigned
+			// 2. there is a grade for the student 
+			// 3. it's included in course grade calculations
+			// 4. it's released to the student (safety check against condition 3)
+			if(assignment.getPointsPossible() != null && gradeRecord.getPointsEarned() != null && assignment.isCounted() && assignment.isReleased()) {
+				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
+				numOfAssignments++;
+				numScored++;
+				
+				//sanitise grade, null values to "0";
+				String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
+				
+				//update total points earned
+				totalEarned = totalEarned.add(new BigDecimal(grade));
+			}
 			
 		}
 		
-    	
-		
-		return null;
+		if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
+    		return null;
+    	}
+	
+    	BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).divide((totalPossible.divide(new BigDecimal(numOfAssignments), GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));    	
+    	return Double.valueOf(mean.doubleValue());
 	}
 	
 
