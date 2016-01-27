@@ -465,10 +465,6 @@
   font-size: 0.9em;
   margin-right: 6px
 }
-#toggleCategoriesToolbarItem.on {
-  background: #ded;
-  border-color: #9b9;
-}
 #toggleCategoriesToolbarItem.on:before {
   content: '\f046';
 }
