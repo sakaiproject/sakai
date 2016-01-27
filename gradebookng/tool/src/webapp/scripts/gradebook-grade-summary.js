@@ -40,7 +40,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
 GradebookGradeSummary.prototype.setupTabs = function() {
   // if blockout, then confirmation required when changing tabs
   if (this.blockout) {
-    var $otherTab = this.$content.find(".nav.nav-pills li:not(.active) a");
+    var $otherTab = this.$content.find(".nav.nav-tabs li:not(.active) a");
     var $cloneOfTab = $otherTab.clone();
 
     $otherTab.hide();

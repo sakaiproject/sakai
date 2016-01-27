@@ -81,7 +81,7 @@ public class StudentGradeSummaryPanel extends Panel {
 		add(new AjaxBootstrapTabbedPanel("tabs", tabs) {
 			@Override
 			protected String getTabContainerCssClass() {
-				return "nav nav-pills";
+				return "nav nav-tabs";
 			}
 
 			@Override
