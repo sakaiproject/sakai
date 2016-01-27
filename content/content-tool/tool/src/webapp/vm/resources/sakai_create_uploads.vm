@@ -1,10 +1,12 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
-<script src="/sakai-content-tool/js/modernizr.custom.js" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="/library/js/dropzone/4.2.0/min/dropzone.min.css">
+<style>
+.dropzone { border: 2px dashed #0087F7; border-radius: 10px; background: ghostwhite; }
+.dropzone .dz-message { font-weight: bold; }
+.dropzone .dz-message .note { font-size: 0.8em; font-weight: 200; display: block; margin-top: 1.4rem; }
+</style>
 <div class="portletBody specialLink">
-	<h3>
-		$tlang.getString("create.uploads")
-	</h3>
+    <h3>$tlang.getString("create.uploads")</h3>
     <div class="breadCrumb">
     <h4>
         $tlang.getString("gen.location")
@@ -12,286 +14,182 @@
         #foreach ($folder in $model.collectionPath)
             $validator.escapeHtml($folder.name) /
         #end
-        </h4>
+    </h4>
     </div>
-
-	#if ($itemAlertMessage)
-		<div class="messageValidation">$itemAlertMessage</div>
-		<div style="display:block;clear:both" ></div>
-	#end
-    <div id="tradUploadWrapper" class="fallback">
-        #if($dragAndDrop)<strong><a href="#" id="dndUploadSwitcher">$tlang.getString("link.switch.to.dnd")</a></strong>#end
-        #if($instr_uploads)
-		<p class="instruction">
-			$instr_uploads
-		</p>
-        #end
-
-	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
-		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
-		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
-		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
-		#set($lastIndex = $pipes.size() - 1)
-		<input type="hidden" name="lastIndex" id="lastIndex" value="$lastIndex" />
-		<div id="fileInputDiv">
-			#set($i = -1)
-			#foreach($pipe in $pipes)
-				
-				#set($prev = $i)
-				#set($i = $i + 1)
-				#set($next = $i + 1)
-				
-				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
-					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
-					<p class="shorttext" style="border:none">
-						<label for="content${DOT}$i">$tlang.getString("label.upload")</label>
-						<input type="file" name="content${DOT}$i" id="content${DOT}$i" class="upload" />
-					</p>
-					<p class="shorttext" style="border:none"> 
-						<label for="displayName${DOT}$i">$tlang.getString("label.display")</label> 
-						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" style="width:17em"/> 
-						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
-						<a class="indnt2 remove" style="display:none" href="#" id="removeTrigger${DOT}$i" " title="$tlang.getString("edit.remove")">
-							<img src="#imageLink("sakai/cross.png")"  alt="x" />
-						</a>
-						<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($prev >= 0)${prev}#end" />
-						<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />
-					</p>
-				</div>
-				<div id="propertiesDiv${DOT}$i" style="display:none;">
-					#parse("/vm/resources/sakai_properties.vm")
-					<hr class="itemSeparator" />
-				</div>
-			#end
-		</div>
-		<p class="act">
-			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addfile")</a>
-		</p>
-		#if ($model.resourceTypeDef.hasNotificationDialog())
-			#if($model.isDropbox())
-			 	## SAK-18932 show email checkbox only when possible to use it
-				#if($dropboxNotificationAllowed)
-					<p class="act">
-						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
-						<label for="notify_dropbox">
-							#if($model.isCourseSite())
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.student")
-								#else
-									$tlang.getString("notify.instructor")
-								#end
-							#else
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.access")
-								#else
-									$tlang.getString("notify.maintain")
-								#end
-							#end
-						</label>
-					</p>
-				#end
-			#elseif($model.isUserSite())
-			#else
-				<p class="shorttext">
-					<label for="notify">
-						$tlang.getString("gen.email1")
-					</label>	
-					<select name="notify" id="notify">
-						<option value="r">$tlang.getString("gen.email2")</option>
-						<option value="o">$tlang.getString("gen.email3")</option>
-						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-					</select>
-				</p>	
-			#end
-		#end
-		
-		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" disabled="true" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doUpload" "flow=save")';submitform('addContentForm');" value="$tlang.getString("label.finupl")" accesskey="s" />
-			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
-			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
-		</p>
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-	</form>
-    </div>
-    #if($dragAndDrop)
-        <div id="dragDropWrapper">
-        <strong><a href="#" id="tradUploadSwitcher">$tlang.getString("link.switch.to.upload")</a></strong>
-        <div id="fileUploaderDesc" class="instruction">
-            <p>$tlang.getString("label.dragDescription")</p
-            <br />
-            <br />
-            <p>$instr_dnd_uploads</p>
-        </div>
-        <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
-        	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-            <div class="dz-default dz-message">$tlang.getString("label.dragZoneMessage")</div>
-        </form>
-		#if ($model.resourceTypeDef.hasNotificationDialog())
-			#if($model.isDropbox())
-			 	## SAK-18932 show email checkbox only when possible to use it
-				#if($dropboxNotificationAllowed)
-					<p class="act">
-						<input type="checkbox" name="notify_dropbox_DnD" id="notify_dropbox_DnD" value="true" /> 
-						<label for="notify_dropbox_DnD">
-							#if($model.isCourseSite())
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.student")
-								#else
-									$tlang.getString("notify.instructor")
-								#end
-							#else
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.access")
-								#else
-									$tlang.getString("notify.maintain")
-								#end
-							#end
-						</label>
-					</p>
-				#end
-			#elseif($model.isUserSite())
-			#else
-				<p class="shorttext">
-					<label for="notify_DnD">
-						$tlang.getString("gen.email1")
-					</label>	
-					<select name="notify_DnD" id="notify_DnD">
-						<option value="r">$tlang.getString("gen.email2")</option>
-						<option value="o">$tlang.getString("gen.email3")</option>
-						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-					</select>
-				</p>	
-			#end
-		#end
-		<p class="act">
-			<input type="button" name="finish" id="finish" disabled=true
-			onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';" 
-			 value="$tlang.getString("label.continue")" accesskey="x" />
-			
-			<input type="button" name="cancel" 
-			onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" 
-			value="$tlang.getString("label.cancel")" accesskey="x" />
-			
-		</p>
+    #if ($itemAlertMessage)
+        <div class="messageValidation">$itemAlertMessage</div>
+        <div style="display:block;clear:both" ></div>
     #end
+    <div id="dragDropWrapper">
+    <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        <div class="dz-default dz-message">$tlang.getString("label.dragZoneMessage")</div>
+    </form>
+    <div id="fileUploaderDesc" class="instruction">
+        <p>$tlang.getString("label.dragDescription")</p
+        <br />
+        <br />
+        <p>$instr_dnd_uploads</p>
+    </div>
+    <form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
+        #if ($model.resourceTypeDef.hasNotificationDialog())
+            #if($model.isDropbox())
+                ## SAK-18932 show email checkbox only when possible to use it
+                #if($dropboxNotificationAllowed)
+                    <p class="act">
+                        <input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" />
+                        <label for="notify_dropbox">
+                            #if($model.isCourseSite())
+                                #if($model.userIsMaintainer())
+                                    $tlang.getString("notify.student")
+                                #else
+                                    $tlang.getString("notify.instructor")
+                                #end
+                            #else
+                                #if($model.userIsMaintainer())
+                                    $tlang.getString("notify.access")
+                                #else
+                                    $tlang.getString("notify.maintain")
+                                #end
+                            #end
+                        </label>
+                    </p>
+                #end
+            #elseif($model.isUserSite())
+            #else
+                <p class="shorttext">
+                    <label for="notify">
+                        $tlang.getString("gen.email1")
+                    </label>
+                    <select name="notify" id="notify">
+                        <option value="r">$tlang.getString("gen.email2")</option>
+                        <option value="o">$tlang.getString("gen.email3")</option>
+                        <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+                    </select>
+                </p>
+            #end
+        #end
+        <p class="act">
+            <input type="button" name="finish" id="finish" disabled=true
+                onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';"
+                value="$tlang.getString("label.continue")" accesskey="x" />
 
+            <input type="button" name="cancel" 
+                onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');"
+                value="$tlang.getString("label.cancel")" accesskey="x" />
+        </p>
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    </form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
-#if($dragAndDrop)
+<div id="preview-template" style="display: none;">
+    <div class="dz-preview dz-file-preview">
+        <div class="dz-image"><img data-dz-thumbnail=""></div>
+        <div class="dz-details">
+            <div class="dz-size"><span data-dz-size=""></span></div>
+            <div class="dz-filename"><span data-dz-name=""></span></div>
+        </div>
+        <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress=""></span></div>
+        <div class="dz-error-message"><span data-dz-errormessage=""></span></div>
+        <div class="dz-success-mark">
+            <svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <!-- Generator: Sketch 3.2.1 (9971) - http://www.bohemiancoding.com/sketch -->
+                <title>Check</title>
+                <desc>Created with Sketch.</desc>
+                <defs></defs>
+                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                    <path d="M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" stroke-opacity="0.198794158" stroke="#747474" fill-opacity="0.816519475" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+                </g>
+            </svg>
+        </div>
+        <div class="dz-error-mark">
+            <svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <!-- Generator: Sketch 3.2.1 (9971) - http://www.bohemiancoding.com/sketch -->
+                <title>error</title>
+                <desc>Created with Sketch.</desc>
+                <defs></defs>
+                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                    <g id="Check-+-Oval-2" sketch:type="MSLayerGroup" stroke="#747474" stroke-opacity="0.198794158" fill="#FFFFFF" fill-opacity="0.816519475">
+                        <path d="M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" sketch:type="MSShapeGroup"></path>
+                    </g>
+                </g>
+            </svg>
+        </div>
+    </div>
+</div>
 <script src="/library/js/dropzone/4.2.0/min/dropzone.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 Dropzone.options.fileUploader = {
-  // do not change these values as the dropzone logic depends on these values
-  autoProcessQueue: false,
-  parallelUploads: 1,
-  uploadMultiple: false,
-  addRemoveLinks: true,
-  maxFilesize: $uploadMaxSize, // MB
-  //SAK-25747
-  dictFallbackMessage: "$tlang.getString("dragndrop.dictFallbackMessage")",
-  dictFallbackText: "$tlang.getString("dragndrop.dictFallbackText")",
-  dictFileTooBig: "$tlang.getString("dragndrop.dictFileTooBig")",
-  dictInvalidFileType: "$tlang.getString("dragndrop.dictInvalidFileType")",
-  dictResponseError: "$tlang.getString("dragndrop.dictResponseError")",
-  dictCancelUpload: "$tlang.getString("dragndrop.dictCancelUpload")",
-  dictCancelUploadConfirmation: "$tlang.getString("dragndrop.dictCancelUploadConfirmation")",
-  dictRemoveFile: "$tlang.getString("dragndrop.dictRemoveFile")",
-  dictMaxFilesExceeded: "$tlang.getString("dragndrop.dictMaxFilesExceeded")",
-  dictFolderUploadError: "$tlang.getString("dragndrop.dictFolderUploadError")",
-  
+    // do not change these values as the dropzone logic depends on these values
+    autoProcessQueue: false,
+    parallelUploads: 1,
+    uploadMultiple: false,
+    addRemoveLinks: true,
+    maxFilesize: $uploadMaxSize, // MB
+    previewTemplate: document.getElementById('preview-template').innerHTML,
+    dictFallbackMessage: "$tlang.getString("dragndrop.dictFallbackMessage")",
+    dictFallbackText: "$tlang.getString("dragndrop.dictFallbackText")",
+    dictFileTooBig: "$tlang.getString("dragndrop.dictFileTooBig")",
+    dictInvalidFileType: "$tlang.getString("dragndrop.dictInvalidFileType")",
+    dictResponseError: "$tlang.getString("dragndrop.dictResponseError")",
+    dictCancelUpload: "$tlang.getString("dragndrop.dictCancelUpload")",
+    dictCancelUploadConfirmation: "$tlang.getString("dragndrop.dictCancelUploadConfirmation")",
+    dictRemoveFile: "$tlang.getString("dragndrop.dictRemoveFile")",
+    dictMaxFilesExceeded: "$tlang.getString("dragndrop.dictMaxFilesExceeded")",
+    dictFolderUploadError: "$tlang.getString("dragndrop.dictFolderUploadError")",
+
     init: function() {
-      var status;
-    
-      this.on("removedfile", function() {
-  	    if (!this.getQueuedFiles().length) {
-  	       document.getElementById("finish").disabled=true;
-  	    }
-      });
+        var dz = this;
+        var status;
+        var submitButton = document.querySelector("#finish");
 
-      this.on("complete", function(file) {
-      	var queuedFiles = this.getQueuedFiles();
-      	
-      	// don't process any more files if there is an error 
-      	if(queuedFiles.length > 0 && status === Dropzone.SUCCESS) {
-      	  this.processFile(queuedFiles.shift());
-      	}
-      });
+        this.on("removedfile", function() {
+            if (!this.getQueuedFiles().length) {
+                document.getElementById("finish").disabled=true;
+            }
+        });
 
-      this.on("queuecomplete", function() {
-        if(status === Dropzone.SUCCESS) {
-          document.getElementById('addContentForm').submit();
-        }
-      });
+        this.on("complete", function(file) {
+            var queuedFiles = this.getQueuedFiles();
 
-      this.on("drop", function() {
-      	document.getElementById("finish").disabled=false;
-      });
+            // don't process any more files if there is an error 
+            if(queuedFiles.length > 0 && status === Dropzone.SUCCESS) {
+                this.processFile(queuedFiles.shift());
+            }
+        });
 
-      this.on("addedfile", function() {
-      	document.getElementById("finish").disabled=false;
-      });
+        this.on("queuecomplete", function() {
+            if(status === Dropzone.SUCCESS) {
+                document.getElementById('addContentForm').submit();
+            }
+        });
 
-	  this.on("sending", function(file, xhr, formData) {
-		formData.append("fullPath",file.fullPath);
-      });
-      
-      this.on("error", function(file, message, xhr) {
-        status = file.status;
-  	    document.getElementById("finish").disabled=true;
-      });
-       
-      this.on("success", function(file, responseText, e) {
-        status = file.status;
-        file.previewTemplate.appendChild(document.createTextNode(responseText));
-      });
-       
-       
-      var submitButton = document.querySelector("#finish");
-      var dz = this;
-      submitButton.addEventListener("click", function() {
-    	  submitButton.disabled=true;
-	      dz.processQueue(); // Tell Dropzone to process all queued files.
-	  });
+        this.on("drop", function() {
+            document.getElementById("finish").disabled=false;
+        });
+
+        this.on("addedfile", function() {
+            document.getElementById("finish").disabled=false;
+        });
+
+        this.on("sending", function(file, xhr, formData) {
+            formData.append("fullPath",file.fullPath);
+        });
+
+        this.on("error", function(file, message, xhr) {
+            status = file.status;
+            document.getElementById("finish").disabled=true;
+        });
+
+        this.on("success", function(file, responseText, e) {
+            status = file.status;
+            file.previewTemplate.appendChild(document.createTextNode(responseText));
+        });
+
+        submitButton.addEventListener("click", function() {
+            submitButton.disabled=true;
+            dz.processQueue(); // Tell Dropzone to process all queued files.
+        });
     }
- };
+};
 </script>
-<script type="text/javascript">
-    //use a small custom build of modernizer to detect if
-    // current browser can do dnd uploads, swap the two interfaces.
-    if(Modernizr.draganddrop && window.FileReader){
-        $('#tradUploadWrapper').hide();
-        $('#dragDropWrapper').show();
-    }
-    else {
-        $('#tradUploadWrapper').show();
-        $('#dragDropWrapper').hide();
-    }
-    $('#dndUploadSwitcher').click(function(e){
-        e.preventDefault();
-        $('#tradUploadWrapper').fadeOut();
-        $('#dragDropWrapper').fadeIn();
-        
-    });
-    $('#tradUploadSwitcher').click(function(e){
-        e.preventDefault();
-        $('#tradUploadWrapper').fadeIn();
-        $('#dragDropWrapper').fadeOut();
-
-    })
-    
-</script>
-<script type="text/javascript">
-	$('#notify_DnD').change(function(){
-		$('#notify').val($('#notify_DnD').val());
-	});
-	$('#notify').change(function(){
-		$('#notify_DnD').val($('#notify').val());
-	});
-	$('#notify_dropbox_DnD').change(function(){
-		$('#notify_dropbox').prop('checked',($('#notify_dropbox_DnD').prop('checked')));
-	});
-	$('#notify_dropbox').change(function(){
-		$('#notify_dropbox_DnD').prop('checked',($('#notify_dropbox').prop('checked')));
-	});
-</script>
-#end

@@ -168,12 +168,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	/** The title of the new page to be created in the site */
 	protected static final String STATE_PAGE_TITLE = PREFIX + "page_title";
 	
-	/** Tool property to enable Drag and Drop uploads in a per-tool basis */
-	private static final String TOOL_PROP_DRAGNDROP_ENABLED = "content.upload.dragndrop";
-	
 	/** We need to send a single email with every D&D upload reported in it */
-	
 	private static final String DRAGNDROP_FILENAME_REFERENCE_LIST = "dragndrop_filename_reference_list";	
+
 	private NotificationService notificationService = (NotificationService) ComponentManager.get(NotificationService.class);	
 	private EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
 
@@ -659,16 +656,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", new String[]{ uploadMax });
 		context.put("instr_dnd_uploads", instr_dnd_uploads);
-
-		Boolean dragAndDrop = ServerConfigurationService.getBoolean("content.upload.dragndrop", true);
-		String strDragAndDropEnabled = ToolManager.getCurrentPlacement().getConfig().getProperty(TOOL_PROP_DRAGNDROP_ENABLED);
-
-		if (StringUtils.isNotBlank(strDragAndDropEnabled))
-		{
-			dragAndDrop = dragAndDrop || (new Boolean(strDragAndDropEnabled));
-		}
-
-		context.put("dragAndDrop", dragAndDrop);
 
 //		int max_bytes = 1024 * 1024;
 //		try
