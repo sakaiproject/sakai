@@ -1,11 +1,14 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -83,6 +86,18 @@ public class CategoryColumnHeaderPanel extends Panel {
 
 		add(title);
 
+		String categoryColor = settings.getCategoryColor(category.getName());
+		if (categoryColor == null) {
+			categoryColor = gradebookPage.generateRandomRGBColorString();
+			settings.setCategoryColor(category.getName(), categoryColor);
+			gradebookPage.setUiSettings(settings);
+		}
+
+		Component colorSwatch = gradebookPage.buildFlagWithPopover("categorySwatch",
+				(new StringResourceModel("label.gradeitem.categoryaverage", this, null,
+						new String[]{category.getName()})).getString());
+		colorSwatch.add(new AttributeAppender("style", String.format("background-color:%s;", categoryColor)));
+		add(colorSwatch);
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
@@ -585,5 +586,23 @@ public class GradebookPage extends BasePage {
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
+	}
+
+
+	/**
+	 * Helper to generate a RGB CSS color string
+	 * with values between 180-250 to ensure a lighter color
+	 * e.g. rgb(181,222,199)
+	 */
+	public String generateRandomRGBColorString() {
+		Random rand = new Random();
+		int min = 180;
+		int max = 250;
+
+		int r = rand.nextInt((max - min) + 1) + min;
+		int g = rand.nextInt((max - min) + 1) + min;
+		int b = rand.nextInt((max - min) + 1) + min;
+
+		return String.format("rgb(%d,%d,%d)", r, g, b);
 	}
 }
