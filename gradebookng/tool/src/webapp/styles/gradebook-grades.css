@@ -657,8 +657,8 @@
   float: right;
   font-size: 0.8em;
 }
-.gb-popover-notifications blockquote {
-  margin: 4px 0 0;
+.gb-popover-notifications .gb-popover-notification-has-comment blockquote {
+  margin: 0.5em 0;
   padding: 5px 10px;
   font-size: 0.9em;
 }
@@ -826,6 +826,7 @@ ul.feedbackPanel li span {
   font-family: "gradebook-icons";
   content: '\f075';
   font-size: 1em;
+  font-style: normal;
 }
 .gb-cell-out-of-date .gb-cell-notification {
   display: none;
