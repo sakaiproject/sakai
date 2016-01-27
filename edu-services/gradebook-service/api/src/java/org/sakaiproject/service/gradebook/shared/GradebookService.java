@@ -24,6 +24,7 @@ package org.sakaiproject.service.gradebook.shared;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Set;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -740,36 +741,29 @@ public interface GradebookService {
 	public List getGradingEvents(final String studentId, final long assignmentId);
     
     /**
-     * Calculate a student's score for a category given the category definition and grades for that student.
+     * Calculate the category score for the given gradebook, student and category, looking up the grades.
+     * Safe to call in context of a student.
      * 
-     * Note that this cannot be run as a student due to permission checks. 
-     * Use {@link GradebookService#calculateCategoryScore(List, String)} if in context of a student.
-     * 
-     * @param category category to perform the calculations for
-     * @param gradeMap map of assignmentId to grade, to use for the calculations
+     * @param gradebookUid uuid of the gradebook
+     * @param studentUuid uuid of the student
+     * @param categoryId id of category
      * @return percentage or null if no calculations were made
      */
-    Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap);
-    
-    /**
-     * Calculate the category score given the viewable assignments and grades for that student.
+	Double calculateCategoryScore(String gradebookUid, String studentUuid, Long categoryId);
+	
+	/**
+     * Calculate the category score for the given gradebook, category, viewable assignment list and grade map.
+     * This doesn't do any additional grade lookups.
+     * Safe to call in context of a student.
      * 
-     * @param categoryId id of category, used for validation that the assignments and grades match
+     * @param gradebookUid uuid of the gradebook
+     * @param studentUuid uuid of the student
+     * @param categoryId id of category
      * @param assignments list of assignments the student can view
      * @param gradeMap map of assignmentId to grade, to use for the calculations
      * @return percentage or null if no calculations were made
      */
-    Double calculateCategoryScore(final Long categoryId, final List<Assignment> viewableAssignments, final Map<Long,String> gradeMap);
-
-    /**
-     * Calculate the category score for the given gradebook, category and student
-     * 
-     * @param gradebookUid uuid of the gradebook
-     * @param categoryId id of category
-     * @param studentUuid uuid of the student
-     * @return percentage or null if no calculations were made
-     */
-	Double calculateCategoryScore(String gradebookUid, Long categoryId, String studentUuid);
+	Double calculateCategoryScore(String gradebookUid, String studentUuid, CategoryDefinition category, final List<Assignment> viewableAssignments, Map<Long,String> gradeMap);
 
     /**
      * Get the course grade for a student
