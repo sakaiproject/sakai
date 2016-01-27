@@ -2862,10 +2862,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     }
 	
 	@Override
-	public Double calculateCategoryScore(String gradebookUid, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
+	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
 		
-		Gradebook gradebook = this.getGradebook(gradebookUid);
-		
+		Gradebook gb = (Gradebook) gradebook;
+				
 		//collect the data and turn it into a list of AssignmentGradeRecords
 		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
 		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
@@ -2889,7 +2889,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			a.setExtraCredit(assignment.isExtraCredit());
 			a.setReleased(assignment.isReleased());
 			a.setRemoved(false); //shared.Assignment doesn't include removed so this will always be false
-			a.setGradebook(gradebook);
+			a.setGradebook(gb);
 			a.setCategory(c);
 			
 			//create the AGR
@@ -2898,40 +2898,37 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			gradeRecords.add(gradeRecord);
 		}
 		
-		return calculateCategoryScore(gradebookUid, studentUuid, category.getId(), gradeRecords);
+		return calculateCategoryScore(studentUuid, category.getId(), gradeRecords);
 	}
 	
 	@Override
-	public Double calculateCategoryScore(String gradebookUid, String studentUuid, Long categoryId) {
-	
-		Gradebook gradebook = this.getGradebook(gradebookUid);
-		
+	public Double calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId) {
+			
 		//get all grade records for the student
 		@SuppressWarnings({ "unchecked", "rawtypes"})
 		Map<String, List<AssignmentGradeRecord>> gradeRecMap = (Map<String, List<AssignmentGradeRecord>>)getHibernateTemplate().execute(new HibernateCallback() {
             @Override
 			public Object doInHibernate(Session session) throws HibernateException {
-                return getGradeRecordMapForStudents(session, gradebook.getId(), Collections.singletonList(studentUuid));
+                return getGradeRecordMapForStudents(session, gradebookId, Collections.singletonList(studentUuid));
             }
 		});
 			
 		//apply the settings
 		List<AssignmentGradeRecord> gradeRecords = gradeRecMap.get(studentUuid);
 		
-		return calculateCategoryScore(gradebookUid, studentUuid, categoryId, gradeRecords);
+		return calculateCategoryScore(studentUuid, categoryId, gradeRecords);
 	}
 	
 	/**
 	 * Does the heavy lifting for the category calculations.
 	 * Requires the List of AssignmentGradeRecord so that we can applyDropScores.
-	 * @param gradebookUid
 	 * @param studentUuid
 	 * @param categoryId
 	 * @param gradeRecords
 	 * @return
 	 */
-	private Double calculateCategoryScore(String gradebookUid, String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords) {
-		
+	private Double calculateCategoryScore(String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords) {
+				
 		//validate
 		if(gradeRecords == null) {
 			log.debug("No grade records for student: " + studentUuid + ". Nothing to do.");
@@ -2946,8 +2943,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				
 		//apply any drop/keep settings for this category
 		this.applyDropScores(gradeRecords);
-		
-		
+				
 		//iterate every grade record, check it's for the category we want
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			

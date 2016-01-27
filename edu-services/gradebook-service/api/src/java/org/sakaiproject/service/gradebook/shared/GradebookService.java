@@ -744,26 +744,27 @@ public interface GradebookService {
      * Calculate the category score for the given gradebook, student and category, looking up the grades.
      * Safe to call in context of a student.
      * 
-     * @param gradebookUid uuid of the gradebook
+     * @param gradebookId Id of the gradebook
      * @param studentUuid uuid of the student
      * @param categoryId id of category
      * @return percentage or null if no calculations were made
+     * 
      */
-	Double calculateCategoryScore(String gradebookUid, String studentUuid, Long categoryId);
+	Double calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
 	
 	/**
      * Calculate the category score for the given gradebook, category, viewable assignment list and grade map.
      * This doesn't do any additional grade lookups.
      * Safe to call in context of a student.
      * 
-     * @param gradebookUid uuid of the gradebook
+     * @param gradebook the gradebook. As this method is called for every student at once, this is passed in to save additional lookups by id.
      * @param studentUuid uuid of the student
      * @param categoryId id of category
      * @param assignments list of assignments the student can view
      * @param gradeMap map of assignmentId to grade, to use for the calculations
      * @return percentage or null if no calculations were made
      */
-	Double calculateCategoryScore(String gradebookUid, String studentUuid, CategoryDefinition category, final List<Assignment> viewableAssignments, Map<Long,String> gradeMap);
+	Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<Assignment> viewableAssignments, Map<Long,String> gradeMap);
 
     /**
      * Get the course grade for a student
