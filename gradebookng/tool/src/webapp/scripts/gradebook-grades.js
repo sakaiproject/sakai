@@ -902,7 +902,7 @@ GradebookSpreadsheet.prototype.updateCategoryLabelPositions = function(animate) 
 
       var newLeftOffset = Math.max(offset, 0);
 
-      if ($label.data("leftOffset") != newLeftOffset) {
+      if ($label.data("leftOffset") != newLeftOffset || $label.data("labelWidth") != newLabelWidth) {
         var newStyles = {
           marginLeft: Math.max(offset, 0),
           width: newLabelWidth
@@ -917,6 +917,7 @@ GradebookSpreadsheet.prototype.updateCategoryLabelPositions = function(animate) 
           $label.css(newStyles);
         }
         $label.data("leftOffset", newLeftOffset);
+        $label.data("labelWidth", newLabelWidth);
       }
     }
   });
