@@ -40,7 +40,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
 GradebookGradeSummary.prototype.setupTabs = function() {
   // if blockout, then confirmation required when changing tabs
   if (this.blockout) {
-    var $otherTab = this.$content.find(".nav.nav-pills li:not(.active) a");
+    var $otherTab = this.$content.find(".nav.nav-tabs li:not(.active) a");
     var $cloneOfTab = $otherTab.clone();
 
     $otherTab.hide();
@@ -131,8 +131,10 @@ GradebookGradeSummary.prototype.setupFixedFooter = function() {
 GradebookGradeSummary.prototype.setupMask = function() {
   var $mask = this.$modal.siblings(".wicket-mask-transparent, .wicket-mask-dark");
   if (this.blockout) {
+    // Darken the mask
     $mask.removeClass("wicket-mask-transparent").addClass("wicket-mask-dark");
-    $("#container").parent().addClass("gb-blur");
+    // Add a blur effect to the main page container
+    $("#pageBody").addClass("gb-blur");
   } else {
     $mask.removeClass("wicket-mask-dark").addClass("wicket-mask-transparent");
     GradebookGradeSummaryUtils.clearBlur();

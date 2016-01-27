@@ -81,7 +81,7 @@ public class StudentGradeSummaryPanel extends Panel {
 		add(new AjaxBootstrapTabbedPanel("tabs", tabs) {
 			@Override
 			protected String getTabContainerCssClass() {
-				return "nav nav-pills";
+				return "nav nav-tabs";
 			}
 
 			@Override
@@ -94,8 +94,7 @@ public class StudentGradeSummaryPanel extends Panel {
 				studentNavigation.setVisible(showingInstructorView);
 				target.add(studentNavigation);
 
-				target.appendJavaScript(
-						"new GradebookGradeSummary($(\"#" + getParent().getMarkupId() + "\"), " + showingStudentView + ");");
+				target.appendJavaScript(String.format("new GradebookGradeSummary($(\"#%s\"), %s);", getParent().getMarkupId(), showingStudentView));
 			}
 		});
 

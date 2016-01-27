@@ -123,7 +123,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				iconClass = "icon-sakai-lessonbuildertool";
 			}
 			externalAppFlag
-					.add(new AttributeModifier("class", "gb-external-app-flag Mrphs-toolsNav__menuitem--icon icon-active " + iconClass));
+					.add(new AttributeModifier("class", "gb-external-app-flag " + iconClass));
 		}
 		add(externalAppFlag);
 
