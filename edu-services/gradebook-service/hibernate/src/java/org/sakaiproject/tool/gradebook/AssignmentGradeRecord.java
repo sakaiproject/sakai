@@ -55,7 +55,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
 
     static{
     	numericComparator = new Comparator<AssignmentGradeRecord>() {
-            public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
+            @Override
+			public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
                 if(agr1 == null && agr2 == null) {
                     return 0;
                 }
@@ -108,7 +109,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
 
     static {
         calcComparator = new Comparator<AssignmentGradeRecord>() {
-            public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
+            @Override
+			public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
                 if(agr1 == null && agr2 == null) {
                     return 0;
                 }
@@ -138,7 +140,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
     /**
      * @return Returns the pointsEarned
      */
-    public Double getPointsEarned() {
+    @Override
+	public Double getPointsEarned() {
         return pointsEarned;
     }
 
@@ -154,7 +157,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
      *
      * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#getGradeAsPercentage()
      */
-    public Double getGradeAsPercentage() {
+    @Override
+	public Double getGradeAsPercentage() {
         if (pointsEarned == null) {
             return null;
         }
@@ -167,6 +171,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
 	/**
 	 * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#isCourseGradeRecord()
 	 */
+	@Override
 	public boolean isCourseGradeRecord() {
 		return false;
 	}
@@ -200,7 +205,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
     	this.userAbleToView = userAbleToView;
     }
 
-    public AssignmentGradeRecord clone()
+    @Override
+	public AssignmentGradeRecord clone()
     {
     	AssignmentGradeRecord agr = new AssignmentGradeRecord();
     	agr.setDateRecorded(dateRecorded);
