@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -87,7 +86,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				}
 
 				if (settings.getCategoryColor(categoryName) == null) {
-					settings.setCategoryColor(categoryName, generateRandomRGBColorString());
+					settings.setCategoryColor(categoryName, gradebookPage.generateRandomRGBColorString());
 					gradebookPage.setUiSettings(settings);
 				}
 
@@ -178,23 +177,5 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 		}
 
 		return StringUtils.isBlank(assignment.getCategoryName()) ? getString(GradebookPage.UNCATEGORISED) : assignment.getCategoryName();
-	}
-
-
-	/**
-	 * Helper to generate a RGB CSS color string
-	 * with values between 180-250 to ensure a lighter color
-	 * e.g. rgb(181,222,199)
-	 */
-	private String generateRandomRGBColorString() {
-		Random rand = new Random();
-		int min = 180;
-		int max = 250;
-
-		int r = rand.nextInt((max - min) + 1) + min;
-		int g = rand.nextInt((max - min) + 1) + min;
-		int b = rand.nextInt((max - min) + 1) + min;
-
-		return String.format("rgb(%d,%d,%d)", r, g, b);
 	}
 }
