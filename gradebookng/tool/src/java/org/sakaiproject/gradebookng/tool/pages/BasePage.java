@@ -215,10 +215,12 @@ public class BasePage extends WebPage {
 	public WebMarkupContainer buildFlagWithPopover(final String componentId, final String message) {
 		final WebMarkupContainer flagWithPopover = new WebMarkupContainer(componentId);
 
+		flagWithPopover.add(new AttributeModifier("title", message));
 		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
 		flagWithPopover.add(new AttributeModifier("data-trigger", "focus"));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
+		flagWithPopover.add(new AttributeModifier("data-template", "'<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>'"));
 		flagWithPopover.add(new AttributeModifier("data-content", generatePopoverContent(message)));
 		flagWithPopover.add(new AttributeModifier("tabindex", "0"));
 

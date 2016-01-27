@@ -496,6 +496,8 @@ public class GradebookPage extends BasePage {
 				Model.ofList(assignments));
 		add(gradeItemsTogglePanel);
 
+		add(buildFlagWithPopover("extraCreditCategoryFlag", getString("label.gradeitem.extracreditcategory")));
+
 		// hide/show components
 
 		// no assignments, hide table, show message
