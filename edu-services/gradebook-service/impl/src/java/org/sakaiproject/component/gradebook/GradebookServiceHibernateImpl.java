@@ -2867,7 +2867,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		Gradebook gradebook = this.getGradebook(gradebookUid);
 		
 		//collect the data and turn it into a list of AssignmentGradeRecords
-		//this is the info that is compatible with applyDropScores
+		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
 		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
 		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: viewableAssignments) {
 			
@@ -2883,23 +2883,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			//recreate the assignment (required fields only)
 			Assignment a = new Assignment();
+			a.setPointsPossible(assignment.getPoints());
 			a.setUngraded(assignment.getUngraded());
 			a.setCounted(assignment.isCounted());
 			a.setExtraCredit(assignment.isExtraCredit());
+			a.setReleased(assignment.isReleased());
 			a.setRemoved(false); //shared.Assignment doesn't include removed so this will always be false
 			a.setGradebook(gradebook);
 			a.setCategory(c);
 			
 			//create the AGR
 			AssignmentGradeRecord gradeRecord = new AssignmentGradeRecord(a, studentUuid, grade);
-			gradeRecord.setPointsEarned(assignment.getPoints());
 			
 			gradeRecords.add(gradeRecord);
 		}
 		
 		return calculateCategoryScore(gradebookUid, studentUuid, category.getId(), gradeRecords);
-
-		
 	}
 	
 	@Override
@@ -2947,6 +2946,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				
 		//apply any drop/keep settings for this category
 		this.applyDropScores(gradeRecords);
+		
 		
 		//iterate every grade record, check it's for the category we want
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {

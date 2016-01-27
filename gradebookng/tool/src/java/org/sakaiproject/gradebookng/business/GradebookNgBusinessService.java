@@ -681,7 +681,9 @@ public class GradebookNgBusinessService {
 						}
 					}
 
-					final Double categoryScore = this.gradebookService.calculateCategoryScore(category, gradeMap);
+					// final Double categoryScore = this.gradebookService.calculateCategoryScore(category, gradeMap);
+					final Double categoryScore = this.gradebookService.calculateCategoryScore(gradebook.getUid(), student.getId(),
+							category, assignments, gradeMap);
 
 					// add to GbStudentGradeInfo
 					sg.addCategoryAverage(category.getId(), categoryScore);
@@ -1697,7 +1699,7 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Double score = this.gradebookService.calculateCategoryScore(gradebook.getUid(), categoryId, studentUuid);
+		final Double score = this.gradebookService.calculateCategoryScore(gradebook.getUid(), studentUuid, categoryId);
 		log.info("Category score for category: " + categoryId + ", student: " + studentUuid + ":" + score);
 
 		return score;
