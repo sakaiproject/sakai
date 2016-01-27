@@ -131,8 +131,10 @@ GradebookGradeSummary.prototype.setupFixedFooter = function() {
 GradebookGradeSummary.prototype.setupMask = function() {
   var $mask = this.$modal.siblings(".wicket-mask-transparent, .wicket-mask-dark");
   if (this.blockout) {
+    // Darken the mask
     $mask.removeClass("wicket-mask-transparent").addClass("wicket-mask-dark");
-    $("#container").parent().addClass("gb-blur");
+    // Add a blur effect to the main page container
+    $("#pageBody").addClass("gb-blur");
   } else {
     $mask.removeClass("wicket-mask-dark").addClass("wicket-mask-transparent");
     GradebookGradeSummaryUtils.clearBlur();

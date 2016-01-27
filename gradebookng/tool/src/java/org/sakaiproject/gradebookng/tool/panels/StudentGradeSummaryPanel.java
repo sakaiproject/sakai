@@ -94,8 +94,7 @@ public class StudentGradeSummaryPanel extends Panel {
 				studentNavigation.setVisible(showingInstructorView);
 				target.add(studentNavigation);
 
-				target.appendJavaScript(
-						"new GradebookGradeSummary($(\"#" + getParent().getMarkupId() + "\"), " + showingStudentView + ");");
+				target.appendJavaScript(String.format("new GradebookGradeSummary($(\"#%s\"), %s);", getParent().getMarkupId(), showingStudentView));
 			}
 		});
 
