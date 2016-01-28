@@ -10,7 +10,7 @@
     }
 
     CKEDITOR.plugins.add("autosave", {
-        lang: 'ca,cs,de,en,es,fr,ja,pl,pt-br,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
+        lang: 'ca,cs,de,en,es,fr,ja,pl,pt-br,ru,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
         requires: 'notification',
         version: 0.13,
         init: function(editor) {
@@ -214,7 +214,7 @@
         localStorage.setItem(autoSaveKey, compressedJSON);
 
         if (typeof editorInstance.config.autosave_disableNotifications === "undefined" || !editorInstance.config.autosave_disableNotifications) {
-            var notification = new CKEDITOR.plugins.notification( editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' } );
+            var notification = new CKEDITOR.plugins.notification(editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' });
             notification.show();
         }
     }
