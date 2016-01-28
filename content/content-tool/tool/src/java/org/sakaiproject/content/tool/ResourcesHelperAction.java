@@ -705,6 +705,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		if(ContentHostingService.isAvailabilityEnabled())
 		{
 			context.put("availability_is_enabled", Boolean.TRUE);
+			context.put("upload_visibility_hidden", ServerConfigurationService.getBoolean("content.dnd.visibility.hidden", false));
 		}
 		
 		if(model.isDropbox)
@@ -1897,7 +1898,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	{
 		String fullPath = request.getParameter("fullPath");
 		String action = request.getParameter("sakai_action");
-		logger.debug("Received action: "+action+" for file: "+fullPath);
+		boolean hidden = Boolean.valueOf(request.getParameter("hidden"));
+		logger.debug("Received action: "+action+" for file: "+fullPath+" with visibilty "+Boolean.toString(!hidden));
 		
 		// set up rundata, in case we're called from RSF
 		checkRunData(request);
@@ -1974,7 +1976,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			{
 				JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
 				if (checkCSRFToken(request,rundata,action)) {
-					doDragDropUpload(request, response, fullPath);
+					doDragDropUpload(request, response, fullPath, hidden);
 				}
 			}
 		}
@@ -2007,7 +2009,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	}
 
 
-	private synchronized void doDragDropUpload(HttpServletRequest request, HttpServletResponse response, String fullPath)
+	private synchronized void doDragDropUpload(HttpServletRequest request, HttpServletResponse response, String fullPath, boolean hidden)
 	{
 		//Feel free to sent comments/warnings/advices to me at daniel.merino AT unavarra.es
 		
@@ -2095,9 +2097,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					resourceProps.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, uploadFileName);
 					resource.setContent(uploadFile.getInputStream());
 					resource.setContentType(contentType);
+					resource.setAvailability(hidden, null, null);
 					ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
 					
 					if (collection != null){
+						collection.setAvailability(hidden, null, null);
 						ContentHostingService.commitCollection(collection);
 						logger.debug("Collection commited: "+collection.getId());
 					}
