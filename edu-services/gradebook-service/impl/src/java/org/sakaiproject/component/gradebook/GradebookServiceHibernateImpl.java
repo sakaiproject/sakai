@@ -42,6 +42,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -2861,44 +2862,112 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     }
 	
 	@Override
-	public Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap) {
-		List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = category.getAssignmentList();
-		return calculateCategoryScore(category.getId(), assignments, gradeMap);
+	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
+		
+		Gradebook gb = (Gradebook) gradebook;
+				
+		//collect the data and turn it into a list of AssignmentGradeRecords
+		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
+		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
+		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: viewableAssignments) {
+			
+			Long assignmentId = assignment.getId();
+			Double grade = NumberUtils.createDouble(gradeMap.get(assignmentId));
+			
+			//recreate the category (required fields only)
+			Category c = new Category();
+			c.setId(category.getId());
+			c.setDropHighest(category.getDropHighest());
+			c.setDrop_lowest(category.getDrop_lowest());
+			c.setKeepHighest(category.getKeepHighest());
+			
+			//recreate the assignment (required fields only)
+			Assignment a = new Assignment();
+			a.setPointsPossible(assignment.getPoints());
+			a.setUngraded(assignment.getUngraded());
+			a.setCounted(assignment.isCounted());
+			a.setExtraCredit(assignment.isExtraCredit());
+			a.setReleased(assignment.isReleased());
+			a.setRemoved(false); //shared.Assignment doesn't include removed so this will always be false
+			a.setGradebook(gb);
+			a.setCategory(c);
+			
+			//create the AGR
+			AssignmentGradeRecord gradeRecord = new AssignmentGradeRecord(a, studentUuid, grade);
+			
+			gradeRecords.add(gradeRecord);
+		}
+		
+		return calculateCategoryScore(studentUuid, category.getId(), gradeRecords);
 	}
 	
 	@Override
-	public Double calculateCategoryScore(Long categoryId, List<org.sakaiproject.service.gradebook.shared.Assignment> assignments, Map<Long,String> gradeMap) {
+	public Double calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId) {
+			
+		//get all grade records for the student
+		@SuppressWarnings({ "unchecked", "rawtypes"})
+		Map<String, List<AssignmentGradeRecord>> gradeRecMap = (Map<String, List<AssignmentGradeRecord>>)getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
+                return getGradeRecordMapForStudents(session, gradebookId, Collections.singletonList(studentUuid));
+            }
+		});
+			
+		//apply the settings
+		List<AssignmentGradeRecord> gradeRecords = gradeRecMap.get(studentUuid);
 		
+		return calculateCategoryScore(studentUuid, categoryId, gradeRecords);
+	}
+	
+	/**
+	 * Does the heavy lifting for the category calculations.
+	 * Requires the List of AssignmentGradeRecord so that we can applyDropScores.
+	 * @param studentUuid
+	 * @param categoryId
+	 * @param gradeRecords
+	 * @return
+	 */
+	private Double calculateCategoryScore(String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords) {
+				
+		//validate
+		if(gradeRecords == null) {
+			log.debug("No grade records for student: " + studentUuid + ". Nothing to do.");
+			return null;
+		}
+		
+		//setup
 		int numScored = 0;
 		int numOfAssignments = 0;
 		BigDecimal totalEarned = new BigDecimal("0");
 		BigDecimal totalPossible = new BigDecimal("0");
-		
-		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: assignments) {
+				
+		//apply any drop/keep settings for this category
+		this.applyDropScores(gradeRecords);
+				
+		//iterate every grade record, check it's for the category we want
+		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
-			if(categoryId != assignment.getCategoryId()){
-				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + assignment.getCategoryId());
+			Assignment assignment = gradeRecord.getAssignment();
+			
+			//check category match
+			if(categoryId != assignment.getCategory().getId()){
+				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + assignment.getCategory().getId());
 				return null;
 			}
-			
-			Long assignmentId = assignment.getId();
-			
-			String grade = gradeMap.get(assignmentId);
 						
 			//only update the variables for the calculation if:
 			// 1. the assignment has points to be assigned
-			// 2. there is a grade for the student 
-			// 3. it's included in course grade calculations
-			// 4. it's released to the student (safety check against condition 3)
-			if(assignment.getPoints() != null && StringUtils.isNotBlank(grade) && assignment.isCounted() && assignment.isReleased()) {
-				totalPossible = totalPossible.add(new BigDecimal(assignment.getPoints().toString()));
+			// 2. there is a grade for the student
+			// 3. the assignment is included in course grade calculations
+			// 4. the assignment is  released to the student (safety check against condition 3)
+			// 5. the grade is not dropped from the calc
+			if(assignment.getPointsPossible() != null && gradeRecord.getPointsEarned() != null && assignment.isCounted() && assignment.isReleased() && !gradeRecord.getDroppedFromGrade()) {
+				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
 				numOfAssignments++;
 				numScored++;
 				
-				//sanitise grade
-				if(StringUtils.isBlank(grade)) {
-					grade = "0";
-				}
+				//sanitise grade, null values to "0";
+				String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
 				
 				//update total points earned
 				totalEarned = totalEarned.add(new BigDecimal(grade));
@@ -2906,7 +2975,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 		}
 		
-    	if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
+		if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
     		return null;
     	}
 	
@@ -2914,7 +2983,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	return Double.valueOf(mean.doubleValue());
 	}
 	
-
 	@Override
 	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid) {
 		
