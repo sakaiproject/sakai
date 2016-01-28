@@ -181,7 +181,12 @@ function addExtDatePickers(itemNum) {
 	var s = document.createElement("script");
 	s.type = "text/javascript";	
 	
-	var defaultStartDate = moment(document.getElementById("xt_open"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
+	var defaultStartDate;
+	if(document.getElementById("xt_open"+itemNum).value == ''){		
+		defaultStartDate = moment($('#assessmentSettingsAction\\:startDate').datetimepicker('getDate')).format('YYYY-MM-DD HH:mm:ss');
+	} else {
+		defaultStartDate = moment(document.getElementById("xt_open"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
+	}
 	var startDatePickerOptions = { input: '#xt_open' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
@@ -190,7 +195,12 @@ function addExtDatePickers(itemNum) {
 	}
 	localDatePicker(startDatePickerOptions);
 	
-	var formattedDueDate = moment(document.getElementById("xt_due"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
+	var formattedDueDate;
+	if(document.getElementById("xt_due"+itemNum).value == ''){		
+		formattedDueDate = moment($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate')).format('YYYY-MM-DD HH:mm:ss');
+	} else {
+		formattedDueDate = moment(document.getElementById("xt_due"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
+	}
 	var dueDatePickerOptions = { input: '#xt_due' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
@@ -199,15 +209,19 @@ function addExtDatePickers(itemNum) {
 	}
 	localDatePicker(dueDatePickerOptions); 
 	
-	var formattedRetractDate = moment(document.getElementById("xt_retract"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
+	var formattedRetractDate;
+	if(document.getElementById("xt_retract"+itemNum).value == ''){		
+		formattedRetractDate = moment($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate')).format('YYYY-MM-DD HH:mm:ss');
+	} else {
+		formattedRetractDate = moment(document.getElementById("xt_retract"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
+	}
 	var retractDatePickerOptions = { input: '#xt_retract' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
 		val: formattedRetractDate,
 		ashidden: { iso8601: 'xt_retract' + itemNum + 'ISO8601' } 
 	}
-	localDatePicker(retractDatePickerOptions); 
-	
+	localDatePicker(retractDatePickerOptions); 	
 	s.innerHTML = '';	
 	document.getElementsByTagName("head")[0].appendChild(s);
 }
