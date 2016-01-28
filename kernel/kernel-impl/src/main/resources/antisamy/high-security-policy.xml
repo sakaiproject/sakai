@@ -1555,6 +1555,42 @@
                 </regexp-list>
             </attribute>
         </tag>
+        
+        <tag name="track" action="validate">
+            <attribute name="label" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="srclang" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="kind" onInvalid="removeTag">
+                <literal-list>
+                    <literal value="captions"/>
+                    <literal value="chapters"/>
+                    <literal value="descriptions"/>
+                    <literal value="metadata"/>
+                    <literal value="subtitles"/>
+                </literal-list>
+            </attribute>
+            <attribute name="src" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="onsiteURL"/>
+                    <regexp name="offsiteURL"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="default">
+                <literal-list>
+                    <literal value="default"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+        </tag>
 
         <!-- Image & image related tags -->
         <tag name="img" action="validate">
