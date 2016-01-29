@@ -670,12 +670,34 @@ function checkRequiredFields( alertMsg ) {
     alert( alertMsg );
     return false;
   }
-  
+  //If electronic citation check if at least one url is supplied
+  if($('#type_selector').val() == 'electronic'){
+    var showUrlAlert = $("input:text[name^='url_']" ).filter(function(){
+                        return this.value.trim().length;
+                        }).length > 0;
+    if(!showUrlAlert){
+      alert( "Must supply at least one url for electronic citation." );
+      return false;
+    }
+  }
   return true;
 }
 
+function checkReqStarForElectronicCitation(){
+  //For electronic citation display reqstar for Link field.
+  if($('#type_selector').val() == 'electronic'){
+      var addReqStar = '<span class="reqStar">*</span>';
+      $(addReqStar).insertBefore('#url_div label:first');
+  }
+  //else remove reqStar from the Link field
+  else{
+      $('#url_div .reqStar').remove();
+  }
+}
 $(document).ready( function() {
-    if (typeof $.fn.googleBooksCover != "undefined"){
+	if (typeof $.fn.googleBooksCover != "undefined"){
         $.fn.googleBooksCover();
     }
-} );
+    //when editing an existing electronic citation check for required link field
+    checkReqStarForElectronicCitation();
+});
