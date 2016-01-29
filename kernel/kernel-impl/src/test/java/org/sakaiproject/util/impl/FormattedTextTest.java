@@ -771,6 +771,29 @@ public class FormattedTextTest {
     }
 
     @Test
+    public void testKNL_1407() {
+        // https://jira.sakaiproject.org/browse/KNL-1407
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+        strFromBrowser = "<video width=\"320\" height=\"240\"> <source type=\"video/mp4\" src=\"http://localhost:8080/access/content/group/3c1af5f8-10f0-4e12-99b6-43a2427c5fc6/Test1/test1.mp4\" ><track src=\"http://localhost:8080/access/content/group/3c1af5f8-10f0-4e12-99b6-43a2427c5fc6/Test1/captions_file.vtt\" label=\"English\" kind=\"captions\" srclang=\"en-us\" default > </video>";
+
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        Assert.assertNotNull(result);
+        Assert.assertFalse(errorMessages.toString(), errorMessages.length() > 0);
+        Assert.assertTrue( result.contains("<video"));
+        Assert.assertTrue( result.contains("<track"));
+        Assert.assertTrue( result.contains("src=\"http://localhost:8080/access/content/group/3c1af5f8-10f0-4e12-99b6-43a2427c5fc6/Test1/test1.mp4"));
+        Assert.assertTrue( result.contains("src=\"http://localhost:8080/access/content/group/3c1af5f8-10f0-4e12-99b6-43a2427c5fc6/Test1/captions_file.vtt"));
+        Assert.assertTrue( result.contains("kind=\"captions"));
+        Assert.assertTrue( result.contains("srclang=\"en-us"));
+        Assert.assertTrue( result.contains("label=\"English"));
+        Assert.assertTrue( result.contains("default"));
+    }
+
+
+    @Test
     public void testValidateURL() {
         // https://jira.sakaiproject.org/browse/KNL-1100
         boolean result = false;
