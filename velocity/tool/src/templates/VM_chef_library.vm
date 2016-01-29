@@ -103,7 +103,18 @@
 	#end
 #end
 
-
+ #* ------------------------------------------------------------------
+ # The standard way to deal with the flash notifications
+ *# ------------------------------------------------------------------
+#macro (chef_flashnotif)
+	#if($flashNotif)
+		<div id="flashNotif" >
+			<span class="flashNotifMessage">$flashNotif</span>
+			<a href="#" onclick = "event.preventDefault();$('#flashNotif').hide();" class="flashNotifClose" title=$flashNotifCloseTitle>&times;
+			<span class="skip">$flashNotifCloseTitle</span></a>
+		</div>
+	#end
+#end
 
 #* ------------------------------------------------------------------
 # The standard way to deal with the ToolPortlet Alert
@@ -118,6 +129,7 @@
 #macro (chef_viewmsg $msg)
 	<div class="chefPageviewTitle">#chef_html($msg)</div>
 #end
+
 
 #* ------------------------------------------------------------------
 # The standard way to deal with the message in place of a flat list

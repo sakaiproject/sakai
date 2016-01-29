@@ -334,19 +334,7 @@
 		</div>	
 	#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-    #if($newSiteStatusTitle)
-        <div id="newSiteAlert" class="$newSiteStatusID">
-            <span class="newSiteAlertMessage"><a title="$validator.escapeHtml($newSiteStatusTitle)" href="/portal/site/$newSiteStatusID" target="_top">$validator.escapeHtml($newSiteStatusTitle)</a> $tlang.getString("sitdup.hasbeedup") </span>
-            #if ($newSiteStatusIsPublished == false)
-                <div id="newSiteAlertActions" class="newSiteAlertActions">
-                    <a href="#" id="newSiteAlertPublish" class="$newSiteStatusID">$tlang.getString("sitetype.publishSite")</a>
-                    <span id="newSiteAlertPublishMess" class="messageSuccess" style="display:none">$tlang.getString("list.publi")</span>
-                </div>
-            #end
-            
-            <a href="#" class="newSiteAlertClose" title="$tlang.getString("sitetype.template.close.info")">&times;<span class="skip">$tlang.getString("sitetype.template.close.info")</span></a>    
-        </div>
-    #end    
+		#chef_flashnotif()
 	</form>
 </div>
 		

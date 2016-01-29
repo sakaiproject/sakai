@@ -774,6 +774,7 @@ function printPreview(target){
 			#pagingPanel($pagesizeFormName)
 		#end
 		<div class="instruction" style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span></div>
+		#chef_flashnotif()
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
 			<dl>
 				#foreach( $role in $allowedRoles )

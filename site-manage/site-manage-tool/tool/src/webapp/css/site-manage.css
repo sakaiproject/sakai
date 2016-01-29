@@ -797,8 +797,8 @@ dl.defList dd{
     box-shadow:2px 2px 2px #cccccc;
     vertical-align:middle;
 }
-#newSiteAlert .newSiteAlertActions {float:right;margin-right:10px}
-#newSiteAlert .newSiteAlertActions a {
+#flashNotif .newSiteAlertActions {float:right;margin-right:10px}
+#flashNotif .newSiteAlertActions a {
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
