@@ -496,7 +496,7 @@ function showNotif(item, button,formName)
 }
 
 // stuff to do auto-update using the XMLHttpRequest object
-var updateReq;
+var updateReq = null;
 var updateTime = 0;
 var updateUrl = "";
 var updateWaiting = 0;
