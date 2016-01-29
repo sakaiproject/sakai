@@ -79,6 +79,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow gradeLogWindow;
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
+	GbModalWindow gradeStatisticsWindow;
 
 	Form<Void> form;
 
@@ -121,6 +122,9 @@ public class GradebookPage extends BasePage {
 
 		this.deleteItemWindow = new GbModalWindow("deleteItemWindow");
 		this.form.add(this.deleteItemWindow);
+
+		this.gradeStatisticsWindow = new GbModalWindow("gradeStatisticsWindow");
+		this.form.add(this.gradeStatisticsWindow);
 
 		final AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
 			@Override
@@ -544,6 +548,10 @@ public class GradebookPage extends BasePage {
 
 	public GbModalWindow getDeleteItemWindow() {
 		return this.deleteItemWindow;
+	}
+
+	public GbModalWindow getGradeStatisticsWindow() {
+		return this.gradeStatisticsWindow;
 	}
 
 	/**

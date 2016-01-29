@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:panel>
+
+		<h3 wicket:id="title">Assignment Statistics</h3>
+
+		<dl class="dl-horizontal">
+			<dt><wicket:message key="label.statistics.graded"></wicket:message></dt>
+			<dd wicket:id="graded"></dd>
+			<dt><wicket:message key="label.statistics.outof"></wicket:message></dt>
+			<dd wicket:id="outof"></dd>
+			<dt><wicket:message key="label.statistics.average"></wicket:message></dt>
+			<dd wicket:id="average"></dd>
+			<dt><wicket:message key="label.statistics.median"></wicket:message></dt>
+			<dd wicket:id="median"></dd>
+			<dt><wicket:message key="label.statistics.lowest"></wicket:message></dt>
+			<dd wicket:id="lowest"></dd>
+			<dt><wicket:message key="label.statistics.highest"></wicket:message></dt>
+			<dd wicket:id="highest"></dd>
+			<dt><wicket:message key="label.statistics.variance"></wicket:message></dt>
+			<dd wicket:id="variance"></dd>
+			<dt><wicket:message key="label.statistics.deviation"></wicket:message></dt>
+			<dd wicket:id="deviation"></dd>
+		</dl>
+
+		<div>
+			<input type="button" wicket:id="done" wicket:message="value:button.done" />
+		</div>
+	</wicket:panel>
+</body>
+</html>
