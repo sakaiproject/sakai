@@ -205,6 +205,8 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		}
 
 		this.model.getObject().getGradebookInformation().setSelectedGradingScaleBottomPercents(bottomPercents);
+
+		this.configuredGradeMappingId = this.currentGradeMappingId;
 	}
 
 	/**
