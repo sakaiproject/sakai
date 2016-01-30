@@ -1,11 +1,10 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -41,32 +40,32 @@ public class GradeStatisticsPanel extends Panel {
 
 		final Long assignmentId = ((Model<Long>) getDefaultModel()).getObject();
 
-		Assignment assignment = businessService.getAssignment(assignmentId.longValue());
+		final Assignment assignment = this.businessService.getAssignment(assignmentId.longValue());
 
 		add(new Label("title", new StringResourceModel("label.statistics.title",
 				null, new Object[] { assignment.getName() }).getString()));
 
-		List<GbStudentGradeInfo> gradeInfo = businessService.buildGradeMatrix(Arrays.asList(assignment));
+		final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(Arrays.asList(assignment));
 
-		List<Double> allGrades = new ArrayList<>();
+		final List<Double> allGrades = new ArrayList<>();
 
-		for (int i=0; i < gradeInfo.size(); i++) {
+		for (int i = 0; i < gradeInfo.size(); i++) {
 			final GbStudentGradeInfo studentGradeInfo = gradeInfo.get(i);
 
-			Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
-			GbGradeInfo grade = studentGrades.get(assignmentId);
+			final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
+			final GbGradeInfo grade = studentGrades.get(assignmentId);
 
 			if (grade == null || grade.getGrade() == null) {
-				// this is not the grade you are looking for 
+				// this is not the grade you are looking for
 			} else {
 				allGrades.add(Double.valueOf(grade.getGrade()));
 			}
 		}
 
 		add(new Label("graded", new StringResourceModel("label.statistics.gradedoutof",
-				null, new String[]{
-				String.valueOf(allGrades.size()),
-				String.valueOf(gradeInfo.size())}).getString()));
+				null, new Object[] {
+						String.valueOf(allGrades.size()),
+						String.valueOf(gradeInfo.size()) }).getString()));
 		add(new Label("outof", String.valueOf(assignment.getPoints())));
 
 		if (allGrades.size() > 0) {
@@ -96,8 +95,7 @@ public class GradeStatisticsPanel extends Panel {
 		});
 	}
 
-
-	private double calculateAverage(List<Double> allGrades) {
+	private double calculateAverage(final List<Double> allGrades) {
 		double sum = 0;
 		for (int i = 0; i < allGrades.size(); i++) {
 			sum += allGrades.get(i);
@@ -105,31 +103,28 @@ public class GradeStatisticsPanel extends Panel {
 		return sum / allGrades.size();
 	}
 
-
-	private double calculateMedian(List<Double> allGrades) {
-		int middle = allGrades.size()/2;
-		if (allGrades.size()%2 == 1) {
+	private double calculateMedian(final List<Double> allGrades) {
+		final int middle = allGrades.size() / 2;
+		if (allGrades.size() % 2 == 1) {
 			return allGrades.get(middle);
 		} else {
-			return (allGrades.get(middle-1) + allGrades.get(middle)) / 2.0;
+			return (allGrades.get(middle - 1) + allGrades.get(middle)) / 2.0;
 		}
 	}
 
-
-	private double calculateVariance(List<Double> allGrades) {
-		double mean = calculateAverage(allGrades);
+	private double calculateVariance(final List<Double> allGrades) {
+		final double mean = calculateAverage(allGrades);
 		double sum = 0;
 
 		for (int i = 0; i < allGrades.size(); i++) {
-			double grade = allGrades.get(i);
+			final double grade = allGrades.get(i);
 			sum += (mean - grade) * (mean - grade);
 		}
 
 		return sum / allGrades.size();
 	}
 
-
-	private double calculateStandardDeviation(List<Double> allGrades) {
+	private double calculateStandardDeviation(final List<Double> allGrades) {
 		return Math.sqrt(calculateVariance(allGrades));
 	}
 }
