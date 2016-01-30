@@ -2944,15 +2944,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//apply any drop/keep settings for this category
 		this.applyDropScores(gradeRecords);
 				
-		//iterate every grade record, check it's for the category we want
+		//iterate every grade record, check it's for the category we want, otherwise discard
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
 			Assignment assignment = gradeRecord.getAssignment();
-			
-			//check category match
-			if(categoryId != assignment.getCategory().getId()){
-				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + assignment.getCategory().getId());
-				return null;
+						
+			//check category match otherwise skip
+			if(assignment.getCategory() != null && categoryId != assignment.getCategory().getId()){
+				continue;
 			}
 						
 			//only update the variables for the calculation if:
