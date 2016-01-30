@@ -30,6 +30,8 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		getParentCellFor(this).setOutputMarkupId(true);
+
 		add(new Label("title", new ResourceModel("column.header.coursegrade")));
 
 		final Gradebook gradebook = this.businessService.getGradebook();
@@ -81,12 +83,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		add(menu);
 	}
 
-	/**
-	 * Get the parent cell
-	 *
-	 * @param component
-	 * @return
-	 */
 	private Component getParentCellFor(final Component component) {
 		if (StringUtils.equals(component.getMarkupAttributes().getString("wicket:id"), "header")) {
 			return component;
