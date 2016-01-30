@@ -172,12 +172,16 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		});
 
-		menu.add(new Link<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())) {
+		menu.add(new AjaxLink<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClick() {
-				setResponsePage(new GradebookPage());
+			public void onClick(final AjaxRequestTarget target) {
+				final GradebookPage gradebookPage = (GradebookPage) getPage();
+				final GbModalWindow window = gradebookPage.getGradeStatisticsWindow();
+				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setContent(new GradeStatisticsPanel(window.getContentId(), getModel(), window));
+				window.show(target);
 			}
 		});
 
