@@ -93,9 +93,9 @@ public class CategoryColumnHeaderPanel extends Panel {
 			gradebookPage.setUiSettings(settings);
 		}
 
-		Component colorSwatch = gradebookPage.buildFlagWithPopover("categorySwatch",
+		final Component colorSwatch = gradebookPage.buildFlagWithPopover("categorySwatch",
 				(new StringResourceModel("label.gradeitem.categoryaverage", this, null,
-						new String[]{category.getName()})).getString());
+						new Object[] { category.getName() })).getString());
 		colorSwatch.add(new AttributeAppender("style", String.format("background-color:%s;", categoryColor)));
 		add(colorSwatch);
 	}
