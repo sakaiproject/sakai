@@ -12,6 +12,18 @@
 		<span wicket:id="isReleasedFlag" class="gb-flag-is-released"></span>
 		<span wicket:id="notReleasedFlag" class="gb-flag-not-released"></span>
 	</div>
+	
+	<!-- dropdown -->
+	<div class="btn-group" wicket:id="menu">
+	    <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
+	    	<span class="caret"></span>
+	    </a>
+	    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+			<li><a wicket:id="courseGradeOverride" href="#" role="menuitem"><wicket:message key="coursegrade.option.override" /></a></li>
+			<li><a wicket:id="courseGradeOverrideLog" href="#" role="menuitem"><wicket:message key="coursegrade.option.overridelog" /></a></li>
+			<li><a wicket:id="setUngraded" href="#" class="move-assignment-left" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
+	    </ul>
+    </div>
 
 </wicket:panel>
 </body>
