@@ -14,7 +14,6 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
@@ -41,21 +40,20 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
-import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
+import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
@@ -242,35 +240,20 @@ public class GradebookPage extends BasePage {
 			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
 				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 
+				// process the course grade
 				String courseGrade;
-
 				if (courseGradeVisible) {
 					courseGrade = studentGradeInfo.getCourseGrade();
 				} else {
 					courseGrade = getString("label.coursegrade.nopermission");
 				}
 
-				final Label courseGradeLabel = new Label(componentId, Model.of(courseGrade)) {
-					@Override
-					public void onEvent(final IEvent<?> event) {
-						super.onEvent(event);
-						if (event.getPayload() instanceof ScoreChangedEvent) {
-							final ScoreChangedEvent scoreChangedEvent = (ScoreChangedEvent) event.getPayload();
-							if (studentGradeInfo.getStudentUuid().equals(scoreChangedEvent.getStudentUuid())) {
-								final CourseGrade courseGrade = GradebookPage.this.businessService
-										.getCourseGrade(scoreChangedEvent.getStudentUuid());
-								((Model<String>) getDefaultModel()).setObject(courseGrade.getMappedGrade());
+				final Map<String, Object> modelData = new HashMap<>();
+				modelData.put("courseGrade", courseGrade);
+				modelData.put("studentUuid", studentGradeInfo.getStudentUuid());
 
-								scoreChangedEvent.getTarget().add(this);
-								scoreChangedEvent.getTarget().appendJavaScript(
-										String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');",
-												this.getMarkupId()));
-							}
-						}
-					}
-				};
-				courseGradeLabel.setOutputMarkupId(true);
-				cellItem.add(courseGradeLabel);
+				cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
+				cellItem.setOutputMarkupId(true);
 			}
 		};
 		cols.add(courseGradeColumn);
@@ -596,20 +579,17 @@ public class GradebookPage extends BasePage {
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
 	}
 
-
 	/**
-	 * Helper to generate a RGB CSS color string
-	 * with values between 180-250 to ensure a lighter color
-	 * e.g. rgb(181,222,199)
+	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
 	 */
 	public String generateRandomRGBColorString() {
-		Random rand = new Random();
-		int min = 180;
-		int max = 250;
+		final Random rand = new Random();
+		final int min = 180;
+		final int max = 250;
 
-		int r = rand.nextInt((max - min) + 1) + min;
-		int g = rand.nextInt((max - min) + 1) + min;
-		int b = rand.nextInt((max - min) + 1) + min;
+		final int r = rand.nextInt((max - min) + 1) + min;
+		final int g = rand.nextInt((max - min) + 1) + min;
+		final int b = rand.nextInt((max - min) + 1) + min;
 
 		return String.format("rgb(%d,%d,%d)", r, g, b);
 	}

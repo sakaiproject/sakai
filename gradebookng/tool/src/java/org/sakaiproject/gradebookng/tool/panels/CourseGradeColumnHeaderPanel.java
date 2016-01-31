@@ -44,30 +44,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		// menu
 		final WebMarkupContainer menu = new WebMarkupContainer("menu");
-		menu.add(new AjaxLink<Void>("courseGradeOverride") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(final AjaxRequestTarget target) {
-				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
-				window.setContent(new EmptyPanel(window.getContentId()));
-				window.showUnloadConfirmation(false);
-				window.show(target);
-			}
-		});
-		menu.add(new AjaxLink<Void>("courseGradeOverrideLog") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(final AjaxRequestTarget target) {
-				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
-				window.setContent(new EmptyPanel(window.getContentId()));
-				window.showUnloadConfirmation(false);
-				window.show(target);
-			}
-		});
 		menu.add(new AjaxLink<Void>("setUngraded") {
 			private static final long serialVersionUID = 1L;
 
