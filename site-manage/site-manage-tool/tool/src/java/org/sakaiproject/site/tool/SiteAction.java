@@ -11815,6 +11815,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					site = addToolToSiteIfMissing(site, missingToolId);
 					commitSite(site);
 				}
+				
+				//now update toolIds to match importTools so that the content is imported
+				toolIds.clear();
+				toolIds.addAll(importTools.keySet());
 			}
 			
 			Map transversalMap = new HashMap();
