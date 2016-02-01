@@ -49,6 +49,9 @@ public class ToolProxyBinding extends ToolProxy {
 
 	private JSONObject resourceHandler = null;
 
+	/*
+	 * Constructor from a string
+	 */
 	public ToolProxyBinding(String tool_proxy_binding)
 	{
 		super(tool_proxy_binding);
@@ -58,8 +61,8 @@ public class ToolProxyBinding extends ToolProxy {
 		if ( ja == null || ja.size() != 1 ) {
 			throw new java.lang.RuntimeException("A ToolProxyBinding must have exactly one resource_handler");
 		}
-		Object rh = ja.get(0);
 
+		Object rh = ja.get(0);
 		if ( ! (rh instanceof JSONObject ) ) {
 			throw new java.lang.RuntimeException("resource handler is wrong type "+rh.getClass().getName());
 		}
@@ -90,6 +93,18 @@ public class ToolProxyBinding extends ToolProxy {
 	public JSONObject getMessageOfType(String messageType)
 	{
 		return getMessageOfType(resourceHandler, messageType);
+	}
+
+	/**
+	 * Get all enabled capabilities
+	 * 
+	 * @param String messageType - Which message type you are looking for
+	 * @param String capability - The capability to look for
+	 * @return JSONArray the array of capabilities
+	 */
+	public JSONArray enabledCapabilities(String messageType)
+	{
+		return enabledCapabilities(resourceHandler, messageType);
 	}
 
 	/**

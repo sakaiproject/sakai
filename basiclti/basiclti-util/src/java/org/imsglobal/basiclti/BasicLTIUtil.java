@@ -111,8 +111,6 @@ public class BasicLTIUtil {
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
 
-	public static final String BASICLTI_SUBMIT = "ext_basiclti_submit";
-
 	private static final Pattern CUSTOM_REGEX = Pattern.compile("[^A-Za-z0-9]");
 	private static final String UNDERSCORE = "_";
 
@@ -274,10 +272,6 @@ public class BasicLTIUtil {
 		if ( postProp.get(LTI_VERSION) == null ) postProp.put(LTI_VERSION, "LTI-1p0");
 		if ( postProp.get(LTI_MESSAGE_TYPE) == null ) postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
 
-		// Allow caller to internationalize this for us...
-		if (postProp.get(BASICLTI_SUBMIT) == null) {
-			postProp.put(BASICLTI_SUBMIT, "Launch Endpoint with BasicLTI Data");
-		}
 		if (tool_consumer_instance_guid != null)
 			postProp.put(TOOL_CONSUMER_INSTANCE_GUID, tool_consumer_instance_guid);
 		if (tool_consumer_instance_description != null)
@@ -408,15 +402,17 @@ public class BasicLTIUtil {
 	 * @param cleanProperties
 	 * @param endpoint
 	 *		  The LTI launch url.
+	 * @param launchtext
+	 *		  The LTI launch text. Used if javascript is turned off.
 	 * @param debug
 	 *		  Useful for viewing the HTML before posting to end point.
 	 * @param extra
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
 	public static String postLaunchHTML(final Properties cleanProperties,
-			String endpoint, boolean debug, Map<String,String> extra) {
+			String endpoint, String launchtext, boolean debug, Map<String,String> extra) {
 		Map<String, String> map = convertToMap(cleanProperties);
-		return postLaunchHTML(map, endpoint, debug, extra);
+		return postLaunchHTML(map, endpoint, launchtext, debug, extra);
 	}
 
 	/**
@@ -425,6 +421,8 @@ public class BasicLTIUtil {
 	 * @param cleanProperties
 	 * @param endpoint
 	 *		  The LTI launch url.
+	 * @param launchtext
+	 *		  The LTI launch text. Used if javascript is turned off.
 	 * @param debug
 	 *		  Useful for viewing the HTML before posting to end point.
 	 * @param extra
@@ -433,7 +431,7 @@ public class BasicLTIUtil {
 	 */
 	public static String postLaunchHTML(
 			final Map<String, String> cleanProperties, String endpoint, 
-			boolean debug, Map<String,String> extra) {
+			String launchtext, boolean debug, Map<String,String> extra) {
 
 		if (cleanProperties == null || cleanProperties.isEmpty()) {
 			throw new IllegalArgumentException(
@@ -456,6 +454,8 @@ public class BasicLTIUtil {
 		text.append(endpoint);
 		text.append("\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" ");
 		text.append(" encType=\"application/x-www-form-urlencoded\" accept-charset=\"utf-8\">\n");
+		if ( debug ) {
+		}
 		for (Entry<String, String> entry : newMap.entrySet()) {
 			String key = entry.getKey();
 			String value = entry.getValue();
@@ -465,16 +465,18 @@ public class BasicLTIUtil {
 			// we will be safe and not generate dangerous HTML
 			key = htmlspecialchars(key);
 			value = htmlspecialchars(value);
-			if (key.equals(BASICLTI_SUBMIT)) {
-				text.append("<input type=\"submit\" name=\"");
-			} else {
-				text.append("<input type=\"hidden\" name=\"");
-			}
+			text.append("<input type=\"hidden\" name=\"");
 			text.append(key);
 			text.append("\" value=\"");
 			text.append(value);
 			text.append("\"/>\n");
 		}
+
+		// Paint the submit button
+		text.append("<input type=\"submit\" value=\"");
+		text.append(htmlspecialchars(launchtext));
+		text.append("\">\n");
+
 		text.append("</form>\n");
 		text.append("</div>\n");
 
@@ -525,15 +527,6 @@ public class BasicLTIUtil {
 			text
 				.append(" <script language=\"javascript\"> \n"
 						+ "	document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n"
-						+ "	nei = document.createElement('input');\n"
-						+ "	nei.setAttribute('type', 'hidden');\n"
-						+ "	nei.setAttribute('name', '"
-						+ BASICLTI_SUBMIT
-						+ "');\n"
-						+ "	nei.setAttribute('value', '"
-						+ newMap.get(BASICLTI_SUBMIT)
-						+ "');\n"
-						+ "	document.getElementById(\"ltiLaunchForm\").appendChild(nei);\n"
 						+ "	document.ltiLaunchForm.submit(); \n" + " </script> \n");
 		}
 

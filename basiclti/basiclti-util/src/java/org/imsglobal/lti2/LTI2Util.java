@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
+import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.objects.StandardServices;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -186,6 +187,14 @@ public class LTI2Util {
 		if ( o == null ) return null;
 		if ( o instanceof JSONArray ) return (JSONArray) o;
 		if ( o instanceof JSONObject ) {
+			JSONArray retval = new JSONArray();
+			retval.add(o);
+			return retval;
+		}
+
+		// If this is a java.lang (i.e. String, Long, etc)
+		String className = o.getClass().getName();
+		if ( className.startsWith("java.lang") ) {
 			JSONArray retval = new JSONArray();
 			retval.add(o);
 			return retval;
@@ -374,7 +383,7 @@ public class LTI2Util {
 	}
 
 	// Place the custom values into the launch
-	public static void addCustomToLaunch(Properties ltiProps, Properties custom) 
+	public static void addCustomToLaunch(Properties ltiProps, Properties custom, boolean isLTI1) 
 	{
 		Enumeration<?> e = custom.propertyNames();
 		while (e.hasMoreElements()) {
@@ -382,10 +391,97 @@ public class LTI2Util {
 			String value =  custom.getProperty(keyStr);
 			setProperty(ltiProps,"custom_"+keyStr,value);
 			String mapKeyStr = mapKeyName(keyStr);
-			if ( ! mapKeyStr.equals(keyStr) ) {
+			if ( isLTI1 && ! mapKeyStr.equals(keyStr) ) {
 				setProperty(ltiProps,"custom_"+mapKeyStr,value);
 			}
 		}	
+	}
+
+	/**
+	 * Make sure we never pass any un-requested LTI1 parameters to an LTI2 launch
+         */
+	public static void filterLTI1LaunchProperties(Properties ltiProps, JSONArray enabledCapabilities) {
+
+		// Get the non-standard mappings
+                Properties mapping = property2CapabilityMapping();
+
+		// Loop through property names
+		Properties oldProps = new Properties(ltiProps);
+		Enumeration<?> e = oldProps.propertyNames();
+		while (e.hasMoreElements()) {
+			String keyStr = (String) e.nextElement();
+			// Always allow this to happen
+			if ( keyStr.equals(BasicLTIConstants.RESOURCE_LINK_ID) ) continue;
+			if ( keyStr.equals(BasicLTIConstants.LTI_VERSION) ) continue;
+
+			String capStr = property2Capability(keyStr);
+			String mapStr = mapping.getProperty(keyStr, null);
+			if ( enabledCapabilities.contains(capStr) || enabledCapabilities.contains(mapStr) ) {
+				// Allowed to stay...
+			} else {
+				ltiProps.remove(keyStr);
+			}
+		}
+	}
+
+	public static String property2Capability(String propString) {
+		if ( propString == null ) return null;
+		propString = propString.trim();
+		if ( propString.length() == 0 ) return "";
+
+		// Handle cases like context_id => Context.id
+		StringBuffer capStr = new StringBuffer();
+		capStr.append(propString.substring(0,1).toUpperCase());
+		for ( int i=1; i < propString.length(); i++ ) {
+			char ch = propString.charAt(i);
+			if ( ch == ' ' ) continue;
+			if ( ch == '_') {
+				capStr.append('.');
+				continue;
+			}
+			capStr.append(ch);
+		}
+		return capStr.toString();
+	}
+
+	/* From Stephen Vickers - mod/lti/locallib.php in Moodle
+	      'Context.id' => 'context_id',
+	      'Context.type' => 'context_type',
+	      'CourseSection.title' => 'context_title',
+	      'CourseSection.label' => 'context_label',
+	      'CourseSection.sourcedId' => 'lis_course_section_sourcedid',
+	      'ResourceLink.id' => 'resource_link_id',
+	      'ResourceLink.title' => 'resource_link_title',
+	      'ResourceLink.description' => 'resource_link_description',
+	      'User.id' => 'user_id',
+	      'Person.name.full' => 'lis_person_name_full',
+	      'Person.name.given' => 'lis_person_name_given',
+	      'Person.name.family' => 'lis_person_name_family',
+	      'Person.email.primary' => 'lis_person_contact_email_primary',
+	      'Person.sourcedId' => 'lis_person_sourcedid',
+	      'Membership.role' => 'roles',
+	      'Result.sourcedId' => 'lis_result_sourcedid',
+	      'Result.autocreate' => 'lis_outcome_service_url'
+	*/
+	public static Properties property2CapabilityMapping() {
+		Properties mapping = new Properties();
+		mapping.setProperty("context_title", "CourseSection.title");
+		mapping.setProperty("context_label", "CourseSection.label");
+		mapping.setProperty("lis_course_section_sourcedid", "CourseSection.sourcedId");
+		mapping.setProperty("resource_link_id", "ResourceLink.id");
+		mapping.setProperty("resource_link_title", "ResourceLink.title");
+		mapping.setProperty("resource_link_description", "ResourceLink.description");
+		mapping.setProperty("lis_person_name_full", "Person.name.full");
+		mapping.setProperty("lis_person_name_given", "Person.name.given");
+		mapping.setProperty("lis_person_name_family", "Person.name.family");
+		mapping.setProperty("lis_person_contact_email_primary", "Person.email.primary");
+		mapping.setProperty("lis_person_sourcedid", "Person.sourcedId");
+		mapping.setProperty("lis_result_sourcedid", "Result.sourcedId");
+		// A bit of a weird one - might change
+		mapping.setProperty("lis_outcome_service_url", "Result.autocreate");
+		// Missing from Stephen's list methinks
+		mapping.setProperty("roles", "Membership.role");
+		return mapping;
 	}
 
 	@SuppressWarnings("deprecation")
