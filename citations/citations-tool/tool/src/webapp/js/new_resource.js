@@ -501,33 +501,11 @@ citations_new_resource.init = function() {
 		return false;
 	});
 	$('#PickResource').on('click', function(eventObject) {
-		var target = $(eventObject.target);
 		var successObj = {
-			linkId				: target.attr('id'),
-			baseUrl			    : target.siblings('.baseUrl').text(),
-			pickerUrl			: target.siblings('.pickerUrl').text(),
-			popupTitle			: target.siblings('.popupTitle').text(),
 			invoke				: function(jsObj) {
-				if(jsObj && jsObj.secondsBetweenSaveciteRefreshes) {
-					citations_new_resource.secondsBetweenSaveciteRefreshes = jsObj.secondsBetweenSaveciteRefreshes;
-				}
-				// If open, close it.
-				if(citations_new_resource.childWindow && citations_new_resource.childWindow[this.linkId] && citations_new_resource.childWindow[this.linkId].close) {
-					citations_new_resource.childWindow[this.linkId].close();
-				}
-				
-				// We need to add this function to the window as the FCK js calls
-				// it when a resource url is clicked.
-                window.top.SetUrl = function(url) {
-                    var baseUrl = $(eventObject.target).siblings('.baseUrl').text();
-                    window.location.href = baseUrl + "&resourceUrl=" + url;
-                };
-                
-				var picker = openWindow(this.pickerUrl,this.popupTitle,'scrollbars=yes,toolbar=yes,resizable=yes,height=' + DEFAULT_DIALOG_HEIGHT + ',width=' + DEFAULT_DIALOG_WIDTH);
-				picker.focus();
-				citations_new_resource.childWindow[this.linkId] = picker;
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 1); }
-								, citations_new_resource.secondsBetweenSaveciteRefreshes * 1000);
+				$('#sakai_action').val('doPickResource');
+				$('#ajaxRequest').val('false');
+				$('#newCitationListForm').submit();
 			}
 		};
 		citations_new_resource.processClick(successObj);
