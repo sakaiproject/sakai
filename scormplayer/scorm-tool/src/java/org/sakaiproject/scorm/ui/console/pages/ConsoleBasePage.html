@@ -7,9 +7,26 @@
 </head>
 <body>
 	<wicket:extend>
-		<div id="header" class="navIntraTool" wicket:id="toolbar-administration">
-			<img wicket:id="listIcon" class="pageIcon"/>&nbsp;<a href="#" wicket:id="listLink"></a> &nbsp;&nbsp;<img wicket:id="uploadIcon" class="pageIcon"/>&nbsp;<a href="#" wicket:id="uploadLink"></a> &nbsp;&nbsp;<img wicket:id="validateIcon" class="pageIcon"/>&nbsp;<a href="#" wicket:id="validateLink"></a>
-		</div>	
+		<ul class="navIntraTool" wicket:id="toolbar-administration">
+			<li>
+				<span wicket:id="listContainer">
+					<img wicket:id="listIcon" class="pageIcon"/>
+					<a href="#" wicket:id="listLink"></a>
+				</span>
+			</li>
+			<li>
+				<span wicket:id="uploadContainer">
+					<img wicket:id="uploadIcon" class="pageIcon"/>
+					<a href="#" wicket:id="uploadLink"></a>
+				</span>
+			</li>
+			<li>
+				<span wicket:id="validateContainer">
+					<img wicket:id="validateIcon" class="pageIcon"/>
+					<a href="#" wicket:id="validateLink"></a>
+				</span>
+			</li>
+		</ul>
 
 		<wicket:enclosure child="breadcrumbs">
 			<b><div wicket:id="breadcrumbs"></div></b>

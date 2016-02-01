@@ -22,6 +22,7 @@ package org.sakaiproject.scorm.ui.console.pages;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -86,16 +87,36 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
         NavIntraLink uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
         NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
         
+        WebMarkupContainer listContainer = new WebMarkupContainer( "listContainer" );
+        WebMarkupContainer uploadContainer = new WebMarkupContainer( "uploadContainer" );
+        WebMarkupContainer validateContainer = new WebMarkupContainer( "validateContainer" );
+        listContainer.add( listLink );
+        uploadContainer.add( uploadLink );
+        validateContainer.add( validateLink );
+
+        SimpleAttributeModifier className = new SimpleAttributeModifier( "class", "current" );
+        if( listLink.linksTo( getPage() ) )
+        {
+            listContainer.add( className );
+            listLink.add( className );
+        }
+        else if( uploadLink.linksTo( getPage() ) )
+        {
+            uploadContainer.add( className );
+            uploadLink.add( className );
+        }
+        else if( validateLink.linksTo( getPage() ) )
+        {
+            validateContainer.add( className );
+            validateLink.add( className );
+        }
+        
         listLink.setVisible(canUpload || canValidate);
         uploadLink.setVisible(canUpload);
         
         // SCO-107 - hide the validate link (interface is currently unimplemented)
         //validateLink.setVisible(canValidate);
         validateLink.setVisibilityAllowed(false);
-        
-        wmc.add(listLink);
-        wmc.add(uploadLink);
-        wmc.add(validateLink);
         
         Icon listIcon = new Icon("listIcon", LIST_ICON);
         Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
@@ -119,9 +140,13 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
             validateIcon.setVisibilityAllowed( false );
         }
         
-        wmc.add(listIcon);
-        wmc.add(uploadIcon);
-        wmc.add(validateIcon);
+        listContainer.add(listIcon);
+        uploadContainer.add(uploadIcon);
+        validateContainer.add(validateIcon);
+
+        wmc.add( listContainer );
+        wmc.add( uploadContainer );
+        wmc.add( validateContainer );
 
         // add the toolbar container
         add(wmc);
