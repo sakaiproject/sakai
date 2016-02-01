@@ -1025,6 +1025,12 @@ ul.feedbackPanel li span {
 .radio input[type="radio"][disabled]{
   background-color: #eee;
 }
+.checkbox input[type="checkbox"][disabled]+span,
+.radio input[type="radio"][disabled]+span,
+.checkbox input[type="checkbox"][disabled]+label,
+.radio input[type="radio"][disabled]+label{
+  color: #999;
+}
 
 /* Mobile bits and pieces */
 /* Disable fixed columns and headers for small devices */

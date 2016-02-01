@@ -143,6 +143,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 		};
 		extraCredit.setOutputMarkupId(true);
+		extraCredit.setEnabled(!assignment.isCategoryExtraCredit());
 		add(extraCredit);
 
 		// released
