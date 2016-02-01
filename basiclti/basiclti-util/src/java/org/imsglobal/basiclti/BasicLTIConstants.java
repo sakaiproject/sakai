@@ -50,7 +50,7 @@ public class BasicLTIConstants {
 	public static final String CONTEXT_TYPE_COURSE_OFFERING = "CourseOffering";
 	public static final String CONTEXT_TYPE_COURSE_SECTION = "CourseSection";
 	public static final String CONTEXT_TYPE_COURSE_TEMPLATE = "CourseTemplate";
-	public static final String CONTEXT_TYPE_GROUP = "GROUP";
+	public static final String CONTEXT_TYPE_GROUP = "Group";
 
 	/**
 	 * ext_param=value

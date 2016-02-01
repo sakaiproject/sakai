@@ -170,15 +170,30 @@ public class ToolProxy {
 		for ( Object m : messages ) {
 			if ( ! (m instanceof JSONObject) ) return null;
 			JSONObject message = (JSONObject) m;
-			JSONArray message_array = getArray(message,LTI2Constants.MESSAGE_TYPE);
-			if ( message_array == null ) continue;
+			JSONArray message_type_array = getArray(message,LTI2Constants.MESSAGE_TYPE);
+			if ( message_type_array == null ) continue;
 			// String message_type = getString(message,LTI2Constants.MESSAGE_TYPE);
-			for ( Object message_type : message_array ) {
+			for ( Object message_type : message_type_array ) {
 				if ( ! (message_type instanceof String) ) continue;
 				if ( ((String) message_type).equals(messageType) ) return message;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Return all enabled capabilities
+	 * 
+	 * @param String resourceHandler - JSONObject for the resource_handler
+	 * @param String messageType - Which message type you are looking for
+	 * @return JSONArray An array of the enabled capabilities
+	 */
+	public JSONArray enabledCapabilities(JSONObject resourceHandler, String messageType)
+	{
+		JSONObject message = getMessageOfType(resourceHandler, messageType);
+		JSONArray enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
+		if ( enabled_capability == null ) enabled_capability = new JSONArray();
+		return enabled_capability;
 	}
 
 	/**
@@ -190,8 +205,7 @@ public class ToolProxy {
 	 */
 	public boolean enabledCapability(JSONObject resourceHandler, String messageType, String capability)
 	{
-		JSONObject message = getMessageOfType(resourceHandler, messageType);
-		JSONArray enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
+		JSONArray enabled_capability = enabledCapabilities(resourceHandler, messageType);
 		if ( enabled_capability == null ) return false;
 		return enabled_capability.contains(capability);
 	}

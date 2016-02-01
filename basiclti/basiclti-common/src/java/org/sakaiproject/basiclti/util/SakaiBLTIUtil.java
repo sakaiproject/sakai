@@ -293,6 +293,9 @@ public class SakaiBLTIUtil {
 			if ( context_type != null && context_type.toLowerCase().contains("course") ){
 				setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
 				setProperty(lti2subst,LTI2Vars.CONTEXT_TYPE,LTI2Vars.CONTEXT_TYPE_DEFAULT);
+			} else {
+				setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_GROUP);
+				setProperty(lti2subst,LTI2Vars.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_GROUP);
 			}
 			setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
 			setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,site.getId());
@@ -467,8 +470,13 @@ public class SakaiBLTIUtil {
 		// Start setting the Basici LTI parameters
 		setProperty(props,BasicLTIConstants.RESOURCE_LINK_ID,placementId);
 		String pagetitle = toNull(getCorrectProperty(config,LTIService.LTI_PAGETITLE, placement));
-		if ( pagetitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_TITLE,pagetitle);
 		String tooltitle = toNull(getCorrectProperty(config,"tooltitle", placement));
+
+		// Cross-copy these if they are blank
+		if ( pagetitle == null ) pagetitle = tooltitle;
+		if ( tooltitle == null ) tooltitle = pagetitle;
+
+		if ( pagetitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_TITLE,pagetitle);
 		if ( tooltitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_DESCRIPTION,tooltitle);
 
 		String releasename = toNull(getCorrectProperty(config,"releasename", placement));
@@ -720,7 +728,19 @@ public class SakaiBLTIUtil {
 
 		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
 		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
+		boolean isLTI2 = ! isLTI1;  // In case there is an LTI 3
 		M_log.debug("toolVersion="+toolVersion+" isLTI1="+isLTI1);
+
+		// If we are doing LTI2, We will need a ToolProxyBinding
+		ToolProxyBinding toolProxyBinding = null;
+		JSONArray enabledCapabilities = null;
+		if ( isLTI2 ) {
+			String tool_proxy_binding = (String) tool.get(LTI2Constants.TOOL_PROXY_BINDING);
+			if ( tool_proxy_binding != null && tool_proxy_binding.trim().length() > 0 ) {
+				toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
+				enabledCapabilities = toolProxyBinding.enabledCapabilities(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST);
+			}
+		}
 
 		// Start building up the properties
 		Properties ltiProps = new Properties();
@@ -777,6 +797,7 @@ public class SakaiBLTIUtil {
 		if ( title == null ) title = (String) tool.get(LTIService.LTI_TITLE);
 		if ( title != null ) {
 			setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
+			setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_DESCRIPTION,title);
 			setProperty(lti2subst,LTI2Vars.RESOURCELINK_TITLE,title);
 			setProperty(lti2subst,LTI2Vars.RESOURCELINK_DESCRIPTION,title);
 		}
@@ -882,20 +903,25 @@ public class SakaiBLTIUtil {
 		LTI2Util.mergeLTI1Custom(custom, (String) tool.get(LTIService.LTI_CUSTOM));
 
 		// System.out.println("ltiProps="+ltiProps);
+		if ( isLTI2 ) {
+			LTI2Util.filterLTI1LaunchProperties(ltiProps, enabledCapabilities);
+			// System.out.println("filtered ltiProps="+ltiProps);
+		}
+
 		// System.out.println("toolProps="+toolProps);
+		// System.out.println("custom="+custom);
+		// System.out.println("lti2subst="+lti2subst);
+
 		M_log.debug("lti2subst="+lti2subst);
 		M_log.debug("before custom="+custom);
 		LTI2Util.substituteCustom(custom, lti2subst);
 		M_log.debug("after custom="+custom);
 
 		// Place the custom values into the launch
-		LTI2Util.addCustomToLaunch(ltiProps, custom);
+		LTI2Util.addCustomToLaunch(ltiProps, custom, isLTI1);
 
 		// Check which kind of signing we are supposed to do
-		String tool_proxy_binding = (String) tool.get("tool_proxy_binding");
-		if ( tool_proxy_binding != null && tool_proxy_binding.trim().length() > 0 ) {
-			ToolProxyBinding toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
-		
+		if ( toolProxyBinding != null ) {
 			if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST, 
 				LTI2Caps.OAUTH_HMAC256) ) {
 
@@ -904,6 +930,7 @@ public class SakaiBLTIUtil {
 			}
 		}
 
+		// System.out.println("LAUNCH TYPE "+ (isLTI1 ? "LTI 1" : "LTI 2") );
 		return postLaunchHTML(toolProps, ltiProps, rb);
 	}
 
@@ -942,7 +969,6 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, LTI2Constants.TOOL_PROXY_GUID,key);
 		// TODO: Lets show off and encrypt this secret too...
 		setProperty(ltiProps, LTI2Constants.REG_PASSWORD,password);
-		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
 
 		String serverUrl = getOurServerUrl();
@@ -954,7 +980,8 @@ public class SakaiBLTIUtil {
 		M_log.debug("ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug, null);
+		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, null);
 
 		String [] retval = { postData, launch_url };
 		return retval;
@@ -1008,7 +1035,6 @@ public class SakaiBLTIUtil {
 		Properties ltiProps = new Properties();
 
 		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
-		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST);
 
 		String serverUrl = getOurServerUrl();
@@ -1035,7 +1061,7 @@ public class SakaiBLTIUtil {
 			LTI2Util.substituteCustom(custom, lti2subst);
 			M_log.debug("after custom="+custom);
 			// Merge the custom values into the launch
-			LTI2Util.addCustomToLaunch(ltiProps, custom);
+			LTI2Util.addCustomToLaunch(ltiProps, custom, false);
 		}
 
 		Map<String,String> extra = new HashMap<String,String> ();
@@ -1045,7 +1071,8 @@ public class SakaiBLTIUtil {
 		M_log.debug("signed ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug, extra);
+		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
 
 		String [] retval = { postData, launch_url };
 		return retval;
@@ -1134,7 +1161,6 @@ public class SakaiBLTIUtil {
 		Properties ltiProps = new Properties();
 
 		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
-		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
 
 		setProperty(ltiProps, ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
@@ -1216,7 +1242,8 @@ public class SakaiBLTIUtil {
 		M_log.debug("signed ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug, extra);
+		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
 
 		String [] retval = { postData, launch_url };
 		return retval;
@@ -1291,7 +1318,6 @@ public class SakaiBLTIUtil {
 		// In OAuth 6.2.3, this is after the user is authorized
 		if ( oauth_callback == null ) oauth_callback = "about:blank";
 		setProperty(ltiProps, "oauth_callback", oauth_callback);
-		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 
 		// Sanity checks
 		if ( secret == null ) {
@@ -1310,7 +1336,8 @@ public class SakaiBLTIUtil {
 
 		String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 		boolean dodebug = "on".equals(debugProperty) || "1".equals(debugProperty);
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug, extra);
+		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
 
 		String [] retval = { postData, launch_url };
 		return retval;

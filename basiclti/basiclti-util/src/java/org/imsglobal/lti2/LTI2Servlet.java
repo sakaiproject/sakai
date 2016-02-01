@@ -197,7 +197,6 @@ public class LTI2Servlet extends HttpServlet {
 			ltiProps.setProperty(BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
 			ltiProps.setProperty(LTI2Constants.REG_KEY,TEST_KEY);
 			ltiProps.setProperty(LTI2Constants.REG_PASSWORD,TEST_SECRET);
-			ltiProps.setProperty(BasicLTIUtil.BASICLTI_SUBMIT, "Press to Launch External Tool");
 			ltiProps.setProperty(BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
 
 			String serverUrl = getServiceURL(request);
@@ -206,7 +205,10 @@ public class LTI2Servlet extends HttpServlet {
 			System.out.println("ltiProps="+ltiProps);
 
 			boolean dodebug = true;
-			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug, null);
+			// TODO: Internationalize this
+			// String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
+			String launchtext = "Press to Launch External Tool";
+			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, null);
 		} else {
 			output = "<form>Register URL:<br/><input type=\"text\" name=\"launch_url\" size=\"80\"\n" + 
 				"value=\"http://localhost:8888/sakai-api-test/tp.php\"><input type=\"submit\">\n";
@@ -272,14 +274,17 @@ public class LTI2Servlet extends HttpServlet {
 			LTI2Util.substituteCustom(custom, lti2subst);
 
 			// Place the custom values into the launch
-			LTI2Util.addCustomToLaunch(ltiProps, custom);
+			LTI2Util.addCustomToLaunch(ltiProps, custom, false);
 
 			Map<String,String> extra = new HashMap<String,String> ();
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch, "POST",
 				TEST_KEY, shared_secret, null, null, null, extra);
 
 			boolean dodebug = true;
-			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch, dodebug, extra);
+			// TODO: Internationalize this
+			// String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
+			String launchtext = "Press to Launch External Tool";
+			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch, launchtext, dodebug, extra);
 		}
 
 		try {
