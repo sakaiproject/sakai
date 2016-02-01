@@ -376,6 +376,10 @@ public class LTI2Util {
 			String key = (String) e.nextElement();
 			String value =  custom.getProperty(key);
 			if ( value == null || value.length() < 1 ) continue;
+			// Allow both User.id and $User.id
+			if ( value.startsWith("$") && value.length() > 1 ) {
+				value = value.substring(1);
+			}
 			String newValue = lti2subst.getProperty(value);
 			if ( newValue == null ||  newValue.length() < 1 ) continue;
 			setProperty(custom, key, (String) newValue);
