@@ -225,6 +225,7 @@ public class LTI2Service extends HttpServlet {
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl+"#", cnf);
 		consumer.allowSplitSecret();
 		consumer.allowHmac256();
+		consumer.addCapability(SakaiBLTIUtil.SAKAI_EXTENSIONS_ALL);
 		consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_COURSENAVIGATION);
 		consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_ASSIGNMENTSELECTION);
 		// Not yet supported in Sakai
