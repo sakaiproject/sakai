@@ -91,13 +91,46 @@ div.tabOn {
 li.autoSaveOffClass { display: none }
 #rwiki_container { height: 100%; width: 100% }
 #guillotineFixer { clear: both }
+
+/* Stop deleting stuff and not testing it :( */
+#toolbarButtonSave {
+	background: url(/library/image/silk/page_save.png) center center no-repeat
+}
+#toolbarButtonBold {
+	background: url(/library/image/silk/text_bold.png) center center no-repeat
+}
+#toolbarButtonItalic {
+	background: url(/library/image/silk/text_italic.png) center center no-repeat
+}
+#toolbarButtonSuper {
+	background: url(/library/image/silk/text_superscript.png) center center no-repeat
+}
+#toolbarButtonSub {
+	background: url(/library/image/silk/text_subscript.png) center center no-repeat
+}
+#toolbarButtonHeading { }
+#toolbarButtonTable {
+	background: url(/library/image/silk/table.png) center center no-repeat
+}
+#toolbarButtonLink {
+	background: url(/library/image/silk/page_link.png) center center no-repeat
+}
+#toolbarButtonImage {
+	background: url(/library/image/silk/picture.png) center center no-repeat
+}
+#toolbarButtonRecover {
+	background: url(/library/image/silk/arrow_undo.png) center center no-repeat;
+	height: 1.7em;
+	vertical-align: middle
+}
+
+
 #toolbarButtonRecover {
 	height: 1.7em;
 	vertical-align: middle
 }
 .editToolBarContainer,.previewToolBarContainer,.autosaveToolBarContainer  {
 	background-color: #efefde;
-	height: 1.7em;
 	padding: 3px;
 	border: 1px solid #ccc
 }

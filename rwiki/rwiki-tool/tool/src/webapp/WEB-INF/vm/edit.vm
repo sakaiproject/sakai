@@ -102,7 +102,7 @@
 		    </li>
 		    <li id="preview" class="tabHeadOff"  >
 		    	<p class="tabhead specialLink" title="${rlb.jsp_preview}">
-				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
+				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
 				   		${rlb.jsp_preview}
 				   		</a>
 				</p>		
@@ -168,20 +168,20 @@
 						        <div id="textarea_inner_sizing_divx">
 						           #edittoolbar()
 						           #if ( ${editBean.saveType} && ("preview" ==  ${editBean.saveType}|| ${editBean.saveType.startsWith("attach")}) )
-								   <label for="content" class="hidden">${rlb.jsp_edit_content_label}</label>
+								   <label for="wiki-textarea-content" class="hidden">${rlb.jsp_edit_content_label}</label>
 						           <textarea cols="60" 
 						                     rows="25" 
 						                     name="content" 
-						                     id="content" 
+						                     id="wiki-textarea-content" 
 						                     onselect="storeCaret(this)" 
 						                     onclick="storeCaret(this)" 
 						                     onkeyup="storeCaret(this)" >${util.escapeHtml($editBean.previousContent)}</textarea>
 						 	         #else
-								   <label for="content" class="hidden">${rlb.jsp_edit_content_label}</label>
+								   <label for="wiki-textarea-content" class="hidden">${rlb.jsp_edit_content_label}</label>
 						           <textarea cols="60" 
 						                     rows="25" 
 						                     name="content" 
-						                     id="content" 
+						                     id="wiki-textarea-content" 
 						                     onselect="storeCaret(this)" 
 						                     onclick="storeCaret(this)" 
 						                     onkeyup="storeCaret(this)" >${util.escapeHtml($currentRWikiObject.content)}</textarea>
@@ -264,9 +264,9 @@
 <script type="text/javascript" >
 #if ( ${editBean.saveType} && ("preview" ==  ${editBean.saveType}|| ${editBean.saveType.startsWith("attach")}) )
 ## If we have a preview or attach, then dont set the restore
-WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','content','restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass');
+WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','wiki-textarea-content','restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass');
 #else
-WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','content','restoreContent','restoreVersion','restoreDate','autosave','tabHeadOff');
+WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','wiki-textarea-content','restoreContent','restoreVersion','restoreDate','autosave','tabHeadOff');
 #end
 </script>
 
