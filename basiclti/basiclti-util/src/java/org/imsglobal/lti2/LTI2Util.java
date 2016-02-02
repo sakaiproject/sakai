@@ -403,8 +403,14 @@ public class LTI2Util {
 
 	/**
 	 * Make sure we never pass any un-requested LTI1 parameters to an LTI2 launch
+	 *
+	 * @param ltiProps - the properties as constructed by the LMS
+	 * @param enabledCapabilities - the list of capabilities requested by the tool
+	 * @param allowExt - indicates whether or not to allow the "ext_" prefixed parameters
          */
-	public static void filterLTI1LaunchProperties(Properties ltiProps, JSONArray enabledCapabilities) {
+	public static void filterLTI1LaunchProperties(Properties ltiProps, 
+		JSONArray enabledCapabilities, boolean allowExt) 
+	{
 
 		// Get the non-standard mappings
                 Properties mapping = property2CapabilityMapping();
@@ -417,6 +423,7 @@ public class LTI2Util {
 			// Always allow this to happen
 			if ( keyStr.equals(BasicLTIConstants.RESOURCE_LINK_ID) ) continue;
 			if ( keyStr.equals(BasicLTIConstants.LTI_VERSION) ) continue;
+			if ( allowExt && keyStr.startsWith("ext_") ) continue;
 
 			String capStr = property2Capability(keyStr);
 			String mapStr = mapping.getProperty(keyStr, null);

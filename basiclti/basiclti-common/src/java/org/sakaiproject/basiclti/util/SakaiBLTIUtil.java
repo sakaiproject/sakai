@@ -140,6 +140,9 @@ public class SakaiBLTIUtil {
 	public static final String LTI1_PATH = "/imsblis/service/";
 	public static final String LTI2_PATH = "/imsblis/lti2/";
 
+	// Enable the Sakai "ext_" parameters in LTI 2.x Launches
+	public static final String SAKAI_EXTENSIONS_ALL = "Sakai.extensions.all";
+
 	public static final String SAKAI_CONTENTITEM_SELECTANY = "Sakai.contentitem.selectAny";
 	public static final String SAKAI_CONTENTITEM_SELECTFILE = "Sakai.contentitem.selectFile";
 	public static final String SAKAI_CONTENTITEM_SELECTIMPORT = "Sakai.contentitem.selectImport";
@@ -904,7 +907,8 @@ public class SakaiBLTIUtil {
 
 		// System.out.println("ltiProps="+ltiProps);
 		if ( isLTI2 ) {
-			LTI2Util.filterLTI1LaunchProperties(ltiProps, enabledCapabilities);
+			boolean allowExt = enabledCapabilities.contains(SAKAI_EXTENSIONS_ALL);
+			LTI2Util.filterLTI1LaunchProperties(ltiProps, enabledCapabilities, allowExt);
 			// System.out.println("filtered ltiProps="+ltiProps);
 		}
 
