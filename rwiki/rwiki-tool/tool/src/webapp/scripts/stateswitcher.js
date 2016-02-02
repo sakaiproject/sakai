@@ -87,6 +87,7 @@ function onload() {
   }
 
 }
+
 function storeCaret(el) {
     if ( el.createTextRange ) 
         el.caretPos = document.selection.createRange().duplicate();

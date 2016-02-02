@@ -47,7 +47,7 @@
 	    <!--.AJAX based edit.-->
 	    <!--<form action="?#" method="post" onsubmit="ajaxRefPopupPost(this,'?#',2,this); return false;" >-->
 	    <nobr><c:out value="${rlb.jsp_edit_comment}"/></nobr><br/>
-		<textarea cols="40" rows="10" name="content" id="content" ><c:out value="${currentRWikiObject.content}"/></textarea>
+		<textarea cols="40" rows="10" name="content" id="wiki-textarea-content" ><c:out value="${currentRWikiObject.content}"/></textarea>
 		<input type="hidden" name="action" value="commenteditsave"/>
 		<input type="hidden" name="panel" value="Main"/>
 		<input type="hidden" name="version" value="${currentRWikiObject.version.time}"/>
