@@ -146,7 +146,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		logger.info(this +".init()");
 
 		if (ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
-			logger.warn("BasicLTI secrets in database unencrypted, please set "+ SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY);
+			logger.error("BasicLTI secrets in database unencrypted, please set "+ SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY);
 		}
 		try
 		{
