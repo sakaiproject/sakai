@@ -153,17 +153,17 @@
                     </div>
                     <div id="fromTemplateSettingsContainer">
                         <span id="copyUsersWrapper">
-                            <input type="checkbox" name="copyUsers" id="copyUsers" value="true"/>
+                            <input type="checkbox" name="copyUsers" #if ($copyUsersChecked) checked="checked" #end id="copyUsers" value="true"/>
                             <label for="copyUsers">$tlang.getString("sitetype.copyusers")</label>
                         </span>
-                        <span id="copyContentWrapper">
-                            <input type="checkbox" name="copyContent" id="copyContent" value="true"/>
+                        <span id="copyContentWrapper"> 
+                            <input type="checkbox" name="copyContent" #if ($copyContentChecked) checked="checked" #end id="copyContent" value="true"/>
                             #* SAK25401 *#
                             <input type="checkbox" name="lockedContent" id="lockedContent" checked="checked" disabled="disabled" style="display:none" />                            
                             <label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
                         </span>
                         <span id="publishSiteWrapper">
-                            <input type="checkbox" name="publishSite" id="publishSite" value="true"/>
+                            <input type="checkbox" name="publishSite" #if ($publishSiteChecked) checked="checked" #end id="publishSite" value="true"/>
                             <label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
                         </span>
                         <span id="fromTemplateSettingsContainer_instruction">
