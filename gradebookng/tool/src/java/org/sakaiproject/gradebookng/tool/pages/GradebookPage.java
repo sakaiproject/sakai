@@ -22,6 +22,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationTo
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -382,7 +383,12 @@ public class GradebookPage extends BasePage {
 
 		// TODO make this AjaxFallbackDefaultDataTable
 		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100);
-		table.addBottomToolbar(new NavigationToolbar(table));
+		table.addBottomToolbar(new NavigationToolbar(table) {
+			@Override
+			protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {
+				return constructTableSummaryLabel(navigatorId, table);
+			}
+		});
 		table.addTopToolbar(new HeadersToolbar(table, null));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 
@@ -397,6 +403,8 @@ public class GradebookPage extends BasePage {
 		this.form.add(table);
 
 		// Populate the toolbar
+		this.form.add(constructTableSummaryLabel("studentSummary", table));
+
 		final Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null,
 				assignments.size() + categories.size(), assignments.size() + categories.size()));
 		gradeItemSummary.setEscapeModelStrings(false);
@@ -592,5 +600,21 @@ public class GradebookPage extends BasePage {
 		final int b = rand.nextInt((max - min) + 1) + min;
 
 		return String.format("rgb(%d,%d,%d)", r, g, b);
+	}
+
+	/**
+	 * Build a table row summary for the table along the lines of
+	 * "Showing 1{from} to 100{to} of 153{of} students"
+	 */
+	private Label constructTableSummaryLabel(String componentId, DataTable table) {
+		long of = table.getItemCount();
+		long from = (of == 0 ? 0 : table.getCurrentPage() * table.getItemsPerPage() + 1);
+		long to = (of == 0 ? 0 : Math.min(of, from + table.getItemsPerPage() - 1));
+
+		StringResourceModel labelText = new StringResourceModel("label.toolbar.studentsummary",
+				null,
+				from, to, of);
+
+		return new Label(componentId, labelText);
 	}
 }
