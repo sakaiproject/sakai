@@ -8631,6 +8631,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * 
 	 */
 	public void doUpdate_participant(RunData data) {
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			M_log.warn("Ignoring non-POST request to update site access.");
+			return;
+		}
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
