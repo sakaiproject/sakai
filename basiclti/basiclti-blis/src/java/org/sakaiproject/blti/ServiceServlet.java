@@ -51,7 +51,7 @@ import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.imsglobal.basiclti.XMLMap;
+import org.tsugi.basiclti.XMLMap;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -64,7 +64,7 @@ import javax.xml.xpath.XPathConstants;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.imsglobal.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -85,11 +85,11 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.imsglobal.basiclti.BasicLTIConstants;
+import org.tsugi.basiclti.BasicLTIConstants;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.util.FormattedText;
 
-import org.imsglobal.pox.IMSPOXRequest;
+import org.tsugi.pox.IMSPOXRequest;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.foorm.SakaiFoorm;

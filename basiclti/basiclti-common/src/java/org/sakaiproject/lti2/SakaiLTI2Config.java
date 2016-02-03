@@ -1,7 +1,7 @@
 
 package org.sakaiproject.lti2;
 
-import org.imsglobal.lti2.LTI2Config;
+import org.tsugi.lti2.LTI2Config;
 import org.sakaiproject.lti2.SakaiLTI2Base;
 
 import org.sakaiproject.component.cover.ComponentManager;

@@ -46,7 +46,7 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.lti.api.LTIService;
-import org.imsglobal.lti2.ContentItem;
+import org.tsugi.lti2.ContentItem;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Placement;

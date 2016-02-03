@@ -39,19 +39,19 @@ import org.json.simple.JSONArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.imsglobal.basiclti.BasicLTIUtil;
-import org.imsglobal.basiclti.BasicLTIConstants;
+import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.BasicLTIConstants;
 
-import org.imsglobal.lti2.LTI2Constants;
-import org.imsglobal.lti2.LTI2Vars;
-import org.imsglobal.lti2.LTI2Caps;
-import org.imsglobal.lti2.LTI2Util;
-import org.imsglobal.lti2.LTI2Messages;
-import org.imsglobal.lti2.ToolProxy;
-import org.imsglobal.lti2.ToolProxyBinding;
-import org.imsglobal.lti2.ContentItem;
-import org.imsglobal.lti2.objects.ToolConsumer;
-import org.imsglobal.lti2.LTI2Config;
+import org.tsugi.lti2.LTI2Constants;
+import org.tsugi.lti2.LTI2Vars;
+import org.tsugi.lti2.LTI2Caps;
+import org.tsugi.lti2.LTI2Util;
+import org.tsugi.lti2.LTI2Messages;
+import org.tsugi.lti2.ToolProxy;
+import org.tsugi.lti2.ToolProxyBinding;
+import org.tsugi.lti2.ContentItem;
+import org.tsugi.lti2.objects.ToolConsumer;
+import org.tsugi.lti2.LTI2Config;
 
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.lti.api.LTIService;
