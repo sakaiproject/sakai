@@ -83,6 +83,25 @@
  <h:message for="answerptr" styleClass="validate"/>
   </div><br/>
 
+  <!-- 1.2 MIN POINTS -->
+<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
+<f:verbatim>
+<div class="shorttext">
+</f:verbatim>
+    <h:outputLabel value="#{authorMessages.answer_min_point_value}"/>
+    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
+<f:validateDoubleRange />
+</h:inputText>
+<f:verbatim><div></f:verbatim>
+<h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
+<f:verbatim></div></f:verbatim>
+ <h:message for="answerminptr" styleClass="validate"/>
+<f:verbatim>
+  </div>
+<br/>
+</f:verbatim>
+</f:subview>
+  
 <!-- DISCOUNT -->
 <div class="longtext">
 <h:panelGrid columns="2" border="0">

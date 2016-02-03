@@ -725,6 +725,7 @@ public class ItemAddListener
       }
       item.setScore(Double.valueOf(bean.getItemScore()));
       item.setDiscount(Double.valueOf(bean.getItemDiscount()));
+      item.setMinScore(Double.valueOf(bean.getItemMinScore()));
       item.setHint("");
 
       item.setStatus(ItemDataIfc.ACTIVE_STATUS);
