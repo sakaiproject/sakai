@@ -73,8 +73,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	protected Storage m_storage = null;
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
-	/** The session cache variable for current user's preferences */
-	protected String ATTR_PREFERENCE = "attr_preference";
 	/** the cache for Preference objects **/
 	private Cache m_cache;
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -328,12 +326,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			SessionManager sManager = sessionManager();
 			Session s = sManager.getCurrentSession();
 		
-			// update the session cache if the preference is for current session user
-			if (sManager.getCurrentSessionUserId().equals(edit.getId()))
-			{
-				s.setAttribute(ATTR_PREFERENCE, new BasePreferences((BasePreferences) edit));
-			}
-
 			// track it
 			eventTrackingService()
 					.post(eventTrackingService().newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
@@ -412,7 +404,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	}
 
 	/**
-	 * Find the preferences object, in the user's session, cache or storage.
+	 * Find the preferences object in cache or storage.
 	 * 
 	 * @param id
 	 *        The preferences id.
@@ -424,20 +416,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			return null;
 		}
 
-		boolean isForCurrentUser = id.equals(sessionManager().getCurrentSessionUserId());
-		Session session = sessionManager().getCurrentSession();
-
-		// If we're getting the preferences for the current user, we can use the
-		// version stored in the session if present.
-		if (isForCurrentUser) {
-			BasePreferences prefsFromSession = (BasePreferences) session.getAttribute(ATTR_PREFERENCE);
-
-			if (prefsFromSession != null) {
-				return new BasePreferences(prefsFromSession);
-			}
-		}
-
-		// Otherwise, try the cache
+		// Try the cache
 		BasePreferences prefs = (BasePreferences) m_cache.get(id);
 
 		// Failing that, try the storage
@@ -446,13 +425,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 
 		if (prefs != null) {
-			// Refresh the cache
 			m_cache.put(id, prefs);
-
-			// And stash preferences on the current user's session if appropriate.
-			if (isForCurrentUser) {
-				session.setAttribute(ATTR_PREFERENCE, new BasePreferences(prefs));
-			}
 		}
 		
 		return prefs;
