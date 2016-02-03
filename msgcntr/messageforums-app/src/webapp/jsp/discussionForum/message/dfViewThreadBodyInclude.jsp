@@ -63,7 +63,6 @@
                 <f:verbatim><span class="md"></f:verbatim>
                 <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.anonAwareAuthor }" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="textPanelFooter md #{message.read ? '' : 'unreadMsg'} #{message.useAnonymousId ? 'anonymousAuthor' : ''}">
                     <f:param value="#{message.authorEid}" name="siteUserId"/>
-                    <f:param value="#{message.message.author}" name="siteUser"/>
                     <h:outputText value="  #{message.anonAwareAuthor}"/>
                 </h:commandLink>
 

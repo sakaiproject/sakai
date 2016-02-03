@@ -244,7 +244,6 @@
   				<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser" target="dialogFrame"
 					onclick="dialogLinkClick(this);">
 					<f:param value="#{stat.siteUserId}" name="siteUserId"/>
-  				    <f:param value="#{stat.escapedSiteUser}" name="siteUser"/>
   				    <f:param value="dialogDiv" name="dialogDivId"/>
 					<f:param value="dialogFrame" name="frameId"/>
 					<h:outputText rendered="#{!stat.useAnonId}" value="#{stat.siteUser}" />
@@ -257,7 +256,6 @@
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" styleClass="font-size: small">
   				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
-  				    <f:param value="#{stat.escapedSiteUser}" name="siteUser"/>
 				   	<h:outputText value="#{msgs.stat_forum_details}" />
 	          	</h:commandLink>
   			</h:column>
