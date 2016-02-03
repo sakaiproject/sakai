@@ -1,6 +1,6 @@
 package org.sakaiproject.lti2;
 
-import org.imsglobal.lti2.LTI2Config;
+import org.tsugi.lti2.LTI2Config;
 
 /*
 # A globally unique identifier for the service.  The domain name is typical.

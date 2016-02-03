@@ -16,7 +16,7 @@
 
   <servlet>
     <servlet-name>SampleServlet</servlet-name>
-    <servlet-class>org.imsglobal.lti2.LTI2Servlet</servlet-class>
+    <servlet-class>org.tsugi.lti2.LTI2Servlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

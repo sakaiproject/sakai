@@ -29,9 +29,9 @@
         <module>basiclti-pack</module>
         <module>basiclti-portlet</module>
         <module>basiclti-blis</module>
-        <module>basiclti-util</module>
         <module>basiclti-tool</module>
         <module>portlet-util</module>
+        <module>tsugi-util</module>
         <module>web-ifp</module>
     </modules>
     
@@ -159,7 +159,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>basiclti-util</artifactId>
+                <artifactId>tsugi-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

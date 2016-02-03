@@ -19,7 +19,7 @@
 
 package org.sakaiproject.portlets;
 
-import org.imsglobal.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.BasicLTIUtil;
 
 import java.lang.Integer;
 

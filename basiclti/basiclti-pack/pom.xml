@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>basiclti-util</artifactId>
+            <artifactId>tsugi-util</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

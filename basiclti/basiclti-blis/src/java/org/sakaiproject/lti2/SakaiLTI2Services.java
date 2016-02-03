@@ -1,7 +1,7 @@
 
 package org.sakaiproject.lti2;
 
-import org.imsglobal.lti2.objects.*;
+import org.tsugi.lti2.objects.*;
 
 public class SakaiLTI2Services {
 
