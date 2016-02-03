@@ -215,7 +215,7 @@
 								</goals>
 								<phase>process-resources</phase>
 								<configuration>
-									<jrubyVersion>1.7.20</jrubyVersion>
+									<jrubyVersion>1.7.24</jrubyVersion>
 									<execArgs>${project.build.directory}/rubygems/bin/compass
 										compile -c ${basedir}/src/${sakai.skin.source}/config.rb
 										--css-dir=../webapp/skin/${sakai.skin.target}
