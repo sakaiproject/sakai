@@ -2186,10 +2186,10 @@ public class ExtractionHelper
     
     StringBuilder itemTextStringbuf = new StringBuilder();
      
-    
+    // SAM-2703
     for (int i = 0; i < itemTextList.size(); i++)
     {
-      String text = XmlUtil.processFormattedText(log, (String) itemTextList.get(i));
+      String text = (String) itemTextList.get(i);
       // we are assuming non-empty text/answer/non-empty text/answer etc.
       if (text == null)
       {
@@ -2202,7 +2202,7 @@ public class ExtractionHelper
         itemTextStringbuf.append(FIB_BLANK_INDICATOR);
       }
     }
-    String itemTextString = itemTextStringbuf.toString();
+    String itemTextString = XmlUtil.processFormattedText(log,itemTextStringbuf.toString());
     
     itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
     log.debug("itemTextString="+itemTextString);
