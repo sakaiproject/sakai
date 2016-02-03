@@ -18,9 +18,6 @@ ${includeLatestJQuery}
 	<!-- Tablesorter: search -->
 	<script src="/basiclti-admin-tool/js/jquery.tablesorter.widgets.js"></script>
 	
-	<!-- css for the tool -->
-	<link rel="stylesheet" href="/basiclti-admin-tool/css/tool.css">
-	
 	<script id="js">$(function(){
 
 	// **********************************
