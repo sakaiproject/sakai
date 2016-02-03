@@ -75,8 +75,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	protected String m_relativeAccessPoint = null;
 	/** The session cache variable for current user's preferences */
 	protected String ATTR_PREFERENCE = "attr_preference";
-	/** The session cache variable for indicating whether the current user's preference was null when last looked */
-	protected String ATTR_PREFERENCE_IS_NULL = "attr_preference_is_null";
 	/** the cache for Preference objects **/
 	private Cache m_cache;
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -334,7 +332,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			if (sManager.getCurrentSessionUserId().equals(edit.getId()))
 			{
 				s.setAttribute(ATTR_PREFERENCE, new BasePreferences((BasePreferences) edit));
-				s.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.FALSE);
 			}
 
 			// track it
@@ -415,7 +412,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	}
 
 	/**
-	 * Find the preferences object, in cache or storage.
+	 * Find the preferences object, in the user's session, cache or storage.
 	 * 
 	 * @param id
 	 *        The preferences id.
@@ -423,70 +420,43 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	 */
 	protected BasePreferences findPreferences(String id)
 	{
-		BasePreferences prefs = null;
-		
-		if (id != null)
-		{
-			Session session = sessionManager().getCurrentSession();
-			
-			if (id.equals(sessionManager().getCurrentSessionUserId()))
-			{
-				// if the preference is for current user
-				if (session.getAttribute(ATTR_PREFERENCE_IS_NULL)!=null)
-				{
-					if (!((Boolean) session.getAttribute(ATTR_PREFERENCE_IS_NULL)).booleanValue())
-					{
-						// if the session cache indicate the preference is not null, get the preferences from cache
-						prefs = new BasePreferences((BasePreferences) session.getAttribute(ATTR_PREFERENCE));
-					}
-				}
-				else
-				{
-					//is the preference in the cache?
-					if (m_cache.containsKey(id))
-					{
-						prefs = (BasePreferences) m_cache.get(id);
-					}
-					else
-					//otherwise, get preferences from storage and update caches
-					{
-						prefs = (BasePreferences) m_storage.get(id);
-					}
-					//its possible either call above returned null if the user has the default preferences
-					if (prefs != null)
-					{
-						session.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.FALSE);
-						session.setAttribute(ATTR_PREFERENCE, new BasePreferences(prefs));
-						m_cache.put(id, prefs);
-					}
-					else
-					{
-						session.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.TRUE);
-						session.removeAttribute(ATTR_PREFERENCE);
-						m_cache.put(id, null);
-					}
-				}
+		if (id == null) {
+			return null;
+		}
+
+		boolean isForCurrentUser = id.equals(sessionManager().getCurrentSessionUserId());
+		Session session = sessionManager().getCurrentSession();
+
+		// If we're getting the preferences for the current user, we can use the
+		// version stored in the session if present.
+		if (isForCurrentUser) {
+			BasePreferences prefsFromSession = (BasePreferences) session.getAttribute(ATTR_PREFERENCE);
+
+			if (prefsFromSession != null) {
+				return new BasePreferences(prefsFromSession);
 			}
-			else
-			{
-				//is the preference in the cache
-				if (m_cache.containsKey(id))
-				{
-					prefs = (BasePreferences) m_cache.get(id);
-				}
-				else
-				{
-					// uf the preference is not for current user, ignore sessioncache completely
-					prefs = (BasePreferences) m_storage.get(id);
-				}
-				
-				m_cache.put(id, prefs);
+		}
+
+		// Otherwise, try the cache
+		BasePreferences prefs = (BasePreferences) m_cache.get(id);
+
+		// Failing that, try the storage
+		if (prefs == null) {
+			prefs = (BasePreferences) m_storage.get(id);
+		}
+
+		if (prefs != null) {
+			// Refresh the cache
+			m_cache.put(id, prefs);
+
+			// And stash preferences on the current user's session if appropriate.
+			if (isForCurrentUser) {
+				session.setAttribute(ATTR_PREFERENCE, new BasePreferences(prefs));
 			}
 		}
 		
 		return prefs;
 	}
-
 	
 	
 	/**
