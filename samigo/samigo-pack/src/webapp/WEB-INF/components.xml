@@ -339,8 +339,7 @@
     <!-- Email Template Service Setup -->
     <bean id="org.sakaiproject.samigo.api.SamigoETSProvider"
           class="org.sakaiproject.samigo.impl.SamigoETSProviderImpl"
-          init-method="init"
-          singleton="true" >
+          init-method="init">
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
@@ -365,7 +364,7 @@
     <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.samigo"
           parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
           class="org.sakaiproject.samigo.user.prefs.SamigoUserNotificationPreferencesRegistrationImpl"
-          init-method="init" singleton="true">
+          init-method="init">
         <property name="bundleLocation"><value>samigo-noti-prefs</value></property>
         <property name="sectionTitleBundleKey"><value>prefs_title</value></property>
         <property name="sectionDescriptionBundleKey"><value>prefs_description</value></property>
