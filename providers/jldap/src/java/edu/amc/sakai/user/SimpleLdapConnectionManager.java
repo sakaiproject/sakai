@@ -72,7 +72,29 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 		return conn;
 	}
 
-	
+	/**
+	 * Return a new LDAPConnection with the appropriate socket factory set for the connection type.
+	 */
+	private LDAPConnection createConnectionWithSocketFactory() {
+		LDAPSocketFactory factory;
+
+		if (config.isSecureConnection()) {
+			factory = config.getSecureSocketFactory();
+
+			if (factory == null) {
+				throw new RuntimeException("You must set a 'secureSocketFactory' (in jldap-beans.xml) when using LDAPS");
+			}
+		} else {
+			factory = config.getSocketFactory();
+		}
+
+		if (factory == null) {
+			return new LDAPConnection();
+		} else {
+			return new LDAPConnection(factory);
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -82,7 +104,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 			M_log.debug("getBoundConnection(): [dn = " + dn + "]");
 		}
 		
-		LDAPConnection conn = new LDAPConnection();
+		LDAPConnection conn = createConnectionWithSocketFactory();
 		applyConstraints(conn);
 		connect(conn);
 		bind(conn, dn, pw);
@@ -95,17 +117,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 		if (M_log.isDebugEnabled() ) {
 			M_log.debug("newConnection()");
 		}
-		LDAPConnection connection;
-		if (config.isSecureConnection()) {
-			connection = new LDAPConnection(config.getSecureSocketFactory());
-		} else {
-			LDAPSocketFactory factory = config.getSocketFactory();
-			if (factory != null) {
-				connection = new LDAPConnection(factory);
-			} else {
-				connection = new LDAPConnection();
-			}
-		}
+		LDAPConnection connection = createConnectionWithSocketFactory();
 		applyConstraints(connection);
 		connect(connection);
 		return connection;
