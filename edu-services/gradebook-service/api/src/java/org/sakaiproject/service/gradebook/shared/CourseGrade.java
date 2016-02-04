@@ -12,11 +12,20 @@ public class CourseGrade implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	private long id;
 	private String enteredGrade;
 	private String calculatedGrade;
 	private String mappedGrade;
 	
 	public CourseGrade() {}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 
 	public String getEnteredGrade() {
 		return enteredGrade;

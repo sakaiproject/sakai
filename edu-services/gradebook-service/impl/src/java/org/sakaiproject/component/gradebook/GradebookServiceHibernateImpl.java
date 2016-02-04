@@ -3005,7 +3005,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			
 			CourseGradeRecord gradeRecord = gradeRecords.get(0);
-
+			rval.setId(gradeRecord.getId());
+			
 			//set entered grade
 			rval.setEnteredGrade(gradeRecord.getEnteredGrade());
 						
@@ -3017,7 +3018,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				//mapped grade
 				GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
-				String mappedGrade = (String)gradeMap.getGrade(calculatedGrade);
+				String mappedGrade = gradeMap.getGrade(calculatedGrade);
 				rval.setMappedGrade(mappedGrade);
 			}
 		}
