@@ -8,8 +8,8 @@
         <version>11-SNAPSHOT</version>
     </parent>
 
-    <name>IMS LTI Utilities (tsugi-util)</name>
-    <groupId>org.sakaiproject.basiclti</groupId>
+    <name>Tsugi LTI Utilities (tsugi-util)</name>
+    <groupId>org.tsugi</groupId>
     <artifactId>tsugi-util</artifactId>
     <organization>
         <name>Tsugi Project</name>

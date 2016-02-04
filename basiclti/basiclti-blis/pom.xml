@@ -20,8 +20,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.tsugi</groupId>
             <artifactId>tsugi-util</artifactId>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
