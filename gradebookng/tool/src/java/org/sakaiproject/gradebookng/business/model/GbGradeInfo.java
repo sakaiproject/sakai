@@ -32,10 +32,23 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 	@Setter
 	private boolean gradeable;
 
+	/**
+	 * Constructor. Takes a GradeDefinition or null. If null, a stub is created.
+	 *
+	 * @param gd GradeDefinition object. May be null
+	 */
 	public GbGradeInfo(final GradeDefinition gd) {
-		this.grade = gd.getGrade();
-		this.gradeComment = gd.getGradeComment();
-		this.gradeable = false;
+
+		// allows for a stub
+		if (gd == null) {
+			this.grade = null;
+			this.gradeComment = null;
+			this.gradeable = false;
+		} else {
+			this.grade = gd.getGrade();
+			this.gradeComment = gd.getGradeComment();
+			this.gradeable = false;
+		}
 	}
 
 	@Override
