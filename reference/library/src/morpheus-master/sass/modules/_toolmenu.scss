@@ -52,6 +52,11 @@ body.#{$namespace}toolMenu-collapsed{
 	}
 }
 
+#toolMenuWrap img{
+  max-width: 100%;
+  height: auto;
+}
+
 #toolMenuWrap{
 	background: $toolMenuBGColor;
 	display: block;
