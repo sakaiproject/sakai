@@ -53,11 +53,18 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 public class SamigoAssessmentHandler implements HandlesImportable {
+	private static Log log = LogFactory.getLog(SamigoAssessmentHandler.class);
+    
 	// Samigo identifies each question type with an int
 	public static final int TRUE_FALSE = 4;
 	public static final int FILL_BLANK = 8;
 	public static final int MATCHING = 9;
+	public static final int FILL_BLANK_PLUS = 11;
 	
 	public static final String QUIZ_TYPE = "62";
 	public static final String QUIZ_TEMPLATE = "3";
@@ -156,6 +163,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			questionCount++;
 			Set correctAnswerIDs = importableQuestion.getCorrectAnswerIDs();
 			itemFacade = new ItemFacade();
+			itemFacade.setTypeId(new Long(importableQuestion.getQuestionType()));
 			textSet = new HashSet();
 			questionTextString = contextualizeUrls(importableQuestion.getQuestionText(), siteId);
 			if (importableQuestion.getQuestionType() == SamigoPoolHandler.MATCHING) {
@@ -213,6 +221,13 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 					if (importableQuestion.getQuestionType() == SamigoPoolHandler.TRUE_FALSE) {
 						// Samigo only understands True/False answers in lower case
 						answer.setText(importableAnswer.getAnswerText().toLowerCase());
+					} else if (importableQuestion.getQuestionType() == SamigoPoolHandler.FILL_BLANK_PLUS) {
+						answer.setText(importableAnswer.getAnswerText());
+						Pattern pattern = Pattern.compile("_+|<<.*>>");
+						Matcher matcher = pattern.matcher(questionTextString);
+						if (matcher.find()) questionTextString = questionTextString.replaceFirst(matcher.group(),"{}");
+						text.setText(questionTextString);
+						itemFacade.setTypeId(Long.valueOf(SamigoPoolHandler.FILL_BLANK));
 					} else if (importableQuestion.getQuestionType() == SamigoPoolHandler.FILL_BLANK) {
 						if (j.hasNext()) continue;
 						answer.setText(answerBuffer.toString());
