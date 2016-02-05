@@ -50,6 +50,15 @@
 	padding:.3em 0;
 	border-bottom:2px solid #ccc
 }
+.floatLeft{
+	float:left;
+}
+.floatRight{
+	float:right;
+}
+.fullWidth{
+	width:100%;
+}
 .detailsDiv{
 	float:left;
 	width:100%;
@@ -64,7 +73,7 @@
 	margin: 1em;
 }
 table.lines tr:hover {
-	background-color: #FFF;
+	background-color: #e7e7e7;
 }
 table.lines tr:nth-child(odd), .citationDetails table.lines tr{
 	background: #eeeeee;
@@ -112,10 +121,21 @@ ol.vertical {
 	background-color: #E0DED9;
 	padding: 10px;
 }
+ol.viewCitations li {
+	color: #000;
+	display: block;
+	margin: 5px;
+}
 ol.vertical li {
 	color: #0088cc;
 	display: block;
-	margin: 5px;
+}
+.availability {
+	margin-right: 15px;
+}
+.listWidth {
+	margin: auto;
+	max-width: 1024px;
 }
 ol.vertical li div.editor ol li, ol.vertical li div.editor ul li{
 	display:list-item;
@@ -180,6 +200,25 @@ ol.serialization li div.sectionEditor.h1Editor:hover {
 .h1TopBar {
 	width:100%; float:left;
 }
+.banner {
+    float:left;
+    margin-top: 15px;
+    margin-left:15px;
+}
+.bannerLinks {
+    float:right;
+    margin-right:15px;
+    margin-top: 10px;
+}
+a.export {
+    padding-right:10px;
+}
+a.print {
+    padding-right:10px;
+}
+.lastUpdated {
+    float:right;
+}
 .accordionArrow {
 	cursor: pointer;
 	float:left;
@@ -219,6 +258,11 @@ ol.serialization li.hasSections:hover{
 ol.vertical li div.editor ol li, ol.vertical li div.editor ul li{
 	display:list-item;
 	color: #000;
+}
+ol.viewCitations li {
+    color: #000;
+    display: block;
+    margin: 5px;
 }
 .h2NestedLevel, .h3NestedLevel, .h4NestedLevel {
 	padding:5px;

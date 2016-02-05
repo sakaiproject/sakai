@@ -256,6 +256,15 @@ public class BasicCitationService extends BaseCitationService
 	        this.m_citations.put(edit.getId(), edit);
         }
 
+
+        /* (non-Javadoc)
+         * @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+         */
+        public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+        {
+        	this.m_citationCollections.put(citationCollectionOrder.getLocation(), citationCollectionOrder);
+        }
+
 		/* (non-Javadoc)
          * @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveCollection(java.util.Collection)
          */
