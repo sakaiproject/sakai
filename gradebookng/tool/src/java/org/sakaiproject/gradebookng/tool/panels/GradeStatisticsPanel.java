@@ -18,6 +18,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 public class GradeStatisticsPanel extends Panel {
@@ -62,26 +63,20 @@ public class GradeStatisticsPanel extends Panel {
 			}
 		}
 
-		add(new Label("graded", new StringResourceModel("label.statistics.gradedoutof",
-				null, new Object[] {
-						String.valueOf(allGrades.size()),
-						String.valueOf(gradeInfo.size()) }).getString()));
-		add(new Label("outof", String.valueOf(assignment.getPoints())));
+		add(new Label("graded", String.valueOf(allGrades.size())));
 
 		if (allGrades.size() > 0) {
 			Collections.sort(allGrades);
-			add(new Label("average", String.valueOf(calculateAverage(allGrades))));
-			add(new Label("median", String.valueOf(calculateMedian(allGrades))));
-			add(new Label("lowest", String.valueOf(Collections.min(allGrades))));
-			add(new Label("highest", String.valueOf(Collections.max(allGrades))));
-			add(new Label("variance", String.valueOf(calculateVariance(allGrades))));
-			add(new Label("deviation", String.valueOf(calculateStandardDeviation(allGrades))));
+			add(new Label("average", constructAverageLabel(allGrades, assignment)));
+			add(new Label("median", constructMedianLabel(allGrades, assignment)));
+			add(new Label("lowest", constructLowestLabel(allGrades, assignment)));
+			add(new Label("highest", constructHighestLabel(allGrades, assignment)));
+			add(new Label("deviation", constructStandardDeviationLabel(allGrades)));
 		} else {
 			add(new Label("average", "-"));
 			add(new Label("median", "-"));
 			add(new Label("lowest", "-"));
 			add(new Label("highest", "-"));
-			add(new Label("variance", "-"));
 			add(new Label("deviation", "-"));
 		}
 
@@ -93,6 +88,56 @@ public class GradeStatisticsPanel extends Panel {
 				GradeStatisticsPanel.this.window.close(target);
 			}
 		});
+	}
+
+	private String constructAverageLabel(final List<Double> allGrades, final Assignment assignment) {
+		double average = calculateAverage(allGrades);
+		String averageFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(average));
+		Double total = assignment.getPoints();
+		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (average / total.doubleValue()));
+
+		return (new StringResourceModel("label.statistics.averagevalue",
+				null,
+				new Object[] { averageFormatted, FormatHelper.formatGrade(String.valueOf(total)), percentage })).getString();
+	}
+
+	private String constructMedianLabel(final List<Double> allGrades, final Assignment assignment) {
+		double median = calculateMedian(allGrades);
+		String medianFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(median));
+		Double total = assignment.getPoints();
+		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (median / total.doubleValue()));
+
+		return (new StringResourceModel("label.statistics.medianvalue",
+				null,
+				new Object[] { medianFormatted, FormatHelper.formatGrade(String.valueOf(total)), percentage })).getString();
+	}
+
+	private String constructLowestLabel(final List<Double> allGrades, final Assignment assignment) {
+		double lowest = Collections.min(allGrades);
+		String lowestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(lowest));
+		Double total = assignment.getPoints();
+		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (lowest / total.doubleValue()));
+
+		return (new StringResourceModel("label.statistics.lowestvalue",
+				null,
+				new Object[] { lowestFormatted, FormatHelper.formatGrade(String.valueOf(total)), percentage })).getString();
+	}
+
+	private String constructHighestLabel(final List<Double> allGrades, final Assignment assignment) {
+		double highest = Collections.max(allGrades);
+		String highestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(highest));
+		Double total = assignment.getPoints();
+		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (highest / total.doubleValue()));
+
+		return new StringResourceModel("label.statistics.highestvalue",
+				null,
+				new Object[] { highestFormatted, FormatHelper.formatGrade(String.valueOf(total)), percentage }).getString();
+	}
+
+	private String constructStandardDeviationLabel(final List<Double> allGrades) {
+		double deviation = calculateStandardDeviation(allGrades);
+
+		return FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(deviation));
 	}
 
 	private double calculateAverage(final List<Double> allGrades) {
