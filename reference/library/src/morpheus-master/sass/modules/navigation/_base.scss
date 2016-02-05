@@ -50,6 +50,10 @@ body.is-logged-out{
 			@media #{$phone}{
 				margin: 0 0.2em 0 0;
 			}
+			.#{$namespace}loginUser__message{
+			    display: inline-block;
+			    margin: 0 1em 0 0;
+			}
 			a{
 				.login-Icon{
 					@extend .fa-power-off;
@@ -77,12 +81,6 @@ body.is-logged-out{
 	&.is-minimized{
 		.#{$namespace}headerLogo{
 			padding: 0.5em 1em 0 1em;
-		}
-		.#{$namespace}loginUser{
-			.#{$namespace}loginUser__message{
-			    display: inline-block;
-			    margin: 0 1em 0 0;
-			}
 		}
 	}
 	@media #{$phone}{
