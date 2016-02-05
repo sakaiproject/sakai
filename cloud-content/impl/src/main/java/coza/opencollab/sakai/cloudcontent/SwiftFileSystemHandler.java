@@ -10,6 +10,8 @@ import com.google.inject.Module;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.ContextBuilder;
 import org.jclouds.http.options.GetOptions;
@@ -83,6 +85,12 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
      * for container and resource names.
      */
     private String invalidCharactersRegex = "[:*?<|>]";
+
+    /**
+     * This is how long we want the signed URL to be valid for.
+     */
+    private static final int SIGNED_URL_VALIDITY_SECONDS = 10 * 60;
+
     /**
      * The logger for warnings and errors.
      */
@@ -262,6 +270,21 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     public void destroy() throws IOException{
         Closeables.close(swiftApi, false);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
+        ContainerAndName can = getContainerAndName(id, root, filePath);
+        ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
+        SwiftObject so = objectApi.get(can.name, GetOptions.NONE);
+        if(so == null){
+            throw new IOException("No object found for " + id);
+        }
+        
+        return so.getUri();
+	}
 
     /**
      * {@inheritDoc}
