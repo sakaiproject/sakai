@@ -412,7 +412,7 @@
                 }
                 var params = $('#newCitationListForm').serializeArray();
                 params.push({name:'addSectionHTML', value:$('#' + this.id.replace(TOGGLE, SECTION_INLINE_EDITOR)).get(0).innerHTML});
-                params.push({name:'sectionType', value:$('#' + this.id.replace(TOGGLE, SECTION_INLINE_EDITOR)).parent().attr('data-sectiontype')});
+                params.push({name:'sectionType', value:$(this).parent().parent().attr('data-sectiontype')});
                 params.push({name:'locationId', value:this.id.replace(TOGGLE, "")});
 
                 ajaxPost(actionUrl, params, true);
@@ -571,7 +571,7 @@
 
             $('.h1NestedLevel li[data-sectiontype="HEADING1"] > div > div[id^=sectionInlineEditor]').click(function() {
                 $(this).parent().parent().find('ol').slideToggle();
-                var image =  $('#' + this.id.replace('sectionInlineEditor', 'toggleImg')).get(0);
+                var image =  $('#' + this.id.replace('linkClick', 'toggleImg')).get(0);
 
                 if( image.src.indexOf("/library/image/sakai/white-arrow-right.gif")!=-1 ) {
                     image.src = "/library/image/sakai/white-arrow-down.gif";

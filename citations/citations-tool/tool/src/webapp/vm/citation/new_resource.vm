@@ -161,6 +161,16 @@ span.searchTargetLink { margin-right:50px; }
 			<span class="popupTitle" style="display:none;">$tlang.getString("resource.import.file")</span>
 		  </span>
 	  </li>
+	  <!-- Markup for Export/RIS -->
+	  #if( $!exportUrlAll )
+		  <li>
+			  <span class="searchTargetLink">
+			    <a name="ExportCitation" id="ExportCitation" title="$tlang.getString("resource.export.file")"
+				   href="$exportUrlAll"> $tlang.getString("resource.export")
+			    </a>
+			  </span>
+		  </li>
+	  #end
 	</ul>
 	<div class="act">
 		<div class="citationsDisplay"#if(! ($collectionSize || $collectionSize < 1) && ! ($nestedSectionsSize || $nestedSectionsSize < 1)) style="display:none;"#end>

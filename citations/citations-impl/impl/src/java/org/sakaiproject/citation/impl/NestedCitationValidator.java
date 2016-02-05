@@ -20,8 +20,6 @@ public class NestedCitationValidator implements CitationValidator {
 			public CitationCollectionOrder.SectionType[] getAllowableTypes() {
 				return new CitationCollectionOrder.SectionType[]{
 						CitationCollectionOrder.SectionType.HEADING1,
-						CitationCollectionOrder.SectionType.DESCRIPTION,
-						CitationCollectionOrder.SectionType.CITATION,
 						null // 'Null' here refers to the unnested list
 						};
 			}
@@ -62,23 +60,26 @@ public class NestedCitationValidator implements CitationValidator {
 	public boolean isValid(List<CitationCollectionOrder> citationCollectionOrders) {
 
 		for (CitationCollectionOrder h1Section : citationCollectionOrders) {
-			if (!Arrays.asList(NESTED_CITATION_LIST.TOP_LEVEL.getAllowableTypes()).contains(
+			if (hasNullCitationIdAndSectionType(h1Section) || !Arrays.asList(NESTED_CITATION_LIST.TOP_LEVEL.getAllowableTypes()).contains(
 					h1Section.getSectiontype())){
 				return false;
 			}
 			for (CitationCollectionOrder h2Section : h1Section.getChildren()) {
-				if (!Arrays.asList(NESTED_CITATION_LIST.HEADING1.getAllowableTypes()).contains(
+				if (hasNullCitationIdAndSectionType(h2Section) || !Arrays.asList(NESTED_CITATION_LIST.HEADING1.getAllowableTypes()).contains(
 						h2Section.getSectiontype())){
 					return false;
 				}
 				for (CitationCollectionOrder h3Section : h2Section.getChildren()) {
-					if (!Arrays.asList(NESTED_CITATION_LIST.HEADING2.getAllowableTypes()).contains(
+					if (hasNullCitationIdAndSectionType(h3Section) || !Arrays.asList(NESTED_CITATION_LIST.HEADING2.getAllowableTypes()).contains(
 							h3Section.getSectiontype())){
 						return false;
 					}
 					for (CitationCollectionOrder citation : h3Section.getChildren()) {
-						if (!Arrays.asList(NESTED_CITATION_LIST.HEADING3.getAllowableTypes()).contains(
+						if (hasNullCitationIdAndSectionType(citation) || !Arrays.asList(NESTED_CITATION_LIST.HEADING3.getAllowableTypes()).contains(
 								citation.getSectiontype())){
+							return false;
+						}
+						if (citation.getChildren()!=null && !citation.getChildren().isEmpty()){
 							return false;
 						}
 					}
@@ -86,5 +87,9 @@ public class NestedCitationValidator implements CitationValidator {
 			}
 		}
 		return true;
+	}
+
+	private boolean hasNullCitationIdAndSectionType(CitationCollectionOrder citationCollectionOrder) {
+		return citationCollectionOrder.getCitationid()==null && citationCollectionOrder.getSectiontype()==null;
 	}
 }

@@ -202,6 +202,11 @@ public class DbCitationService extends BaseCitationService
 			this.commitCitation(edit);
 		}
 
+		public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			this.commitCitationCollectionOrder(citationCollectionOrder);
+		}
+
 		public void saveCollection(CitationCollection collection)
 		{
 			this.commitCollection(collection);
@@ -348,6 +353,23 @@ public class DbCitationService extends BaseCitationService
 				ok = m_sqlService.dbWrite(statement, fields);
 			}
         }
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#commitCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		protected void commitCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
+
+			Object[] orderFields = new Object[5];
+			orderFields [0] = citationCollectionOrder.getCollectionId();
+			orderFields [1] = citationCollectionOrder.getCitationid();
+			orderFields [2] = citationCollectionOrder.getLocation();
+			orderFields [3] = citationCollectionOrder.getSectiontype();
+			orderFields [4] = citationCollectionOrder.getValue();
+
+			m_sqlService.dbWrite(orderStatement, orderFields);
+		}
 
 		/* (non-Javadoc)
 		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#commitCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
@@ -1218,6 +1240,9 @@ public class DbCitationService extends BaseCitationService
 				citation.setPosition(Integer.parseInt((String) orderTriple.getValue()));
 				edit.add(citation);
 			}
+
+			List<CitationCollectionOrder> citationCollectionOrders = getNestedCollectionAsList(collectionId);
+			edit.setNestedCitationCollectionOrders(citationCollectionOrders);
 		}
 
 		private BasicCitationCollection getBasicCitationCollection(String collectionId) {
@@ -1754,14 +1779,14 @@ public class DbCitationService extends BaseCitationService
 				collectionId = result.getString(1);
 				citationId = result.getString(2);
 				location = result.getInt(3);
-				sectionType = CitationCollectionOrder.SectionType.valueOf(result.getString(4));
+				sectionType = result.getString(4)==null ? null : CitationCollectionOrder.SectionType.valueOf(result.getString(4));
 				value = result.getString(5);
 
 				citationCollectionOrder = new CitationCollectionOrder(collectionId, citationId, location, sectionType, value);
 			}
 			catch (SQLException e)
 			{
-				M_log.warn("TripleReader: problem reading CitationCollectionOrder from result: collectionId(" + collectionId + ") location(" + location
+				M_log.warn("CitationCollectionOrderReader: problem reading CitationCollectionOrder from result: collectionId(" + collectionId + ") location(" + location
 						+ ") sectionType(" + sectionType + ") value(" + value + ")");
 				return null;
 			}
