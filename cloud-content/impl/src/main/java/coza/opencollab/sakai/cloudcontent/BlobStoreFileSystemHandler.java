@@ -33,6 +33,7 @@ import org.jclouds.aws.s3.AWSS3ProviderMetadata;
 import org.jclouds.openstack.swift.v1.SwiftApiMetadata;
 import org.jclouds.osgi.ApiRegistry;
 import org.jclouds.osgi.ProviderRegistry;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FileSystemHandler;
 import org.springframework.util.FileCopyUtils;
 
@@ -50,6 +51,12 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * The BlobStore context (connection).
      */
     private BlobStoreContext context;
+
+    /**
+     * ServerConfigurationService injected via components.xml
+     */
+    private ServerConfigurationService serverConfigurationService;
+
     /**
      * The jclouds provider name to use.
      */
@@ -89,16 +96,30 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * set here, meaning that the buffer should be bounded on it instead.
      */
     private static final int MAX_UPLOAD_BYTES = 1024 * 1024 * 1024;
-    
+
     /**
      * This is how long we want the signed URL to be valid for.
      */
     private static final int SIGNED_URL_VALIDITY_SECONDS = 10 * 60;
 
     /**
+     * The largest a blob can be before we write it to temp file to avoid OOMing Tomcat
+     */
+    private static long maxBlobStreamSize = 1024 * 1024 * 100;
+    
+    /** 
+     * A preferred directory to write temporary blobs. Maybe a large, temporary partition?
+     */
+    private static String temporaryBlobDirectory;
+
+    /**
      * Default constructor.
      */
     public BlobStoreFileSystemHandler() {
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     /**
@@ -179,6 +200,27 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                 .credentials(identity, credential)
                 .modules(modules)
                 .buildView(BlobStoreContext.class);
+
+        // There are some oddities with streaming larger files to the user,
+        // so download to a temp file first. For now, call 100MB the threshold.
+        maxBlobStreamSize = (long) serverConfigurationService.getInt("cloud.content.maxblobstream.size", 1024 * 1024 * 100);
+        temporaryBlobDirectory = serverConfigurationService.getString("cloud.content.temporary.directory", null);
+        
+        if (temporaryBlobDirectory != null) {
+            File baseDir = new File(temporaryBlobDirectory);
+            if (!baseDir.exists()) {
+                try {
+                    // Can't write into the preferred temp dir
+                    if (!baseDir.mkdirs()) {
+                        temporaryBlobDirectory = null;
+                    }
+                }
+                catch (SecurityException se) {
+                    // JVM security hasn't whitelisted this dir
+                    temporaryBlobDirectory = null;
+                }
+            }
+        }
     }
     
     /**
@@ -191,17 +233,17 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     /**
      * {@inheritDoc}
      */
-	@Override
-	public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
+    @Override
+    public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
         HttpRequest hr = context.getSigner().signGetBlob(can.container, can.name, SIGNED_URL_VALIDITY_SECONDS);
-        if (hr == null){
+        if (hr == null) {
             throw new IOException("No object found to creat signed url " + id);
         }
-        
+
         return hr.getEndpoint();
-	}
-    
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -213,32 +255,36 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             throw new IOException("No object found for " + id);
         }
 
-        // There are some oddities with streaming larger files to the user,
-        // so download to a temp file first. For now, call 100MB the threshold.
-        long maxStreamSize = 1024 * 1024 * 100;
-
         StorageMetadata metadata = blob.getMetadata();
         Long size = metadata.getSize();
 
-        if (size != null && size.longValue() > maxStreamSize) {
-            return streamFromTempFile(blob);
+        if (size != null && size.longValue() > maxBlobStreamSize) {
+            return streamFromTempFile(blob, size);
         } else {
-            return blob.getPayload().openStream();
+            // SAK-30325: why can't we just send the stream straight back: blob.getPayload().openStream() ?
+            // Good question, but it doesn't work properly unless the stream is fully copied and re-streamed....
+            return new ByteArrayInputStream(FileCopyUtils.copyToByteArray(blob.getPayload().openStream()));
         }
     }
 
     // Hacky implementation of downloading Blobs to temp files...
     // This should probably happen in a specified location and use
     // hashing to be sure of contents before reusing.
-    private InputStream streamFromTempFile(Blob blob) {
+    private InputStream streamFromTempFile(Blob blob, Long filesize) {
         StorageMetadata metadata = blob.getMetadata();
         String name = metadata.getName();
-        Date modified = metadata.getLastModified();
-        String filename = name + "-" + modified.getTime();
+        String filename = name + "-" + filesize;
         filename = DigestUtils.md5Hex(filename);
-
-        File check = new File(filename + ".tmp");
         FileInputStream stream = null;
+
+        // See if the temp file already exists
+        File check;
+        if (temporaryBlobDirectory != null) {
+            check = new File(temporaryBlobDirectory, filename);
+        }
+        else {
+            check = new File(System.getProperty("java.io.tmpdir"), filename);
+        }
 
         if (check.exists()) {
             try {
@@ -248,10 +294,9 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             }
         } else {
             try {
-                File tmp = File.createTempFile(filename, ".tmp");
-                FileOutputStream fos = new FileOutputStream(tmp);
+                FileOutputStream fos = new FileOutputStream(check);
                 FileCopyUtils.copy(blob.getPayload().openStream(), fos);
-                stream = new FileInputStream(tmp);
+                stream = new FileInputStream(check);
             } catch (IOException e) {
                 stream = null;
             }

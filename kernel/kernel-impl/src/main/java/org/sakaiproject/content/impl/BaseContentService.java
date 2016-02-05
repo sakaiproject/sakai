@@ -7075,7 +7075,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					res.setContentType(contentType);
 					res.addHeader("Content-Disposition", disposition);
 					// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
-					if (len <= Integer.MAX_VALUE){
+					if (len <= Integer.MAX_VALUE) {
 						res.setContentLength((int)len);
 					} else {
 						res.addHeader("Content-Length", Long.toString(len));
@@ -7083,8 +7083,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 					// Bypass loading the asset and just send the user a link to it.
 					if (directLinkUri != null) {
-						res.sendRedirect(directLinkUri.toString());
-						return;
+						if (m_serverConfigurationService.getBoolean("cloud.content.sendfile", false)) {
+							int hostLength = new String(directLinkUri.getScheme() + "://" + directLinkUri.getHost()).length();
+							String linkPath = "/sendfile" + directLinkUri.toString().substring(hostLength);
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("X-Sendfile: " + linkPath);
+							}
+
+							// Nginx uses X-Accel-Redirect and Apache and others use X-Sendfile
+							res.addHeader("X-Accel-Redirect", linkPath);
+							res.addHeader("X-Sendfile", linkPath);
+							return;
+						}
+						else if (m_serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+							res.sendRedirect(directLinkUri.toString());
+							return;
+						}
 					}
 
 					// stream the content using a small buffer to keep memory managed
