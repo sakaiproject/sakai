@@ -274,8 +274,8 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     /**
      * {@inheritDoc}
      */
-	@Override
-	public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
+    @Override
+    public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
         ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
         SwiftObject so = objectApi.get(can.name, GetOptions.NONE);
@@ -284,7 +284,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
         }
         
         return so.getUri();
-	}
+    }
 
     /**
      * {@inheritDoc}
