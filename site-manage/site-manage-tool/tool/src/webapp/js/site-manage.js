@@ -393,6 +393,24 @@ sakai.siteTypeSetup = function(){
                         else {
                             $('#copyUsersWrapper input').prop('disabled', false);
                         }
+                        if (this.publishSiteVis === true) {
+                            $('#publishSiteWrapper').show();
+                        }
+                        else {
+                            $('#publishSiteWrapper').hide();
+                        }
+                        if (this.publishSiteChecked === true) {
+                            $('#publishSiteWrapper input').prop('checked', true);
+                        }
+                        else {
+                            $('#publishSiteWrapper input').prop('checked', false);
+                        }
+                        if (this.publishSiteLocked === true) {
+                            $('#publishSiteWrapper input').prop('disabled', true);
+                        }
+                        else {
+                            $('#publishSiteWrapper input').prop('disabled', false);
+                        }
                     }
                 });
             }
