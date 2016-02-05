@@ -340,7 +340,6 @@ sakai.siteTypeSetup = function(){
             $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
             // hide instructions for settings
             $('#fromTemplateSettingsContainer_instruction_body').hide();
-            $('#publishSiteWrapper input').prop('checked', false);
 
             //templateControls is a json that comes from a sakai.property
             //it identifies for each site type, whether to show a control, and what attrs it has. 
@@ -354,12 +353,6 @@ sakai.siteTypeSetup = function(){
                         else {
                             $('#copyContentWrapper').hide();
                             $('#fromTemplateSettingsContainer_instruction_body_copyUsers').hide();
-                        }
-                        if (this.copyContentChecked === true) {
-                            $('#copyContentWrapper input').prop('checked', true);
-                        }
-                        else {
-                            $('#copyContentWrapper input').prop('checked', false);
                         }
                         //SAK25401
                         if (this.copyContentLocked === true) {
@@ -381,12 +374,6 @@ sakai.siteTypeSetup = function(){
                             $('#copyUsersWrapper').hide();
                             $('#fromTemplateSettingsContainer_instruction_body_copyContent').hide();
                         }
-                        if (this.copyUsersChecked === true) {
-                            $('#copyUsersWrapper input').prop('checked', true);
-                        }
-                        else {
-                            $('#copyUsersWrapper input').prop('checked', false);
-                        }
                         if (this.copyUsersLocked === true) {
                             $('#copyUsersWrapper input').prop('disabled', true);
                         }
@@ -398,8 +385,8 @@ sakai.siteTypeSetup = function(){
             }
             else {
                 //show all the controls, unchecked, unlocked, since there are no settings
-                $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',false);
-                $('#copyUsersWrapper').show().find('input').prop('disabled', false).prop('checked',false);
+                $('#copyContentWrapper').show().find('input').prop('disabled', false);
+                $('#copyUsersWrapper').show().find('input').prop('disabled', false);
                 $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
                 $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
             }
