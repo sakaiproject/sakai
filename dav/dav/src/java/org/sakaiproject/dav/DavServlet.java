@@ -2790,6 +2790,10 @@ public class DavServlet extends HttpServlet
 				contentType = edit.getContentType();
 			}
 
+			if (contentHostingService.isAvailabilityEnabled()) {
+				boolean hidden = ServerConfigurationService.getBoolean("content.dav.upload.hidden", false);
+				edit.setAvailability(hidden, null, null);
+			}
 			edit.setContentType(contentType);
 			edit.setContent(inputStream);
 
