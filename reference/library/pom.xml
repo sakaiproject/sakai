@@ -77,8 +77,8 @@
 			</activation>
 			<pluginRepositories>
 				<pluginRepository>
-					<id>rubygems-releases</id>
-					<url>http://rubygems-proxy.torquebox.org/releases</url>
+					<id>mavengems</id>
+					<url>mavengem:https://rubygems.org</url>
 				</pluginRepository>
 			</pluginRepositories>
 			<properties>

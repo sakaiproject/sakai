@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions>
+  <extension>
+    <groupId>org.torquebox.mojo</groupId>
+    <artifactId>mavengem-wagon</artifactId>
+    <version>0.2.0</version>
+  </extension>
+</extensions>
