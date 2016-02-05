@@ -57,6 +57,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -221,7 +223,10 @@ public class ArchiveAction
 		
 		//get list of existing archives
 		Collection<File> files = Collections.<File>emptySet();
-		File archiveBaseDir = new File(serverConfigurationService.getString("archive.storage.path", "sakai/archive"));
+		Path sakaiHome = Paths.get(serverConfigurationService.getSakaiHomePath());
+		// Either relative to sakai.home or absolute
+		Path archivePath = sakaiHome.resolve(serverConfigurationService.getString("archive.storage.path", "archive"));
+		File archiveBaseDir = archivePath.toFile();
 
 		if (archiveBaseDir.exists() && archiveBaseDir.isDirectory()) {
 			files = FileUtils.listFiles(archiveBaseDir, new SuffixFileFilter(".zip"), null);
@@ -291,8 +296,7 @@ public class ArchiveAction
 	* doArchive called when "eventSubmit_doArchive" is in the request parameters
 	* to run the archive.
 	*/
-	public void doArchive(RunData data, Context context)
-	{
+	public void doArchive(RunData data, Context context) throws IOException {
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
 		if (!securityService.isSuperUser())
@@ -302,9 +306,15 @@ public class ArchiveAction
 		}
 
 		String id = data.getParameters().getString("archive-id");
+		boolean zip = data.getParameters().getBoolean("zip-id");
 		if (StringUtils.isNotBlank(id))
 		{
-			String msg = archiveService.archive(id.trim());
+			String msg;
+			if(zip) {
+				msg = archiveService.archiveAndZip(id.trim());
+			} else {
+				msg = archiveService.archive(id.trim());
+			}
 			addAlert(state, rb.getFormattedMessage("archive", new Object[]{id}) + " \n " + msg);
 		}
 		else

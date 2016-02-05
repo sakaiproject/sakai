@@ -90,8 +90,8 @@ public interface ArchiveService
 	/**
 	 * Archive a site then compress it to a zip. 
 	 * @param siteId - id of site to be archived
-	 * @return true if archive and zip successful, false if not.
+	 * @return A log of messages from creating the archive
 	 * @throws IOException 
 	 */
-	public boolean archiveAndZip(String siteId) throws IOException;
+	public String archiveAndZip(String siteId) throws IOException;
 }
