@@ -418,7 +418,6 @@
                     <h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
                     <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.anonAwareAuthor}" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="#{message.useAnonymousId ? 'anonymousAuthor' : ''}">
                         <f:param value="#{message.authorEid}" name="siteUserId"/>
-                        <f:param value="#{message.message.author}" name="siteUser"/>
                         <h:outputText value="#{message.anonAwareAuthor}" />
                     </h:commandLink>
 				</h:panelGroup>
