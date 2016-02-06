@@ -12,18 +12,22 @@ public class CourseGrade implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private long id;
+	private Long id;
 	private String enteredGrade;
 	private String calculatedGrade;
 	private String mappedGrade;
 	
 	public CourseGrade() {}
 
-	public long getId() {
+	/**
+	 * ID of this course grade record. This will be null if the course grade is calculated, and non null if we have an override.
+	 * @return 
+	 */
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

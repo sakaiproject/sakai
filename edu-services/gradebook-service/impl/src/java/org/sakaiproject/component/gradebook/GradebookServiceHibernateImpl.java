@@ -42,6 +42,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -3005,7 +3007,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			
 			CourseGradeRecord gradeRecord = gradeRecords.get(0);
-			rval.setId(gradeRecord.getId());
+			
+			System.out.println(ToStringBuilder.reflectionToString(gradeRecord, ToStringStyle.MULTI_LINE_STYLE));
+			
+			//ID of the course grade item
+			rval.setId(gradeRecord.getCourseGrade().getId());
 			
 			//set entered grade
 			rval.setEnteredGrade(gradeRecord.getEnteredGrade());
