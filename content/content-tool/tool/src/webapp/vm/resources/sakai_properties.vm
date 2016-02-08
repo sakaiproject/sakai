@@ -153,7 +153,7 @@
 			</label>
 			<span>	
 				<input type="hidden" name="setQuota${DOT}$i" value="true" />
-				<input type="checkbox" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked="checked" #end style="border:none" />
+				<input type="checkbox" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked="checked" #end />
 				<input type="text" size="10" name="quota${DOT}$i" id="quota${DOT}$i" value="$!model.quota" />
 			</span>
 		</p>	
@@ -174,7 +174,7 @@
 						#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
 					
 					## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
-					<input type="checkbox" disabled="disabled" checked="checked" style="border:none;" />
+					<input type="checkbox" disabled="disabled" checked="checked" />
 					
 				#else
 					<input
@@ -183,7 +183,7 @@
 						id="allowHtmlInline${DOT}$i"
 						value="true"
 						#if ($model.isAllowHtmlInline()) checked="checked" #end
-						style="border:none" />
+						 />
 				#end
 				<span class="textPanelFooter">$tlang.getString("edit.renderHtml.explanation")</span>
 			</span>
@@ -228,7 +228,7 @@
 						</label>
 					</td>
 					<td style="vertical-align:top;padding:.25em 0;">
-						<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end style="border:none" />
+						<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
 						$tlang.getString("cright.display") 
 						(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
 					</td>
@@ -258,27 +258,27 @@
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				#set ($listDisplay="block")
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" style="border:none" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" />
 					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"    style="border:none" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"  />
 					<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($model.isGroupInherited())	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked" />
 					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" />
 					<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#else
 				## Site is possible; group and additional roles (including pubview) may be possible.
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end />
 					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end</label>
 				</p>
 				#if($model.rolesAreAvailable())
@@ -305,7 +305,7 @@
 						#set ($listDisplay="none")
 					#end
 					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" />
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end />
 						<label for="access_mode_groups${DOT}$i">#if($model.isCollection())$tlang.getString("access.groups.fldr")#else$tlang.getString("access.groups.choice")#end</label>
 					</p>
 				#end
