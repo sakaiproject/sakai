@@ -3928,7 +3928,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String msg = pipe.getErrorMessage();
 			if(msg == null || msg.trim().equals(""))
 			{
-				msg = rb.getString("alert.unknown");
+				msg = trb.getString("alert.unknown");
 			}
 			addAlert(state, msg);
 			state.setAttribute(STATE_MODE, MODE_LIST);
@@ -4820,7 +4820,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				String msg = pipe.getErrorMessage();
 				if(msg == null || msg.trim().equals(""))
 				{
-					msg = rb.getString("alert.unknown");
+					msg = trb.getString("alert.unknown");
 				}
 				addAlert(state, msg);
 				state.setAttribute(STATE_MODE, MODE_LIST);
@@ -8168,7 +8168,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String msg = pipe.getErrorMessage();
 			if(msg == null || msg.trim().equals(""))
 			{
-				msg = rb.getString("alert.unknown");
+				msg = trb.getString("alert.unknown");
 			}
 			addAlert(state, msg);
 		}
