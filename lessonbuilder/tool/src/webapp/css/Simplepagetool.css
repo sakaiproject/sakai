@@ -1352,5 +1352,8 @@ font-size: 90%;
 .mainList li:hover.canEdit {
     background-color: #eee;
 }
+.peer-eval-row .selectedPeerCell {
+   background-color: rgb(173,216,230);
+}
 
 

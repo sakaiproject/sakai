@@ -71,3 +71,6 @@ text-decoration: underline;
     padding:5px;
     font-weight:bold;
 }
+.select-peer-cell {
+   background-color: rgb(173,216,230);
+}

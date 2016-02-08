@@ -207,6 +207,8 @@ public class SimplePageBean {
 	public boolean comments;
 	public boolean forcedAnon;
 	public boolean groupOwned;
+	public boolean groupOwnedIndividual;
+	public boolean seeOnlyOwn;
     
 	public String questionType;
     public String questionText, questionCorrectText, questionIncorrectText;
@@ -6967,6 +6969,14 @@ public class SimplePageBean {
 			page.setRequired(required);
 			page.setPrerequisite(prerequisite);
 			page.setGroupOwned(groupOwned);
+			if (groupOwnedIndividual)
+			    page.setAttribute("group-eval-individual", "true");
+			else
+			    page.removeAttribute("group-eval-individual");
+			if (seeOnlyOwn)
+			    page.setAttribute("see-only-own", "true");
+			else
+			    page.removeAttribute("see-only-own");
 			
 			page.setShowPeerEval(peerEval);
 			

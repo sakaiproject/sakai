@@ -2220,11 +2220,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					String currentUser=UserDirectoryService.getCurrentUser().getId();
 					Long pageId=currentPage.getPageId();
 					
-					UIOutput.make(tableRow, "peerReviewRubricStudent");
-					UIOutput.make(tableRow, "peer-review-form");
-
-					makePeerRubric(tableRow,i, makeStudentRubric);
-					
 					boolean isOpen = false;
 					boolean isPastDue = false;
 					
@@ -2282,18 +2277,29 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 						
 						if(!owner.equals(currentUser) || gradingSelf){
-							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, owner);
-							//existing evaluation data
-							if(evaluations!=null && evaluations.size()!=0){	
-								UIOutput.make(tableRow, "existing-peer-eval-data");
-								for(SimplePagePeerEvalResult eval : evaluations){
-									UIBranchContainer evalData = UIBranchContainer.make(tableRow, "peer-eval-data:");
-									UIOutput.make(evalData, "peer-eval-row-text", eval.getRowText());
-									UIOutput.make(evalData, "peer-eval-grade", String.valueOf(eval.getColumnValue()));
-								}
-							}
+						    // for each target
+							UIBranchContainer.make(tableRow, "peer-eval-target:");
+							String evalTarget = owner; // may loop over all members of owner group
+							String evalTargetName = evalTarget;
+							try {
+							    evalTargetName = UserDirectoryService.getUser(evalTarget).getDisplayName();
+							} catch (Exception ignore) {}
+
+							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, evalTarget);
+							Map<String,Integer> selectedCells = new HashMap<String,Integer>();
+							for (SimplePagePeerEvalResult result: evaluations)
+							    selectedCells.put(result.getRowText(), new Integer(result.getColumnValue()));
 							
 							//form for peer evaluation results
+
+							UIOutput.make(tableRow, "peerReviewRubricStudent");
+							UIOutput.make(tableRow, "peer-review-form");
+							// for each student being evaluated
+							UIOutput.make(tableRow, "peer-eval-target-name", evalTargetName);
+							UIOutput.make(tableRow, "peer-eval-target-id", evalTarget);
+
+							makePeerRubric(tableRow,i, makeStudentRubric, selectedCells);
+
 							UIForm form = UIForm.make(tofill, "rubricSelection");
 							makeCsrf(form, "csrf6");
 
@@ -2475,7 +2481,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
 							UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "peer-eval", String.valueOf(i.getShowPeerEval()));
-							makePeerRubric(tableRow,i, makeMaintainRubric);
+							makePeerRubric(tableRow,i, makeMaintainRubric, null);
 							makeSamplePeerEval(tableRow);
 							
 							String peerEvalDate = i.getAttribute("rubricOpenDate");
@@ -2535,6 +2541,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 							UIOutput.make(tableRow, "student-owner-groups", simplePageBean.getItemOwnerGroupString(i));
 							UIOutput.make(tableRow, "student-group-owned", (i.isGroupOwned()?"true":"false"));
+							UIOutput.make(tableRow, "student-group-owned-eval-individual", (i.getAttribute("group-eval-individual")));
+							UIOutput.make(tableRow, "student-group-owned-see-only-own", (i.getAttribute("see-only-own")));
 						}
 					}
 				}else if(i.getType() == SimplePageItem.QUESTION) {
@@ -4062,6 +4070,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-group-owned", "#{simplePageBean.groupOwned}");
 		createGroupList(form, null, "student-", "#{simplePageBean.studentSelectedGroups}");
 
+		UIBoundBoolean.make(form, "student-group-owned-eval-individual", "#{simplePageBean.groupOwnedIndividual}");
+		UIBoundBoolean.make(form, "student-group-owned-see-only-own", "#{simplePageBean.seeOnlyOwn}");
+
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
 		UICommand.make(form, "cancel-student", messageLocator.getMessage("simplepage.cancel"), null);
@@ -4452,10 +4463,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 	
 	//Output rubric data for a Student Content box. 
-	private String[] makeStudentRubric  = {"peer-eval-title-student", "peer-eval-row-student:", "peerReviewIdStudent", "peerReviewTextStudent"};
-	private String[] makeMaintainRubric = {"peer-eval-title", 		 "peer-eval-row:", 		  "peerReviewId", 		 "peerReviewText"};
+	private String[] makeStudentRubric  = {"peer-eval-title-student", "peer-eval-row-student:", "peerReviewIdStudent", "peerReviewTextStudent", "peer-eval-row-data", "#{simplePageBean.rubricPeerGrade}"};
+	private String[] makeMaintainRubric = {"peer-eval-title", 		 "peer-eval-row:", 		  "peerReviewId", 		 "peerReviewText", null, null};
 	
-	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds)
+	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<String,Integer> selectedCells)
 	{
 		//System.out.println("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
 		//System.out.println("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
@@ -4482,16 +4493,32 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if(categories != null){
 			for(Object o: categories){
 				Map cat = (Map)o;
-				rows.add(new RubricRow(Integer.parseInt(String.valueOf(cat.get("id"))), String.valueOf(cat.get("rowText"))));
+				Integer rowId = Integer.parseInt(String.valueOf(cat.get("id")));
+				String rowText = String.valueOf(cat.get("rowText"));
+				rows.add(new RubricRow(rowId, rowText));
 			}
 		}
 		//else{System.out.println("This rubric has no rows.");}
 		
 		Collections.sort(rows);
+		System.out.println("selectedCells " + selectedCells);
 		for(RubricRow row : rows){
 			UIBranchContainer peerReviewRows = UIBranchContainer.make(parent, peerReviewRsfIds[1]);
 			UIOutput.make(peerReviewRows, peerReviewRsfIds[2], String.valueOf(row.id));
 			UIOutput.make(peerReviewRows, peerReviewRsfIds[3], row.text);
+			if (peerReviewRsfIds[4] != null)
+			    UIInput.make(peerReviewRows, peerReviewRsfIds[4], peerReviewRsfIds[5]);
+			if (selectedCells != null) {
+			    for (int col = 4; col >= 0; col--) {
+				UIComponent cell = UIOutput.make(peerReviewRows, "peer-eval-cell:");
+				Integer selectedValue = selectedCells.get(row.text);
+				System.out.println("row " + row.text + " " + selectedValue + " " + col);
+				if (selectedValue != null && selectedValue == col)
+				    cell.decorate(new UIStyleDecorator("selectedPeerCell " + col));
+				else
+				    cell.decorate(new UIStyleDecorator("" + col));
+			    }						  
+			}			    
 		}
 	}
 	

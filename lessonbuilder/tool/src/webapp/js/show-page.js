@@ -749,6 +749,11 @@ $(document).ready(function() {
 			if (groupOwned === "true")
 			    $("#student-group-show").show();
 
+			var groupOwnedIndividual = row.find('.student-owned-eval-individual').text();
+			$("#student-group-owned-eval-individual").prop("checked",(groupOwnedIndividual === "true"));
+			var seeOnlyOwn = row.find('.student-owned-see-only-own').text();
+			$("#student-group-owned-see-only-own").prop("checked",(seeOnlyOwn === "true"));
+
 			var itemId = row.find(".student-id").text();
 			
 			$("#studentEditId").val(itemId);
