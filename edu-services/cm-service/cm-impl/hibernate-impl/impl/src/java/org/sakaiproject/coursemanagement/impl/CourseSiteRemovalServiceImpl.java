@@ -172,33 +172,37 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                // get a list of all published course sites in ascending creation date order which are associated with the specified academic session
                Hashtable<String, String> propertyCriteria = new Hashtable<String, String>();
                propertyCriteria.put("term_eid", academicSession.getEid());
-                List<String> sites = (List<String>)siteService.getSiteIds(SelectionType.PUBVIEW, "course", null, propertyCriteria, SortType.CREATED_ON_ASC, null);
+                //We only will check COURSES with the right term_eid property. We will filter later if they are or not published
+                List<String> sites = (List<String>)siteService.getSiteIds(SelectionType.ANY, "course", null, propertyCriteria, SortType.CREATED_ON_ASC, null);
 
                 for(String siteId : sites) {
-                     // see if this service has already removed/unpublished this course site once before.
+                    // see if this service has already removed/unpublished this course site once before.
                      // if it has, then someone has manually published the site, and wants the course to be published.
                      // so don't switch it back to being unpublished - just leave it as published.
                     Site site = siteService.getSite(siteId);
-                    ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
-                     String siteProperty   = siteProperties.getProperty(SITE_PROPERTY_COURSE_SITE_REMOVAL);
-                     if (!"set".equals(siteProperty)) {
-                        // check permissions
+                    //we only need to check published sites and not softlyDeleted.
+                    if (site.isPublished() && (!site.isSoftlyDeleted())) {
+                        ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
+                        String siteProperty = siteProperties.getProperty(SITE_PROPERTY_COURSE_SITE_REMOVAL);
+                        if (!"set".equals(siteProperty)) {
+                            // check permissions
 
-                        if (!checkPermission(PERMISSION_COURSE_SITE_REMOVAL, site.getId())) {
-                            logger.error("You do not have permission to " + action + " the " + site.getTitle() + " course site (" + site.getId() + ").");
-                        } else if (action == CourseSiteRemovalService.Action.remove) {
-                            // remove the course site
-                            logger.debug(action + "removing course site " + site.getTitle() + " (" + site.getId() + ").");
-                            siteService.removeSite(site);
-                        } else {
-                            // unpublish the course site
-                            logger.debug("unpublishing course site " + site.getTitle() + " (" + site.getId() + ").");
-                            siteProperties.addProperty(SITE_PROPERTY_COURSE_SITE_REMOVAL, "set");
-                            site.setPublished(false);
-                            siteService.save(site);
+                            if (!checkPermission(PERMISSION_COURSE_SITE_REMOVAL, site.getId())) {
+                                logger.error("You do not have permission to " + action + " the " + site.getTitle() + " course site (" + site.getId() + ").");
+                            } else if (action == CourseSiteRemovalService.Action.remove) {
+                                // remove the course site
+                                logger.debug(action + "removing course site " + site.getTitle() + " (" + site.getId() + ").");
+                                siteService.removeSite(site);
+                            } else {
+                                // unpublish the course site
+                                logger.debug("unpublishing course site " + site.getTitle() + " (" + site.getId() + ").");
+                                siteProperties.addProperty(SITE_PROPERTY_COURSE_SITE_REMOVAL, "set");
+                                site.setPublished(false);
+                                siteService.save(site);
+                            }
+                            numSitesRemoved++;
+
                         }
-                        numSitesRemoved++;
-
                     }
                }
             }
