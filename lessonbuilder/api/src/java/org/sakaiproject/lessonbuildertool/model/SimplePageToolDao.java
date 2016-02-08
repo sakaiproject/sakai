@@ -266,11 +266,11 @@ public interface SimplePageToolDao {
     
     //public List<SimplePageItem> getPeerEvalItems (SimplePageItem item);
     
-    public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee, String grader, String rowText, int columnValue);
+    public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee, String gradeeGroup, String grader, String rowText, long rowId, int columnValue);
     
-    public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId, String userId, String gradee);
+    public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId, String userId, String gradee, String gradeeGroup);
     
-    public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String grader);
+    public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String gradee,String gradeeGroup);
     
     public List<SimplePageItem>findGradebookItems(String gradebookUid);
 

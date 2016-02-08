@@ -41,8 +41,10 @@
 		<thead><tr><th></th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr></thead>
 		<tbody>
 			<tr rsf:id="peer-eval-row:" class="peer-eval-row">
-				<td>
+				<td aria-live="polite">
+					<span class="peer-eval-person offscreen"></span>
 					<span rsf:id="peer-eval-text" class="peer-eval-text"></span>
+					<span class="peer-eval-chosen offscreen"></span>
 				</td>
 				<td class="4"></td><td class="3"></td><td class="2"></td><td class="1"></td><td class="0"></td>
 			</tr>
@@ -55,6 +57,13 @@
 	<span class="user-id" rsf:id="user-id"></span>
 	<span class="user-pageid" rsf:id="user-pageid"></span>
 	
+	<div rsf:id="peer-eval-gradee-members" class="peer-eval-gradee-members">
+	  <li class="inactive-member" rsf:id="gradee-member:">
+	    <span class="inactive-member-id" rsf:id="gradee-member-id"></span>
+	    <span role="link"  class="inactive-member-name" rsf:id="gradee-member-name"></span>
+	  </li>
+	</div>
+
 	<div rsf:id="peer-eval-data-grade:" class="peer-eval-data-grade">
 		<div rsf:id="peer-eval-row-text" class="peer-eval-row-text" ></div>
 		<div rsf:id="peer-eval-grade" class="peer-eval-grade" ></div>
@@ -73,7 +82,7 @@
 	<ul>
 		<li class="inactive-member" rsf:id="inactive-member:">
 			<span class="inactive-member-id" rsf:id="inactive-member-id"></span>
-			<span class="inactive-member-name" rsf:id="inactive-member-name"></span>
+			<span role="link" class="inactive-member-name" rsf:id="inactive-member-name"></span>
 		</li>
 	</ul>
 </div>
