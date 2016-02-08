@@ -360,10 +360,47 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 			}
 		}
-		renderContextMap.put("tabsMoreTerms", tabsMoreTerms);
+		renderContextMap.put("tabsMoreTermsLeftPane", filterLeftPane(tabsMoreTerms));
+		renderContextMap.put("tabsMoreTermsRightPane", filterRightPane(tabsMoreTerms));
+
 		renderContextMap.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
 
 	}
+
+	private Map<String, List> filterLeftPane(Map<String, List> tabsMoreTerms) {
+		Map<String, List> result = new TreeMap<String, List>();
+
+		for (String term : tabsMoreTerms.keySet()) {
+			ArrayList list = new ArrayList();
+			result.put(term, list);
+
+			for (Map site : (List<Map>)tabsMoreTerms.get(term)) {
+				if ("course".equals(site.get("siteType"))) {
+					list.add(site);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private Map<String, List> filterRightPane(Map<String, List> tabsMoreTerms) {
+		Map<String, List> result = new TreeMap<String, List>();
+
+		for (String term : tabsMoreTerms.keySet()) {
+			ArrayList list = new ArrayList();
+			result.put(term, list);
+
+			for (Map site : (List<Map>)tabsMoreTerms.get(term)) {
+				if (!"course".equals(site.get("siteType"))) {
+					list.add(site);
+				}
+			}
+		}
+
+		return result;
+	}
+
 
 	/*
 	 * (non-Javadoc)

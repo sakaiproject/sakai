@@ -10,9 +10,14 @@ $namespace : "Mrphs-";
 $break-small-end: 	800px;
 $break-medium-end: 	1030px;
 
-$phone  :   "only screen and (max-width : #{ $break-small-end })";
-$tablet :   "only screen and (max-width : #{ $break-medium-end })";
-$desktop:   "only screen and (min-width : #{ $break-medium-end + 1 })";
+$phone  :       "only screen and (max-width : #{ $break-small-end })";
+$tablet :       "only screen and (max-width : #{ $break-medium-end })";
+$desktop:       "only screen and (min-width : #{ $break-medium-end + 1 })";
+
+// For the "More Sites" drawer, just use one column if there's not
+// enough room to show two side-by-side.
+$break-more-sites-single-column: 1200px;
+$more-sites-single-column: "only screen and (max-width : #{ $break-more-sites-single-column })";
 
 /* Typography*/
 
