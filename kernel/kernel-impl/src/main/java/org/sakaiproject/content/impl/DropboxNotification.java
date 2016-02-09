@@ -53,7 +53,8 @@ import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.FormattedText;
+
 
 /**
  * <p>
@@ -91,32 +92,12 @@ public class DropboxNotification extends EmailNotification
 	private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
 
 	private final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
-
-    private static Object LOCK = new Object();
-
-    private static FormattedText formattedText;
-
 	private SecurityService securityService;
 	private ContentHostingService contentHostingService;
 	private EntityManager entityManager;
 	private SiteService siteService;
 	private UserDirectoryService userDirectoryService;
 	private ServerConfigurationService serverConfigurationService;
-
-    protected static FormattedText getFormattedText() {
-        if (formattedText == null) {
-            synchronized (LOCK) {
-                FormattedText component = (FormattedText) ComponentManager.get(FormattedText.class);
-                if (component == null) {
-                    throw new IllegalStateException("Unable to find the FormattedText using the ComponentManager");
-                } else {
-                    formattedText = component;
-                }
-            }
-        }
-        return formattedText;
-    }
-
 	/**
 	 * The preferred form for construction is to supply the needed items rather than having to do a lookup. This constructor was
 	 * left in place for compatibility with any custom tool that might currently be using it, but should be considered deprecated.
@@ -390,11 +371,11 @@ public class DropboxNotification extends EmailNotification
 
 		if ( doHtml ) 
 		{
-			siteTitle = getFormattedText().escapeHtmlFormattedTextarea(siteTitle);
-			subject = getFormattedText().escapeHtmlFormattedTextarea(subject);
-			resourceName = getFormattedText().escapeHtmlFormattedTextarea(resourceName);
-			description = getFormattedText().escapeHtmlFormattedTextarea(description);
-			dropboxTitle = getFormattedText().escapeHtmlFormattedTextarea(dropboxTitle);
+			siteTitle = FormattedText.escapeHtmlFormattedTextarea(siteTitle);
+			subject = FormattedText.escapeHtmlFormattedTextarea(subject);
+			resourceName = FormattedText.escapeHtmlFormattedTextarea(resourceName);
+			description = FormattedText.escapeHtmlFormattedTextarea(description);
+			dropboxTitle = FormattedText.escapeHtmlFormattedTextarea(dropboxTitle);
 			blankLine = "\n</p><p>\n";
 			newLine = "<br/>\n";
 		}
