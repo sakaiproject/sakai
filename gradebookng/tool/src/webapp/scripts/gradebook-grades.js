@@ -1249,6 +1249,8 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
         $(this).closest("tr").addClass("filtered-by-studentFilter");
       });
     }
+
+    self.refreshStudentSummary();
   };
 
   self.$table.on("keyup", ".gb-student-filter :input", function(event) {
@@ -1454,6 +1456,13 @@ GradebookSpreadsheet.prototype.refreshCourseGradeForStudent = function(studentUu
   $fixedColumnCourseGradeCell.addClass("gb-score-dynamically-updated");
 
   this.$spreadsheet.find(".gb-score-dynamically-updated").removeClass("gb-score-dynamically-updated", 1000);
+};
+
+
+GradebookSpreadsheet.prototype.refreshStudentSummary = function() {
+  var $labelCount = this.$spreadsheet.find(".gb-student-summary-counts .visible");
+
+  $labelCount.html(this.$table.find("tbody tr:visible").length);
 };
 
 
