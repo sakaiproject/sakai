@@ -2,12 +2,9 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
 
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -18,6 +15,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -28,7 +26,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * The panel for the add and edit grade item window
- * 
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
@@ -151,29 +149,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel));
 
 		// feedback panel
-		final FeedbackPanel feedback = new FeedbackPanel("addGradeFeedback") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected Component newMessageDisplayComponent(final String id, final FeedbackMessage message) {
-				final Component newMessageDisplayComponent = super.newMessageDisplayComponent(id, message);
-
-				if (message.getLevel() == FeedbackMessage.ERROR ||
-						message.getLevel() == FeedbackMessage.DEBUG ||
-						message.getLevel() == FeedbackMessage.FATAL ||
-						message.getLevel() == FeedbackMessage.WARNING) {
-					add(AttributeModifier.replace("class", "messageError"));
-					add(AttributeModifier.append("class", "feedback"));
-				} else if (message.getLevel() == FeedbackMessage.INFO) {
-					add(AttributeModifier.replace("class", "messageSuccess"));
-					add(AttributeModifier.append("class", "feedback"));
-				}
-
-				return newMessageDisplayComponent;
-			}
-		};
-		feedback.setOutputMarkupId(true);
-		form.add(feedback);
+		form.add(new GbFeedbackPanel("addGradeFeedback"));
 
 		// cancel button
 		final AjaxButton cancel = new AjaxButton("cancel") {
@@ -192,7 +168,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 
 	/**
 	 * Helper to get the model for the button
-	 * 
+	 *
 	 * @return
 	 */
 	private ResourceModel getSubmitButtonLabel() {
@@ -205,7 +181,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 
 	/**
 	 * Helper to get the model for the heading
-	 * 
+	 *
 	 * @return
 	 */
 	private ResourceModel getHeadingLabel() {

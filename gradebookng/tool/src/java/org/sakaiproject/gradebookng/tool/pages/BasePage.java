@@ -4,9 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -20,6 +18,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 
 /**
  * Base page for our app
@@ -142,27 +141,7 @@ public class BasePage extends WebPage {
 		add(nav);
 
 		// Add a FeedbackPanel for displaying our messages
-		this.feedbackPanel = new FeedbackPanel("feedback") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected Component newMessageDisplayComponent(final String id, final FeedbackMessage message) {
-				final Component newMessageDisplayComponent = super.newMessageDisplayComponent(id, message);
-
-				if (message.getLevel() == FeedbackMessage.ERROR ||
-						message.getLevel() == FeedbackMessage.DEBUG ||
-						message.getLevel() == FeedbackMessage.FATAL ||
-						message.getLevel() == FeedbackMessage.WARNING) {
-					newMessageDisplayComponent.add(AttributeModifier.replace("class", "messageError"));
-				} else if (message.getLevel() == FeedbackMessage.INFO) {
-					newMessageDisplayComponent.add(AttributeModifier.replace("class", "messageSuccess"));
-				}
-
-				return newMessageDisplayComponent;
-			}
-		};
-		this.feedbackPanel.setOutputMarkupId(true);
+		this.feedbackPanel = new GbFeedbackPanel("feedback");
 		add(this.feedbackPanel);
 
 	}
@@ -220,13 +199,13 @@ public class BasePage extends WebPage {
 		flagWithPopover.add(new AttributeModifier("data-trigger", "focus"));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
-		flagWithPopover.add(new AttributeModifier("data-template", "'<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>'"));
+		flagWithPopover.add(new AttributeModifier("data-template",
+				"'<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>'"));
 		flagWithPopover.add(new AttributeModifier("data-content", generatePopoverContent(message)));
 		flagWithPopover.add(new AttributeModifier("tabindex", "0"));
 
 		return flagWithPopover;
 	}
-
 
 	/**
 	 * Helper to generate content for a Bootstrap popover with close button

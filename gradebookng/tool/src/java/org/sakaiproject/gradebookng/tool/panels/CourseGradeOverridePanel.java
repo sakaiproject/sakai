@@ -7,14 +7,17 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 /**
@@ -69,14 +72,24 @@ public class CourseGradeOverridePanel extends Panel {
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 				final String newGrade = (String) form.getModelObject();
 
-				System.out.println(newGrade);
+				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade);
 
-				CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade);
+				if (success) {
+					getSession().info(getString("message.addcoursegradeoverride.success"));
+					setResponsePage(getPage().getPageClass());
+				} else {
+					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());
+					target.addChildren(form, FeedbackPanel.class);
+				}
+
+				// TODO validate the grade is a valid one for the grading scheme
 
 			}
 		};
-
 		form.add(submit);
+
+		// feedback panel
+		form.add(new GbFeedbackPanel("feedback"));
 
 		// cancel button
 		final AjaxButton cancel = new AjaxButton("cancel") {
