@@ -25,6 +25,9 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  * @version $Id$
@@ -49,10 +52,12 @@ implements Serializable
 	private org.sakaiproject.tool.assessment.ui.model.PagingModel takePager;
 	private boolean hasHighestMultipleSubmission = false;  // this is used to display the message on the bottom if there are any highest multiple submissions. 
 	private boolean hasAnyAssessmentBeenModified = false;  // this is used to display the message on the bottom if there is any assessment been modified after submitted.
+	private Boolean warnUserOfModification;
 	private boolean hasAnyAssessmentRetractForEdit = false;  // this is used to display the message on the bottom if there is any assessment retracted for edit.
 	private String displayAllAssessments = "2"; // display all
 	private boolean hasAverageMultipleSubmissions=false;
 	private String secureDeliveryHTMLFragments;
+	private static final ServerConfigurationService serverConfigurationService= (ServerConfigurationService) ComponentManager.get( ServerConfigurationService.class );
 	
 	/**
 	 * ArrayLists should be lists of DeliveryBean objects
@@ -292,6 +297,17 @@ implements Serializable
 	 */
 	public void setHasAverageMultipleSubmissions(boolean hasAverageMultipleSubmissions) {
 		this.hasAverageMultipleSubmissions = hasAverageMultipleSubmissions;
+	}
+
+	public Boolean getWarnUserOfModification() {
+		if(warnUserOfModification == null){
+			warnUserOfModification = serverConfigurationService.getBoolean("samigo.SelectAssessmentBean.warnUserOfModification", true);
+		}
+		return warnUserOfModification;
+	}
+
+	public void setWarnUserOfModification(Boolean warnUserOfModification) {
+		this.warnUserOfModification = warnUserOfModification;
 	}       
 	
 	public String getSecureDeliveryHTMLFragments() {
