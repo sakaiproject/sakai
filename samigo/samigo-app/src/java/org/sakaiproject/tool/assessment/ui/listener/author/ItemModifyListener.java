@@ -217,6 +217,17 @@ public class ItemModifyListener implements ActionListener
          score = 0.0d;
        }
       bean.setItemScore(score);
+      
+      Double minPoints = itemfacade.getMinScore();
+      Double minScore;
+      if (minPoints!=null && !"".equals(minPoints))
+       {
+    	  minScore = minPoints;
+    	  bean.setItemMinScore(minScore);
+       }else{
+    	   bean.setItemMinScore(0.0d);
+       }
+      
 
       Double discount = itemfacade.getDiscount();
       if (discount == null)

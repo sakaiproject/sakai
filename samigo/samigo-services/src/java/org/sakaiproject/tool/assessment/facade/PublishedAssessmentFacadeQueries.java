@@ -388,7 +388,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			PublishedItemData publishedItem = new PublishedItemData(
 					publishedSection, item.getSequence(), item.getDuration(),
 					item.getInstruction(), item.getDescription(), item
-							.getTypeId(), item.getGrade(), item.getScore(), item.getDiscount(),
+							.getTypeId(), item.getGrade(), item.getScore(), item.getDiscount(), item.getMinScore(),
 					item.getHint(), item.getHasRationale(), item.getStatus(),
 					item.getCreatedBy(), item.getCreatedDate(), item
 							.getLastModifiedBy(), item.getLastModifiedDate(),

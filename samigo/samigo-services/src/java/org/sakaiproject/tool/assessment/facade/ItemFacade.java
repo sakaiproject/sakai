@@ -80,6 +80,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected String grade;
   protected Double score;
   protected Double discount;
+  protected Double minScore;
   protected String hint;
   protected Boolean partialCreditFlag;
   protected Boolean hasRationale;
@@ -1175,4 +1176,19 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
 			}
 			return this.data.getIsAnswerOptionsRich();
 	  }
+
+  public Double getMinScore() {
+	  try {
+		  this.data = (ItemDataIfc) item.getData();
+	  }
+	  catch (AssessmentException ex) {
+		  throw new DataFacadeException(ex.getMessage());
+	  }
+	  return this.data.getMinScore();
+  }
+
+  public void setMinScore(Double minScore) {
+	  this.minScore = minScore;
+	  this.data.setMinScore(minScore);
+  }
 }

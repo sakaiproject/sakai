@@ -2224,7 +2224,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			ItemData newItem = new ItemData(newSection, item.getSequence(),
 					item.getDuration(), item.getInstruction(), item
 							.getDescription(), item.getTypeId(), item
-							.getGrade(), item.getScore(), item.getDiscount(), item.getHint(), item
+							.getGrade(), item.getScore(), item.getDiscount(), item.getMinScore(), item.getHint(), item
 							.getHasRationale(), item.getStatus(), item
 							.getCreatedBy(), item.getCreatedDate(), item
 							.getLastModifiedBy(), item.getLastModifiedDate(),

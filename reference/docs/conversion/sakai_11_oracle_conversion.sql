@@ -634,3 +634,10 @@ create index idx_qrtz_ft_j_g on qrtz_fired_triggers(SCHED_NAME,JOB_NAME,JOB_GROU
 create index idx_qrtz_ft_jg on qrtz_fired_triggers(SCHED_NAME,JOB_GROUP);
 create index idx_qrtz_ft_t_g on qrtz_fired_triggers(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP);
 create index idx_qrtz_ft_tg on qrtz_fired_triggers(SCHED_NAME,TRIGGER_GROUP);
+
+--
+-- SAM-948 - MIN_SCORE option in Samigo
+--
+
+alter table SAM_ITEM_T add MIN_SCORE double precision NULL;
+alter table SAM_PUBLISHEDITEM_T add MIN_SCORE double precision NULL;
