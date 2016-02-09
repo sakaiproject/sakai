@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -69,17 +70,8 @@ public class CourseGradeOverrideLogPanel extends Panel {
 
 				final GbGradeLog gradeLog = item.getModelObject();
 
-				final String logDate = FormatHelper.formatDateTime(gradeLog.getDateGraded());
-				final String grade = gradeLog.getGrade();
-
-				final GbUser grader = CourseGradeOverrideLogPanel.this.businessService.getUser(gradeLog.getGraderUuid());
-				final String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
-
 				// add the entry
-				item.add(new Label("entry",
-						new StringResourceModel("coursegrade.log.entry", null, new Object[] { logDate, grade, graderDisplayId }))
-								.setEscapeModelStrings(false));
-
+				item.add(new Label("entry", formatLogEntry(gradeLog)).setEscapeModelStrings(false));
 			}
 		};
 		add(listView);
@@ -105,6 +97,33 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		final GbUser user = this.businessService.getUser(studentUuid);
 		add(new Label("heading",
 				new StringResourceModel("heading.coursegradelog", null, new Object[] { user.getDisplayName(), user.getDisplayId() })));
+
+	}
+
+	/**
+	 * Helper to format a grade log entry
+	 *
+	 * @param gradeLog
+	 * @return
+	 */
+	private String formatLogEntry(final GbGradeLog gradeLog) {
+
+		final String logDate = FormatHelper.formatDateTime(gradeLog.getDateGraded());
+		final String grade = gradeLog.getGrade();
+
+		final GbUser grader = CourseGradeOverrideLogPanel.this.businessService.getUser(gradeLog.getGraderUuid());
+		final String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
+
+		String rval;
+
+		// if no grade, it is a reset
+		if (StringUtils.isNotBlank(grade)) {
+			rval = new StringResourceModel("coursegrade.log.entry.set", null, new Object[] { logDate, grade, graderDisplayId }).getString();
+		} else {
+			rval = new StringResourceModel("coursegrade.log.entry.unset", null, new Object[] { logDate, graderDisplayId }).getString();
+		}
+
+		return rval;
 
 	}
 

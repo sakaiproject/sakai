@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -19,6 +21,7 @@ import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 /**
  * Panel for the course grade override window
@@ -72,6 +75,20 @@ public class CourseGradeOverridePanel extends Panel {
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 				final String newGrade = (String) form.getModelObject();
 
+				// validate the grade entered is a valid one for the selected grading schema
+				// though we allow blank grades so the override is removed
+				if (StringUtils.isNotBlank(newGrade)) {
+					final GradebookInformation gbInfo = CourseGradeOverridePanel.this.businessService.getGradebookSettings();
+
+					final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
+					if (!schema.containsKey(newGrade)) {
+						error(new ResourceModel("message.addcoursegradeoverride.invalid").getObject());
+						target.addChildren(form, FeedbackPanel.class);
+						return;
+					}
+				}
+
+				// save
 				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade);
 
 				if (success) {
@@ -81,8 +98,6 @@ public class CourseGradeOverridePanel extends Panel {
 					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());
 					target.addChildren(form, FeedbackPanel.class);
 				}
-
-				// TODO validate the grade is a valid one for the grading scheme
 
 			}
 		};

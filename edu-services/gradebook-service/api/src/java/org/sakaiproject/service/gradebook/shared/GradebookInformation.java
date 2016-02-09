@@ -48,9 +48,12 @@ public class GradebookInformation implements Serializable {
 	 */
 	private List<GradeMappingDefinition> gradeMappings;
 
+	/**
+	 * The grading schema map currently in use for the this gradebook. For example A+ = 100 etc.
+	 */
 	private Map<String, Double> selectedGradingScaleBottomPercents;
-	private boolean displayReleasedGradeItemsToStudents;
 	
+	private boolean displayReleasedGradeItemsToStudents;
 	private int gradeType;
 	private int categoryType;
 	private List<CategoryDefinition> categories;
