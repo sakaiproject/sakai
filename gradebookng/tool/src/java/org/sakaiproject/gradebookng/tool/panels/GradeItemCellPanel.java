@@ -219,7 +219,7 @@ public class GradeItemCellPanel extends Panel {
 								this.originalGrade = newGrade;
 								break;
 							case NO_CHANGE:
-								// do nothing
+								handleNoChange(GradeItemCellPanel.this.gradeCell);
 								break;
 							case CONCURRENT_EDIT:
 								markError(GradeItemCellPanel.this.gradeCell);
@@ -231,12 +231,11 @@ public class GradeItemCellPanel extends Panel {
 						}
 					}
 
+					refreshNotifications();
+
 					// refresh the components we need
 					target.addChildren(getPage(), FeedbackPanel.class);
 					target.add(getParentCellFor(getComponent()));
-					target.add(getComponent());
-
-					refreshNotifications();
 				}
 
 				private void refreshCourseGradeAndCategoryAverages(final AjaxRequestTarget target) {
@@ -424,6 +423,12 @@ public class GradeItemCellPanel extends Panel {
 	private void markHasComment(final Component gradeCell) {
 		styleGradeCell(gradeCell); // maintains existing save style
 		this.notifications.add(GradeCellNotification.HAS_COMMENT);
+	}
+
+	private void handleNoChange(final Component gradeCell) {
+		// clear any previous styles
+		this.gradeSaveStyle = null;
+		styleGradeCell(gradeCell);
 	}
 
 	private void clearNotifications() {
