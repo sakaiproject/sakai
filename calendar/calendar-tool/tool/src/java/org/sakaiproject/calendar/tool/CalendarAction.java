@@ -4274,7 +4274,7 @@ extends VelocityPortletStateAction
 					if ((m_calObj.getDay_Of_Week(true))== 7) // if end of week, exit the loop
 					{
 						row  = 7;
-						col = SECOND_PAGE_START_HOUR;
+						col = 8;
 					}
 					else // if it is not the end of week, complete with days from next month
 					{
