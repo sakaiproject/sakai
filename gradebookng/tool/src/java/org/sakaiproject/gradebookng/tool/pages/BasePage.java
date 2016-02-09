@@ -232,7 +232,7 @@ public class BasePage extends WebPage {
 	 * Helper to generate content for a Bootstrap popover with close button
 	 */
 	public String generatePopoverContent(final String message) {
-		final String popoverHTML = "<a href='javascript:void(0);' class='gb-popover-close'></a><ul class='gb-popover-notifications'><li class='text-info'>%s</li></ul>";
+		final String popoverHTML = "<a href='javascript:void(0);' class='gb-popover-close' tabindex='-1'></a><ul class='gb-popover-notifications'><li class='text-info'>%s</li></ul>";
 		final String wrappedPopoverContent = String.format(popoverHTML, message);
 
 		return wrappedPopoverContent;

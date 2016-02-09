@@ -1309,9 +1309,17 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
     self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
   }).on("click", ".popover .gb-popover-close", function(event) {
     var $link = $(this);
-    var cell = self.getCellModelForStudentAndAssignment($link.data("studentuuid"), $link.data("assignmentid"));
+    var $cellToFocus;
+
+    if ($link.data("studentuuid") && $link.data("assignmentid")) {
+      var cell = self.getCellModelForStudentAndAssignment($link.data("studentuuid"), $link.data("assignmentid"));
+      $cellToFocus = cell.$cell;
+    } else {
+      $cellToFocus = $link.closest("td,th");
+    }
+
     self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
-    cell.$cell.focus();
+    $cellToFocus.focus();
   });
 
   // close the dropdown if the user navigates away from it
