@@ -61,7 +61,7 @@ public class CourseGradeOverridePanel extends Panel {
 
 		form.add(new Label("studentName", user.getDisplayName()));
 		form.add(new Label("studentEid", user.getDisplayId()));
-		form.add(new Label("points", "123"));
+		// form.add(new Label("points", "not yet implemented"));
 		form.add(new Label("calculated", formatCalculatedGrade(courseGrade)));
 		form.add(new TextField<String>("overrideGrade", formModel));
 
