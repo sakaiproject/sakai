@@ -53,33 +53,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 
 	/**
-	 * site/assignment-list
-	 *
-	 * @throws IdUnusedException
-	 */
-	@EntityCustomAction(action = "assignments", viewKey = EntityView.VIEW_LIST)
-	public List<Assignment> getAssignmentList(final EntityView view) {
-
-		// get siteId
-		final String siteId = view.getPathSegment(2);
-
-		// check siteId supplied
-		if (StringUtils.isBlank(siteId)) {
-			throw new IllegalArgumentException(
-					"Site ID must be set in order to access GBNG data.");
-		}
-		checkValidSite(siteId);
-
-		// check instructor
-		checkInstructor(siteId);
-
-		// get assignment list
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
-
-		return assignments;
-	}
-
-	/**
 	 * Update the order of an assignment in the gradebook This is a per site setting.
 	 *
 	 * @param ref
