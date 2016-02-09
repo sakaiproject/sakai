@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:panel>
+		
+		<h3 wicket:id="heading">Course Grade Override for Tony Stark (tstark1)</h3>
+		
+		<div class="instruction"><wicket:message key="coursegrade.override.instructions.1" /></div>
+		
+		<form wicket:id="form">
+		
+			<table class="table table-bordered table-striped table-hover table-condensed">
+				<thead>
+					<tr>
+						<th class="col-md-3"><wicket:message key="column.header.coursegradeoverride.studentname" /></th>
+						<th class="col-md-2"><wicket:message key="column.header.coursegradeoverride.studentid" /></th>
+						<th class="col-md-2"><wicket:message key="column.header.coursegradeoverride.points" /></th>
+						<th class="col-md-4"><wicket:message key="column.header.coursegradeoverride.calculated" /></th>
+						<th class="col-md-2"><wicket:message key="column.header.coursegradeoverride.gradeoverride" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td wicket:id="studentName">Tony Stark</td>
+						<td wicket:id="studentEid">tstark1</td>
+						<td wicket:id="points">123</td>
+						<td wicket:id="calculated">C (63.15%)</td>
+						<td><input type="text" wicket:id="overrideGrade"/></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div>
+				<button wicket:id="submit" type="submit" class="btn btn-primary"><wicket:message key="button.saveoverride" /></button>
+				<button wicket:id="cancel" type="button" class="btn btn-link"><wicket:message key="button.cancel" /></button>	
+			</div>
+		
+		</form>
+
+	</wicket:panel>
+</body>
+</html>

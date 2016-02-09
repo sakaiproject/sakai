@@ -20,7 +20,7 @@ public class CourseGrade implements Serializable {
 	public CourseGrade() {}
 
 	/**
-	 * ID of this course grade record. This will be null if the course grade is calculated, and non null if we have an override.
+	 * ID of this course grade record. This will be null if the course grade is calculated, and non null if we have an override (as it then refers to the course grade assignment id).
 	 * @return 
 	 */
 	public Long getId() {

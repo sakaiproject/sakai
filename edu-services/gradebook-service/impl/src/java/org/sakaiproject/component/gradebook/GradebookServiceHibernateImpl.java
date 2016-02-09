@@ -3019,8 +3019,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			if(!assignments.isEmpty()) {
 				
 				//calculated grade
+				//may be null if no grade entries to calculate
 				Double calculatedGrade = gradeRecord.getAutoCalculatedGrade();
-				rval.setCalculatedGrade(calculatedGrade.toString());
+				if(calculatedGrade != null) {
+					rval.setCalculatedGrade(calculatedGrade.toString());
+				}
 
 				//mapped grade
 				GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
@@ -3199,6 +3202,51 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		return this.getGradebookGradeMappings(gradebookId);
 	}
+	
+	@Override
+	public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String grade) {
+		
+		//must be instructor type person
+		if (!currentUserHasEditPerm(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to update course grade for student: " + studentUuid);
+			throw new SecurityException("You do not have permission to update course grades in " + gradebookUid);
+		}
+	        
+		final Gradebook gradebook = getGradebook(gradebookUid);
+		if(gradebook==null) {
+			throw new IllegalArgumentException("There is no gradebook associated with this id: " + gradebookUid);
+		}
+		
+		//get course grade for the student
+		CourseGradeRecord courseGradeRecord = (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
+                return getCourseGradeRecord(gradebook, studentUuid, session);
+            }
+		});
+		
+		courseGradeRecord.setEnteredGrade(grade);
+		
+		//create a grading event
+		GradingEvent gradingEvent = new GradingEvent();
+		gradingEvent.setGradableObject(courseGradeRecord.getCourseGrade());
+		gradingEvent.setGraderId(getUserUid());
+		gradingEvent.setStudentId(studentUuid);
+		gradingEvent.setGrade(courseGradeRecord.getEnteredGrade());
+		
+		//save
+		try {
+			getHibernateTemplate().saveOrUpdate(courseGradeRecord);
+			getHibernateTemplate().saveOrUpdate(gradingEvent);
+		} catch (HibernateOptimisticLockingFailureException | StaleObjectStateException e) {
+		  if(log.isInfoEnabled()) {
+			  log.info("An optimistic locking failure occurred while attempting to save course grade and event with id: " + courseGradeRecord.getCourseGrade().getId());
+		  }
+		  throw new StaleObjectModificationException(e);
+		}
+		
+	}
+
 	
 	/**
 	 * Map a set of GradeMapping to a list of GradeMappingDefinition
