@@ -544,7 +544,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
     event.preventDefault();
     $(document).scrollTop(self.$table.offset().top - 10);
     self.$spreadsheet.scrollLeft(0);
-    var $targetCell = $(self.$table.find("thead tr > *").get($(this).index()));
+    var $targetCell = $(self.$table.find("thead tr:last > *").get($(this).index()));
 
     self.$spreadsheet.data("activeCell", $targetCell);
 
@@ -592,23 +592,23 @@ GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(eve
       return true;
     }
   // or a dropdown?
-  } else if ($(event.target).is("a.btn.dropdown-toggle")) {
+  } else if ($target.is("a.btn.dropdown-toggle")) {
     setTimeout(function() {
       $originalCell.find("a.btn.dropdown-toggle").focus().trigger("click");
     });
     return true;
   // or the row selector?
-  } else if ($(event.target).is(".gb-row-selector")) {
+  } else if ($target.is(".gb-row-selector")) {
     $originalCell.next().focus();
     return true;
   // or a flag?
-  } else if ($(event.target).closest(".gb-grade-item-flags").length == 1) {
+  } else if ($target.closest(".gb-grade-item-flags").length == 1) {
     setTimeout(function() {
-      $originalCell.find($(event.target).attr("class").split(' ').map(function(cssClass) {return "." + cssClass}).join(" ")).focus();
+      $originalCell.find($target.attr("class").split(' ').map(function(cssClass) {return "." + cssClass}).join(" ")).focus();
     });
     return true;
   // external item flag?
-  } else if ($(event.target).closest(".gb-external-app-flag").length == 1) {
+  } else if ($target.closest(".gb-external-app-flag").length == 1) {
     setTimeout(function() {
       $originalCell.find(".gb-external-app-flag").focus();
     });
@@ -619,6 +619,11 @@ GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(eve
 
 GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
   var self = this;
+
+  // is sorting enabled for the user?
+  if (!self.$table.data("sort-enabled")) {
+    return;
+  }
 
   function updateOrderingAfterDrop(droppedCellModel) {
     if (self.isGroupedByCategory()) {
@@ -1249,6 +1254,8 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
         $(this).closest("tr").addClass("filtered-by-studentFilter");
       });
     }
+
+    self.refreshStudentSummary();
   };
 
   self.$table.on("keyup", ".gb-student-filter :input", function(event) {
@@ -1454,6 +1461,13 @@ GradebookSpreadsheet.prototype.refreshCourseGradeForStudent = function(studentUu
   $fixedColumnCourseGradeCell.addClass("gb-score-dynamically-updated");
 
   this.$spreadsheet.find(".gb-score-dynamically-updated").removeClass("gb-score-dynamically-updated", 1000);
+};
+
+
+GradebookSpreadsheet.prototype.refreshStudentSummary = function() {
+  var $labelCount = this.$spreadsheet.find(".gb-student-summary-counts .visible");
+
+  $labelCount.html(this.$table.find("tbody tr:visible").length);
 };
 
 

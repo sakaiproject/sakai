@@ -1,6 +1,6 @@
 #portalMask{
-	/*background: rgba(0,0,0,0.45);
-	position: fixed;*/
+	background: rgba(0,0,0,0.45);
+	position: fixed;
 }
 #selectSite{
 	position: fixed;
@@ -12,8 +12,8 @@
 		top: 0;
 		left: 40%;
 		width: 60% ;
-		height: 100% ;
-		padding: 1em;
+		max-height: 100%;
+		padding: 0 1em 1em 1em;
 		overflow-y: auto;
 		overflow-x: hidden;
 		z-index: 1005;
@@ -44,16 +44,63 @@
 		}
 	}
 	&.outscreen{
-		left: -120%;
+		left: 110%;
+		max-width: 100%;
 	}
 	h4{
 		font-size: 1.8em;
-  		margin: 1.5em 0 0.4em 0;
+  		margin: 1.5em 0 0.6em 0;
 	}
+	.tab-box{
+		border: 1px solid $toolBorderColor;
+		padding: 5px 5px 5px 1em;
+
+                background-color: $tool-background-color;
+	}
+	.tab-bar .tab-btn{
+		display: inline-block;
+		padding: 5px 2em 5px 2em;
+		border: 1px solid $toolBorderColor;
+		border-bottom:  0;
+		margin: 0;
+		background-color: darken( $tool-background-color, 20% );
+	}
+
+	.tab-bar .tab-btn:hover{
+		cursor: pointer;
+	}
+
+	.tab-bar .tab-btn.active{
+		cursor: default;
+		background-color: $tool-background-color;
+	}
+
+	.tab-bar .tab-btn.tab-disabled{
+		color: lighten( $text-color, 50% );
+	}
+
+	.tab-bar .tab-btn.tab-disabled:hover{
+		cursor:default;
+	}
+
+	.tab-bar{
+		margin: 5px 0 0 0;
+		position: relative;
+		top: 1px;
+		z-index: 2;
+	}
+
+        #selectSite-navbar{
+		overflow: hidden;
+		margin: 0;
+		padding: 0;
+        }
 }
 
 ul#otherSitesMenu{
+	margin: 0;
 	float: right;
+	display: inline-block;
 	li{
 		display: inline-block;
 		a{
@@ -61,6 +108,36 @@ ul#otherSitesMenu{
 		}
 	}
 }
+
+#otherSitesCategorWrap{
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	.moresites-left-col{
+ 		display: inline-block;
+		width: 49%;
+		float: left;
+		margin-right: 1%;
+		margin-top: -2em;
+		@media #{$more-sites-single-column}{
+			width: 100%;
+			float: none;
+		}
+	}
+	.moresites-right-col{
+		display: inline-block;
+		width: 49%;
+		float: left;
+		margin-top: -2em;
+		@media #{$more-sites-single-column}{
+			width: 100%;
+			float: none;
+		}
+	}
+}
+
+
 
 ul.otherSitesCategorList{
 	li{
@@ -78,26 +155,40 @@ ul.otherSitesCategorList{
 			}
 		}
 		&.is-selected{
-			background: $primary-color;
-			border: 1px solid $primary-color;
-			a{
-				color: $background-color;
-				.fullTitle{
-					color: $background-color;
-				}
-			}
+			border: 1px solid darken( $toolBorderColor, 30% );
 		}
 	}
 }
 
 #otherSiteSearch{
-	border-bottom: 1px solid darken( $background-color, 15% );
-	margin: 0 0 1em 0;
-	padding: 0.8em 0 1em 0;
-	#imgSearch{
-		img{
-			vertical-align: middle;
-		}
+	display: block;
+	text-align: right;
+	label{
+		color: $text-color;
+	}
+
+	margin: 1em 1em 0 0;
+
+	#txtSearch{
+		width: 18em;
+		min-height: 2em;
+	}
+
+        .other-site-search-clear{
+		position: relative;
+		text-decoration: none;
+	}
+
+	.other-site-search-clear:before{
+		position: relative;
+		top: 1px;
+		right: 25px;
+		content: '\f057';
+		font-family: 'FontAwesome';
+		color: #ccc;
+		font-size: 1.2em;
+		line-height: 1.5em;
+		text-align: right;
 	}
 }
 
@@ -106,10 +197,6 @@ ul.otherSitesCategorList{
 	padding: 0 0 0 0;
 	margin: 0 0 0 0;
 	border: 0px none;
-	display: block;
-	position: absolute;
-	top: 0;
-	left: 95%;
 	font-size: 2em;
 	@media #{$phone}{
 		left: 90%;
@@ -117,5 +204,146 @@ ul.otherSitesCategorList{
 	.toggler{
 		text-decoration: none;
 		color: darken($errorcolor, 50%);
+	}
+}
+
+.otherSiteToolIcon{
+	padding-right: 0.5em;
+}
+
+ul#otherSiteTools{
+	padding-bottom: 5px;
+
+	li{
+		padding: 0 0 5px 5px;
+		font-family: $header-font-family;
+		border: 0;
+		display: block;
+
+		a{
+			color: $text-color;
+			text-decoration: none;
+		}
+
+                .otherSiteToolIcon{
+			display: inline-block;
+                }
+
+                .icon-sakai-see-all-tools{
+			display: none;
+		}
+	}
+}
+
+ul.favoriteSiteList > li{
+	display: block;
+	border: 1px solid $toolBorderColor;
+	@include border-radius( 4px );
+	width: 305px;
+	white-space: nowrap;
+	overflow: hidden;
+	margin: 0.3em;
+	padding: 0.3em 0.5em 0.3em 0.5em;
+}
+
+.fav-title{
+	width: 240px;
+	overflow: hidden;
+	display: inline-block;
+	vertical-align: middle;
+	a{
+		@extend .userNav_link;
+		font-weight: 700;
+		vertical-align: middle;
+	}
+	&.toolMenus{
+		display: inline-block;
+	}
+}
+
+#organizeFavorites{
+	padding-left: 1em;
+}
+
+.organizeFavoritesList{
+	.fav-drag-handle{
+		display: inline-block;
+		position: relative;
+		right: -4px;
+		color: $toolBorderColor;
+		cursor: move; /* fallback if grab cursor is unsupported */
+		cursor: grab;
+		cursor: -moz-grab;
+		cursor: -webkit-grab;
+	}
+	.fav-drag-handle:active{
+		cursor: grabbing;
+		cursor: -moz-grabbing;
+		cursor: -webkit-grabbing;
+	}
+	.site-favorite-btn{
+		padding-right: 0.5em;
+	}
+}
+
+#organizeFavoritesPurgatoryList{
+	.fav-drag-handle{
+		display: none;
+	}
+	a{
+		color: darken($background-color-secondary, 10%);
+		.fullTitle{
+			color: darken($background-color-secondary, 10%);
+		}
+	}
+}
+
+.site-nonfavorite{
+	color: #CDCDCD;
+}
+
+.site-favorite{
+	color: #F49D08;
+}
+
+.site-favorite-icon{
+	font-size: 1.3em;
+	display: inline-block;
+	position: relative;
+	top: 2px;
+}
+
+.my-workspace .site-favorite{
+	color: #000;
+}
+
+.moresites-refresh-notification{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	top: 13px;
+	border: 1px solid $toolBorderColor;
+	z-index: 1000;
+	display: inline-block;
+
+	-webkit-transition: background-color 0.2s, color 0.2s;
+	-moz-transition: background-color 0.2s, color 0.2s;
+	-ms-transition: background-color 0.2s, color 0.2s;
+	-o-transition: background-color 0.2s, color 0.2s;
+	transition: background-color 0.2s, color 0.2s;
+
+	background-color: #f7e084;
+	color: #000 !important;
+	text-align: center;
+	padding: 6px 8px;
+	border-radius: 3px;
+	text-decoration: none;
+
+	a{
+		color: $primary-color;
+	}
+
+	@media #{$phone}{
+		display: none;
 	}
 }

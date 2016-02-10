@@ -51,7 +51,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
-				window.setContent(new EmptyPanel(window.getContentId()));
+				window.setContent(new ZeroUngradedItemsPanel(window.getContentId(), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
 			}

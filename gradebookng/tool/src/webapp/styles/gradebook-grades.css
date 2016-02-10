@@ -177,14 +177,14 @@
 #gradebookGrades .gb-cell {
   cursor: pointer;
 }
-#gradebookGradesTable tbody .btn.dropdown-toggle {
+#gradebookGrades tbody .btn.dropdown-toggle {
   opacity: 0.3;
   border-color: #EEE;
 }
-#gradebookGradesTable tbody .btn.dropdown-toggle:focus,
-#gradebookGradesTable tbody .btn.dropdown-toggle:active,
-#gradebookGradesTable tbody .btn.dropdown-toggle:hover,
-#gradebookGradesTable tbody .open .btn.dropdown-toggle {
+#gradebookGrades tbody .btn.dropdown-toggle:focus,
+#gradebookGrades tbody .btn.dropdown-toggle:active,
+#gradebookGrades tbody .btn.dropdown-toggle:hover,
+#gradebookGrades tbody .open .btn.dropdown-toggle {
     opacity: 1;
     border-color: #DDD;
 }
@@ -613,6 +613,13 @@
 #gradebookGrades .gb-student-filter {
   position: relative;
 }
+#gradebookGrades .gb-student-filter input {
+  height: 2em;
+}
+#gradebookGrades .gb-student-filter-clear,
+#gradebookGrades .gb-student-filter-clear:hover {
+  text-decoration: none;
+}
 #gradebookGrades .gb-student-filter-clear:before {
   position: absolute;
   top: 2px;
@@ -623,9 +630,7 @@
   font-size: 1em;
   width: 1.2em;
   text-align: right;
-}
-#gradebookGrades .gb-student-filter-clear:hover {
-  text-decoration: none;
+  height: 2em;
 }
 /* Popover Notifications */
 .gb-grade-item-flags .popover {

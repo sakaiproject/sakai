@@ -82,6 +82,17 @@
     <h:message for="answerptr" styleClass="validate"/>
   </div>
 <br/>
+<!-- 1.2 MIN POINTS 
+  Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
+   <div class="shorttext">
+    <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
+    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
+<f:validateDoubleRange/>
+</h:inputText><br/>
+    <h:message for="answerminptr" styleClass="validate"/>
+  </div>
+<br/>
+-->
   <!-- 2 TEXT -->
   <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
 

@@ -88,6 +88,37 @@
 </div>
 <br/>
 
+<script type="text/javascript">
+function toggleNegativePointVal(val){
+	var negPointField = document.getElementById('itemForm:answerdsc');
+	if(negPointField){
+		if(val){
+			negPointField.value = 0;
+			negPointField.disabled = true;
+		}else{
+			negPointField.disabled = false;
+		}
+	}
+}
+</script>
+
+<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
+<f:verbatim>
+<div class="shorttext">
+</f:verbatim>
+<h:outputLabel value="#{authorMessages.answer_min_point_value}" />
+    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  onchange="toPoint(this.id); toggleNegativePointVal(this.value);">
+<f:validateDoubleRange /></h:inputText>
+<f:verbatim><div></f:verbatim>
+<h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
+<f:verbatim></div></f:verbatim>
+<h:message for="answerminptr" styleClass="validate"/>
+<f:verbatim>
+  </div>
+<br/>
+</f:verbatim>
+</f:subview>
+
 <!-- 1 ANSWER -->
 <div class="longtext">
   <h:outputLabel value="#{authorMessages.answer} " />  
@@ -425,6 +456,19 @@
  </h:commandButton>
 
 </p>
+
+<f:subview id="disableNegVal" rendered="#{!empty itemauthor.currentItem.itemMinScore}">
+<f:verbatim>
+<script type="text/javascript">
+	var negPointField = document.getElementById('itemForm:answerdsc');
+	if(negPointField){
+		negPointField.value = 0;
+		negPointField.disabled = true;
+	}
+</script>
+</f:verbatim>
+</f:subview>
+
 </h:form>
 <!-- end content -->
 </div>

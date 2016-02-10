@@ -624,6 +624,17 @@ public class GradebookNgBusinessService {
 				}
 			}
 
+			// TA stub out. So that we can support 'per grade' permissions for a TA, we need a stub record for every student
+			// This is because getGradesForStudentsForItem only returns records where there is a grade (even if blank)
+			// So this iteration for TAs allows the matrix to be fully populated.
+			// This is later updated to be a real grade entry if there is one.
+			if (role == GbRole.TA) {
+				for (final User student : students) {
+					final GbStudentGradeInfo sg = matrix.get(student.getId());
+					sg.addGrade(assignment.getId(), new GbGradeInfo(null));
+				}
+			}
+
 			// build the category map (if assignment is categorised)
 			if (categoryId != null) {
 				Set<Long> values;
@@ -642,13 +653,14 @@ public class GradebookNgBusinessService {
 					studentUuids);
 			Temp.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(), stopwatch.getTime());
 
-			// iterate the definitions returned and update the record for each student with any grades
+			// iterate the definitions returned and update the record for each student with the grades
 			for (final GradeDefinition def : defs) {
 				final GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
 
 				if (sg == null) {
 					log.warn("No matrix entry seeded for: " + def.getStudentUid() + ". This user may be been removed from the site");
 				} else {
+					// this will overwrite the stub entry for the TA matrix if need be
 					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
 				}
 			}

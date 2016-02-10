@@ -1543,7 +1543,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     			}
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
 				{
-    				if (pointsPossible!=null)
+                    if (pointsPossible!=null && !asn.getCategory().getIsExtraCredit())
     					totalPointsPossible += pointsPossible.doubleValue();
                     for(int i=0; i<categories.size(); i++)
                     {
@@ -1568,7 +1568,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     					Category cate = (Category) categories.get(i);
     					if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
     					{
-    						if (pointsPossible!=null)
+							if (pointsPossible!=null && !asn.getCategory().getIsExtraCredit())
     							totalPointsPossible += pointsPossible.doubleValue();
     						
     						Integer num = numAssignments.get(cate.getId()); // to calculate totalPointsToDrop, must know the number of assignments for each category

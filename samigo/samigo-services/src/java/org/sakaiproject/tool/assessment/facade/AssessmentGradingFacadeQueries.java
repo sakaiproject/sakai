@@ -3389,7 +3389,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	
 	public void autoSubmitAssessments() {
 		java.util.Date currentTime = new java.util.Date();
-		Object [] values = {currentTime};
+		Object [] values = {currentTime, currentTime};
 
 		List list = getHibernateTemplate()
 				.find("select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
@@ -3399,7 +3399,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
 						" and c.retractDate <= ?" +
 						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
-						" and a.submittedDate is not null and a.attemptDate <= c.retractDate " +
+						" and a.submittedDate is not null " +
+						" and (a.attemptDate <= c.retractDate or (c.dueDate <= ? and c.lateHandling = 2)) " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId", values);
 		
 	    Iterator iter = list.iterator();

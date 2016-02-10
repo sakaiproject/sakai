@@ -1,34 +1,32 @@
-## Commenting the check since we need to show moresites view always even if we have 1 site in mobil more
-##if ($tabsSites.tabsMoreSitesShow)
+<div id="maxToolsText" style="display: none">${rloader.sit_alltools}</div>
+<div id="maxToolsInt" style="display: none">${maxToolsInt}</div>
+<div id="refreshNotificationText" style="display: none">${rloader.sit_refresh_favorites}</div>
 
-        <div id="selectSite" class="outscreen" tabindex="-1">
-            <div id="otherSiteSearch"> 
-                <label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
-                <a id="imgSearch" href="#" class="is-hidden"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
-                <span id="noSearchResults" class="is-hidden">${rloader.sit_search_none}</span>
-            </div>
-            <ul id="otherSitesMenu">
+<div id="selectSite" class="outscreen" tabindex="-1">
+    <div id="selectSite-navbar" class="Mrphs-toolTitleNav">
+        <!-- View all sites, add new site, preferences -->
+        <ul id="otherSitesMenu">
 
-                #if (${tabsSites.worksiteToolUrl})
+            #if (${tabsSites.worksiteToolUrl})
 
-                    <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
+                <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
 
-                    #if ($allowAddSite)
+                #if ($allowAddSite)
 
-                        <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
+                    <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
 
-                    #end ## END of IF ($allowAddSite)
+                #end ## END of IF ($allowAddSite)
 
-                #end ## END of IF (${tabsSites.worksiteToolUrl})
+            #end ## END of IF (${tabsSites.worksiteToolUrl})
 
-                #if (${tabsSites.prefsToolUrl})
+            #if (${tabsSites.prefsToolUrl})
 
-                    <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
+                <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
 
-                #end ## END of IF (${tabsSites.prefsToolUrl})
+            #end ## END of IF (${tabsSites.prefsToolUrl})
 
-            </ul>
-            <div id="otherSiteCloseW">
+            <!-- Close button -->
+            <li id="otherSiteCloseW">
                 <a href="#" onclick="closeDrawer()" class="toggler" title="${rloader.sit_othersitesclose}">
                     <span class="hamburger">
                         <i class="fa fa-close"></i>
@@ -37,60 +35,98 @@
                         ${rloader.sit_othersitesclose}
                     </span>
                 </a>
-            </div>
+            </li>
+        </ul>
 
-                <div id="otherSitesCategorWrap">
-                    ### TODO: format well
+    </div>
 
-                    #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
+    <ul class="tab-bar">
+        <li class="tab-btn active" data-tab-target="otherSitesCategorWrap">${rloader.sit_worksites}</li>
+        <li class="organizeFavorites tab-btn" data-tab-target="organizeFavorites">${rloader.moresite_organize_favorites} <span class="favoriteCount"></span></li>
+    </ul>
 
-                        #if ( !$termKey || $termKey == "" )
+    <div class="tab-box" id="otherSitesCategorWrap">
 
-                            <h4>${rloader.sit_notermkey}</h4>
+        <div id="otherSiteSearch">
+            <input type="text" id="txtSearch" name="txtSearch" maxlength="50" placeholder=" ${rloader.sit_search}">
+            <a id="otherSiteSearchClear" class="other-site-search-clear" href="javascript:void(0);"></a>
+        </div>
+        <div id="noSearchResults" class="is-hidden">${rloader.sit_search_none}</div>
 
+
+        #macro( displaySite $site )
+            <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
+                <a class="site-favorite-btn" data-site-id="${site.siteId}" href="javascript:void(0);"></a>
+
+                <div class="fav-title">
+                    <a href="${site.siteUrl}" title="${site.siteTitleNotTruncated}">
+                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
+                            <span class="fullTitle">${site.shortDescription}</span>
                         #else
+                            <span class="fullTitle">${site.siteTitle}</span>
+                        #end
+                    </a>
+                </div>
+                <a href="#" id="${site.siteId}" class="toolMenus"><i class="fa fa-chevron-down"></i></a>
+            </li>
+        #end
 
+        <div class="moresites-left-col">
+            #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
+                <div class="fav-sites-term">
+                    #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
+                        #if ( !$termKey || $termKey == "" )
+                            <h4>${rloader.sit_notermkey}</h4>
+                        #else
                             <h4>$termKey</h4>
-
                         #end
 
-                        <ul class="otherSitesCategorList">
-
-                            #foreach( $site in $tabsSites.tabsMoreTerms.get($termKey))
-
-                                #if (${site.isMyWorkspace})
-
-                                    <li #if (${site.isCurrentSite})class="is-selected" #end>
-                                        <a href="${site.siteUrl}" title="${rloader.sit_mywor}">
-                                            <span class="fullTitle">${rloader.sit_mywor}</span>
-                                        </a>
-                                        <a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
-                                    </li>
-
-                                #else
-
-                                    <li #if (${site.isCurrentSite})class="is-selected" #end>
-
-                                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
-                                            <a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.shortDescription}</span></a><a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
-
-                                        #else
-
-                                            <a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.siteTitle}</span></a><a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
-
-                                        #end
-
-                                    </li>
-
-                                #end
-
+                        <ul class="otherSitesCategorList favoriteSiteList">
+                            #foreach( $site in $tabsSites.tabsMoreTermsLeftPane.get($termKey))
+                                #displaySite($site)
                             #end
-
                         </ul>
-
                     #end
-
-                </div><!--  end of #otherSitesCategorWrap -->
+                </div>
+            #end
         </div>
 
-    ##end ## END of IF ($tabsSites.tabsMoreSitesShow)
+        <div class="moresites-right-col">
+            #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
+                <div class="fav-sites-term">
+                    #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
+                        #if ( $termKey && $termKey != "" )
+                            <h4>$termKey</h4>
+
+                            <ul class="otherSitesCategorList favoriteSiteList">
+                                <!-- anchor "my workspace" to the top of the list -->
+                                #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
+                                    #if (${site.isMyWorkspace})
+                                        #displaySite($site)
+                                    #end
+                                #end
+
+                                #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
+                                    #if (${site.siteType} != #"course" && !${site.isMyWorkspace})
+                                        #displaySite($site)
+                                    #end
+                                #end
+                            </ul>
+                        #end
+                    #end
+                </div>
+            #end
+        </div>
+
+    </div><!--  end of #otherSitesCategorWrap -->
+
+    <div style="display: none" class="tab-box" id="organizeFavorites">
+        <h2>Organize your favorites</h2>
+        <ul id="organizeFavoritesList" class="organizeFavoritesList favoriteSiteList">
+        </ul>
+
+        <!-- Items are put here when unfavorited from the "organize" screen -->
+        <ul id="organizeFavoritesPurgatoryList" class="favoriteSiteList">
+        </ul>
+    </div>
+</div>

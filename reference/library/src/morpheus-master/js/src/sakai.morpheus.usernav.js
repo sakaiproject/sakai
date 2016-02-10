@@ -5,7 +5,7 @@
 function toggleUserNav(event){
   event.preventDefault();
   $PBJQ('.Mrphs-userNav__subnav').toggleClass('is-hidden');
-  $PBJQ(this).toggleClass('is-clicked');
+  $PBJQ('.Mrphs-userNav__drop').toggleClass('is-clicked');
 }
 
  // Logout Confirm
@@ -16,5 +16,5 @@ function toggleUserNav(event){
   });
 
 
-$PBJQ(".js-toggle-user-nav a#loginUser > .Mrphs-userNav__drop", "#loginLinks").on("click", toggleUserNav);
-$PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop", "#loginLinks").on("click", toggleUserNav);
+$PBJQ(".js-toggle-user-nav a#loginUser > .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
+$PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);

@@ -236,7 +236,6 @@
 						<h:outputText value=" #{msgs.cdfm_me}" styleClass="textPanelFooter" rendered="#{ForumTool.selectedMessage.currentUserAndAnonymous}" />
 						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{ForumTool.selectedMessage.anonAwareAuthor }" styleClass="textPanelFooter #{ForumTool.selectedMessage.useAnonymousId ? 'anonymousAuthor' : ''}" rendered="#{ForumTool.instructor && !ForumTool.selectedMessage.useAnonymousId}">
                         	<f:param value="#{ForumTool.selectedMessage.authorEid}" name="siteUserId"/>
-                        	<f:param value="#{ForumTool.selectedMessage.message.author}" name="siteUser"/>
                         	<h:outputText value="#{ForumTool.selectedMessage.anonAwareAuthor}"/>
                         </h:commandLink>
 						<h:outputText value=" #{msgs.cdfm_openb} "  styleClass="textPanelFooter" />

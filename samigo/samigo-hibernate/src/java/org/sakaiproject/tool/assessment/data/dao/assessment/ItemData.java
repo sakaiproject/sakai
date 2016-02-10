@@ -55,7 +55,8 @@ public class ItemData
   private Set<ItemMetaDataIfc> itemMetaDataSet;
   private Set<ItemFeedbackIfc> itemFeedbackSet;
   private Set<ItemAttachmentIfc> itemAttachmentSet;
-
+  private Double minScore;
+ 
   // for EMI question
   private String themeText;
   private String leadInText;
@@ -67,7 +68,7 @@ public ItemData() {}
   // this constructor should be deprecated, it is missing triesAllowed
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Double score, Double discount, String hint,
+                  Long typeId, String grade, Double score, Double discount, Double minScore, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -92,11 +93,12 @@ public ItemData() {}
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
     this.partialCreditFlag=partialCreditFlag;
+    this.minScore = minScore;
   }
 
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Double score, Double discount, String hint,
+                  Long typeId, String grade, Double score, Double discount, Double minScore, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -123,6 +125,7 @@ public ItemData() {}
     this.itemFeedbackSet = itemFeedbackSet;
     this.triesAllowed = triesAllowed;
     this.partialCreditFlag=partialCreditFlag;
+    this.minScore = minScore;
   }
 
     /*
@@ -1048,5 +1051,13 @@ public ItemData() {}
   }
   public String getImageMapSrc() {
 	  return getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_SRC);	  
+  }
+
+  public Double getMinScore() {
+         return minScore;
+ }
+	  	 
+  public void setMinScore(Double minScore) {
+        this.minScore = minScore;
   }
 }

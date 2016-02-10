@@ -155,5 +155,9 @@ jQuery(document).ready(function () {
         USER.passwordValid = true;
         USER.passwordsMatch = true;
     }
+    if (!USER.get("email") || !USER.get("email").required )
+    {
+        USER.emailValid = true;
+    }
     USER.validateForm();
 });

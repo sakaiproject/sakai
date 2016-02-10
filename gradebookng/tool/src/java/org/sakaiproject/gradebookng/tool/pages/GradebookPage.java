@@ -386,11 +386,14 @@ public class GradebookPage extends BasePage {
 		table.addBottomToolbar(new NavigationToolbar(table) {
 			@Override
 			protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {
-				return constructTableSummaryLabel(navigatorId, table);
+				return constructTablePaginationLabel(navigatorId, table);
 			}
 		});
 		table.addTopToolbar(new HeadersToolbar(table, null));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
+
+		// enable drag and drop based on user role (note: entity provider has role checks on exposed API)
+		table.add(new AttributeModifier("data-sort-enabled", this.businessService.getUserRole() == GbRole.INSTRUCTOR));
 
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
 		noAssignments.setVisible(false);
@@ -602,19 +605,47 @@ public class GradebookPage extends BasePage {
 		return String.format("rgb(%d,%d,%d)", r, g, b);
 	}
 
+
 	/**
-	 * Build a table row summary for the table along the lines of
-	 * "Showing 1{from} to 100{to} of 153{of} students"
+	 * Build a table row summary for the table
 	 */
-	private Label constructTableSummaryLabel(String componentId, DataTable table) {
+	private Label constructTableSummaryLabel(final String componentId, final DataTable table) {
+		return constructTableLabel(componentId, table, false);
+	}
+
+
+	/**
+	 * Build a table pagination summary for the table
+	 */
+	private Label constructTablePaginationLabel(final String componentId, final DataTable table) {
+		return constructTableLabel(componentId, table, true);
+	}
+
+	/**
+	 * Build a table summary for the table along the lines of
+	 * if verbose: "Showing 1{from} to 100{to} of 153{of} students"
+	 * else: "Showing 100{to} students"
+	 */
+	private Label constructTableLabel(final String componentId, final DataTable table, final boolean verbose) {
 		long of = table.getItemCount();
 		long from = (of == 0 ? 0 : table.getCurrentPage() * table.getItemsPerPage() + 1);
 		long to = (of == 0 ? 0 : Math.min(of, from + table.getItemsPerPage() - 1));
 
-		StringResourceModel labelText = new StringResourceModel("label.toolbar.studentsummary",
-				null,
-				from, to, of);
+		StringResourceModel labelText;
 
-		return new Label(componentId, labelText);
+		if (verbose) {
+			labelText = new StringResourceModel("label.toolbar.studentsummarypaginated",
+					null,
+					from, to, of);
+		} else {
+			labelText = new StringResourceModel("label.toolbar.studentsummary",
+					null,
+					to);
+		}
+
+		Label label = new Label(componentId, labelText);
+		label.setEscapeModelStrings(false); // to allow embedded HTML
+
+		return label;
 	}
 }

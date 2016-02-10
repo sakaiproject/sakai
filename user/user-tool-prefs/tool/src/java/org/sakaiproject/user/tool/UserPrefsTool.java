@@ -243,14 +243,16 @@ public class UserPrefsTool
 
 	private String[] tablist;
 
-	private int noti_selection, tab_selection, timezone_selection, language_selection, privacy_selection,j;
+	private int noti_selection, tab_selection, timezone_selection, language_selection, privacy_selection, hidden_selection, j;
+
+	private String hiddenSitesInput = null;
 
 	//The preference list names
 	private String Notification="prefs_noti_title";
-	private String CustomTab="prefs_tab_title";
 	private String Timezone="prefs_timezone_title";
 	private String Language="prefs_lang_title";
 	private String Privacy="prefs_privacy_title";
+	private String Hidden="prefs_hidden_title";
 	
 	private boolean refreshMode=false;
 
@@ -259,8 +261,6 @@ public class UserPrefsTool
 	protected final static String ORDER_SITE_LISTS = "order";
 
 	protected boolean isNewUser = false;
-
-	protected boolean tabUpdated = false;
 
 	// user's currently selected time zone
 	private TimeZone m_timeZone = null;
@@ -615,23 +615,7 @@ public class UserPrefsTool
 		m_sessionManager = mgr;
 	}
 
-	/**
-	 * @return Returns the tabUpdated.
-	 */
-	public boolean isTabUpdated()
-	{
-		return tabUpdated;
-	}
 
-	/**
-	 * @param tabUpdated
-	 *        The tabUpdated to set.
-	 */
-	public void setTabUpdated(boolean tabUpdated)
-	{
-		this.tabUpdated = tabUpdated;
-	}
-	
 	/**
 	 * Init some services that are needed.  
 	 * Unfortunately they were needed when the constructor was called so 
@@ -662,11 +646,11 @@ public class UserPrefsTool
 		setPrefShowTabLabelOption(show_tab_label_option);
 
 		//Tab order configuration
-		String defaultPreference="prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title";
+		String defaultPreference="prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_hidden_title";
 
 		if (ServerConfigurationService.getString("preference.pages")== null || ServerConfigurationService.getString("preference.pages").length() == 0)
 		{
-			LOG.info("The preference.pages is not specified in sakai.properties, hence the default option of 'prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title' is considered");
+			LOG.info("The preference.pages is not specified in sakai.properties, hence the default option of '" + defaultPreference + "' is considered");
 		}
 		else
 		{
@@ -683,10 +667,10 @@ public class UserPrefsTool
 		{
 			tablist[i]=tablist[i].trim();			
 			if(tablist[i].equals(Notification)) noti_selection=i+1;
-			else if(tablist[i].equals(CustomTab)) tab_selection=i+1;
 			else if(tablist[i].equals(Timezone)) timezone_selection=i+1;
 			else if (tablist[i].equals(Language)) language_selection=i+1;
 			else if (tablist[i].equals(Privacy)) privacy_selection=i+1;
+			else if (tablist[i].equals(Hidden)) hidden_selection=i+1;
 			else LOG.warn(tablist[i] + " is not valid!!! Re-configure preference.pages at sakai.properties");
 		}
 
@@ -722,16 +706,6 @@ public class UserPrefsTool
 		return noti_selection;
 	}
 
-	public int getTab_selection()
-	{
-		//Loading the data for customize tab in the refresh mode
-		if (tab_selection==1 && (refreshMode==true|| (prefOrderItems.isEmpty() && prefExcludeItems.isEmpty()) )) //SAK-16572
-		{
-			processActionEdit();
-		}
-		return tab_selection;
-	}
-
 	public int getTimezone_selection()
 	{
 		//Loading the data for timezone in the refresh mode
@@ -763,304 +737,19 @@ public class UserPrefsTool
 		return privacy_selection;
 	}
 
-
+	public int getHidden_selection()
+	{
+		//Loading the data for notification in the refresh mode
+		if (hidden_selection==1 && refreshMode==true)
+		{
+			processActionHiddenFrmEdit();
+		}
+		return hidden_selection;
+	}
 
 	public String getTabTitle()
 	{
 		return "tabtitle";
-	}
-
-	// Naming in faces-config.xml Refresh jsp- "refresh" , Notification jsp- "noti" , tab cutomization jsp- "tab"
-	// ///////////////////////////////////// PROCESS ACTION ///////////////////////////////////////////
-	/**
-	 * Process the add command from the edit view.
-	 * 
-	 * @return navigation outcome to tab customization page (edit)
-	 */
-	public String processActionAdd()
-	{
-		LOG.debug("processActionAdd()");
-		tabUpdated = false; // reset successful text message if existing with same jsp
-		String[] values = getSelectedExcludeItems();
-		if (values.length < 1)
-		{
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(msgs.getString("add_to_sites_msg")));
-			return m_TabOutcome;
-		}
-
-		for (int i = 0; i < values.length; i++)
-		{
-			String value = values[i];
-			getPrefOrderItems().add(removeItems(value, getPrefExcludeItems(), ORDER_SITE_LISTS, EXCLUDE_SITE_LISTS));
-		}
-		return m_TabOutcome;
-	}
-
-	/**
-	 * Process remove from order list command
-	 * 
-	 * @return navigation output to tab customization page (edit)
-	 */
-	public String processActionRemove()
-	{
-		LOG.debug("processActionRemove()");
-		tabUpdated = false; // reset successful text message if existing in jsp
-		String[] values = getSelectedOrderItems();
-		if (values.length < 1)
-		{
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(msgs.getString("remove_from_sites_msg")));
-			return m_TabOutcome;
-		}
-
-		for (int i = 0; i < values.length; i++)
-		{
-			String value = values[i];
-			getPrefExcludeItems().add(removeItems(value, getPrefOrderItems(), EXCLUDE_SITE_LISTS, ORDER_SITE_LISTS));
-		}
-		return m_TabOutcome;
-	}
-
-	/**
-	 * Process Add All action
-	 * 
-	 * @return navigation output to tab customization page (edit)
-	 */
-	public String processActionAddAll()
-	{
-		LOG.debug("processActionAddAll()");
-
-		getPrefOrderItems().addAll(getPrefExcludeItems());
-		getPrefExcludeItems().clear();
-		tabUpdated = false; // reset successful text message if existing in jsp
-		return m_TabOutcome;
-	}
-
-	/**
-	 * Process Remove All command
-	 * 
-	 * @return navigation output to tab customization page (edit)
-	 */
-	public String processActionRemoveAll()
-	{
-		LOG.debug("processActionRemoveAll()");
-
-		getPrefExcludeItems().addAll(getPrefOrderItems());
-		getPrefOrderItems().clear();
-		tabUpdated = false; // reset successful text message if existing in jsp
-		return m_TabOutcome;
-	}
-
-	/**
-	 * Move Up the selected item in Ordered List
-	 * 
-	 * @return navigation output to tab customization page (edit)
-	 */
-	public String processActionMoveUp()
-	{
-		LOG.debug("processActionMoveUp()");
-		return doSiteMove(true, false); //moveUp = true, absolute = false
-	}
-
-	/**
-	 * Move down the selected item in Ordered List
-	 * 
-	 * @return navigation output to tab customization page (edit)
-	 */
-	public String processActionMoveDown()
-	{
-		LOG.debug("processActionMoveDown()");
-		return doSiteMove(false, false); //moveUp = false, absolute = false
-	}
-
-	public String processActionMoveTop()
-	{
-		LOG.debug("processActionMoveTop()");
-		return doSiteMove(true, true); //moveUp = true, absolute = true
-	}
-
-	public String processActionMoveBottom()
-	{
-		LOG.debug("processActionMoveBottom()");
-		return doSiteMove(false, true); //moveUp = false, absolute = true
-	}
-
-	private String doSiteMove(boolean moveUp, boolean absolute) {
-		tabUpdated = false;
-		Set<String> selected   = new HashSet(Arrays.asList(getSelectedOrderItems()));
-		List<SelectItem> toMove = new ArrayList<SelectItem>();
-
-		//Prune bad selections and split lists if moving absolutely
-		for (Iterator i = prefOrderItems.iterator(); i.hasNext(); ) {
-			SelectItem item = (SelectItem) i.next();
-			if (selected.contains(item.getValue())) {
-				toMove.add(item);
-				if (absolute)
-					i.remove();
-			}
-		}
-
-		if (toMove.size() == 0) {
-			String message = msgs.getString(moveUp ? "move_up_msg" : "move_down_msg");
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(message));
-		}
-		else {
-			if (absolute) {
-				//Move the selected list, in order to the right spot.
-				if (moveUp)
-					prefOrderItems.addAll(0, toMove);
-				else
-					prefOrderItems.addAll(toMove);
-			}
-			else {
-				//Iterate in the right direction
-				int start = 0;
-				int interval = 1;
-				int end = prefOrderItems.size() - 1;
-
-				if (!moveUp) {
-					start = prefOrderItems.size() - 1;
-					interval = -1;
-					end = 0;
-				}
-
-				for (int i = start; i != end; i += interval) {
-					SelectItem cur  = (SelectItem) prefOrderItems.get(i);
-					SelectItem next = (SelectItem) prefOrderItems.get(i + interval);
-					if (toMove.contains(next) && !toMove.contains(cur)) {
-						prefOrderItems.set(i, next);
-						prefOrderItems.set(i + interval, cur);
-						toMove.remove(next);
-					}
-				}
-			}
-		}
-		return m_TabOutcome;
-
-	}
-
-	/**
-	 * Process the edit command.
-	 * 
-	 * @return navigation outcome to tab customization page (edit)
-	 */
-	public String processActionEdit()
-	{
-		LOG.debug("processActionEdit()");
-
-		if (!hasValue(getUserId()))
-		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(msgs.getString("user_missing")));
-			return null;
-		}
-		tabUpdated = false; // Reset display of text message on JSP
-		refreshMode=false;
-
-		setUserEditingOn();
-
-		prefExcludeItems = new ArrayList();
-		prefOrderItems = new ArrayList();
-		List prefExclude = new Vector();
-		List prefOrder = new Vector();
-
-		Preferences prefs = m_preferencesService.getPreferences(getUserId());
-		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
-		List l = props.getPropertyList("exclude");
-		if (l != null)
-		{
-			prefExclude = l;
-		}
-
-		l = props.getPropertyList("order");
-		if (l != null)
-		{
-			prefOrder = l;
-		}
-
-		List mySites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
-				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
-		// create excluded and order list of Sites and add balance mySites to excluded Site list for display in Form
-		List ordered = new Vector();
-		List excluded = new Vector();
-		for (Iterator i = prefOrder.iterator(); i.hasNext();)
-		{
-			String id = (String) i.next();
-			// find this site in the mySites list
-			int pos = indexOf(id, mySites);
-			if (pos != -1)
-			{
-				// move it from mySites to order
-				Site s = (Site) mySites.get(pos);
-				ordered.add(s);
-				mySites.remove(pos);
-			}
-		}
-		for (Iterator iter = prefExclude.iterator(); iter.hasNext();)
-		{
-			String element = (String) iter.next();
-			int pos = indexOf(element, mySites);
-			if (pos != -1)
-			{
-				Site s = (Site) mySites.get(pos);
-				excluded.add(s);
-				mySites.remove(pos);
-			}
-		}
-		// pick up the rest of the sites if not available with exclude and order list
-		// and add to the ordered list as when a new site is created it is displayed in header
-		ordered.addAll(mySites);
-
-		// Now convert to SelectItem for display in JSF
-		String sitetablabel = getPrefTabLabel();
-		for (Iterator iter = excluded.iterator(); iter.hasNext();)
-		{
-			Site element = (Site) iter.next();
-
-			// SAK-29138
-			String title = getUserSpecificSiteTitle( element );
-			SelectItem excludeItem = null;
-
-			if ("1".equals(sitetablabel)) {
-				excludeItem = new SelectItem(element.getId(), title, title);
-			}
-			else {
-				// some short descriptins are empty or null
-				String shortdesc = element.getShortDescription();
-				if ((shortdesc == null) || ("".equals(shortdesc))){
-					shortdesc = title;
-				}
-				excludeItem = new SelectItem(element.getId(), shortdesc, shortdesc);
-			}
-			prefExcludeItems.add(excludeItem);
-		}
-
-		for (Iterator iter = ordered.iterator(); iter.hasNext();)
-		{
-			Site element = (Site) iter.next();
-
-			// SAK-29138
-			String title = getUserSpecificSiteTitle( element );
-			SelectItem orderItem = null;
-
-			if ("1".equals(sitetablabel)) {
-				orderItem = new SelectItem(element.getId(), title, title);
-			}
-			else {
-				// some short descriptins are empty or null
-				String shortdesc = element.getShortDescription();
-				if ((shortdesc == null) || ("".equals(shortdesc))){
-					shortdesc = title;
-				}
-				orderItem = new SelectItem(element.getId(), shortdesc, shortdesc);
-			}
-
-			prefOrderItems.add(orderItem);
-		}
-
-		// release lock
-		m_preferencesService.cancel(m_edit);
-		return m_TabOutcome;
 	}
 
 	/**
@@ -1080,128 +769,6 @@ public class UserPrefsTool
 	}
 
 	/**
-	 * Process the save command from the edit view.
-	 * 
-	 * @return navigation outcome to tab customization page (edit)
-	 */
-	public String processActionSave()
-	{
-		LOG.debug("processActionSave()");
-
-		setUserEditingOn();
-		// Remove existing property
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
-		props.removeProperty("exclude");
-		props.removeProperty("order");
-		// Commit to remove from database, for next set of value storing
-		m_preferencesService.commit(m_edit);
-
-		m_stuff = new Vector();
-		String oparts = "";
-		String eparts = "";
-		for (int i = 0; i < prefExcludeItems.size(); i++)
-		{
-			SelectItem item = (SelectItem) prefExcludeItems.get(i);
-			String evalue = (String) item.getValue();
-			eparts += evalue + ", ";
-		}
-		for (int i = 0; i < prefOrderItems.size(); i++)
-		{
-			SelectItem item = (SelectItem) prefOrderItems.get(i);
-			String value = (String) item.getValue();
-			oparts += value + ", ";
-		}
-		// add property name and value for saving
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
-
-		// save
-		saveEdit();
-		// release lock and clear session variables
-		cancelEdit();
-		// To stay on the same page - load the page data
-		processActionEdit();
-		tabUpdated = true; // set for display of text message on JSP
-
-		m_reloadTop = Boolean.TRUE;
-
-		return m_TabOutcome;
-	}
-
-	/**
-	 * Process the save command from the edit view.
-	 * 
-	 * @return navigation outcome to tab customization page (edit)
-	 */
-	public String processActionSaveOrder()
-	{
-		LOG.debug("processActionSaveOrder()");
-
-		// No tabs, nothing to do 
-		if ( prefTabString == null && prefHiddenString == null ) {
-
-			// SAK-23895 , we need to save the tab label preference even though there is no drag-drop actions. 
-			// Lydia: I hate to duplicate updatePrefs() code here. Can we call something like updatePrefs(null, null, null)? 
-			m_stuff = new Vector();
-			m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
-			// save
-			saveEdit();
-			// release lock and clear session variables
-			cancelEdit();
-			// To stay on the same page - load the page data
-			processActionEdit();
-			tabUpdated = true; // set for display of text message on JSP
-			m_reloadTop = Boolean.TRUE;
-
-			return m_TabOutcome;
-		}
-
-		String error = "";
-		if ( prefTabString == null ) {
-			error = msgs.getString("remove_all");
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
-			return m_TabOutcome;
-		}
-		String [] ids = prefTabString.split(",");
-
-		String order = prefTabString;
-
-		updatePrefs(order, prefHiddenString);
-
-		return m_TabOutcome;
-	}
-
-	private void updatePrefs(String order, String excludes) 
-	{
-		setUserEditingOn();
-		// Remove existing property
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
-		props.removeProperty("exclude");
-		props.removeProperty("order");
-		// Commit to remove from database, for next set of value storing
-		m_preferencesService.commit(m_edit);
-
-		m_stuff = new Vector();
-		// add property name and value for saving
-		if ( order != null && order.length() > 0 ) 
-			m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", order, true));
-		if ( excludes != null && excludes.length() > 0 ) 
-			m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", excludes, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
-
-		// save
-		saveEdit();
-		// release lock and clear session variables
-		cancelEdit();
-		// To stay on the same page - load the page data
-		processActionEdit();
-		tabUpdated = true; // set for display of text message on JSP
-
-		m_reloadTop = Boolean.TRUE;
-	}
-
-	/**
 	 * Process the cancel command from the edit view.
 	 * 
 	 * @return navigation outcome to tab customization page (edit)
@@ -1215,7 +782,7 @@ public class UserPrefsTool
 		// remove session variables
 		cancelEdit();
 		// To stay on the same page - load the page data
-		processActionEdit();
+
 		return m_TabOutcome;
 	}
 
@@ -1277,6 +844,15 @@ public class UserPrefsTool
 		return "privacy";
 	}
 
+	public String processActionHiddenFrmEdit()
+	{
+		LOG.debug("processActionHiddenFrmEdit()");
+
+		cancelEdit();
+		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
+		return "hidden";
+	}
+
 	/**
 	 * This is called from edit page for navigation to refresh page
 	 * 
@@ -1307,11 +883,11 @@ public class UserPrefsTool
 		prefOrderItems = new ArrayList();
 		isNewUser = false;
 
-		tabUpdated = false;
 		notiUpdated = false;
 		tzUpdated = false;
 		locUpdated = false;
 		refreshUpdated = false;
+		hiddenUpdated = false;
 	}
 
 	/**
@@ -1526,6 +1102,24 @@ public class UserPrefsTool
 	{
 		this.locUpdated = locUpdated;
 	}
+
+	/**
+	 * @return Returns the hiddenUpdated.
+	 */
+	public boolean getHiddenUpdated()
+	{
+		return hiddenUpdated;
+	}
+
+	/**
+	 * @param hiddenUpdated
+	 *        The hiddenUpdated to set.
+	 */
+	public void setHiddenUpdated(boolean hiddenUpdated)
+	{
+		this.hiddenUpdated = hiddenUpdated;
+	}
+
 
 	// ///////////////////////////////////////NOTIFICATION ACTION - copied from NotificationprefsAction.java////////
 	// TODO - clean up method call. These are basically copied from legacy legacy implementations.
@@ -2600,6 +2194,56 @@ public class UserPrefsTool
 		}
 	}
 		
+	protected boolean hiddenUpdated = false;
+
+	public String processHiddenSites()
+	{
+		// Remove existing property
+		setUserEditingOn();
+		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
+
+		List currentFavoriteSites = props.getPropertyList(ORDER_SITE_LISTS);
+
+		if (currentFavoriteSites == null) {
+			currentFavoriteSites = Collections.<String>emptyList();
+		}
+
+		props.removeProperty(ORDER_SITE_LISTS);
+		props.removeProperty(EXCLUDE_SITE_LISTS);
+
+		m_preferencesService.commit(m_edit);
+		cancelEdit();
+
+		// Set favorites and hidden sites
+		setUserEditingOn();
+		props = m_edit.getPropertiesEdit(CHARON_PREFS);
+
+		// Any site now hidden should also be removed from favorites
+		for (String siteId : hiddenSitesInput.split(",")) {
+			currentFavoriteSites.remove(siteId);
+		}
+
+		for (Object siteId : currentFavoriteSites) {
+			props.addPropertyToList(ORDER_SITE_LISTS, (String)siteId);
+		}
+
+		if (hiddenSitesInput != null && !hiddenSitesInput.isEmpty()) {
+			for (String siteId : hiddenSitesInput.split(",")) {
+				props.addPropertyToList(EXCLUDE_SITE_LISTS, siteId);
+			}
+		}
+
+		m_preferencesService.commit(m_edit);
+		cancelEdit();
+
+		hiddenUpdated = true;
+
+		m_reloadTop = Boolean.TRUE;
+
+		return "hidden";
+	}
+
+
 	public class SiteOverrideBean {
 		
 		private String siteId = "";
@@ -2872,6 +2516,160 @@ public class UserPrefsTool
 
 	}
 	
+	public class TermSites
+	{
+		private List<Term> terms;
+
+		public class Term implements Comparable<Term> {
+			private String label;
+			private List<Site> sites;
+
+			public Term(String label, List<Site> sites) {
+				if (sites.isEmpty()) {
+					throw new RuntimeException("List of sites can't be empty");
+				}
+
+				this.label = label;
+				this.sites = sites;
+			}
+
+			public String getLabel() {
+				return label;
+			}
+
+			public List<Site> getSites() {
+				return sites;
+			}
+
+			public String getType() {
+				return this.getSites().get(0).getType();
+			}
+
+			public int compareTo(Term other) {
+				String myType = this.getType();
+				String theirType = other.getType();
+
+				// Course sites win out over non-course-sites
+				if (myType == null) {
+					return 1;
+				} else if (theirType == null) {
+					return -1;
+				} else if (myType.equals(theirType)) {
+					return 0;
+				} else if ("course".equals(myType)) {
+					return -1;
+				} else {
+					return 1;
+				}
+			}
+		}
+
+		public TermSites(List<Site> sites) {
+			List<String> termNames = new ArrayList<String>();
+			Map<String, List<Site>> termsToSites = new HashMap<String, List<Site>>();
+
+			for (Site site : sites) {
+				String term = determineTerm(site);
+
+				if (!termNames.contains(term)) {
+					termNames.add(term);
+					termsToSites.put(term, new ArrayList<Site>(1));
+				}
+
+				termsToSites.get(term).add(site);
+			}
+
+
+			terms = new ArrayList<Term>();
+
+			for (String name : termNames) {
+				terms.add(new Term(name, termsToSites.get(name)));
+			}
+
+			Collections.sort(terms);
+		}
+
+
+		public List<Term> getTerms() {
+			return terms;
+		}
+
+		private String determineTerm(Site site) {
+			ResourceProperties siteProperties = site.getProperties();
+
+			String type = site.getType();
+
+			if (isCourseType(type)) {
+				String term = siteProperties.getProperty(Site.PROP_SITE_TERM);
+				if (term == null) {
+					term = msgs.getString("moresite_no_term");
+				}
+
+				return term;
+			} else if (isProjectType(type)) {
+				return msgs.getString("moresite_projects");
+			} else if ("portfolio".equals(type)) {
+				return msgs.getString("moresite_portfolios");
+			} else if ("admin".equals(type)) {
+				return msgs.getString("moresite_administration");
+			} else {
+				return msgs.getString("moresite_other");
+			}
+		}
+
+		public List<String> getSiteTypeStrings(String type)
+		{
+			String[] siteTypes = ServerConfigurationService.getStrings(type + "SiteType");
+			if (siteTypes == null || siteTypes.length == 0)
+			{
+				siteTypes = new String[] {type};
+			}
+			return Arrays.asList(siteTypes);
+		}
+
+		private boolean isCourseType(String type)
+		{
+			return getSiteTypeStrings("course").contains(type);
+		}
+
+		private boolean isProjectType(String type)
+		{
+			return getSiteTypeStrings("project").contains(type);
+		}
+	}
+
+	public TermSites getTermSites() {
+		List<Site> mySites = (List<Site>)SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+				null, null, null,
+				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
+				null);
+
+		return new TermSites(mySites);
+	}
+
+	public String getHiddenSites() {
+		Preferences prefs = m_preferencesService.getPreferences(getUserId());
+		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+		List currentHiddenSites = props.getPropertyList(EXCLUDE_SITE_LISTS);
+
+		StringBuilder result = new StringBuilder();
+		if (currentHiddenSites != null) {
+			for (Object siteId : currentHiddenSites) {
+				if (result.length() > 0) {
+					result.append(",");
+				}
+				result.append(siteId);
+			}
+		}
+
+		return result.toString();
+	}
+
+	public void setHiddenSites(String hiddenSiteCSV) {
+		this.hiddenSitesInput = hiddenSiteCSV;
+	}
+
+
 	/**
 	 * Gets the name of the service.
 	 * @return The name of the service that should be shown to users.

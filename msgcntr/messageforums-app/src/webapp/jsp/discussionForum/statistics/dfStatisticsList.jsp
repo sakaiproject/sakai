@@ -43,7 +43,6 @@
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true">
   				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
-  				    <f:param value="#{stat.escapedSiteUser}" name="siteUser"/>
   				    <h:outputText rendered="#{!stat.useAnonId}" value="#{stat.siteUser}" />
   				    <h:outputText rendered="#{stat.useAnonId}" value="#{stat.siteAnonId}" styleClass="anonymousAuthor"/>
 	          	</h:commandLink>

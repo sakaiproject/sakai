@@ -50,6 +50,10 @@ body.is-logged-out{
 			@media #{$phone}{
 				margin: 0 0.2em 0 0;
 			}
+			.#{$namespace}loginUser__message{
+			    display: inline-block;
+			    margin: 0 1em 0 0;
+			}
 			a{
 				.login-Icon{
 					@extend .fa-power-off;
@@ -77,12 +81,6 @@ body.is-logged-out{
 	&.is-minimized{
 		.#{$namespace}headerLogo{
 			padding: 0.5em 1em 0 1em;
-		}
-		.#{$namespace}loginUser{
-			.#{$namespace}loginUser__message{
-			    display: inline-block;
-			    margin: 0 1em 0 0;
-			}
 		}
 	}
 	@media #{$phone}{
@@ -112,7 +110,8 @@ body.is-logged-out{
 .userNav__subnav{
 	font-family: $header-font-family;
 	position: absolute;
-	width: #{ $tool-menu-width * 2 };
+	right: 0.5em;
+	width: #{ $tool-menu-width * 2.5 };
 	z-index: 99;
 	@include box-shadow( 0 0 4px rgba( $text-color ,0.35) );
 	li{
@@ -124,7 +123,7 @@ body.is-logged-out{
 		min-height: 15px;
 		a{
 			display: block;
-			padding: 0.85em 0.65em;
+			padding: 0.5em 0.65em;
 			text-decoration: none;
 			&:hover{
 				text-decoration: underline;
@@ -141,6 +140,45 @@ body.is-logged-out{
 	}
 	&.is-hidden{
 		display: none;
+	}
+	.Mrphs-userNav__submenuitem--fullname-and-id{
+		padding-top: 1em;
+		color: $text-color;
+		display: inline-block;
+		margin-bottom: 5px;
+		width: 10em;
+		word-wrap: break-word;
+		vertical-align: top;
+
+		.Mrphs-userNav__submenuitem--fullname{
+			font-weight: $header-font-weight;
+			font-size: 120%;
+		}
+
+		.Mrphs-userNav__submenuitem--displayid{
+			font-weight: normal;
+		}
+
+	}
+	.#{$namespace}userData{
+		border-bottom: 1px solid $toolBorderColor;
+		margin-bottom: 0.5em;
+	}
+
+	.#{$namespace}userNav__submenuitem--profile-and-image{
+		display: inline-block;
+		vertical-align: top;
+		padding: 0.5em 0 0 1em;
+		.#{$namespace}userNav__submenuitem--profilepicture{
+                    width: 64px;
+                    height: 64px;
+                }
+
+		.#{$namespace}userNav__submenuitem--profile{
+			display: block;
+			margin-top: -0.85em;
+			margin-left: 0.5em;
+		}
 	}
 }
 
@@ -239,39 +277,46 @@ body.is-logged-out{
 		}
 	}
 
-	#loginUser{
-		display: block;
-		padding: 0.9em 1.5em 0.9em 0.9em;
-		margin: 0 0.8em 0 0;
-		&.has-avatar{
-			padding: 0em 1.5em 0.8em 0px;
+	.has-avatar, .no-avatar{
+		display: inline-block;
+		padding: 0em 1.5em 0.8em 0px;
+		position: relative;
+		margin-top: -0.8em;
+		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
+			display: inline-block;
+			max-width: 100px;
+			overflow: hidden;
 			position: relative;
-			margin-top: -0.8em;
-			.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
-				display: inline-block;
-				max-width: 100px;
-				overflow: hidden;
-				position: relative;
-				text-overflow: ellipsis;
-				text-decoration: underline;
-				top: 0.6em;
-				white-space: nowrap;
-				@media #{$phone}{
-					display: none;
-				}
-			}
-			.#{$namespace}userNav__submenuitem--profilepicture{
-				width:32px;
-				height:32px;
-				display:inline-block;
-				background-size: auto 100%;
-				background-position: 50%;
-				border-radius:50%;
-				margin:5px auto 0px;
-				position: relative;
-				top: 0.8em;
+			text-overflow: ellipsis;
+			text-decoration: none;
+			top: 0.6em;
+			white-space: nowrap;
+			@media #{$phone}{
+				display: none;
 			}
 		}
+	}
+
+	.no-avatar{
+		padding-top: 1em;
+	}
+
+	.has-avatar{
+		.#{$namespace}userNav__submenuitem--profilepicture{
+			width:32px;
+			height:32px;
+			display:inline-block;
+			background-size: auto 100%;
+			background-position: 50%;
+			border-radius:50%;
+			margin:5px auto 0px;
+			position: relative;
+			top: 0.8em;
+		}
+	}
+
+	#loginUser{
+		display: block;
 	}
 
 	.#{$namespace}loginUser{
@@ -299,8 +344,9 @@ body.is-logged-out{
 	#loginLinks{
 		font-family: $header-font-family;
 		font-weight: $header-font-weight;
+		margin-left: 0.5em;
 		ul{
-			background-color: $primary-color;
+			background-color: $toolTabBGColor;
 			text-align: left;
 			padding: 0 0 0 0;
 			margin: 0.18em 0 0 0.9em;
@@ -315,10 +361,13 @@ body.is-logged-out{
 				position: absolute;
 				pointer-events: none;
 				border-color: rgba(255, 255, 255, 0);
-				border-bottom-color: $primary-color;
+				border-bottom-color: $toolTabBGColor;
 				border-width: 7px;
 				margin-left: -7px;
 				outline: 0;
+			}
+			.#{$namespace}userNav__submenuitem-indented{
+				padding-left: 1.5em;
 			}
 			@media #{$phone}{
 				margin: 3.3em 0 0 -9.8em;
@@ -334,7 +383,6 @@ body.is-logged-out{
 				}
 			}
 			.#{$namespace}userData{
-				display: none;
 				@media #{$phone}{
 					border-top: 7px solid $primary-color;
 					background-color: $toolMenuBGColor;
@@ -345,9 +393,10 @@ body.is-logged-out{
 				}
 			}
 			a{
-				padding: 0.25em 0.5em;
+				color: $primary-color;
+				padding: 0.25em 0.25em;
 				&:hover{
-					background-color: lighten( $primary-color, 10% );
+					color: lighten( $primary-color, 10% );
 				}
 			}
 		}
@@ -404,6 +453,25 @@ body.is-logged-out{
 			@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
 		}
 	}
+}
+
+.view-all-sites-btn {
+	display: inline-block;
+	padding-right: 1em;
+	border-right: 1px solid $toolBorderColor;
+}
+
+.view-all-sites-btn a {
+	text-decoration: none;
+}
+
+.all-sites-icon, .all-sites-label {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.all-sites-icon {
+	font-size: 16pt;
 }
 
 #linkNav{

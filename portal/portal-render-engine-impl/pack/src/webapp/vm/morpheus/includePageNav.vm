@@ -11,6 +11,10 @@
     #end ## END of IF ($sitePages.siteHTMLInclude)
 
     <h1 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h1>
+    <!--Added this check in to make sure that we just don't have an empty img element in the page. -->
+	#if(${sitePages.pageNavIconUrl} != "")
+        <img src="${sitePages.pageNavIconUrl}" alt="">
+	#end
 
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
         <ul>

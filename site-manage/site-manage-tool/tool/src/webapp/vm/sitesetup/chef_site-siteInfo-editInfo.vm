@@ -277,10 +277,12 @@ function submitRemoveSection(index){
 				</span>
 			</div>
 		#else
-			<div class="shorttext">
-				<label for="iconUrl">$tlang.getString("sitediinf.ico")</label>
-				<input type="text" name="iconUrl" id="iconUrl" size="40" maxlength="255" value="$!validator.escapeHtml($!iconUrl)" />
-			</div>
+			#if($allowSiteIcon)
+				<div class="shorttext">
+					<label for="iconUrl">$tlang.getString("sitediinf.ico")</label>
+					<input type="text" name="iconUrl" id="iconUrl" size="40" maxlength="255" value="$!validator.escapeHtml($!iconUrl)" />
+				</div>
+			#end
 		#end
 		<p class="shorttext required">
 			<label for="siteContactName">

@@ -120,10 +120,6 @@ public class MessageForumStatisticsBean {
 		public void setSiteUser(String newValue){
 			this.siteUser = newValue;
 		}
-		
-		public String getEscapedSiteUser(){
-			return this.siteUser.replaceAll("'", "\\\\'");
-		}
 
 		public String getSiteUserId(){
 			return this.siteUserId;
@@ -349,7 +345,6 @@ public class MessageForumStatisticsBean {
 	private static final String PERCENT_READ_SORT = "sort_by_percent_read";
 	private static final String GRADE_SORT = "sort_by_grade";
 	private static final String SITE_USER_ID = "siteUserId";
-	private static final String SITE_USER = "siteUser";
 	private static final String FORUM_TITLE_SORT = "sort_by_forum_title";
 	private static final String TOPIC_TITLE_SORT = "sort_by_topic_title";
 	private static final String FORUM_DATE_SORT = "sort_by_forum_date";

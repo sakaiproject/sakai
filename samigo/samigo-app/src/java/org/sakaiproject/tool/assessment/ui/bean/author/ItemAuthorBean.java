@@ -51,6 +51,8 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -150,7 +152,7 @@ public class ItemAuthorBean
   private String[] matchAnswers;
   private String[] matchFeedbackList;
   private String[] answerFeedbackList;
-
+  private Boolean allowMinScore;
   // for navigation
   private String outcome;
   
@@ -1541,4 +1543,15 @@ public class ItemAuthorBean
   public void setCurrentAnswer(AnswerBean currentAnswer) {
 	this.currentAnswer = currentAnswer;
   }
+  public Boolean getAllowMinScore() {
+	  if(allowMinScore == null){
+		  allowMinScore = ServerConfigurationService.getBoolean("samigo.allowMinScore", Boolean.FALSE);
+	  }
+	  return allowMinScore;
+  }
+
+  public void setAllowMinScore(Boolean allowMinScore) {
+	  this.allowMinScore = allowMinScore;
+  }
+
 }
