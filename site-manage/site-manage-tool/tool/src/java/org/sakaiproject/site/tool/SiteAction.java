@@ -46,6 +46,7 @@ import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -6401,25 +6402,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List ltiSelectedTools = selectedLTITools(site);
 		List ltiTools = new ArrayList();
 		List<Map<String, Object>> allTools;
+		String siteId = "";
 		if ( site == null )
 			allTools = m_ltiService.getTools(null,null,0,0);
 		else
-			allTools = m_ltiService.getToolsDao(null,null,0,0,site.getId());
-      
+		{
+			siteId = Objects.toString(site.getId(), "");
+			allTools = m_ltiService.getToolsDao(null,null,0,0,siteId);
+		}
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
 				String toolIdString = ObjectUtils.toString(tool.get(m_ltiService.LTI_ID));
 				boolean toolStealthed = "1".equals(ObjectUtils.toString(tool.get(m_ltiService.LTI_VISIBLE)));
 				boolean ltiToolSelected = ltiSelectedTools.contains(toolIdString); 
-
+				String siteRestriction = Objects.toString(tool.get(LTIService.LTI_SITE_ID), "");
+				boolean allowedForSite = siteRestriction.isEmpty() || siteRestriction.equals(siteId);
 				try
 				{
 					// in Oracle, the lti tool id is returned as BigDecimal, which cannot be casted into Integer directly
 					Integer ltiId = Integer.valueOf(toolIdString);
 					if (ltiId != null) {
 						String ltiToolId = ltiId.toString(); 
-						if (ltiToolId != null && (!toolStealthed || ltiToolSelected) ) {
+						if (ltiToolId != null && ((!toolStealthed && allowedForSite) || ltiToolSelected) ) {
 							String relativeWebPath = null;
 							MyTool newTool = new MyTool();
 							newTool.title = tool.get("title").toString();
