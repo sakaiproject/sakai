@@ -1,10 +1,5 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <link rel="stylesheet" type="text/css" href="/library/js/dropzone/4.2.0/min/dropzone.min.css">
-<style>
-.dropzone { border: 2px dashed #0087F7; border-radius: 10px; background: ghostwhite; }
-.dropzone .dz-message { font-weight: bold; }
-.dropzone .dz-message .note { font-size: 0.8em; font-weight: 200; display: block; margin-top: 1.4rem; }
-</style>
 <div class="portletBody specialLink">
     <h3>$tlang.getString("create.uploads")</h3>
     <div class="breadCrumb">
