@@ -171,11 +171,11 @@
   <h:panelGrid>
    <h:outputText value="#{authorMessages.correct_answer_opti}" />
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="4000"/>
+     <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
    <h:outputText value="#{authorMessages.incorrect_answer_op}" />
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="4000"/>
+     <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
  <f:verbatim> </div></div></f:verbatim>

@@ -60,7 +60,7 @@
         <div class="infoEditor">
             <h:outputLabel value="#{authorMessages.information}" />
             <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}" hasToggle="yes" mode="author">
-              <f:validateLength minimum="1" maximum="4000"/>
+              <f:validateLength minimum="1" maximum="60000"/>
             </samigo:wysiwyg>
         </div>
         
