@@ -124,6 +124,9 @@ public class TemplateLoadListener
           templateBean.setDisplayChunking(aac.getAssessmentFormat().toString());
         if (aac.getItemNumbering() != null)
           templateBean.setQuestionNumbering(aac.getItemNumbering().toString());
+        if (aac.getDisplayScoreDuringAssessments() != null)
+            templateBean.setDisplayScoreDuringAssessments(aac.getDisplayScoreDuringAssessments().toString());
+        
         if (aac.getMarkForReview() != null) {
         	if (aac.getMarkForReview().equals(Integer.valueOf(1))) {
         		templateBean.setMarkForReview(Boolean.TRUE);

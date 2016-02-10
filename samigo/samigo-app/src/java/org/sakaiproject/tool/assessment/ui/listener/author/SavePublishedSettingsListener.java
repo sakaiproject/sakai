@@ -465,7 +465,10 @@ implements ActionListener
 		if (assessmentSettings.getItemNumbering() != null) {
 			control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
 		}
-
+		if (assessmentSettings.getDisplayScoreDuringAssessments() != null) {
+			control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
+		}
+		
 		// set Timed Assessment
 		control.setTimeLimit(assessmentSettings.getTimeLimit());
 		if (assessmentSettings.getTimedAssessment()) {

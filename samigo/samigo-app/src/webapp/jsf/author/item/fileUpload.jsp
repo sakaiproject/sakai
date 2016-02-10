@@ -89,6 +89,16 @@ Ths is commented out since it doesn't make sense to have a min value for a quest
 </h:inputText>
     <h:message for="answerminptr" styleClass="validate"/><br/>
   </div>
+  <div class="longtext">
+    <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
+	<div class="tier3">
+    <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+     <f:selectItem itemValue="true"
+       itemLabel="#{authorMessages.yes}" />
+     <f:selectItem itemValue="false"
+       itemLabel="#{authorMessages.no}" />
+    </h:selectOneRadio>
+  </div>
 <br/>
 -->
   <!-- 2 TEXT -->
