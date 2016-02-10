@@ -70,6 +70,7 @@ import org.sakaiproject.portal.charon.handlers.AtomHandler;
 import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorDoneHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
+import org.sakaiproject.portal.charon.handlers.FavoritesHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
 import org.sakaiproject.portal.charon.handlers.JoinHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
@@ -1803,6 +1804,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
 			String loginUserDispId = null;
+			String loginUserFirstName = null;
 			boolean displayUserloginInfo = ServerConfigurationService.
 			getBoolean("display.userlogin.info", true);
 
@@ -1865,6 +1867,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					User thisUser = UserDirectoryService.getCurrentUser();
 					loginUserDispId = Validator.escapeHtml(thisUser.getDisplayId());
 					loginUserDispName = Validator.escapeHtml(thisUser.getDisplayName());
+					loginUserFirstName = Validator.escapeHtml(thisUser.getFirstName());
 				}
 
 				// check for a logout text override
@@ -1937,6 +1940,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (displayUserloginInfo)
 			{
 				rcontext.put("loginUserDispName", loginUserDispName);
+				rcontext.put("loginUserFirstName", loginUserFirstName);
 				rcontext.put("loginUserDispId", loginUserDispId);
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
@@ -2040,6 +2044,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new RoleSwitchOutHandler());
 		addHandler(new TimeoutDialogHandler());
 		addHandler(new JoinHandler());
+		addHandler(new FavoritesHandler());
 	}
 
 	/**
