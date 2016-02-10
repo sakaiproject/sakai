@@ -5,7 +5,7 @@
 
 <!-- // -->
 </script>
-<link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
+
 <script type="text/javascript" src="/sakai-content-tool/js/content.js">
 <!-- // -->
 </script>
@@ -98,29 +98,28 @@
 		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
 		######################  Page Title / Breadcrumbs  ##############
 		<div class ="breadCrumb specialLink">
-			<h3>
-           <div class="btn-group dropdown keep-open">
-                #if (!$dropboxMode)
-                  <button id="navigate" type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" disabled="disabled">
-                    $clang.getString('list.nav.button.title') <span class="caret"></span>
-                  </button>
-                  <div id="navigatePanel" class="dropdown-menu" role="menu">
-                      <div class="navigatePanelControls">
-                        <span class="expand_collapse"><button id="navigatePanelInnerCollapse" style="display:none" class="btn btn-link btn-xs" title="$clang.getString('collapseall')"><span class="glyphicon glyphicon-chevron-up"></span><span class="sr-only">$clang.getString('collapseall')</span></button> 
-                        <button id="navigatePanelInnerExpand" class="btn btn-link btn-xs" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-chevron-down"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></span>
-                        <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label><input placeholder="$clang.getString('list.nav.search')" type="text" id="navigatePanelSearch"/>
-                        <p class="close">&times;</p>
-                      </div>
-                        <div id="navigatePanelInner"><div id="spinner" style="display:none"></div></div> 
-                  </div>
-                #end
-                #set($breadCrumbNum = 1000)
+		   <div class="btn-group dropdown keep-open">
+		        #if (!$dropboxMode)
+		          <button id="navigate" type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" disabled="disabled">
+		            $clang.getString('list.nav.button.title') <span class="caret"></span>
+		          </button>
+		          <div id="navigatePanel" class="dropdown-menu" role="menu">
+		              <div class="navigatePanelControls">
+		                <span class="expand_collapse"><button id="navigatePanelInnerCollapse" style="display:none" class="btn btn-link btn-xs" title="$clang.getString('collapseall')"><span class="glyphicon glyphicon-chevron-up"></span><span class="sr-only">$clang.getString('collapseall')</span></button> 
+		                <button id="navigatePanelInnerExpand" class="btn btn-link btn-xs" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-chevron-down"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></span>
+		                <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label><input placeholder="$clang.getString('list.nav.search')" type="text" id="navigatePanelSearch"/>
+		                <p class="close">&times;</p>
+		              </div>
+		              <div id="navigatePanelInner"><div id="spinner" style="display:none"></div></div> 
+		          </div>
+		        #end
+		        #set($breadCrumbNum = 1000)
 				#foreach ($item in $collectionPath)
 					#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 					#if($item.isLast())
-                        <button class="btn btn-default btn-sm breadProp" disabled="disabled" style="z-index:$breadCrumbNum">
+		                <button class="btn btn-default btn-sm breadProp" disabled="disabled" style="z-index:$breadCrumbNum">
 						  <span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp; $validator.escapeHtml("$item.name")
-                        </button>
+		                </button>
 					#elseif($item.canRead())
 						<button class="btn btn-default btn-sm breadProp" style="z-index:$breadCrumbNum" 
 							onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
@@ -129,14 +128,13 @@
 						</button>
 						#set($upOneLevel = $item)
 					#else
-                    <button class="btn btn-default btn-sm breadProp" disabled="disabled" style="z-index:$breadCrumbNum">
+		            <button class="btn btn-default btn-sm breadProp" disabled="disabled" style="z-index:$breadCrumbNum">
 						$validator.escapeHtml("$item.name")
-                    </button>
+		            </button>
 					#end
-                    #set($breadCrumbNum = $breadCrumbNum - 1)
+		            #set($breadCrumbNum = $breadCrumbNum - 1)
 				#end
-                </div>
-			</h3>
+		      </div>
 		</div>	
 		#if($showDropboxGroupFilter)
 		<div>	
@@ -155,7 +153,7 @@
         #if ($dropboxMode)
             <p><small class="muted">$tlang.getString("dropbox.privacy.note")</small></p>
         #end
-        <div class="">
+ 		<div class="tableActions">
 		#if($listActions || $showHotDropboxWidget)
 				<div class="pull-left btn-group-sm">
 					#if($listActions)
@@ -211,6 +209,9 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" id="columnTog">
+                <li class="dropdown-button">
+                    <span class="close-button"></span>
+                </li>
                 <li class="dropdown-header"><span>$clang.getString('list.cols.columns.inst')</span></li>
                 <li class="dropdown-header"><span id="accessTog"><input type="checkbox" id="accessCol" checked="checked" /><label for="accessCol">&nbsp;&nbsp;$clang.getString("gen.access")</label></span></li>
                 <li class="dropdown-header"><span id="creatorTog"><input type="checkbox" id="creatorCol" checked="checked" /><label for ="creatorCol">&nbsp;&nbsp;$clang.getString("gen.created")</label></span></li>
@@ -444,6 +445,9 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu row" role="menu">
+	                            <li class="dropdown-button">
+	                                <span class="close-button"></span>
+	                            </li>
                                 #if($item.addActions && !$item.addActions.isEmpty())
                                     <li role="presentation" class="dropdown-header">$clang.getString('gen.add')</li>
                                     <li class="divider"></li>

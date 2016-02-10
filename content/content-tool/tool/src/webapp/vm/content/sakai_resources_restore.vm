@@ -1,6 +1,4 @@
 ## version: $Id$
-<link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
-
 <div class="portletBody specialLink">
 	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
