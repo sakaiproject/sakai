@@ -620,6 +620,11 @@ GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(eve
 GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
   var self = this;
 
+  // is sorting enabled for the user?
+  if (!self.$table.data("sort-enabled")) {
+    return;
+  }
+
   function updateOrderingAfterDrop(droppedCellModel) {
     if (self.isGroupedByCategory()) {
       var categoryScope = droppedCellModel.categoryDragScope;

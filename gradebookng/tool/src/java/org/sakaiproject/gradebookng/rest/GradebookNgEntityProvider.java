@@ -53,33 +53,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 
 	/**
-	 * site/assignment-list
-	 *
-	 * @throws IdUnusedException
-	 */
-	@EntityCustomAction(action = "assignments", viewKey = EntityView.VIEW_LIST)
-	public List<Assignment> getAssignmentList(final EntityView view) {
-
-		// get siteId
-		final String siteId = view.getPathSegment(2);
-
-		// check siteId supplied
-		if (StringUtils.isBlank(siteId)) {
-			throw new IllegalArgumentException(
-					"Site ID must be set in order to access GBNG data.");
-		}
-		checkValidSite(siteId);
-
-		// check instructor
-		checkInstructor(siteId);
-
-		// get assignment list
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
-
-		return assignments;
-	}
-
-	/**
 	 * Update the order of an assignment in the gradebook This is a per site setting.
 	 *
 	 * @param ref
@@ -129,8 +102,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 		checkValidSite(siteId);
 
-		// check instructor
-		checkInstructor(siteId);
+		// check instructor or TA
+		checkInstructorOrTA(siteId);
 
 		// get notification list
 		// NOTE we assume the gradebook id and siteid are equivalent, which they are
@@ -191,6 +164,32 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("You do not have instructor-type permissions in this site.");
 		}
 	}
+
+
+	/**
+	 * Helper to check if the user is an instructor or a TA.
+	 * Throws IllegalArgumentException if not. We don't currently need the value that this
+	 * produces so we don't return it.
+	 *
+	 * @param siteId
+	 * @return
+	 * @throws SecurityException
+	 */
+	private void checkInstructorOrTA(final String siteId) {
+
+		final String currentUserId = getCurrentUserId();
+
+		if (StringUtils.isBlank(currentUserId)) {
+			throw new SecurityException("You must be logged in to access GBNG data");
+		}
+
+		GbRole role = this.businessService.getUserRole(siteId);
+
+		if (role != GbRole.INSTRUCTOR && role != GbRole.TA) {
+			throw new SecurityException("You do not have instructor or TA-type permissions in this site.");
+		}
+	}
+
 
 	/**
 	 * Helper to get current user id

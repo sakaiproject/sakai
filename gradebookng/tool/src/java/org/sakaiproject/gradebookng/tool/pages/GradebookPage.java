@@ -392,6 +392,9 @@ public class GradebookPage extends BasePage {
 		table.addTopToolbar(new HeadersToolbar(table, null));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 
+		// enable drag and drop based on user role (note: entity provider has role checks on exposed API)
+		table.add(new AttributeModifier("data-sort-enabled", this.businessService.getUserRole() == GbRole.INSTRUCTOR));
+
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
 		noAssignments.setVisible(false);
 		this.form.add(noAssignments);
