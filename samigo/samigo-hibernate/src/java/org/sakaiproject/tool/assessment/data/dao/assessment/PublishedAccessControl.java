@@ -62,6 +62,7 @@ public class PublishedAccessControl
   private Integer autoSubmit;  // auto submit when due date arrives
   private Integer itemNavigation; // linear (1)or random (0)
   private Integer itemNumbering;  // continuous between parts(1), restart between parts(0)
+  private Integer displayScoreDuringAssessments;
   private String submissionMessage;
   private String finalPageUrl;
   private String releaseTo;
@@ -136,6 +137,7 @@ public class PublishedAccessControl
     ((PublishedAccessControl)cloned).setAutoSubmit(this.autoSubmit);
     ((PublishedAccessControl)cloned).setItemNavigation(this.itemNavigation);
     ((PublishedAccessControl)cloned).setItemNumbering(this.itemNumbering);
+    ((PublishedAccessControl)cloned).setDisplayScoreDuringAssessments(this.displayScoreDuringAssessments);
     ((PublishedAccessControl)cloned).setSubmissionMessage(this.submissionMessage);
     ((PublishedAccessControl)cloned).setUsername(this.username);
     ((PublishedAccessControl)cloned).setPassword(this.password);
@@ -322,6 +324,16 @@ public class PublishedAccessControl
   public Integer getItemNumbering()
   {
     return itemNumbering;
+  }
+  
+  public void setDisplayScoreDuringAssessments(Integer displayScore)
+  {
+    this.displayScoreDuringAssessments = displayScore;
+  }
+
+  public Integer getDisplayScoreDuringAssessments()
+  {
+    return displayScoreDuringAssessments;
   }
 
   public void setSubmissionMessage(String submissionMessage)

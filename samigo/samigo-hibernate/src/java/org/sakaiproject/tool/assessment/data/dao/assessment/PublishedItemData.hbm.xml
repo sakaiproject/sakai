@@ -25,6 +25,7 @@
     <property name="discount" type="double" column="DISCOUNT" not-null="false" />
     <property name="answerOptionsRichCount" type="integer" column="ANSWER_OPTIONS_RICH_COUNT" not-null="false" />
     <property name="answerOptionsSimpleOrRich" type="integer" column="ANSWER_OPTIONS_SIMPLE_OR_RICH" not-null="false" />
+    <property name="scoreDisplayFlag" type="boolean" column="SCORE_DISPLAY_FLAG" not-null="false"/>
     <property name="minScore" type="double" column="MIN_SCORE" not-null="false" />
     <property name="hint" type="string" length="4000" column="HINT" not-null="false" />
     <property name="hasRationale" type="boolean" column="HASRATIONALE" not-null="false" />

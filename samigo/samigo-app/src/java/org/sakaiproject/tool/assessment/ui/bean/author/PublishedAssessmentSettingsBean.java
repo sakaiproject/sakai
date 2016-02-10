@@ -129,6 +129,7 @@ public class PublishedAssessmentSettingsBean
   private String assessmentFormat; // question (1)/part(2)/assessment(3) on separate page
   private String itemNavigation; // linear (1)or random (2)
   private String itemNumbering; // continuous between parts(1), restart between parts(2)
+  private String displayScoreDuringAssessments;
   private String unlimitedSubmissions;
   private String submissionsAllowed;
   private String submissionsSaved; // bad name, this is autoSaved
@@ -300,6 +301,8 @@ public class PublishedAssessmentSettingsBean
           this.itemNavigation = accessControl.getItemNavigation().toString(); // linear or random
         if (accessControl.getItemNumbering()!=null)
           this.itemNumbering = accessControl.getItemNumbering().toString();
+        if(accessControl.getDisplayScoreDuringAssessments()!=null)
+        	this.displayScoreDuringAssessments=accessControl.getDisplayScoreDuringAssessments().toString();
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
@@ -1656,6 +1659,14 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	public void setExtendedTimeTargets(SelectItem[] targets) {
 		this.extendedTimeTargets = targets;
 	}
+
+        public String getDisplayScoreDuringAssessments(){
+ 		return displayScoreDuringAssessments;
+ 	}
+  
+ 	public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
+ 		this.displayScoreDuringAssessments = displayScoreDuringAssessments;
+ 	}
 }
 
 

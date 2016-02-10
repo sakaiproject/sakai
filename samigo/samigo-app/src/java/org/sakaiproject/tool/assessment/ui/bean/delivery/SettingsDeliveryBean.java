@@ -55,6 +55,7 @@ public class SettingsDeliveryBean implements Serializable
   private String bgcolor;
   private String background;
   private String itemNumbering;
+  private String displayScoreDuringAssessments;
 
   /**
    * Maximum number of attemtps allowed.
@@ -348,6 +349,15 @@ public class SettingsDeliveryBean implements Serializable
     itemNumbering = numbering;
   }
 
+  public String getDisplayScoreDuringAssessments()
+  {
+	  return displayScoreDuringAssessments;
+  }
+  
+  public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
+	  this.displayScoreDuringAssessments = displayScoreDuringAssessments;
+  }
+  
   public void setAssessmentAccessControl(PublishedAssessmentIfc pubAssessment){
 
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
@@ -374,6 +384,12 @@ public class SettingsDeliveryBean implements Serializable
     setUsername(control.getUsername());
     setPassword(control.getPassword());
     setItemNumbering(control.getItemNumbering().toString());
+    if (control != null && control.getDisplayScoreDuringAssessments() != null) {
+      setDisplayScoreDuringAssessments(control.getDisplayScoreDuringAssessments().toString());
+    }
+    else {
+      setDisplayScoreDuringAssessments("0");
+    }
 
     setIpAddresses(pubAssessment.getSecuredIPAddressSet());
 

@@ -62,6 +62,7 @@ public class MetaDataList
     "itemAccessType_isInstructorEditable",
     "displayChunking_isInstructorEditable",
     "displayNumbering_isInstructorEditable",
+    "displayScores_isInstructorEditable",
     "submissionModel_isInstructorEditable",
     "lateHandling_isInstructorEditable",
     "autoSave_isInstructorEditable",

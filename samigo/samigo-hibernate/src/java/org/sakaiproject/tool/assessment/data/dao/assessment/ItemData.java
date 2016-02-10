@@ -43,6 +43,7 @@ public class ItemData
   private String grade;
   private Double score;
   private Double discount;
+  private Boolean scoreDisplayFlag = Boolean.TRUE;
   private String hint;
   private Boolean hasRationale;
   private Integer status;
@@ -68,7 +69,7 @@ public ItemData() {}
   // this constructor should be deprecated, it is missing triesAllowed
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Double score, Double discount, Double minScore, String hint,
+                  Long typeId, String grade, Double score, Boolean scoreDisplayFlag, Double discount, Double minScore, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -81,6 +82,7 @@ public ItemData() {}
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.scoreDisplayFlag = scoreDisplayFlag;
     this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
@@ -98,7 +100,7 @@ public ItemData() {}
 
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Double score, Double discount, Double minScore, String hint,
+                  Long typeId, String grade, Double score, Boolean scoreDisplayFlag, Double discount, Double minScore, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -112,6 +114,7 @@ public ItemData() {}
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.scoreDisplayFlag = scoreDisplayFlag;
     this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
@@ -301,6 +304,17 @@ public ItemData() {}
     this.score = score;
   }
 
+  public Boolean getScoreDisplayFlag(){
+	  if (this.scoreDisplayFlag == null) {
+		  return Boolean.TRUE;
+	  }
+	  return this.scoreDisplayFlag;
+  }
+  
+  public void setScoreDisplayFlag(Boolean scoreDisplayFlag){
+	  this.scoreDisplayFlag = scoreDisplayFlag;
+  }
+  
   public Double getDiscount() {
 	  if (this.discount==null){
 		  this.discount=Double.valueOf(0);
