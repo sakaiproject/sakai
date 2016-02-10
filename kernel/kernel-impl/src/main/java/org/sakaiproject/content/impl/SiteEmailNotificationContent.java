@@ -42,7 +42,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
@@ -66,31 +66,11 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	private String resourceClass;
 	private String resourceBundle;
 	private ResourceLoader rb;
-
-    private static Object LOCK = new Object();
-
-    private static FormattedText formattedText;
-
 	private SecurityService securityService;
 	private ServerConfigurationService serverConfigurationService;
 	private ContentHostingService contentHostingService;
 	private EntityManager entityManager;
 	private SiteService siteService;
-
-    protected static FormattedText getFormattedText() {
-        if (formattedText == null) {
-            synchronized (LOCK) {
-                FormattedText component = (FormattedText) ComponentManager.get(FormattedText.class);
-                if (component == null) {
-                    throw new IllegalStateException("Unable to find the FormattedText using the ComponentManager");
-                } else {
-                    formattedText = component;
-                }
-            }
-        }
-        return formattedText;
-    }
-
 	protected String plainTextContent(Event event) {
 		return generateContentForType(false, event);
 	}
@@ -187,10 +167,10 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 
 		if ( doHtml ) 
 		{
-			title = getFormattedText().escapeHtmlFormattedTextarea(title);
+			title = FormattedText.escapeHtmlFormattedTextarea(title);
 			//subject = FormattedText.escapeHtmlFormattedTextarea(subject);
-			resourceName = getFormattedText().escapeHtmlFormattedTextarea(resourceName);
-			description = getFormattedText().escapeHtmlFormattedTextarea(description);
+			resourceName = FormattedText.escapeHtmlFormattedTextarea(resourceName);
+			description = FormattedText.escapeHtmlFormattedTextarea(description);
 			blankLine = "\n</p><p>\n";
 			newLine = "<br/>\n";
 		}
