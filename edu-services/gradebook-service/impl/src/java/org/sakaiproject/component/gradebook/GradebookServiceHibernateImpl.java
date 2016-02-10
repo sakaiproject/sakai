@@ -3007,9 +3007,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			
 			CourseGradeRecord gradeRecord = gradeRecords.get(0);
-			
-			System.out.println(ToStringBuilder.reflectionToString(gradeRecord, ToStringStyle.MULTI_LINE_STYLE));
-			
+						
 			//ID of the course grade item
 			rval.setId(gradeRecord.getCourseGrade().getId());
 			
