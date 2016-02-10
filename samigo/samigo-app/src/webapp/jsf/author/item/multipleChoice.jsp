@@ -255,7 +255,7 @@
         <!-- WYSIWYG -->
   <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
          <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author">
-           <f:validateLength maximum="4000"/>
+           <f:validateLength maximum="60000"/>
          </samigo:wysiwyg>
   </h:panelGrid>
         </h:panelGrid>
@@ -365,7 +365,7 @@
       <h:outputLabel styleClass="col-md-2" value="#{authorMessages.correct_answer_opti}" />
       <div class="col-md-10">
         <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="plain" mode="author">
-          <f:validateLength maximum="4000"/>
+          <f:validateLength maximum="60000"/>
         </samigo:wysiwyg>
       </div>
     </div>
@@ -373,7 +373,7 @@
       <h:outputLabel styleClass="col-md-2" value="#{authorMessages.incorrect_answer_op}" />
       <div class="col-md-10">
      <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="plain" mode="author">
-       <f:validateLength maximum="4000"/>
+       <f:validateLength maximum="60000"/>
      </samigo:wysiwyg>
       </div>
     </div>

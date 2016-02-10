@@ -175,7 +175,7 @@
 
         <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
            <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" >
-           <f:validateLength maximum="4000"/>
+           <f:validateLength maximum="60000"/>
          </samigo:wysiwyg>
         </h:panelGrid>
 

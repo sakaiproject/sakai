@@ -16,7 +16,7 @@
 
     <property name="parentId" type="long" column="PARENTID" not-null="false" />
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
-    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="materialized_clob" column="DESCRIPTION" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="false" />
     <property name="instructorNotification" type="integer" column="INSTRUCTORNOTIFICATION" not-null="false" />
@@ -223,7 +223,7 @@
     <property name="duration" type="integer" column="DURATION" not-null="false" />
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
-    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="materialized_clob" column="DESCRIPTION" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
     <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
