@@ -8,6 +8,8 @@ $(function() {
 	$('.peer-eval-row td').click(function(e) {
 		var row = $(this).parents('.peer-eval-row');
 		var data = row.find('.peer-eval-row-data');
+		if (data.size() == 0)
+		    return;
 		var peerReviewId = row.find('.peerReviewId').text();
 		var peerReviewTarget = $(this).parents('.peer-eval-target').find('.peer-eval-target-id').val();
 		row.find("td").removeClass("selectedPeerCell");

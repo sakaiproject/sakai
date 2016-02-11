@@ -2281,6 +2281,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 							if(evaluations!=null) {
 								for(SimplePagePeerEvalResult eval : evaluations) {
+								    // for individual eval only show results for that one
+									if (evalIndividual && !currentUser.equals(eval.getGradee()))
+									    continue;
 									Map<Integer, Integer> rowMap = dataMap.get(eval.getRowText());
 									if (rowMap == null) {
 									    rowMap = new HashMap<Integer, Integer>();
@@ -2366,8 +2369,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(entry, "peer-eval-target-id", target.id);
 
 							makePeerRubric(entry, i, makeStudentRubric, selectedCells, 
-								       (target.id.equals(currentUser) ? dataMap : null));
-
+								       (target.id.equals(currentUser) ? dataMap : null),
+								       // should we allow submission for this rubric?
+								       // only issue for individual in group
+								       // OK if grading self, otherwise allow for all but self
+								       (!evalIndividual || gradingSelf || !target.id.equals(currentUser)));
 						    }
 
 						    // can submit
@@ -2556,7 +2562,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
 							UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "peer-eval", String.valueOf(i.getShowPeerEval()));
-							makePeerRubric(tableRow,i, makeMaintainRubric, null, null);
+							makePeerRubric(tableRow,i, makeMaintainRubric, null, null, false);
 							makeSamplePeerEval(tableRow);
 							
 							String peerEvalDate = i.getAttribute("rubricOpenDate");
@@ -4546,7 +4552,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private String[] makeStudentRubric  = {null, "peer-eval-row-student:", "peerReviewIdStudent", "peerReviewTextStudent", "peer-eval-row-data", "#{simplePageBean.rubricPeerGrade}"};
 	private String[] makeMaintainRubric = {"peer-eval-title", 		 "peer-eval-row:", 		  "peerReviewId", 		 "peerReviewText", null, null};
 	
-	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<String,Integer> selectedCells, Map<String, Map<Integer, Integer>> dataMap)
+	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<String,Integer> selectedCells, Map<String, Map<Integer, Integer>> dataMap, boolean allowSubmit)
 	{
 		//System.out.println("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
 		//System.out.println("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
@@ -4587,7 +4593,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBranchContainer peerReviewRows = UIBranchContainer.make(parent, peerReviewRsfIds[1]);
 			UIOutput.make(peerReviewRows, peerReviewRsfIds[2], String.valueOf(row.id));
 			UIOutput.make(peerReviewRows, peerReviewRsfIds[3], row.text);
-			if (peerReviewRsfIds[4] != null)
+			if (allowSubmit && peerReviewRsfIds[4] != null)
 			    UIInput.make(peerReviewRows, peerReviewRsfIds[4], peerReviewRsfIds[5]);
 			if (selectedCells != null) {
 			    for (int col = 4; col >= 0; col--) {
