@@ -2,7 +2,22 @@
 //conditional functions
 var addEmptyCategoryRow, addCategoryRow, displayBlankRubric, createRubric, updateRubric, addIndexAndMoveToSubmitRubric, buildExistingRubrics, deleteNotLast, saveRubricSelection, closePeerReviewDialog;
 
+
 $(function() {
+
+	$('.peer-eval-row td').click(function(e) {
+		var row = $(this).parents('.peer-eval-row');
+		var data = row.find('.peer-eval-row-data');
+		var peerReviewId = row.find('.peerReviewId').text();
+		var peerReviewTarget = $(this).parents('.peer-eval-target').find('.peer-eval-target-id').val();
+		row.find("td").removeClass("selectedPeerCell");
+		$(this).addClass("selectedPeerCell");
+		for (i = 0; i < 5; i++) {
+		    if ($(this).hasClass(""+i))
+			data.val(peerReviewId + ":" +i+ ":" + peerReviewTarget);
+		}
+	    });	    
+
 	if ($(".studentContentType").length > 0) {
 		//nextNumber has been negated...
 		addEmptyCategoryRow = function(tableSelector, customId) {
@@ -132,7 +147,7 @@ $(function() {
 /* The following applies to the Peer Evaluation Statistics (PeerEvalStats.html) page. BEGIN */
 
 $(function() {
-	if ($(".peer-eval-statistics-page").length > 0) {
+	if ($(".peer-eval-rubric").length > 0) {
 		var CELL_SELECTED_BACKGROUND_COLOR = "rgb(177, 204, 235)";
 		var activityMsg = document.getElementById("simplepage.user.activity").innerHTML;
 		var ratingToolTip = document.getElementById("simplepage.peer-cell-tooltip").innerHTML;
@@ -310,6 +325,9 @@ $(function() {
 			return false;
 		});
 	}
+        $('.add-peereval-button').click(function(e) {
+		$('.peer-eval-div').toggle();
+	});
 });
 
 /* The above applies to the Peer Evaluation Statistics page. END */
