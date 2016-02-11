@@ -15,7 +15,7 @@
                 </li>           
             #end ## END of IF (${site.isMyWorkspace})
 
-            #if (!${site.isMyWorkspace} && ${site.favorite} == "true")
+            #if (!${site.isMyWorkspace} && (${site.favorite} == "true" || ${site.isCurrentSite}))
                 <li class="Mrphs-sitesNav__menuitem #if (${site.isCurrentSite}) is-selected #end">
                     <a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
                         <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitle}#end</span>
