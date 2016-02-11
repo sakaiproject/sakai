@@ -5,20 +5,40 @@
 var dhtml_view_sites = function(){
 
   // first time through set up the DOM
-  $PBJQ('#selectSite').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
+  $PBJQ('#selectSiteModal').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
   $PBJQ('.more-tab').position();
 
   // then recast the function to the post initialized state which will run from then on
   dhtml_view_sites = function(){
 
-    if ($PBJQ('#selectSite').hasClass('outscreen') ) {
+    if ($PBJQ('#selectSiteModal').hasClass('outscreen') ) {
 
       $PBJQ('body').toggleClass('active-more-sites');
-      $PBJQ('#selectSite').toggleClass('outscreen');
+
+      // In mobile mode, hide the tools nav prior to showing sites
+      if ($PBJQ('body').hasClass('toolsNav--displayed')) {
+        toggleToolsNav();
+      }
+
+      // Align with the bottom of the main header in desktop mode
+      var allSitesButton = $('.view-all-sites-btn:visible');
+
+      if (allSitesButton.length > 0) {
+        // Raise the button to keep it visible over the modal overlay
+        allSitesButton.css('z-index', 1005);
+
+        var topPadding = 10;
+        var topPosition = allSitesButton.offset().top + allSitesButton.outerHeight() + topPadding;
+        var rightPosition = $PBJQ('body').outerWidth() - (allSitesButton.offset().left + allSitesButton.outerWidth());
+        $PBJQ('#selectSiteModal').css('top', topPosition).css('right', rightPosition);
+      }
+
+      $PBJQ('.tab-pane').css('max-height', $PBJQ('body').height());
+
+      $PBJQ('#selectSiteModal').toggleClass('outscreen');
 
       $PBJQ('#txtSearch').focus();
       createDHTMLMask(dhtml_view_sites);
-      $PBJQ('#selectSite').attr('tabindex', '0');
 
       $PBJQ('.selectedTab').bind('click', function(e){
         dhtml_view_sites();
@@ -101,7 +121,11 @@ var dhtml_view_sites = function(){
 
       // hide the dropdown
       $PBJQ('body').toggleClass('active-more-sites');
-      $PBJQ('#selectSite').toggleClass('outscreen'); //hide the box
+      $PBJQ('#selectSiteModal').toggleClass('outscreen'); //hide the box
+
+      // Restore the button's zIndex so it doesn't hover over other overlays
+      var allSitesButton = $('.view-all-sites-btn');
+      allSitesButton.css('z-index', 'auto');
 
       $PBJQ('#selectSite').attr('tabindex', '-1');
       removeDHTMLMask()
@@ -116,7 +140,7 @@ var dhtml_view_sites = function(){
 
 function closeDrawer() {
 
-  $PBJQ('#selectSite').toggleClass('outscreen');  //hide the box
+  $PBJQ('#selectSiteModal').toggleClass('outscreen');  //hide the box
   removeDHTMLMask();
   $PBJQ('#selectSite').attr('tabindex', '-1');
   $PBJQ('#otherSiteTools').remove();
@@ -250,9 +274,9 @@ $PBJQ(document).ready(function(){
 
   });
 
-  // Open all Sites with mobile view 	
+  // Open all Sites with mobile view
    $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", dhtml_view_sites);
-  
+
   // Open all Sites with Desktop view
   $PBJQ("#show-all-sites, .view-all-sites-btn").on("click", dhtml_view_sites);
 
