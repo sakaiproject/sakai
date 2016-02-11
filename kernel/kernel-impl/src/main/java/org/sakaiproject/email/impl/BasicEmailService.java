@@ -21,9 +21,8 @@
 
 package org.sakaiproject.email.impl;
 
-import java.io.UnsupportedEncodingException;
-import javax.mail.internet.MimeUtility;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,9 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -51,7 +49,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -729,21 +729,22 @@ public class BasicEmailService implements EmailService
 			return;
 		}
 
-		if (fromStr == null)
+		// email should not be sent if from/to/content is empty or null
+		if (StringUtils.isBlank(fromStr))
 		{
-			M_log.warn("send: null fromStr");
+			M_log.warn("send: null/empty fromStr");
 			return;
 		}
 
-		if (toStr == null)
+		if (StringUtils.isBlank(toStr))
 		{
-			M_log.warn("send: null toStr");
+			M_log.warn("send: null/empty toStr");
 			return;
 		}
 
-		if (content == null)
+		if (StringUtils.isBlank(content))
 		{
-			M_log.warn("send: null content");
+			M_log.warn("send: null/empty content");
 			return;
 		}
 
@@ -751,34 +752,21 @@ public class BasicEmailService implements EmailService
 		{
 			InternetAddress from = new InternetAddress(fromStr);
 
-			StringTokenizer tokens = new StringTokenizer(toStr, ", ");
-			InternetAddress[] to = new InternetAddress[tokens.countTokens()];
-
-			int i = 0;
-			while (tokens.hasMoreTokens())
-			{
-				String next = (String) tokens.nextToken();
-				to[i] = new InternetAddress(next);
-
-				i++;
-			} // cycle through and collect all of the Internet addresses from the list.
+			InternetAddress[] to = InternetAddress.parse(toStr);
 
 			InternetAddress[] headerTo = null;
-			if (headerToStr != null)
-			{
-				headerTo = new InternetAddress[1];
-				headerTo[0] = new InternetAddress(headerToStr);
+			if (StringUtils.isNotBlank(headerToStr)) {
+				headerTo = InternetAddress.parse(headerToStr);
+			} else {
+				headerTo = InternetAddress.parse(toStr);
 			}
 
 			InternetAddress[] replyTo = null;
-			if (replyToStr != null)
-			{
-				replyTo = new InternetAddress[1];
-				replyTo[0] = new InternetAddress(replyToStr);
+			if (StringUtils.isNotBlank(replyToStr)) {
+				replyTo = InternetAddress.parse(replyToStr);
 			}
 
 			sendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders);
-
 		}
 		catch (AddressException e)
 		{
