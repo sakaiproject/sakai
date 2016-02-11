@@ -51,6 +51,10 @@ public interface DashboardDao {
 	 */
 	public boolean addAvailabilityCheck(AvailabilityCheck availabilityCheck);
 	
+	public boolean updateAvailabilityCheck(AvailabilityCheck availabilityCheck);
+	
+	public boolean isScheduleAvailabilityCheckMade(AvailabilityCheck availabilityCheck);
+	
 	/**
 	 * @param calendarItem
 	 * @return

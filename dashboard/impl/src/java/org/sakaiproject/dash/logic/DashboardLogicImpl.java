@@ -1116,6 +1116,19 @@ public class DashboardLogicImpl implements DashboardLogic {
 		// boolean added = 
 		dao.addAvailabilityCheck(availabilityCheck);
 	}
+	
+	@Override
+	public void updateScheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {
+		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);
+		dao.updateAvailabilityCheck(availabilityCheck);
+		
+	}
+	
+	@Override
+	public boolean isScheduleAvailabilityCheckMade(String entityReference, String entityTypeId, Date scheduledTime) {
+		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);
+		return dao.isScheduleAvailabilityCheckMade(availabilityCheck);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#setRepeatingEventHorizon(java.util.Date)

@@ -128,6 +128,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	        return false;
 		}
 	}
+	
+	@Override
+	public boolean updateAvailabilityCheck(AvailabilityCheck availabilityCheck) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateAvailabilityCheck( " + availabilityCheck.toString() + ")");
+		}
+		try {
+			getJdbcTemplate().update(getStatement("update.AvailabilityCheck"),
+				new Object[]{availabilityCheck.getScheduledTime(),availabilityCheck.getEntityReference()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("updateAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}	
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addCalendarItem(org.sakaiproject.dash.model.CalendarItem)
@@ -845,6 +861,26 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.warn("getAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<AvailabilityCheck>();
 		}
+	}
+	public boolean isScheduleAvailabilityCheckMade(AvailabilityCheck availabilityCheck){
+		if (log.isDebugEnabled()) {
+			log.debug("isScheduleAvailabilityCheckMade");
+		}
+		String sql = getStatement("select.AvailabilityChecks.entry");
+		Object[] params = new Object[] { availabilityCheck.getEntityReference() };
+		try {
+			List<AvailabilityCheck> ac = (List<AvailabilityCheck>) getJdbcTemplate().query(sql, params,
+					new AvailabilityCheckMapper());
+			if (!ac.isEmpty()) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (DataAccessException ex) {
+			log.warn("isScheduleAvailabilityCheckMade: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}
+		
 	}
 	
 	/* (non-Javadoc)
@@ -2391,4 +2427,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		return dashboardUserMap;
 	}
+
+	
 }

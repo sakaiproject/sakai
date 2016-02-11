@@ -29,6 +29,7 @@ import java.util.SortedSet;
 
 import org.sakaiproject.dash.entity.DashboardEntityInfo;
 import org.sakaiproject.dash.listener.EventProcessor;
+import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
@@ -427,6 +428,10 @@ public interface DashboardLogic {
 	 * @param scheduledTime
 	 */
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime);
+	
+	public void updateScheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime);
+	
+	public boolean isScheduleAvailabilityCheckMade(String entityReference, String entityTypeId, Date scheduledTime);
 
 	/**
 	 * @param newHorizon
