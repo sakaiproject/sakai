@@ -362,29 +362,37 @@ ASN.showOrHideSelectGroupsMessage = function() {
     }
     
     // Get the form submission buttons
-    var btnPost = document.getElementById("post");
-    var btnSave = document.getElementById("save");
-    var btnPreview = document.getElementById("preview");
-    var buttons = [btnPost, btnPreview];
-    if (btnSave !== null) {
-        buttons.push(btnSave);
-    }
-        
+    var postButtons = document.getElementsByName( "post" );
+    var previewButtons = document.getElementsByName( "preview" );
+    var saveButtons = document.getElementsByName( "save" );
+
     // Show/hide the groups message
     if (groupsRadio.checked && !groupsSelected) {
         groupMsg.style.display = "block";
         
         // Disable the post, save and preview buttons
-        for (i = 0; i < buttons.length; i++) {
-            buttons[i].disabled = true;
+        for (i = 0; i < postButtons.length; i++) {
+            postButtons[i].disabled = true;
+        }
+        for (i = 0; i < previewButtons.length; i++) {
+            previewButtons[i].disabled = true;
+        }
+        for (i = 0; i < saveButtons.length; i++) {
+            saveButtons[i].disabled = true;
         }
     } 
     else {
         groupMsg.style.display = "none";
         
         // Enable the post, save and preview buttons
-        for (i = 0; i < buttons.length; i++) {
-            buttons[i].disabled = false;
+        for (i = 0; i < postButtons.length; i++) {
+            postButtons[i].disabled = false;
+        }
+        for (i = 0; i < previewButtons.length; i++) {
+            previewButtons[i].disabled = false;
+        }
+        for (i = 0; i < saveButtons.length; i++) {
+            saveButtons[i].disabled = false;
         }
     }
 };
