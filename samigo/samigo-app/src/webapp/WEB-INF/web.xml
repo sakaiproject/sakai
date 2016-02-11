@@ -240,6 +240,12 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowAttachmentMediaServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <description>Export Markup Text Assessment</description>
+    <servlet-name>ExportMarkupTextServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.export.ExportMarkupTextServlet</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>ShowMediaServlet</servlet-name>
     <url-pattern>/servlet/ShowMedia</url-pattern>
@@ -253,6 +259,11 @@
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
     <url-pattern>/servlet/Login</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ExportMarkupTextServlet</servlet-name>
+    <url-pattern>/servlet/ExportMarkupText</url-pattern>
   </servlet-mapping>
 
   <!-- RSF direct access servlet -->
