@@ -24,6 +24,7 @@
 			top: 2.7em;
 			overflow: visible;
 			position: absolute;
+			padding: 0;
 			@include box-shadow( 0px 0 0px 0px rgba(0,0,0,0) );
 			@include transition( left 0.26s linear );
 			&:after {
@@ -46,6 +47,9 @@
 	&.outscreen{
 		left: 110%;
 		max-width: 100%;
+		@media #{$phone}{
+			display: none;
+		}
 	}
 	h4{
 		font-size: 1.8em;
@@ -99,12 +103,20 @@
 
 ul#otherSitesMenu{
 	margin: 0;
-	float: right;
+	@media #{$desktop}{
+		float: right;
+	}
+	@media #{$phone}{
+		margin-left: 5px;
+	}
 	display: inline-block;
 	li{
 		display: inline-block;
 		a{
 			@extend .button;
+			@media #{$phone}{
+				padding: 0.3em;
+			}
 		}
 	}
 }
@@ -119,20 +131,24 @@ ul#otherSitesMenu{
 		width: 49%;
 		float: left;
 		margin-right: 1%;
-		margin-top: -2em;
 		@media #{$more-sites-single-column}{
 			width: 100%;
 			float: none;
+		}
+		.fav-sites-term:first-child h4{
+			margin-top: 0;
 		}
 	}
 	.moresites-right-col{
 		display: inline-block;
 		width: 49%;
 		float: left;
-		margin-top: -2em;
 		@media #{$more-sites-single-column}{
 			width: 100%;
 			float: none;
+		}
+		.fav-sites-term:first-child h4{
+			margin-top: 0;
 		}
 	}
 }
@@ -162,7 +178,16 @@ ul.otherSitesCategorList{
 
 #otherSiteSearch{
 	display: block;
-	text-align: right;
+
+	@media #{$more-sites-single-column}{
+		text-align: left;
+		margin-bottom: 1em;
+	}
+
+	@media #{$desktop}{
+		text-align: right;
+	}
+
 	label{
 		color: $text-color;
 	}
@@ -193,14 +218,13 @@ ul.otherSitesCategorList{
 }
 
 #otherSiteCloseW{
+	display: inline-block;
+	float: right;
 	background: none;
 	padding: 0 0 0 0;
 	margin: 0 0 0 0;
 	border: 0px none;
 	font-size: 2em;
-	@media #{$phone}{
-		left: 90%;
-	}
 	.toggler{
 		text-decoration: none;
 		color: darken($errorcolor, 50%);
@@ -263,6 +287,30 @@ ul.favoriteSiteList > li{
 
 #organizeFavorites{
 	padding-left: 1em;
+	@media #{$phone}{
+		.heading{
+			display: none;
+		}
+	}
+}
+
+.tab-btn.organizeFavorites{
+	@media #{$desktop}{
+		.favorites-desktop{
+			display: inline;
+		}
+		.favorites-mobile{
+			display: none;
+		}
+	}
+	@media #{$phone}{
+		.favorites-desktop{
+			display: none;
+		}
+		.favorites-mobile{
+			display: inline;
+		}
+	}
 }
 
 .organizeFavoritesList{
@@ -275,6 +323,10 @@ ul.favoriteSiteList > li{
 		cursor: grab;
 		cursor: -moz-grab;
 		cursor: -webkit-grab;
+
+		@media #{$phone}{
+			display: none;
+		}
 	}
 	.fav-drag-handle:active{
 		cursor: grabbing;

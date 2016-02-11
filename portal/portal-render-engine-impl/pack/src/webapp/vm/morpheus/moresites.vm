@@ -5,8 +5,18 @@
 <div id="selectSite" class="outscreen" tabindex="-1">
     <div id="selectSite-navbar" class="Mrphs-toolTitleNav">
         <!-- View all sites, add new site, preferences -->
-        <ul id="otherSitesMenu">
 
+        <!-- Close button -->
+        <div id="otherSiteCloseW">
+            <a href="#" onclick="closeDrawer()" class="toggler" title="${rloader.sit_othersitesclose}">
+                <i class="fa fa-close"></i>
+                <span class="skip">
+                    ${rloader.sit_othersitesclose}
+                </span>
+            </a>
+        </div>
+
+        <ul id="otherSitesMenu">
             #if (${tabsSites.worksiteToolUrl})
 
                 <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
@@ -24,25 +34,14 @@
                 <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
 
             #end ## END of IF (${tabsSites.prefsToolUrl})
-
-            <!-- Close button -->
-            <li id="otherSiteCloseW">
-                <a href="#" onclick="closeDrawer()" class="toggler" title="${rloader.sit_othersitesclose}">
-                    <span class="hamburger">
-                        <i class="fa fa-close"></i>
-                    </span>
-                    <span class="skip">
-                        ${rloader.sit_othersitesclose}
-                    </span>
-                </a>
-            </li>
         </ul>
 
     </div>
 
     <ul class="tab-bar">
         <li class="tab-btn active" data-tab-target="otherSitesCategorWrap">${rloader.sit_worksites}</li>
-        <li class="organizeFavorites tab-btn" data-tab-target="organizeFavorites">${rloader.moresite_organize_favorites} <span class="favoriteCount"></span></li>
+        <li class="organizeFavorites tab-btn" data-tab-target="organizeFavorites">
+            <span class="favorites-desktop">${rloader.moresite_organize_favorites}</span><span class="favorites-mobile">${rloader.moresite_favorites}</span> <span class="favoriteCount"></span></li>
     </ul>
 
     <div class="tab-box" id="otherSitesCategorWrap">
@@ -73,8 +72,8 @@
 
         <div class="moresites-left-col">
             #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
-                <div class="fav-sites-term">
-                    #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
+                #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
+                    <div class="fav-sites-term">
                         #if ( !$termKey || $termKey == "" )
                             <h4>${rloader.sit_notermkey}</h4>
                         #else
@@ -86,15 +85,15 @@
                                 #displaySite($site)
                             #end
                         </ul>
-                    #end
-                </div>
+                    </div>
+                #end
             #end
         </div>
 
         <div class="moresites-right-col">
             #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
-                <div class="fav-sites-term">
-                    #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
+                #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
+                    <div class="fav-sites-term">
                         #if ( $termKey && $termKey != "" )
                             <h4>$termKey</h4>
 
@@ -113,15 +112,16 @@
                                 #end
                             </ul>
                         #end
-                    #end
-                </div>
+                    </div>
+                #end
             #end
         </div>
 
     </div><!--  end of #otherSitesCategorWrap -->
 
     <div style="display: none" class="tab-box" id="organizeFavorites">
-        <h2>Organize your favorites</h2>
+        <h2 class="heading">${rloader.moresite_organize_favorites}</h2>
+
         <ul id="organizeFavoritesList" class="organizeFavoritesList favoriteSiteList">
         </ul>
 

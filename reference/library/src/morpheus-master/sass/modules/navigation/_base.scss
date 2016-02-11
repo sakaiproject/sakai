@@ -455,23 +455,28 @@ body.is-logged-out{
 	}
 }
 
-.view-all-sites-btn {
+.view-all-sites-btn{
 	display: inline-block;
 	padding-right: 1em;
 	border-right: 1px solid $toolBorderColor;
+
+	@media #{$phone}{
+		display: none;
+	}
 }
 
-.view-all-sites-btn a {
+.view-all-sites-btn a{
 	text-decoration: none;
 }
 
-.all-sites-icon, .all-sites-label {
+.all-sites-icon, .all-sites-label{
 	display: inline-block;
 	vertical-align: middle;
 }
 
-.all-sites-icon {
+.all-sites-icon{
 	font-size: 16pt;
+	padding-right: 2px;
 }
 
 #linkNav{
