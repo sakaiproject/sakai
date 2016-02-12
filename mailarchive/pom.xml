@@ -19,7 +19,7 @@
         <module>mailarchive-api/api</module>
         <module>mailarchive-impl/impl</module>
         <module>mailarchive-impl/pack</module>
-        <module>mailarchive-james/james</module>
+        <module>mailarchive-subetha</module>
         <module>mailarchive-tool/tool</module>
     </modules>
     
