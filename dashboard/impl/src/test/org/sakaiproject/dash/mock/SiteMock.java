@@ -386,6 +386,11 @@ public class SiteMock implements Site {
 		return null;
 	}
 
+	public Collection<Group> getGroupsWithMembers(String [] userIds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public Collection<Group> getGroupsWithMemberHasRole(String userId,
 			String role) {
 		// TODO Auto-generated method stub
