@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:noNamespaceSchemaLocation="ehcache.xsd" 
+	updateCheck="false" monitoring="autodetect" 
+	dynamicConfig="true"> 
+    
+    <!--  default, but never used in this portlet -->
+    <defaultCache 
+    	eternal="false" 
+    	maxElementsInMemory="1000" 
+    	overflowToDisk="false" 
+    	diskPersistent="false" 
+        timeToIdleSeconds="0" 
+        timeToLiveSeconds="600" 
+        memoryStoreEvictionPolicy="LRU" 
+    />
+
+    <!-- feed cache: ttl: 30 mins -->
+    <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed"
+        maxElementsInMemory="1000"
+        eternal="false"
+        timeToLiveSeconds="1800" 
+        overflowToDisk="false"
+        memoryStoreEvictionPolicy="LRU" />
+        
+	<!-- entry attachment cache: ttl = 6 hours -->
+    <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.media"
+        maxElementsInMemory="1000"
+        eternal="false"
+        timeToLiveSeconds="21600" 
+        overflowToDisk="false"
+        memoryStoreEvictionPolicy="LRU" />
+  
+</ehcache>

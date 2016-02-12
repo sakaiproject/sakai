@@ -1,0 +1,6 @@
+<channel-type script="classpath://org/jasig/portal/io/import-channel-type_v2-6.crn">
+  <name>RSS Feed</name>
+  <type>org.jasig.portal.channels.portlet.CSpringPortletAdaptor</type>
+  <desc>Renders an RSS/Atom feed</desc>
+  <uri>/org/jasig/portal/channels/rss/SimpleRSSPortlet.cpd</uri>
+</channel-type>
