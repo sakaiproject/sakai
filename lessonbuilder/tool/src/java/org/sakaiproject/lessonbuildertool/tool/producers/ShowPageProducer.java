@@ -2270,42 +2270,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 						}
 
-						boolean evalIndividual = (i.isGroupOwned() && i.getAttribute("group-eval-individual").equals("true"));
-
-						Map<String, Map<Integer, Integer>> dataMap = new HashMap<String, Map<Integer, Integer>>();
-						// if we should show current data.
-						if ((i.isGroupOwned() && groupMembers.contains(currentUser)) ||
-						    owner.equals(currentUser)) {
-							
-							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), owner);
-
-							if(evaluations!=null) {
-								for(SimplePagePeerEvalResult eval : evaluations) {
-								    // for individual eval only show results for that one
-									if (evalIndividual && !currentUser.equals(eval.getGradee()))
-									    continue;
-									Map<Integer, Integer> rowMap = dataMap.get(eval.getRowText());
-									if (rowMap == null) {
-									    rowMap = new HashMap<Integer, Integer>();
-									    dataMap.put(eval.getRowText(), rowMap);
-									}
-									Integer n = rowMap.get(eval.getColumnValue());
-									if (n == null)
-									    n = 1;
-									else 
-									    n++;
-									rowMap.put(eval.getColumnValue(), n);
-								}
-							}
-						
-						}
+						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
 
 						// if we should show form. 
 						// individual owned
 						// group owned and eval group
 						// group owned and eval individual and we're in the group
 						// i.e. not eval individual and we're outside group
-//						if(!(evalIndividual && !groupMembers.containts(currenUser))) {
+						System.out.println("evalind " + evalIndividual + " members " + groupMembers + " current " + currentUser);
+						if(!(evalIndividual && !groupMembers.contains(currentUser))) {
 
 						    System.out.println("eval itemid " + i.getId());
 						    UIOutput.make(tableRow, "peerReviewRubricStudent");
@@ -2353,12 +2326,53 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								}
 							    });
 						    } else {
-							evalTargets.add(new Target(owner));
+							Target target = new Target(owner);
+							// individual handled above. So if group we're evaluating
+							// the group. Use group name
+							if (i.isGroupOwned()) {
+							    String group = simplePageBean.getCurrentPage().getGroup();
+							    target.name = simplePageBean.getCurrentSite().getGroup(group).getTitle();
+							}
+							evalTargets.add(target);
 						    }
 						    for (Target target: evalTargets) {
 							UIContainer entry = UIBranchContainer.make(peerForm, "peer-eval-target:");
 						    // for each target
 
+							Map<String, Map<Integer, Integer>> dataMap = new HashMap<String, Map<Integer, Integer>>();
+							// current data to show to target, all evaluations of target
+							// But first see if we should show current data. Only show
+							// user data evaluating him
+							if ((i.isGroupOwned() && !evalIndividual && groupMembers.contains(currentUser)) ||
+							    target.id.equals(currentUser)) {
+							    System.out.println("showing data from all users for " + target.id);
+							
+							    List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), target.id);
+							    
+							    if(evaluations!=null) {
+								for(SimplePagePeerEvalResult eval : evaluations) {
+								    // for individual eval only show results for that one
+									if (evalIndividual && !currentUser.equals(eval.getGradee()))
+									    continue;
+									Map<Integer, Integer> rowMap = dataMap.get(eval.getRowText());
+									if (rowMap == null) {
+									    rowMap = new HashMap<Integer, Integer>();
+									    dataMap.put(eval.getRowText(), rowMap);
+									}
+									Integer n = rowMap.get(eval.getColumnValue());
+									if (n == null)
+									    n = 1;
+									else 
+									    n++;
+									rowMap.put(eval.getColumnValue(), n);
+								}
+							    }
+							    
+							}
+							// end current data
+
+							// now get current data to initiaize form. That's just
+							// the submission by current user.
 							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, target.id);
 							Map<String,Integer> selectedCells = new HashMap<String,Integer>();
 							for (SimplePagePeerEvalResult result: evaluations)
@@ -2368,12 +2382,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(entry, "peer-eval-target-name", target.name);
 							UIOutput.make(entry, "peer-eval-target-id", target.id);
 
+							System.out.println("evalind " + evalIndividual + " group " + (groupMembers.contains(currentUser)) + " graidneself " + gradingSelf + " target-current " + (target.id.equals(currentUser)));
+							boolean canSubmit = (!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
+									     i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
+									     evalIndividual && groupMembers.contains(currentUser) && (peerEvalAllowSelfGrade || !target.id.equals(currentUser)));
+
 							makePeerRubric(entry, i, makeStudentRubric, selectedCells, 
-								       (target.id.equals(currentUser) ? dataMap : null),
-								       // should we allow submission for this rubric?
-								       // only issue for individual in group
-								       // OK if grading self, otherwise allow for all but self
-								       (!evalIndividual || gradingSelf || !target.id.equals(currentUser)));
+								       dataMap, canSubmit);
+
 						    }
 
 						    // can submit
@@ -2381,30 +2397,33 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    // group and (not in group or gradingself)
 						    // group individual eval and in group
 						    if(!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
-						       i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || gradingSelf) ||
+						       i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
 						       evalIndividual && groupMembers.contains(currentUser)) {
 
 							// can actually submit
 
-							makeCsrf(peerForm, "csrf6");
-
 							if(isPastDue) {
 							    UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.past-due-date"));
-							} else if (!owner.equals(currentUser) || gradingSelf){	
+							} else {
+							    makeCsrf(peerForm, "csrf6");
 							    UICommand.make(peerForm, "save-peereval-link", "#{simplePageBean.savePeerEvalResult}");
 							    UIOutput.make(peerForm, "save-peereval-text", messageLocator.getMessage("simplepage.save"));
 							    UIOutput.make(peerForm, "cancel-peereval-link");
 							    UIOutput.make(peerForm, "cancel-peereval-text", messageLocator.getMessage("simplepage.cancel"));
 							
 							    UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.click-on-cell"));
-							} else { //owner who cannot grade himself
-							    UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.cant-eval-yourself"));
-							}
+							} 
+
+						    // in theory the only case where we show the form and can't grade
+						    // is if it's for yourself.
+						    } else {
+							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.cant-eval-yourself"));
 						    }
 						//buttons
 						UIOutput.make(tableRow, "add-peereval-link");
 						UIOutput.make(tableRow, "add-peereval-text", messageLocator.getMessage("simplepage.view-peereval"));
 						
+						}
 						if(canEditPage)
 							UIOutput.make(tableRow, "peerReviewRubricStudent-edit");//lines up rubric with edit btn column for users with editing privs
 					}

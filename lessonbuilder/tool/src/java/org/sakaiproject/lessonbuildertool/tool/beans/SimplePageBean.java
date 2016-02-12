@@ -7628,7 +7628,7 @@ public class SimplePageBean {
 		Set<String>evalTargets = new HashSet<String>();
 
 		System.out.println("isgroup " + item.isGroupOwned() + " evalindiv " + item.getAttribute("group-eval-individual"));
-		boolean evalIndividual = (item.isGroupOwned() && item.getAttribute("group-eval-individual").equals("true"));
+		boolean evalIndividual = (item.isGroupOwned() && "true".equals(item.getAttribute("group-eval-individual")));
 		if (evalIndividual) {
 		    String group = getCurrentPage().getGroup();
 		    if (group != null)

@@ -5,6 +5,11 @@ var addEmptyCategoryRow, addCategoryRow, displayBlankRubric, createRubric, updat
 
 $(function() {
 
+	// selectedPeerCell is to mark original
+	// newPeerCell is new selection if there's a save
+	// start out by setting them the same
+	$('.selectedPeerCell').addClass("newPeerCell");
+
 	$('.peer-eval-row td').click(function(e) {
 		var row = $(this).parents('.peer-eval-row');
 		var data = row.find('.peer-eval-row-data');
@@ -12,13 +17,22 @@ $(function() {
 		    return;
 		var peerReviewId = row.find('.peerReviewId').text();
 		var peerReviewTarget = $(this).parents('.peer-eval-target').find('.peer-eval-target-id').val();
-		row.find("td").removeClass("selectedPeerCell");
-		$(this).addClass("selectedPeerCell");
+		row.find("td").removeClass("newPeerCell");
+		$(this).addClass("newPeerCell");
 		for (i = 0; i < 5; i++) {
 		    if ($(this).hasClass(""+i))
 			data.val(peerReviewId + ":" +i+ ":" + peerReviewTarget);
 		}
-	    });	    
+	    });
+
+        $('.cancel-peereval-link').click(function(e) {
+		var form = $(this).parents('form');
+		// put back original classes
+		form.find('.newPeerCell').removeClass('newPeerCell');
+		form.find('.selectedPeerCell').addClass("newPeerCell");
+		// kill anything set up for next save
+		form.find('.peer-eval-row-data').val("");
+            });
 
 	if ($(".studentContentType").length > 0) {
 		//nextNumber has been negated...
@@ -330,6 +344,7 @@ $(function() {
         $('.add-peereval-button').click(function(e) {
 		$('.peer-eval-div').toggle();
 	});
+
 });
 
 /* The above applies to the Peer Evaluation Statistics page. END */
