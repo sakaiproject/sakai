@@ -641,3 +641,7 @@ create index idx_qrtz_ft_tg on qrtz_fired_triggers(SCHED_NAME,TRIGGER_GROUP);
 
 alter table SAM_ITEM_T add MIN_SCORE double precision NULL;
 alter table SAM_PUBLISHEDITEM_T add MIN_SCORE double precision NULL;
+
+-- KNL-1405 Don't have defaults for TIMESTAMP in SAKAI_SESSION
+ALTER TABLE SAKAI_SESSION MODIFY SESSION_START NULL;
+ALTER TABLE SAKAI_SESSION MODIFY SESSION_END NULL;
