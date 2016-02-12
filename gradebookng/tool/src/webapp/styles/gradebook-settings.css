@@ -2,9 +2,33 @@
  *                      Gradebook Settings styles                        *
  * ********************************************************************* */
 
+ @font-face {
+  font-family:"gradebook-icons";
+  src:url(../fonts/gradebook-icons.eot);
+  src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
+  font-weight:400;
+  font-style:normal;
+}
 .gb-inline-wrap {
-	margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 .gb-inline-checkbox {
-	display: inline !important;
+  display: inline !important;
+}
+.gb-category-sort-column {
+  width: 45px;
+}
+.gb-category-sort-handle,
+.gb-category-sort-handle:hover {
+  text-decoration: none;
+  color: #CCC;
+}
+.gb-category-sort-handle:before {
+  font-family: "gradebook-icons";
+  content: "\f0c9";
+  font-size: 2em;
+}
+.gb-category-sort-placeholder {
+  border: 3px dashed #CCC;
+  height: 45px;
 }

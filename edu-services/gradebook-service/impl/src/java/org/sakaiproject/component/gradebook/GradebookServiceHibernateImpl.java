@@ -233,6 +233,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
     		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
     		assignmentDefinition.setCategoryId(internalAssignment.getCategory().getId());
+    		assignmentDefinition.setCategoryOrder(internalAssignment.getCategory().getCategoryOrder());
     	}
     	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
@@ -2524,6 +2525,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    List<CategoryDefinition> categoryDefList = new ArrayList<CategoryDefinition>();
 
 	    List<Category> gbCategories = getCategories(getGradebook(gradebookUid).getId());
+
 	    if (gbCategories != null) {
 	        for (Category category : gbCategories) {
 	            categoryDefList.add(getCategoryDefinition(category));
@@ -2544,6 +2546,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        categoryDef.setKeepHighest(category.getKeepHighest());
 	        categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
 	        categoryDef.setExtraCredit(category.isExtraCredit());
+	        categoryDef.setCategoryOrder(category.getCategoryOrder());
 	    }
 
 	    return categoryDef;
@@ -3235,6 +3238,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//If category does not have an ID it is new
 		//If category has an ID it is to be updated. Update and remove from currentCategoryMap.
 		//Any categories remaining in currentCategoryMap are to be removed.
+		Collections.sort(newCategoryDefinitions, new Comparator<CategoryDefinition>() {
+			@Override
+			public int compare(final CategoryDefinition one, final CategoryDefinition two) {
+				if (one.getCategoryOrder() == null) {
+					return -1;
+				} else if (two.getCategoryOrder() == null) {
+					return 1;
+				} else {
+					return Integer.compare(one.getCategoryOrder(), two.getCategoryOrder());
+				}
+			}
+		});
+		int categoryIndex = 0;
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
 			//preprocessing and validation
@@ -3248,7 +3264,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			//new
 			if(newDef.getId() == null) {
-				this.createCategory(gradebook.getId(), newDef.getName(), newDef.getWeight(), newDef.getDrop_lowest(), newDef.getDropHighest(), newDef.getKeepHighest(), newDef.isExtraCredit());
+				this.createCategory(gradebook.getId(), newDef.getName(), newDef.getWeight(), newDef.getDrop_lowest(), newDef.getDropHighest(), newDef.getKeepHighest(), newDef.isExtraCredit(), Integer.valueOf(categoryIndex));
+				categoryIndex++;
 				continue;
 			} 
 			
@@ -3261,10 +3278,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				existing.setDropHighest(newDef.getDropHighest());
 				existing.setKeepHighest(newDef.getKeepHighest());
 				existing.setExtraCredit(newDef.isExtraCredit());
+				existing.setCategoryOrder(categoryIndex);
 				this.updateCategory(existing);
 				
 				//remove from currentCategoryMap so we know not to delete it
 				currentCategoryMap.remove(newDef.getId());
+
+				categoryIndex++;
 				continue;
 			}
 			

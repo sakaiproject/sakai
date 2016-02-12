@@ -7,6 +7,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -109,6 +110,10 @@ public class SettingsPage extends BasePage {
 				// update settings
 				SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
 
+				// TODO refresh the model object before refreshing the page
+				GbSettings settings = new GbSettings(SettingsPage.this.businessService.getGradebookSettings());
+				setModel(new CompoundPropertyModel<GbSettings>(settings));
+
 				getSession().info(getString("settingspage.update.success"));
 				setResponsePage(getPage());
 			}
@@ -127,10 +132,10 @@ public class SettingsPage extends BasePage {
 		form.add(cancel);
 
 		// panels
-		form.add(new SettingsGradeEntryPanel("gradeEntryPanel", formModel));
-		form.add(new SettingsGradeReleasePanel("gradeReleasePanel", formModel));
-		form.add(new SettingsCategoryPanel("categoryPanel", formModel));
-		form.add(new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel));
+		form.add(new SettingsGradeEntryPanel("gradeEntryPanel", form.getModel()));
+		form.add(new SettingsGradeReleasePanel("gradeReleasePanel", form.getModel()));
+		form.add(new SettingsCategoryPanel("categoryPanel", form.getModel()));
+		form.add(new SettingsGradingSchemaPanel("gradingSchemaPanel", form.getModel()));
 
 		add(form);
 
@@ -160,5 +165,8 @@ public class SettingsPage extends BasePage {
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
+
 	}
 }

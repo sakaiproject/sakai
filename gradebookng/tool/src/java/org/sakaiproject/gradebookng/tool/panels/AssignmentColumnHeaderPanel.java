@@ -149,6 +149,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			add(new AttributeModifier("data-category-weight", String.format("%s%%", Math.round(assignment.getWeight() * 100))));
 		}
 		add(new AttributeModifier("data-category-extra-credit", assignment.isCategoryExtraCredit()));
+		add(new AttributeModifier("data-category-order", assignment.getCategoryOrder()));
 
 		// menu
 		final WebMarkupContainer menu = new WebMarkupContainer("menu") {

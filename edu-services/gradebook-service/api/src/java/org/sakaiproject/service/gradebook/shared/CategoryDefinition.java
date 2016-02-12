@@ -44,6 +44,7 @@ public class CategoryDefinition implements Serializable {
     private Integer dropHighest;
     private Integer keepHighest;
     private Boolean extraCredit;
+    private Integer categoryOrder;
     
     private List<Assignment> assignmentList;
     
@@ -158,6 +159,14 @@ public class CategoryDefinition implements Serializable {
 
 	public void setExtraCredit(Boolean extraCredit) {
 		this.extraCredit = extraCredit;
+	}
+
+	public Integer getCategoryOrder() {
+		return categoryOrder;
+	}
+
+	public void setCategoryOrder(Integer categoryOrder) {
+		this.categoryOrder = categoryOrder;
 	}
 	
 	@Override
