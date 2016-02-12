@@ -2732,6 +2732,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		message.append(BOUNDARY_LINE);
 		message.append(plainTextHeaders());
 		message.append(plainTextContent(s, submissionOrReleaseGrade));
+		message.append(FormattedText.convertFormattedTextToPlaintext(htmlContentAttachments(s)));
 		message.append(BOUNDARY_LINE);
 		message.append(htmlHeaders());
 		message.append(htmlPreamble(submissionOrReleaseGrade));
@@ -2741,6 +2742,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			message.append(htmlContentReleaseGrade(s));
 		else
 			message.append(htmlContentReleaseResubmission(s));
+		message.append(htmlContentAttachments(s));
 		message.append(htmlEnd());
 		message.append(TERMINATION_LINE);
 		return message.toString();
@@ -3010,6 +3012,34 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 		
 	 	return buffer.toString();
 	}
+	
+	private String htmlContentAttachments(AssignmentSubmission s){
+		StringBuffer body = new StringBuffer();
+		String newline = "<br />\n";
+		
+		if (s.getFeedbackAttachments() != null && s.getFeedbackAttachments().size() > 0) {
+			body.append(newline).append(newline);
+			if (s.getAssignment().getContent().getTypeOfSubmission() == Assignment.SINGLE_ATTACHMENT_SUBMISSION) 
+			{
+				body.append(rb.getString("gen.att.single"));
+			} 
+			else 
+			{
+				body.append(rb.getString("gen.att"));
+			}
+			body.append(newline);
+			
+			for (Reference attachment : (List<Reference>)s.getFeedbackAttachments()) {
+				String attachmentName = attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				String attachmentSize = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH);
+				body.append("<a href=\"" + attachment.getUrl() + "\">" + attachmentName + " (" + attachmentSize + ")" + "</a>");   
+				body.append(newline);
+			}
+		}
+		return body.toString();
+	}
+	
+	
 	/**
 	 * Cancel the changes made to a AssignmentSubmissionEdit object, and release the lock.
 	 * 
