@@ -1486,10 +1486,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			String[] parts = StringUtil.split(id, "/");
 			if (parts.length >= 3)
 			{
+				boolean authDropboxGroupsCheck=true;
 				String ref = null;
 				if (id != null)
 				{
 					ref = getReference(id);
+				}
+				
+				if (parts.length>=4)
+				{
+					//Http servlet access to dropbox resources
+					String userId=parts[3];
+					if ((userId==null)||(!isDropboxOwnerInCurrentUserGroups(ref,userId)))
+					{
+						authDropboxGroupsCheck=false;
+					}
 				}
 
 				//Before SAK-11647 any dropbox id asked for dropbox.maintain permission.
@@ -1497,12 +1508,51 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				//Groups permission gives full access to dropboxes of users in current user's groups. 
 				//A different logic can be achieved here depending of lock parameter received.
 				if (m_securityService.unlock(AUTH_DROPBOX_GROUPS, ref))
-					return AUTH_DROPBOX_GROUPS;
-				else return AUTH_DROPBOX_MAINTAIN;
+				{
+					if (authDropboxGroupsCheck)
+					{
+						return AUTH_DROPBOX_GROUPS;
+					}
+					else
+					{
+						return AUTH_DROPBOX_MAINTAIN;
+					}
+				}
+				else
+				{
+					return AUTH_DROPBOX_MAINTAIN;
+				}
 			}
 		}
 
 		return lock;
+	}
+	
+	/**
+	 * Checks if a dropbox owner is in any group with current user, so AUTH_DROPBOX_GROUPS is rightly applied.
+	 * @return true if the dropbox owner is in the group, false otherwise. 
+	 */
+	public boolean isDropboxOwnerInCurrentUserGroups(String refString, String userId)
+	{
+		String currentUser = sessionManager.getCurrentSessionUserId();
+		
+		List<Group> site_groups = new ArrayList<Group>();
+		Reference ref = m_entityManager.newReference(refString);
+		try
+		{
+			Site site = m_siteService.getSite(ref.getContext());
+	
+			site_groups.addAll(site.getGroupsWithMembers(new String[]{currentUser,userId}));
+			if (site_groups.size()>0)
+			{
+				return true;
+			}
+		}
+		catch (IdUnusedException e)
+		{
+		}
+		
+		return false;
 	}
 
 	/**
