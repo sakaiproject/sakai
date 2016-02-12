@@ -68,7 +68,6 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
-		Collections.sort(categoryNames);
 
 		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;

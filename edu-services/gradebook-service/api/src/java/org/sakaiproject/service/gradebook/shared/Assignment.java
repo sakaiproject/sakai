@@ -53,6 +53,7 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private Integer sortOrder;
     private Integer categorizedSortOrder;
     private Long categoryId;
+    private Integer categoryOrder;
     
 
     public Assignment() {
@@ -233,6 +234,14 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 
 	public void setCategoryId(Long categoryId) {
 		this.categoryId = categoryId;
+	}
+
+	public Integer getCategoryOrder() {
+		return categoryOrder;
+	}
+
+	public void setCategoryOrder(Integer categoryOrder) {
+		this.categoryOrder = categoryOrder;
 	}
 	
 	@Override

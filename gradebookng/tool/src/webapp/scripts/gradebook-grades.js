@@ -963,6 +963,10 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
     return $(this).data("model");
   });
 
+  self_COLUMN_ORDER = self._COLUMN_ORDER.sort(function(a, b) {
+    return a.getSortOrder() > b.getSortOrder();
+  });
+
   $.each(self._COLUMN_ORDER, function(i, model) {
     var category = model.getCategory();
 
@@ -1000,7 +1004,13 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
       return -1;
     }
 
-    return a > b
+    if (self._CATEGORY_DATA[a] == null) {
+      return 1;
+    } else if (self._CATEGORY_DATA[b] == null) {
+      return -1;
+    }
+
+    return self._CATEGORY_DATA[a].order > self._CATEGORY_DATA[b].order;
   });
 
   $.each(self._CATEGORIES_MAP, function(category, models) {
@@ -1836,7 +1846,8 @@ GradebookHeaderCell.prototype.getCategoryData = function() {
       category_data = {
         label: $category.data("category"),
         weight: $category.data("category-weight"),
-        isExtraCredit: $category.data("category-extra-credit")
+        isExtraCredit: $category.data("category-extra-credit"),
+        order: parseInt($category.data("category-order"))
       };
     }
   }
@@ -1909,6 +1920,11 @@ GradebookHeaderCell.prototype.hide = function() {
     }
   }
 };
+
+
+GradebookHeaderCell.prototype.getSortOrder = function() {
+  return this.$cell.find("[data-sort-order]").data("sort-order");
+}
 
 
 GradebookHeaderCell.prototype.getCategorizedOrder = function() {

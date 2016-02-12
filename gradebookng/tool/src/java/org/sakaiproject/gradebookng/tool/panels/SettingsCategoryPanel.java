@@ -24,6 +24,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -233,6 +234,9 @@ public class SettingsCategoryPanel extends Panel {
 					SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				}
 
+				// reinitialize any custom behaviour
+				target.appendJavaScript("new GradebookCategorySettings($('#settingsCategories'));");
+
 				target.add(categoriesWrap);
 			}
 		});
@@ -251,6 +255,14 @@ public class SettingsCategoryPanel extends Panel {
 				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories()) {
 
 			private static final long serialVersionUID = 1L;
+
+			/*@Override
+			public final List<CategoryDefinition> getList() {
+				List<CategoryDefinition> categories = super.getList();
+
+				Collections.sort(categories, businessService.getCategoryOrderComparator());
+				return categories;
+			}*/
 
 			@Override
 			protected void populateItem(final ListItem<CategoryDefinition> item) {
@@ -369,6 +381,11 @@ public class SettingsCategoryPanel extends Panel {
 						final CategoryDefinition current = item.getModelObject();
 
 						SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().remove(current);
+						int categoryIndex = 0;
+						for (CategoryDefinition category : SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories()) {
+							category.setCategoryOrder(Integer.valueOf(categoryIndex));
+							categoryIndex++;
+						}
 
 						// indicate to the listview that its model has changed and to rerender correctly
 						lv.modelChanged();
@@ -378,10 +395,25 @@ public class SettingsCategoryPanel extends Panel {
 
 						// update running total
 						updateRunningTotal(target, runningTotal, runningTotalMessage);
+
+						// reinitialize any custom behaviour
+						target.appendJavaScript("new GradebookCategorySettings($('#settingsCategories'));");
 					}
 				};
 				remove.setDefaultFormProcessing(false);
 				item.add(remove);
+
+				final HiddenField<Integer> categoryOrderField = new HiddenField<Integer>("categoryOrder", new PropertyModel<Integer>(category, "categoryOrder"));
+			/*	categoryOrderField.add(new AjaxFormComponentUpdatingBehavior("orderupdate.sakai") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+						Integer categoryOrder = categoryOrderField.getValue();
+						
+					}
+				});*/
+				item.add(categoryOrderField);
 			}
 
 			@Override
@@ -421,6 +453,9 @@ public class SettingsCategoryPanel extends Panel {
 				// add a new empty category to the model
 				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				target.add(categoriesWrap);
+
+				// reinitialize any custom behaviour
+				target.appendJavaScript("new GradebookCategorySettings($('#settingsCategories'));");
 			}
 		};
 		addCategory.setDefaultFormProcessing(false);
@@ -438,6 +473,9 @@ public class SettingsCategoryPanel extends Panel {
 		cd.setExtraCredit(false);
 		cd.setWeight(new Double(0));
 		cd.setAssignmentList(Collections.<Assignment> emptyList());
+
+		GbSettings settings = (GbSettings) SettingsCategoryPanel.this.model.getObject();
+		cd.setCategoryOrder(settings.getGradebookInformation().getCategories().size());
 		return cd;
 	}
 

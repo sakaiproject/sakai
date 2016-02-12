@@ -672,14 +672,26 @@ public class GradebookPage extends BasePage {
 				}
 				return Integer.compare(a1.getCategorizedSortOrder(), a2.getCategorizedSortOrder());
 
-			// otherwise, sort by their category name (A-Z), leaving uncategorized (null) at the end
+			// otherwise, sort by their category order
 			} else {
-				if (a1.getCategoryName() == null) {
+				if (a1.getCategoryOrder() == null && a2.getCategoryOrder() == null) {
+					// both orders are null.. so order by A-Z
+					if (a1.getCategoryName() == null && a2.getCategoryName() == null) {
+						// both names are null so order by id
+						return a1.getCategoryId().compareTo(a2.getCategoryId());
+					} else if (a1.getCategoryName() == null) {
+						return 1;
+					} else if (a2.getCategoryName() == null) {
+						return -1;
+					} else {
+						return a1.getCategoryName().compareTo(a2.getCategoryName());
+					}
+				} else if (a1.getCategoryOrder() == null) {
 					return 1;
-				} else if (a2.getCategoryName() == null) {
+				} else if (a2.getCategoryOrder() == null) {
 					return -1;
 				} else {
-					return a1.getCategoryName().compareTo(a2.getCategoryName());
+					return a1.getCategoryOrder().compareTo(a2.getCategoryOrder());
 				}
 			}
 		}

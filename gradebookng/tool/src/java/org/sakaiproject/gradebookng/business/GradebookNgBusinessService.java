@@ -328,6 +328,9 @@ public class GradebookNgBusinessService {
 
 		}
 
+		// Sort by categoryOrder
+		Collections.sort(rval, new CategoryOrderComparator());
+
 		return rval;
 	}
 
@@ -1517,6 +1520,9 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		final GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
+
+		Collections.sort(settings.getCategories(), new CategoryOrderComparator());
+
 		return settings;
 	}
 
@@ -1826,6 +1832,26 @@ public class GradebookNgBusinessService {
 					.append(subtotal1, subtotal2)
 					.toComparison();
 
+		}
+	}
+
+	/**
+	 * Comparator class for sorting categories by categoryOrder
+	 */
+	public class CategoryOrderComparator implements Comparator<CategoryDefinition> {
+		@Override
+		public int compare(final CategoryDefinition c1, final CategoryDefinition c2) {
+			if (c1.getCategoryOrder() == null && c2.getCategoryOrder() == null) {
+				return c1.getName().compareTo(c2.getName());
+			}
+			if(c1.getCategoryOrder() == null) {
+				return -1;
+			}
+			if(c2.getCategoryOrder() == null) {
+				return 1;
+			}
+
+			return c1.getCategoryOrder().compareTo(c2.getCategoryOrder());
 		}
 	}
 }
