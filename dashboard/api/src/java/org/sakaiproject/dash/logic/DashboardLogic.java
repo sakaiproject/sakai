@@ -429,8 +429,15 @@ public interface DashboardLogic {
 	 */
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime);
 	
+	/**
+	 * If an entity uses some form of scheduled release, this method is called to 
+	 * update the scheduled-release time. 
+	 */
 	public void updateScheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime);
 	
+	/**
+	 * checks if an entity is scheduled for release has entry in the database table or not
+	 */
 	public boolean isScheduleAvailabilityCheckMade(String entityReference, String entityTypeId, Date scheduledTime);
 
 	/**

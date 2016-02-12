@@ -871,11 +871,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			List<AvailabilityCheck> ac = (List<AvailabilityCheck>) getJdbcTemplate().query(sql, params,
 					new AvailabilityCheckMapper());
-			if (!ac.isEmpty()) {
-				return true;
-			} else {
-				return false;
-			}
+			return !ac.isEmpty();
 		} catch (DataAccessException ex) {
 			log.warn("isScheduleAvailabilityCheckMade: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return false;
