@@ -17,6 +17,13 @@
 				$tlang.getString("archive.vm.from")
 			</label>	
 			<input type="text" size="80" name="archive-id" id="archive-id" />
+
+		</p>
+		<p class="shorttext">
+		    <label for="zip-id">
+		        $tlang.getString("archive.vm.zip")
+		    </label>
+			<input type="checkbox" name="zip-id" value="true" id="zip-id" />
 		</p>
 		<p class="act"><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" class="indnt1" /></p>		
 		

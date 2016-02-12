@@ -53,7 +53,7 @@ public interface DashboardDao {
 	
 	public boolean updateAvailabilityCheck(AvailabilityCheck availabilityCheck);
 	
-	public boolean isScheduleAvailabilityCheckMade(AvailabilityCheck availabilityCheck);
+	public boolean isScheduleAvailabilityCheckMade(String entityReference);
 	
 	/**
 	 * @param calendarItem

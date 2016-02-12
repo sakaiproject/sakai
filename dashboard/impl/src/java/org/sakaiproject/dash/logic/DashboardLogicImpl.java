@@ -1126,8 +1126,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	
 	@Override
 	public boolean isScheduleAvailabilityCheckMade(String entityReference, String entityTypeId, Date scheduledTime) {
-		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);
-		return dao.isScheduleAvailabilityCheckMade(availabilityCheck);
+		return dao.isScheduleAvailabilityCheckMade(entityReference);
 	}
 
 	/* (non-Javadoc)

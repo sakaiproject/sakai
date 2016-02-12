@@ -939,7 +939,7 @@ public class DashboardDaoMock implements DashboardDao {
 	}
 
 	@Override
-	public boolean isScheduleAvailabilityCheckMade(AvailabilityCheck availabilityCheck) {
+	public boolean isScheduleAvailabilityCheckMade(String entityReference) {
 		return false;
 	}
 }

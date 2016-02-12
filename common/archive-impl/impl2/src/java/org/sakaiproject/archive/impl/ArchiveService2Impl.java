@@ -170,9 +170,14 @@ public class ArchiveService2Impl implements ArchiveService
 	}
 
 	@Override
-	public boolean archiveAndZip(String siteId) throws IOException {
-		m_siteArchiver.archive(siteId, m_storagePath, FROM_SAKAI_2_8);
-		return m_siteZipper.zipArchive(siteId, m_storagePath);
+	public String archiveAndZip(String siteId) throws IOException {
+		String log = m_siteArchiver.archive(siteId, m_storagePath, FROM_SAKAI_2_8);
+		if (m_siteZipper.zipArchive(siteId, m_storagePath) ){
+			log = log + "Zipfile success.\n";
+		} else {
+			log = log + "Zipfile failed\n";
+		}
+		return log;
 	}
 	
 } // ArchiveService2Impl

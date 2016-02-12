@@ -228,6 +228,15 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	Collection<Group> getGroupsWithMember(String userId);
 
 	/**
+	 * Get a collection of the groups in a Site that have all these users as members.
+	 * 
+	 * @param userId
+	 *        The user id.
+	 * @return A collection (Group) of groups defined in the site that have these users as members, empty if there are none.
+	 */
+	Collection<Group> getGroupsWithMembers(String[] userIds);
+	
+	/**
 	 * Get a collection of the groups in a Site that have this user as a member with this role.
 	 * 
 	 * @param userId

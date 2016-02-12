@@ -136,12 +136,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		try {
 			getJdbcTemplate().update(getStatement("update.AvailabilityCheck"),
-				new Object[]{availabilityCheck.getScheduledTime(),availabilityCheck.getEntityReference()}
-			);
+					new Object[]{availabilityCheck.getScheduledTime(),availabilityCheck.getEntityReference()}
+					);
 			return true;
 		} catch (DataAccessException ex) {
-           log.warn("updateAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
+			log.warn("updateAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
 		}	
 	}
 
@@ -862,12 +862,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return new ArrayList<AvailabilityCheck>();
 		}
 	}
-	public boolean isScheduleAvailabilityCheckMade(AvailabilityCheck availabilityCheck){
+	public boolean isScheduleAvailabilityCheckMade(String entityReference){
 		if (log.isDebugEnabled()) {
 			log.debug("isScheduleAvailabilityCheckMade");
 		}
 		String sql = getStatement("select.AvailabilityChecks.entry");
-		Object[] params = new Object[] { availabilityCheck.getEntityReference() };
+		Object[] params = new Object[] { entityReference };
 		try {
 			List<AvailabilityCheck> ac = (List<AvailabilityCheck>) getJdbcTemplate().query(sql, params,
 					new AvailabilityCheckMapper());

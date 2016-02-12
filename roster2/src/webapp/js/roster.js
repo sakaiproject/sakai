@@ -484,6 +484,7 @@
         
         $('#roster_form_clear_button').click(function (e) {
 
+            roster.roleToView = null;
             roster.switchState(state);
         });
     };
