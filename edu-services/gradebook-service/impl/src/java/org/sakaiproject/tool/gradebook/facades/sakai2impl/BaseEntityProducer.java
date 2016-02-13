@@ -83,47 +83,58 @@ public class BaseEntityProducer implements EntityProducer {
 
 	// EntityProducer methods begin here.
 
+	@Override
 	public String getLabel() {
 		return label;
 	}
 
+	@Override
 	public boolean willArchiveMerge() {
 		return false;
 	}
 
+	@Override
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
 		return null;
 	}
 
+	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport) {
 		return null;
 	}
 
+	@Override
 	public boolean parseEntityReference(String reference, Reference ref) {
 		return false;
 	}
 
+	@Override
 	public String getEntityDescription(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public ResourceProperties getEntityResourceProperties(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public Entity getEntity(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public String getEntityUrl(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public Collection getEntityAuthzGroups(Reference ref, String userId) {
 		return null;
 	}
 
+	@Override
 	public HttpAccess getHttpAccess() {
 		return null;
 	}
