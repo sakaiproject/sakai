@@ -3222,7 +3222,24 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 return getCourseGradeRecord(gradebook, studentUuid, session);
             }
 		});
-		
+				
+		//if user doesn't have an entered course grade, we need to find the course grade and create a record
+		if(courseGradeRecord == null) {
+			
+			CourseGrade courseGrade = this.getCourseGrade(gradebook.getId());
+			
+			courseGradeRecord = new CourseGradeRecord(courseGrade, studentUuid);
+			courseGradeRecord.setGraderId(getUserUid());
+			courseGradeRecord.setDateRecorded(new Date());	
+			
+		} else {
+			//if passed in grade override is same as existing grade override, nothing to do
+			if(StringUtils.equals(courseGradeRecord.getEnteredGrade(), grade)) {
+				return;
+			}
+		}
+
+		//set the grade override
 		courseGradeRecord.setEnteredGrade(grade);
 		
 		//create a grading event
@@ -3233,16 +3250,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradingEvent.setGrade(courseGradeRecord.getEnteredGrade());
 		
 		//save
-		try {
-			getHibernateTemplate().saveOrUpdate(courseGradeRecord);
-			getHibernateTemplate().saveOrUpdate(gradingEvent);
-		} catch (HibernateOptimisticLockingFailureException | StaleObjectStateException e) {
-		  if(log.isInfoEnabled()) {
-			  log.info("An optimistic locking failure occurred while attempting to save course grade and event with id: " + courseGradeRecord.getCourseGrade().getId());
-		  }
-		  throw new StaleObjectModificationException(e);
-		}
-		
+		getHibernateTemplate().saveOrUpdate(courseGradeRecord);
+		getHibernateTemplate().saveOrUpdate(gradingEvent);
 	}
 
 	
