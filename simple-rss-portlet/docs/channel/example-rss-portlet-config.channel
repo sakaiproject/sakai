@@ -1,0 +1,65 @@
+
+<channel-definition script="classpath://org/jasig/portal/io/import-channel_v3-2.crn">
+  <title>Simple RSS Portlet - Example 1</title>
+  <name>Simple RSS Portlet - Example 1</name>
+  <fname>simple-rss-portlet</fname>
+  <desc>An example setup for the Simple RSS portlet</desc>
+  <type>RSS</type>
+  <class>org.jasig.portal.channels.portlet.CSpringPortletAdaptor</class>
+  <timeout>5000</timeout>
+  <hasedit>N</hasedit>
+  <hashelp>N</hashelp>
+  <hasabout>N</hasabout>
+  <secure>N</secure>
+  <locale>en_US</locale>
+  <categories>
+    <category>Information</category>
+  </categories>
+  <groups>
+    <group>Everyone</group>
+  </groups>
+  <users/>
+  <parameters>
+    <parameter> 
+      <name>portletApplicationId</name>  
+      <!-- DO NOT CHANGE THIS (unless you change the deployed context of the portlet) -->
+      <value>/simple-rss-portlet</value>  
+      <description></description>  
+      <ovrd>N</ovrd> 
+    </parameter>
+    <parameter> 
+      <name>portletName</name>  
+      <!-- DO NOT CHANGE THIS (unless you change the portlet-name in portlet.xml) -->
+      <value>simple-rss-portlet</value>  
+      <description></description>  
+      <ovrd>N</ovrd> 
+    </parameter>
+  </parameters>
+  <portletPreferences>
+    <portletPreference> 
+      <!-- Title for this portlet -->
+      <name>portlet_title</name>  
+      <values>
+        <value>The Australian - Business</value>
+      </values> 
+    </portletPreference>
+    
+    <!-- Feed URL. Must start with http or https -->
+    <portletPreference>
+      <name>feed_url</name>  
+      <values>
+        <value>http://feeds.news.com.au/public/rss/2.0/aus_business_811.xml</value>
+      </values> 
+    </portletPreference>
+    
+    <!-- Maximum number of items to render -->
+    <portletPreference>
+      <name>max_items</name>  
+      <values>
+        <value>5</value>
+      </values> 
+    </portletPreference>
+    
+     
+  </portletPreferences>      
+</channel-definition>

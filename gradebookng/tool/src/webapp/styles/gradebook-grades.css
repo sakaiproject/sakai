@@ -667,12 +667,13 @@
   font-family: "gradebook-icons";
   content: '\f040';
 }
-.gb-popover-notifications .gb-popover-edit-comments {
+.gb-popover-notifications .gb-popover-link {
   float: right;
   font-size: 0.8em;
+  margin: 0 0 1em;
 }
 .gb-popover-notifications .gb-popover-notification-has-comment blockquote {
-  margin: 0.5em 0;
+  margin: 1em 0;
   padding: 5px 10px;
   font-size: 0.9em;
 }

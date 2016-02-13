@@ -104,6 +104,7 @@
                 <module>sections</module>
                 <module>shortenedurl</module>
                 <module>signup</module>
+                <module>simple-rss-portlet</module>
                 <module>site</module>
                 <module>site-manage</module>
                 <module>sitestats</module>

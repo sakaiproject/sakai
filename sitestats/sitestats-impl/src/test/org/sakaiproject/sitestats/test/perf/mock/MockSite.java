@@ -432,6 +432,12 @@ public class MockSite implements Site {
 	}
 
 	@Override
+	public Collection<Group> getGroupsWithMembers(String [] userIds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public Collection<Group> getGroupsWithMemberHasRole(String userId,
 			String role) {
 		// TODO Auto-generated method stub

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE channelDef PUBLIC "-//uPortal//Channel Publishing/EN" "channelPublishingDocument.dtd">
+
+<channelDef>
+
+  <description>
+    This is a simple RSS and Atom feed reader. 
+  </description>
+
+  <class>org.jasig.portal.channels.portlet.CSpringPortletAdaptor</class>
+
+  <params>
+    <step>
+      <ID>1</ID>
+
+      <name>Portlet Descriptor</name>
+
+      <description>
+        Enter the Portlet web-application path and portlet name.
+      </description>
+
+      <parameter modify="publish-only">
+        <name>isFrameworkPortlet</name>
+        <label>Framework Portlet</label>
+        <type base="string" input="single-choice" display="hidden">
+            <restriction>
+                <defaultValue>true</defaultValue>
+                <value>true</value>
+                <value>false</value>
+            </restriction>
+        </type>
+        <example>true</example>
+        <description>
+          Portlet is deployed in the same web-application as uPortal. If checked "Portlet Web Application Path"
+          is ignored.
+        </description>
+        <defaultValue>false</defaultValue>
+      </parameter>
+
+      <parameter modify="publish-only">
+        <name>portletApplicationId</name>
+        <label>Portlet Web Application Path</label>
+        <type base="string" input="text" display="hidden">
+          <length>40</length>
+          <maxlength>2000</maxlength>
+        </type>
+        <example>/pluto-testsuite</example>
+        <description>
+          This is the name of the web application the portlet resides in including a preceding /.
+        </description>
+        <defaultValue>/simple-rss-portlet</defaultValue>
+      </parameter>
+      
+      <parameter modify="publish-only">
+        <name>portletName</name>
+        <label>Portlet Name</label>
+        <type base="string" input="text" display="hidden">
+          <length>40</length>
+          <maxlength>2000</maxlength>
+        </type>
+        <example>simple-rss-portlet</example>
+        <description>
+          This is the name of the portlet as defined in the portlet.xml descriptor.
+        </description>
+        <defaultValue>simple-rss-portlet</defaultValue>
+      </parameter>
+
+      <parameter modify="publish-only">
+        <name>disableDynamicTitle</name>
+        <label>Disable Dynamic Title</label>
+        <type base="string" input="single-choice" display="hidden">
+            <restriction>
+                <defaultValue>false</defaultValue>
+                <value>true</value>
+                <value>false</value>
+            </restriction>
+        </type>
+        <example>false</example>
+        <description>
+          Disable dynamic title
+        </description>
+        <defaultValue>false</defaultValue>
+      </parameter>
+
+    </step>
+    </params>
+
+
+  <controls>
+    <control type="edit" include="yes" override="yes"/>
+    <control type="about" include="no" override="no"/>
+    <control type="help" include="no" override="no"/>
+  </controls>
+
+</channelDef>
