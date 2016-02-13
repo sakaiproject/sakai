@@ -10,7 +10,6 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -23,7 +22,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
-import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -39,7 +37,7 @@ import lombok.Setter;
  *
  */
 public class GradebookNgEntityProvider extends AbstractEntityProvider implements
-		EntityProvider, AutoRegisterEntityProvider, ActionsExecutable,
+		AutoRegisterEntityProvider, ActionsExecutable,
 		Outputable, Describeable {
 
 	@Override
@@ -165,11 +163,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 	}
 
-
 	/**
-	 * Helper to check if the user is an instructor or a TA.
-	 * Throws IllegalArgumentException if not. We don't currently need the value that this
-	 * produces so we don't return it.
+	 * Helper to check if the user is an instructor or a TA. Throws IllegalArgumentException if not. We don't currently need the value that
+	 * this produces so we don't return it.
 	 *
 	 * @param siteId
 	 * @return
@@ -183,13 +179,12 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("You must be logged in to access GBNG data");
 		}
 
-		GbRole role = this.businessService.getUserRole(siteId);
+		final GbRole role = this.businessService.getUserRole(siteId);
 
 		if (role != GbRole.INSTRUCTOR && role != GbRole.TA) {
 			throw new SecurityException("You do not have instructor or TA-type permissions in this site.");
 		}
 	}
-
 
 	/**
 	 * Helper to get current user id

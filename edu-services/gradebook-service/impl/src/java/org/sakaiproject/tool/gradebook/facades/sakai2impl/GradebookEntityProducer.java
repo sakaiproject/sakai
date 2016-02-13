@@ -58,10 +58,12 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		}
 	}
 
+	@Override
 	public String[] myToolIds() {
 		return toolIdArray;
 	}
 
+	@Override
 	public void contextCreated(String context, boolean toolPlacement) {
 		// Only create Gradebook storage if the Gradebook tool is actually
 		// part of the new site.
@@ -71,6 +73,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		}
 	}
 
+	@Override
 	public void contextUpdated(String context, boolean toolPlacement) {
 		if (toolPlacement) {
 			if (!gradebookFrameworkService.isGradebookDefined(context)) {
@@ -87,6 +90,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		}
 	}
 
+	@Override
 	public void contextDeleted(String context, boolean toolPlacement) {
 		if (gradebookFrameworkService.isGradebookDefined(context)) {
 			if (log.isDebugEnabled()) log.debug("Gradebook being deleted from context " + context);
@@ -98,6 +102,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		}
 	}
 
+	@Override
 	public void transferCopyEntities(String fromContext, String toContext, List ids) {
 		String fromGradebookXml = gradebookService.getGradebookDefinitionXml(fromContext);
 		gradebookService.transferGradebookDefinitionXml(fromContext, toContext, fromGradebookXml);
@@ -121,10 +126,12 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 
 	public static final String GRADEBOOK_DEFINITION_TYPE = "sakai-gradebook";
 
+	@Override
 	public boolean canHandleType(String typeName) {
 		return (typeName.equals(GRADEBOOK_DEFINITION_TYPE));
 	}
 
+	@Override
 	public void handle(Importable importable, String siteId) {
 		if (importable.getTypeName().equals(GRADEBOOK_DEFINITION_TYPE)) {
 			gradebookService.mergeGradebookDefinitionXml(siteId, ((XmlImportable)importable).getXmlData());
@@ -137,6 +144,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		return importables;
 	}
 	
+	@Override
 	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup) {
 		
 			if(cleanup == true) {				
