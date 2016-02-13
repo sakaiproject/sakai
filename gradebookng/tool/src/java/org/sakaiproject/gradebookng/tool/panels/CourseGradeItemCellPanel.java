@@ -61,7 +61,11 @@ public class CourseGradeItemCellPanel extends Panel {
 					if (studentUuid.equals(scoreChangedEvent.getStudentUuid())) {
 						final CourseGrade updatedCourseGrade = CourseGradeItemCellPanel.this.businessService
 								.getCourseGrade(scoreChangedEvent.getStudentUuid());
-						((Model<String>) getDefaultModel()).setObject(updatedCourseGrade.getMappedGrade());
+
+						((Model<String>) getDefaultModel()).setObject(
+								// display entered grade preferentially
+								(StringUtils.isNotBlank(updatedCourseGrade.getEnteredGrade()) ? updatedCourseGrade.getEnteredGrade()
+										: updatedCourseGrade.getMappedGrade()));
 
 						scoreChangedEvent.getTarget().add(this);
 						scoreChangedEvent.getTarget().appendJavaScript(
@@ -110,4 +114,5 @@ public class CourseGradeItemCellPanel extends Panel {
 			return getParentCellFor(component.getParent());
 		}
 	}
+
 }
