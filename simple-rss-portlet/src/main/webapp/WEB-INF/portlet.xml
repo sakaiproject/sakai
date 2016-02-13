@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd" 
+	version="1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd">
+	
+	<portlet>
+	
+		<!--  there are no editable settings in here -->
+	
+		<description>Simple RSS Portlet</description>
+		<portlet-name>simple-rss-portlet</portlet-name>
+		<display-name>simple-rss-portlet</display-name>
+		<portlet-class>au.edu.anu.portal.portlets.rss.SimpleRSSPortlet</portlet-class>
+		
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>VIEW</portlet-mode>
+			<portlet-mode>EDIT</portlet-mode>
+			<portlet-mode>CONFIG</portlet-mode>
+		</supports>
+		<supported-locale>en</supported-locale>
+		<portlet-info>
+			<title>Simple RSS Portlet</title>
+			<short-title>Simple RSS Portlet</short-title>
+			<keywords>rss, atom, feed</keywords>
+		</portlet-info>
+		
+		<init-param>
+			<name>viewUrl</name>
+			<value>/pages/view.jsp</value>
+		</init-param>
+		<init-param>
+			<name>editUrl</name>
+			<value>/pages/edit.jsp</value>
+		</init-param>
+		<init-param>
+			<name>errorUrl</name>
+			<value>/pages/error.jsp</value>
+		</init-param>
+		<init-param>
+			<name>noContentUrl</name>
+			<value>/pages/nocontent.jsp</value>
+		</init-param>
+		
+		<portlet-preferences>
+         	<preferences-validator>
+				au.edu.anu.portal.portlets.rss.validator.SimpleRSSPreferencesValidator
+			</preferences-validator>
+      	</portlet-preferences>
+		
+	</portlet>
+	
+</portlet-app>
