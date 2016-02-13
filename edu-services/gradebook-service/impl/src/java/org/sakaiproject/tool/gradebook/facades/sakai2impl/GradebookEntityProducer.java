@@ -107,11 +107,6 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		String fromGradebookXml = gradebookService.getGradebookDefinitionXml(fromContext);
 		gradebookService.transferGradebookDefinitionXml(fromContext, toContext, fromGradebookXml);
 	}
-	
-	public void transferCopyEntitiesWithSettings(String fromContext, String toContext, List ids) {
-		String fromGradebookXml = gradebookService.getGradebookDefinitionXml(fromContext);
-		gradebookService.transferGradebookDefinitionXml(fromContext, toContext, fromGradebookXml);
-	}
 
 	public void setGradebookFrameworkService(GradebookFrameworkService gradebookFrameworkService) {
 		this.gradebookFrameworkService = gradebookFrameworkService;
@@ -173,13 +168,10 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 						gradebookService.removeCategory(category.getId());
 					}
 				}
-				 
-				transferCopyEntitiesWithSettings(fromContext, toContext, ids);
-				
+				 				
 			}
-			else {
-				transferCopyEntities(fromContext, toContext, ids);
-			}
+			
+			transferCopyEntities(fromContext, toContext, ids);
 	
 	}
 }
