@@ -37,10 +37,12 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
 
-		add(gradebookPage.buildFlagWithPopover("isReleasedFlag", getString("label.coursegrade.released"))
-				.setVisible(gradebook.isCourseGradeDisplayed()));
-		add(gradebookPage.buildFlagWithPopover("notReleasedFlag", getString("label.coursegrade.notreleased"))
-				.setVisible(!gradebook.isCourseGradeDisplayed()));
+		add(gradebookPage.buildFlagWithPopover("isReleasedFlag",
+				new HeaderFlagPopoverPanel("popover", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_RELEASED).toPopoverString())
+			.setVisible(gradebook.isCourseGradeDisplayed()));
+		add(gradebookPage.buildFlagWithPopover("notReleasedFlag",
+				new HeaderFlagPopoverPanel("popover", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_NOT_RELEASED).toPopoverString())
+			.setVisible(!gradebook.isCourseGradeDisplayed()));
 
 		// menu
 		final WebMarkupContainer menu = new WebMarkupContainer("menu");

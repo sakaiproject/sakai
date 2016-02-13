@@ -1035,8 +1035,13 @@ GradebookSpreadsheet.prototype.getCategoriesMap = function() {
 };
 
 
+GradebookSpreadsheet.prototype.getHeaderModelForAssignment = function(assignmentId) {
+  return this.$table.find("thead .gb-grade-item-column-cell [data-assignmentid='" + assignmentId + "']").closest(".gb-grade-item-column-cell").data("model");
+};
+
+
 GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
-  var headerModel = this.$table.find("thead .gb-grade-item-column-cell [data-assignmentid='" + assignmentId + "']").closest(".gb-grade-item-column-cell").data("model");
+  var headerModel = this.getHeaderModelForAssignment(assignmentId);
   headerModel.show();
   $.each(this._GRADE_CELLS, function(studentId, assignmentsMap) {
     assignmentsMap[assignmentId].show();
@@ -1045,7 +1050,7 @@ GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
 
 
 GradebookSpreadsheet.prototype.hideGradeItemColumn = function(assignmentId) {
-  var headerModel = this.$table.find("thead .gb-grade-item-column-cell [data-assignmentid='" + assignmentId + "']").closest(".gb-grade-item-column-cell").data("model");
+  var headerModel = this.getHeaderModelForAssignment(assignmentId);
   headerModel.hide();
   $.each(this._GRADE_CELLS, function(studentId, assignmentsMap) {
     assignmentsMap[assignmentId].hide();
@@ -1309,9 +1314,17 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
     self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
   }).on("click", ".popover .gb-popover-close", function(event) {
     var $link = $(this);
-    var cell = self.getCellModelForStudentAndAssignment($link.data("studentuuid"), $link.data("assignmentid"));
+    var $cellToFocus;
+
+    if ($link.data("studentuuid") && $link.data("assignmentid")) {
+      var cell = self.getCellModelForStudentAndAssignment($link.data("studentuuid"), $link.data("assignmentid"));
+      $cellToFocus = cell.$cell;
+    } else {
+      $cellToFocus = $link.closest("td,th");
+    }
+
     self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
-    cell.$cell.focus();
+    $cellToFocus.focus();
   });
 
   // close the dropdown if the user navigates away from it
@@ -1468,6 +1481,15 @@ GradebookSpreadsheet.prototype.refreshStudentSummary = function() {
   var $labelCount = this.$spreadsheet.find(".gb-student-summary-counts .visible");
 
   $labelCount.html(this.$table.find("tbody tr:visible").length);
+};
+
+
+GradebookSpreadsheet.prototype.editAssignmentFromFlag = function(assignmentId) {
+  var $cell = this.getHeaderModelForAssignment(assignmentId).$cell;
+  var $editLink = $cell.find(".edit-assignment-details");
+
+  $editLink.trigger("click");
+  this.$table.find('[data-toggle="popover"]').popover("hide");
 };
 
 

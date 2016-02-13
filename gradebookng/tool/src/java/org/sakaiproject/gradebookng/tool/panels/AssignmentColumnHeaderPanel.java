@@ -5,6 +5,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.core.util.string.ComponentRenderer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -127,14 +128,14 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		}
 		add(externalAppFlag);
 
-		add(gradebookPage.buildFlagWithPopover("extraCreditFlag", getString("label.gradeitem.extracredit"))
+		add(gradebookPage.buildFlagWithPopover("extraCreditFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_EXTRA_CREDIT))
 				.setVisible(assignment.isExtraCredit()));
-		add(gradebookPage.buildFlagWithPopover("isCountedFlag", getString("label.gradeitem.counted")).setVisible(assignment.isCounted()));
-		add(gradebookPage.buildFlagWithPopover("notCountedFlag", getString("label.gradeitem.notcounted"))
+		add(gradebookPage.buildFlagWithPopover("isCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_COUNTED)).setVisible(assignment.isCounted()));
+		add(gradebookPage.buildFlagWithPopover("notCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_COUNTED))
 				.setVisible(!assignment.isCounted()));
-		add(gradebookPage.buildFlagWithPopover("isReleasedFlag", getString("label.gradeitem.released"))
+		add(gradebookPage.buildFlagWithPopover("isReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_RELEASED))
 				.setVisible(assignment.isReleased()));
-		add(gradebookPage.buildFlagWithPopover("notReleasedFlag", getString("label.gradeitem.notreleased"))
+		add(gradebookPage.buildFlagWithPopover("notReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_RELEASED))
 				.setVisible(!assignment.isReleased()));
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
@@ -330,5 +331,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		} else {
 			return getParentCellFor(component.getParent());
 		}
+	}
+
+
+	private String generateFlagPopover(HeaderFlagPopoverPanel.Flag flag) {
+		return new HeaderFlagPopoverPanel("popover", flag, this.modelData.getObject().getId()).toPopoverString();
 	}
 }
