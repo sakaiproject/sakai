@@ -40,7 +40,10 @@ import org.sakaiproject.entity.api.ResourceProperties;
  * actually need to customize. External configuration files can be used to
  * set their label, reference root, and service name. The public "init()" method can be
  * used to register as an EntityProducer.
+ *
+ * @deprecated This is part of the import/export for gradebook1 which will be removed at some point
  */
+@Deprecated
 public class BaseEntityProducer implements EntityProducer {
     //private static final Log log = LogFactory.getLog(BaseEntityProducer.class);
 

@@ -43,7 +43,10 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 /**
  * Implements the Sakai EntityProducer approach to integration of tool-specific
  * storage with site management.
+ * 
+ * @deprecated This is part of the import/export for gradebook1 which will be removed at some point
  */
+@Deprecated
 public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver, EntityTransferrer, HandlesImportable {
     private static final Log log = LogFactory.getLog(GradebookEntityProducer.class);
 

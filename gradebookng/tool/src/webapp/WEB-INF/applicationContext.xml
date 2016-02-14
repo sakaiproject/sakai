@@ -36,11 +36,18 @@
 	</bean>
 	
 	<bean
-		id="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
-		class="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
+		id="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer"
+		class="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer"
 		init-method="init">
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="gradebookFrameworkService" ref="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradebookFrameworkService" ref="org_sakaiproject_service_gradebook_GradebookFrameworkService" />	
 	</bean>
+	
+	<bean
+		id="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
+		class="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
+		parent="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer">
+	</bean>	
 
 </beans>
