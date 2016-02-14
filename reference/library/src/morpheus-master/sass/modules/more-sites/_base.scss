@@ -2,26 +2,25 @@
 	background: rgba(0,0,0,0.45);
 	position: fixed;
 }
-#selectSite{
+
+#selectSiteModal{
 	position: fixed;
+        z-index: 1005;
+	overflow:visible;
 	@include transition( left 0.4s linear );
 	&.dhtml_more_tabs{
 		background: $toolMenuBGColor;
 		display: block;
 		position: fixed;
-		top: 0;
-		left: 40%;
 		width: 60% ;
 		max-height: 100%;
 		padding: 0 1em 1em 1em;
-		overflow-y: auto;
-		overflow-x: hidden;
-		z-index: 1005;
 		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
 		@media #{$phone}{
 			width: 100%;
-			left: 0;
+			height: 100%;
 			top: 2.7em;
+			left: 0;
 			overflow: visible;
 			position: absolute;
 			padding: 0;
@@ -51,9 +50,31 @@
 			display: none;
 		}
 	}
+	&:after{
+	        bottom: 100%;
+		left: 97%;
+		border: solid transparent;
+		content: " ";
+		height: 0;
+		width: 0;
+		position: absolute;
+		pointer-events: none;
+		border-color: rgba(255, 255, 255, 0);
+		border-bottom-color: $toolTabBGColor;
+		border-width: 7px;
+		margin-left: -7px;
+		outline: 0;
+	}
+}
+
+#selectSite{
 	h4{
 		font-size: 1.8em;
   		margin: 1.5em 0 0.6em 0;
+	}
+	.tab-pane{
+		overflow-y: auto;
+		overflow-x: hidden;
 	}
 	.tab-box{
 		border: 1px solid $toolBorderColor;
@@ -217,20 +238,6 @@ ul.otherSitesCategorList{
 	}
 }
 
-#otherSiteCloseW{
-	display: inline-block;
-	float: right;
-	background: none;
-	padding: 0 0 0 0;
-	margin: 0 0 0 0;
-	border: 0px none;
-	font-size: 2em;
-	.toggler{
-		text-decoration: none;
-		color: darken($errorcolor, 50%);
-	}
-}
-
 .otherSiteToolIcon{
 	padding-right: 0.5em;
 }
@@ -295,14 +302,13 @@ ul.favoriteSiteList > li{
 }
 
 .tab-btn.organizeFavorites{
-	@media #{$desktop}{
-		.favorites-desktop{
-			display: inline;
-		}
-		.favorites-mobile{
-			display: none;
-		}
+	.favorites-desktop{
+		display: inline;
 	}
+	.favorites-mobile{
+		display: none;
+	}
+
 	@media #{$phone}{
 		.favorites-desktop{
 			display: none;
