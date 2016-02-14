@@ -806,4 +806,12 @@ public interface GradebookService {
 	 * @return Set of GradeMappings for the gradebook
 	 */
 	Set getGradebookGradeMappings(String gradebookUid);
+	
+	/**
+	 * Allows an instructor to set a course grade override for the given student
+	 * @param gradebookUid 	uuid of the gradebook
+	 * @param studentUuid	uuid of the student
+	 * @param grade			the new course grade
+	 */
+	void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String grade);
 }

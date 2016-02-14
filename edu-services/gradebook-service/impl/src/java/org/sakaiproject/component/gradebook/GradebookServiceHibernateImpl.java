@@ -42,6 +42,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -3005,19 +3007,25 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			
 			CourseGradeRecord gradeRecord = gradeRecords.get(0);
-
+						
+			//ID of the course grade item
+			rval.setId(gradeRecord.getCourseGrade().getId());
+			
 			//set entered grade
 			rval.setEnteredGrade(gradeRecord.getEnteredGrade());
 						
 			if(!assignments.isEmpty()) {
 				
 				//calculated grade
+				//may be null if no grade entries to calculate
 				Double calculatedGrade = gradeRecord.getAutoCalculatedGrade();
-				rval.setCalculatedGrade(calculatedGrade.toString());
+				if(calculatedGrade != null) {
+					rval.setCalculatedGrade(calculatedGrade.toString());
+				}
 
 				//mapped grade
 				GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
-				String mappedGrade = (String)gradeMap.getGrade(calculatedGrade);
+				String mappedGrade = gradeMap.getGrade(calculatedGrade);
 				rval.setMappedGrade(mappedGrade);
 			}
 		}
@@ -3192,6 +3200,60 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		return this.getGradebookGradeMappings(gradebookId);
 	}
+	
+	@Override
+	public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String grade) {
+		
+		//must be instructor type person
+		if (!currentUserHasEditPerm(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to update course grade for student: " + studentUuid);
+			throw new SecurityException("You do not have permission to update course grades in " + gradebookUid);
+		}
+	        
+		final Gradebook gradebook = getGradebook(gradebookUid);
+		if(gradebook==null) {
+			throw new IllegalArgumentException("There is no gradebook associated with this id: " + gradebookUid);
+		}
+		
+		//get course grade for the student
+		CourseGradeRecord courseGradeRecord = (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
+                return getCourseGradeRecord(gradebook, studentUuid, session);
+            }
+		});
+				
+		//if user doesn't have an entered course grade, we need to find the course grade and create a record
+		if(courseGradeRecord == null) {
+			
+			CourseGrade courseGrade = this.getCourseGrade(gradebook.getId());
+			
+			courseGradeRecord = new CourseGradeRecord(courseGrade, studentUuid);
+			courseGradeRecord.setGraderId(getUserUid());
+			courseGradeRecord.setDateRecorded(new Date());	
+			
+		} else {
+			//if passed in grade override is same as existing grade override, nothing to do
+			if(StringUtils.equals(courseGradeRecord.getEnteredGrade(), grade)) {
+				return;
+			}
+		}
+
+		//set the grade override
+		courseGradeRecord.setEnteredGrade(grade);
+		
+		//create a grading event
+		GradingEvent gradingEvent = new GradingEvent();
+		gradingEvent.setGradableObject(courseGradeRecord.getCourseGrade());
+		gradingEvent.setGraderId(getUserUid());
+		gradingEvent.setStudentId(studentUuid);
+		gradingEvent.setGrade(courseGradeRecord.getEnteredGrade());
+		
+		//save
+		getHibernateTemplate().saveOrUpdate(courseGradeRecord);
+		getHibernateTemplate().saveOrUpdate(gradingEvent);
+	}
+
 	
 	/**
 	 * Map a set of GradeMapping to a list of GradeMappingDefinition

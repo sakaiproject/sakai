@@ -1944,6 +1944,28 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Update the course grade (override) for this student
+	 * 
+	 * @param studentUuid uuid of the student
+	 * @param grade the new grade
+	 * @return
+	 */
+	public boolean updateCourseGrade(final String studentUuid, final String grade) {
+
+		final String siteId = getCurrentSiteId();
+		final Gradebook gradebook = getGradebook(siteId);
+
+		try {
+			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade);
+			return true;
+		} catch (final Exception e) {
+			log.error("An error occurred saving the course grade. " + e.getClass() + ": " + e.getMessage());
+		}
+
+		return false;
+	}
+
+	/**
 	 * Comparator class for sorting a list of AssignmentOrders
 	 */
 	class AssignmentOrderComparator implements Comparator<AssignmentOrder> {

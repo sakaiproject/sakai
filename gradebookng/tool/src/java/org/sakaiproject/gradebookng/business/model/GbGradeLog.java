@@ -9,7 +9,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import lombok.Getter;
 
 /**
- * DTO for the grade log
+ * DTO for grade log events.
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *

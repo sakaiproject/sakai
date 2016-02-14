@@ -9,7 +9,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -62,7 +61,11 @@ public class CourseGradeItemCellPanel extends Panel {
 					if (studentUuid.equals(scoreChangedEvent.getStudentUuid())) {
 						final CourseGrade updatedCourseGrade = CourseGradeItemCellPanel.this.businessService
 								.getCourseGrade(scoreChangedEvent.getStudentUuid());
-						((Model<String>) getDefaultModel()).setObject(updatedCourseGrade.getMappedGrade());
+
+						((Model<String>) getDefaultModel()).setObject(
+								// display entered grade preferentially
+								(StringUtils.isNotBlank(updatedCourseGrade.getEnteredGrade()) ? updatedCourseGrade.getEnteredGrade()
+										: updatedCourseGrade.getMappedGrade()));
 
 						scoreChangedEvent.getTarget().add(this);
 						scoreChangedEvent.getTarget().appendJavaScript(
@@ -82,11 +85,9 @@ public class CourseGradeItemCellPanel extends Panel {
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
-				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
+				final GbModalWindow window = gradebookPage.getGradeLogWindow();
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
-
-				// pass in getModel() here
-				window.setContent(new EmptyPanel(window.getContentId()));
+				window.setContent(new CourseGradeOverridePanel(window.getContentId(), getModel(), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
 			}
@@ -98,9 +99,7 @@ public class CourseGradeItemCellPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
-
-				// pass in getModel() here
-				window.setContent(new EmptyPanel(window.getContentId()));
+				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), getModel(), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
 			}
@@ -115,4 +114,5 @@ public class CourseGradeItemCellPanel extends Panel {
 			return getParentCellFor(component.getParent());
 		}
 	}
+
 }

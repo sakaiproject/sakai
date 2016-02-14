@@ -3,11 +3,9 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.io.Serializable;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -17,6 +15,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -118,29 +117,8 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 		add(form);
 
-		final FeedbackPanel feedback = new FeedbackPanel("updateGradeFeedback") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected Component newMessageDisplayComponent(final String id, final FeedbackMessage message) {
-				final Component newMessageDisplayComponent = super.newMessageDisplayComponent(id, message);
-
-				if (message.getLevel() == FeedbackMessage.ERROR ||
-						message.getLevel() == FeedbackMessage.DEBUG ||
-						message.getLevel() == FeedbackMessage.FATAL ||
-						message.getLevel() == FeedbackMessage.WARNING) {
-					add(AttributeModifier.replace("class", "messageError"));
-					add(AttributeModifier.append("class", "feedback"));
-				} else if (message.getLevel() == FeedbackMessage.INFO) {
-					add(AttributeModifier.replace("class", "messageSuccess"));
-					add(AttributeModifier.append("class", "feedback"));
-				}
-
-				return newMessageDisplayComponent;
-			}
-		};
-		feedback.setOutputMarkupId(true);
-		form.add(feedback);
+		// feedback panel
+		form.add(new GbFeedbackPanel("updateGradeFeedback"));
 
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
