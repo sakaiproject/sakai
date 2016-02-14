@@ -13,8 +13,12 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -118,8 +122,14 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	 */
 	@Override
 	public void transferCopyEntities(final String fromContext, final String toContext, final List<String> ids) {
-		// TODO Auto-generated method stub
 
+		final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(fromContext);
+
+		final GradebookInformation gradebookInformation = this.gradebookService.getGradebookInformation(gradebook.getUid());
+
+		final List<Assignment> assignments = this.gradebookService.getAssignments(fromContext);
+
+		this.gradebookService.transferGradebook(gradebookInformation, assignments, toContext);
 	}
 
 	/**
@@ -128,8 +138,22 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	@Override
 	public void transferCopyEntities(final String fromContext, final String toContext, final List<String> ids, final boolean cleanup) {
 
-	}
+		if (cleanup == true) {
 
-	// do we need HandlesImportable ?
+			final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(toContext);
+
+			// remove assignments in 'to' site
+			final List<Assignment> assignments = this.gradebookService.getAssignments(gradebook.getUid());
+			assignments.forEach(a -> this.gradebookService.removeAssignment(a.getId()));
+
+			// remove categories in 'to' site
+			final List<CategoryDefinition> categories = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
+			categories.forEach(c -> this.gradebookService.removeCategory(c.getId()));
+		}
+
+		// now migrate
+		this.transferCopyEntities(fromContext, toContext, ids);
+
+	}
 
 }

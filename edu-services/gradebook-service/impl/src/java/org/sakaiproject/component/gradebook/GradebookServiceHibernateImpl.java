@@ -394,6 +394,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	@SuppressWarnings("rawtypes")
 	@Override
+	@Deprecated
 	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml) {
 		final Gradebook gradebook = getGradebook(toGradebookUid);
 		final Gradebook fromGradebook = getGradebook(fromGradebookUid);
@@ -533,6 +534,108 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			// Did not find a matching grading scale.
 			if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
 		}
+	}
+	
+	@Override
+	public void transferGradebook(final GradebookInformation gradebookInformation, final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments, final String toGradebookUid) {
+
+		final Gradebook gradebook = getGradebook(toGradebookUid);
+				
+		gradebook.setCategory_type(gradebookInformation.getCategoryType());
+		gradebook.setGrade_type(gradebookInformation.getGradeType());
+		
+		updateGradebook(gradebook);
+		
+		//all categories that we need to end up with
+		List<CategoryDefinition> categories = gradebookInformation.getCategories();
+		
+		//this map holds the names of categories that have been created in the site to the category ids
+		//and is updated as we go along
+		Map<String, Long> categoriesCreated = new HashMap<>();
+			
+		if(!categories.isEmpty()) {
+			
+			//deal with category with assignments
+			for(CategoryDefinition cd : categories) {
+				
+				String categoryName = cd.getName();
+		
+				for (org.sakaiproject.service.gradebook.shared.Assignment assignment : assignments) {
+									
+					// Externally managed assessments should not be included.
+					if (assignment.isExternallyMaintained()) {
+						continue;
+					}
+					
+					if(StringUtils.equals(cd.getName(), assignment.getCategoryName())) {
+						
+						if(!categoriesCreated.containsKey(categoryName)) {
+							
+							//create category
+							Long categoryId = createCategory(gradebook.getId(), categoryName, assignment.getWeight(), 0, 0, 0, assignment.isCategoryExtraCredit());
+						
+							//record that we have created this category
+							categoriesCreated.put(categoryName, categoryId);
+						} 
+						
+						//get the categoryId
+						Long categoryId = categoriesCreated.get(categoryName);
+						
+						//create the assignment for the category
+						createAssignmentForCategory(gradebook.getId(), categoryId, assignment.getName(), assignment.getPoints(), assignment.getDueDate(), true, false, assignment.isExtraCredit());
+					}
+				}
+			}
+			
+			//deal with Categories without assignments
+			//filter list down to those that we need to create and create them
+			categories.removeIf(c -> categoriesCreated.containsKey(c.getName()));
+			categories.forEach(c -> createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDrop_lowest(), c.getDropHighest(), c.getKeepHighest(), c.isExtraCredit()));							
+		}
+		//deal with no categories
+		else {
+			for (org.sakaiproject.service.gradebook.shared.Assignment assignment : assignments) {
+				
+				// Externally managed assessments should not be included.
+				if (assignment.isExternallyMaintained()) {
+					continue;
+				}
+				
+				// All assignments should be unreleased even if they were released in the original.
+				createAssignment(gradebook.getId(), assignment.getName(), assignment.getPoints(), assignment.getDueDate(), true, false, assignment.isExtraCredit());
+			}	
+			
+		}
+		
+		// Carry over the old gradebook's selected grading scheme if possible.
+		
+		String fromGradingScaleUid = gradebookInformation.getSelectedGradingScaleUid();
+		
+		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
+		for (GradeMapping gradeMapping : gradebook.getGradeMappings()) {
+				if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
+					// We have a match. Now make sure that the grades are as expected.
+					Map<String, Double> inputGradePercents = gradebookInformation.getSelectedGradingScaleBottomPercents();
+					Set<String> gradeCodes = inputGradePercents.keySet();
+					if (gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
+						// Modify the existing grade-to-percentage map.
+						for (String gradeCode : gradeCodes) {
+							gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));							
+						}
+						gradebook.setSelectedGradeMapping(gradeMapping);
+						updateGradebook(gradebook);
+						if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " updated grade mapping");
+					} else {
+						if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
+					}
+					break MERGE_GRADE_MAPPING;
+				}
+			}
+			// Did not find a matching grading scale.
+			if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
+		}
+		
+		
 	}
 	
 	@Override
