@@ -57,6 +57,7 @@ import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
@@ -549,66 +550,83 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//all categories that we need to end up with
 		List<CategoryDefinition> categories = gradebookInformation.getCategories();
 		
+		//filter out externally managed assignments. These are never imported.
+		assignments.removeIf(a -> a.isExternallyMaintained());	
+	
 		//this map holds the names of categories that have been created in the site to the category ids
 		//and is updated as we go along
+		//likewise for list of assignments
 		Map<String, Long> categoriesCreated = new HashMap<>();
-			
+		List<String> assignmentsCreated = new ArrayList<>();
+	
 		if(!categories.isEmpty()) {
 			
-			//deal with category with assignments
-			for(CategoryDefinition cd : categories) {
-				
-				String categoryName = cd.getName();
-		
-				for (org.sakaiproject.service.gradebook.shared.Assignment assignment : assignments) {
-									
-					// Externally managed assessments should not be included.
-					if (assignment.isExternallyMaintained()) {
-						continue;
-					}
-					
-					if(StringUtils.equals(cd.getName(), assignment.getCategoryName())) {
+			//migrate the categories with assignments
+			categories.forEach(c -> {
 						
-						if(!categoriesCreated.containsKey(categoryName)) {
+				assignments.forEach(a -> {
+									
+					if(StringUtils.equals(c.getName(), a.getCategoryName())) {
+						
+						if(!categoriesCreated.containsKey(c.getName())) {
 							
 							//create category
-							Long categoryId = createCategory(gradebook.getId(), categoryName, assignment.getWeight(), 0, 0, 0, assignment.isCategoryExtraCredit());
-						
+							Long categoryId = null;
+							try {
+								categoryId = createCategory(gradebook.getId(), c.getName(), a.getWeight(), 0, 0, 0, a.isCategoryExtraCredit());
+							} catch (ConflictingCategoryNameException e) {
+								//category already exists. Could be from a merge.
+								log.info("Category: " + c.getName() + " already exists in target site. Skipping creation.");
+							} 
+							
+							if(categoryId == null) {
+								//couldn't create so look up the id in the target site
+								List<CategoryDefinition> existingCategories = this.getCategoryDefinitions(gradebook.getUid());
+								categoryId = existingCategories.stream().filter(e -> StringUtils.equals(e.getName(), c.getName())).findFirst().get().getId();
+							}
 							//record that we have created this category
-							categoriesCreated.put(categoryName, categoryId);
+							categoriesCreated.put(c.getName(), categoryId);
+							
+						}	
+						
+						//create the assignment for the current category
+						try {
+							createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), a.getName(), a.getPoints(), a.getDueDate(), true, false, a.isExtraCredit());
+						} catch (ConflictingAssignmentNameException e) {
+							//assignment already exists. Could be from a merge.
+							log.info("Assignment: " + a.getName() + " already exists in target site. Skipping creation.");
 						} 
 						
-						//get the categoryId
-						Long categoryId = categoriesCreated.get(categoryName);
-						
-						//create the assignment for the category
-						createAssignmentForCategory(gradebook.getId(), categoryId, assignment.getName(), assignment.getPoints(), assignment.getDueDate(), true, false, assignment.isExtraCredit());
+						//record that we have created this assignment
+						assignmentsCreated.add(a.getName());
 					}
-				}
-			}
+				});
+			});
 			
-			//deal with Categories without assignments
-			//filter list down to those that we need to create and create them
-			categories.removeIf(c -> categoriesCreated.containsKey(c.getName()));
-			categories.forEach(c -> createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDrop_lowest(), c.getDropHighest(), c.getKeepHighest(), c.isExtraCredit()));							
-		}
-		//deal with no categories
-		else {
-			for (org.sakaiproject.service.gradebook.shared.Assignment assignment : assignments) {
-				
-				// Externally managed assessments should not be included.
-				if (assignment.isExternallyMaintained()) {
-					continue;
+			//create any remaining categories that have no assignments
+			categories.removeIf(c -> categoriesCreated.containsKey(c.getName()));			
+			categories.forEach(c -> {
+				try {
+					createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDrop_lowest(), c.getDropHighest(), c.getKeepHighest(), c.isExtraCredit());
+				} catch (ConflictingCategoryNameException e) {
+					//category already exists. Could be from a merge.
+					log.info("Category: " + c.getName() + " already exists in target site. Skipping creation.");
 				}
-				
-				// All assignments should be unreleased even if they were released in the original.
-				createAssignment(gradebook.getId(), assignment.getName(), assignment.getPoints(), assignment.getDueDate(), true, false, assignment.isExtraCredit());
-			}	
-			
+			});						
 		}
+	
+		//create any remaining assignments that have no categories
+		assignments.removeIf(a -> assignmentsCreated.contains(a.getName()));	
+		assignments.forEach(a -> {
+			try {
+				createAssignment(gradebook.getId(), a.getName(), a.getPoints(), a.getDueDate(), true, false, a.isExtraCredit());
+			} catch (ConflictingAssignmentNameException e) {
+				//assignment already exists. Could be from a merge.
+				log.info("Assignment: " + a.getName() + " already exists in target site. Skipping creation.");
+			} 
+		});							
 		
 		// Carry over the old gradebook's selected grading scheme if possible.
-		
 		String fromGradingScaleUid = gradebookInformation.getSelectedGradingScaleUid();
 		
 		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
@@ -624,15 +642,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						}
 						gradebook.setSelectedGradeMapping(gradeMapping);
 						updateGradebook(gradebook);
-						if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " updated grade mapping");
+						log.info("Merge to gradebook " + toGradebookUid + " updated grade mapping");
 					} else {
-						if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
+						log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
 					}
 					break MERGE_GRADE_MAPPING;
 				}
 			}
 			// Did not find a matching grading scale.
-			if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
+			log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
 		}
 		
 		
