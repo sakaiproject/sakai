@@ -58,6 +58,18 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 				window.show(target);
 			}
 		});
+		menu.add(new AjaxLink<Void>("updateCourseGradeDisplay") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+				final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
+				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setContent(new UpdateCourseGradeDisplayPanel(window.getContentId(), window));
+				window.showUnloadConfirmation(false);
+				window.show(target);
+			}
+		});
 		add(menu);
 	}
 
