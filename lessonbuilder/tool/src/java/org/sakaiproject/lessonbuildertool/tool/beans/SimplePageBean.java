@@ -7600,21 +7600,7 @@ public class SimplePageBean {
 		// user is in site because we check canRead
 		String owner = getCurrentPage().getOwner();
 		String currentUser = getCurrentUserId();
-		List<String>groupMembers = new ArrayList<String>();
-		if (item.isGroupOwned()) {
-		    String group = getCurrentPage().getGroup();
-		    if (group != null)
-			group = "/site/" + getCurrentSiteId() + "/group/" + group;
-		    try {
-			AuthzGroup g = authzGroupService.getAuthzGroup(group);
-			Set<Member> members = g.getMembers();
-			for (Member m: members) {
-			    groupMembers.add(m.getUserId());
-			}
-		    } catch (Exception e) {
-			System.out.println("unable to get members of group " + group);
-		    }
-		}
+		List<String>groupMembers = studentPageGroupMembers(item, null);
 		boolean evalIndividual = (item.isGroupOwned() && "true".equals(item.getAttribute("group-eval-individual")));
 		boolean gradingSelf = Boolean.parseBoolean(item.getAttribute("rubricAllowSelfGrade"));
 		// check is down below at canSubmit.
@@ -7661,7 +7647,14 @@ public class SimplePageBean {
 		    evalTargets.add(getCurrentPage().getOwner());
 		}
 
-		// now do the actual data update
+		// now do the actual data update. loop over users
+
+		// search will always include target. where a group is being
+		// evaluted also need groupId. In that case old format entries are
+		// by page owner, new are by group, so we need both
+		String groupId = null;
+		if (item.isGroupOwned() && !evalIndividual)
+		    groupId = getCurrentPage().getGroup();
 
 		for (String target: dataMap.keySet()) {
 		    // is this someone we can evaluate? In normal case only page owner
@@ -7675,7 +7668,7 @@ public class SimplePageBean {
 		    if (!evalTargets.contains(target))
 			continue;
 		    // get old evaluations, as we need to mark them deleted
-		    List<SimplePagePeerEvalResult> oldEvaluations = simplePageToolDao.findPeerEvalResult(getCurrentPage().getPageId(), userId, target);
+		    List<SimplePagePeerEvalResult> oldEvaluations = simplePageToolDao.findPeerEvalResult(getCurrentPage().getPageId(), userId, target, groupId);
 		    Map <String, Integer> rows = dataMap.get(target);  // rows of new data
 		    for (SimplePagePeerEvalResult result: oldEvaluations) {
 			if (rows.get(result.getRowText()) != null) { // we have a new value for this row
@@ -7686,7 +7679,8 @@ public class SimplePageBean {
 		    // now add new evaluations
 		    for (String rowText: rows.keySet()) {
 			int grade = rows.get(rowText); // grade for this row from data
-			SimplePagePeerEvalResult ret = simplePageToolDao.makePeerEvalResult(getCurrentPage().getPageId(), target, userId, rowText, grade);
+			// create a new format entry. use group id when evaluating group
+			SimplePagePeerEvalResult ret = simplePageToolDao.makePeerEvalResult(getCurrentPage().getPageId(), (groupId == null ? target: null), groupId, userId,  rowText, 0L, grade);
 			saveItem(ret,false);		
 		    }
 		    
@@ -7695,6 +7689,29 @@ public class SimplePageBean {
 
 	}
 	
+	public List<String>studentPageGroupMembers(SimplePageItem item, String group) {
+	    List<String>groupMembers = new ArrayList<String>();
+	    if (item.isGroupOwned()) {
+		if (group == null) {
+		    SimplePage page = getCurrentPage();
+		    group = page.getGroup();
+		}
+		if (group != null)
+		    group = "/site/" + getCurrentSiteId() + "/group/" + group;
+		try {
+		    AuthzGroup g = authzGroupService.getAuthzGroup(group);
+		    Set<Member> members = g.getMembers();
+		    for (Member m: members) {
+			groupMembers.add(m.getUserId());
+		    }
+		} catch (Exception e) {
+		    System.out.println("unable to get members of group " + group);
+		}
+	    }
+	    return groupMembers;
+	}	    
+
+
 	// May add or edit comments
 		public String addComment1() {
 			boolean html = false;

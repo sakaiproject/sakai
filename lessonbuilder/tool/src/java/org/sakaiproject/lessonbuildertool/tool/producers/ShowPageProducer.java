@@ -2254,21 +2254,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // for historical reasons when we evaluate the group the first person
 					    // to create the group is shown as the owner.
 					    
-						List<String>groupMembers = new ArrayList<String>();
-						if (i.isGroupOwned()) {
-						    String group = simplePageBean.getCurrentPage().getGroup();
-						    if (group != null)
-							group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
-						    try {
-							AuthzGroup g = authzGroupService.getAuthzGroup(group);
-							Set<Member> members = g.getMembers();
-							for (Member m: members) {
-							    groupMembers.add(m.getUserId());
-							}
-						    } catch (Exception e) {
-							System.out.println("unable to get members of group " + group);
-						    }
-						}
+						List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, null);
 
 						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
 
@@ -2331,6 +2317,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 							evalTargets.add(target);
 						    }
+
+						    // for old format entries always need page owner or evaluee
+						    // for new format when evaluating page need groupId
+						    String groupId = null;
+						    if (i.isGroupOwned() && !evalIndividual)
+							groupId = simplePageBean.getCurrentPage().getGroup();
+
 						    for (Target target: evalTargets) {
 							UIContainer entry = UIBranchContainer.make(peerForm, "peer-eval-target:");
 						    // for each target
@@ -2342,7 +2335,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							if ((i.isGroupOwned() && !evalIndividual && groupMembers.contains(currentUser)) ||
 							    target.id.equals(currentUser)) {
 							
-							    List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), target.id);
+							    List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), target.id, groupId);
 							    
 							    if(evaluations!=null) {
 								for(SimplePagePeerEvalResult eval : evaluations) {
@@ -2368,7 +2361,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 							// now get current data to initiaize form. That's just
 							// the submission by current user.
-							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, target.id);
+							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, target.id, groupId);
 							Map<String,Integer> selectedCells = new HashMap<String,Integer>();
 							for (SimplePagePeerEvalResult result: evaluations)
 							    selectedCells.put(result.getRowText(), new Integer(result.getColumnValue()));
@@ -2456,10 +2449,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					        UIOutput contentList = UIOutput.make(tableRow, "studentContentTable");
 					        UIOutput contentTitle = UIOutput.make(tableRow, "studentContentTitle", messageLocator.getMessage("simplepage.student"));
 						contentList.decorate(new UIFreeAttributeDecorator("aria-labelledby", contentTitle.getFullID()));
-
+						boolean seeOnlyOwn = ("true".equals(i.getAttribute("see-only-own")));
 						// Print each row in the table
 						for(SimpleStudentPage page : studentPages) {
 							if(page.isDeleted()) continue;
+
+							// if seeOnlyOwn, skip other entries
+							if (seeOnlyOwn && !canSeeAll) {
+							    List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, page.getGroup());
+							    String currentUser = UserDirectoryService.getCurrentUser().getId();
+							    if (!i.isGroupOwned() && !page.getOwner().equals(currentUser) ||
+								i.isGroupOwned() && !groupMembers.contains(currentUser))
+								continue;
+							}
 
 							SimplePageLogEntry entry = cache.get(page.getPageId());
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");

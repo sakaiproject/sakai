@@ -33,7 +33,9 @@ public class SimplePagePeerEvalResultImpl implements SimplePagePeerEvalResult {
 	private Date timePosted; 
 	private String grader; 
 	private String gradee; 
+	private String gradeeGroup; 
 	private String rowText;
+	private long rowId;
 	private int columnValue;
 	private boolean selected;
 
@@ -46,20 +48,23 @@ public class SimplePagePeerEvalResultImpl implements SimplePagePeerEvalResult {
 		this.selected = false;
 		
 	}
-	public SimplePagePeerEvalResultImpl(String userId, String gradee) { 
+	public SimplePagePeerEvalResultImpl(String userId, String gradee, String gradeeGroup) { 
 		this.grader = userId;
 		this.timePosted = new Date();
 		this.gradee = gradee;
+		this.gradeeGroup = gradeeGroup;
 		this.selected = false;
 
 		
 	}
-	public SimplePagePeerEvalResultImpl(long pageId, String gradee, String grader, String rowText, int columnValue) {
+	public SimplePagePeerEvalResultImpl(long pageId, String gradee, String gradeeGroup, String grader, String rowText, long rowId, int columnValue) {
 		this.pageId = pageId;
 		this.timePosted = new Date();
 		this.gradee = gradee;
+		this.gradeeGroup = gradeeGroup;
 		this.grader = grader;
 		this.rowText = rowText;
+		this.rowId = rowId;
 		this.columnValue = columnValue;
 		this.selected = true;
 
@@ -102,6 +107,13 @@ public class SimplePagePeerEvalResultImpl implements SimplePagePeerEvalResult {
 		this.gradee = author;
 	}
 
+	public String getGradeeGroup(){
+		return gradeeGroup;
+	}
+	public void setGradeeGroup(String author){
+		this.gradeeGroup = author;
+	}
+
 	public String getRowText() {
 		return rowText;
 	}
@@ -109,6 +121,13 @@ public class SimplePagePeerEvalResultImpl implements SimplePagePeerEvalResult {
 		this.rowText = text;
 	}
 	
+	public long getRowId() {
+		return rowId;
+	}
+	public void setRowId(long id){
+		this.rowId = id;
+	}
+
 	public int getColumnValue(){
 		return columnValue;
 	}

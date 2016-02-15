@@ -5,6 +5,9 @@
 -- update SAKAI_CLUSTER set SERVER_ID='1' where SERVER_ID='1';
 -- ---------------------------------------------------------------------------
 
+create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
+alter table lesson_builder_p_eval_results modify (gradee null);                                                      
+alter table lesson_builder_p_eval_results modify (row_text null);                                                    
 create index lb_page_folder on lesson_builder_pages(siteId, folder);
 create index lb_group_site on lesson_builder_groups(siteId);
 create index lb_item_gb on lesson_builder_items(gradebookid);
