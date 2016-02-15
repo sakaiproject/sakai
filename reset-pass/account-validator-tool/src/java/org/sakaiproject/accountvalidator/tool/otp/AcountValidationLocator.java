@@ -251,6 +251,12 @@ public class AcountValidationLocator implements BeanLocator  {
 				// A TargettedMessage will be displayed by ValidationProducer
 				return "error!";
 			}
+			if(item.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE)) {
+				boolean isSuccess = userDirectoryService.updateUserId(userId,item.getEid());
+				if(!isSuccess) {
+					tml.addMessage(new TargettedMessage("msg.errUpdate.userId" , new Object[]{item.getEid()}, TargettedMessage.SEVERITY_ERROR));
+				}
+			}
 				
 	        	UserEdit u = userDirectoryService.editUser(userId);
 				if (isLegacyLinksEnabled() || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET != accountStatus)

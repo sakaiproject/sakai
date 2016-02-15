@@ -239,6 +239,7 @@ function removeOptionalAttributeBlock(elem) {
 				#end					
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			<input type="hidden" name="alert_message" id="alert_message" value="$alertMessage" />
                 </fieldset>
 		</form>
 </div>

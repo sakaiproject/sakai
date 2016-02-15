@@ -172,7 +172,14 @@ public interface EmailTemplateService {
     * @return
     */
    public boolean templateExists(String key, Locale locale);
-	   
-   
+   /**
+   * Utility to send message to user, also when user has changed the email address.
+   * @param userIds
+   * @param emailAddresses
+   * @param renderedTemplate
+   * @param from
+   * @param fromName
+   */
+   public void sendMessage(List<String> userIds, List<String> emailAddresses, RenderedTemplate renderedTemplate,  String from, String fromName );
    
 }

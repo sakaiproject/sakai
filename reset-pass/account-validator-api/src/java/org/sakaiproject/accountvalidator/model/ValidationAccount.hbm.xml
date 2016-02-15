@@ -16,6 +16,7 @@
 	    	</generator>
 		</id>
 		<property name="userId" column="USER_ID" type="string" length="255" not-null="true" />
+		<property name="eid" column="EID" type="string" length="255"/>
 		<property name="validationToken" column="VALIDATION_TOKEN" type="string" length="255" not-null="true" />
 		<property name="validationSent" column="VALIDATION_SENT" type="timestamp" />
 		<property name="validationReceived" column="VALIDATION_RECEIVED" type="timestamp" />

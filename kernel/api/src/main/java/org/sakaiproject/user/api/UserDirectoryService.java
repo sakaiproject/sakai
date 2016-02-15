@@ -178,6 +178,14 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return true if the user is allowed to update their own first and last names, false if not.
 	 */
 	public boolean allowUpdateUserName(String id);
+	/**
+	 * Gets the UserEdit object from storage inorder to update the user Eid()
+	 *
+	 * @param eId  The user id.
+	 * @param newEmail the Id with which userId will be updated
+	 * @return UserEdit object
+	 */
+	public boolean updateUserId(String eId,String newEmail);
 
 	/**
 	 * check permissions for editUser()

@@ -69,7 +69,7 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 			//handled by getValidationAccount
 			return;
 		}
-		else if (!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_NEW) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_EXISITING))
+		else if (!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_NEW) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_EXISITING )&&!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE))
 		{
 			//this form is not appropriate
 			args = new Object[] {va.getValidationToken()};
@@ -116,47 +116,51 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 			addedBy.getEmail(),
 			u.getDisplayId()
 		};
-
-		//we need to know which sites they're a member of:
-		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(va.getUserId()), "site.visit", null);
-		Iterator<String> git = groups.iterator();
-		List<String> existingSites = new ArrayList<>();
-		while (git.hasNext())
-		{
-			String groupRef = git.next();
-			String groupId = EntityReference.getIdFromRef(groupRef);
-			if (!existingSites.contains(groupId))
+		//details form
+		UIForm detailsForm = UIForm.make(tofill, "setDetailsForm");
+		UIMessage.make(tofill, "username.new", "username.new");
+		//Do not display sites and other welcome page information if user is updating userid
+		if(va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE)) {
+			UIMessage.make(tofill, "account-title", "submit.update");
+			UIOutput.make(tofill, "eid", va.getEid());
+			UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.update"), "accountValidationLocator.validateAccount");
+		}
+		else {
+			UIMessage.make(tofill, "account-title", "activateAccount.title");
+			UIMessage.make(tofill, "welcome", "validate.welcome", args);
+			UIOutput.make(tofill, "eid", u.getDisplayId());
+			UIMessage.make(tofill, "wait.1", "validate.wait.newUser.1", args);
+			String linkText = messageLocator.getMessage("validate.wait.newUser.2", args);
+			String transferMembershipsURL = getViewURL("transferMemberships", va);
+			UILink.make(tofill, "wait.2", linkText, transferMembershipsURL);
+			UIMessage.make(tofill, "validate.alreadyhave", "validate.alreadyhave", args);
+			UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.account"), "accountValidationLocator.validateAccount");
+			//we need to know which sites they're a member of:
+			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(va.getUserId()), "site.visit", null);
+			Iterator<String> git = groups.iterator();
+			List existingSites = new ArrayList();
+			while (git.hasNext())
 			{
-				log.debug("groupId is " + groupId);
-				try
+				String groupRef = git.next();
+				String groupId = EntityReference.getIdFromRef(groupRef);
+				if (!existingSites.contains(groupId))
 				{
-					Site s = siteService.getSite(groupId);	
-					UIBranchContainer list = UIBranchContainer.make(tofill, "siteListItem:", groupId);
-					UIOutput.make(list, "siteName", s.getTitle());
-					existingSites.add(groupId);
-				}
-				catch (IdUnusedException e)
-				{
-					e.printStackTrace();
+					log.debug("groupId is " + groupId);
+					try
+					{
+						Site s = siteService.getSite(groupId);
+						UIBranchContainer list = UIBranchContainer.make(tofill, "siteListItem:", groupId);
+						UIOutput.make(list, "siteName", s.getTitle());
+						existingSites.add(groupId);
+					}
+					catch (IdUnusedException e)
+					{
+						e.printStackTrace();
+					}
 				}
 			}
 		}
-
-		String welcomeMessage = existingSites.size() == 1 ? "validate.welcome.single" : "validate.welcome.plural";
-		UIMessage.make(tofill, "welcome", welcomeMessage, args);
 		UIMessage.make(tofill, "welcome2", "validate.welcome2", args);
-		UIMessage.make(tofill, "username.new", "username.new");
-		UIOutput.make(tofill, "eid", u.getDisplayId());
-		UIMessage.make(tofill, "wait.1", "validate.wait.newUser.1", args);
-		String linkText = messageLocator.getMessage("validate.wait.newUser.2", args);
-		String transferMembershipsURL = getViewURL("transferMemberships", va);
-		UILink.make(tofill, "wait.2", linkText, transferMembershipsURL);
-		UIMessage.make(tofill, "validate.alreadyhave", "validate.alreadyhave", args);
-
-		//details form
-		UIForm detailsForm = UIForm.make(tofill, "setDetailsForm");
-
-		UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.account"), "accountValidationLocator.validateAccount");
 
 		String otp = "accountValidationLocator." + va.getId();
 		UIBranchContainer firstNameContainer = UIBranchContainer.make(detailsForm, "firstNameContainer:");
