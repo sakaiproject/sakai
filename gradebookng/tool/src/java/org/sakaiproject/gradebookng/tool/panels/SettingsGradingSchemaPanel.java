@@ -45,6 +45,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	WebMarkupContainer schemaWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
 	List<GradeMappingDefinition> gradeMappings;
+	private boolean expanded;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -56,9 +57,10 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	 */
 	String currentGradeMappingId;
 
-	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model) {
+	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
 		this.model = model;
+		this.expanded = expanded;
 	}
 
 	@Override
@@ -89,14 +91,19 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+				expanded = true;
 			}
 		});
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+				expanded = false;
 			}
 		});
+		if (expanded) {
+			settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+		}
 		add(settingsGradingSchemaPanel);
 
 		// grading scale type chooser
@@ -248,6 +255,10 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		}
 
 		return rval;
+	}
+
+	public boolean isExpanded() {
+		return expanded;
 	}
 }
 
