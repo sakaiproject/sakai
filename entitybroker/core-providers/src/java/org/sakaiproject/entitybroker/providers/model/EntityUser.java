@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  * it is disappointing that this is needed, very disappointing indeed<br/>
  * They seem to already be wrapped in a proxy as well for some reason based on the failure from xstream when
  * it tries to work with them
- * 
+ *
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
@@ -83,6 +83,7 @@ public class EntityUser implements User {
         this.displayName = user.getDisplayName();
         this.owner = user.getCreatedBy() == null ? null : "/user/" + user.getCreatedBy().getId();
         this.lastModified = user.getModifiedTime() == null ? System.currentTimeMillis() : user.getModifiedTime().getTime();
+        this.type = user.getType();
         ResourceProperties rp = user.getProperties();
         for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
             String name = iterator.next();
@@ -226,7 +227,7 @@ public class EntityUser implements User {
         }
         throw new UnsupportedOperationException();
     }
-    
+
     public Date getCreatedDate() {
         if (user != null) {
             return user.getCreatedDate();
@@ -261,7 +262,7 @@ public class EntityUser implements User {
         }
         return new Date(lastModified);
     }
-    
+
     public String getSortName() {
         String sortName = null;
         if (user != null) {
