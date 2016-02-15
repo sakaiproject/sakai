@@ -55,10 +55,12 @@ public class SettingsCategoryPanel extends Panel {
 	boolean isDropHighest = false;
 	boolean isDropLowest = false;
 	boolean isKeepHighest = false;
+	boolean expanded = false;
 
-	public SettingsCategoryPanel(final String id, final IModel<GbSettings> model) {
+	public SettingsCategoryPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
 		this.model = model;
+		this.expanded = expanded;
 	}
 
 	@Override
@@ -97,6 +99,7 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+				expanded = true;
 			}
 		});
 		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
@@ -105,8 +108,12 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+				expanded = false;
 			}
 		});
+		if (expanded) {
+			settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+		}
 		add(settingsCategoriesPanel);
 
 		// category types
@@ -589,5 +596,9 @@ public class SettingsCategoryPanel extends Panel {
 		updateRunningTotal(runningTotal, runningTotalMessage);
 		target.add(runningTotal);
 		target.add(runningTotalMessage);
+	}
+
+	public boolean isExpanded() {
+		return expanded;
 	}
 }
