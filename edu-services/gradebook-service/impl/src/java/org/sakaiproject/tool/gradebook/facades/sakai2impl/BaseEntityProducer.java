@@ -40,7 +40,10 @@ import org.sakaiproject.entity.api.ResourceProperties;
  * actually need to customize. External configuration files can be used to
  * set their label, reference root, and service name. The public "init()" method can be
  * used to register as an EntityProducer.
+ *
+ * @deprecated This is part of the import/export for gradebook1 which will be removed at some point
  */
+@Deprecated
 public class BaseEntityProducer implements EntityProducer {
     //private static final Log log = LogFactory.getLog(BaseEntityProducer.class);
 
@@ -83,47 +86,58 @@ public class BaseEntityProducer implements EntityProducer {
 
 	// EntityProducer methods begin here.
 
+	@Override
 	public String getLabel() {
 		return label;
 	}
 
+	@Override
 	public boolean willArchiveMerge() {
 		return false;
 	}
 
+	@Override
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
 		return null;
 	}
 
+	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport) {
 		return null;
 	}
 
+	@Override
 	public boolean parseEntityReference(String reference, Reference ref) {
 		return false;
 	}
 
+	@Override
 	public String getEntityDescription(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public ResourceProperties getEntityResourceProperties(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public Entity getEntity(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public String getEntityUrl(Reference ref) {
 		return null;
 	}
 
+	@Override
 	public Collection getEntityAuthzGroups(Reference ref, String userId) {
 		return null;
 	}
 
+	@Override
 	public HttpAccess getHttpAccess() {
 		return null;
 	}

@@ -59,6 +59,7 @@ import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
@@ -396,6 +397,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	@SuppressWarnings("rawtypes")
 	@Override
+	@Deprecated
 	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml) {
 		final Gradebook gradebook = getGradebook(toGradebookUid);
 		final Gradebook fromGradebook = getGradebook(fromGradebookUid);
@@ -535,6 +537,125 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			// Did not find a matching grading scale.
 			if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
 		}
+	}
+	
+	@Override
+	public void transferGradebook(final GradebookInformation gradebookInformation, final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments, final String toGradebookUid) {
+
+		final Gradebook gradebook = getGradebook(toGradebookUid);
+				
+		gradebook.setCategory_type(gradebookInformation.getCategoryType());
+		gradebook.setGrade_type(gradebookInformation.getGradeType());
+		
+		updateGradebook(gradebook);
+		
+		//all categories that we need to end up with
+		List<CategoryDefinition> categories = gradebookInformation.getCategories();
+		
+		//filter out externally managed assignments. These are never imported.
+		assignments.removeIf(a -> a.isExternallyMaintained());	
+	
+		//this map holds the names of categories that have been created in the site to the category ids
+		//and is updated as we go along
+		//likewise for list of assignments
+		Map<String, Long> categoriesCreated = new HashMap<>();
+		List<String> assignmentsCreated = new ArrayList<>();
+	
+		if(!categories.isEmpty()) {
+			
+			//migrate the categories with assignments
+			categories.forEach(c -> {
+						
+				assignments.forEach(a -> {
+									
+					if(StringUtils.equals(c.getName(), a.getCategoryName())) {
+						
+						if(!categoriesCreated.containsKey(c.getName())) {
+							
+							//create category
+							Long categoryId = null;
+							try {
+								categoryId = createCategory(gradebook.getId(), c.getName(), a.getWeight(), 0, 0, 0, a.isCategoryExtraCredit());
+							} catch (ConflictingCategoryNameException e) {
+								//category already exists. Could be from a merge.
+								log.info("Category: " + c.getName() + " already exists in target site. Skipping creation.");
+							} 
+							
+							if(categoryId == null) {
+								//couldn't create so look up the id in the target site
+								List<CategoryDefinition> existingCategories = this.getCategoryDefinitions(gradebook.getUid());
+								categoryId = existingCategories.stream().filter(e -> StringUtils.equals(e.getName(), c.getName())).findFirst().get().getId();
+							}
+							//record that we have created this category
+							categoriesCreated.put(c.getName(), categoryId);
+							
+						}	
+						
+						//create the assignment for the current category
+						try {
+							createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), a.getName(), a.getPoints(), a.getDueDate(), true, false, a.isExtraCredit());
+						} catch (ConflictingAssignmentNameException e) {
+							//assignment already exists. Could be from a merge.
+							log.info("Assignment: " + a.getName() + " already exists in target site. Skipping creation.");
+						} 
+						
+						//record that we have created this assignment
+						assignmentsCreated.add(a.getName());
+					}
+				});
+			});
+			
+			//create any remaining categories that have no assignments
+			categories.removeIf(c -> categoriesCreated.containsKey(c.getName()));			
+			categories.forEach(c -> {
+				try {
+					createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDrop_lowest(), c.getDropHighest(), c.getKeepHighest(), c.isExtraCredit());
+				} catch (ConflictingCategoryNameException e) {
+					//category already exists. Could be from a merge.
+					log.info("Category: " + c.getName() + " already exists in target site. Skipping creation.");
+				}
+			});						
+		}
+	
+		//create any remaining assignments that have no categories
+		assignments.removeIf(a -> assignmentsCreated.contains(a.getName()));	
+		assignments.forEach(a -> {
+			try {
+				createAssignment(gradebook.getId(), a.getName(), a.getPoints(), a.getDueDate(), true, false, a.isExtraCredit());
+			} catch (ConflictingAssignmentNameException e) {
+				//assignment already exists. Could be from a merge.
+				log.info("Assignment: " + a.getName() + " already exists in target site. Skipping creation.");
+			} 
+		});							
+		
+		// Carry over the old gradebook's selected grading scheme if possible.
+		String fromGradingScaleUid = gradebookInformation.getSelectedGradingScaleUid();
+		
+		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
+		for (GradeMapping gradeMapping : gradebook.getGradeMappings()) {
+				if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
+					// We have a match. Now make sure that the grades are as expected.
+					Map<String, Double> inputGradePercents = gradebookInformation.getSelectedGradingScaleBottomPercents();
+					Set<String> gradeCodes = inputGradePercents.keySet();
+					if (gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
+						// Modify the existing grade-to-percentage map.
+						for (String gradeCode : gradeCodes) {
+							gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));							
+						}
+						gradebook.setSelectedGradeMapping(gradeMapping);
+						updateGradebook(gradebook);
+						log.info("Merge to gradebook " + toGradebookUid + " updated grade mapping");
+					} else {
+						log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
+					}
+					break MERGE_GRADE_MAPPING;
+				}
+			}
+			// Did not find a matching grading scale.
+			log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
+		}
+		
+		
 	}
 	
 	@Override

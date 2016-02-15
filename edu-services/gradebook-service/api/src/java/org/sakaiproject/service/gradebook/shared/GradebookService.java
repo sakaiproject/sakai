@@ -271,8 +271,12 @@ public interface GradebookService {
 	 * to specific students or instructors (such as scores) are not.
 	 * @param gradebookUid
 	 * @return a versioned XML string
+	 * 
+	 * @deprecated This is used by the old gradebook1 entityproducer and will soon be redundant
 	 */
+	@Deprecated
 	public String getGradebookDefinitionXml(String gradebookUid);
+	
 	
 	/**
 	 * Attempt to transfer gradebook data with Category and weight and settings
@@ -280,8 +284,20 @@ public interface GradebookService {
 	 * @param fromGradebookUid
 	 * @param toGradebookUid
 	 * @param fromGradebookXml
+	 * 
+	 * @deprecated This is used by the old gradebook1 entityproducer and will soon be redundant
 	 */
+	@Deprecated
 	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml);
+	
+	/**
+	 * Transfer the gradebook information and assignments from one gradebook to another
+	 * 
+	 * @param gradebookInformation GradebookInformation to copy
+	 * @param assignments list of Assignments to copy
+	 * @param toGradebookUid target gradebook uid
+	 */
+	public void transferGradebook(final GradebookInformation gradebookInformation, final List<Assignment> assignments, final String toGradebookUid);
 	
 	/**
 	 * 

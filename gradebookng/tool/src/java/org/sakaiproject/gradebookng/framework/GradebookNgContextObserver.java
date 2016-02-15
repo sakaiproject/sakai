@@ -1,10 +1,8 @@
 package org.sakaiproject.gradebookng.framework;
 
 import org.sakaiproject.entity.api.ContextObserver;
-import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 
-import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 /**
@@ -15,11 +13,6 @@ import lombok.extern.apachecommons.CommonsLog;
  */
 @CommonsLog
 public class GradebookNgContextObserver extends GradebookNgEntityProducer implements ContextObserver {
-
-	private static final String[] TOOL_IDS = { "sakai.gradebookng" };
-
-	@Setter
-	private GradebookFrameworkService gradebookFrameworkService;
 
 	@Override
 	public void contextCreated(final String context, final boolean toolPlacement) {
@@ -57,11 +50,6 @@ public class GradebookNgContextObserver extends GradebookNgEntityProducer implem
 				log.debug("Couldnt find gradebook. Nothing to delete.", e);
 			}
 		}
-	}
-
-	@Override
-	public String[] myToolIds() {
-		return TOOL_IDS;
 	}
 
 }
