@@ -1963,6 +1963,42 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		return u;
 	}
 
+	public boolean updateUserId(String id,String newEmail)
+	{
+		try {
+			List<String> locksSucceeded = new ArrayList<String>();
+			// own or any
+			List<String> locks = new ArrayList<String>();
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
+			locksSucceeded = unlock(locks, userReference(id));
+
+			if(!locksSucceeded.isEmpty()) {
+				UserEdit user = m_storage.edit(id);
+				if (user == null) {
+					M_log.warn("Can't find user " + id + " when trying to update email address");
+					return false;
+				}
+				user.setEid(newEmail);
+				user.setEmail(newEmail);
+				commitEdit(user);
+				return true;
+			}
+			else {
+				M_log.warn("User with id: "+id+" failed permission checks" );
+				return false;
+			}
+		} catch (UserPermissionException e) {
+			M_log.warn("You do not have sufficient permission to edit the user with Id: "+id, e);
+			return false;
+		} catch (UserAlreadyDefinedException e) {
+			M_log.error("A users already exists with EID of: "+id +"having email :"+ newEmail, e);
+			return false;
+		}
+	}
+
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * UserEdit implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
