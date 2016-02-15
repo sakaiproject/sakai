@@ -2277,15 +2277,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// group owned and eval group
 						// group owned and eval individual and we're in the group
 						// i.e. not eval individual and we're outside group
-						System.out.println("evalind " + evalIndividual + " members " + groupMembers + " current " + currentUser);
 						if(!(evalIndividual && !groupMembers.contains(currentUser))) {
-
-						    System.out.println("eval itemid " + i.getId());
 						    UIOutput.make(tableRow, "peerReviewRubricStudent");
 						    UIOutput.make(tableRow, "peer-eval-title-student", String.valueOf(i.getAttribute("rubricTitle")));
 						    UIForm peerForm = UIForm.make(tableRow, "peer-review-form");
 						    UIInput.make(peerForm, "peer-eval-itemid", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
-						    System.out.println("groupown " + i.isGroupOwned() + " evalind " + i.getAttribute("group-eval-individual"));
 						    
 						    // originally evalTargets was a list if ID's.
 						    // but we need to sort by name, so unless we want to keep repeatedly
@@ -2345,7 +2341,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							// user data evaluating him
 							if ((i.isGroupOwned() && !evalIndividual && groupMembers.contains(currentUser)) ||
 							    target.id.equals(currentUser)) {
-							    System.out.println("showing data from all users for " + target.id);
 							
 							    List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), target.id);
 							    
@@ -2382,7 +2377,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(entry, "peer-eval-target-name", target.name);
 							UIOutput.make(entry, "peer-eval-target-id", target.id);
 
-							System.out.println("evalind " + evalIndividual + " group " + (groupMembers.contains(currentUser)) + " graidneself " + gradingSelf + " target-current " + (target.id.equals(currentUser)));
+							// keep this is sync with canSubmit in SimplePageBean.savePeerEvalResult
 							boolean canSubmit = (!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
 									     i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
 									     evalIndividual && groupMembers.contains(currentUser) && (peerEvalAllowSelfGrade || !target.id.equals(currentUser)));
@@ -2406,7 +2401,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.past-due-date"));
 							} else {
 							    makeCsrf(peerForm, "csrf6");
-							    UICommand.make(peerForm, "save-peereval-link", "#{simplePageBean.savePeerEvalResult}");
+							    UICommand.make(peerForm, "save-peereval-link",  messageLocator.getMessage("simplepage.submit"), "#{simplePageBean.savePeerEvalResult}");
 							    UIOutput.make(peerForm, "save-peereval-text", messageLocator.getMessage("simplepage.save"));
 							    UIOutput.make(peerForm, "cancel-peereval-link");
 							    UIOutput.make(peerForm, "cancel-peereval-text", messageLocator.getMessage("simplepage.cancel"));
@@ -4607,7 +4602,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		//else{System.out.println("This rubric has no rows.");}
 		
 		Collections.sort(rows);
-		System.out.println("selectedCells " + selectedCells);
+
 		for(RubricRow row : rows){
 			UIBranchContainer peerReviewRows = UIBranchContainer.make(parent, peerReviewRsfIds[1]);
 			UIOutput.make(peerReviewRows, peerReviewRsfIds[2], String.valueOf(row.id));
@@ -4625,7 +4620,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				UIComponent cell = UIOutput.make(peerReviewRows, "peer-eval-cell:", count);
 				Integer selectedValue = selectedCells.get(row.text);
-				System.out.println("row " + row.text + " " + selectedValue + " " + col);
+
 				if (selectedValue != null && selectedValue == col)
 				    cell.decorate(new UIStyleDecorator("selectedPeerCell " + col));
 				else

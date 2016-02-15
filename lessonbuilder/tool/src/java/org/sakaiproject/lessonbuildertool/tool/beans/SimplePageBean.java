@@ -349,7 +349,6 @@ public class SimplePageBean {
 			rubricPeerGrades = new ArrayList<String>();
 		}
 		rubricPeerGrades.add(rubricPeerGrade);
-		System.out.println("submit grade " + rubricPeerGrade);
 	}
     
 	// Caches
@@ -7597,7 +7596,28 @@ public class SimplePageBean {
 		    rowMap.put(rowId, rowText);
 		}
 
-		System.out.println("rowMap " + rowMap);
+		// set up data for permission checks
+		// user is in site because we check canRead
+		String owner = getCurrentPage().getOwner();
+		String currentUser = getCurrentUserId();
+		List<String>groupMembers = new ArrayList<String>();
+		if (item.isGroupOwned()) {
+		    String group = getCurrentPage().getGroup();
+		    if (group != null)
+			group = "/site/" + getCurrentSiteId() + "/group/" + group;
+		    try {
+			AuthzGroup g = authzGroupService.getAuthzGroup(group);
+			Set<Member> members = g.getMembers();
+			for (Member m: members) {
+			    groupMembers.add(m.getUserId());
+			}
+		    } catch (Exception e) {
+			System.out.println("unable to get members of group " + group);
+		    }
+		}
+		boolean evalIndividual = (item.isGroupOwned() && "true".equals(item.getAttribute("group-eval-individual")));
+		boolean gradingSelf = Boolean.parseBoolean(item.getAttribute("rubricAllowSelfGrade"));
+		// check is down below at canSubmit.
 
 		// data from user: build map target --> <category --> grades>
 
@@ -7611,24 +7631,19 @@ public class SimplePageBean {
 		    }
 		    // user data is rowid, need text
 		    String rowText = rowMap.get(items[0]);
-		    System.out.println("found row text " + rowText + " for " + items[1]);
 		    if (rowText == null)  // rowId not in rubric. shoudl be impossible
 			continue;
 
 		    catMap.put(rowText, new Integer(items[1]));
 		}
 
-		System.out.println("datamap " + dataMap);
-
 		// have user data, now update database
 
-		// evalTargets are targets that it's legal to evaluation for this page
+		// evalTargets are targets that it's legal to evaluate for this page
 		// owner, or if evaluating individuals on a gorup page, all members of the group
 
 		Set<String>evalTargets = new HashSet<String>();
 
-		System.out.println("isgroup " + item.isGroupOwned() + " evalindiv " + item.getAttribute("group-eval-individual"));
-		boolean evalIndividual = (item.isGroupOwned() && "true".equals(item.getAttribute("group-eval-individual")));
 		if (evalIndividual) {
 		    String group = getCurrentPage().getGroup();
 		    if (group != null)
@@ -7650,6 +7665,13 @@ public class SimplePageBean {
 
 		for (String target: dataMap.keySet()) {
 		    // is this someone we can evaluate? In normal case only page owner
+
+		    // keep this in sync with the same expression in ShowPageProducer
+		    boolean canSubmit = (!item.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
+					 i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || gradingSelf) ||
+					 evalIndividual && groupMembers.contains(currentUser) && (gradingSelf || !target.equals(currentUser)));
+		    if (!canSubmit)
+			continue;
 		    if (!evalTargets.contains(target))
 			continue;
 		    // get old evaluations, as we need to mark them deleted
