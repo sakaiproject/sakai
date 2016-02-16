@@ -126,6 +126,11 @@
 			<artifactId>spring-beans</artifactId>
 			<scope>provided</scope> <!-- to satisfy EB and eclipse -->
 		</dependency>
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.19</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
