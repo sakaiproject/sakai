@@ -71,7 +71,6 @@
 
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
-        <joda-time.version>2.2</joda-time.version>
         <commons-logging.version>1.1.1</commons-logging.version>
         <servlet-api.version>2.5</servlet-api.version>
         <wicket.version>1.4.23</wicket.version>
@@ -123,7 +122,7 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>${joda-time.version}</version>
+                <version>${joda.time.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.oauth.core</groupId>
