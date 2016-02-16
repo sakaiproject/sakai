@@ -76,6 +76,27 @@ public class SettingsPage extends BasePage {
 					}
 				}
 
+				// validate the course grade display settings
+				if (model.getGradebookInformation().isCourseGradeDisplayed()) {
+					int displayOptions = 0;
+
+					if (model.getGradebookInformation().isCourseLetterGradeDisplayed()) {
+						displayOptions++;
+					}
+
+					if (model.getGradebookInformation().isCourseAverageDisplayed()) {
+						displayOptions++;
+					}
+
+					if (model.getGradebookInformation().isCoursePointsDisplayed()) {
+						displayOptions++;
+					}
+
+					if (displayOptions == 0) {
+						error(getString("settingspage.displaycoursegrade.notenough"));
+					}
+				}
+
 			}
 
 			@Override
