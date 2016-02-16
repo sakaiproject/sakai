@@ -302,6 +302,9 @@ body.is-logged-out{
 	}
 
 	.has-avatar{
+		.#{$namespace}userNav__submenuitem--profilelink{
+			padding: 0 !important;
+		}
 		.#{$namespace}userNav__submenuitem--profilepicture{
 			width:32px;
 			height:32px;
