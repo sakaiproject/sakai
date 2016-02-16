@@ -127,6 +127,13 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 	    UIOutput.make(tofill, "collapse-all",messageLocator.getMessage("simplepage.collapse-all"));
 
 		try {
+
+		    // outer loop on pages
+		    // inner loop on targets of evaluation
+		    // normally there's one evalution per page, but when individuals in groups
+		    //    are being evaluated there's one evaluation per person in the page's group
+
+		        // top level item, under which the student pages lie
 			long studentContentBoxId = params.getItemId();
 			SimplePageItem item = simplePageToolDao.findItem(studentContentBoxId);
 
@@ -179,68 +186,80 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 			});
 		    
 		    for(SimpleStudentPage page : studentPages) {
-				if(page.isDeleted()) continue;
+		    	   if(page.isDeleted()) continue;
 				
-				String pageId = Long.toString(page.getPageId());
-		    
-				// normally just person or group being evaluated,
-				// but for eval individuals in group, it's all the individuals in the group
-				List<Target> evalList = new ArrayList<Target>();
+			   String pageId = Long.toString(page.getPageId());
+			   
+			   // normally just person or group being evaluated,
+			   // but for eval individuals in group, it's all the individuals in the group
+			   List<Target> evalList = new ArrayList<Target>();
 
-				if (individual) {
-				    List<String>groupMembers = simplePageBean.studentPageGroupMembers(item, page.getGroup());
-				    for (String userId: groupMembers) {
-					Target t = new Target();
-					t.id = userId;
-					User u = null;
-					try {
-					    u = UserDirectoryService.getUser(userId);
-					} catch (Exception e) {
-					    continue; // user no longer exists?
-					}
-					if (u == null)
-					    continue;
-					t.name = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle() + ": " + u.getDisplayName();
-					t.sort = u.getSortName();
-					evalList.add(t);
-				    }
-				} else {
-				    Target t = new Target();
-				    t.name = targetMap.get(page.getId()).name;
-				    t.id = page.getOwner();
-				    if (grouped)
-					t.id = page.getGroup();
-				    evalList.add(t);
-				}
+			   if (individual) {
+			       List<String>groupMembers = simplePageBean.studentPageGroupMembers(item, page.getGroup());
+			       for (String userId: groupMembers) {
+				   Target t = new Target();
+				   t.id = userId;
+				   User u = null;
+				   try {
+				       u = UserDirectoryService.getUser(userId);
+				   } catch (Exception e) {
+				       continue; // user no longer exists?
+				   }
+				   if (u == null)
+				       continue;
+				   t.name = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle() + ": " + u.getDisplayName();
+				   t.sort = u.getSortName();
+				   evalList.add(t);
+			       }
+			   } else {
+			       Target t = new Target();
+			       t.name = targetMap.get(page.getId()).name;
+			       t.id = page.getOwner();
+			       if (grouped)
+				   t.id = page.getGroup();
+			       evalList.add(t);
+			   }
 
-			Collections.sort(evalList, new Comparator<Target>() {
+			   Collections.sort(evalList, new Comparator<Target>() {
 				public int compare(Target o1, Target o2) {
 				    return o1.sort.compareTo(o2.sort);
 				}
 			    });
 
-			for (Target target: evalList) {
+			   for (Target target: evalList) {
 				studentInfo = UIBranchContainer.make(tofill, "peer-eval-gradee-branch:");
 				UIOutput.make(studentInfo, "user-name", target.name);
 				UIOutput.make(studentInfo, "user-id", target.id);
-				//remove user from non-participant user list
-				if (grouped || individual) {
-				    if (groups != null)
-					groups.remove(page.getGroup());
-				} else {
-				    if(users != null)
-					users.remove(page.getOwner());
-				}
 				UIOutput.make(studentInfo, "user-pageid", pageId);
-				String groupId = null;
+				// for grouped, we need list of members in the group
+
+				if (grouped) {
+				    UIOutput.make(studentInfo, "peer-eval-gradee-members");
+				    List<String>groupMembers = simplePageBean.studentPageGroupMembers(item, page.getGroup());
+				    for (String member: groupMembers) {
+					User u = null;
+					try {
+					    u = UserDirectoryService.getUser(member);
+					} catch (Exception e) {
+					    continue; // user no longer exists?
+					}
+					if (u == null)
+					    continue;
+					UIContainer memberInfo = UIBranchContainer.make(studentInfo, "gradee-member:");
+					UIOutput.make(memberInfo, "gradee-member-id", member);
+					UIOutput.make(memberInfo, "gradee-member-name", u.getDisplayName());
+					users.remove(member);
+				   }
+				} else
+				    users.remove(target.id);
+				ArrayList<PeerEvaluation> graders = null;
 				if (grouped)
-				    groupId = page.getGroup();
-				String userId = page.getOwner();
-				if (individual) 
-				    userId = target.id;
-				ArrayList<PeerEvaluation> graders = getGraders(page.getPageId(), userId, groupId);
+				    graders = getGraders(page.getPageId(), page.getOwner(), page.getGroup());
+				else
+				    graders = getGraders(page.getPageId(), target.id, null);
 				makeGraders(studentInfo, graders);
-			}
+			   }
+
 		    }
 
 		    GeneralViewParameters view = new GeneralViewParameters();
@@ -265,28 +284,14 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		    }
 
 		    //make inactive user list
-		    if (grouped || individual) {
-			if(!groups.isEmpty()){
-			    UIBranchContainer inactiveMemberBranch;
-			    UIOutput.make(tofill, "inactive-member-collection");
-			    for(String group : groups){
-				inactiveMemberBranch = UIBranchContainer.make(tofill, "inactive-member:");
-				UIOutput.make(inactiveMemberBranch, "inactive-member-id", group);
-				UIOutput.make(inactiveMemberBranch, "inactive-member-name", simplePageBean.getCurrentSite().getGroup(group).getTitle());
-			    }
+		    if(!users.isEmpty()){
+			UIBranchContainer inactiveMemberBranch;
+			UIOutput.make(tofill, "inactive-member-collection");
+			for(String userId : users){
+			    inactiveMemberBranch = UIBranchContainer.make(tofill, "inactive-member:");
+			    UIOutput.make(inactiveMemberBranch, "inactive-member-id", userId);
+			    UIOutput.make(inactiveMemberBranch, "inactive-member-name", UserDirectoryService.getUser(userId).getDisplayName());
 			}
-
-		    } else {
-			if(!users.isEmpty()){
-			    UIBranchContainer inactiveMemberBranch;
-			    UIOutput.make(tofill, "inactive-member-collection");
-			    for(String userId : users){
-				inactiveMemberBranch = UIBranchContainer.make(tofill, "inactive-member:");
-				UIOutput.make(inactiveMemberBranch, "inactive-member-id", userId);
-				UIOutput.make(inactiveMemberBranch, "inactive-member-name", UserDirectoryService.getUser(userId).getDisplayName());
-			    }
-			}
-			
 		    }
 		} catch (Exception e) {
 			e.printStackTrace();

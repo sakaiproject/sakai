@@ -162,6 +162,20 @@ $(function() {
 
 /* The following applies to the Peer Evaluation Statistics (PeerEvalStats.html) page. BEGIN */
 
+function countByGrader(grader) {
+   var count = 0;
+
+   $(".peer-eval-gradee-branch").each(function() {
+      var countPerGradee = 0;
+      $(".peer-eval-grader-id", this).each(function() {
+	 if ($(this).text() === grader) countPerGradee++;
+      });
+      if (countPerGradee > (numCategories / 2)) count++;
+   });
+   return count;
+}
+
+
 $(function() {
 	if ($(".peer-eval-rubric").length > 0) {
 		var CELL_SELECTED_BACKGROUND_COLOR = "rgb(177, 204, 235)";
@@ -214,7 +228,7 @@ $(function() {
 		});
 
 		//Determine user activity **Includes activity that could be invalid due to changes to the rubric after grading has opened.
-		var numCategories = $(".peer-eval-rubric .peer-eval-row").length;
+		numCategories = $(".peer-eval-rubric .peer-eval-row").length;
 		for (x in gradees) {
 			var target = gradees[x].userid;
 			gradees[x].activity = 0;
@@ -235,8 +249,17 @@ $(function() {
 			var rubricsDiv = [];
 			rubricsDiv.push('<div class="rubric-set"><div class="rubric-name">' + gradees[x].gradee);
 			rubricsDiv.push('<span class="rubric-userid-div"> (<span class="rubric-userid">' + gradees[x].userid + '</span>) </span>');
-			rubricsDiv.push('<span class="rubric-activity">' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ');
-			rubricsDiv.push(gradees[x].activity + '</span>' + '</div><div class="rubric-rubric">' + $(".peer-eval-rubric").html() + "</div></div>");
+                        if (gradees[x].branch.find('.peer-eval-gradee-members').size() > 0) {
+                           rubricsDiv.push('<ul>');
+                           var graders = gradees[x].branch.find('.peer-eval-gradee-members');
+                           rubricsDiv.push(graders.html());
+                           rubricsDiv.push('</ul>');
+                        }
+                        else {
+			    rubricsDiv.push('<span class="rubric-activity">' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ');
+			    rubricsDiv.push(gradees[x].activity + '</span>');
+                        }
+                        rubricsDiv.push('</div><div class="rubric-rubric">' + $(".peer-eval-rubric").html() + "</div></div>");
 			$(".rubrics").append(rubricsDiv.join(""));
 			for (y in gradees[x].grades) {
 				var text = gradees[x].grades[y].rowText;
@@ -294,6 +317,11 @@ $(function() {
 				});
 			});
 		});
+
+                $('.inactive-member').each(function() {
+                   var count = countByGrader($(this).find('.inactive-member-id').text());
+                   $(this).find('.inactive-member-name').append(': ' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ' + count);
+                });
 
 		//See activity - when a user clicks on "Activity", the cells the user clicked on will be highlighted.
 		$(".rubric-activity , .inactive-member").each(function() {
