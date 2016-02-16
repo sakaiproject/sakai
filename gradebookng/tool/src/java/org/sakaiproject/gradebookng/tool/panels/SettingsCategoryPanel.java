@@ -463,7 +463,7 @@ public class SettingsCategoryPanel extends Panel {
 			final NumberFormat df = NumberFormat.getInstance();
 			df.setMinimumFractionDigits(0);
 			df.setMaximumFractionDigits(4);
-			df.setRoundingMode(RoundingMode.DOWN);
+			df.setRoundingMode(RoundingMode.HALF_UP);
 
 			// convert
 			Double d;
