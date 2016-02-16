@@ -35,6 +35,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
+        <module>content-cleanup</module>
         <module>content-copyright/api</module>
         <module>content-copyright/impl</module>
         <module>content-copyright/pack</module>
