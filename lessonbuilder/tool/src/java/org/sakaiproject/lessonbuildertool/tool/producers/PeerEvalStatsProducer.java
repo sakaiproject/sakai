@@ -145,6 +145,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 			
 			// map each page to an object that we can use for sorting and printing title
 			class Target {
+			    String id;
 			    String name;
 			    String sort;
 			}
@@ -154,18 +155,15 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 			List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(studentContentBoxId);
 			for (SimpleStudentPage page: studentPages) {
 			    Target target = new Target();
-			    if (grouped) {
+			    if (grouped || individual) {
 				String group = page.getGroup();
 				target.name = simplePageBean.getCurrentSite().getGroup(group).getTitle();
 				target.sort = target.name;
 			    } else {
 				try {
 				    User u = UserDirectoryService.getUser(page.getOwner());
-				    if (individual) {
-					target.name = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle() + ": " +
-					    u.getDisplayName();					    
-					target.sort = target.name;
-				    }
+				    target.name = u.getDisplayName();
+				    target.sort = u.getSortName();
 				} catch (Exception e) {
 				    target.name = page.getOwner();
 				    target.sort = page.getOwner();
@@ -183,9 +181,48 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		    for(SimpleStudentPage page : studentPages) {
 				if(page.isDeleted()) continue;
 				
+				String pageId = Long.toString(page.getPageId());
+		    
+				// normally just person or group being evaluated,
+				// but for eval individuals in group, it's all the individuals in the group
+				List<Target> evalList = new ArrayList<Target>();
+
+				if (individual) {
+				    List<String>groupMembers = simplePageBean.studentPageGroupMembers(item, page.getGroup());
+				    for (String userId: groupMembers) {
+					Target t = new Target();
+					t.id = userId;
+					User u = null;
+					try {
+					    u = UserDirectoryService.getUser(userId);
+					} catch (Exception e) {
+					    continue; // user no longer exists?
+					}
+					if (u == null)
+					    continue;
+					t.name = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle() + ": " + u.getDisplayName();
+					t.sort = u.getSortName();
+					evalList.add(t);
+				    }
+				} else {
+				    Target t = new Target();
+				    t.name = targetMap.get(page.getId()).name;
+				    t.id = page.getOwner();
+				    if (grouped)
+					t.id = page.getGroup();
+				    evalList.add(t);
+				}
+
+			Collections.sort(evalList, new Comparator<Target>() {
+				public int compare(Target o1, Target o2) {
+				    return o1.sort.compareTo(o2.sort);
+				}
+			    });
+
+			for (Target target: evalList) {
 				studentInfo = UIBranchContainer.make(tofill, "peer-eval-gradee-branch:");
-				UIOutput.make(studentInfo, "user-name", targetMap.get(page.getId()).name);
-				UIOutput.make(studentInfo, "user-id", ""+page.getOwner());
+				UIOutput.make(studentInfo, "user-name", target.name);
+				UIOutput.make(studentInfo, "user-id", target.id);
 				//remove user from non-participant user list
 				if (grouped || individual) {
 				    if (groups != null)
@@ -194,12 +231,16 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 				    if(users != null)
 					users.remove(page.getOwner());
 				}
-				UIOutput.make(studentInfo, "user-pageid", ""+page.getPageId());
+				UIOutput.make(studentInfo, "user-pageid", pageId);
 				String groupId = null;
 				if (grouped)
 				    groupId = page.getGroup();
-				ArrayList<PeerEvaluation> graders = getGraders(page.getPageId(), page.getOwner(), groupId);
+				String userId = page.getOwner();
+				if (individual) 
+				    userId = target.id;
+				ArrayList<PeerEvaluation> graders = getGraders(page.getPageId(), userId, groupId);
 				makeGraders(studentInfo, graders);
+			}
 		    }
 
 		    GeneralViewParameters view = new GeneralViewParameters();
