@@ -292,10 +292,20 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
         createContainerIfNotExist(can.container);
         checkContainerSpace(can.container);
         ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
-        CountingInputStream in = new CountingInputStream((stream));
-        Payload payload = Payloads.newInputStreamPayload(in);
-        objectApi.put(can.name, payload, PutOptions.Builder.metadata(ImmutableMap.of("id", id, "path", filePath)));
-        return in.getCount();
+
+        CountingInputStream in = null;
+        Payload payload = null;
+
+        try {
+			in = new CountingInputStream((stream));
+			payload = Payloads.newInputStreamPayload(in);
+			objectApi.put(can.name, payload, PutOptions.Builder.metadata(ImmutableMap.of("id", id, "path", filePath)));
+			return in.getCount();
+		} finally {
+			Closeables.close(stream, true);
+			Closeables.close(in, true);
+			payload.release();
+		}
     }
 
     /**
