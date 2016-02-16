@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject.mailarchive</groupId>
         <artifactId>mailarchive</artifactId>
         <version>11-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>sakai-mailarchive-subetha</name>
