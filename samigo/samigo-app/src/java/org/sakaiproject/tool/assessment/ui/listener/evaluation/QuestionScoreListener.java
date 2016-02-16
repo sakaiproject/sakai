@@ -532,9 +532,13 @@ public class QuestionScoreListener implements ActionListener,
 				Iterator iter2 = answerList.iterator();
 				ArrayList itemGradingAttachmentList = new ArrayList();
 				HashMap<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
+				int i = 1;
+				HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
 				while (iter2.hasNext()) {
 					ItemGradingData gdata = (ItemGradingData) iter2.next();
 					results.setItemGrading(gdata);
+					delegate.extractCalcQAnswersArray(answersMap, item, 
+								gdata.getAssessmentGradingId(), gdata.getAgentId());
 					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentList());
 					agentResultsByItemGradingIdMap.put(gdata.getItemGradingId(), results);
 										
@@ -695,9 +699,8 @@ public class QuestionScoreListener implements ActionListener,
 					if (gdataAnswer != null) {
 						String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
 						String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
-						
+						answerText = FormattedText.escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
-							answerText = FormattedText.escapeHtml(answerText, true);
 							if (gdata.getIsCorrect() == null) {
 								boolean result = false;
 								if (bean.getTypeId().equals("8")) {
@@ -723,17 +726,10 @@ public class QuestionScoreListener implements ActionListener,
 							}
 						}
 						else if (bean.getTypeId().equals("15")) {  // CALCULATED_QUESTION
-							answerText = FormattedText.escapeHtml(answerText, true);
-							//need to do something here for fill in the blanks
-							if(gdataAnswer.getScore() > 0){
-								//if score is 0, there is no way to tell if user got the correct answer
-								//by using "autoscore"... wish there was a better way to tell if its correct or not
-								Double autoscore = gdata.getAutoScore();
-								if (!(Double.valueOf(0)).equals(autoscore)) {
-									answerText = checkmarkGif + answerText;
-								}else if(Double.valueOf(0).equals(autoscore)){
-									answerText = crossmarkGif + answerText;
-								}
+							if (delegate.getCalcQResult(gdata, item, answersMap, i++)) {
+								answerText = checkmarkGif + answerText;
+							} else {
+								answerText = crossmarkGif + answerText;
 							}
 						}
 						else if(!bean.getTypeId().equals("3")){
