@@ -12,7 +12,6 @@
     <name>Sakai Mail Archive Project</name>
     <groupId>org.sakaiproject.mailarchive</groupId>
     <artifactId>mailarchive</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

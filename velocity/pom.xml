@@ -12,7 +12,6 @@
     <name>sakai-velocity base pom</name>
     <groupId>org.sakaiproject.velocity</groupId>
     <artifactId>velocity</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>

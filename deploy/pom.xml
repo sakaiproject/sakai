@@ -13,7 +13,6 @@
   <name>Sakai Deploy: Base POM</name>
   <groupId>org.sakaiproject.deploy</groupId>
   <artifactId>deploy</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <modules>

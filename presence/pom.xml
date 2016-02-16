@@ -12,7 +12,6 @@
     <name>sakai-presence base pom</name>
     <groupId>org.sakaiproject.presence</groupId>
     <artifactId>presence</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

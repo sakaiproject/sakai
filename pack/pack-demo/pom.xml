@@ -12,7 +12,6 @@
     <name>Sakai Pack Demo</name>
     <groupId>org.sakaiproject.pack</groupId>
     <artifactId>pack-demo</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>

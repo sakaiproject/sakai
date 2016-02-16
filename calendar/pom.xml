@@ -12,7 +12,6 @@
     <name>sakai-calendar base pom</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>calendar</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

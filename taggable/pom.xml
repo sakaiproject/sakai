@@ -12,7 +12,6 @@
     <name>sakai-taggable base pom</name>
     <groupId>org.sakaiproject.taggable</groupId>
     <artifactId>taggable</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>

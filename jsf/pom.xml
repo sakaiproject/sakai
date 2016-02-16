@@ -12,7 +12,6 @@
     <name>Sakai JSF Base POM (jsf)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>

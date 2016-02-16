@@ -12,7 +12,6 @@
 	<name>Sakai Signup Module</name>
 	<groupId>org.sakaiproject.signup</groupId>
 	<artifactId>signup</artifactId>
-	<version>11-SNAPSHOT</version>
 
 	<organization>
 		<name>Sakai Project</name>

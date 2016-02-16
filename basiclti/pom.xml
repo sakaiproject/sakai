@@ -13,7 +13,6 @@
     <name>BasicLTI base pom (basiclti)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti</artifactId>
-    <version>11-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>

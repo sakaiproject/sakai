@@ -9,7 +9,6 @@
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>usermembership-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <name>Sakai User Membership  Project</name>
   <packaging>pom</packaging>
 

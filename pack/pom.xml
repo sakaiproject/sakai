@@ -12,8 +12,7 @@
     <name>Sakai Pack Base</name>
     <groupId>org.sakaiproject.pack</groupId>
     <artifactId>pack</artifactId>
-    <version>11-SNAPSHOT</version>
-    <packaging>pom</packaging>  
+    <packaging>pom</packaging>
 
     <organization>
         <name>Sakai Project</name>

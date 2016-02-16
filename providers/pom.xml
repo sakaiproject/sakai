@@ -10,7 +10,6 @@
   <name>Sakai Providers Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>providers-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>allhands</module>

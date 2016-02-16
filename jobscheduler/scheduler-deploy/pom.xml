@@ -10,7 +10,6 @@
     <name>Sakai Job Scheduler Deploy POM (scheduler-deploy)</name>
     <groupId>org.sakaiproject.scheduler</groupId>
     <artifactId>scheduler-deploy</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <description>Scheduler deploy POM.</description>

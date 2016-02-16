@@ -10,7 +10,6 @@
   <name>Sakai Access Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>access-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>access-impl/impl</module>
