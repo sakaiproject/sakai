@@ -10,7 +10,6 @@
   <name>Sakai Rights Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>rights-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>

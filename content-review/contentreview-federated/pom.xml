@@ -4,7 +4,6 @@
 	<name>Sakai Content Review - Federated</name>
 	<groupId>org.sakaiproject.contentreview</groupId>
 	<artifactId>content-review-impl-base-federated</artifactId>
-	<version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	
     <parent>

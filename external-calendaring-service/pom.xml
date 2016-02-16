@@ -13,8 +13,7 @@
 	<groupId>org.sakaiproject.calendaring</groupId>
 	<artifactId>external-calendaring-service</artifactId>
 	<packaging>pom</packaging>
-	<version>11-SNAPSHOT</version>
-	
+
 	<developers>
 		<developer>
 			<name>Steve Swinsburg</name>

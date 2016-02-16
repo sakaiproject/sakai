@@ -12,7 +12,6 @@
   <artifactId>kernel</artifactId>
   <packaging>pom</packaging>
   <name>Sakai Kernel</name>
-  <version>11-SNAPSHOT</version><!-- KernelVersion -->
   <url>http://source.sakaiproject.org/release/kernel/${project.version}</url>
   <description>The Sakai kernel provides core functionality for the Sakai framework</description>
   <organization>

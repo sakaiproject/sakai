@@ -10,7 +10,6 @@
 	<name>Sakai Login Project</name>
 	<groupId>org.sakaiproject.login</groupId>
 	<artifactId>login</artifactId>
-  <version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>login-api/api</module>

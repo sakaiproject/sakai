@@ -12,7 +12,6 @@
 	<name>Sakai Samigo Project (samigo)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo</artifactId>
-	<version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
     
     <properties>

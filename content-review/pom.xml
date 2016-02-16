@@ -11,7 +11,6 @@
   <groupId>org.sakaiproject.contentreview</groupId>
   <artifactId>contentreview</artifactId>
   <name>Sakai Content Review API</name>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>

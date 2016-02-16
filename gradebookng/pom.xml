@@ -5,7 +5,6 @@
 	<description>The Next Generation Gradebook for the Sakai CLE</description>
 	<groupId>org.sakaiproject.gradebookng</groupId>
 	<artifactId>gradebookng</artifactId>
-	<version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<parent>
 		<groupId>org.sakaiproject</groupId>

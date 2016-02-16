@@ -9,7 +9,6 @@
 
   <name>Sakai Common Project</name>
   <groupId>org.sakaiproject.common</groupId>
-  <version>11-SNAPSHOT</version><!-- ProjectVersion -->
   <artifactId>common</artifactId>
   <packaging>pom</packaging>
 

@@ -12,7 +12,6 @@
     <name>sakai-announcement-pack</name>
     <groupId>org.sakaiproject.announcement</groupId>
     <artifactId>sakai-announcement-pack</artifactId>
-  <version>11-SNAPSHOT</version>
     <organization>
         <name>University of Michigan</name>
         <url>http://sakaiproject.org/</url>

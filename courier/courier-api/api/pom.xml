@@ -12,7 +12,6 @@
     <name>sakai-courier-api</name>
     <groupId>org.sakaiproject.courier</groupId>
     <artifactId>sakai-courier-api</artifactId>
-    <version>11-SNAPSHOT</version>
     <organization>
         <name>The Sakai Foundation</name>
         <url>http://sakaiproject.org/</url>

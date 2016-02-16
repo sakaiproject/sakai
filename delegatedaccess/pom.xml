@@ -13,7 +13,6 @@
 	<name>Delegated Access - Base</name>
 	<groupId>org.sakaiproject.delegatedaccess</groupId>
 	<artifactId>delegatedaccess</artifactId>
-    <version>11-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 	

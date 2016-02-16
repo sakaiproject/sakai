@@ -13,7 +13,6 @@
     <name>sakai-lessonbuildertool base pom</name>
     <groupId>org.sakaiproject.lessonbuilder</groupId>
     <artifactId>lessonbuilder</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

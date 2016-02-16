@@ -10,7 +10,6 @@
 	<artifactId>dashboard</artifactId>
 
 	<packaging>pom</packaging>
-	<version>11-SNAPSHOT</version>
 
     	<parent>
         	<groupId>org.sakaiproject</groupId>

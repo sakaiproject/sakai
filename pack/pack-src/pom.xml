@@ -12,7 +12,6 @@
     <name>Sakai Pack Source</name>
     <groupId>org.sakaiproject.pack</groupId>
     <artifactId>pack-src</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>

@@ -13,7 +13,6 @@
     <name>Samigo Impl</name>
     <groupId>org.sakaiproject.samigo</groupId>
     <artifactId>samigo-impl</artifactId>
-    <version>11-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

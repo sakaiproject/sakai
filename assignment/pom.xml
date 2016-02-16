@@ -11,7 +11,6 @@
   <name>sakai-assignment base pom</name>
   <groupId>org.sakaiproject.assignment</groupId>
   <artifactId>assignment</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>

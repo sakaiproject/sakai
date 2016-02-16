@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>localization-bundles</artifactId>
-			<version>11-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

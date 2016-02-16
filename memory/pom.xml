@@ -11,7 +11,6 @@
   <name>Sakai Memory Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>memory-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>

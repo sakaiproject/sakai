@@ -11,7 +11,6 @@
   <name>Sakai Gradebook Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>gradebook-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>

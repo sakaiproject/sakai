@@ -12,7 +12,6 @@
     <name>ROSTER2 TOOL</name>
     <groupId>org.sakaiproject.roster2</groupId>
     <artifactId>sakai-roster2-tool</artifactId>
-    <version>11-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>

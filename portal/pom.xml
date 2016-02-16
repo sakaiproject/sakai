@@ -12,7 +12,6 @@
     <name>sakai-portal base (neo)</name>
     <groupId>org.sakaiproject.portal</groupId>
     <artifactId>portal</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

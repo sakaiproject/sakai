@@ -12,7 +12,6 @@
     <name>sakai-courier base pom</name>
     <groupId>org.sakaiproject.courier</groupId>
     <artifactId>courier</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

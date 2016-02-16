@@ -12,7 +12,6 @@
     <name>sakai-site-manage base pom</name>
     <groupId>org.sakaiproject.sitemanage</groupId>
     <artifactId>sitemanage</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <profiles>

@@ -10,7 +10,6 @@
   <name>Sakai User Project</name>
   <groupId>org.sakaiproject.user</groupId>
   <artifactId>user</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
 

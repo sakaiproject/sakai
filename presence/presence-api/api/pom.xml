@@ -12,7 +12,6 @@
     <name>sakai-presence-api</name>
     <groupId>org.sakaiproject.presence</groupId>
     <artifactId>sakai-presence-api</artifactId>
-    <version>11-SNAPSHOT</version>
     <organization>
         <name>University of Michigan</name>
         <url>http://sakaiproject.org/</url>

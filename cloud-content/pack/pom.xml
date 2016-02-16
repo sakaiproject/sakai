@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.sakaiproject.content</groupId>
       <artifactId>cloud-content-impl</artifactId>
-      <version>11-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

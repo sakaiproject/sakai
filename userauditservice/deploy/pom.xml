@@ -10,7 +10,6 @@
     <name>Sakai Userauditservice Deploy POM</name>
     <groupId>org.sakaiproject.userauditservice</groupId>
     <artifactId>userauditservice-deploy</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <description>Userauditservice deploy POM.</description>

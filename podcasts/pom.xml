@@ -10,7 +10,6 @@
   <name>Sakai Podcast Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>podcasts-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>pack</module>

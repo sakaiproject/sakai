@@ -11,7 +11,6 @@
   <name>Reset Password and Account Validator</name>
   <groupId>org.sakaiproject.reset-pass</groupId>
   <artifactId>reset-pass</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>

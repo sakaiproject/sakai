@@ -5,7 +5,6 @@
 	<name>Sakai WebServices Project</name>
   	<groupId>org.sakaiproject.webservices</groupId>
   	<artifactId>webservices</artifactId>
-  	<version>11-SNAPSHOT</version>
   	<packaging>pom</packaging>
   	
   	<parent>

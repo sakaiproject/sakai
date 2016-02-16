@@ -26,7 +26,6 @@ limitations under the License.
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>rwiki-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <name>Sakai RWiki Project</name>
   <packaging>pom</packaging>
   <modules>

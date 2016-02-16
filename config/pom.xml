@@ -10,7 +10,6 @@
 	<name>Sakai Config Project</name>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>config</artifactId>
-    <version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>The Config project is home to Sakai configuration and localization files.  Config includes 
 	several versions of sakai.properties, a text file containing a series of key/value pairs 

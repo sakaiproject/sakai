@@ -12,7 +12,6 @@
     <name>Sakai base pom</name>
     <groupId>org.sakaiproject</groupId>
     <artifactId>base</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
