@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>dashboard</artifactId>
 		<groupId>org.sakaiproject.dash</groupId>
-		<version>11-SNAPSHOT</version>
+		<version>12-SNAPSHOT</version>
 	</parent>
 
 	<name>dashboard - Implementation</name>
