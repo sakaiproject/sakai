@@ -7581,10 +7581,10 @@ public class SimplePageBean {
 		if (rubricPeerGrades == null)
 		    return "success"; // nothing to do
 
-		// construct rowid -> text
-		// data stores text rather than id, for some reason, so we have to be able to map
+		// construct row text -> row id
+		// old entries are by text, so need to be able to map them to id
 
-		Map<String, String> rowMap = new HashMap<String, String>();
+		Map<String, Long> rowMap = new HashMap<String, Long>();
 
 		SimplePageItem i = findItem(itemId);
                 List<Map> categories = (List<Map>) i.getJsonAttribute("rows");
@@ -7593,7 +7593,7 @@ public class SimplePageBean {
 		for (Map cat: categories) {
 		    String rowText = String.valueOf(cat.get("rowText"));
 		    String rowId = String.valueOf(cat.get("id"));
-		    rowMap.put(rowId, rowText);
+		    rowMap.put(rowText, new Long(rowId));
 		}
 
 		// set up data for permission checks
@@ -7607,20 +7607,15 @@ public class SimplePageBean {
 
 		// data from user: build map target --> <category --> grades>
 
-		Map<String, Map<String, Integer>> dataMap = new HashMap<String, Map<String, Integer>>();
+		Map<String, Map<Long, Integer>> dataMap = new HashMap<String, Map<Long, Integer>>();
 		for (String gradeLine: rubricPeerGrades) {
 		    String[] items = gradeLine.split(":", 3);
-		    Map<String, Integer> catMap = dataMap.get(items[2]);
+		    Map<Long, Integer> catMap = dataMap.get(items[2]);
 		    if (catMap == null) {
-			catMap = new HashMap<String, Integer>();
+			catMap = new HashMap<Long, Integer>();
 			dataMap.put(items[2], catMap);
 		    }
-		    // user data is rowid, need text
-		    String rowText = rowMap.get(items[0]);
-		    if (rowText == null)  // rowId not in rubric. shoudl be impossible
-			continue;
-
-		    catMap.put(rowText, new Integer(items[1]));
+		    catMap.put(new Long(items[0]), new Integer(items[1]));
 		}
 
 		// have user data, now update database
@@ -7669,18 +7664,21 @@ public class SimplePageBean {
 			continue;
 		    // get old evaluations, as we need to mark them deleted
 		    List<SimplePagePeerEvalResult> oldEvaluations = simplePageToolDao.findPeerEvalResult(getCurrentPage().getPageId(), userId, target, groupId);
-		    Map <String, Integer> rows = dataMap.get(target);  // rows of new data
+		    Map <Long, Integer> rows = dataMap.get(target);  // rows of new data
 		    for (SimplePagePeerEvalResult result: oldEvaluations) {
-			if (rows.get(result.getRowText()) != null) { // we have a new value for this row
+			Long rowId = result.getRowId();
+			if (rowId == 0L)
+			    rowId = rowMap.get(result.getRowText());
+			if (rowId == null || rows.get(rowId) != null) { // old value is bogus or we have a new value for this row
 			    result.setSelected(false);  // invalidate old result
 			    update(result,false);
 			}			    
 		    }
 		    // now add new evaluations
-		    for (String rowText: rows.keySet()) {
-			int grade = rows.get(rowText); // grade for this row from data
-			// create a new format entry. use group id when evaluating group
-			SimplePagePeerEvalResult ret = simplePageToolDao.makePeerEvalResult(getCurrentPage().getPageId(), (groupId == null ? target: null), groupId, userId,  rowText, 0L, grade);
+		    for (Long rowId: rows.keySet()) {
+			int grade = rows.get(rowId); // grade for this row from data
+			// create a new format entry. use group id when evaluating group, and rowId rather than text
+			SimplePagePeerEvalResult ret = simplePageToolDao.makePeerEvalResult(getCurrentPage().getPageId(), (groupId == null ? target: null), groupId, userId,  null, rowId, grade);
 			saveItem(ret,false);		
 		    }
 		    

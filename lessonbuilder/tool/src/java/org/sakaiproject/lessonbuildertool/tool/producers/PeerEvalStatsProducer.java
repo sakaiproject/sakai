@@ -137,6 +137,17 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 			long studentContentBoxId = params.getItemId();
 			SimplePageItem item = simplePageToolDao.findItem(studentContentBoxId);
 
+			// need map from row id to text, since new format entries use the ID
+			Map<Long, String> rowMap = new HashMap<Long, String>();
+			List<Map> categories = (List<Map>) item.getJsonAttribute("rows");
+			if (categories == null)   // not valid to do update on item without rubic
+			    return;
+			for (Map cat: categories) {
+			    String rowText = String.valueOf(cat.get("rowText"));
+			    String rowId = String.valueOf(cat.get("id"));
+			    rowMap.put(new Long(rowId), rowText);
+			}
+
 			makePeerRubric(tofill,item);
 			// if rubric is for a group, we need list of all allowed groups so we can
 			// see which haven't created a page
@@ -254,9 +265,9 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 				    users.remove(target.id);
 				ArrayList<PeerEvaluation> graders = null;
 				if (grouped)
-				    graders = getGraders(page.getPageId(), page.getOwner(), page.getGroup());
+				    graders = getGraders(page.getPageId(), page.getOwner(), page.getGroup(), rowMap);
 				else
-				    graders = getGraders(page.getPageId(), target.id, null);
+				    graders = getGraders(page.getPageId(), target.id, null, rowMap);
 				makeGraders(studentInfo, graders);
 			   }
 
@@ -358,14 +369,19 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		}
 	}
 	
-	private ArrayList<PeerEvaluation> getGraders(Long pageId, String owner, String ownerGroup){
+	private ArrayList<PeerEvaluation> getGraders(Long pageId, String owner, String ownerGroup, Map<Long, String> rowMap){
 
 		ArrayList<PeerEvaluation> myEvaluations = new ArrayList<PeerEvaluation>(); 
 		
 		List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId, owner, ownerGroup);
 		if(evaluations!=null && evaluations.size()!=0)
 			for(SimplePagePeerEvalResult eval : evaluations){
-				PeerEvaluation target=new PeerEvaluation(eval.getRowText(), eval.getColumnValue());
+				String rowText = eval.getRowText();
+				if (eval.getRowId() != 0L)
+				    rowText = rowMap.get(eval.getRowId());
+				if (rowText == null)
+				    continue;  // should be impossible
+				PeerEvaluation target=new PeerEvaluation(rowText, eval.getColumnValue());
 				int targetIndex=myEvaluations.indexOf(target);
 				if(targetIndex!=-1){
 					try{

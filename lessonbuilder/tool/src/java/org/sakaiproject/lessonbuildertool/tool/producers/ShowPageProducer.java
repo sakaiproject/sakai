@@ -2254,6 +2254,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // for historical reasons when we evaluate the group the first person
 					    // to create the group is shown as the owner.
 					    
+					        // construct row text -> row id
+					        // old entries are by text, so need to be able to map them to id
+
+					        Map<String, Long> catMap = new HashMap<String, Long>();
+
+						List<Map> categories = (List<Map>) i.getJsonAttribute("rows");
+						if (categories == null)   // not valid to do update on item without rubic
+						    continue; 
+						for (Map cat: categories) {
+						    String rowText = String.valueOf(cat.get("rowText"));
+						    String rowId = String.valueOf(cat.get("id"));
+						    catMap.put(rowText, new Long(rowId));
+						}
+
 						List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, null);
 
 						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
@@ -2328,7 +2342,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIContainer entry = UIBranchContainer.make(peerForm, "peer-eval-target:");
 						    // for each target
 
-							Map<String, Map<Integer, Integer>> dataMap = new HashMap<String, Map<Integer, Integer>>();
+							Map<Long, Map<Integer, Integer>> dataMap = new HashMap<Long, Map<Integer, Integer>>();
 							// current data to show to target, all evaluations of target
 							// But first see if we should show current data. Only show
 							// user data evaluating him
@@ -2342,10 +2356,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    // for individual eval only show results for that one
 									if (evalIndividual && !currentUser.equals(eval.getGradee()))
 									    continue;
-									Map<Integer, Integer> rowMap = dataMap.get(eval.getRowText());
+									Long rowId = eval.getRowId();
+									if (rowId == 0L)
+									    rowId = catMap.get(eval.getRowText());
+									if (rowId == null)
+									    continue; // don't recognize old-format entry
+
+									Map<Integer, Integer> rowMap = dataMap.get(rowId);
 									if (rowMap == null) {
 									    rowMap = new HashMap<Integer, Integer>();
-									    dataMap.put(eval.getRowText(), rowMap);
+									    dataMap.put(rowId, rowMap);
 									}
 									Integer n = rowMap.get(eval.getColumnValue());
 									if (n == null)
@@ -2362,9 +2382,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							// now get current data to initiaize form. That's just
 							// the submission by current user.
 							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, target.id, groupId);
-							Map<String,Integer> selectedCells = new HashMap<String,Integer>();
-							for (SimplePagePeerEvalResult result: evaluations)
-							    selectedCells.put(result.getRowText(), new Integer(result.getColumnValue()));
+							Map<Long,Integer> selectedCells = new HashMap<Long,Integer>();
+							for (SimplePagePeerEvalResult result: evaluations) {
+							    Long rowId = result.getRowId();
+							    String rowText = result.getRowText();
+							    if (rowId == 0L)
+								rowId = catMap.get(rowText);
+							    if (rowId == null)
+								continue;
+							    selectedCells.put(rowId, new Integer(result.getColumnValue()));
+							}
 
 							// for each student being evaluated
 							UIOutput.make(entry, "peer-eval-target-name", target.name);
@@ -4568,7 +4595,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private String[] makeStudentRubric  = {null, "peer-eval-row-student:", "peerReviewIdStudent", "peerReviewTextStudent", "peer-eval-row-data", "#{simplePageBean.rubricPeerGrade}"};
 	private String[] makeMaintainRubric = {"peer-eval-title", 		 "peer-eval-row:", 		  "peerReviewId", 		 "peerReviewText", null, null};
 	
-	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<String,Integer> selectedCells, Map<String, Map<Integer, Integer>> dataMap, boolean allowSubmit)
+	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<Long,Integer> selectedCells, Map<Long, Map<Integer, Integer>> dataMap, boolean allowSubmit)
 	{
 		//System.out.println("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
 		//System.out.println("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
@@ -4578,9 +4605,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(parent, peerReviewRsfIds[0], String.valueOf(i.getAttribute("rubricTitle")));
 		
 		class RubricRow implements Comparable{
-			public int id;
+			public Long id;
 			public String text;
-			public RubricRow(int id, String text){ this.id=id; this.text=text;}
+			public RubricRow(Long id, String text){ this.id=id; this.text=text;}
 			public int compareTo(Object o){
 				RubricRow r = (RubricRow)o;
 				if(id==r.id)
@@ -4596,7 +4623,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if(categories != null){
 			for(Object o: categories){
 				Map cat = (Map)o;
-				Integer rowId = Integer.parseInt(String.valueOf(cat.get("id")));
+				Long rowId = Long.parseLong(String.valueOf(cat.get("id")));
 				String rowText = String.valueOf(cat.get("rowText"));
 				rows.add(new RubricRow(rowId, rowText));
 			}
@@ -4615,13 +4642,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    for (int col = 4; col >= 0; col--) {
 				String count = null;
 				if (dataMap != null) {
-				    Map<Integer, Integer>rowMap = dataMap.get(row.text);
+				    Map<Integer, Integer>rowMap = dataMap.get(row.id);
 				    if (rowMap != null && rowMap.get(col) != null)
 					count = rowMap.get(col).toString();
 				}
 
 				UIComponent cell = UIOutput.make(peerReviewRows, "peer-eval-cell:", count);
-				Integer selectedValue = selectedCells.get(row.text);
+				Integer selectedValue = selectedCells.get(row.id);
 
 				if (selectedValue != null && selectedValue == col)
 				    cell.decorate(new UIStyleDecorator("selectedPeerCell " + col));
