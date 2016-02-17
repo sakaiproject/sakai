@@ -91,6 +91,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -3737,9 +3738,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 	  }
 
-	  public void saveOrUpdateAttachments(List list) {
-		  for (Object attachment : list) {
-			  getHibernateTemplate().saveOrUpdate(attachment);
+	  public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
+		  for (AttachmentIfc attachment : list) {
+		      getHibernateTemplate().saveOrUpdate(attachment);
 		  }
 	  }
 

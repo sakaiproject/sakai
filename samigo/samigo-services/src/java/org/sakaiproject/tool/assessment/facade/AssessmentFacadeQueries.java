@@ -77,6 +77,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachment
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -1812,8 +1813,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return attach;
 	}
 
-	public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list) {
-	    for (AssessmentAttachmentIfc attachment : list) {
+	public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
+	    for (AttachmentIfc attachment : list) {
 	        getHibernateTemplate().saveOrUpdate(attachment);
 	    }
 	}

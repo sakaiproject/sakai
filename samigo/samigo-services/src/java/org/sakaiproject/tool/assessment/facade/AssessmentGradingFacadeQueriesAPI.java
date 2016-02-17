@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 
@@ -264,7 +265,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public void removeItemGradingAttachment(Long attachmentId);
 
-  public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
+  public void saveOrUpdateAttachments(List<AttachmentIfc> list);
 
   public void removeAssessmentGradingAttachment(Long attachmentId);
   

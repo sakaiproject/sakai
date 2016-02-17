@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -220,7 +221,7 @@ public interface AssessmentFacadeQueriesAPI {
 	public AttachmentData createEmailAttachment(String resourceId,
 			String filename, String protocol);
 
-	public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
+	public void saveOrUpdateAttachments(List<AttachmentIfc> list);
 
     public String getAssessmentSiteId (String assessmentId);
   
