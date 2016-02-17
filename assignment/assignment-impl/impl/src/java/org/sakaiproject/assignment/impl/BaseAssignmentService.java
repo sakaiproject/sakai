@@ -11408,7 +11408,63 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		        while (_it.hasNext()) {
 		            String _s = _it.next();
 		            if (_s.startsWith(id + "::")) {
-		                return _s.endsWith("null") ? null: _s.substring(_s.indexOf("::") + 2);
+		                //return _s.endsWith("null") ? null: _s.substring(_s.indexOf("::") + 2);
+		            	if(_s.endsWith("null"))
+		            	{
+		            		return null;
+		            	}
+		            	else
+		            	{
+		            		String grade=_s.substring(_s.indexOf("::") + 2);
+		            		if (grade != null && grade.length() > 0 && !"0".equals(grade))
+		    				{
+		    					int factor = getAssignment().getContent().getFactor();
+		    					int dec = (int)Math.log10(factor);
+		    					String decSeparator = FormattedText.getDecimalSeparator();
+		    					String decimalGradePoint = "";
+		    					try
+		    					{
+		    						Integer.parseInt(grade);
+		    						// if point grade, display the grade with factor decimal place
+		    						int length = grade.length();
+		    						if (length > dec) {
+		    							decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+		    						}
+		    						else {
+		    							String newGrade = "0".concat(decSeparator);
+		    							for (int i = length; i < dec; i++) {
+		    								newGrade = newGrade.concat("0");
+		    							}
+		    							decimalGradePoint = newGrade.concat(grade);
+		    						}
+		    					}
+		    					catch (NumberFormatException e) {
+		    						try {
+		    							Float.parseFloat(grade);
+		    							decimalGradePoint = grade;
+		    						}
+		    						catch (Exception e1) {
+		    							return grade;
+		    						}
+		    					}
+		    					// get localized number format
+		    					NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);
+		    					DecimalFormat dcformat = (DecimalFormat) nbFormat;
+		    					// show grade in localized number format
+		    					try {
+		    						Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
+		    						decimalGradePoint = nbFormat.format(dblGrade);
+		    					}
+		    					catch (Exception e) {
+		    						return grade;
+		    					}
+		    					return decimalGradePoint;
+		    				}
+		    				else
+		    				{
+		    					return StringUtils.trimToEmpty(grade);
+		    				}
+		            	}
 		            }
 		        }
 		    }
