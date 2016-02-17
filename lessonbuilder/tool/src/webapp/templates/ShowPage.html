@@ -591,6 +591,8 @@
                         <span style="display:none" rsf:id="student-groups" class="item-groups"></span>
                         <span style="display:none" rsf:id="student-group-owned" class="student-group-owned"></span>
                         <span style="display:none" rsf:id="student-owner-groups" class="student-owner-groups"></span>
+                        <span style="display:none" rsf:id="student-group-owned-eval-individual" class="student-owned-eval-individual"></span>
+                        <span style="display:none" rsf:id="student-group-owned-see-only-own" class="student-owned-see-only-own"></span>
                         <span style="display:none" rsf:id="studentitem-required" class="studentitem-required"></span>
                         <span style="display:none" rsf:id="studentitem-prerequisite" class="studentitem-prerequisite"></span>
                     </div>
@@ -614,24 +616,32 @@
 			</div>
 		      </div>
 		      <!-- hidden by default until .add-peereval-button is clicked -->
-		      <div class="peer-eval-div" style="display:none; max-width:800px;">
+		      <div class="peer-eval-div" aria-hidden="true" style="display:none; max-width:800px;">
 			<h3><span rsf:id="peer-eval-title-student" class="peer-eval-title-student"></span><span rsf:id="peer-eval-grade-directions" style="float:right;"></span></h3>
 			<form action="#" rsf:id="peer-review-form" class="peer-review-form">
-			  <table id="peer-eval-create-table" style="width: 100%; height: 100%; border: 1px solid black;">
+			 <input type="hidden" rsf:id="peer-eval-itemid"/>
+			 <div class="peer-eval-target" rsf:id="peer-eval-target:">
+			  <h4><span rsf:id="peer-eval-target-name"></span></h4><input type="hidden" class="peer-eval-target-id" rsf:id="peer-eval-target-id" />
+			  <table role="grid" id="peer-eval-create-table" style="width: 100%; height: 100%; border: 1px solid black;">
 			    <thead><tr><th></th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr></thead>
 			    <tbody>
 			      <tr rsf:id="peer-eval-row-student:" class="peer-eval-row">
-				<td>
+				<td aria-live="polite">
 				  <span rsf:id="peerReviewTextStudent" class="peerReviewText"></span>
+				  <input type="hidden" class="peer-eval-row-data" rsf:id="peer-eval-row-data" />
 				  <span style="display:none;" rsf:id="peerReviewIdStudent" class="peerReviewId"></span>
+				  <span class="peerReviewValue offscreen"></span>
 				</td>
-				<td class="4"></td><td class="3"></td><td class="2"></td><td class="1"></td><td class="0"></td>
+				<td rsf:id="peer-eval-cell:"></td>
 			      </tr>
 			    </tbody>
 			  </table>
+			 </div>
+			 <a rsf:id="cancel-peereval-link" class="usebutton switchLink cancel-peereval-link" onclick="return false;"><span style="font-weight:normal; color:#555" rsf:id="cancel-peereval-text"></span></a>
+			 <input type="submit" rsf:id="save-peereval-link" class="usebutton switchLink save-peereval-link"><span style="font-weight:normal; color:#555" rsf:id="save-peereval-text"></span></input>
+			 <input type="hidden" rsf:id="csrf6" />
+
 			</form>
-			<a rsf:id="cancel-peereval-link" class="usebutton switchLink cancel-peereval-link" onclick="return false;"><span style="font-weight:normal; color:#555" rsf:id="cancel-peereval-text"></span></a>
-			<a rsf:id="save-peereval-link" class="usebutton switchLink save-peereval-link" onclick="saveRubricSelection();"><span style="font-weight:normal; color:#555" rsf:id="save-peereval-text"></span></a>
 		      </div>
 		    </div>
 
@@ -739,12 +749,6 @@
 			<p rsf:id="msg=simplepage.save_message" id="simplepage.save_message"></p>
 			<p rsf:id="msg=simplepage.ckeditor" id="simplepage.ckeditor"></p>
 		</div>
-		
-		<form class="rubricSelection" rsf:id="rubricSelection" style="display:none;">
-                  <input type="hidden" rsf:id="csrf6" />
-		  <input type="text" class="rubricPeerGrade" id="rubricPeerGrade" rsf:id="rubricPeerGrade"></input>
-		  <input class="bold" type="submit" onclick="return true;" id="update-peer-eval-grade" rsf:id="update-peer-eval-grade" />
-		</form>
 
 		<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
 			<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
@@ -1637,7 +1641,12 @@
                               </div>
                             </div>
                           </div>
-
+		        <p class="checkbox student-group-owned-opts">
+			  <input type="checkbox" name="student-group-owned-eval-individual" id="student-group-owned-eval-individual" rsf:id="student-group-owned-eval-individual" /><label for="student-group-owned-eval-individual"><span rsf:id="msg=simplepage.owner-groups.eval-individual"></span></label>
+			</p>
+			<p class="checkbox">
+			  <input type="checkbox" name="student-group-owned-see-only-own" id="student-group-owned-see-only-own" rsf:id="student-group-owned-see-only-own" /><label for="student-group-owned-see-only-own"><span rsf:id="msg=simplepage.owner-groups.see-only-own"></span></label>
+			</p>
                         <p class="checkbox">
                           <input type="checkbox" name="student-prerequisite" id="student-prerequisite" rsf:id="student-prerequisite" />
                           <label for="student-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1792,7 +1801,7 @@
 	</div>
 	
 	<div id="column-dialog" class="controlsPanel lessonsDialog">
-          <form action="#" method="post" enctype="multipart/form-data">
+          <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
             <div class="">                  
               <input type="hidden" name="columnitem" id="columnitem" />
               <div>

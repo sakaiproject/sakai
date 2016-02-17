@@ -207,6 +207,8 @@ public class SimplePageBean {
 	public boolean comments;
 	public boolean forcedAnon;
 	public boolean groupOwned;
+	public boolean groupOwnedIndividual;
+	public boolean seeOnlyOwn;
     
 	public String questionType;
     public String questionText, questionCorrectText, questionIncorrectText;
@@ -335,19 +337,18 @@ public class SimplePageBean {
 	public void setPeerEvalAllowSelfGrade(boolean self){
 		this.peerEvalAllowSelfGrade = self;
 	}
-	ArrayList<String> rubricPeerGrades, rubricPeerCategories;
+	ArrayList<String> rubricPeerGrades;
 	public String rubricPeerGrade;
 	
 	public void setRubricPeerGrade(String rubricPeerGrade) {
+		if (rubricPeerGrade == null || rubricPeerGrade.equals(""))
+		    return;
 		this.rubricPeerGrade = rubricPeerGrade;
 		
-		if(rubricPeerGrades==null) {
+		if(rubricPeerGrades == null) {
 			rubricPeerGrades = new ArrayList<String>();
-			rubricPeerCategories = new ArrayList<String>();
 		}
-		int theColon=rubricPeerGrade.lastIndexOf(":");
-		rubricPeerGrades.add(rubricPeerGrade.substring(theColon + 1));
-		rubricPeerCategories.add(rubricPeerGrade.substring(0,theColon));
+		rubricPeerGrades.add(rubricPeerGrade);
 	}
     
 	// Caches
@@ -1597,9 +1598,11 @@ public class SimplePageBean {
 						studItem.setSakaiId(page.getTopParent().toString());
 						
 						studItem.setAttributeString(peerEval);
+						studItem.setGroupOwned(item.isGroupOwned());
 						studItem.setName("peerEval");
 						studItem.setPageId(-10L);
 						studItem.setType(SimplePageItem.PEEREVAL); // peer eval defined in SimplePageItem.java
+						studItem.setId(item.getId());
 						items.add(0,studItem);
 					}
 					if(item != null && item.getShowComments() != null && item.getShowComments()) {
@@ -6967,6 +6970,14 @@ public class SimplePageBean {
 			page.setRequired(required);
 			page.setPrerequisite(prerequisite);
 			page.setGroupOwned(groupOwned);
+			if (groupOwnedIndividual)
+			    page.setAttribute("group-eval-individual", "true");
+			else
+			    page.removeAttribute("group-eval-individual");
+			if (seeOnlyOwn)
+			    page.setAttribute("see-only-own", "true");
+			else
+			    page.removeAttribute("see-only-own");
 			
 			page.setShowPeerEval(peerEval);
 			
@@ -7541,37 +7552,164 @@ public class SimplePageBean {
 		update(item);
 		return "success";
 	}
+
 	public String savePeerEvalResult() {
 		
 		String userId = getCurrentUserId();
-		String gradeeId= getCurrentPage().getOwner();
 		
-		if (!itemOk(itemId)) {
+		// can evaluate if this is a student page and we're in the site
+		// and the page has a rubric
+		if (getCurrentPage().getOwner() == null || !canReadPage()) {		    
 		    setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
 		    return "permission-failed";
 		}
+
+		// does page have rubric?
+    
+		SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(currentPage.getTopParent());
+		SimplePageItem item = simplePageToolDao.findItem(studentPage.getItemId());
+		if(item != null && item.getShowPeerEval() != null && item.getShowPeerEval())
+		    ;
+		else {
+		    setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
+		    return "permission-failed";
+		}
+
 		if (!checkCsrf())
 		    return "permission-failed";
 		
-		List<SimplePagePeerEvalResult> result = simplePageToolDao.findPeerEvalResult(getCurrentPage().getPageId(), userId, gradeeId); 
-		if(result != null) {
-			//set the existing deleted flag=true;
-			for(int i=0; i<result.size(); i++){
-				SimplePagePeerEvalResult rst = result.get(i);
-				rst.setSelected(false);
-				update(rst,false);
-			}
+		if (rubricPeerGrades == null)
+		    return "success"; // nothing to do
+
+		// construct row text -> row id
+		// old entries are by text, so need to be able to map them to id
+
+		Map<String, Long> rowMap = new HashMap<String, Long>();
+
+		SimplePageItem i = findItem(itemId);
+                List<Map> categories = (List<Map>) i.getJsonAttribute("rows");
+		if (categories == null)   // not valid to do update on item without rubic
+		    return "fail";
+		for (Map cat: categories) {
+		    String rowText = String.valueOf(cat.get("rowText"));
+		    String rowId = String.valueOf(cat.get("id"));
+		    rowMap.put(rowText, new Long(rowId));
 		}
-		//rubricPeerGrades, rubricPeerCategories
-			for(int i=0; i<rubricPeerGrades.size(); i++){
-				String rowText = rubricPeerCategories.get(i);
-				int columnValue =Integer.parseInt(rubricPeerGrades.get(i));
-				SimplePagePeerEvalResult ret = simplePageToolDao.makePeerEvalResult(getCurrentPage().getPageId(), getCurrentPage().getOwner(),userId, rowText, columnValue);
-				saveItem(ret,false);		
+
+		// set up data for permission checks
+		// user is in site because we check canRead
+		String owner = getCurrentPage().getOwner();
+		String currentUser = getCurrentUserId();
+		List<String>groupMembers = studentPageGroupMembers(item, null);
+		boolean evalIndividual = (item.isGroupOwned() && "true".equals(item.getAttribute("group-eval-individual")));
+		boolean gradingSelf = Boolean.parseBoolean(item.getAttribute("rubricAllowSelfGrade"));
+		// check is down below at canSubmit.
+
+		// data from user: build map target --> <category --> grades>
+
+		Map<String, Map<Long, Integer>> dataMap = new HashMap<String, Map<Long, Integer>>();
+		for (String gradeLine: rubricPeerGrades) {
+		    String[] items = gradeLine.split(":", 3);
+		    Map<Long, Integer> catMap = dataMap.get(items[2]);
+		    if (catMap == null) {
+			catMap = new HashMap<Long, Integer>();
+			dataMap.put(items[2], catMap);
+		    }
+		    catMap.put(new Long(items[0]), new Integer(items[1]));
+		}
+
+		// have user data, now update database
+
+		// evalTargets are targets that it's legal to evaluate for this page
+		// owner, or if evaluating individuals on a gorup page, all members of the group
+
+		Set<String>evalTargets = new HashSet<String>();
+
+		if (evalIndividual) {
+		    String group = getCurrentPage().getGroup();
+		    if (group != null)
+			group = "/site/" + getCurrentSiteId() + "/group/" + group;
+		    try {
+			AuthzGroup g = authzGroupService.getAuthzGroup(group);
+			Set<Member> members = g.getMembers();
+			for (Member m: members) {
+			    evalTargets.add(m.getUserId());
 			}
+		    } catch (Exception e) {
+			System.out.println("unable to get members of group " + group);
+		    }
+		} else {
+		    evalTargets.add(getCurrentPage().getOwner());
+		}
+
+		// now do the actual data update. loop over users
+
+		// search will always include target. where a group is being
+		// evaluted also need groupId. In that case old format entries are
+		// by page owner, new are by group, so we need both
+		String groupId = null;
+		if (item.isGroupOwned() && !evalIndividual)
+		    groupId = getCurrentPage().getGroup();
+
+		for (String target: dataMap.keySet()) {
+		    // is this someone we can evaluate? In normal case only page owner
+
+		    // keep this in sync with the same expression in ShowPageProducer
+		    boolean canSubmit = (!item.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
+					 i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || gradingSelf) ||
+					 evalIndividual && groupMembers.contains(currentUser) && (gradingSelf || !target.equals(currentUser)));
+		    if (!canSubmit)
+			continue;
+		    if (!evalTargets.contains(target))
+			continue;
+		    // get old evaluations, as we need to mark them deleted
+		    List<SimplePagePeerEvalResult> oldEvaluations = simplePageToolDao.findPeerEvalResult(getCurrentPage().getPageId(), userId, target, groupId);
+		    Map <Long, Integer> rows = dataMap.get(target);  // rows of new data
+		    for (SimplePagePeerEvalResult result: oldEvaluations) {
+			Long rowId = result.getRowId();
+			if (rowId == 0L)
+			    rowId = rowMap.get(result.getRowText());
+			if (rowId == null || rows.get(rowId) != null) { // old value is bogus or we have a new value for this row
+			    result.setSelected(false);  // invalidate old result
+			    update(result,false);
+			}			    
+		    }
+		    // now add new evaluations
+		    for (Long rowId: rows.keySet()) {
+			int grade = rows.get(rowId); // grade for this row from data
+			// create a new format entry. use group id when evaluating group, and rowId rather than text
+			SimplePagePeerEvalResult ret = simplePageToolDao.makePeerEvalResult(getCurrentPage().getPageId(), (groupId == null ? target: null), groupId, userId,  null, rowId, grade);
+			saveItem(ret,false);		
+		    }
+		    
+		}
 		return "success";
+
 	}
 	
+	public List<String>studentPageGroupMembers(SimplePageItem item, String group) {
+	    List<String>groupMembers = new ArrayList<String>();
+	    if (item.isGroupOwned()) {
+		if (group == null) {
+		    SimplePage page = getCurrentPage();
+		    group = page.getGroup();
+		}
+		if (group != null)
+		    group = "/site/" + getCurrentSiteId() + "/group/" + group;
+		try {
+		    AuthzGroup g = authzGroupService.getAuthzGroup(group);
+		    Set<Member> members = g.getMembers();
+		    for (Member m: members) {
+			groupMembers.add(m.getUserId());
+		    }
+		} catch (Exception e) {
+		    System.out.println("unable to get members of group " + group);
+		}
+	    }
+	    return groupMembers;
+	}	    
+
+
 	// May add or edit comments
 		public String addComment1() {
 			boolean html = false;
