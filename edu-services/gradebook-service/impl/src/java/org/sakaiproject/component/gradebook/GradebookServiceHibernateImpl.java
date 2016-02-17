@@ -3072,8 +3072,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			Assignment assignment = gradeRecord.getAssignment();
 						
-			//check category match otherwise skip
-			if(assignment.getCategory() != null && categoryId != assignment.getCategory().getId()){
+			//check category ids match, otherwise skip
+			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
 				continue;
 			}
 						
