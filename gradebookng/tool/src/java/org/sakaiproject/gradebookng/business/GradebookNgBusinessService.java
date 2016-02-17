@@ -1474,7 +1474,7 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
-			if (original.getCategoryId() != assignment.getCategoryId()) {
+			if (original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
 				syncCatagorizedAssignmentOrder(siteId, assignment);
 			}
 			return true;
