@@ -37,13 +37,18 @@ public class FormatHelper {
 		return formatDoubleToTwoDecimalPlaces(score) + "%";
 	}
 
+	/**
+	 * Format the given string as a percentage with two decimal precision. String should be something that can be converted to a number.
+	 * 
+	 * @param string string representation of the number
+	 * @return percentage to decimal places with a '%' for good measure
+	 */
 	public static String formatStringAsPercentage(final String string) {
 		if (StringUtils.isBlank(string)) {
 			return null;
 		}
 
-		final BigDecimal decimal = new BigDecimal(string);
-		decimal.setScale(2, RoundingMode.HALF_DOWN); // same as GradebookService
+		final BigDecimal decimal = new BigDecimal(string).setScale(2, RoundingMode.HALF_DOWN);
 
 		return formatDoubleAsPercentage(decimal.doubleValue());
 	}
