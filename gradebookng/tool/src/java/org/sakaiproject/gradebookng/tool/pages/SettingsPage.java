@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -58,7 +59,8 @@ public class SettingsPage extends BasePage {
 
 				// validate the categories
 				if (model.getGradebookInformation().getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()) {
-					double totalWeight = 0;
+
+					BigDecimal totalWeight = BigDecimal.ZERO;
 					for (final CategoryDefinition cat : categories) {
 
 						if (cat.getWeight() == null) {
@@ -66,12 +68,12 @@ public class SettingsPage extends BasePage {
 						} else {
 							// extra credit items do not participate in the weightings, so exclude from the tally
 							if (!cat.isExtraCredit()) {
-								totalWeight += cat.getWeight();
+								totalWeight = totalWeight.add(BigDecimal.valueOf(cat.getWeight()));
 							}
 						}
 					}
 
-					if (totalWeight != 1) {
+					if (totalWeight.compareTo(BigDecimal.ONE) != 0) {
 						error(getString("settingspage.update.failure.categoryweighttotals"));
 					}
 				}
