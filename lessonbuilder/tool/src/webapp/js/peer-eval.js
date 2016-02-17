@@ -8,7 +8,17 @@ $(function() {
 	// selectedPeerCell is to mark original
 	// newPeerCell is new selection if there's a save
 	// start out by setting them the same
-	$('.selectedPeerCell').addClass("newPeerCell");
+	$('.selectedPeerCell').each(function(e) {
+		$(this).addClass("newPeerCell");
+		var val = '';
+		for (i = 0; i < 5; i++) {
+		    if ($(this).hasClass(""+i))
+			val = i;
+		}
+		$(this).parents('.peer-eval-row').find('.peerReviewValue').text(val);
+	    });
+
+	$('.selectedPeerCell').attr('aria-selected','true');
 
 	$('.peer-eval-row td').click(function(e) {
 		var row = $(this).parents('.peer-eval-row');
@@ -18,20 +28,34 @@ $(function() {
 		var peerReviewId = row.find('.peerReviewId').text();
 		var peerReviewTarget = $(this).parents('.peer-eval-target').find('.peer-eval-target-id').val();
 		row.find("td").removeClass("newPeerCell");
+		row.find("td").removeAttr('aria-selected');
 		$(this).addClass("newPeerCell");
+		$(this).attr('aria-selected', 'true');
 		for (i = 0; i < 5; i++) {
-		    if ($(this).hasClass(""+i))
+		    if ($(this).hasClass(""+i)) {
 			data.val(peerReviewId + ":" +i+ ":" + peerReviewTarget);
+			$(this).parents('.peer-eval-row').find('.peerReviewValue').text(""+i);
+		    }
 		}
 	    });
 
         $('.cancel-peereval-link').click(function(e) {
 		var form = $(this).parents('form');
 		// put back original classes
+		form.find('.newPeerCell').removeAttr('aria-selected');
 		form.find('.newPeerCell').removeClass('newPeerCell');
 		form.find('.selectedPeerCell').addClass("newPeerCell");
+		form.find('.selectedPeerCell').attr('aria-selected', 'true');
 		// kill anything set up for next save
 		form.find('.peer-eval-row-data').val("");
+		$('.selectedPeerCell').each(function(e) {
+			var val = '';
+			for (i = 0; i < 5; i++) {
+			    if ($(this).hasClass(""+i))
+				val = i;
+			}
+			$(this).parents('.peer-eval-row').find('.peerReviewValue').text(val);
+		    });
             });
 
 	if ($(".studentContentType").length > 0) {
@@ -256,7 +280,7 @@ $(function() {
                            rubricsDiv.push('</ul>');
                         }
                         else {
-			    rubricsDiv.push('<span class="rubric-activity">' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ');
+			    rubricsDiv.push('<span role="link" class="rubric-activity">' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ');
 			    rubricsDiv.push(gradees[x].activity + '</span>');
                         }
                         rubricsDiv.push('</div><div class="rubric-rubric">' + $(".peer-eval-rubric").html() + "</div></div>");
@@ -274,7 +298,7 @@ $(function() {
 						for (z in gradees[x].grades[y].graders) {
 							graderString.push(gradees[x].grades[y].graders[z].name + '<span class="rubric-cell-grader-id">' + gradees[x].grades[y].graders[z].id + '</span>');
 						}
-						$("." + grade, this).html('<span class="rating">&nbsp;' + count + '&nbsp;</span><div class="rubric-graders-cell">' + graderString.join("<br>") + "</div>");
+						$("." + grade, this).html('<span role-"link" class="rating">&nbsp;' + count + '&nbsp;</span><div class="rubric-graders-cell">' + graderString.join("<br>") + "</div>");
 					}
 				});
          $(".rubric-graders-cell").parent().attr('title',ratingToolTip);               
@@ -329,6 +353,7 @@ $(function() {
 				$(this).parent().click(); //Click the parent again to undo this click's action.
 				$(".rubric-graders-cell").each(function() {
 					$(this).parent().css("background-color", "");
+					$(this).parents('peer-eval-row').find('peer-eval-chosen').text('');
 				});
 				if ($(this).hasClass("activity-active")) {
 					$(".activity-active").removeClass("activity-active");
@@ -340,10 +365,19 @@ $(function() {
 					}
 					$(".rubric-graders-cell").each(function() {
 						$(this).parent().css("background-color", "");
+					        $(this).parents('peer-eval-row').find('peer-eval-chosen').text('');
 						var htmlSS = $(this).html();
 						//console.log(userid);
 						if (htmlSS.indexOf(userid) !== -1) {
 							$(this).parent().css("background-color", CELL_SELECTED_BACKGROUND_COLOR);
+	       						var val = '';
+							for (i = 0; i < 5; i++) {
+		    						if ($(this).parent().hasClass(""+i))
+									val = i;
+							}
+							var person = $(this).closest('.rubric-set').find('.rubric-name').contents().first().text();
+					        	$(this).closest('.peer-eval-row').find('.peer-eval-chosen').text(i);
+					        	$(this).closest('.peer-eval-row').find('.peer-eval-person').text(person);
 						}
 					});
 				}
@@ -371,6 +405,10 @@ $(function() {
 	}
         $('.add-peereval-button').click(function(e) {
 		$('.peer-eval-div').toggle();
+                if ($('.peer-eval-div').css('display') === 'none')
+		    $('.peer-eval-div').attr('aria-hidden','true');
+                else
+		    $('.peer-eval-div').attr('aria-hidden','false');
 	});
 
 });

@@ -62,6 +62,10 @@ text-decoration: underline;
 .inactive-member-id{
 	display:none;
 }
+.inactive-member-name, .rubric-activity, .rating {
+	text-decoration: underline;
+	cursor: pointer;
+}
 .inactive-member-collection{
 	background: #EEEEEE;
 	margin-top: 10px;

@@ -616,20 +616,21 @@
 			</div>
 		      </div>
 		      <!-- hidden by default until .add-peereval-button is clicked -->
-		      <div class="peer-eval-div" style="display:none; max-width:800px;">
+		      <div class="peer-eval-div" aria-hidden="true" style="display:none; max-width:800px;">
 			<h3><span rsf:id="peer-eval-title-student" class="peer-eval-title-student"></span><span rsf:id="peer-eval-grade-directions" style="float:right;"></span></h3>
 			<form action="#" rsf:id="peer-review-form" class="peer-review-form">
 			 <input type="hidden" rsf:id="peer-eval-itemid"/>
 			 <div class="peer-eval-target" rsf:id="peer-eval-target:">
 			  <h4><span rsf:id="peer-eval-target-name"></span></h4><input type="hidden" class="peer-eval-target-id" rsf:id="peer-eval-target-id" />
-			  <table id="peer-eval-create-table" style="width: 100%; height: 100%; border: 1px solid black;">
+			  <table role="grid" id="peer-eval-create-table" style="width: 100%; height: 100%; border: 1px solid black;">
 			    <thead><tr><th></th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr></thead>
 			    <tbody>
 			      <tr rsf:id="peer-eval-row-student:" class="peer-eval-row">
-				<td>
+				<td aria-live="polite">
 				  <span rsf:id="peerReviewTextStudent" class="peerReviewText"></span>
 				  <input type="hidden" class="peer-eval-row-data" rsf:id="peer-eval-row-data" />
 				  <span style="display:none;" rsf:id="peerReviewIdStudent" class="peerReviewId"></span>
+				  <span class="peerReviewValue offscreen"></span>
 				</td>
 				<td rsf:id="peer-eval-cell:"></td>
 			      </tr>

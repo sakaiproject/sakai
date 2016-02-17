@@ -4647,7 +4647,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					count = rowMap.get(col).toString();
 				}
 
-				UIComponent cell = UIOutput.make(peerReviewRows, "peer-eval-cell:", count);
+				UIBranchContainer cell = UIBranchContainer.make(peerReviewRows, "peer-eval-cell:", count);
 				Integer selectedValue = selectedCells.get(row.id);
 
 				if (selectedValue != null && selectedValue == col)
