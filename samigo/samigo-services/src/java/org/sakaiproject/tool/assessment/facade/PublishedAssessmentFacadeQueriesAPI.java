@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -367,7 +368,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void removeSectionAttachment(Long sectionAttachmentId);
 
-  public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
+  public void saveOrUpdateAttachments(List<AttachmentIfc> list);
   
   public TreeMap getGroupsForSite();
   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);
