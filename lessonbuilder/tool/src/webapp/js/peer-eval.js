@@ -2,7 +2,62 @@
 //conditional functions
 var addEmptyCategoryRow, addCategoryRow, displayBlankRubric, createRubric, updateRubric, addIndexAndMoveToSubmitRubric, buildExistingRubrics, deleteNotLast, saveRubricSelection, closePeerReviewDialog;
 
+
 $(function() {
+
+	// selectedPeerCell is to mark original
+	// newPeerCell is new selection if there's a save
+	// start out by setting them the same
+	$('.selectedPeerCell').each(function(e) {
+		$(this).addClass("newPeerCell");
+		var val = '';
+		for (i = 0; i < 5; i++) {
+		    if ($(this).hasClass(""+i))
+			val = i;
+		}
+		$(this).parents('.peer-eval-row').find('.peerReviewValue').text(val);
+	    });
+
+	$('.selectedPeerCell').attr('aria-selected','true');
+
+	$('.peer-eval-row td').click(function(e) {
+		var row = $(this).parents('.peer-eval-row');
+		var data = row.find('.peer-eval-row-data');
+		if (data.size() == 0)
+		    return;
+		var peerReviewId = row.find('.peerReviewId').text();
+		var peerReviewTarget = $(this).parents('.peer-eval-target').find('.peer-eval-target-id').val();
+		row.find("td").removeClass("newPeerCell");
+		row.find("td").removeAttr('aria-selected');
+		$(this).addClass("newPeerCell");
+		$(this).attr('aria-selected', 'true');
+		for (i = 0; i < 5; i++) {
+		    if ($(this).hasClass(""+i)) {
+			data.val(peerReviewId + ":" +i+ ":" + peerReviewTarget);
+			$(this).parents('.peer-eval-row').find('.peerReviewValue').text(""+i);
+		    }
+		}
+	    });
+
+        $('.cancel-peereval-link').click(function(e) {
+		var form = $(this).parents('form');
+		// put back original classes
+		form.find('.newPeerCell').removeAttr('aria-selected');
+		form.find('.newPeerCell').removeClass('newPeerCell');
+		form.find('.selectedPeerCell').addClass("newPeerCell");
+		form.find('.selectedPeerCell').attr('aria-selected', 'true');
+		// kill anything set up for next save
+		form.find('.peer-eval-row-data').val("");
+		$('.selectedPeerCell').each(function(e) {
+			var val = '';
+			for (i = 0; i < 5; i++) {
+			    if ($(this).hasClass(""+i))
+				val = i;
+			}
+			$(this).parents('.peer-eval-row').find('.peerReviewValue').text(val);
+		    });
+            });
+
 	if ($(".studentContentType").length > 0) {
 		//nextNumber has been negated...
 		addEmptyCategoryRow = function(tableSelector, customId) {
@@ -131,8 +186,22 @@ $(function() {
 
 /* The following applies to the Peer Evaluation Statistics (PeerEvalStats.html) page. BEGIN */
 
+function countByGrader(grader) {
+   var count = 0;
+
+   $(".peer-eval-gradee-branch").each(function() {
+      var countPerGradee = 0;
+      $(".peer-eval-grader-id", this).each(function() {
+	 if ($(this).text() === grader) countPerGradee++;
+      });
+      if (countPerGradee > (numCategories / 2)) count++;
+   });
+   return count;
+}
+
+
 $(function() {
-	if ($(".peer-eval-statistics-page").length > 0) {
+	if ($(".peer-eval-rubric").length > 0) {
 		var CELL_SELECTED_BACKGROUND_COLOR = "rgb(177, 204, 235)";
 		var activityMsg = document.getElementById("simplepage.user.activity").innerHTML;
 		var ratingToolTip = document.getElementById("simplepage.peer-cell-tooltip").innerHTML;
@@ -183,7 +252,7 @@ $(function() {
 		});
 
 		//Determine user activity **Includes activity that could be invalid due to changes to the rubric after grading has opened.
-		var numCategories = $(".peer-eval-rubric .peer-eval-row").length;
+		numCategories = $(".peer-eval-rubric .peer-eval-row").length;
 		for (x in gradees) {
 			var target = gradees[x].userid;
 			gradees[x].activity = 0;
@@ -204,8 +273,17 @@ $(function() {
 			var rubricsDiv = [];
 			rubricsDiv.push('<div class="rubric-set"><div class="rubric-name">' + gradees[x].gradee);
 			rubricsDiv.push('<span class="rubric-userid-div"> (<span class="rubric-userid">' + gradees[x].userid + '</span>) </span>');
-			rubricsDiv.push('<span class="rubric-activity">' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ');
-			rubricsDiv.push(gradees[x].activity + '</span>' + '</div><div class="rubric-rubric">' + $(".peer-eval-rubric").html() + "</div></div>");
+                        if (gradees[x].branch.find('.peer-eval-gradee-members').size() > 0) {
+                           rubricsDiv.push('<ul>');
+                           var graders = gradees[x].branch.find('.peer-eval-gradee-members');
+                           rubricsDiv.push(graders.html());
+                           rubricsDiv.push('</ul>');
+                        }
+                        else {
+			    rubricsDiv.push('<span role="link" class="rubric-activity">' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ');
+			    rubricsDiv.push(gradees[x].activity + '</span>');
+                        }
+                        rubricsDiv.push('</div><div class="rubric-rubric">' + $(".peer-eval-rubric").html() + "</div></div>");
 			$(".rubrics").append(rubricsDiv.join(""));
 			for (y in gradees[x].grades) {
 				var text = gradees[x].grades[y].rowText;
@@ -220,7 +298,7 @@ $(function() {
 						for (z in gradees[x].grades[y].graders) {
 							graderString.push(gradees[x].grades[y].graders[z].name + '<span class="rubric-cell-grader-id">' + gradees[x].grades[y].graders[z].id + '</span>');
 						}
-						$("." + grade, this).html('<span class="rating">&nbsp;' + count + '&nbsp;</span><div class="rubric-graders-cell">' + graderString.join("<br>") + "</div>");
+						$("." + grade, this).html('<span role="link" class="rating">&nbsp;' + count + '&nbsp;</span><div class="rubric-graders-cell">' + graderString.join("<br>") + "</div>");
 					}
 				});
          $(".rubric-graders-cell").parent().attr('title',ratingToolTip);               
@@ -264,12 +342,18 @@ $(function() {
 			});
 		});
 
+                $('.inactive-member').each(function() {
+                   var count = countByGrader($(this).find('.inactive-member-id').text());
+                   $(this).find('.inactive-member-name').append(': ' + (activityMsg === undefined ? 'User Activity' : activityMsg) + ': ' + count);
+                });
+
 		//See activity - when a user clicks on "Activity", the cells the user clicked on will be highlighted.
 		$(".rubric-activity , .inactive-member").each(function() {
 			$(this).click(function() {
 				$(this).parent().click(); //Click the parent again to undo this click's action.
 				$(".rubric-graders-cell").each(function() {
 					$(this).parent().css("background-color", "");
+					$(this).parents('peer-eval-row').find('peer-eval-chosen').text('');
 				});
 				if ($(this).hasClass("activity-active")) {
 					$(".activity-active").removeClass("activity-active");
@@ -281,10 +365,19 @@ $(function() {
 					}
 					$(".rubric-graders-cell").each(function() {
 						$(this).parent().css("background-color", "");
+					        $(this).parents('peer-eval-row').find('peer-eval-chosen').text('');
 						var htmlSS = $(this).html();
 						//console.log(userid);
 						if (htmlSS.indexOf(userid) !== -1) {
 							$(this).parent().css("background-color", CELL_SELECTED_BACKGROUND_COLOR);
+	       						var val = '';
+							for (i = 0; i < 5; i++) {
+		    						if ($(this).parent().hasClass(""+i))
+									val = i;
+							}
+							var person = $(this).closest('.rubric-set').find('.rubric-name').contents().first().text();
+					        	$(this).closest('.peer-eval-row').find('.peer-eval-chosen').text(val);
+					        	$(this).closest('.peer-eval-row').find('.peer-eval-person').text(person);
 						}
 					});
 				}
@@ -310,110 +403,17 @@ $(function() {
 			return false;
 		});
 	}
+        $('.add-peereval-button').click(function(e) {
+		$('.peer-eval-div').toggle();
+                if ($('.peer-eval-div').css('display') === 'none')
+		    $('.peer-eval-div').attr('aria-hidden','true');
+                else
+		    $('.peer-eval-div').attr('aria-hidden','false');
+	});
+
 });
 
 /* The above applies to the Peer Evaluation Statistics page. END */
 
 /* The following applies to the Peer Evaluation display on the STUDENT pages (ShowPage.html). BEGIN */
-$(function() {
-	if ($(".peereval").length > 0) {
-		$(".add-peereval-button").click(function() {
-			$(".peer-eval-div").show();
-			$(this).hide();
-		});
 
-
-		if ($(".my-peer-eval-data").length > 0) {
-			$(".my-peer-eval-data").each(function() {
-				var text = $(".peer-eval-row-text", this).text();
-				var grade = $(".peer-eval-grade", this).text();
-				var count = $(".peer-eval-count", this).text();
-
-				$(".peer-eval-row").each(function() {
-					if ($(".peerReviewText", this).text() === text) $("." + grade, this).text(count);
-				});
-			});
-		}
-
-		if ($(".save-peereval-link").length > 0) {
-			//Create clones of rubricPeerGrade input and fossil
-			$(".rubricSelection").after('<div style="display:none;" class="rubricSelectionClone"></div>');
-			$(".rubricSelectionClone").append($(".rubricSelection input[name^=rubricPeerGrade]"));
-
-			initialSetupForGrading();
-
-			$(".cancel-peereval-link").click(function() {
-				$(".peer-eval-div").hide();
-				$(".add-peereval-button").show();
-
-				//Undo initialSetupForGrading();
-				$("#peer-eval-create-table *").unbind("click");
-				$(".selectedPeerCell").css("background-color", "").removeClass("selectedPeerCell");
-				initialSetupForGrading();
-
-			});
-		} else if ($(".peer-eval-data").length > 0) {
-			$(".peer-eval-data").each(function() {
-				var text = $(".peer-eval-row-text", this).text();
-				var grade = $(".peer-eval-grade", this).text();
-
-				$(".peer-eval-row").each(function() {
-					if ($(".peerReviewText", this).text() === text) $("." + grade, this).css("background-color", "lightblue");
-				});
-			});
-
-		}
-	}
-});
-
-function initialSetupForGrading() {
-	addSelectionListenersToRubricRows();
-
-	$(".peer-eval-data").each(function() {
-		var text = $(".peer-eval-row-text", this).text();
-		var grade = $(".peer-eval-grade", this).text();
-
-		$(".peer-eval-row").each(function() {
-			if ($(".peerReviewText", this).text() === text) $("." + grade, this).click();
-		});
-	});
-}
-
-function addRubricSelection(category, grade) {
-	var catCount = $(".rubricPeerGrade").length;
-
-	$(".rubricSelection").append($(".rubricSelectionClone").html());
-
-	$(".rubricSelection .rubricPeerGrade:last").attr("name", "rubricPeerGrade" + catCount).val(category + ":" + grade);
-	$(".rubricSelection .rubricPeerGrade:last").next().attr("name", $(".rubricSelection .rubricPeerGrade:last").attr("name") + "-fossil");
-}
-
-function setRubricRowChoice($it) {
-	$it.parent().find("td").css("background-color", "white").removeClass("selectedPeerCell");
-	$it.css("background-color", "lightblue").addClass("selectedPeerCell");
-
-	//Reset form.
-	$(".rubricSelection input[name^=rubric]").remove();
-
-	//Add categories and scores to form for submission.
-	$(".selectedPeerCell").each(function() {
-		var rowCat = $(".peerReviewText", $(this).parent()).text();
-		$(this).removeClass("selectedPeerCell");
-		var score = $(this).attr("class");
-		$(this).addClass("selectedPeerCell");
-
-		addRubricSelection(rowCat, score);
-	});
-}
-
-function addSelectionListenersToRubricRows() {
-	$("#peer-eval-create-table > tbody tr").each(function() {
-		$("td:gt(0)", this).click(function() {
-			setRubricRowChoice($(this));
-		});
-	});
-}
-
-function saveRubricSelection() {
-	$("#update-peer-eval-grade").click();
-} /* The above applies to the Peer Evaluation display on the student pages. END */

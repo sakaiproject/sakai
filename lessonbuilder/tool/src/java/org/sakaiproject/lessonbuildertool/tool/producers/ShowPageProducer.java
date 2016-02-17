@@ -47,6 +47,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -74,6 +76,8 @@ import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -98,6 +102,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
@@ -108,6 +113,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.util.ResourceLoader;
@@ -163,6 +169,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
+	private AuthzGroupService authzGroupService;
 	private FormatAwareDateInputEvolver dateevolver;
 	private TimeService timeService;
 	private HttpServletRequest httpServletRequest;
@@ -2220,11 +2227,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					String currentUser=UserDirectoryService.getCurrentUser().getId();
 					Long pageId=currentPage.getPageId();
 					
-					UIOutput.make(tableRow, "peerReviewRubricStudent");
-					UIOutput.make(tableRow, "peer-review-form");
-
-					makePeerRubric(tableRow,i, makeStudentRubric);
-					
 					boolean isOpen = false;
 					boolean isPastDue = false;
 					
@@ -2244,80 +2246,199 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					if(isOpen){
 						
-						if(owner.equals(currentUser)){ //owner gets their own data
-							class PeerEvaluation{
-								String category;
-								public int grade, count;
-								public PeerEvaluation(String category, int grade){this.category=category;this.grade=grade;count=1;}
-								public void increment(){count++;}
-								public boolean equals(Object o){
-									if ( !(o instanceof PeerEvaluation) ) return false;
-									PeerEvaluation pe = (PeerEvaluation)o;
-									return category.equals(pe.category) && grade==pe.grade;
-								}
-								public String toString(){return category + " " + grade + " [" + count + "]";}
-							}
-							
-							ArrayList<PeerEvaluation> myEvaluations = new ArrayList<PeerEvaluation>(); 
-							
-							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), owner);
-							if(evaluations!=null)
-								for(SimplePagePeerEvalResult eval : evaluations){
-									PeerEvaluation target=new PeerEvaluation(eval.getRowText(), eval.getColumnValue());
-									int targetIndex=myEvaluations.indexOf(target);
-									if(targetIndex!=-1){
-										myEvaluations.get(targetIndex).increment();
-									}
-									else
-										myEvaluations.add(target);
-								}
-							
-							UIOutput.make(tableRow, "my-existing-peer-eval-data");
-							for(PeerEvaluation eval: myEvaluations){
-								UIBranchContainer evalData = UIBranchContainer.make(tableRow, "my-peer-eval-data:");
-								UIOutput.make(evalData, "peer-eval-row-text", eval.category);
-								UIOutput.make(evalData, "peer-eval-grade", String.valueOf(eval.grade));
-								UIOutput.make(evalData, "peer-eval-count", String.valueOf(eval.count));
-							}
-						}
-						
-						if(!owner.equals(currentUser) || gradingSelf){
-							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, owner);
-							//existing evaluation data
-							if(evaluations!=null && evaluations.size()!=0){	
-								UIOutput.make(tableRow, "existing-peer-eval-data");
-								for(SimplePagePeerEvalResult eval : evaluations){
-									UIBranchContainer evalData = UIBranchContainer.make(tableRow, "peer-eval-data:");
-									UIOutput.make(evalData, "peer-eval-row-text", eval.getRowText());
-									UIOutput.make(evalData, "peer-eval-grade", String.valueOf(eval.getColumnValue()));
-								}
-							}
-							
-							//form for peer evaluation results
-							UIForm form = UIForm.make(tofill, "rubricSelection");
-							makeCsrf(form, "csrf6");
+					    // data needed to figure out what to show
+					    // there are three cases:
+					    // individual
+					    // group where we evaluate the group
+					    // group where we evaluate individuals
+					    // for historical reasons when we evaluate the group the first person
+					    // to create the group is shown as the owner.
+					    
+					        // construct row text -> row id
+					        // old entries are by text, so need to be able to map them to id
 
-							UIInput.make(form, "rubricPeerGrade", "#{simplePageBean.rubricPeerGrade}");
-							UICommand.make(form, "update-peer-eval-grade", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.savePeerEvalResult}");
+					        Map<String, Long> catMap = new HashMap<String, Long>();
+
+						List<Map> categories = (List<Map>) i.getJsonAttribute("rows");
+						if (categories == null)   // not valid to do update on item without rubic
+						    continue; 
+						for (Map cat: categories) {
+						    String rowText = String.valueOf(cat.get("rowText"));
+						    String rowId = String.valueOf(cat.get("id"));
+						    catMap.put(rowText, new Long(rowId));
 						}
-						
+
+						List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, null);
+
+						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
+
+						// if we should show form. 
+						// individual owned
+						// group owned and eval group
+						// group owned and eval individual and we're in the group
+						// i.e. not eval individual and we're outside group
+						if(!(evalIndividual && !groupMembers.contains(currentUser))) {
+						    UIOutput.make(tableRow, "peerReviewRubricStudent");
+						    UIOutput.make(tableRow, "peer-eval-title-student", String.valueOf(i.getAttribute("rubricTitle")));
+						    UIForm peerForm = UIForm.make(tableRow, "peer-review-form");
+						    UIInput.make(peerForm, "peer-eval-itemid", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
+						    
+						    // originally evalTargets was a list if ID's.
+						    // but we need to sort by name, so unless we want to keep repeatedly
+						    // going from ID to name, we need to use this:
+						    class Target {
+							String id;
+							String name;
+							String sort;
+							Target(String i) {
+							    name = i;
+							    try {
+								User u = UserDirectoryService.getUser(i);
+								name = u.getDisplayName();
+								sort = u.getSortName();
+							    } catch (Exception ignore) {}
+							    id = i;
+							}
+						    }
+
+						    List<Target>evalTargets = new ArrayList<Target>();
+						    if (evalIndividual) {
+							String group = simplePageBean.getCurrentPage().getGroup();
+							if (group != null)
+							    group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
+							try {
+							    AuthzGroup g = authzGroupService.getAuthzGroup(group);
+							    Set<Member> members = g.getMembers();
+							    for (Member m: members) {
+								evalTargets.add(new Target(m.getUserId()));
+							    }
+							} catch (Exception e) {
+							    System.out.println("unable to get members of group " + group);
+							}
+							// no need to sort for other alternative, when there's only one
+							Collections.sort(evalTargets, new Comparator<Target>() {
+								public int compare(Target o1, Target o2) {
+								    return o1.sort.compareTo(o2.sort);
+								}
+							    });
+						    } else {
+							Target target = new Target(owner);
+							// individual handled above. So if group we're evaluating
+							// the group. Use group name
+							if (i.isGroupOwned()) {
+							    String group = simplePageBean.getCurrentPage().getGroup();
+							    target.name = simplePageBean.getCurrentSite().getGroup(group).getTitle();
+							}
+							evalTargets.add(target);
+						    }
+
+						    // for old format entries always need page owner or evaluee
+						    // for new format when evaluating page need groupId
+						    String groupId = null;
+						    if (i.isGroupOwned() && !evalIndividual)
+							groupId = simplePageBean.getCurrentPage().getGroup();
+
+						    for (Target target: evalTargets) {
+							UIContainer entry = UIBranchContainer.make(peerForm, "peer-eval-target:");
+						    // for each target
+
+							Map<Long, Map<Integer, Integer>> dataMap = new HashMap<Long, Map<Integer, Integer>>();
+							// current data to show to target, all evaluations of target
+							// But first see if we should show current data. Only show
+							// user data evaluating him
+							if ((i.isGroupOwned() && !evalIndividual && groupMembers.contains(currentUser)) ||
+							    target.id.equals(currentUser)) {
+							
+							    List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), target.id, groupId);
+							    
+							    if(evaluations!=null) {
+								for(SimplePagePeerEvalResult eval : evaluations) {
+								    // for individual eval only show results for that one
+									if (evalIndividual && !currentUser.equals(eval.getGradee()))
+									    continue;
+									Long rowId = eval.getRowId();
+									if (rowId == 0L)
+									    rowId = catMap.get(eval.getRowText());
+									if (rowId == null)
+									    continue; // don't recognize old-format entry
+
+									Map<Integer, Integer> rowMap = dataMap.get(rowId);
+									if (rowMap == null) {
+									    rowMap = new HashMap<Integer, Integer>();
+									    dataMap.put(rowId, rowMap);
+									}
+									Integer n = rowMap.get(eval.getColumnValue());
+									if (n == null)
+									    n = 1;
+									else 
+									    n++;
+									rowMap.put(eval.getColumnValue(), n);
+								}
+							    }
+							    
+							}
+							// end current data
+
+							// now get current data to initiaize form. That's just
+							// the submission by current user.
+							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, target.id, groupId);
+							Map<Long,Integer> selectedCells = new HashMap<Long,Integer>();
+							for (SimplePagePeerEvalResult result: evaluations) {
+							    Long rowId = result.getRowId();
+							    String rowText = result.getRowText();
+							    if (rowId == 0L)
+								rowId = catMap.get(rowText);
+							    if (rowId == null)
+								continue;
+							    selectedCells.put(rowId, new Integer(result.getColumnValue()));
+							}
+
+							// for each student being evaluated
+							UIOutput.make(entry, "peer-eval-target-name", target.name);
+							UIOutput.make(entry, "peer-eval-target-id", target.id);
+
+							// keep this is sync with canSubmit in SimplePageBean.savePeerEvalResult
+							boolean canSubmit = (!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
+									     i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
+									     evalIndividual && groupMembers.contains(currentUser) && (peerEvalAllowSelfGrade || !target.id.equals(currentUser)));
+
+							makePeerRubric(entry, i, makeStudentRubric, selectedCells, 
+								       dataMap, canSubmit);
+
+						    }
+
+						    // can submit
+						    // individual and (not that individual or gradingeself)
+						    // group and (not in group or gradingself)
+						    // group individual eval and in group
+						    if(!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
+						       i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
+						       evalIndividual && groupMembers.contains(currentUser)) {
+
+							// can actually submit
+
+							if(isPastDue) {
+							    UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.past-due-date"));
+							} else {
+							    makeCsrf(peerForm, "csrf6");
+							    UICommand.make(peerForm, "save-peereval-link",  messageLocator.getMessage("simplepage.submit"), "#{simplePageBean.savePeerEvalResult}");
+							    UIOutput.make(peerForm, "save-peereval-text", messageLocator.getMessage("simplepage.save"));
+							    UIOutput.make(peerForm, "cancel-peereval-link");
+							    UIOutput.make(peerForm, "cancel-peereval-text", messageLocator.getMessage("simplepage.cancel"));
+							
+							    UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.click-on-cell"));
+							} 
+
+						    // in theory the only case where we show the form and can't grade
+						    // is if it's for yourself.
+						    } else {
+							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.cant-eval-yourself"));
+						    }
 						//buttons
 						UIOutput.make(tableRow, "add-peereval-link");
 						UIOutput.make(tableRow, "add-peereval-text", messageLocator.getMessage("simplepage.view-peereval"));
 						
-						if(isPastDue){
-							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.past-due-date"));
-						}else if(!owner.equals(currentUser) || gradingSelf){	
-							UIOutput.make(tableRow, "save-peereval-link");
-							UIOutput.make(tableRow, "save-peereval-text", messageLocator.getMessage("simplepage.save"));
-							UIOutput.make(tableRow, "cancel-peereval-link");
-							UIOutput.make(tableRow, "cancel-peereval-text", messageLocator.getMessage("simplepage.cancel"));
-							
-							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.click-on-cell"));
-						}else{ //owner who cannot grade himself
-							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.cant-eval-yourself"));
 						}
-						
 						if(canEditPage)
 							UIOutput.make(tableRow, "peerReviewRubricStudent-edit");//lines up rubric with edit btn column for users with editing privs
 					}
@@ -2355,10 +2476,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					        UIOutput contentList = UIOutput.make(tableRow, "studentContentTable");
 					        UIOutput contentTitle = UIOutput.make(tableRow, "studentContentTitle", messageLocator.getMessage("simplepage.student"));
 						contentList.decorate(new UIFreeAttributeDecorator("aria-labelledby", contentTitle.getFullID()));
-
+						boolean seeOnlyOwn = ("true".equals(i.getAttribute("see-only-own")));
 						// Print each row in the table
 						for(SimpleStudentPage page : studentPages) {
 							if(page.isDeleted()) continue;
+
+							// if seeOnlyOwn, skip other entries
+							if (seeOnlyOwn && !canSeeAll) {
+							    List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, page.getGroup());
+							    String currentUser = UserDirectoryService.getCurrentUser().getId();
+							    if (!i.isGroupOwned() && !page.getOwner().equals(currentUser) ||
+								i.isGroupOwned() && !groupMembers.contains(currentUser))
+								continue;
+							}
 
 							SimplePageLogEntry entry = cache.get(page.getPageId());
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
@@ -2475,7 +2605,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
 							UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "peer-eval", String.valueOf(i.getShowPeerEval()));
-							makePeerRubric(tableRow,i, makeMaintainRubric);
+							makePeerRubric(tableRow,i, makeMaintainRubric, null, null, false);
 							makeSamplePeerEval(tableRow);
 							
 							String peerEvalDate = i.getAttribute("rubricOpenDate");
@@ -2535,6 +2665,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 							UIOutput.make(tableRow, "student-owner-groups", simplePageBean.getItemOwnerGroupString(i));
 							UIOutput.make(tableRow, "student-group-owned", (i.isGroupOwned()?"true":"false"));
+							UIOutput.make(tableRow, "student-group-owned-eval-individual", (i.getAttribute("group-eval-individual")));
+							UIOutput.make(tableRow, "student-group-owned-see-only-own", (i.getAttribute("see-only-own")));
 						}
 					}
 				}else if(i.getType() == SimplePageItem.QUESTION) {
@@ -2889,6 +3021,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
@@ -4062,6 +4198,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-group-owned", "#{simplePageBean.groupOwned}");
 		createGroupList(form, null, "student-", "#{simplePageBean.studentSelectedGroups}");
 
+		UIBoundBoolean.make(form, "student-group-owned-eval-individual", "#{simplePageBean.groupOwnedIndividual}");
+		UIBoundBoolean.make(form, "student-group-owned-see-only-own", "#{simplePageBean.seeOnlyOwn}");
+
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
 		UICommand.make(form, "cancel-student", messageLocator.getMessage("simplepage.cancel"), null);
@@ -4116,8 +4255,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private void createColumnDialog(UIContainer tofill, SimplePage currentPage) {
-		UICommand.make(tofill, "column-submit", messageLocator.getMessage("simplepage.save"), null);
-		UICommand.make(tofill, "column-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UIForm form = UIForm.make(tofill, "column-dialog-form");
+		UICommand.make(form, "column-submit", messageLocator.getMessage("simplepage.save"), null);
+		UICommand.make(form, "column-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
 
@@ -4452,21 +4592,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 	
 	//Output rubric data for a Student Content box. 
-	private String[] makeStudentRubric  = {"peer-eval-title-student", "peer-eval-row-student:", "peerReviewIdStudent", "peerReviewTextStudent"};
-	private String[] makeMaintainRubric = {"peer-eval-title", 		 "peer-eval-row:", 		  "peerReviewId", 		 "peerReviewText"};
+	private String[] makeStudentRubric  = {null, "peer-eval-row-student:", "peerReviewIdStudent", "peerReviewTextStudent", "peer-eval-row-data", "#{simplePageBean.rubricPeerGrade}"};
+	private String[] makeMaintainRubric = {"peer-eval-title", 		 "peer-eval-row:", 		  "peerReviewId", 		 "peerReviewText", null, null};
 	
-	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds)
+	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<Long,Integer> selectedCells, Map<Long, Map<Integer, Integer>> dataMap, boolean allowSubmit)
 	{
 		//System.out.println("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
 		//System.out.println("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
 		//System.out.println("makePeerRubric(): i.getJsonAttribute(\"rows\") " + i.getJsonAttribute("rows"));
 		
-		UIOutput.make(parent, peerReviewRsfIds[0], String.valueOf(i.getAttribute("rubricTitle")));
+		if (peerReviewRsfIds[0] != null)
+		    UIOutput.make(parent, peerReviewRsfIds[0], String.valueOf(i.getAttribute("rubricTitle")));
 		
 		class RubricRow implements Comparable{
-			public int id;
+			public Long id;
 			public String text;
-			public RubricRow(int id, String text){ this.id=id; this.text=text;}
+			public RubricRow(Long id, String text){ this.id=id; this.text=text;}
 			public int compareTo(Object o){
 				RubricRow r = (RubricRow)o;
 				if(id==r.id)
@@ -4482,16 +4623,39 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if(categories != null){
 			for(Object o: categories){
 				Map cat = (Map)o;
-				rows.add(new RubricRow(Integer.parseInt(String.valueOf(cat.get("id"))), String.valueOf(cat.get("rowText"))));
+				Long rowId = Long.parseLong(String.valueOf(cat.get("id")));
+				String rowText = String.valueOf(cat.get("rowText"));
+				rows.add(new RubricRow(rowId, rowText));
 			}
 		}
 		//else{System.out.println("This rubric has no rows.");}
 		
 		Collections.sort(rows);
+
 		for(RubricRow row : rows){
 			UIBranchContainer peerReviewRows = UIBranchContainer.make(parent, peerReviewRsfIds[1]);
 			UIOutput.make(peerReviewRows, peerReviewRsfIds[2], String.valueOf(row.id));
 			UIOutput.make(peerReviewRows, peerReviewRsfIds[3], row.text);
+			if (allowSubmit && peerReviewRsfIds[4] != null)
+			    UIInput.make(peerReviewRows, peerReviewRsfIds[4], peerReviewRsfIds[5]);
+			if (selectedCells != null) {
+			    for (int col = 4; col >= 0; col--) {
+				String count = null;
+				if (dataMap != null) {
+				    Map<Integer, Integer>rowMap = dataMap.get(row.id);
+				    if (rowMap != null && rowMap.get(col) != null)
+					count = rowMap.get(col).toString();
+				}
+
+				UIComponent cell = UIOutput.make(peerReviewRows, "peer-eval-cell:", count);
+				Integer selectedValue = selectedCells.get(row.id);
+
+				if (selectedValue != null && selectedValue == col)
+				    cell.decorate(new UIStyleDecorator("selectedPeerCell " + col));
+				else
+				    cell.decorate(new UIStyleDecorator("" + col));
+			    }						  
+			}			    
 		}
 	}
 	

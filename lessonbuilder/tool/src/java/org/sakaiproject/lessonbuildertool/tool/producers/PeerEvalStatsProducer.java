@@ -21,12 +21,15 @@
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Iterator;
 import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
@@ -104,7 +107,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		canEditPage = simplePageBean.canEditPage();
 		
 		if(!canEditPage || params.getSendingPage() == -1)
-			return;
+		    return;
 		
 		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
 	    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));   
@@ -124,65 +127,183 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 	    UIOutput.make(tofill, "collapse-all",messageLocator.getMessage("simplepage.collapse-all"));
 
 		try {
+
+		    // outer loop on pages
+		    // inner loop on targets of evaluation
+		    // normally there's one evalution per page, but when individuals in groups
+		    //    are being evaluated there's one evaluation per person in the page's group
+
+		        // top level item, under which the student pages lie
 			long studentContentBoxId = params.getItemId();
 			SimplePageItem item = simplePageToolDao.findItem(studentContentBoxId);
 
+			// need map from row id to text, since new format entries use the ID
+			Map<Long, String> rowMap = new HashMap<Long, String>();
+			List<Map> categories = (List<Map>) item.getJsonAttribute("rows");
+			if (categories == null)   // not valid to do update on item without rubic
+			    return;
+			for (Map cat: categories) {
+			    String rowText = String.valueOf(cat.get("rowText"));
+			    String rowId = String.valueOf(cat.get("id"));
+			    rowMap.put(new Long(rowId), rowText);
+			}
+
 			makePeerRubric(tofill,item);
+			// if rubric is for a group, we need list of all allowed groups so we can
+			// see which haven't created a page
+			Set<String> groups = null;
+			boolean grouped = (item.isGroupOwned() && !"true".equals(item.getAttribute("group-eval-individual")));
+			boolean individual = (item.isGroupOwned() && "true".equals(item.getAttribute("group-eval-individual")));
+
+			if (grouped || individual) {
+			    String allowedString = item.getOwnerGroups();
+			    if (allowedString != null)
+				groups = new HashSet<String>(Arrays.asList(allowedString.split(",")));
+			}
 			
+			// map each page to an object that we can use for sorting and printing title
+			class Target {
+			    String id;
+			    String name;
+			    String sort;
+			}
+
+			// page pageid to target
+			Map<Long, Target> targetMap = new HashMap<Long, Target>();
 			List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(studentContentBoxId);
+			for (SimpleStudentPage page: studentPages) {
+			    Target target = new Target();
+			    if (grouped || individual) {
+				String group = page.getGroup();
+				target.name = simplePageBean.getCurrentSite().getGroup(group).getTitle();
+				target.sort = target.name;
+			    } else {
+				try {
+				    User u = UserDirectoryService.getUser(page.getOwner());
+				    target.name = u.getDisplayName();
+				    target.sort = u.getSortName();
+				} catch (Exception e) {
+				    target.name = page.getOwner();
+				    target.sort = page.getOwner();
+				}
+			    }
+			    targetMap.put(page.getId(), target);
+			}				    
+
 		    Collections.sort(studentPages, new Comparator<SimpleStudentPage>() {
 			    public int compare(SimpleStudentPage o1, SimpleStudentPage o2) {
-				String title1 = o1.getTitle();
-				if (title1 == null)
-				    title1 = "";
-				String title2 = o2.getTitle();
-				if (title2 == null)
-				    title2 = "";
-				return title1.compareTo(title2);
+				return targetMap.get(o1.getId()).sort.compareTo(targetMap.get(o2.getId()).sort);
 			    }
 			});
 		    
 		    for(SimpleStudentPage page : studentPages) {
-				if(page.isDeleted()) continue;
+		    	   if(page.isDeleted()) continue;
 				
+			   String pageId = Long.toString(page.getPageId());
+			   
+			   // normally just person or group being evaluated,
+			   // but for eval individuals in group, it's all the individuals in the group
+			   List<Target> evalList = new ArrayList<Target>();
+
+			   if (individual) {
+			       List<String>groupMembers = simplePageBean.studentPageGroupMembers(item, page.getGroup());
+			       for (String userId: groupMembers) {
+				   Target t = new Target();
+				   t.id = userId;
+				   User u = null;
+				   try {
+				       u = UserDirectoryService.getUser(userId);
+				   } catch (Exception e) {
+				       continue; // user no longer exists?
+				   }
+				   if (u == null)
+				       continue;
+				   t.name = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle() + ": " + u.getDisplayName();
+				   t.sort = u.getSortName();
+				   evalList.add(t);
+			       }
+			   } else {
+			       Target t = new Target();
+			       t.name = targetMap.get(page.getId()).name;
+			       t.id = page.getOwner();
+			       if (grouped)
+				   t.id = page.getGroup();
+			       evalList.add(t);
+			   }
+
+			   Collections.sort(evalList, new Comparator<Target>() {
+				public int compare(Target o1, Target o2) {
+				    return o1.sort.compareTo(o2.sort);
+				}
+			    });
+
+			   for (Target target: evalList) {
 				studentInfo = UIBranchContainer.make(tofill, "peer-eval-gradee-branch:");
-				UIOutput.make(studentInfo, "user-name", ""+UserDirectoryService.getUser(page.getOwner()).getDisplayName());
-				UIOutput.make(studentInfo, "user-id", ""+page.getOwner());
-				//remove user from non-participant user list
-				if(users != null)
-					users.remove(page.getOwner());
-				UIOutput.make(studentInfo, "user-pageid", ""+page.getPageId());
-				ArrayList<PeerEvaluation> graders = getGraders(page.getPageId(), page.getOwner());
+				UIOutput.make(studentInfo, "user-name", target.name);
+				UIOutput.make(studentInfo, "user-id", target.id);
+				UIOutput.make(studentInfo, "user-pageid", pageId);
+				// for grouped, we need list of members in the group
+
+				if (grouped) {
+				    UIOutput.make(studentInfo, "peer-eval-gradee-members");
+				    List<String>groupMembers = simplePageBean.studentPageGroupMembers(item, page.getGroup());
+				    for (String member: groupMembers) {
+					User u = null;
+					try {
+					    u = UserDirectoryService.getUser(member);
+					} catch (Exception e) {
+					    continue; // user no longer exists?
+					}
+					if (u == null)
+					    continue;
+					UIContainer memberInfo = UIBranchContainer.make(studentInfo, "gradee-member:");
+					UIOutput.make(memberInfo, "gradee-member-id", member);
+					UIOutput.make(memberInfo, "gradee-member-name", u.getDisplayName());
+					users.remove(member);
+				   }
+				} else
+				    users.remove(target.id);
+				ArrayList<PeerEvaluation> graders = null;
+				if (grouped)
+				    graders = getGraders(page.getPageId(), page.getOwner(), page.getGroup(), rowMap);
+				else
+				    graders = getGraders(page.getPageId(), target.id, null, rowMap);
 				makeGraders(studentInfo, graders);
+			   }
+
 		    }
-		    
+
 		    GeneralViewParameters view = new GeneralViewParameters();
 		    view.viewID = ShowPageProducer.VIEW_ID;
 		    view.setItemId(studentContentBoxId);  //returns to page that contains the student content box item.
 		    UIInternalLink.make(tofill, "back", messageLocator.getMessage("simplepage.back"), view);
 		    
 		    // users is now set of users in site without page
+		    // or for grouped pages, groups is
 		    // remove any who are instructor or reviewer
-		    
 
 		    String ref = "/site/" + site.getId();
-		    for (String userId: users) {
-			if (SecurityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) ||
-			    SecurityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref))
-			    users.remove(userId);
+			
+		    Iterator<String> userIt = users.iterator();
+		    if (!(grouped || individual)) {
+			while (userIt.hasNext()) {
+			    String userId = userIt.next();
+			    if (SecurityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) ||
+				SecurityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref))
+				userIt.remove();
+			}
 		    }
 
 		    //make inactive user list
 		    if(!users.isEmpty()){
-		    	UIBranchContainer inactiveMemberBranch;
-				UIOutput.make(tofill, "inactive-member-collection");
-				for(String userId : users){
-					inactiveMemberBranch = UIBranchContainer.make(tofill, "inactive-member:");
-					UIOutput.make(inactiveMemberBranch, "inactive-member-id", userId);
-					UIOutput.make(inactiveMemberBranch, "inactive-member-name", UserDirectoryService.getUser(userId).getDisplayName());
-				}
+			UIBranchContainer inactiveMemberBranch;
+			UIOutput.make(tofill, "inactive-member-collection");
+			for(String userId : users){
+			    inactiveMemberBranch = UIBranchContainer.make(tofill, "inactive-member:");
+			    UIOutput.make(inactiveMemberBranch, "inactive-member-id", userId);
+			    UIOutput.make(inactiveMemberBranch, "inactive-member-name", UserDirectoryService.getUser(userId).getDisplayName());
 			}
-			
+		    }
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("peer eval error " + e);
@@ -248,14 +369,19 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		}
 	}
 	
-	private ArrayList<PeerEvaluation> getGraders(Long pageId, String owner){
+	private ArrayList<PeerEvaluation> getGraders(Long pageId, String owner, String ownerGroup, Map<Long, String> rowMap){
 
 		ArrayList<PeerEvaluation> myEvaluations = new ArrayList<PeerEvaluation>(); 
 		
-		List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId, owner);
+		List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId, owner, ownerGroup);
 		if(evaluations!=null && evaluations.size()!=0)
 			for(SimplePagePeerEvalResult eval : evaluations){
-				PeerEvaluation target=new PeerEvaluation(eval.getRowText(), eval.getColumnValue());
+				String rowText = eval.getRowText();
+				if (eval.getRowId() != 0L)
+				    rowText = rowMap.get(eval.getRowId());
+				if (rowText == null)
+				    continue;  // should be impossible
+				PeerEvaluation target=new PeerEvaluation(rowText, eval.getColumnValue());
 				int targetIndex=myEvaluations.indexOf(target);
 				if(targetIndex!=-1){
 					try{

@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping SYSTEM "classpath://org/hibernate/hibernate-mapping-3.0.dtd">
 
@@ -20,11 +21,17 @@
 			<column name="GRADER" length="99" not-null="true"/>
 		</property>
 		<property name="gradee" type="java.lang.String" >
-			<column name="GRADEE" length="99" not-null="true"/>
+			<column name="GRADEE" length="99" not-null="false"/>
+		</property>
+		<property name="gradeeGroup" type="java.lang.String" >
+			<column name="GRADEE_GROUP" length="99" not-null="false"/>
 		</property>
 		<property name="rowText" type="java.lang.String" >
-            	<column name="ROW_TEXT" not-null="true"/>
+            	<column name="ROW_TEXT" not-null="false"/>
      	</property>
+		<property name="rowId" type="long" >
+			<column name="ROW_ID" default="0"/>
+		</property>
      	<property name="columnValue" type="integer">
      		<column name="COLUMN_VALUE" not-null="true"/>
      	</property>

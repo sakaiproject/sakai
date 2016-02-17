@@ -49,9 +49,15 @@ public interface SimplePagePeerEvalResult {
 	public String getGradee();
 	public void setGradee(String author);
 
+	public String getGradeeGroup();
+	public void setGradeeGroup(String author);
+
 	public String getRowText();
 	public void setRowText(String text);
 	
+	public long getRowId();
+	public void setRowId(long id);
+
 	public int getColumnValue();
 	public void setColumnValue(int value);
 

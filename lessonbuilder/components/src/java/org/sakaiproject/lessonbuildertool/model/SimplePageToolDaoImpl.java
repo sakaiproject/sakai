@@ -1224,44 +1224,67 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return null;
 	}
 
-	public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId,String userId,String gradee) 
-	 //List<String> ids = sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.sakaiId = '/dummy'", fields, null);
+	public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId,String grader,String gradee,String gradeeGroup) 
 	{
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePagePeerEvalResult.class)
-			    .add(Restrictions.eq("pageId", pageId))
-			    .add(Restrictions.eq("grader", userId))
-			    .add(Restrictions.eq("gradee", gradee));
 				
+		String hql = "select result from org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult result where result.pageId = :pageId and result.grader = :grader and result.selected = 1 and ";
+		if (gradee != null && gradeeGroup != null)
+		    hql += "(result.gradee = :gradee or result.gradeeGroup = :gradeeGroup)";
+		else if (gradee != null)
+		    hql += "result.gradee = :gradee";
+		else
+		    hql += "result.gradeeGroup = :gradeeGroup";
 
-			List<SimplePagePeerEvalResult> list = (List<SimplePagePeerEvalResult>) getHibernateTemplate().findByCriteria(d);
-			List<SimplePagePeerEvalResult> newList= new ArrayList<SimplePagePeerEvalResult>();
-			
-			for(SimplePagePeerEvalResult eval: list){
-				if(eval.getSelected())
-					newList.add(eval);
-			}
-			
-			return newList;
+		int n = 3;
+		if (gradee != null && gradeeGroup != null)
+		    n = 4;
+		String[] names = new String[n];
+		Object[] values = new Object[n];
+		names[0] = "pageId"; values[0] = pageId;
+		names[1] = "grader"; values[1] = grader;
+		if (gradee != null && gradeeGroup != null) {
+		    names[2] = "gradee"; values[2] = gradee;
+		    names[3] = "gradeeGroup"; values[3] = gradeeGroup;
+		} else if (gradee != null) {
+		    names[2] = "gradee"; values[2] = gradee;
+		} else {
+		    names[2] = "gradeeGroup"; values[2] = gradeeGroup;
+		}
+
+		return (List<SimplePagePeerEvalResult>)getHibernateTemplate().findByNamedParam(hql, names, values);
+
 	}
 
-	public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee,String grader, String rowText, int columnValue){
-		return new SimplePagePeerEvalResultImpl(pageId, gradee, grader, rowText, columnValue);
+	public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee,String gradeeGroup, String grader, String rowText, long rowId, int columnValue){
+		return new SimplePagePeerEvalResultImpl(pageId, gradee, gradeeGroup, grader, rowText, rowId, columnValue);
 	}
 	
-	public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String pageOwner){
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePagePeerEvalResult.class)
-			    .add(Restrictions.eq("pageId", pageId))
-			    .add(Restrictions.eq("gradee", pageOwner));
+	public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String gradee, String gradeeGroup){
+		String hql = "select result from org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult result where result.pageId = :pageId and result.selected = 1 and ";
+		if (gradee != null && gradeeGroup != null)
+		    hql += "(result.gradee = :gradee or result.gradeeGroup = :gradeeGroup)";
+		else if (gradee != null)
+		    hql += "result.gradee = :gradee";
+		else
+		    hql += "result.gradeeGroup = :gradeeGroup";
 
-		List<SimplePagePeerEvalResult> list = (List<SimplePagePeerEvalResult>) getHibernateTemplate().findByCriteria(d);
-		List<SimplePagePeerEvalResult> newList= new ArrayList<SimplePagePeerEvalResult>();
-		
-		for(SimplePagePeerEvalResult eval: list){
-			if(eval.getSelected())
-				newList.add(eval);
+		int n = 2;
+		if (gradee != null && gradeeGroup != null)
+		    n = 3;
+		String[] names = new String[n];
+		Object[] values = new Object[n];
+		names[0] = "pageId"; values[0] = pageId;
+		if (gradee != null && gradeeGroup != null) {
+		    names[1] = "gradee"; values[1] = gradee;
+		    names[2] = "gradeeGroup"; values[2] = gradeeGroup;
+		} else if (gradee != null) {
+		    names[1] = "gradee"; values[1] = gradee;
+		} else {
+		    names[1] = "gradeeGroup"; values[1] = gradeeGroup;
 		}
-		
-		return newList;
+
+		return (List<SimplePagePeerEvalResult>)getHibernateTemplate().findByNamedParam(hql, names, values);
+
 	}
 
 	public List<SimplePageItem>findGradebookItems(final String gradebookUid) {
