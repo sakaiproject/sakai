@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Collections;
@@ -513,20 +514,21 @@ public class SettingsCategoryPanel extends Panel {
 
 		final List<CategoryDefinition> categories = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories();
 
-		Double total = new Double(0);
+		BigDecimal total = BigDecimal.ZERO;
 		for (final CategoryDefinition categoryDefinition : categories) {
 
-			Double weight = categoryDefinition.getWeight();
+			BigDecimal weight = BigDecimal.valueOf(categoryDefinition.getWeight());
 			if (weight == null) {
-				weight = new Double(0);
+				weight = BigDecimal.ZERO;
 			}
 
 			if (!categoryDefinition.isExtraCredit()) {
-				total += weight;
+				total = total.add(weight);
 			}
 		}
 
-		if (total.equals(new Double(1))) {
+		// if comparison passes, we have '1' as the value
+		if (total.compareTo(BigDecimal.ONE) == 0) {
 			runningTotal.add(new AttributeModifier("class", "text-success"));
 			runningTotalMessage.setVisible(false);
 		} else {
@@ -534,7 +536,7 @@ public class SettingsCategoryPanel extends Panel {
 			runningTotalMessage.setVisible(true);
 		}
 
-		runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(total * 100)));
+		runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(total.doubleValue() * 100)));
 	}
 
 	/**

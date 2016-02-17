@@ -11,8 +11,8 @@ import org.apache.commons.lang.StringUtils;
 public class FormatHelper {
 
 	/**
-	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision.
-	 * And drop off any .0 if no decimal places.
+	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0
+	 * if no decimal places.
 	 *
 	 * @param score as a double
 	 * @return double to decimal places
@@ -21,14 +21,14 @@ public class FormatHelper {
 		final NumberFormat df = NumberFormat.getInstance();
 		df.setMinimumFractionDigits(0);
 		df.setMaximumFractionDigits(2);
-		df.setRoundingMode(RoundingMode.DOWN);
+		df.setRoundingMode(RoundingMode.HALF_DOWN);
 
 		return formatGrade(df.format(score));
 	}
 
 	/**
 	 * The value is a double (ie 12.34) that needs to be formatted as a percentage with two decimal places precision.
-	 * 
+	 *
 	 * @param score as a double
 	 * @return percentage to decimal places with a '%' for good measure
 	 */
@@ -50,7 +50,7 @@ public class FormatHelper {
 
 	/**
 	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25
-	 * 
+	 *
 	 * @param grade
 	 * @return
 	 */
