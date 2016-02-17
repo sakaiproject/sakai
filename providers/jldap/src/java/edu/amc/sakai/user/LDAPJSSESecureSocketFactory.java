@@ -112,6 +112,6 @@ public class LDAPJSSESecureSocketFactory
     {
         Socket socket = factory.createSocket();
         socket.connect(new InetSocketAddress(host, port), connectTimeout);
-        return factory.createSocket(host, port);
+        return socket;
     }
 }
