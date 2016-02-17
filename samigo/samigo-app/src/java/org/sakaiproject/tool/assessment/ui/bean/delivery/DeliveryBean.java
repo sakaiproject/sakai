@@ -58,6 +58,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -94,6 +95,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.rsf.state.support.TMLFixer;
+
 import org.apache.commons.lang.StringUtils;
 /**
  *
@@ -165,6 +167,8 @@ public class DeliveryBean
   private boolean submitted;
   private boolean graded;
   private String graderComment;
+  private List<AssessmentGradingAttachment> assessmentGradingAttachmentList;
+  private boolean hasAssessmentGradingAttachment;
   private String rawScore;
   private String grade;
   private java.util.Date submissionDate;
@@ -1238,6 +1242,23 @@ public class DeliveryBean
   public void setGraderComment(String newComment)
   {
     graderComment = newComment;
+  }
+  
+  public List<AssessmentGradingAttachment> getAssessmentGradingAttachmentList() {
+	return assessmentGradingAttachmentList;
+  }
+  
+  public void setAssessmentGradingAttachmentList(
+		List<AssessmentGradingAttachment> assessmentGradingAttachmentList) {
+	this.assessmentGradingAttachmentList = assessmentGradingAttachmentList;
+  }
+  
+  public boolean isHasAssessmentGradingAttachment() {
+	return hasAssessmentGradingAttachment;
+  }
+  
+  public void setHasAssessmentGradingAttachment(boolean hasAssessmentGradingAttachment) {
+	this.hasAssessmentGradingAttachment = hasAssessmentGradingAttachment;
   }
 
   public String getRawScore()

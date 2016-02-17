@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -42,12 +44,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
@@ -157,7 +164,7 @@ public class TotalScoreUpdateListener
   		  StringBuilder newScoreString = new StringBuilder();
   		  boolean update = false;
   		  try {
-  			  update = needUpdate(agentResults, map, newScoreString);     
+  			  update = needUpdate(agentResults, map, newScoreString, bean);     
   		  }
   		  catch (NumberFormatException e) {
   			  hasNumberFormatException = true;
@@ -277,7 +284,7 @@ public class TotalScoreUpdateListener
       return true;
   }
 
-  private boolean needUpdate(AgentResults agentResults, HashMap map, StringBuilder newScoreString) throws NumberFormatException{
+  private boolean needUpdate(AgentResults agentResults, HashMap map, StringBuilder newScoreString, TotalScoresBean bean) throws NumberFormatException{
     boolean update = true;
     String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, agentResults.getComments());
     agentResults.setComments(newComments);
@@ -334,6 +341,8 @@ public class TotalScoreUpdateListener
         		   ) {
         update = false;
       }
+      boolean attachUpdated = updateAttachment(old, agentResults);
+      bean.setIsAnyAssessmentGradingAttachmentListModified(attachUpdated);
     }
     else{ // no assessmentGradingData exists
     	boolean noOverrideScore =  false;
@@ -368,7 +377,57 @@ public class TotalScoreUpdateListener
     	if (noOverrideScore && noComment) 
     		update = false;
     }
+        
     return update;
   }
+
+  private boolean updateAttachment(AssessmentGradingData assessmentGradingData, AgentResults agentResults) {
+	  List<AssessmentGradingAttachment> oldList = assessmentGradingData.getAssessmentGradingAttachmentList();
+	  List<AssessmentGradingAttachment> newList = agentResults.getAssessmentGradingAttachmentList();
+	  if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return false;
+	  List<AssessmentGradingAttachment> attachmentList = new ArrayList<>();
+	  HashMap<Long, AssessmentGradingAttachment> map = getAttachmentIdHash(oldList);
+	  for (int i=0; i<newList.size(); i++){
+		  AssessmentGradingAttachment assessmentGradingAttachment = (AssessmentGradingAttachment) newList.get(i);
+		  if (map.get(assessmentGradingAttachment.getAttachmentId()) != null){
+			  // exist already, remove it from map
+			  map.remove(assessmentGradingAttachment.getAttachmentId());
+		  }
+		  else{
+			  // new attachments
+			  assessmentGradingAttachment.setAssessmentGrading(assessmentGradingData);
+			  assessmentGradingAttachment.setAttachmentType(AttachmentIfc.ASSESSMENTGRADING_ATTACHMENT);
+			  attachmentList.add(assessmentGradingAttachment);
+		  }
+	  }      
+	  // save new ones
+	  GradingService gradingService = new GradingService();
+	  if (attachmentList.size() > 0) {
+			gradingService.saveOrUpdateAttachments(attachmentList);
+			EventTrackingService.post(EventTrackingService.newEvent("sam.total.score.update", 
+					"siteId=" + AgentFacade.getCurrentSiteId() + ", Adding " + attachmentList.size() + " attachments for itemGradingData id = " + assessmentGradingData.getAssessmentGradingId(), 
+					true));
+		}
+
+	  // remove old ones
+	  Set set = map.keySet();
+	  Iterator iter = set.iterator();
+	  while (iter.hasNext()){
+		  Long attachmentId = (Long)iter.next();
+		  gradingService.removeAssessmentGradingAttachment(attachmentId.toString());
+		  EventTrackingService.post(EventTrackingService.newEvent("sam.total.score.update", 
+				  "siteId=" + AgentFacade.getCurrentSiteId() + ", Removing attachmentId = " + attachmentId, true));
+	  }
+	  return true;
+  	}
+  	
+  	private HashMap<Long, AssessmentGradingAttachment> getAttachmentIdHash(List<AssessmentGradingAttachment> list){
+	    HashMap<Long, AssessmentGradingAttachment> map = new HashMap<>();
+	    for (int i=0; i<list.size(); i++){
+	    	AssessmentGradingAttachment a = list.get(i);
+	      map.put(a.getAttachmentId(), a);
+	    }
+	    return map;
+	}
 
 }

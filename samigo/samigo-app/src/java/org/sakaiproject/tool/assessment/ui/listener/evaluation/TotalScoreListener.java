@@ -583,6 +583,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
 	
 	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+	HashMap agentResultsByAssessmentGradingIdMap = new HashMap();
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
@@ -600,6 +601,8 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       }
 
       results.setAssessmentGradingId(gdata.getAssessmentGradingId());
+      results.setAssessmentGrading(gdata);
+      
       if(gdata.getTotalAutoScore() != null) {
     	  if (gdata.getForGrade()) {
     		  results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
@@ -693,7 +696,12 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
       results.setRole((String)userRoles.get(gdata.getAgentId()));
 
-
+      List assessmentGradingAttachmentList = new ArrayList();
+      assessmentGradingAttachmentList.addAll(gdata.getAssessmentGradingAttachmentList());
+      results.setAssessmentGradingAttachmentList(assessmentGradingAttachmentList);
+      
+      agentResultsByAssessmentGradingIdMap.put(gdata.getAssessmentGradingId(), results);
+      
       if(bean.getAllSubmissions().equals("4")&& bean.getScoringOption().equals("4")&&agents.size()>0){
     	  ListIterator<AgentResults> it= agents.listIterator();
     	  boolean updated=false;
@@ -715,6 +723,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     	  agents.add(results);
       }
     }
+    bean.setAgentResultsByAssessmentGradingId(agentResultsByAssessmentGradingIdMap);
 
     if(bean.getAllSubmissions().equals("4")&& bean.getScoringOption().equals("4")&&agents.size()>0){
     	Iterator it=agents.iterator();

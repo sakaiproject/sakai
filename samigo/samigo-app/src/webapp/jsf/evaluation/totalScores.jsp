@@ -904,6 +904,9 @@ function disableIt()
 
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
    <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
+   <h:panelGroup rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}">
+   		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
+   </h:panelGroup>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='comments' && totalScores.sortAscending}">
@@ -925,6 +928,9 @@ function disableIt()
       </f:facet>
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
    <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
+   <h:panelGroup rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}">
+   		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
+   </h:panelGroup>
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='comments'  && !totalScores.sortAscending}">
@@ -946,6 +952,9 @@ function disableIt()
       </f:facet>
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
    <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
+   <h:panelGroup rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}" >
+   		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
+   </h:panelGroup>
     </h:column>
   </h:dataTable>
 

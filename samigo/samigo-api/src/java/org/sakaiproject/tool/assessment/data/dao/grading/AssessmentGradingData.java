@@ -21,9 +21,13 @@
 
 package org.sakaiproject.tool.assessment.data.dao.grading;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -62,6 +66,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	private Integer lastVisitedPart = 0;
 	private Integer lastVisitedQuestion = 0;
 	private Boolean hasAutoSubmissionRun = false;
+	private Set<AssessmentGradingAttachment> assessmentGradingAttachmentSet = new HashSet<AssessmentGradingAttachment>();
 
 	// Because of SAK-16456, we no longer need to show the auto/human graded
 	// status per submission, I don't think we
@@ -416,12 +421,40 @@ public class AssessmentGradingData implements java.io.Serializable
 	}
 
 	public Boolean getHasAutoSubmissionRun() {
-		  return hasAutoSubmissionRun;
-	  }
+		return hasAutoSubmissionRun;
+	}
 
-	  public void setHasAutoSubmissionRun(Boolean hasAutoSubmissionRun) {
-		  this.hasAutoSubmissionRun = hasAutoSubmissionRun;
-	  }
+	public void setHasAutoSubmissionRun(Boolean hasAutoSubmissionRun) {
+		this.hasAutoSubmissionRun = hasAutoSubmissionRun;
+	}
+	
+	public Set<AssessmentGradingAttachment> getAssessmentGradingAttachmentSet() {
+		return assessmentGradingAttachmentSet;
+	}
+
+	public void setAssessmentGradingAttachmentSet(
+			Set<AssessmentGradingAttachment> assessmentGradingAttachmentSet) {
+		this.assessmentGradingAttachmentSet = assessmentGradingAttachmentSet;
+	}
+
+	public List<AssessmentGradingAttachment> getAssessmentGradingAttachmentList() {
+		List<AssessmentGradingAttachment> list = new ArrayList<AssessmentGradingAttachment>();
+		if (assessmentGradingAttachmentSet != null) {
+			Iterator<AssessmentGradingAttachment> iter = assessmentGradingAttachmentSet
+					.iterator();
+			while (iter.hasNext()) {
+				AssessmentGradingAttachment a = (AssessmentGradingAttachment) iter.next();
+				list.add(a);
+			}
+		}
+		return list;
+	}
+
+	public void setAssessmentGradingAttachmentList(
+			List<AssessmentGradingAttachment> assessmentGradingAttachmentList) {
+		Set<AssessmentGradingAttachment> assessmentGradingAttachmentSet = new HashSet<AssessmentGradingAttachment>(assessmentGradingAttachmentList);
+		this.assessmentGradingAttachmentSet = assessmentGradingAttachmentSet;
+	}
 
 	@Override
 	public int hashCode() {

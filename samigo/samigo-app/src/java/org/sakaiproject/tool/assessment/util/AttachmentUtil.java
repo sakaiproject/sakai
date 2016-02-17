@@ -17,6 +17,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.GradingAttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -35,19 +39,19 @@ public class AttachmentUtil {
 		if (attachmentSet !=null ){
 			Iterator iter = attachmentSet.iterator();
 			while (iter.hasNext()){
-				ItemGradingAttachment attach = (ItemGradingAttachment) iter.next();
+				GradingAttachmentData attach = (GradingAttachmentData) iter.next();
 				map.put(attach.getResourceId(), attach);
 			}
 		}
 		return map;
 	}
 
-	public List prepareAssessmentAttachment(ItemGradingData itemGradingData, Set itemGradingAttachmentSet){
+	public List prepareAssessmentAttachment(Object gradingData, Set gradingAttachmentSet){
 		ToolSession session = SessionManager.getCurrentToolSession();
 		if (session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
 			GradingService gradingService = new GradingService();
 
-			HashMap map = getResourceIdHash(itemGradingAttachmentSet);
+			HashMap map = getResourceIdHash(gradingAttachmentSet);
 			ArrayList newAttachmentList = new ArrayList();
 			String protocol = ContextUtil.getProtocol();
 
@@ -61,16 +65,26 @@ public class AttachmentUtil {
 						// new attachment, add 
 						log.debug("**** ref.Id="+ref.getId());
 						log.debug("**** ref.name="+ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
-						ItemGradingAttachment newAttach = gradingService.createItemGradingAttachment(
-								itemGradingData,
-								ref.getId(), ref.getProperties().getProperty(
-										ref.getProperties().getNamePropDisplayName()),
-										protocol);
-						newAttachmentList.add(newAttach);
+						if (gradingData instanceof ItemGradingData) {
+							ItemGradingAttachment newAttach = gradingService.createItemGradingAttachment(
+									(ItemGradingData)gradingData,
+									ref.getId(), ref.getProperties().getProperty(
+											ref.getProperties().getNamePropDisplayName()),
+											protocol);
+							newAttachmentList.add(newAttach);
+						}
+						else if (gradingData instanceof AssessmentGradingData) {
+							AssessmentGradingAttachment newAttach = gradingService.createAssessmentGradingAttachment(
+									(AssessmentGradingData)gradingData,
+									ref.getId(), ref.getProperties().getProperty(
+											ref.getProperties().getNamePropDisplayName()),
+											protocol);
+							newAttachmentList.add(newAttach);
+						}
 					}
 					else{ 
 						// attachment already exist, let's add it to new list and check it off from map
-						newAttachmentList.add((ItemGradingAttachment)map.get(resourceId));
+						newAttachmentList.add((GradingAttachmentData)map.get(resourceId));
 						map.remove(resourceId);
 					}
 				}
@@ -82,9 +96,8 @@ public class AttachmentUtil {
 		return new ArrayList();
 	}
 
-
-	public List prepareReferenceList(List attachmentList){
-		List list = new ArrayList();
+	public List<Reference> prepareReferenceList(List attachmentList){
+		List<Reference> list = new ArrayList<>();
 		for (int i=0; i<attachmentList.size(); i++){
 			ContentResource cr = null;
 			AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
@@ -101,7 +114,12 @@ public class AttachmentUtil {
 				// proper cancellation by clicking at the left nav instead of "cancel".
 				// Also in this use case, any added resource would be left orphan. 
 				GradingService gradingService = new GradingService();
-				gradingService.removeItemGradingAttachment(attach.getAttachmentId().toString());
+				if (attach instanceof ItemGradingAttachment) {
+					gradingService.removeItemGradingAttachment(attach.getAttachmentId().toString());
+				}
+				if (attach instanceof AssessmentGradingAttachment) {
+					gradingService.removeAssessmentGradingAttachment(attach.getAttachmentId().toString());
+				}
 			}
 			catch (TypeException e) {
 				log.warn("TypeException from ContentHostingService:"+e.getMessage());
