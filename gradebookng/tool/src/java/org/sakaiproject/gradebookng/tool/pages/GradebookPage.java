@@ -162,7 +162,7 @@ public class GradebookPage extends BasePage {
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
 
 		if (settings.isCategoriesEnabled()) {
-			// pre-sort assignments by the categorized sort order
+			// Pre-sort assignments by the categorized sort order
 			Collections.sort(assignments, new CategorizedAssignmentComparator());
 		}
 

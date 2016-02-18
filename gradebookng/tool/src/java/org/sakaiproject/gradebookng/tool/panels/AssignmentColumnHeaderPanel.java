@@ -360,9 +360,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			// if no categorized order for assignment, calculate one based on the default sort order
 			List<Assignment> assignments = AssignmentColumnHeaderPanel.this.businessService.getGradebookAssignments();
 			List<Long> assignmentIdsInCategory = assignments.stream()
-																												.filter(a -> a.getCategoryId() == assignment.getCategoryId())
-																												.map(Assignment::getId)
-																												.collect(Collectors.toList());
+					.filter(a -> a.getCategoryId() == assignment.getCategoryId())
+					.map(Assignment::getId)
+					.collect(Collectors.toList());
 
 			order = assignmentIdsInCategory.indexOf(assignmentId);
 		}
