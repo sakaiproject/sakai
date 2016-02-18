@@ -413,6 +413,21 @@ public interface GradebookService {
 	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
 	
 	/**
+	 *
+	 * @param gradebookUid
+	 * @return list of gb items that the current user is authorized to view
+	 * sorted by the provided SortType.
+	 * If user has gradeAll permission, returns all gb items.
+	 * If user has gradeSection perm with no grader permissions,
+	 * returns all gb items.
+	 * If user has gradeSection with grader perms, returns only the items that
+	 * the current user is authorized to view or grade.
+	 * If user does not have grading privileges but does have viewOwnGrades perm,
+	 * will return all released gb items.
+	 */
+	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy);
+
+	/**
 	 * 
 	 * @param gradebookUid
 	 * @param assignmentId

@@ -38,8 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -1487,6 +1486,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  	case SORT_BY_SORTING:
 			 comp = Assignment.sortingComparator;
 			 break;
+			case SORT_BY_CATEGORY:
+				comp = Assignment.categoryComparator;
+				break;
 		default:
 			comp = GradableObject.defaultComparator;	
 	}
@@ -1500,28 +1502,39 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	}
   }
   
+/*
+ * (non-Javadoc)
+ * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String)
+ */
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid)
+			throws GradebookNotFoundException {
+		return getViewableAssignmentsForCurrentUser(gradebookUid, SortType.SORT_BY_SORTING);
+	}
+
   /*
    * (non-Javadoc)
-   * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String)
+   * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String, java.)
    */
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid)
+  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy)
   throws GradebookNotFoundException {
 
 	  List<Assignment> viewableAssignments = new ArrayList<>();
-	  SortedSet<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new TreeSet<>();
+		LinkedHashSet<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new LinkedHashSet<>();
 
 	  Gradebook gradebook = getGradebook(gradebookUid);
 
 	  // will send back all assignments if user can grade all
 	  if (getAuthz().isUserAbleToGradeAll(gradebookUid)) {
-		  viewableAssignments = getAssignments(gradebook.getId(), SortType.SORT_BY_SORTING, true);
+		  viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
 	  } else if (getAuthz().isUserAbleToGrade(gradebookUid)) {
 		  // if user can grade and doesn't have grader perm restrictions, they
 		  // may view all assigns
 		  if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {
-			  viewableAssignments = getAssignments(gradebook.getId(), SortType.SORT_BY_SORTING, true);
+			  viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
 		  } else {
 			  // this user has grader perms, so we need to filter the items returned
 			  // if this gradebook has categories enabled, we need to check for category-specific restrictions

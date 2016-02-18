@@ -55,6 +55,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -251,14 +252,37 @@ public class GradebookNgBusinessService {
 		}
 	}
 
+
 	/**
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
 	 *
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments() {
-		return getGradebookAssignments(getCurrentSiteId());
+		return getGradebookAssignments(getCurrentSiteId(), SortType.SORT_BY_SORTING);
 	}
+
+
+	/**
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
+	 *
+	 * @return a list of assignments or null if no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(final String siteId) {
+		return getGradebookAssignments(siteId, SortType.SORT_BY_SORTING);
+	}
+
+
+	/**
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
+	 * sorted by the provided SortType
+	 *
+	 * @return a list of assignments or null if no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(final SortType sortBy) {
+		return getGradebookAssignments(getCurrentSiteId(), sortBy);
+	}
+
 
 	/**
 	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
@@ -266,11 +290,11 @@ public class GradebookNgBusinessService {
 	 * @param siteId the siteId
 	 * @return a list of assignments or null if no gradebook
 	 */
-	public List<Assignment> getGradebookAssignments(final String siteId) {
+	public List<Assignment> getGradebookAssignments(final String siteId, final SortType sortBy) {
 		final Gradebook gradebook = getGradebook(siteId);
 		if (gradebook != null) {
 			// applies permissions (both student and TA) and default sort is SORT_BY_SORTING
-			return this.gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid());
+			return this.gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy);
 		}
 		return null;
 	}
