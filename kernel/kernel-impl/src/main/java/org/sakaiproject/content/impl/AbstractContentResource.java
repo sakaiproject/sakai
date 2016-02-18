@@ -44,7 +44,8 @@ import org.w3c.dom.Element;
  */
 public class AbstractContentResource implements ContentResource{
 	
-	private ContentResource wrapped;
+	// Use package visibility to allow things in impl to get the raw resource
+	ContentResource wrapped;
 	
 	public AbstractContentResource(ContentResource wrapped) {
 		this.wrapped = wrapped;
