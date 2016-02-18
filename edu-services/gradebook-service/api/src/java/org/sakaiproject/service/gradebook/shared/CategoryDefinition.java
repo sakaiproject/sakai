@@ -23,6 +23,7 @@
 package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -46,6 +47,8 @@ public class CategoryDefinition implements Serializable {
     private Boolean extraCredit;
     private Integer categoryOrder;
     
+    public static Comparator<CategoryDefinition> orderComparator;
+
     private List<Assignment> assignmentList;
     
     public CategoryDefinition() {
@@ -172,5 +175,23 @@ public class CategoryDefinition implements Serializable {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
+
+	static {
+		orderComparator = new Comparator<CategoryDefinition>() {
+			@Override
+			public int compare(final CategoryDefinition c1, final CategoryDefinition c2) {
+				if (c1.getCategoryOrder() == null && c2.getCategoryOrder() == null) {
+					return c1.getName().compareTo(c2.getName());
+				}
+				if(c1.getCategoryOrder() == null) {
+					return -1;
+				}
+				if(c2.getCategoryOrder() == null) {
+					return 1;
+				}
+				return c1.getCategoryOrder().compareTo(c2.getCategoryOrder());
+			}
+		};
 	}
 }

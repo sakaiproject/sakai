@@ -3238,18 +3238,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//If category does not have an ID it is new
 		//If category has an ID it is to be updated. Update and remove from currentCategoryMap.
 		//Any categories remaining in currentCategoryMap are to be removed.
-		Collections.sort(newCategoryDefinitions, new Comparator<CategoryDefinition>() {
-			@Override
-			public int compare(final CategoryDefinition one, final CategoryDefinition two) {
-				if (one.getCategoryOrder() == null) {
-					return -1;
-				} else if (two.getCategoryOrder() == null) {
-					return 1;
-				} else {
-					return Integer.compare(one.getCategoryOrder(), two.getCategoryOrder());
-				}
-			}
-		});
+		//Sort by category order as we resequence the order values to avoid gaps
+		Collections.sort(newCategoryDefinitions, CategoryDefinition.orderComparator);
 		int categoryIndex = 0;
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
@@ -3427,7 +3417,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 		if(order == null) {
-			throw new IllegalArgumentException("Categoryized Order cannot be null");
+			throw new IllegalArgumentException("Categorized Order cannot be null");
 		}
 
 		final Long gradebookId = getGradebook(gradebookUid).getId();
