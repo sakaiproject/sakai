@@ -16,5 +16,6 @@ public enum SortType {
 	SORT_BY_RELEASED,
 	SORT_BY_COUNTED,
 	SORT_BY_EDITOR,
+	SORT_BY_CATEGORY,
 	SORT_BY_SORTING; //default
 }

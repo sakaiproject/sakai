@@ -27,6 +27,7 @@ import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -57,6 +58,7 @@ import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.SortType;
 
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
@@ -156,15 +158,16 @@ public class GradebookPage extends BasePage {
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 
-		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from
-		// the map
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
-		Temp.time("getGradebookAssignments", stopwatch.getTime());
-
+		SortType sortBy = SortType.SORT_BY_SORTING;
 		if (settings.isCategoriesEnabled()) {
 			// Pre-sort assignments by the categorized sort order
-			Collections.sort(assignments, new CategorizedAssignmentComparator());
+			sortBy = SortType.SORT_BY_CATEGORY;
 		}
+
+		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from
+		// the map
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
+		Temp.time("getGradebookAssignments", stopwatch.getTime());
 
 		// get the grade matrix. It should be sorted if we have that info
 		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments,
@@ -417,7 +420,7 @@ public class GradebookPage extends BasePage {
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
 		this.form.add(toggleGradeItemsToolbarItem);
 
-		final AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
+		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
@@ -427,17 +430,12 @@ public class GradebookPage extends BasePage {
 			}
 
 			@Override
-			protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit() {
 				settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
 				setUiSettings(settings);
 
-				if (settings.isCategoriesEnabled()) {
-					add(new AttributeModifier("class", "on"));
-				} else {
-					add(new AttributeModifier("class", ""));
-				}
-				target.add(this);
-				target.appendJavaScript("sakai.gradebookng.spreadsheet.toggleCategories();");
+				// refresh
+				setResponsePage(new GradebookPage());
 			}
 
 			@Override
