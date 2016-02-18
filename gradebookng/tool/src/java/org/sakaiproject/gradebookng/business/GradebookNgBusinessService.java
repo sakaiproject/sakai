@@ -382,7 +382,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the course grade for a student
+	 * Get the course grade for a student. Safe to call when logged in as a student.
 	 *
 	 * @param studentUuid
 	 * @return coursegrade. May have null fields if the coursegrade has not been released

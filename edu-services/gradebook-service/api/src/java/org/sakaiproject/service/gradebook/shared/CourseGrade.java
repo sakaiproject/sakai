@@ -16,6 +16,8 @@ public class CourseGrade implements Serializable {
 	private String enteredGrade;
 	private String calculatedGrade;
 	private String mappedGrade;
+	private Double pointsEarned;
+	private Double totalPointsPossible;
 	
 	public CourseGrade() {}
 
@@ -55,6 +57,28 @@ public class CourseGrade implements Serializable {
 		this.mappedGrade = mappedGrade;
 	}
 	
+	public Double getPointsEarned() {
+		return pointsEarned;
+	}
+
+	public void setPointsEarned(Double pointsEarned) {
+		this.pointsEarned = pointsEarned;
+	}
+
+	/**
+	 * This value is only accurate when there are no weighted categories.
+	 * If weighting is enabled, this value will not be what you expect.
+	 * For this reason, this value should not be used when weighted categories are enabled.
+	 * @return Double representing the total points possible, see caveat.
+	 */
+	public Double getTotalPointsPossible() {
+		return totalPointsPossible;
+	}
+
+	public void setTotalPointsPossible(Double totalPointsPossible) {
+		this.totalPointsPossible = totalPointsPossible;
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
