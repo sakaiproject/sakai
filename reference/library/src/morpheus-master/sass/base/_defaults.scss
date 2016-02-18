@@ -16,12 +16,23 @@ body{
 }
 
 a{
-	color: $primary-color;
-	&:focus, &::-moz-focus-inner{
-		outline-color: invert;
+	color: $text-color;
+	&:hover{  // This means a:hover
+		color: $text-color;
+		text-decoration: none;
 	}
-	text-decoration:underline;
+	&[href]{  // This means a[href]
+		color: $primary-color;
+		&:focus, &::-moz-focus-inner{ // This would compile to -> a[href]:focus, a[href]::moz-focus-inner
+			outline-color: invert;
+		}
+		&:hover{
+			text-decoration:underline;
+		}
+		text-decoration:underline;	
+	}
 }
+
 input, textarea{
 	color: $text-color;
 	font-family: $font-family;
