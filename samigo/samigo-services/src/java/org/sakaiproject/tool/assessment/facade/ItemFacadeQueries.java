@@ -597,7 +597,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 	    };
 	    List list = getHibernateTemplate().executeFind(hcb);
 	    log.debug("list.size() = " + list.size());
-	    Long itemTextId = (Long) list.get(0);
+	    Long itemTextId = -1l;
+	    if (!list.isEmpty()) itemTextId = (Long) list.get(0);
 	    log.debug("itemTextId" + itemTextId);
 	    return itemTextId;
   }
