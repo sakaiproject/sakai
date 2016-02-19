@@ -69,7 +69,6 @@
 					#end
 				</select>
 				#if(!$hideTermFilter)
-					<br/>
 					<label for="termview">$tlang.getString("list.selectTerm")</label>
 					<select id="termview" name="termview" size="1" onchange="document.viewForm.submit();">
 						#foreach($view in $termViewKeys)
@@ -124,9 +123,11 @@
                             </fieldset>
 							</form>
 						#else
-							<fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+              <fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
                             <input type="submit" disabled="disabled" name="eventSubmit_doList_prev" value="&lt;" />
                             </fieldset>
+              </form>
 						#end
 					#end
 					<form name="pagesizeForm"  class="inlineForm" method="post" action="#toolForm("$action")">
