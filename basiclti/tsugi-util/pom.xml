@@ -9,8 +9,8 @@
     </parent>
 
     <name>Tsugi LTI Utilities (tsugi-util)</name>
-    <groupId>org.tsugi</groupId>
-    <artifactId>tsugi-util</artifactId>
+    <groupId>org.sakaiproject.basiclti</groupId>
+    <artifactId>basiclti-util</artifactId>
     <organization>
         <name>Tsugi Project</name>
         <url>www.tsugi.org/</url>
