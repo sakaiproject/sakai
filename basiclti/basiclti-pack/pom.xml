@@ -24,8 +24,8 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.tsugi</groupId>
-            <artifactId>tsugi-util</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>basiclti-util</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
