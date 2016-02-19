@@ -102,7 +102,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
     public boolean isRanksEnabled()
     {
-        return serverConfigurationService.getBoolean("msgcntr.forums.ranks.enable", true);
+        return serverConfigurationService.getBoolean("msgcntr.forums.ranks.enable", false);
     }
 
     private String getContextId() {
