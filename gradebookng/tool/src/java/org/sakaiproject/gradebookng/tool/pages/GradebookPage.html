@@ -3,7 +3,7 @@
 <body>
 
 <wicket:extend>
-  <form wicket:id="form">
+  <form wicket:id="form" id="gradebookSpreadsheet">
     <p>
       <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button" aria-haspopup="true">
       	 <wicket:message key="button.addgradeitem" />
@@ -18,30 +18,35 @@
 	<div wicket:id="deleteItemWindow" />
 	<div wicket:id="gradeStatisticsWindow" />
 	<div wicket:id="updateCourseGradeDisplayWindow" />
-    
+
+    <div id="gradebookGradesToolbar">
+      <ul class="gb-toolbar-left">
+        <li>
+          <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
+          <select id="filterByGroup" wicket:id="groupFilter">
+            <option value="1">Section 1</option>
+            <option value="2">Section 2</option>
+          </select>
+        </li>
+        <li><span wicket:id="studentSummary" class="gradebook-student-summary" role="status">Showing 20 of 25 Students</span></li>
+      </ul>
+      <ul class="gb-toolbar-right">
+        <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
+        <li>
+          <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" aria-popup="true" aria-controls="gradeItemsTogglePanel">Show/Hide Items</button>
+        </li>
+        <li>
+          <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" aria-controls="gradebookGradesTable">Group By Category</button>
+        </li>
+      </ul>
+    </div>
     <div id="gradebookGrades">
-      <div id="gradebookGradesToolbar">
-        <ul class="gb-toolbar-left">
-          <li>
-            <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
-            <select id="filterByGroup" wicket:id="groupFilter">
-              <option value="1">Section 1</option>
-              <option value="2">Section 2</option>
-            </select>
-          </li>
-          <li><span wicket:id="studentSummary" class="gradebook-student-summary" role="status">Showing 20 of 25 Students</span></li>
-        </ul>
-        <ul class="gb-toolbar-right">
-          <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
-          <li>
-            <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" aria-popup="true" aria-controls="gradeItemsTogglePanel">Show/Hide Items</button>
-          </li>
-          <li>
-            <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" aria-controls="gradebookGradesTable">Group By Category</button>
-          </li>
-        </ul>
-      </div>
-      <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
+      <div wicket:id="fixedHeader" id="gradebookFixedThings"></div>
+      <div id="gradebookHorizontalOverflowWrapper">
+          <div id="gradebookVerticalOverflowWrapper">
+              <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
+          </div>
+	  </div>
 	  <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
 	  <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
     </div>
@@ -54,13 +59,6 @@
         <wicket:message key="grade.notifications.concurrenteditbyuser" />
       </li>
     </ul>
-  </div>
-  <div id="categoryTableHeader" style="display: none;">
-    <span class="gb-category-label">
-      <span wicket:id="extraCreditCategoryFlag" class="gb-category-extra-credit"></span>
-      <span class="gb-category-name"></span>
-      <span class="gb-category-weight"></span>
-    </span>
   </div>
 </wicket:extend>
 

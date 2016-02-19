@@ -129,10 +129,10 @@ public class GradeItemCellPanel extends Panel {
 			this.showMenu = false;
 
 			if (isExternal) {
-				getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
+				getParentCellFor(this).add(new AttributeModifier("class", "gb-external-item-cell"));
 				this.notifications.add(GradeCellNotification.IS_EXTERNAL);
 			} else {
-				getParent().add(new AttributeModifier("class", "gb-grade-item-cell"));
+				getParentCellFor(this).add(new AttributeModifier("class", "gb-grade-item-cell"));
 			}
 
 		} else {
@@ -537,7 +537,7 @@ public class GradeItemCellPanel extends Panel {
 		final String popoverString = ComponentRenderer.renderComponent(popover).toString();
 
 		component.add(new AttributeModifier("data-toggle", "popover"));
-		component.add(new AttributeModifier("data-trigger", "focus"));
+		component.add(new AttributeModifier("data-trigger", "manual"));
 		component.add(new AttributeModifier("data-placement", "bottom"));
 		component.add(new AttributeModifier("data-html", "true"));
 		component.add(new AttributeModifier("data-container", "#gradebookGrades"));

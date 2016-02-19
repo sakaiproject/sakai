@@ -53,6 +53,7 @@ import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
+import org.sakaiproject.gradebookng.tool.panels.GradebookSpreadsheetFixedTables;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
@@ -191,6 +192,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+				cellItem.add(new AttributeModifier("tabindex", 0));
 				cellItem.add(new EmptyPanel(componentId));
 			}
 
@@ -212,6 +214,8 @@ public class GradebookPage extends BasePage {
 			@Override
 			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
 				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+
+				cellItem.add(new AttributeModifier("tabindex", 0));
 
 				final Map<String, Object> modelData = new HashMap<>();
 				modelData.put("userId", studentGradeInfo.getStudentUuid());
@@ -252,6 +256,8 @@ public class GradebookPage extends BasePage {
 			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
 				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 
+				cellItem.add(new AttributeModifier("tabindex", 0));
+
 				// process the course grade
 				String courseGrade;
 				if (courseGradeVisible) {
@@ -273,7 +279,7 @@ public class GradebookPage extends BasePage {
 		// build the rest of the columns based on the assignment list
 		for (final Assignment assignment : assignments) {
 
-			final AbstractColumn column = new AbstractColumn(new Model("")) {
+			final AbstractColumn column = new AbstractColumn(new Model(assignment)) {
 
 				@Override
 				public Component getHeader(final String componentId) {
@@ -313,6 +319,8 @@ public class GradebookPage extends BasePage {
 					modelData.put("gradeInfo", gradeInfo);
 					modelData.put("role", GradebookPage.this.role);
 
+					cellItem.add(new AttributeModifier("tabindex", 0));
+
 					cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
 
 					cellItem.setOutputMarkupId(true);
@@ -345,7 +353,7 @@ public class GradebookPage extends BasePage {
 					continue;
 				}
 
-				final AbstractColumn column = new AbstractColumn(new Model("")) {
+				final AbstractColumn column = new AbstractColumn(new Model(category)) {
 
 					@Override
 					public Component getHeader(final String componentId) {
@@ -369,6 +377,7 @@ public class GradebookPage extends BasePage {
 						modelData.put("categoryId", category.getId());
 
 						cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
+						cellItem.add(new AttributeModifier("tabindex", 0));
 						cellItem.setOutputMarkupId(true);
 					}
 
@@ -384,6 +393,61 @@ public class GradebookPage extends BasePage {
 		}
 
 		Temp.time("all Columns added", stopwatch.getTime());
+
+
+		final Map<String, Object> modelData = new HashMap<>();
+		modelData.put("assignments", assignments);
+		modelData.put("categories", categories);
+
+		this.form.add(new GradebookSpreadsheetFixedTables("fixedHeader", Model.ofMap(modelData)));
+
+		if (settings.isCategoriesEnabled()) {
+			// Pre-sort columns so the JavaScript doesn't have to
+			// by putting the category total columns after assignments
+			// in that category (which are already grouped by category).
+			// If categories are not enabled, these average columns
+			// will display as the last columns in the table.
+			Collections.sort(cols, new Comparator<IColumn>() {
+				@Override
+				public int compare(IColumn col1, IColumn col2) {
+					IModel model1 = ((AbstractColumn) col1).getDisplayModel();
+					IModel model2 = ((AbstractColumn) col2).getDisplayModel();
+
+					Object o1 = model1.getObject();
+					Object o2 = model2.getObject();
+
+					if (o1.equals(o2)) {
+						return 0;
+					}
+
+					Long cat1;
+					Long cat2;
+					if (o1 instanceof Assignment) {
+						cat1 = ((Assignment) o1).getCategoryId();
+					} else if(o1 instanceof CategoryDefinition) {
+						cat1 = ((CategoryDefinition) o1).getId();
+					} else {
+						return -1;
+					}
+
+					if (o2 instanceof Assignment) {
+						cat2 = ((Assignment) o2).getCategoryId();
+					} else if(o2 instanceof CategoryDefinition) {
+						cat2 = ((CategoryDefinition) o2).getId();
+					} else {
+						return 1;
+					}
+
+					if (cat1 == null) {
+						return 1;
+					} else if (cat2 == null) {
+						return -1;
+					}
+
+					return cat1.compareTo(cat2);
+				}
+			});
+		}
 
 		// TODO make this AjaxFallbackDefaultDataTable
 		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100);
@@ -493,8 +557,6 @@ public class GradebookPage extends BasePage {
 		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel",
 				Model.ofList(assignments));
 		add(gradeItemsTogglePanel);
-
-		add(buildFlagWithPopover("extraCreditCategoryFlag", getString("label.gradeitem.extracreditcategory")));
 
 		// hide/show components
 
