@@ -82,7 +82,6 @@
 								</form>
 							#end
 						#end
-					</div>
 				</div> ##end navPanel
 				
 		
@@ -172,4 +171,3 @@
 		</div>
 #end
 	</div>
-
