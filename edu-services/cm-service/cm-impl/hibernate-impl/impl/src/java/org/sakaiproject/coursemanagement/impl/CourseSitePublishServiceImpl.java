@@ -195,17 +195,18 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                // get a list of all published and unpublished course sites in ascending creation date order which are associated with the specified academic session
                Hashtable<String, String> propertyCriteria = new Hashtable<String, String>();
                propertyCriteria.put("term_eid", academicSession.getEid());
-               List<String> sites = (List<String>)siteService.getSiteIds(SelectionType.INACTIVE_ONLY, "course", null, propertyCriteria, SortType.CREATED_ON_ASC, null);
+               //We only will check COURSES with the right term_eid property. We will filter later if they are or not published
+               List<String> sites = (List<String>)siteService.getSiteIds(SelectionType.ANY, "course", null, propertyCriteria, SortType.CREATED_ON_ASC, null);
 
                for(String siteId : sites) {
-                  //site.loadAll();
                      // see if this service has already published course site once before.
                      // if it has, then someone has manually reset the published flag, and wants the course to be unpublished.
                      // so don't switch it back to being published - just leave it as unpublished.
-                    // ResourceProperties siteProperties = site.getProperties();
                   Site site = siteService.getSite(siteId);
-                  ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
-                  String siteProperty   = siteProperties.getProperty(SITE_PROPERTY_COURSE_SITE_PUBLISHED);
+                  //We will check only unpublished sites and not softlyDeleted
+                  if (!site.isPublished() && (!site.isSoftlyDeleted())) {
+                     ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
+                     String siteProperty = siteProperties.getProperty(SITE_PROPERTY_COURSE_SITE_PUBLISHED);
 
                      if (!"set".equals(siteProperty)) {
                         // check permissions
@@ -220,6 +221,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                            numSitesPublished++;
                         }
                      }
+                  }
                }
             }
          }
