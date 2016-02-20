@@ -3,13 +3,17 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_report_submissions.vm,v 1.6 2005/06/03 15:38:27 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
-	<h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
-		$!tlang.getString('gen.grarep')
-	</h3>
 
-		<div class="navPanel">
-			<div class="viewNav">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+
+	<div class="page-header">
+		<h1>
+			$!tlang.getString('gen.grarep')
+		</h1>
+	</div>
+
+	<div class="navPanel">
+		<div class="viewNav">
 			<br />
 			#if (!$hasAtLeastOneAnonAssignment)
 			<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
@@ -18,7 +22,7 @@
 			<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 				#if( $!groups.hasNext() )
 				<div class="instruction">
-					$tlang.getString("view_instruction") 
+					$tlang.getString("view_instruction")
 				</div>
 				<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 
@@ -39,7 +43,7 @@
 				#end
 
 				<label for="$form_search" class="skip">$tlang.getString("search")</label>
-				<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" 
+				<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )"
 					name="search" id="search" type="text" class="searchField" size="20" />
 				<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
 				#if (($!searchString) && (!$searchString.equals("")))
@@ -49,7 +53,7 @@
 
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
-			
+
 			#end
 			#if ($!submissions.size() == 0)
 				<p class="instruction">
@@ -58,83 +62,83 @@
 			#else
 			<br />
 			<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a>
-				
-				
+
+
 			</div>
 			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
-		</div>	
+		</div>
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 		<form name="reportForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($submissions.size()==0)
 				<p class="instruction">
 					$tlang.getString("gen.thearecur2")
-				</p>	
+				</p>
 			#else
-				<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString("gen.viewasslistreportsummary")">
+				<table class="table table-striped table-hover table-bordered" summary="$tlang.getString("gen.viewasslistreportsummary")">
 					<tr>
 						<th id="studentname">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_lastName")'; return false;"
 								 title=" $tlang.getString("gen.sorbylas")">
 								 $tlang.getString("gen.stunam")
-								#if ($sortedBy.equals($!sortedBy_lastName)) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sortdescendinglastname" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
+								#if ($sortedBy.equals($!sortedBy_lastName))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendinglastname" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
 							</a>
 						</th>
 						<th id="assignment">
-							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_assignment")'; return false;" 
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_assignment")'; return false;"
 							  title="$tlang.getString("listassig.sorbytit")">
 								$tlang.getString("gen.assig")
-								#if ($sortedBy.equals($!sortedBy_assignment)) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sortascendingassignment" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sortdescendingassignment" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
+								#if ($sortedBy.equals($!sortedBy_assignment))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendingassignment" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendingassignment" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
 							</a>
 						</th>
 						<th id="grade">
-							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_grade")'; return false;" 
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_grade")'; return false;"
 							  title=" $tlang.getString("gen.sorbygra")">
 								$tlang.getString("gen.gra")
-								#if ($sortedBy.equals($!sortedBy_grade)) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sort_descending_grade" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
+								#if ($sortedBy.equals($!sortedBy_grade))
+									#if ($sortedAsc.equals("true"))
+										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sort_descending_grade" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
 							</a>
 						</th>
 						<th id="scale">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_maxGrade")'; return false;"
 								 title="$tlang.getString("repsubmi.sorbysca")">
 								 $tlang.getString("gen.sca")
-								#if ($sortedBy.equals($!sortedBy_maxGrade)) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sort_descending_grade" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
+								#if ($sortedBy.equals($!sortedBy_maxGrade))
+									#if ($sortedAsc.equals("true"))
+										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sort_descending_grade" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
 							</a>
 						</th>
 						<th id="submitted">
-							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_submitTime")'; return false;" 
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_submitTime")'; return false;"
 								 title="$tlang.getString("repsubmi.sorbytur")">
 								 $tlang.getString("gen.subm4")
-								#if ($sortedBy.equals($!sortedBy_submitTime)) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sort_descending_grade" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
+								#if ($sortedBy.equals($!sortedBy_submitTime))
+									#if ($sortedAsc.equals("true"))
+										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sort_descending_grade" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
 							</a>
 
 						</th>
@@ -199,19 +203,19 @@
 							<td headers="scale">
 								#set ($gradeScale = $typeOfGrade)
 									#if ($gradeScale == -1)
-										## Grade type not set 
+										## Grade type not set
 										$tlang.getString("gen.notset")
 									#elseif ($gradeScale == 1)
 										## Ungraded grade type
 										$tlang.getString("gen.nograd")
 									#elseif ($gradeScale == 2)
-										## Letter grade type 
+										## Letter grade type
 										A-F
 									#elseif ($gradeScale == 3)
 										## Score based grade type
 										0-$assignmentContent.getMaxGradePointDisplay()
 									#elseif ($gradeScale == 4)
-										## Pass/fail grade type 
+										## Pass/fail grade type
 										 $tlang.getString("gen.pf")
 									#elseif ($gradeScale == 5)
 										## Grade type that only requires a check
