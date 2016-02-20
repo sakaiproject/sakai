@@ -22,6 +22,8 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -528,7 +530,14 @@ public class QuestionScoreListener implements ActionListener,
 				// row
 				ArrayList answerList = (ArrayList) iter.next();
 				results.setItemGradingArrayList(answerList);
-
+				// The list is sorted by answer id so that it will come back from the student in a 
+				// predictable order. This is also required by the getCalcQResult method.
+				Collections.sort(answerList, new Comparator<ItemGradingData>() {
+					public int compare(ItemGradingData i1, ItemGradingData i2) {
+						return i1.getPublishedAnswerId().compareTo(
+								i2.getPublishedAnswerId());
+					}
+				});
 				Iterator iter2 = answerList.iterator();
 				ArrayList itemGradingAttachmentList = new ArrayList();
 				HashMap<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
