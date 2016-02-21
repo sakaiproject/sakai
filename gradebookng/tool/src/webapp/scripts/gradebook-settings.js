@@ -37,7 +37,7 @@ GradebookCategorySettings.prototype.setupSortableCategories = function() {
               },
       placeholder: "gb-category-sort-placeholder",
       update: $.proxy(self.updateCategoryOrders, self)
-    }).disableSelection();
+    });
 };
 
 
