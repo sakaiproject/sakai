@@ -1292,7 +1292,8 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
-			if (original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
+			if (original.getCategoryId() != null && assignment.getCategoryId() != null
+					&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
 				updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(), Integer.MAX_VALUE);
 			}
 			return true;
