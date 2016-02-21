@@ -462,6 +462,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("pageSkin", skin);
 		rcontext.put("uiService", uiService);
 		rcontext.put("pageScriptPath", getScriptPath());
+		rcontext.put("pageWebjarsPath", getWebjarsPath());
 		rcontext.put("loginEidWording", eidWording);
 		rcontext.put("loginPwWording", pwWording);
 		rcontext.put("loginRequired", loginRequired);
@@ -500,6 +501,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("pageSkin", skin);
 		rcontext.put("uiService", uiService);
 		rcontext.put("pageScriptPath", getScriptPath());
+		rcontext.put("pageWebjarsPath", getWebjarsPath());
 
 		rcontext.put("choiceRequired", rb.getString("log.choicereq"));
 
@@ -555,6 +557,10 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	protected String getScriptPath()
 	{
 		return "/library/js/";
+	}
+	protected String getWebjarsPath()
+	{
+		return "/library/webjars/";
 	}
 
 	/**

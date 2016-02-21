@@ -37,6 +37,14 @@ public class PortalUtils
 	}
 
 	/**
+	 * Returns an absolute for "/library/webjars" with CDN path as necessary
+	 */
+	public static String getWebjarsPath()
+	{
+		return getLibraryPath() + "webjars/";
+	}
+
+	/**
 	 * Returns an absolute for "/library/js" servlet with CDN path as necessary
 	 */
 	public static String getScriptPath()
@@ -94,29 +102,29 @@ public class PortalUtils
              "}\n" +
              "if ( needJQuery ) {\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getScriptPath() + "jquery/jquery-1.11.3.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery/1.11.3/jquery.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getScriptPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-migrate/1.2.1/jquery-migrate.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getScriptPath() + "bootstrap/3.3.5/js/bootstrap.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "bootstrap/3.3.6/js/bootstrap.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getScriptPath() + "jquery/ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "} else { \n" +
              "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);\n" +
              "   if (typeof jQuery.migrateWarnings == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getScriptPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding jQuery migrate');\n" +
              "   }\n" +
              "   if ( typeof jQuery.fn.popover == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getScriptPath() + "bootstrap/3.3.5/js/bootstrap.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "bootstrap/3.3.6/js/bootstrap.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding Bootstrap');\n" +
              "   }\n" +
              "   if (typeof jQuery.ui == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getScriptPath() + "jquery/ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding jQuery UI');\n" +
              "   }\n" +
              "}\n" +

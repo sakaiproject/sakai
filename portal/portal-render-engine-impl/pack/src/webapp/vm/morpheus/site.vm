@@ -77,22 +77,22 @@
             }
         }
         if ( needJQuery ) {
-            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.11.3.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            document.write('\x3Cscript src="${pageScriptPath}bootstrap/3.3.5/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            document.write('\x3Cscript src="${pageScriptPath}jquery/ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.11.3/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.2.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}bootstrap/3.3.6/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             window.console && console.log('Portal scripts loaded JQ+MI+BS+UI');
         } else {
             if (typeof jQuery.migrateWarnings == 'undefined') {
-                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.2.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
                 window.console && console.log('Portal adding jQuery migrate');
             }
             if ( typeof jQuery.fn.popover == 'undefined') {
-                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}bootstrap/3.3.5/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}bootstrap/3.3.6/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
                 window.console && console.log('Portal adding Bootstrap');
             }
             if (typeof jQuery.ui == 'undefined') {
-                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
                 window.console && console.log('Portal adding jQuery UI');
             }
         }
@@ -114,7 +114,7 @@
         <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageScriptPath}jquery/notify/2.0.1/pnotify.custom.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.core.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 

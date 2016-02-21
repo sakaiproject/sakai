@@ -23,11 +23,11 @@
 
 <script>includeLatestJQuery('main.jsp');</script>
 <script type="text/javascript" src="js/jqueryui-editable.js"></script>
-<script type="text/javascript" src="/library/js/moment/2.4.0/moment.min.js"></script>
+<script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
 <sakai:stylesheet path="/syllabus/css/jqueryui-editable.css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-<link rel="stylesheet" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
 <sakai:stylesheet path="/syllabus/css/syllabus.css" />
 
 <script type="text/javascript">

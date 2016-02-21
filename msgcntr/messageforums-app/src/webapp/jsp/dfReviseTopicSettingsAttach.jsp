@@ -18,7 +18,7 @@
 	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>
 	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+	<link href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	
 	<%
 	  	String thisId = request.getParameter("panel");
