@@ -16,7 +16,6 @@ function resizeFrame(){
 }
 </script>
 <script type="text/javascript">includeLatestJQuery('announcements');</script>
-<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#notiHistoryToggle').click(function(e){

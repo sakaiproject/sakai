@@ -61,7 +61,7 @@ $(document).ready(function(){
 		  $("body").append('<img id="displayWait" src="/messageforums-tool/images/wait_sakai.gif" width="50" height="50" style="display:none" />');
 	  }
 	  var loadUI = function() {
-		  $.getScript("/library/js/jquery/blockUI/2.66/jquery.blockUI.js",
+		  $.getScript("/library/webjars/jquery-blockui/2.65/jquery.blockUI.js",
 			function(){
 			  $('input[type=submit]').click(function() {
 		        $.blockUI({ 
