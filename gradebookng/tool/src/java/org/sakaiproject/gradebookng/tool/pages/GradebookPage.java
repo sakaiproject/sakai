@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Comparator;
+import java.util.Collections;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
@@ -25,6 +27,7 @@ import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -55,6 +58,7 @@ import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.SortType;
 
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
@@ -154,9 +158,15 @@ public class GradebookPage extends BasePage {
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 
+		SortType sortBy = SortType.SORT_BY_SORTING;
+		if (settings.isCategoriesEnabled()) {
+			// Pre-sort assignments by the categorized sort order
+			sortBy = SortType.SORT_BY_CATEGORY;
+		}
+
 		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from
 		// the map
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
 
 		// get the grade matrix. It should be sorted if we have that info
@@ -165,9 +175,6 @@ public class GradebookPage extends BasePage {
 				settings.getGroupFilter());
 
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
-
-		// get assignment order
-		final Map<String, List<Long>> categorizedAssignmentOrder = this.businessService.getCategorizedAssignmentsOrder();
 
 		// get course grade visibility
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
@@ -273,15 +280,8 @@ public class GradebookPage extends BasePage {
 					final AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId,
 							new Model<Assignment>(assignment));
 
-					final String category = assignment.getCategoryName();
-
-					int order = -1;
-					if (categorizedAssignmentOrder.containsKey(category)) {
-						order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
-					}
-
-					panel.add(new AttributeModifier("data-category", category));
-					panel.add(new AttributeModifier("data-categorized-order", order));
+					panel.add(new AttributeModifier("data-category", assignment.getCategoryName()));
+					panel.add(new AttributeModifier("data-category-id", assignment.getCategoryId()));
 
 					final StringValue createdAssignmentId = getPageParameters().get(CREATED_ASSIGNMENT_ID_PARAM);
 					if (!createdAssignmentId.isNull() && assignment.getId().equals(createdAssignmentId.toLong())) {
@@ -420,7 +420,7 @@ public class GradebookPage extends BasePage {
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
 		this.form.add(toggleGradeItemsToolbarItem);
 
-		final AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
+		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
@@ -430,17 +430,12 @@ public class GradebookPage extends BasePage {
 			}
 
 			@Override
-			protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit() {
 				settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
 				setUiSettings(settings);
 
-				if (settings.isCategoriesEnabled()) {
-					add(new AttributeModifier("class", "on"));
-				} else {
-					add(new AttributeModifier("class", ""));
-				}
-				target.add(this);
-				target.appendJavaScript("sakai.gradebookng.spreadsheet.toggleCategories();");
+				// refresh
+				setResponsePage(new GradebookPage());
 			}
 
 			@Override
@@ -598,6 +593,7 @@ public class GradebookPage extends BasePage {
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
 	}
 
+
 	/**
 	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
 	 */
@@ -655,5 +651,47 @@ public class GradebookPage extends BasePage {
 		label.setEscapeModelStrings(false); // to allow embedded HTML
 
 		return label;
+	}
+
+
+	/**
+	 * Comparator class for sorting Assignments in their categorised ordering
+	 */
+	class CategorizedAssignmentComparator implements Comparator<Assignment> {
+		@Override
+		public int compare(final Assignment a1, final Assignment a2) {
+			// if in the same category, sort by their categorized sort order
+			if (a1.getCategoryId() == a2.getCategoryId()) {
+				// handles null orders by putting them at the end of the list
+				if (a1.getCategorizedSortOrder() == null) {
+					return 1;
+				} else if (a2.getCategorizedSortOrder() == null) {
+					return -1;
+				}
+				return Integer.compare(a1.getCategorizedSortOrder(), a2.getCategorizedSortOrder());
+
+			// otherwise, sort by their category order
+			} else {
+				if (a1.getCategoryOrder() == null && a2.getCategoryOrder() == null) {
+					// both orders are null.. so order by A-Z
+					if (a1.getCategoryName() == null && a2.getCategoryName() == null) {
+						// both names are null so order by id
+						return a1.getCategoryId().compareTo(a2.getCategoryId());
+					} else if (a1.getCategoryName() == null) {
+						return 1;
+					} else if (a2.getCategoryName() == null) {
+						return -1;
+					} else {
+						return a1.getCategoryName().compareTo(a2.getCategoryName());
+					}
+				} else if (a1.getCategoryOrder() == null) {
+					return 1;
+				} else if (a2.getCategoryOrder() == null) {
+					return -1;
+				} else {
+					return a1.getCategoryOrder().compareTo(a2.getCategoryOrder());
+				}
+			}
+		}
 	}
 }

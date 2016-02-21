@@ -45,6 +45,7 @@ public abstract class GradableObject implements Serializable {
     protected Gradebook gradebook;
     protected String name;
     protected Integer sortOrder;
+    protected Integer categorizedSortOrder;
 
     protected Double mean;	// not persisted; not used in all contexts (in Overview & Assignment Grading,
     	                    // not in Roster or Student View)
@@ -339,6 +340,14 @@ public abstract class GradableObject implements Serializable {
     
     public void setSortOrder(Integer sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public Integer getCategorizedSortOrder() {
+        return categorizedSortOrder;
+    }
+
+    public void setCategorizedSortOrder(Integer value) {
+        this.categorizedSortOrder = value;
     }
 
 }
