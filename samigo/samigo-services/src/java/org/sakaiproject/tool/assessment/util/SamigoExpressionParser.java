@@ -25,6 +25,8 @@ package org.sakaiproject.tool.assessment.util;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.sakaiproject.tool.assessment.services.GradingService;
+
 
 public class SamigoExpressionParser
 {
@@ -99,14 +101,11 @@ public class SamigoExpressionParser
       } else if (Double.isNaN(ans)) {
           throw new SamigoExpressionError(401, expr);
       }
-      // round the answer for accuracy (hopefully)
-      ans = BigDecimal.valueOf(ans).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
-      //ans = (double)Math.round(ans * (decimals * 10l)) / (decimals * 10.0d);
+      GradingService service = new GradingService();
+      ans_str = service.toScientificNotation(Double.toString(ans), decimals);
 
       // add the answer to memory as variable "Ans"
-      user_var.put("ANS", Double.valueOf(ans));
-
-      ans_str = Double.toString(ans); //String.format("%g", ans);
+      user_var.put("ANS", Double.valueOf(ans_str));
     }
     catch (SamigoExpressionError err)
     {

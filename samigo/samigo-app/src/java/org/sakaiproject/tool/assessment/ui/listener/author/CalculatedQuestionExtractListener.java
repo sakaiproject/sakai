@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -296,8 +297,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
             // no non-number characters (although percentage is allowed
             // allow a negative here, we'll catch negative tolerances in another place
+            // we add scientific notation numbers            
             if (formula.getValidTolerance()) {
-                if (!toleranceStr.matches("[0-9\\.\\-\\%]+")) {
+                if ( (!toleranceStr.matches("[0-9\\.\\-\\%]+") ) &&
+                   	 (!toleranceStr.matches("\\-?[0-9]+\\.?[0-9]*([eE][\\-]?[0-9]+)?") ) ) {
                     errors.add(getErrorMessage("invalid_tolerance"));
                     formula.setValidTolerance(false);
                 }
@@ -337,6 +340,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     private List<String> validateMinMax(ItemBean item) {
         List<String> errors = new ArrayList<String>();
         CalculatedQuestionBean question = item.getCalculatedQuestion();
+        GradingService gradingService = new GradingService();
 
         for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
 
@@ -358,11 +362,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMin()) {
                 try {
-                    BigDecimal bd = new BigDecimal(minStr);
-                    bd = bd.setScale(decimals);
-                    bd = bd.stripTrailingZeros();
-                    min = bd.doubleValue();
-                    String value = bd.toPlainString();
+                    BigDecimal bd = new BigDecimal(minStr);                    
+                    bd.setScale(decimals,RoundingMode.HALF_UP);
+                    min = bd.doubleValue();                                 
+                    String value = gradingService.toScientificNotation(bd.toPlainString(),decimals);
                     variable.setMin(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_min"));
@@ -379,11 +382,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMax()) {
                 try {
-                    BigDecimal bd = new BigDecimal(maxStr);
-                    bd = bd.setScale(decimals);
-                    bd = bd.stripTrailingZeros();
+                    BigDecimal bd = new BigDecimal(maxStr);                   
+                    bd.setScale(decimals,RoundingMode.HALF_UP);
                     max = bd.doubleValue();
-                    String value = bd.toPlainString();
+                    String value = gradingService.toScientificNotation(bd.toPlainString(),decimals);
                     variable.setMax(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_max"));

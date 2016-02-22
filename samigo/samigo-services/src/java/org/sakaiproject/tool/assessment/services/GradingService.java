@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.services;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -100,6 +101,9 @@ public class GradingService
   final String CLOSE_BRACKET = "\\}";
   final String CALCULATION_OPEN = "[["; // not regex safe
   final String CALCULATION_CLOSE = "]]"; // not regex safe
+  final String FORMAT_MASK = "0E0";
+  final Double MAX_THRESHOLD = 10000.0;
+  final Double MIN_THRESHOLD = 0.0001;
   /**
    * regular expression for matching the contents of a variable or formula name 
    * in Calculated Questions
@@ -2697,6 +2701,39 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return segments;
   }
 
+  
+  /**
+   * CALCULATED_QUESTION
+   * toScientificNotation() Takes a string representation of a number and returns
+   * a string representation of that number, in scientific notation.
+   * Numbers like 100, 0.01 will not be formatted (see values of MAX_THRESHOLD and MIN_THRESHOLD)
+   * @param numberStr
+   * @param decimalPlaces
+   * @return processed number string
+   */
+  public String toScientificNotation(String numberStr,int decimalPlaces){
+	  
+	  BigDecimal x = new BigDecimal(numberStr);
+	  x.setScale(decimalPlaces,RoundingMode.HALF_UP);	
+	  
+	  NumberFormat formatter;
+	  
+	  if (((( Math.abs(x.doubleValue())) >= MAX_THRESHOLD) || ( Math.abs(x.doubleValue()) <= MIN_THRESHOLD) 
+        || (numberStr.contains("e")) || numberStr.contains("E") ) 
+	    && (x.doubleValue() != 0)) {
+		  formatter = new DecimalFormat(FORMAT_MASK);
+	  } else {
+		  formatter = new DecimalFormat("0");
+	  }	  
+	  
+	  formatter.setRoundingMode(RoundingMode.HALF_UP);	  
+	  formatter.setMaximumFractionDigits(decimalPlaces);
+	  
+	  String formattedNumber = formatter.format(x);
+
+	  return formattedNumber.replace(",",".");
+  }
+  
   /**
    * CALCULATED_QUESTION
    * applyPrecisionToNumberString() takes a string representation of a number and returns
@@ -3006,7 +3043,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
           String numericString = parser.parse(formula, decimalPlaces+1);
           if (this.isAnswerValid(numericString)) {
-              numericString = applyPrecisionToNumberString(numericString, decimalPlaces);
+              numericString = toScientificNotation(numericString, decimalPlaces);
               value = numericString;
           } else {
               throw new IllegalStateException("Invalid calculation formula ("+formula+") result ("+numericString+"), result could not be calculated");
@@ -3102,11 +3139,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  Double randomValue = minVal + (maxVal - minVal) * generator.nextDouble();
 		  
 		  // Trim off excess decimal points based on decimalPlaces value
-		  BigDecimal bd = new BigDecimal(randomValue);
+		  /*BigDecimal bd = new BigDecimal(randomValue);
 		  bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_UP);
 		  randomValue = bd.doubleValue();
+		  String displayNumber = randomValue.toString();*/
 		  
-		  String displayNumber = randomValue.toString();
+		  String displayNumber = toScientificNotation(randomValue.toString(), decimalPlaces);
+		  
 		  // Remove ".0" if decimalPlaces ==0
 		  if (decimalPlaces == 0) {
 			  displayNumber = displayNumber.replace(".0", "");
