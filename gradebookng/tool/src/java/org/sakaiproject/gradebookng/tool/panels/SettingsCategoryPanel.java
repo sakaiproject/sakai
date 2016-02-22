@@ -516,7 +516,7 @@ public class SettingsCategoryPanel extends Panel {
 			try {
 				d = Double.valueOf(value) / 100;
 			} catch (final NumberFormatException e) {
-				throw new ConversionException(e);
+				throw new ConversionException(e).setResourceKey("settingspage.update.failure.categoryweightnumber");
 			}
 
 			// to string for the rounding/truncation
