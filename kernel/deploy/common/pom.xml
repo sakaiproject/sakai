@@ -70,5 +70,31 @@
         </dependency>
       </dependencies>
     </profile>
+    <profile>
+      <!-- The profile isnt' active by default, as again we can't bundle the JAR due to license restrictions
+           but if you build with the oracle profile the JAR will get downloaded and deployed into tomcat
+           without having to copy it. However to get this profile to work you need to have setup the oracle
+           repository. -->
+      <id>oracle</id>
+      <repositories>
+        <repository>
+          <id>maven.oracle.com</id>
+          <name>oracle-maven-repo</name>
+          <url>https://maven.oracle.com</url>
+          <layout>default</layout>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+          </releases>
+        </repository>
+      </repositories>
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle.jdbc</groupId>
+          <artifactId>ojdbc7</artifactId>
+          <version>12.1.0.2</version>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 </project>
