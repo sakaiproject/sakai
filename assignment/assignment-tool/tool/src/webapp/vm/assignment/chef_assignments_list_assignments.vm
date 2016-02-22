@@ -26,15 +26,20 @@
 		return false;
 	}
 </script>
-<div class="portletBody">
+
+<div class="portletBody container">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
 		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
-	<h3>
-		$!tlang.getString('lisofass1')
-	</h3>
+
+	<div class="page-header">
+		<h1>
+			$!tlang.getString('lisofass1')
+		</h1>
+	</div>
+
 	#if (!$!assignments.hasNext())
 		<p class="instruction">
 			$tlang.getString("gen.thearecur1")
@@ -61,33 +66,32 @@
 			</div>
 			#else
 				<div class="viewNav" style="width:50%">
-				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div> 
+				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div>
 			</div>
 			#end
 		#else
-			<div class="viewNav" style="width:50%">
+			<div class="viewNav">
 				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
 			</div>
 		#end
 		#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 	</div>
-		<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
-			<input type="hidden" name="source" value="0" />			
-			<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString("gen.ass.lis.sum")">
-				<tr> 
-					<th id="attachments" class="attach"> 
-						&nbsp;
-					</th>
+
+	<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
+		<div class="table-responsive">
+			<input type="hidden" name="source" value="0" />
+			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
+				<tr>
 					<th id="title">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
-							#if ($sortedBy.equals("title")) 
-								#if ($sortedAsc.equals("true")) 
-									<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-								#else 
-									<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-								#end 
-							#end 
+							#if ($sortedBy.equals("title"))
+								#if ($sortedAsc.equals("true"))
+									<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+								#else
+									<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+								#end
+							#end
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
@@ -106,37 +110,37 @@
 					<th id="status">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"   title="$tlang.getString("list.sorbysta")">
 							$tlang.getString("gen.status")
-							#if ($sortedBy.equals("assignment_status")) 
-								#if ($sortedAsc.equals("true")) 
-									<img id="sortascendingstatus" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-								#else 
-									<img id="sortdescendingstatus" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-								#end 
-							#end 
+							#if ($sortedBy.equals("assignment_status"))
+								#if ($sortedAsc.equals("true"))
+									<img id="sortascendingstatus" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+								#else
+									<img id="sortdescendingstatus" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+								#end
+							#end
 						</a>
 					</th>
 					<th id="openDate">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("gen.open")
-							#if ($sortedBy.equals("opendate")) 
-								#if ($sortedAsc.equals("true")) 
-									<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-								#else 
-									<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-								#end 
-							#end 
+							#if ($sortedBy.equals("opendate"))
+								#if ($sortedAsc.equals("true"))
+									<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+								#else
+									<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+								#end
+							#end
 						</a>
 					</th>
 					<th id="dueDate">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
 							$tlang.getString("gen.due")
-							#if ($sortedBy.equals("duedate")) 
-								#if ($sortedAsc.equals("true")) 
-									<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-								#else 
-									<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-								#end 
-							#end 
+							#if ($sortedBy.equals("duedate"))
+								#if ($sortedAsc.equals("true"))
+									<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+								#else
+									<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+								#end
+							#end
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
@@ -144,25 +148,25 @@
 						#if ($!showNumSubmissionColumn)
 						<th id="num_submissions">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
-								#if ($sortedBy.equals("num_submissions")) 
+								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
-										#if ($sortedAsc.equals("true")) 
+										#if ($sortedAsc.equals("true"))
 											<img id="sortascendingtotalsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
-										#else 
+										#else
 											<img id="sortdescendingtotalsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
-										#end 
+										#end
 									</a>
 								#end
 								/
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"  title="$tlang.getString("listassig.sorbynum2")">$tlang.getString("gen.new")</a>
-								#if ($sortedBy.equals("num_ungraded")) 
+								#if ($sortedBy.equals("num_ungraded"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"   title="$tlang.getString("listassig.sorbynum2")">
-										#if ($sortedAsc.equals("true")) 
+										#if ($sortedAsc.equals("true"))
 											<img id="sortascendingungradedsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
-										#else 
+										#else
 											<img id="sortdescendingungradedsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
-										#end 
-									</a>	
+										#end
+									</a>
 								#end
 						</th>
 						#end
@@ -172,18 +176,18 @@
 						<th id="maxgrade">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
-								#if ($sortedBy.equals("max_grade")) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sortascendingungraded" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sortdescendingungraded" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
+								#if ($sortedBy.equals("max_grade"))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendingungraded" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendingungraded" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
 							</a>
 						</th>
 					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
-						<th id="remove" class="screenOnly"> 
+						<th id="remove" class="screenOnly">
 							$tlang.getString("gen.remove.q")
 						</th>
 					#end
@@ -207,25 +211,7 @@
 					#end
 					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
-						<tr> 
-							<td headers="attachments" class="attach">
-								#set ($attachments = $assignmentContent.getAttachments())
-								#set ($size = 0)
-								#set ($props = false)
-								#if (!$!attachments.isEmpty())
-									#foreach ($attachment in $attachments)
-										#set ($props = $attachment.Properties) 
-										#if ($!props)
-											#set ($size = $size + 1)
-										#end
-									#end
-								#end
-								#if ($size > 0)
-									<img id="attachment$assignmentCount" src="#imageLink("sakai/attachments.gif")" alt="$tlang.getString("gen.att")" width="13" height="11" border="0" /> 
-								#else
-									&nbsp;
-								#end
-							</td>
+						<tr>
 							<td headers="title">
 									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
 										<h4>
@@ -240,7 +226,7 @@
 												<span class="highlight">$tlang.getString("gen.dra2") </span>
 											#end
 												$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))
-												
+
 											#if ($assignmentContent.getAllowReviewService())
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 											#end
@@ -300,7 +286,7 @@
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</span>
 														</a>
-													</div>	
+													</div>
 												#end
 											#end
 										#else
@@ -354,7 +340,7 @@
 															#set ($activityHelperInfo = $provider.getActivityHelperInfo($activity.reference))
 															#if ($activityHelperInfo)
 																#if($prevAction)
-																	| 
+																	|
 																#else
 																	#set($prevAction=true)
 																#end
@@ -366,7 +352,7 @@
 																#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
 																#if ($itemHelperInfo)
 																	#if($prevAction)
-																		| 
+																		|
 																	#else
 																		#set($prevAction=true)
 																	#end
@@ -435,7 +421,7 @@
 								#else
 									#if ($!submission)
 										$submission.getStatus()
-										#if ($submission.getSubmitted()) 
+										#if ($submission.getSubmitted())
 											#if ($assignment.getDueTime() && $submission.getTimeSubmitted() && $submission.getTimeSubmitted().after($assignment.getDueTime()))
 												<span class="highlight">$tlang.getString("gen.late2")</span>
 											#end
@@ -489,19 +475,19 @@
 							<td headers="maxgrade">
 									#set ($gradeScale = $assignmentContent.getTypeOfGrade())
 									#if ($gradeScale == -1)
-										## Grade type not set 
+										## Grade type not set
 										$tlang.getString("gen.notset")
 									#elseif ($gradeScale == 1)
 										## Ungraded grade type
 										$tlang.getString("gen.nograd")
 									#elseif ($gradeScale == 2)
-										## Letter grade type 
+										## Letter grade type
 										A-F
 									#elseif ($gradeScale == 3)
 										## Score based grade type
 										0-$assignmentContent.getMaxGradePointDisplay()
 									#elseif ($gradeScale == 4)
-										## Pass/fail grade type 
+										## Pass/fail grade type
 										$tlang.getString("gen.pf")
 									#elseif ($gradeScale == 5)
 										## Grade type that only requires a check
@@ -546,10 +532,10 @@
 												$tlang.getString("peerassessment.submissionReq")
 											#end
 										#else
-											<!-- peer review is open (or over) and user submitted 
+											<!-- peer review is open (or over) and user submitted
 												status will be "not started", "incomplete", or "submitted"
 											-->
-											
+
 											#if(!$reviews || $reviews.size() == 0)
 												<!-- something is wrong here, don't show anything to the user, just show not open -->
 												$tlang.getString("peerassessment.notOpen")
@@ -559,12 +545,12 @@
 												#set($anyCompleteReviews = false)
 												#foreach ($review in $reviews)
 													#if(!$review.isSubmitted())
-														#set($completedReviews = false)		
+														#set($completedReviews = false)
 														#if($review.isDraft())
 															#set($anyDraftReviews = true)
 														#end
 													#else
-														#set($anyCompleteReviews = true)	
+														#set($anyCompleteReviews = true)
 													#end
 												#end
 												#if($completedReviews)
@@ -610,7 +596,7 @@
 									<td></td>
 								#end
 							</tr>
-						
+
 							<!-- end peer assessment overview row -->
 							<!-- peer assessment items rows->
 							#if ($!submission && $assignment.isPeerAssessmentOpen() && $!reviews)
@@ -674,11 +660,13 @@
 								#end
 							#end
 						<!-- End peer assessment items rows->
-						
+
 						<!-- End Peer assessment rows -->
 						#end
 				#end
 			</table>
+		</div>
+
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 				<p class="act">
 					<input type="submit" id="btnRemove" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" disabled="disabled"
