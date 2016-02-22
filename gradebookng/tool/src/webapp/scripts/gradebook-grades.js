@@ -679,7 +679,7 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
       var order = $.inArray(sourceModel, self._CATEGORIES_MAP[sourceModel.getCategory()]);
       GradebookAPI.updateCategorizedAssignmentOrder(self.$table.data("siteid"),
                                                     sourceModel.columnKey,
-                                                    sourceModel.getCategory(),
+                                                    sourceModel.getCategoryId(),
                                                     order);
     } else {
       GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
@@ -963,6 +963,10 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
     return $(this).data("model");
   });
 
+  self_COLUMN_ORDER = self._COLUMN_ORDER.sort(function(a, b) {
+    return a.getSortOrder() > b.getSortOrder();
+  });
+
   $.each(self._COLUMN_ORDER, function(i, model) {
     var category = model.getCategory();
 
@@ -1000,7 +1004,13 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
       return -1;
     }
 
-    return a > b
+    if (self._CATEGORY_DATA[a] == null) {
+      return 1;
+    } else if (self._CATEGORY_DATA[b] == null) {
+      return -1;
+    }
+
+    return self._CATEGORY_DATA[a].order > self._CATEGORY_DATA[b].order;
   });
 
   $.each(self._CATEGORIES_MAP, function(category, models) {
@@ -1821,6 +1831,11 @@ GradebookHeaderCell.prototype.getCategory = function() {
 };
 
 
+GradebookHeaderCell.prototype.getCategoryId = function() {
+  return this.$cell.find("[data-category-id]").data("category-id") || null;
+};
+
+
 GradebookHeaderCell.prototype.getCategoryData = function() {
   var category_data = null;
 
@@ -1831,7 +1846,8 @@ GradebookHeaderCell.prototype.getCategoryData = function() {
       category_data = {
         label: $category.data("category"),
         weight: $category.data("category-weight"),
-        isExtraCredit: $category.data("category-extra-credit")
+        isExtraCredit: $category.data("category-extra-credit"),
+        order: parseInt($category.data("category-order"))
       };
     }
   }
@@ -1906,8 +1922,13 @@ GradebookHeaderCell.prototype.hide = function() {
 };
 
 
+GradebookHeaderCell.prototype.getSortOrder = function() {
+  return this.$cell.find("[data-sort-order]").data("sort-order");
+}
+
+
 GradebookHeaderCell.prototype.getCategorizedOrder = function() {
-  return this.$cell.find("[data-categorized-order]").data("categorized-order");
+  return this.$cell.find("[data-categorized-sort-order]").data("categorized-sort-order");
 }
 
 
@@ -2258,11 +2279,11 @@ GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuc
 };
 
 
-GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, category, order, onSuccess, onError) {
+GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, categoryId, order, onSuccess, onError) {
   GradebookAPI._POST("/direct/gbng/categorized-assignment-order", {
                                                         siteId: siteId,
                                                         assignmentId: assignmentId,
-                                                        category: category,
+                                                        categoryId: categoryId,
                                                         order: order
                                                       })
 };

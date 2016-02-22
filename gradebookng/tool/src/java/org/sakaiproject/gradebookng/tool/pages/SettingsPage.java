@@ -2,11 +2,13 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -30,8 +32,22 @@ public class SettingsPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
 
+	private boolean gradeEntryExpanded = false;
+	private boolean gradeReleaseExpanded = false;
+	private boolean categoryExpanded = false;
+	private boolean gradingSchemaExpanded = false;
+
 	public SettingsPage() {
 		disableLink(this.settingsPageLink);
+	}
+
+	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded,
+											final boolean categoryExpanded, final boolean gradingSchemaExpanded) {
+		disableLink(this.settingsPageLink);
+		this.gradeEntryExpanded = gradeEntryExpanded;
+		this.gradeReleaseExpanded = gradeReleaseExpanded;
+		this.categoryExpanded = categoryExpanded;
+		this.gradingSchemaExpanded = gradingSchemaExpanded;
 	}
 
 	@Override
@@ -44,6 +60,11 @@ public class SettingsPage extends BasePage {
 		// setup page model
 		final GbSettings gbSettings = new GbSettings(settings);
 		final CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<GbSettings>(gbSettings);
+
+		final SettingsGradeEntryPanel gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, gradeEntryExpanded);
+		final SettingsGradeReleasePanel gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, gradeReleaseExpanded);
+		final SettingsCategoryPanel categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, categoryExpanded);
+		final SettingsGradingSchemaPanel gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, gradingSchemaExpanded);
 
 		// form
 		final Form<GbSettings> form = new Form<GbSettings>("form", formModel) {
@@ -110,7 +131,7 @@ public class SettingsPage extends BasePage {
 				SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
 
 				getSession().info(getString("settingspage.update.success"));
-				setResponsePage(getPage());
+				setResponsePage(new SettingsPage(gradeEntryPanel.isExpanded(), gradeReleasePanel.isExpanded(), categoryPanel.isExpanded(), gradingSchemaPanel.isExpanded()));
 			}
 		};
 
@@ -127,10 +148,10 @@ public class SettingsPage extends BasePage {
 		form.add(cancel);
 
 		// panels
-		form.add(new SettingsGradeEntryPanel("gradeEntryPanel", formModel));
-		form.add(new SettingsGradeReleasePanel("gradeReleasePanel", formModel));
-		form.add(new SettingsCategoryPanel("categoryPanel", formModel));
-		form.add(new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel));
+		form.add(gradeEntryPanel);
+		form.add(gradeReleasePanel);
+		form.add(categoryPanel);
+		form.add(gradingSchemaPanel);
 
 		add(form);
 
@@ -160,5 +181,8 @@ public class SettingsPage extends BasePage {
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
+
 	}
 }

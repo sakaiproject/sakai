@@ -33,9 +33,12 @@ public class SettingsGradeReleasePanel extends Panel {
 	Label preview;
 	Label minimumOptions;
 
-	public SettingsGradeReleasePanel(final String id, final IModel<GbSettings> model) {
+	private boolean expanded;
+
+	public SettingsGradeReleasePanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
 		this.model = model;
+		this.expanded = expanded;
 	}
 
 	@Override
@@ -48,14 +51,19 @@ public class SettingsGradeReleasePanel extends Panel {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+				expanded = true;
 			}
 		});
 		settingsGradeReleasePanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+				expanded = false;
 			}
 		});
+		if (expanded) {
+			settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+		}
 		add(settingsGradeReleasePanel);
 
 		// display released items to students
@@ -248,5 +256,9 @@ public class SettingsGradeReleasePanel extends Panel {
 			}
 		});
 
+	}
+
+	public boolean isExpanded() {
+		return expanded;
 	}
 }

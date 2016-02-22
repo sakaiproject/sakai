@@ -51,7 +51,9 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     //Needed for transfer
     private boolean categoryExtraCredit;
     private Integer sortOrder;
+    private Integer categorizedSortOrder;
     private Long categoryId;
+    private Integer categoryOrder;
     
 
     public Assignment() {
@@ -233,6 +235,14 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 	public void setCategoryId(Long categoryId) {
 		this.categoryId = categoryId;
 	}
+
+	public Integer getCategoryOrder() {
+		return categoryOrder;
+	}
+
+	public void setCategoryOrder(Integer categoryOrder) {
+		this.categoryOrder = categoryOrder;
+	}
 	
 	@Override
 	public int compareTo(Assignment o) {
@@ -246,4 +256,11 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 
+	public Integer getCategorizedSortOrder() {
+		return categorizedSortOrder;
+	}
+
+	public void setCategorizedSortOrder(Integer categorizedSortOrder) {
+		this.categorizedSortOrder = categorizedSortOrder;
+	}
 }

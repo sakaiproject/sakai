@@ -38,8 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -233,9 +232,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
     		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
     		assignmentDefinition.setCategoryId(internalAssignment.getCategory().getId());
+    		assignmentDefinition.setCategoryOrder(internalAssignment.getCategory().getCategoryOrder());
     	}
     	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
+    	assignmentDefinition.setCategorizedSortOrder(internalAssignment.getCategorizedSortOrder());
     	
     	return assignmentDefinition;
     }   
@@ -1486,6 +1487,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  	case SORT_BY_SORTING:
 			 comp = Assignment.sortingComparator;
 			 break;
+			case SORT_BY_CATEGORY:
+				comp = Assignment.categoryComparator;
+				break;
 		default:
 			comp = GradableObject.defaultComparator;	
 	}
@@ -1499,28 +1503,39 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	}
   }
   
+/*
+ * (non-Javadoc)
+ * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String)
+ */
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid)
+			throws GradebookNotFoundException {
+		return getViewableAssignmentsForCurrentUser(gradebookUid, SortType.SORT_BY_SORTING);
+	}
+
   /*
    * (non-Javadoc)
-   * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String)
+   * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String, java.)
    */
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid)
+  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy)
   throws GradebookNotFoundException {
 
 	  List<Assignment> viewableAssignments = new ArrayList<>();
-	  SortedSet<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new TreeSet<>();
+		LinkedHashSet<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new LinkedHashSet<>();
 
 	  Gradebook gradebook = getGradebook(gradebookUid);
 
 	  // will send back all assignments if user can grade all
 	  if (getAuthz().isUserAbleToGradeAll(gradebookUid)) {
-		  viewableAssignments = getAssignments(gradebook.getId(), SortType.SORT_BY_SORTING, true);
+		  viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
 	  } else if (getAuthz().isUserAbleToGrade(gradebookUid)) {
 		  // if user can grade and doesn't have grader perm restrictions, they
 		  // may view all assigns
 		  if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {
-			  viewableAssignments = getAssignments(gradebook.getId(), SortType.SORT_BY_SORTING, true);
+			  viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
 		  } else {
 			  // this user has grader perms, so we need to filter the items returned
 			  // if this gradebook has categories enabled, we need to check for category-specific restrictions
@@ -2524,6 +2539,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    List<CategoryDefinition> categoryDefList = new ArrayList<CategoryDefinition>();
 
 	    List<Category> gbCategories = getCategories(getGradebook(gradebookUid).getId());
+
 	    if (gbCategories != null) {
 	        for (Category category : gbCategories) {
 	            categoryDefList.add(getCategoryDefinition(category));
@@ -2544,6 +2560,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        categoryDef.setKeepHighest(category.getKeepHighest());
 	        categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
 	        categoryDef.setExtraCredit(category.isExtraCredit());
+	        categoryDef.setCategoryOrder(category.getCategoryOrder());
 	    }
 
 	    return categoryDef;
@@ -3241,6 +3258,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//If category does not have an ID it is new
 		//If category has an ID it is to be updated. Update and remove from currentCategoryMap.
 		//Any categories remaining in currentCategoryMap are to be removed.
+		//Sort by category order as we resequence the order values to avoid gaps
+		Collections.sort(newCategoryDefinitions, CategoryDefinition.orderComparator);
+		int categoryIndex = 0;
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
 			//preprocessing and validation
@@ -3254,7 +3274,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			//new
 			if(newDef.getId() == null) {
-				this.createCategory(gradebook.getId(), newDef.getName(), newDef.getWeight(), newDef.getDrop_lowest(), newDef.getDropHighest(), newDef.getKeepHighest(), newDef.isExtraCredit());
+				this.createCategory(gradebook.getId(), newDef.getName(), newDef.getWeight(), newDef.getDrop_lowest(), newDef.getDropHighest(), newDef.getKeepHighest(), newDef.isExtraCredit(), Integer.valueOf(categoryIndex));
+				categoryIndex++;
 				continue;
 			} 
 			
@@ -3267,10 +3288,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				existing.setDropHighest(newDef.getDropHighest());
 				existing.setKeepHighest(newDef.getKeepHighest());
 				existing.setExtraCredit(newDef.isExtraCredit());
+				existing.setCategoryOrder(categoryIndex);
 				this.updateCategory(existing);
 				
 				//remove from currentCategoryMap so we know not to delete it
 				currentCategoryMap.remove(newDef.getId());
+
+				categoryIndex++;
 				continue;
 			}
 			
@@ -3397,5 +3421,93 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return rval;
 		
 	}
-	
+
+
+	/**
+	 * Updates the categorized order of an assignment
+	 *
+	 * @see GradebookService.updateAssignmentCategorizedOrder(java.lang.String gradebookUid, java.lang.Long assignmentId, java.lang.Integer order)
+	 */
+	@Override
+	public void updateAssignmentCategorizedOrder(final String gradebookUid, final Long categoryId, final Long assignmentId, Integer order) {
+
+		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the order of assignment " + assignmentId);
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+
+		if(order == null) {
+			throw new IllegalArgumentException("Categorized Order cannot be null");
+		}
+
+		final Long gradebookId = getGradebook(gradebookUid).getId();
+
+		//get all assignments for this gradebook
+		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_SORTING, true);
+		List<Assignment> assignmentsInNewCategory = new ArrayList<Assignment>();
+		for (Assignment assignment : assignments) {
+			if (assignment.getCategory() == null) {
+				if (categoryId == null) {
+					assignmentsInNewCategory.add(assignment);
+				}
+			} else if (assignment.getCategory().getId().equals(categoryId)) {
+				assignmentsInNewCategory.add(assignment);
+			}
+		}
+
+		//adjust order to be within bounds
+		if(order < 0) {
+			order = 0;
+		} else if (order > assignmentsInNewCategory.size()) {
+			order = assignmentsInNewCategory.size();
+		}
+
+		//find the assignment
+		Assignment target = null;
+		for(Assignment a: assignmentsInNewCategory){
+			if(a.getId().equals(assignmentId)) {
+				target = a;
+				break;
+			}
+		}
+
+		//add the assignment to the list via a 'pad, remove, add' approach
+		assignmentsInNewCategory.add(null); //ensure size remains the same for the remove
+		assignmentsInNewCategory.remove(target); //remove item
+		assignmentsInNewCategory.add(order, target); //add at ordered position, will shuffle others along
+
+		//the assignments are now in the correct order within the list, we just need to update the sort order for each one
+		//create a new list for the assignments we need to update in the database
+		List<Assignment> assignmentsToUpdate = new ArrayList<>();
+
+		int i = 0;
+		for(Assignment a: assignmentsInNewCategory){
+
+			//skip if null
+			if(a == null) {
+				continue;
+			}
+
+			//if the sort order is not the same as the counter, update the order and add to the other list
+			//this allows us to skip items that have not had their position changed and saves some db work later on
+			//sort order may be null if never previously sorted, so give it the current index
+			if(a.getCategorizedSortOrder() == null || !a.getCategorizedSortOrder().equals(i)) {
+				a.setCategorizedSortOrder(i);
+				assignmentsToUpdate.add(a);
+			}
+
+			i++;
+		}
+
+		//do the updates
+		for(final Assignment assignmentToUpdate: assignmentsToUpdate){
+			getHibernateTemplate().execute(new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException {
+					updateAssignment(assignmentToUpdate, session);
+					return null;
+				}
+			});
+		}
+
+	}
 }

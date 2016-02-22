@@ -3,8 +3,6 @@ package org.sakaiproject.gradebookng.rest;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -129,14 +127,11 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// update the order
 		try {
-			this.businessService.updateCategorizedAssignmentOrder(siteId, assignmentId, order);
+			this.businessService.updateAssignmentCategorizedOrder(siteId, assignmentId, order);
 		} catch (final IdUnusedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (final PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
