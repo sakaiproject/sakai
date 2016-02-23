@@ -55,6 +55,7 @@ public class CourseGradeOverridePanel extends Panel {
 		// get the rest of the data we need
 		// TODO some of this could be passed in through the model if it was a map...
 		final GbUser studentUser = this.businessService.getUser(studentUuid);
+		final String currentUserUuid = this.businessService.getCurrentUser().getId();
 		final GbRole currentUserRole = this.businessService.getUserRole();
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
 		final GradebookInformation settings = this.businessService.getGradebookSettings();
@@ -70,13 +71,13 @@ public class CourseGradeOverridePanel extends Panel {
 		form.add(new Label("studentEid", studentUser.getDisplayId()));
 		form.add(new Label("points", formatPoints(courseGrade, settings)));
 
+		// setup a map of data for the course grade label
 		final Map<String, Object> modelData = new HashMap<>();
-		modelData.put("studentUuid", studentUser.getUserUuid());
+		modelData.put("currentUserUuid", currentUserUuid);
 		modelData.put("currentUserRole", currentUserRole);
 		modelData.put("courseGrade", courseGrade);
 		modelData.put("settings", settings);
 		modelData.put("showPoints", false);
-
 		form.add(new GbCourseGradeLabel("calculated", Model.ofMap(modelData)));
 
 		form.add(new TextField<String>("overrideGrade", formModel));
