@@ -1233,6 +1233,9 @@ public class SakaiBLTIUtil {
 		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
 		addUserInfo(ltiProps, lti2subst, tool);
 
+		// Don't sent the normal return URL - Certification
+		ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
 		debug = 1;
 
