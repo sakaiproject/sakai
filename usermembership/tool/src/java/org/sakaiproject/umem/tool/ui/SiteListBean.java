@@ -42,7 +42,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import org.apache.commons.lang.StringUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -668,6 +667,14 @@ public class SiteListBean {
 					catch( AuthzPermissionException ex )
 					{
 						LOG.warn( "permission exception updating realm, id=" + realmID, ex );
+					}
+					catch( NullPointerException ex )
+					{
+						LOG.warn( "could not retieve user (" + userId + ") or user's role from site (" + site.getId() + ")", ex );
+					}
+					catch( Exception ex )
+					{
+						LOG.error( "unexpected error occurred, user=" + userId + ", site=" + site.getId(), ex );
 					}
 				}
 			}
