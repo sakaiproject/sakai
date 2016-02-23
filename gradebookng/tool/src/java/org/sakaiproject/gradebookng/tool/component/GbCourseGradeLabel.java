@@ -52,32 +52,36 @@ public class GbCourseGradeLabel extends Label {
 
 		// unpack model
 		final Map<String, Object> modelData = this.model.getObject();
-		final String studentUuid = (String) modelData.get("studentUuid");
-		final GbRole role = (GbRole) modelData.get("role");
+		final String currentUserUuid = (String) modelData.get("currentUserUuid");
+		final GbRole currentUserRole = (GbRole) modelData.get("currentUserRole");
 		final CourseGrade courseGrade = (CourseGrade) modelData.get("courseGrade");
 		final GradebookInformation settings = (GradebookInformation) modelData.get("settings");
 		final Boolean showPoints = (Boolean) modelData.get("showPoints");
 
-		final Gradebook gradebook = this.businessService.getGradebook();
-		if (gradebook.isCourseGradeDisplayed()) {
-
-			// **********
-			// THIS NEEDS A BIT OF CLEANUP, pass in this info via a diff constructor. in the model though!
-			// **********
-
-			// check permission for current user to view course grade
-			// otherwise fetch and render it
-			final String currentUserUuid = this.businessService.getCurrentUser().getId();
+		// instructor, can view
+		if (currentUserRole == GbRole.INSTRUCTOR) {
+			setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints)));
+			// TA, permission check
+		} else if (currentUserRole == GbRole.TA) {
 			if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
 				setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
 			} else {
-				// final CourseGrade courseGrade = this.businessService.getCourseGrade(this.userId);
-				// final GradebookInformation settings = this.businessService.getGradebookSettings();
-				setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade)));
+				setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints)));
 			}
+			// student, check if course grade released, and permission check
 		} else {
-			setDefaultModel(Model.of(getString("label.studentsummary.coursegradenotreleased")));
+			final Gradebook gradebook = this.businessService.getGradebook();
+			if (gradebook.isCourseGradeDisplayed()) {
+				if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
+					setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
+				} else {
+					setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints)));
+				}
+			} else {
+				setDefaultModel(Model.of(getString("label.studentsummary.coursegradenotreleased")));
+			}
 		}
+
 	}
 
 	/**
@@ -85,9 +89,10 @@ public class GbCourseGradeLabel extends Label {
 	 *
 	 * @param settings {@link GradebookInformation} object holding the settings
 	 * @param courseGrade the {@link CourseGrade} object holding the values
+	 * @param showPoints whether or not to include points. May not be visible due to settings though.
 	 * @return formatted string ready for display
 	 */
-	public String buildCourseGrade(final GradebookInformation settings, final CourseGrade courseGrade) {
+	public String buildCourseGrade(final GradebookInformation settings, final CourseGrade courseGrade, final boolean showPoints) {
 		final List<String> parts = new ArrayList<>();
 
 		// from schema
@@ -121,17 +126,19 @@ public class GbCourseGradeLabel extends Label {
 			}
 		}
 
-		// don't display points for weighted category type
-		final GbCategoryType categoryType = GbCategoryType.valueOf(settings.getCategoryType());
-		if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
+		if (showPoints) {
+			// don't display points for weighted category type
+			final GbCategoryType categoryType = GbCategoryType.valueOf(settings.getCategoryType());
+			if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
-			if (settings.isCoursePointsDisplayed()) {
-				if (parts.isEmpty()) {
-					parts.add(new StringResourceModel("coursegrade.display.points-first", null,
-							new Object[] { pointsEarned, totalPointsPossible }).getString());
-				} else {
-					parts.add(new StringResourceModel("coursegrade.display.points-second", null,
-							new Object[] { pointsEarned, totalPointsPossible }).getString());
+				if (settings.isCoursePointsDisplayed()) {
+					if (parts.isEmpty()) {
+						parts.add(new StringResourceModel("coursegrade.display.points-first", null,
+								new Object[] { pointsEarned, totalPointsPossible }).getString());
+					} else {
+						parts.add(new StringResourceModel("coursegrade.display.points-second", null,
+								new Object[] { pointsEarned, totalPointsPossible }).getString());
+					}
 				}
 			}
 		}
