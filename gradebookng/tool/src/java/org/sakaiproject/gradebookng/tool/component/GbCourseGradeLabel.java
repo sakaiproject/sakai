@@ -57,16 +57,18 @@ public class GbCourseGradeLabel extends Label {
 		final CourseGrade courseGrade = (CourseGrade) modelData.get("courseGrade");
 		final GradebookInformation settings = (GradebookInformation) modelData.get("settings");
 		final Boolean showPoints = (Boolean) modelData.get("showPoints");
+		final Boolean showOverride = (Boolean) modelData.get("showOverride");
 
 		// instructor, can view
 		if (currentUserRole == GbRole.INSTRUCTOR) {
-			setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints)));
+			setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints, showOverride)));
 			// TA, permission check
+			// TODO do TAs even get this page?
 		} else if (currentUserRole == GbRole.TA) {
 			if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
 				setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
 			} else {
-				setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints)));
+				setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints, showOverride)));
 			}
 			// student, check if course grade released, and permission check
 		} else {
@@ -75,7 +77,7 @@ public class GbCourseGradeLabel extends Label {
 				if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
 					setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
 				} else {
-					setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints)));
+					setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints, showOverride)));
 				}
 			} else {
 				setDefaultModel(Model.of(getString("label.studentsummary.coursegradenotreleased")));
@@ -90,16 +92,20 @@ public class GbCourseGradeLabel extends Label {
 	 * @param settings {@link GradebookInformation} object holding the settings
 	 * @param courseGrade the {@link CourseGrade} object holding the values
 	 * @param showPoints whether or not to include points. May not be visible due to settings though.
+	 * @param showOverride whether or not any override grade should be shown instead of the mapped grade
 	 * @return formatted string ready for display
 	 */
-	public String buildCourseGrade(final GradebookInformation settings, final CourseGrade courseGrade, final boolean showPoints) {
+	public String buildCourseGrade(final GradebookInformation settings, final CourseGrade courseGrade, final boolean showPoints,
+			final boolean showOverride) {
 		final List<String> parts = new ArrayList<>();
 
-		// from schema
-		final String mappedGrade = courseGrade.getMappedGrade();
-
-		// override
-		final String enteredGrade = courseGrade.getEnteredGrade();
+		// determine letter grade
+		String letterGrade = null;
+		if (showOverride) {
+			letterGrade = courseGrade.getEnteredGrade();
+		} else {
+			letterGrade = courseGrade.getMappedGrade();
+		}
 
 		// percentage
 		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
@@ -109,11 +115,7 @@ public class GbCourseGradeLabel extends Label {
 		final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
 		if (settings.isCourseLetterGradeDisplayed()) {
-			if (StringUtils.isNotBlank(mappedGrade)) {
-				parts.add(mappedGrade);
-			} else if (StringUtils.isNotBlank(enteredGrade)) {
-				parts.add(enteredGrade);
-			}
+			parts.add(letterGrade);
 		}
 
 		if (settings.isCourseAverageDisplayed()) {

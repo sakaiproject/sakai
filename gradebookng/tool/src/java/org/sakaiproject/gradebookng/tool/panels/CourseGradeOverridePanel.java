@@ -78,6 +78,7 @@ public class CourseGradeOverridePanel extends Panel {
 		modelData.put("courseGrade", courseGrade);
 		modelData.put("settings", settings);
 		modelData.put("showPoints", false);
+		modelData.put("showOverride", false);
 		form.add(new GbCourseGradeLabel("calculated", Model.ofMap(modelData)));
 
 		form.add(new TextField<String>("overrideGrade", formModel));
