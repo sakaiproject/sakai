@@ -39,8 +39,7 @@ sakai.editor.enableResourceSearch = false;
 sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 
 //get path of directory ckeditor 
-var basePath = CKEDITOR.basePath; 
-basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
+var basePath = "/library/editor/ckextraplugins/"; 
 
 // Please note that no more parameters should be added to this signature.
 // The config object allows for name-based config options to be passed.
@@ -205,6 +204,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
 		//To add extra plugins outside the plugins directory, add them here! (And in the variable)
 		(function() { 
+		   CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('widget',basePath+'widget/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('iframedialog',basePath+'iframedialog/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js'); 

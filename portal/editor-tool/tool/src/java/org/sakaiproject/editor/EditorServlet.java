@@ -124,13 +124,9 @@ public class EditorServlet extends HttpServlet
 
 			if (EDITOR_JS.equals(name)) {
 				res.sendRedirect(editor.getEditorUrl());
-				//res.sendRedirect("/library/editor/FCKeditor/fckeditor.js");
-				//res.sendRedirect("/library/editor/ckeditor/ckeditor.js");
 			}
 			else if (EDITOR_LAUNCH_JS.equals(name)) {
 				res.sendRedirect(editor.getLaunchUrl());
-				//res.sendRedirect("/library/editor/launchfck.js");
-				//res.sendRedirect("/library/editor/ckeditor.launch.js");
 			}
 			else if (EDITOR_BOOTSTRAP_JS.equals(name)) {
 				res.addHeader("Pragma", "no-cache");

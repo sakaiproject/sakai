@@ -159,6 +159,7 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageSkin", "skin");
 		rcontext.put("pageTitle", "Web.escapeHtml(title)");
 		rcontext.put("pageScriptPath", "getScriptPath()");
+		rcontext.put("pageWebjarsPath", "getWebjarsPath()");
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("pageSiteType", "class=\"siteType\" ");
 		rcontext.put("toolParamResetState", "PARM_STATE_RESET");
