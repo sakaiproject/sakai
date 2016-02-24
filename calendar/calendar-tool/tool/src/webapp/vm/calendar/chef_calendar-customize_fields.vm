@@ -34,7 +34,7 @@
 		</span >
 
 			#if (!$addFieldsCalendarsCollectionIsEmpty)
-				<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString('cust.list')" style="width:75%">
+				<table class="listHier fieldsTable lines nolines" cellspacing="0" summary="$tlang.getString('cust.list')" style="width:75%">
 					<tr> 
 						<th id="fieldname">$tlang.getString('cust.fname')</th>
 						<th id="checkbox">$tlang.getString('cust.rem')</th>
