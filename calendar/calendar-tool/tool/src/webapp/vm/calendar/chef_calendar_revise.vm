@@ -529,7 +529,7 @@ $(function() {
 				#if($dhour == 22) <option selected="selected" value="22">22</option> #else <option value="22">22</option> #end
 				#if($dhour == 23) <option selected="selected" value="23">23</option> #else <option value="23">23</option> #end
 			</select>
-			<label for ="duHour" style="float: none">$tlang.getString("rev.hours")</label>
+			$tlang.getString("rev.hours")
 			<select name="duMinute" id="duMinute" onchange="hourChange('duMinute'); 
 				#if ($timeFormat.contains("H"))
 					reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
@@ -548,7 +548,7 @@ $(function() {
 				#if($dmi == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 				#if($dmi == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
-			<label for="duMinute" style="float: none">$tlang.getString("rev.minutes")</label>
+			$tlang.getString("rev.minutes")
 		</p>	
 		<p class="shorttext">
 			<label>
@@ -623,18 +623,18 @@ $(function() {
 			</label>	
 			<table border="0"><tr><td>
 			#if("$!savedData.getDescription()" != "")
-			<textarea name="description"  id="description" wrap="virtual" rows="15" cols="80">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
+			<textarea name="description"  id="description" wrap="virtual" rows="10" >$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
 			#chef_setupformattedtextarea("description")
 		   #elseif ($calEventFlag != "false")
 			#if("$!event.getDescriptionFormatted()" != "")
-			<textarea name="description" id="description" wrap="virtual" rows="15" cols="80">$validator.escapeHtmlFormattedTextarea($event.getDescriptionFormatted())</textarea>
+			<textarea name="description" id="description" wrap="virtual" rows="10">$validator.escapeHtmlFormattedTextarea($event.getDescriptionFormatted())</textarea>
 			#chef_setupformattedtextarea("description")
 			#else
-			<textarea name="description" id="description" wrap="virtual" rows="15" cols="80"></textarea>
+			<textarea name="description" id="description" wrap="virtual" rows="10"></textarea>
 			#chef_setupformattedtextarea("description")
 			#end
 			#else
-			<textarea name="description" id="description" wrap="virtual" rows="15" cols="80"></textarea>
+			<textarea name="description" id="description" wrap="virtual" rows="10"></textarea>
 			#chef_setupformattedtextarea("description")
 			#end
 			</td></tr></table>

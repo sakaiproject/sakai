@@ -234,7 +234,7 @@
 							<dependency>
 								<groupId>rubygems</groupId>
 								<artifactId>font-awesome-sass</artifactId>
-								<version>4.3.2.1</version>
+								<version>4.5.0</version>
 								<type>gem</type>
 							</dependency>
 							<dependency>

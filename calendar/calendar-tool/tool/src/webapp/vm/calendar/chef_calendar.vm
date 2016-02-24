@@ -11,22 +11,22 @@ calendar Portlet
 #macro (eventLegend $tlang)
 	<h4>$tlang.getString('view.legend')</h4>
 	<ul class="calendarLegend">
-		<li><img src = "#imageLink("$config.getProperty('legend.icon1')")" border="0" alt="" /> $tlang.getString('legend.key1')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon2')")" border="0" alt="" /> $tlang.getString('legend.key2')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon3')")" border="0" alt="" /> $tlang.getString('legend.key3')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon4')")" border="0" alt="" /> $tlang.getString('legend.key4')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon5')")" border="0" alt="" /> $tlang.getString('legend.key5')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon6')")" border="0" alt="" /> $tlang.getString('legend.key6')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon7')")" border="0" alt="" /> $tlang.getString('legend.key7')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon8')")" border="0" alt="" /> $tlang.getString('legend.key8')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon9')")" border="0" alt="" /> $tlang.getString('legend.key9')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon10')")" border="0" alt="" /> $tlang.getString('legend.key10')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon11')")" border="0" alt="" /> $tlang.getString('legend.key11')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon12')")" border="0" alt="" /> $tlang.getString('legend.key12')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon13')")" border="0" alt="" /> $tlang.getString('legend.key13')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon14')")" border="0" alt="" /> $tlang.getString('legend.key14')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon15')")" border="0" alt="" /> $tlang.getString('legend.key15')</li>
-		<li><img src = "#imageLink("$config.getProperty('legend.icon16')")" border="0" alt="" /> $tlang.getString('legend.key16')</li>
+		<li><i class="icon icon-calendar-academic-calendar"></i> $tlang.getString('legend.key1')</li>
+		<li><i class="icon icon-calendar-activity"></i> $tlang.getString('legend.key2')</li>
+		<li><i class="icon icon-calendar-cancellation"></i> $tlang.getString('legend.key3')</li>
+		<li><i class="icon icon-calendar-class-section-discussion"></i> $tlang.getString('legend.key4')</li>
+		<li><i class="icon icon-calendar-class-section-lab"></i> $tlang.getString('legend.key5')</li>
+		<li><i class="icon icon-calendar-class-section-lecture"></i> $tlang.getString('legend.key6')</li>
+		<li><i class="icon icon-calendar-class-section-small-group"></i> $tlang.getString('legend.key7')</li>
+		<li><i class="icon icon-calendar-class-session"></i> $tlang.getString('legend.key8')</li>
+		<li><i class="icon icon-calendar-computer-session"></i> $tlang.getString('legend.key9')</li>
+		<li><i class="icon icon-calendar-deadline"></i> $tlang.getString('legend.key10')</li>
+		<li><i class="icon icon-calendar-exam"></i> $tlang.getString('legend.key11')</li>
+		<li><i class="icon icon-calendar-meeting"></i> $tlang.getString('legend.key12')</li>
+		<li><i class="icon icon-calendar-multidisciplinary-conference"></i> $tlang.getString('legend.key13')</li>
+		<li><i class="icon icon-calendar-quiz"></i> $tlang.getString('legend.key14')</li>
+		<li><i class="icon icon-calendar-special-event"></i> $tlang.getString('legend.key15')</li>
+		<li><i class="icon icon-calendar-web-assignment"></i> $tlang.getString('legend.key16')</li>
 	</ul>
 	<div class="clear"></div>
 #end
@@ -36,37 +36,37 @@ calendar Portlet
 
 #macro (iconImage $eventType)
 #if ($eventType=="Academic Calendar")
-<img src = "#imageLink("$config.getProperty('legend.icon1')")" alt="$tlang.getString('legend.key1')" border="0">
+<i class="icon icon-calendar-academic-calendar" title="$tlang.getString('legend.key1')" ></i>
 #elseif ($eventType =="Activity")
-<img src = "#imageLink("$config.getProperty('legend.icon2')")" alt="$tlang.getString('legend.key2')" border="0">
+<i class="icon icon-calendar-activity" title="$tlang.getString('legend.key2')" ></i>
 #elseif ($eventType =="Cancellation")
-<img src = "#imageLink("$config.getProperty('legend.icon3')")" alt="$tlang.getString('legend.key3')" border="0">
+<i class="icon icon-calendar-cancellation" title="$tlang.getString('legend.key3')" ></i>
 #elseif ($eventType =="Class section - Discussion")
-<img src = "#imageLink("$config.getProperty('legend.icon4')")" alt ="$tlang.getString('legend.key4')" border="0">
+<i class="icon icon-calendar-class-section-discussion" title="$tlang.getString('legend.key4')" ></i>
 #elseif ($eventType =="Class section - Lab")
-<img src = "#imageLink("$config.getProperty('legend.icon5')")" alt="$tlang.getString('legend.key5')" border="0">
+<i class="icon icon-calendar-class-section-lab" title="$tlang.getString('legend.key5')" ></i>
 #elseif ($eventType =="Class section - Lecture")
-<img src = "#imageLink("$config.getProperty('legend.icon6')")" alt="$tlang.getString('legend.key6')" border="0">
+<i class="icon icon-calendar-class-section-lecture" title="$tlang.getString('legend.key6')" ></i>
 #elseif ($eventType =="Class section - Small Group")
-<img src = "#imageLink("$config.getProperty('legend.icon7')")" alt="$tlang.getString('legend.key7')" border="0">
+<i class="icon icon-calendar-class-section-small-group" title="$tlang.getString('legend.key7')" ></i>
 #elseif ($eventType =="Class session")
-<img src = "#imageLink("$config.getProperty('legend.icon8')")" alt="$tlang.getString('legend.key8')" border="0">
+<i class="icon icon-calendar-class-session" title="$tlang.getString('legend.key8')" ></i>
 #elseif ($eventType =="Computer Session")
-<img src = "#imageLink("$config.getProperty('legend.icon9')")" alt="$tlang.getString('legend.key9')" border="0">
+<i class="icon icon-calendar-computer-session" title="$tlang.getString('legend.key9')" ></i>
 #elseif ($eventType =="Deadline")
-<img src = "#imageLink("$config.getProperty('legend.icon10')")" alt="$tlang.getString('legend.key10')" border="0">
+<i class="icon icon-calendar-deadline" title="$tlang.getString('legend.key10')" ></i>
 #elseif ($eventType =="Exam")
-<img src = "#imageLink("$config.getProperty('legend.icon11')")" alt="$tlang.getString('legend.key11')" border="0">
+<i class="icon icon-calendar-exam" title="$tlang.getString('legend.key11')" ></i>
 #elseif ($eventType =="Meeting")
-<img src = "#imageLink("$config.getProperty('legend.icon12')")" alt="$tlang.getString('legend.key12')" border="0">
+<i class="icon icon-calendar-meeting" title="$tlang.getString('legend.key12')" ></i>
 #elseif ($eventType =="Multidisciplinary Conference")
-<img src = "#imageLink("$config.getProperty('legend.icon13')")" alt="$tlang.getString('legend.key13')" border="0">
+<i class="icon icon-calendar-multidisciplinary-conference" title="$tlang.getString('legend.key13')" ></i>
 #elseif ($eventType =="Quiz")
-<img src = "#imageLink("$config.getProperty('legend.icon14')")" alt="$tlang.getString('legend.key14')" border="0">
+<i class="icon icon-calendar-quiz" title="$tlang.getString('legend.key14')" ></i>
 #elseif ($eventType =="Special event")
-<img src = "#imageLink("$config.getProperty('legend.icon15')")" alt="$tlang.getString('legend.key15')" border="0">
+<i class="icon icon-calendar-special-event" title="$tlang.getString('legend.key15')" ></i>
 #elseif ($eventType =="Web Assignment")
-<img src = "#imageLink("$config.getProperty('legend.icon16')")" alt="$tlang.getString('legend.key16')" border="0">
+<i class="icon icon-calendar-web-assignment" title="$tlang.getString('legend.key16')" ></i>
 #end
 #end
 
