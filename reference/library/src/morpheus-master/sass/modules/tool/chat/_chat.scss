@@ -24,7 +24,7 @@
 		&--toggle{
 		    display: inline-block;
 		    padding: 2px 0px 0px 0px;
-		    color: $footerApp__chat__background;
+		    color: $footerApp__chat__background !important;
 		    text-decoration: none;
 		    height: 16px;
 		    font-weight: bold;

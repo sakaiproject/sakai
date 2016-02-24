@@ -1,24 +1,28 @@
 .#{$namespace}sakai-announcements{
-	.portletBody{
-		h4{
-			padding: 0.75em 0 0.5em 0;
-			margin: 0 0 0 0;
+	table{
+		h4 + div.itemAction {
+			margin: 0.1em 0 0 0em;
 		}
-	}	
-	table.listHier{
-		tr{
-			&:first-child{
-				td, th{
-					font-size: #{$default-font-size * 1.1};
-					font-family: $header-font-family;
-					font-weight: 700;
-					text-align: center;
-					a{
-						display: block;
-					}
-				}
-			}
+		.lightHighLightRow{
+			border-top: 3px solid #ddd;
 		}
 	}
-
+	.showHideDates{
+		margin: 0 0 1em 3em;
+		.form-group{
+			margin: 6px 0 0px 0;
+		}
+		.checkbox{
+			width: 95px;
+		}
+	}
+	form[name="optionsForm"]{
+		.act{
+			margin: 1em 0 0 0;
+		}
+	}
+	.act-outer{
+		background: #FFF;
+		padding: 0 1em 0.8em 1em;
+	}
 }
