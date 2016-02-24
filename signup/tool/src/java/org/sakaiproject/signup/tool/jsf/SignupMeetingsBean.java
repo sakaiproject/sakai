@@ -591,8 +591,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 *         current user.
 	 */
 	public boolean isAllowedToDelete() {
-		if (getSignupMeetings() == null)
+		if (sakaiFacade.isAllowedSite(sakaiFacade.getCurrentUserId(), SakaiFacade.SIGNUP_DELETE_SITE, sakaiFacade.getCurrentLocationId())) {
+			return true;
+		}
+
+		if (getSignupMeetings() == null) {
 			return false;
+		}
+
 		for (SignupMeetingWrapper meetingW : signupMeetings) {
 			if (meetingW.getMeeting().getPermission().isDelete())
 				return true;
@@ -605,15 +611,24 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	/**
 	 * This is a getter method for UI.
 	 * 
-	 * @return true if atleast one of the meeting has update permission for the
+	 * @return true if at least one of the meetings has update permission for the
 	 *         current user.
 	 */
 	public boolean isAllowedToUpdate() {
-		if (getSignupMeetings() == null)
+		// Do we really need to loop through 1000 meetings if the user has elevated site permissions?!
+		if (sakaiFacade.isAllowedSite(sakaiFacade.getCurrentUserId(), SakaiFacade.SIGNUP_UPDATE_SITE, sakaiFacade.getCurrentLocationId())) {
+			return true;
+		}
+
+		// This call to getSignupMeetings() is going to make Hibernate load lots and lots of data
+		if (getSignupMeetings() == null) {
 			return false;
+		}
+
 		for (SignupMeetingWrapper meetingW : signupMeetings) {
-			if (meetingW.getMeeting().getPermission().isUpdate())
+			if (meetingW.getMeeting().getPermission().isUpdate()) {
 				return true;
+			}
 		}
 
 		return false;
