@@ -71,7 +71,9 @@
 		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
 		#if($attached.isEmpty())
 		#else
-			<table class="listHier lines" cellspacing="0" cellpadding="0" summary="$tlang.getString("att.sellistsum")">
+		
+		<div class="table-responsive">
+			<table class="table table-striped table-bordered" cellspacing="0" cellpadding="0" summary="$tlang.getString("att.sellistsum")">
 				<caption class="skip" style="display:none">$tlang.getString("att.sellistcap")</caption>
 				<tr>
 					<th id="item">
@@ -84,34 +86,45 @@
 				#foreach($att_item in $attached)
 					<tr>
 						<td headers="item">
-							<h4>
 								<img src="#imageLink($att_item.iconLocation)" border= "0" alt="$att_item.hoverText" hspace="0" />
 								##<img src="#imageLink($contentTypeImageService.getContentTypeImage($att_item.type))" border= "0" alt ="$contentTypeImageService.getContentTypeDisplayName($att_item.type) icon" hspace="0" />
-								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$validator.escapeHtml($att_item.displayName)</a>
-							</h4>	
+								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$validator.escapeHtml($att_item.displayName)</a>	
 						</td>
-						<td  headers="action">
+						<td headers="action">
 							<div class="itemAction">
-								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')">$tlang.getString("att.remove") <span class="skip">$validator.escapeHtml($att_item.displayName)</span></a>
+								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')"><i class="fa fa-remove"></i> $tlang.getString("att.remove") <span class="skip">$validator.escapeHtml($att_item.displayName)</span></a>
 							</div>	
 						</td>
 					</tr>
 				#end
 			</table>
+		</div>
+		
 		#end	
-		<div class="highlightPanel">
-			<p class="shorttext">
-				<label for="upload">$tlang.getString("att.upl")</label>
-				<input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm');document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('attachForm');"#if($disable_attach_links) disabled="disabled"#end />
-				<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
-			</p>	
-			<p class="shorttext" style="float:left">
-				<label for="url">$tlang.getString("addi.or.url")</label>
-				<input type="text" size="40" name="url" id="url" onkeypress="document.getElementById('add_url').disabled=false;" onchange="document.getElementById('add_url').disabled=true;document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');"#if($disable_attach_links) disabled="disabled"#end />
-			</p>
-			<span class="act"><input type="button" style="float:left;clear:right;margin-top:.35em;margin-left:-.75em" class="button" name="add_url" id="add_url" value="$tlang.getString("gen.add")" onclick="document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" disabled="disabled" /></span>
+		<div class="container_filepicker">
 			
-				<p class="act" style="clear:both">
+			<div class="form-inline">
+				<div class="form-group">
+				    <label for="upload">$tlang.getString("att.upl")</label>
+				    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm');document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
+					<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+				</div>	
+				<div class="form-group">
+					<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+				</div>
+			</div>
+			
+			<div class="form-inline">
+				<div class="form-group">
+					<label for="url">$tlang.getString("addi.or.url")</label>
+					<input type="text" size="40" name="url" id="url" onkeypress="document.getElementById('add_url').disabled=false;" onchange="document.getElementById('add_url').disabled=true;document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
+				</div>	
+				<div class="form-group">
+					<span class="act"><input type="button" class="button" name="add_url" id="add_url" value="$tlang.getString("gen.add")" onclick="document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" disabled="disabled" /></span>
+				</div>
+			</div>
+					
+			<p class="act" style="clear:both">
 				<input type="button" name="attachButton" id="attachButton"  accesskey="s"
 					onclick=" document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
@@ -119,6 +132,7 @@
 					onclick=" document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');" 
 					value="$tlang.getString("att.cancel")"  />
 			</p>
+			
 		</div>	
 
 		<hr class="itemSeparator" />

@@ -38,7 +38,7 @@
 
 
 	
-<div class="portletBody">
+<div class="portletBody container-fluid">
 	#if ($isOnWorkspaceTab.equals("false"))
 		#if($menu && $EnabledMenuItemExists)
 			#if ($toolId == "sakai.synoptic.announcement")
@@ -66,8 +66,11 @@
 	#set ($daysList = [$displayOptions.numberOfDaysInThePast])
 	
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
-		## <h3>$tlang.getString("gen.announcements")</h3>
-		<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
+		
+		<div class="page-header">
+		  <h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
+		</div>
+
 		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 ##		#if ($messageListVector.iterator().hasNext())
 		<div class="navPanel">
@@ -160,172 +163,170 @@
 					</div>
 				</div> ##end navPanel
 				<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
-				<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString('gen.tablecaptionworksp')">
-					<tr>
-						<th id="attach" class="attach"></th>
-						<th id ="subject">
-							#if (!$currentSortedBy.equals("subject"))
-								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
-							#else
-								#if ($currentSortAsc.equals("true"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyasc')" /></a>
-								#else
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbydesc')"/></a>
-								#end
-							#end
-						</th>
-						<th id="author">
-							#if (!$currentSortedBy.equals("from"))
-								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
-							#else
-								#if ($currentSortAsc.equals("true"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthasc')" /></a>
-								#else
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthdesc')"/></a>
-								#end
-							#end
-						</th>
-						#if ($toolId.equals("sakai.announcements"))
-							<th id ="date">
-								#if (!$currentSortedBy.equals("date"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
+				<div class="table-responsive">
+					<table class="table table-hover table-striped table-bordered" border="0" cellspacing="0" summary="$tlang.getString('gen.tablecaptionworksp')">
+						<tr>
+							<th id ="subject">
+								#if (!$currentSortedBy.equals("subject"))
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
-										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyasc')" /></a>
 									#else
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbydesc')"/></a>
 									#end
 								#end
 							</th>
-						#end
-						#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
-							<th id ="Site">
-								#if (!$currentSortedBy.equals("channel"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>
+							<th id="author">
+								#if (!$currentSortedBy.equals("from"))
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchanasc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortchanasc')" /></a>
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthasc')" /></a>
 									#else
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchandesc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortchandesc')" /></a>
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthdesc')"/></a>
 									#end
 								#end
 							</th>
-						#end
-						#if ($toolId.equals("sakai.announcements"))
-							<th id="releaseDate">
-								#if (!$currentSortedBy.equals("releasedate"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString("gen.releasedate")</a>
-								#else
-									#if ($currentSortAsc.equals("true"))
-										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
+							#if ($toolId.equals("sakai.announcements"))
+								<th id ="date">
+									#if (!$currentSortedBy.equals("date"))
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
 									#else
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedatedesc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyreleasedatedesc')" /></a>
-									#end
-								#end
-							</th>
-							<th id="retractDate">
-								#if (!$currentSortedBy.equals("retractdate"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString("gen.retractdate")</a>
-								#else
-									#if ($currentSortAsc.equals("true"))
-										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
-									#else 
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdatedesc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
-									#end
-								#end
-							</th>									
-						#end
-					</tr>
-					#if ($!view == "view.all")
-					#set ($rowCount=0)
-					#foreach ($ann_item in $showMessagesList)
-						#set ($rowCount =$rowCount + 1)
-						#set($ann_item_props=$ann_item.getProperties())
-
-						<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
-
-							<td headers="attach" class="attach">	
-								## show the paperclip if existing
-									#set ($size = 0)
-									#if (!$ann_item.Header.Attachments.isEmpty())
-										#set ($props = false)
-										#set ($size = $ann_item.Header.Attachments.size())
-										#foreach ($attachment in $ann_item.Header.Attachments)
-											#set ($props = $attachment.Properties)
-											#if (!$props)
-													#if ($size > 0) #set ($size = $size - 1) #end
-											#end
+										#if ($currentSortAsc.equals("true"))
+											 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+										#else
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
 										#end
 									#end
-									#if ($size == 0)
-									#else
-										<img src = "#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString('gen.attach')" />
-									#end
-
-							</td>
-							<td headers="subject">
-								<h4>
-## removed/commented out with adding release/retract dates 3-07
-									#if ($ann_item.Header.draft)
-									<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
-									#else
-										<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
-										$validator.escapeHtml($ann_item.Header.subject) <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
-									#end
-								</h4>	
-							</td>
-							<td headers="author">
-								$validator.escapeHtml($ann_item.AuthorDisplayName)
-							</td>
-							#if ($toolId.equals("sakai.announcements"))
-								<td headers="date">
-									$ann_item.Header.Date.toStringLocalFull()
-								</td>
+								</th>
 							#end
-							#if ($SiteColumnFlag > 0)
-								<td headers="channel">
-									$validator.escapeHtml($ann_item.channelDisplayName)
-								</td>
+							#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
+								<th id ="Site">
+									#if (!$currentSortedBy.equals("channel"))
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>
+									#else
+										#if ($currentSortAsc.equals("true"))
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchanasc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortchanasc')" /></a>
+										#else
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchandesc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortchandesc')" /></a>
+										#end
+									#end
+								</th>
 							#end
 							#if ($toolId.equals("sakai.announcements"))
-								<td headers="releaseDate">
-									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
-											$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
+								<th id="releaseDate">
+									#if (!$currentSortedBy.equals("releasedate"))
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString("gen.releasedate")</a>
 									#else
-										&nbsp;
+										#if ($currentSortAsc.equals("true"))
+											 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
+										#else
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedatedesc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyreleasedatedesc')" /></a>
+										#end
 									#end
-								</td>
-								<td headers="retractDate">
-									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
-										$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
+								</th>
+								<th id="retractDate">
+									#if (!$currentSortedBy.equals("retractdate"))
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString("gen.retractdate")</a>
 									#else
-										&nbsp;
+										#if ($currentSortAsc.equals("true"))
+											 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+										#else 
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdatedesc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+										#end
 									#end
-								</td>
+								</th>									
 							#end
 						</tr>
-						#if ($displayOptions.isShowAnnouncementBody()) 
-							<tr>	
-									#if ($EnableItemCheckBoxes)
-										#if ($SiteColumnFlag > 0)
-											#set ($colspan="6")
-										#else	
-											#set ($colspan="5")
-										#end	
-									#else
-										#if ($SiteColumnFlag > 0)
-											#set ($colspan="4")
-											#else	
-												#set ($colspan="3")
-											#end	
-										#end	
-									<td colspan="$colspan">
-										<div class="textPanel">$ann_item.TrimmedBody</div>
+						#if ($!view == "view.all")
+						#set ($rowCount=0)
+						#foreach ($ann_item in $showMessagesList)
+							#set ($rowCount =$rowCount + 1)
+							#set($ann_item_props=$ann_item.getProperties())
+
+							<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
+
+								<td headers="subject">
+									<h4>
+										## show the paperclip if existing
+										#set ($size = 0)
+										#if (!$ann_item.Header.Attachments.isEmpty())
+											#set ($props = false)
+											#set ($size = $ann_item.Header.Attachments.size())
+											#foreach ($attachment in $ann_item.Header.Attachments)
+												#set ($props = $attachment.Properties)
+												#if (!$props)
+														#if ($size > 0) #set ($size = $size - 1) #end
+												#end
+											#end
+										#end
+										#if ($size == 0)
+										#else
+											<i class="fa fa-paperclip"></i>
+										#end
+
+										#if ($ann_item.Header.draft)
+										<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
+										#else
+											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
+											$validator.escapeHtml($ann_item.Header.subject) <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
+										#end
+									</h4>	
+								</td>
+								<td headers="author">
+									$validator.escapeHtml($ann_item.AuthorDisplayName)
+								</td>
+								#if ($toolId.equals("sakai.announcements"))
+									<td headers="date">
+										$ann_item.Header.Date.toStringLocalFull()
 									</td>
-								</tr>	
+								#end
+								#if ($SiteColumnFlag > 0)
+									<td headers="channel">
+										$validator.escapeHtml($ann_item.channelDisplayName)
+									</td>
+								#end
+								#if ($toolId.equals("sakai.announcements"))
+									<td headers="releaseDate">
+										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
+												$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
+										#else
+											&nbsp;
+										#end
+									</td>
+									<td headers="retractDate">
+										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
+											$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
+										#else
+											&nbsp;
+										#end
+									</td>
+								#end
+							</tr>
+							#if ($displayOptions.isShowAnnouncementBody()) 
+								<tr>	
+										#if ($EnableItemCheckBoxes)
+											#if ($SiteColumnFlag > 0)
+												#set ($colspan="6")
+											#else	
+												#set ($colspan="5")
+											#end	
+										#else
+											#if ($SiteColumnFlag > 0)
+												#set ($colspan="4")
+												#else	
+													#set ($colspan="3")
+												#end	
+											#end	
+										<td colspan="$colspan">
+											<div class="textPanel">$ann_item.TrimmedBody</div>
+										</td>
+									</tr>	
+								#end
 							#end
-						#end
-					</table>
+						</table>
+					</div>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			#end
@@ -346,8 +347,10 @@
 		##in home portlet  - so reduce display to title, attach marker, body (if selected), author and date
 
 			#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
-			
-			<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
+
+			<div class="page-header">
+			  <h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
+			</div>
 			
 			<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
 				#if (!$messageListVector.iterator().hasNext())
@@ -410,7 +413,11 @@
 
 				#if ($displayOptions.isShowAllColumns())
 					## <h3>$tlang.getString("gen.announcements")</h3>
-					<h3>$tlang.getString("gen.announcements") <span class=" textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
+
+					<div class="page-header">
+					  <h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
+					</div>
+
 					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 					<div class="navPanel">
 						<div class="viewNav">
@@ -501,9 +508,9 @@
 							</div>
 						</div> ##end navPanel
 						<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
-							<table class="listHier" border="0" cellspacing="0" summary="$tlang.getString('gen.tablecaptionsite')">
+						<div class="table-responsive">
+							<table class="table table-hover table-striped table-bordered" border="0" cellspacing="0" summary="$tlang.getString('gen.tablecaptionsite')">
 								<tr>
-								 <th id ="attach" class="attach"></th>
 								 <th id ="subject">
 										#if (!$currentSortedBy.equals("subject"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
@@ -601,7 +608,9 @@
 
 								<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
 
-									<td headers="attach" class="attach">
+									<td headers="subject">
+										<h4>
+
 										## show the paperclip if existing
 										#set ($size = 0)
 										#if (!$ann_item.Header.Attachments.isEmpty())
@@ -615,13 +624,10 @@
 											#end
 										#end
 										#if ($size == 0)
-											&nbsp;
 										#else
-											<img src = "#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString('gen.attach')" />
+											<i class="fa fa-paperclip"></i>
 										#end
-									</td>
-									<td headers="subject">
-										<h4>
+
 										#if ($ann_item.Header.draft)
 											<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
 										#else
@@ -630,7 +636,7 @@
 										#end
 										</h4>	
 										#if ($channel.allowEditMessage($ann_item.Id))
-											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a></div>
+											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $validator.escapeHtml($ann_item.Header.subject))"><i class="fa fa-lg fa-pencil-square-o"></i> $tlang.getString("gen.revise") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a></div>
 										#end
                                                                                                                                                                                                      
 									</td>
@@ -694,15 +700,14 @@
 								</tr>
 								#if ($displayOptions.isShowAnnouncementBody()) 
 									<tr>
-										<td>
-										</td>
-										<td colspan="6">
+										<td colspan="7">
 											<div class="textPanel">$ann_item.TrimmedBody</div>
 										</td>
 									</tr>	
 									#end
 							#end
 						</table>
+						</div>
 						#else
 							</div> ##end navPanel
 							<div class="instruction clear">
@@ -724,8 +729,8 @@
 								##if ($EnableItemCheckBoxes)  ## SAK-14021. This checks for new ann permission, which is not a requirement to have update and cancel buttons
 									#if ($allow_delete)
 										<p class="act">
-											<input type="submit" class="active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.update")"  accesskey="s" />
-											<input type="reset" name="reset" id="reset" value="$tlang.getString("gen.cancel")"  accesskey="x" />
+											<input type="submit" class="button_color active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.update")"  accesskey="s" />
+											<input type="reset" class="button" name="reset" id="reset" value="$tlang.getString("gen.cancel")"  accesskey="x" />
 										</p>
 									#end
 								##end
@@ -859,7 +864,7 @@
 											#set($separator="")
 										#end
 											#if ($channel.allowEditMessage($ann_item.Id))
-												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.editann.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
+												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.editann.subject", $validator.escapeHtml($ann_item.Header.subject))"><i class="fa fa-lg fa-pencil-square-o"></i> $tlang.getString("gen.revise") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
 											#end
 											$separator 
 											#set ($ref = $entityManager.newReference($ann_item.Reference))

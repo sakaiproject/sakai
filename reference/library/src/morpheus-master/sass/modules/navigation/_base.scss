@@ -338,6 +338,9 @@ body.is-logged-out{
 			position: relative;
 			top: 0px;
 		}
+		@media #{$phone}{
+			padding: 18px 22px 10px 14px;
+		}
 	}
 
 	#loginLinks{
