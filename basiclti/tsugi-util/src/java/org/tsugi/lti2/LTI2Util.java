@@ -413,7 +413,7 @@ public class LTI2Util {
 	{
 
 		// Get the non-standard mappings
-                Properties mapping = property2CapabilityMapping();
+		Properties mapping = property2CapabilityMapping();
 
 		// Loop through property names
 		Properties oldProps = new Properties(ltiProps);
@@ -471,8 +471,8 @@ public class LTI2Util {
 	      'Person.email.primary' => 'lis_person_contact_email_primary',
 	      'Person.sourcedId' => 'lis_person_sourcedid',
 	      'Membership.role' => 'roles',
-	      'Result.sourcedId' => 'lis_result_sourcedid',
-	      'Result.autocreate' => 'lis_outcome_service_url'
+	      'BasicOutcome.sourcedId' => 'lis_result_sourcedid',
+	      'BasicOutcome.url' => 'lis_outcome_service_url'
 	*/
 	public static Properties property2CapabilityMapping() {
 		Properties mapping = new Properties();
@@ -487,10 +487,8 @@ public class LTI2Util {
 		mapping.setProperty("lis_person_name_family", "Person.name.family");
 		mapping.setProperty("lis_person_contact_email_primary", "Person.email.primary");
 		mapping.setProperty("lis_person_sourcedid", "Person.sourcedId");
-		mapping.setProperty("lis_result_sourcedid", "Result.sourcedId");
-		// A bit of a weird one - might change
-		mapping.setProperty("lis_outcome_service_url", "Result.autocreate");
-		// Missing from Stephen's list methinks
+		mapping.setProperty("lis_result_sourcedid", LTI2Vars.BASICOUTCOME_SOURCEDID);
+		mapping.setProperty("lis_outcome_service_url", LTI2Vars.BASICOUTCOME_URL);
 		mapping.setProperty("roles", "Membership.role");
 		return mapping;
 	}

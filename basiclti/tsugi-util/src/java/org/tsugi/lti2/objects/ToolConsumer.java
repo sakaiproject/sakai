@@ -69,7 +69,9 @@ public class ToolConsumer {
         LTI2Vars.COURSESECTION_LONGDESCRIPTION,
         LTI2Vars.MEMBERSHIP_ROLE,
         LTI2Vars.TOOLCONSUMERPROFILE_URL,
-        LTI2Vars.RESULT_SOURCEDID
+        LTI2Vars.RESULT_SOURCEDID,
+        LTI2Vars.BASICOUTCOME_URL,
+        LTI2Vars.BASICOUTCOME_SOURCEDID
     } ;
 
     // Constructor

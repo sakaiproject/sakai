@@ -883,6 +883,20 @@ public class LTI2Vars {
 	public static final String RESULT_URL = "Result.url";
 
 	/**
+	 * BASICOUTCOME_URL
+	 *
+	 * Enables the substitution variable $BasicOutcome.url
+	 */
+	public static final String BASICOUTCOME_URL = "BasicOutcome.url";
+
+	/**
+	 * BASICOUTCOME_SOURCEDID
+	 *
+	 * Enables the substitution variable $BasicOutcome.sourcedId
+	 */
+	public static final String BASICOUTCOME_SOURCEDID = "BasicOutcome.sourcedId";
+
+	/**
 	 * TOOLCONSUMERINFO_PRODUCTFAMILYCODE
 	 *
 	 *  The code for the product (i.e. like "sakai" or "learn")
