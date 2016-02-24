@@ -31,12 +31,22 @@ a{
 		}
 		text-decoration:underline;	
 	}
+	&.url{
+		@media #{$phone}{
+		    display: block;
+			max-width: 100%;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;
+		}
+	}
 }
 
 input, textarea{
 	color: $text-color;
 	font-family: $font-family;
 	font-size: 	 $default-font-size;
+	max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6{
@@ -124,6 +134,11 @@ s, strike, del {
 	text-decoration: line-through;
 }
 
+legend{
+	padding: 0.5em 0 0.1em 0;
+	margin-bottom: 0;
+}
+
 input[type="submit"][disabled="disabled"],
 input[type="button"][disabled="disabled"],
 input[type="submit"][disabled="true"],
@@ -148,4 +163,5 @@ button[class="disabled"]:hover,
 	border: 1px solid #DDD !important;
 	box-shadow: none !important;
 	cursor: not-allowed;
+	text-decoration: none;
 }

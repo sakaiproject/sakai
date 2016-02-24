@@ -1,8 +1,12 @@
 table{
+	h4{
+		margin: 0.2em 0 0.5em 0;
+	}
 	&.listHier{
-		font-size: 0.8em;
+		font-size: $default-font-size;
 		border: 1px solid darken($tool-background-color, 10%);
 		background-color: $tool-background-color;
+    	margin: 1em 0;
 		@media #{$phone}{
 			display: block;
     		margin: 3em 0;
