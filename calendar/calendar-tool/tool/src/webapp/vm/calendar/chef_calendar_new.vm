@@ -514,7 +514,7 @@ $(function() {
 			#else
 				#set($dmi = 0)
 			#end
-			<label for ="duHour" style="float: none">$tlang.getString("new.hours")</label> 
+			$tlang.getString("new.hours")
 			<select name="duMinute" id="duMinute" onchange="hourChange('duMinute'); 
 				#if ($timeFormat.contains("H"))
 					reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
@@ -533,7 +533,7 @@ $(function() {
 				#if($dmi == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 				#if($dmi == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
-			<label for="duMinute" style="float: none">$tlang.getString("new.minutes")</label>
+			$tlang.getString("new.minutes")
             
 		</p>	
 		<p class="shorttext">
@@ -603,27 +603,15 @@ $(function() {
 			#end
          $timezone
 		</p>
-		<div class="longtext">
+		<div class="itemSummary">
 			
 			<label for="body" class="block" style="margin-bottom:0;important!">$tlang.getString("new.descr")</label>
 			#if ($savedData.getDescription().length() !=0)
-				<table border="0">
-					<tr>
-						<td>
-							<textarea name="description" id="description" wrap="virtual" rows="30" cols="80">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
-							#chef_setupformattedtextarea("description")
-						</td>
-					</tr>
-				</table>
+				<textarea name="description" id="description" wrap="virtual" rows="10">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
+				#chef_setupformattedtextarea("description")
 			#else
-				<table border="0">
-					<tr>
-						<td>
-							<textarea name="description" id="description" wrap="virtual" rows="30" cols="80"> </textarea>
-							#chef_setupformattedtextarea("description")
-						</td>
-					</tr>
-				</table>
+				<textarea name="description" id="description" wrap="virtual" rows="10"> </textarea>
+				#chef_setupformattedtextarea("description")
 			#end
 		</div>
 		

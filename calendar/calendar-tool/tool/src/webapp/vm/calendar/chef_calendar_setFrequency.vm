@@ -85,7 +85,7 @@
 								<option >$c</option>
 							#end
 						#end
-					</select> <label for="selectCount" style="float:none">$tlang.getString("set.times")</label>
+					</select> $tlang.getString("set.times")
 				</p>
 				#set($month = $savedData.getMonth())
 				#set ($day = $savedData.Day)
