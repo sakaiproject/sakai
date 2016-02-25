@@ -1972,15 +1972,15 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
   self.$gradeItemsFilterPanel = $("<div>").addClass("gb-toggle-grade-items-panel").hide();
   self.$toolbar.find("#toggleGradeItemsToolbarItem").after(self.$gradeItemsFilterPanel);
 
+  var $button = self.$toolbar.find("#toggleGradeItemsToolbarItem");
+
   // move the Wicket generated panel into this menu dropdown
   self.$gradeItemsFilterPanel.append($("#gradeItemsTogglePanel").show());
 
 
   function repositionPanel() {
-    var $toggle = self.$toolbar.find("#toggleGradeItemsToolbarItem");
-    self.$gradeItemsFilterPanel.css("right", self.gradebookSpreadsheet.getWidth() - ($toggle.position().left + $toggle.outerWidth()));
+    self.$gradeItemsFilterPanel.css("right", self.gradebookSpreadsheet.getWidth() - ($button.position().left + $button.outerWidth()));
   };
-
 
   var updateSignal = function($label, $input) {
     var $categoryGroup = $label.closest(".gradebook-item-filter-group");
@@ -2151,10 +2151,8 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
   };
 
 
-  self.$toolbar.on("click", "#toggleGradeItemsToolbarItem", function(event) {
+  $button.on("click", function(event) {
     event.preventDefault();
-
-    var $button = $(this);
 
     $button.toggleClass("on");
 
@@ -2181,50 +2179,106 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     return false;
   });
 
+  $button.on("keydown", function(event) {
+    // up arrow hides menu
+    if (event.keyCode == 38) {
+      if (self.$gradeItemsFilterPanel.is(":visible")) {
+        $(this).trigger("click");
+        return false;
+      }
+    // down arrow shows menu or focuses first item in menu
+    } else if (event.keyCode == 40) {
+      if (self.$gradeItemsFilterPanel.is(":not(:visible)")) {
+        $(this).trigger("click");
+      } else {
+        self.$gradeItemsFilterPanel.find("a:first").focus();
+      }
+      return false;
+    }
+  });
 
   self.$gradeItemsFilterPanel.
         on("click", "#showAllGradeItems", function() {
           handleShowAll();
+          $(this).focus();
         }).
         on("click", "#hideAllGradeItems", function() {
           handleHideAll();
+          $(this).focus();
         }).
         on("click", ".gb-show-only-this-category", function(event) {
           event.preventDefault();
 
           var $filter = $(event.target).closest(".gradebook-item-category-filter");
           handleShowOnlyThisCategory($filter);
+          $(this).focus();
         }).
         on("click", ".gb-show-only-this-item", function(event) {
           event.preventDefault();
 
           var $filter = $(event.target).closest(".gradebook-item-filter");
           handleShowOnlyThisItem($filter);
+          $(this).focus();
         }).
         on("click", ".gb-show-only-this-category-score", function(event) {
           event.preventDefault();
 
           var $filter = $(event.target).closest(".gradebook-item-category-score-filter");
           handleShowOnlyThisCategoryScore($filter);
+          $(this).focus();
         }).
         on("click", ".gb-toggle-this-category", function(event) {
           event.preventDefault();
 
           var $filter = $(event.target).closest(".gradebook-item-category-filter");
           $filter.find(":input").trigger("click");
+          $(this).focus();
         }).
         on("click", ".gb-toggle-this-item", function(event) {
           event.preventDefault();
 
           var $filter = $(event.target).closest(".gradebook-item-filter");
           $filter.find(":input").trigger("click");
+          $(this).focus();
         }).
         on("click", ".gb-toggle-this-category-score", function(event) {
           event.preventDefault();
 
           var $filter = $(event.target).closest(".gradebook-item-category-score-filter");
           $filter.find(":input").trigger("click");
+          $(this).focus();
         });
+
+  // any labels or action links will be included in the arrow navigation
+  // we won't include dropdown toggles for this.. can get to those with tab keys
+  var $menuItems = self.$gradeItemsFilterPanel.find("#hideAllGradeItems, #showAllGradeItems, label[role='menuitem']");
+  $menuItems.on("keydown", function(event) {
+    var $this = $(this);
+    var currentIndex = $menuItems.index($this);
+
+    // up arrow navigates up or back to button
+    if (event.keyCode == 38) {
+      if (currentIndex == 0) {
+        $button.focus();
+      } else {
+        $menuItems[currentIndex-1].focus();
+      }
+      return false;
+    // down arrow navigates down list
+    } else if (event.keyCode == 40) {
+      if (currentIndex + 1 < $menuItems.length) {
+        $menuItems[currentIndex+1].focus();
+        return false;
+      }
+
+    // if return then treat as click
+    } else if (event.keyCode == 13) {
+      $this.trigger("click");
+      return false;
+    }
+
+    return true;
+  });
 
   self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input").on("change", handleCategoryFilterStateChange);
   self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input").on("change", handleGradeItemFilterStateChange);
