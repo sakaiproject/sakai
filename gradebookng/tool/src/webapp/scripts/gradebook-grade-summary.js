@@ -5,10 +5,12 @@
 /**************************************************************************************
  * A GradebookGradeSummary to encapsulate all the grade summary content behaviours 
  */
-function GradebookGradeSummary($content, blockout) {
+function GradebookGradeSummary($content, blockout, modalTitle) {
   this.$content = $content;
 
   this.blockout = blockout || false;
+
+  this.modalTitle = modalTitle || false;
 
   this.studentId = this.$content.find("[data-studentid]").data("studentid");
 
@@ -29,11 +31,19 @@ function GradebookGradeSummary($content, blockout) {
 
 
 GradebookGradeSummary.prototype.setupWicketModal = function() {
+    this.updateTitle();
     this.setupTabs();
     this.setupStudentNavigation();
     this.setupFixedFooter();
     this.setupMask();
     this.bindModalClose();
+};
+
+
+GradebookGradeSummary.prototype.updateTitle = function() {
+  if (this.modalTitle) {
+    this.$modal.find("h3.w_captionText").html(this.modalTitle);
+  }
 };
 
 

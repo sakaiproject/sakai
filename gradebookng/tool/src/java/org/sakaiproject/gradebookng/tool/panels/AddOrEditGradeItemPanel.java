@@ -142,9 +142,6 @@ public class AddOrEditGradeItemPanel extends Panel {
 		submit.add(new Label("submitLabel", getSubmitButtonLabel()));
 		form.add(submit);
 
-		// heading
-		form.add(new Label("heading", getHeadingLabel()));
-
 		// add the common components
 		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel));
 
@@ -178,18 +175,4 @@ public class AddOrEditGradeItemPanel extends Panel {
 			return new ResourceModel("button.create");
 		}
 	}
-
-	/**
-	 * Helper to get the model for the heading
-	 *
-	 * @return
-	 */
-	private ResourceModel getHeadingLabel() {
-		if (this.mode == Mode.EDIT) {
-			return new ResourceModel("heading.editgradeitem");
-		} else {
-			return new ResourceModel("heading.addgradeitem");
-		}
-	}
-
 }

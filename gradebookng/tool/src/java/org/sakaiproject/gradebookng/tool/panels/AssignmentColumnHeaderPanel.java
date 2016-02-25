@@ -171,6 +171,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
+				window.setTitle(getString("heading.editgradeitem"));
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, getModel()));
 				window.showUnloadConfirmation(false);
@@ -281,6 +282,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
 				final UpdateUngradedItemsPanel panel = new UpdateUngradedItemsPanel(window.getContentId(), getModel(), window);
+				window.setTitle(getString("heading.updateungradeditems"));
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(panel);
 				window.showUnloadConfirmation(false);
@@ -310,7 +312,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GbModalWindow window = gradebookPage.getDeleteItemWindow();
 				final DeleteItemPanel panel = new DeleteItemPanel(window.getContentId(), getModel(), window);
-
+				window.setTitle(getString("delete.label"));
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(panel);
 				window.showUnloadConfirmation(false);

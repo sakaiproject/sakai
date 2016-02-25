@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -40,6 +41,7 @@ public class StudentNameCellPanel extends Panel {
 		final String eid = (String) modelData.get("eid");
 		final String firstName = (String) modelData.get("firstName");
 		final String lastName = (String) modelData.get("lastName");
+		final String displayName = (String) modelData.get("displayName");
 		final GbStudentNameSortOrder nameSortOrder = (GbStudentNameSortOrder) modelData.get("nameSortOrder");
 
 		// link
@@ -65,7 +67,11 @@ public class StudentNameCellPanel extends Panel {
 				}
 
 				content.setOutputMarkupId(true);
-				target.appendJavaScript("new GradebookGradeSummary($(\"#" + content.getMarkupId() + "\"));");
+				String modalTitle = (new StringResourceModel("heading.studentsummary",
+						null, new Object[]{displayName, eid})).getString();
+				target.appendJavaScript(String.format(
+						"new GradebookGradeSummary($(\"#%s\"), false, \"%s\");",
+						content.getMarkupId(), modalTitle));
 			}
 		};
 		link.setOutputMarkupId(true);

@@ -47,6 +47,13 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		// unpack model
 		final String studentUuid = (String) getDefaultModelObject();
 
+		// heading
+		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
+		final GbUser user = this.businessService.getUser(studentUuid);
+		CourseGradeOverrideLogPanel.this.window.setTitle(
+				(new StringResourceModel("heading.coursegradelog", null,
+						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString());
+
 		// get the course grade
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
 
@@ -91,13 +98,6 @@ public class CourseGradeOverrideLogPanel extends Panel {
 				CourseGradeOverrideLogPanel.this.window.close(target);
 			}
 		});
-
-		// heading
-		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
-		final GbUser user = this.businessService.getUser(studentUuid);
-		add(new Label("heading",
-				new StringResourceModel("heading.coursegradelog", null, new Object[] { user.getDisplayName(), user.getDisplayId() })));
-
 	}
 
 	/**
