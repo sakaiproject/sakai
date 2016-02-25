@@ -141,6 +141,7 @@ public class GradebookPage extends BasePage {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form form) {
 				final GbModalWindow window = getAddOrEditGradeItemWindow();
+				window.setTitle(getString("heading.addgradeitem"));
 				window.setComponentToReturnFocusTo(this);
 				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
 				window.show(target);

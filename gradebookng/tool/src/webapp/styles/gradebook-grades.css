@@ -708,6 +708,16 @@
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
 }
+div.wicket-modal h3.w_captionText {
+  padding: 20px;
+  font-size: 1.5em;
+  position: relative;
+  height: auto;
+}
+div.wicket-modal div.w_caption {
+  min-height: 60px;
+  height: auto;
+}
 div.wicket-mask-dark {
   background-color: #FFF;
   opacity: 0.6;

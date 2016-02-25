@@ -94,8 +94,9 @@ public class GradeLogPanel extends Panel {
 		// heading
 		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
 		final GbUser user = this.businessService.getUser(studentUuid);
-		add(new Label("heading",
-				new StringResourceModel("heading.gradelog", null, new Object[] { user.getDisplayName(), user.getDisplayId() })));
+		GradeLogPanel.this.window.setTitle(
+				(new StringResourceModel("heading.gradelog", null,
+						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString());
 
 	}
 
