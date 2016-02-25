@@ -1,0 +1,8 @@
+From: from@example.com
+To: no-permission@sakai.example.com
+Subject: Subject
+Date: Sun, 20 May 2012 13:29:48 +0530
+
+This is a quick test
+
+

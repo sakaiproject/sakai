@@ -20,8 +20,10 @@ import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.*;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.subethamail.smtp.MessageContext;
@@ -29,6 +31,7 @@ import org.subethamail.smtp.*;
 import org.subethamail.smtp.server.SMTPServer;
 
 import javax.mail.*;
+import javax.mail.Session;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -49,7 +52,6 @@ import static org.sakaiproject.mailarchive.api.MailArchiveService.*;
 public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
 
     private Log log = LogFactory.getLog(SakaiMessageHandlerFactory.class);
-    private InternationalizedMessages rb;
 
     /**
      * The user name of the postmaster user - the one who posts incoming mail.
@@ -58,6 +60,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
 
     private SMTPServer server;
 
+    private InternationalizedMessages rb;
     private ServerConfigurationService serverConfigurationService;
     private EntityManager entityManager;
     private AliasService aliasService;
@@ -67,6 +70,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
     private ThreadLocalManager threadLocalManager;
     private ContentHostingService contentHostingService;
     private MailArchiveService mailArchiveService;
+    private SessionManager sessionManager;
 
     public void setInternationalizedMessages(InternationalizedMessages rb) {
         this.rb = rb;
@@ -108,10 +112,26 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
         this.mailArchiveService = mailArchiveService;
     }
 
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
     // used when parsing email header parts
     private static final String NAME_PREFIX = "name=";
 
     public void init() {
+        Objects.requireNonNull(rb, "ResourceLoader must be set");
+        Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
+        Objects.requireNonNull(entityManager, "EntityManager must be set");
+        Objects.requireNonNull(aliasService, "AliasService must be set");
+        Objects.requireNonNull(userDirectoryService, "UserDirectoryService must be set");
+        Objects.requireNonNull(siteService, "SiteService must be set");
+        Objects.requireNonNull(timeService, "TimeService must be set");
+        Objects.requireNonNull(threadLocalManager, "ThreadLocalManager must be set");
+        Objects.requireNonNull(contentHostingService, "ContentHostingService must be set");
+        Objects.requireNonNull(mailArchiveService, "MailArchiveService must be set");
+        Objects.requireNonNull(sessionManager, "SessionManager must be set");
+
         if (serverConfigurationService.getBoolean("smtp.enabled", false)) {
             server = new SMTPServer(this);
 
@@ -145,7 +165,6 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
             private String from;
             private Collection<Recipient> recipients = new LinkedList<>();
 
-
             @Override
             public void from(String from) throws RejectException {
                 this.from = from;
@@ -178,8 +197,11 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                 // smallBuffer.
                 // SharedFileInputStream fis = new SharedFileInputStream(null);
 
-
+                org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
                 try {
+                    session.setUserId(POSTMASTER);
+                    session.setUserEid(POSTMASTER);
+
                     // TODO Proper properties.
                     // The reads the entire body of the message into a byte array which is far from optimal.
                     MimeMessage msg = new MimeMessage(Session.getDefaultInstance(new Properties()), data);
@@ -310,6 +332,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                     // TODO
                     throw new RejectException();
                 } finally {
+                    session.clear();
                     // clear out any current current bindings
                     threadLocalManager.clear();
                 }
@@ -323,7 +346,11 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
              */
             protected MailArchiveChannel getMailArchiveChannel(String mailId) throws RejectException {
 
+                org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
                 try {
+
+                    session.setUserId(POSTMASTER);
+                    session.setUserEid(POSTMASTER);
 
                     // eat the no-reply
                     if ("no-reply".equalsIgnoreCase(mailId)) {
@@ -350,17 +377,6 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         if (log.isDebugEnabled()) {
                             log.debug("Incoming message mailId (" + mailId + ") is NOT a valid site channel reference, will attempt more matches");
                         }
-                    } catch (PermissionException e) {
-                        // INDICATES the channel is valid but the user has no permission to access it
-                        // This generally should not happen because the current user should be the postmaster
-                        log.warn("No access to alias, this should never happen.", e);
-                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                        String errMsg = rb.getString("err_not_member") + "\n\n";
-                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
-                        if (mailSupport != null) {
-                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                        }
-                        throw new RejectException(450, errMsg);
                     }
 
                     // next, if not a site, see if it's an alias to a site or channel
@@ -393,20 +409,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         }
 
                         // if there's no channel for this site, it will throw the IdUnusedException caught below
-                        try {
-                            channel = mailArchiveService.getMailArchiveChannel(channelRef);
-                        } catch (PermissionException e) {
-                            // INDICATES the channel is valid but the user has no permission to access it
-                            // This generally should not happen because the current user should be the postmaster
-                            log.warn("No access to alias, this should never happen.", e);
-                            // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                            String errMsg = rb.getString("err_not_member") + "\n\n";
-                            String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
-                            if (mailSupport != null) {
-                                errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                            }
-                            throw new RejectException(450, errMsg);
-                        }
+                        channel = mailArchiveService.getMailArchiveChannel(channelRef);
                         if (log.isDebugEnabled()) {
                             log.debug("Incoming message mailId (" + mailId + ") IS a valid channel (" + channelRef + "), found channel: " + channel);
                         }
@@ -466,10 +469,32 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }
                         throw new RejectException(450, errMsg);
-                    } else {
-                        return null;
                     }
+                } catch (PermissionException e) {
+                    try {
+                        // Check that we have a postmaster, if we don't then just swallow all mail with warning in logs.
+                        userDirectoryService.getUser(POSTMASTER);
+
+                        // INDICATES the channel is valid but the user has no permission to access it
+                        // This generally should not happen because the current user should be the postmaster
+                        log.warn("No access to alias, this should never happen.", e);
+                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
+                        String errMsg = rb.getString("err_not_member") + "\n\n";
+                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
+                        if (mailSupport != null) {
+                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
+                        }
+                        throw new RejectException(450, errMsg);
+                    } catch (UserNotDefinedException unde) {
+                        log.warn(String.format("no postmaster, incoming mail will not be processed until a " +
+                                "postmaster user (id=%s) exists in this Sakai instance", POSTMASTER));
+                    }
+                } finally {
+                    session.clear();
                 }
+
+                // Ignore
+                return null;
             }
 
             @Override

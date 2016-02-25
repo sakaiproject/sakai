@@ -13,14 +13,18 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.subethamail.smtp.client.SMTPException;
 import org.subethamail.smtp.client.SmartClient;
 import org.subethamail.smtp.server.SMTPServer;
@@ -68,6 +72,12 @@ public class SakaiMessageHandlerTest {
     @Mock
     private MailArchiveService mailArchiveService;
 
+    @Mock
+    private SessionManager sessionManager;
+
+    @Mock
+    private Session session;
+
     private SakaiMessageHandlerFactory messageHandlerFactory;
 
     @Before
@@ -83,12 +93,14 @@ public class SakaiMessageHandlerTest {
         messageHandlerFactory.setThreadLocalManager(threadLocalManager);
         messageHandlerFactory.setContentHostingService(contentHostingService);
         messageHandlerFactory.setMailArchiveService(mailArchiveService);
+        messageHandlerFactory.setSessionManager(sessionManager);
 
         // Binding to port 0 means that it picks a random port to listen on.
         when(serverConfigurationService.getInt("smtp.port", 25)).thenReturn(0);
         when(serverConfigurationService.getBoolean("smtp.enabled", false)).thenReturn(true);
         when(serverConfigurationService.getString("sakai.version", "unknown")).thenReturn("1.2.3");
         when(serverConfigurationService.getServerName()).thenReturn("sakai.example.com");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
 
         messageHandlerFactory.init();
     }
@@ -196,8 +208,33 @@ public class SakaiMessageHandlerTest {
         SmartClient client = createClient();
         client.from("sender@example.com");
         client.to("no-reply@sakai.example.com");
+        writeData(client, "/no-reply.txt");
     }
 
+    @Test(expected = SMTPException.class)
+    public void testNoPermission() throws Exception {
+        // Here there is no permission, this should never happen in real life
+        String reference = "/mailarchive/no-permission/main";
+        when(mailArchiveService.channelReference("no-permission", SiteService.MAIN_CONTAINER)).thenReturn(reference);
+        when(mailArchiveService.getMailArchiveChannel(reference)).thenThrow(PermissionException.class);
+        SmartClient client = createClient();
+        client.from("sender@example.com");
+        client.to("no-permission@sakai.example.com");
+        writeData(client, "/no-permission.txt");
+    }
+
+    @Test
+    public void testPostmaster() throws Exception {
+        // Here there is no postmaster which may happen and should be dealt with
+        String reference = "/mailarchive/no-permission/main";
+        when(mailArchiveService.channelReference("no-permission", SiteService.MAIN_CONTAINER)).thenReturn(reference);
+        when(mailArchiveService.getMailArchiveChannel(reference)).thenThrow(PermissionException.class);
+        when(userDirectoryService.getUser("postmaster")).thenThrow(UserNotDefinedException.class);
+        SmartClient client = createClient();
+        client.from("sender@example.com");
+        client.to("no-permission@sakai.example.com");
+        writeData(client, "/no-permission.txt");
+    }
 
     /**
      * Just creates a client connected to the test server.
