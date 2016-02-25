@@ -14,6 +14,7 @@ import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
@@ -93,6 +94,7 @@ public class BasePage extends WebPage {
 			}
 
 		};
+		this.gradebookPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.gradebookPageLink);
 
 		// settings page
@@ -109,6 +111,7 @@ public class BasePage extends WebPage {
 				return (BasePage.this.role == GbRole.INSTRUCTOR);
 			}
 		};
+		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.settingsPageLink);
 
 		// import/export page
@@ -125,6 +128,7 @@ public class BasePage extends WebPage {
 				return (BasePage.this.role == GbRole.INSTRUCTOR);
 			}
 		};
+		this.importExportPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.importExportPageLink);
 
 		// permissions page
@@ -141,6 +145,7 @@ public class BasePage extends WebPage {
 				return (BasePage.this.role == GbRole.INSTRUCTOR);
 			}
 		};
+		this.permissionsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.permissionsPageLink);
 
 		add(nav);
@@ -190,6 +195,7 @@ public class BasePage extends WebPage {
 	 */
 	protected void disableLink(final Link<Void> l) {
 		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
+		l.replace(new Label("screenreaderlabel", getString("link.screenreader.tabselected")));
 		l.setEnabled(false);
 	}
 
