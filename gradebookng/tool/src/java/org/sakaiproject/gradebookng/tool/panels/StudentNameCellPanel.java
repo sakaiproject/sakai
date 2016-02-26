@@ -92,10 +92,6 @@ public class StudentNameCellPanel extends Panel {
 		});
 
 		add(link);
-
-		getParent().add(new AttributeModifier("scope", "row"));
-		getParent().add(new AttributeModifier("role", "rowheader"));
-
 	}
 
 	/**

@@ -330,6 +330,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(menu);
 
+		// add abbreviation of header content to aid table accessibility
+		getParentCellFor(this).
+				add(new AttributeModifier("abbr", assignment.getName())).
+				add(new AttributeModifier("aria-label", assignment.getName()));
 	}
 
 
