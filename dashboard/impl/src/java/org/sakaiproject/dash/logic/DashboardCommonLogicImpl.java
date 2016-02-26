@@ -1287,6 +1287,16 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		this.dashboardLogic.scheduleAvailabilityCheck(entityReference, entityTypeId, scheduledTime);
 	}
 	
+	@Override
+	public void updateScheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {
+		this.dashboardLogic.updateScheduleAvailabilityCheck(entityReference, entityTypeId, scheduledTime);
+	}
+	
+	@Override
+	public boolean isScheduleAvailabilityCheckMade(String entityReference, String entityTypeId, Date scheduledTime) {
+		return this.dashboardLogic.isScheduleAvailabilityCheckMade(entityReference, entityTypeId, scheduledTime);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#setRepeatingEventHorizon(java.util.Date)
