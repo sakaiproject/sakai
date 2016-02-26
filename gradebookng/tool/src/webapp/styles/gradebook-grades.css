@@ -86,17 +86,13 @@
   max-width: 220px;
   min-width: 220px;
 }
-#gradebookGrades thead th > span,
-#gradebookGrades tbody th > span,
 #gradebookGrades thead th > div,
 #gradebookGrades tbody td > div {
   position: relative;
   display: block;
 }
-#gradebookGrades thead tr.headers th,
-#gradebookGrades tbody tr.headers th,
-#gradebookGrades thead tr.headers th > span,
-#gradebookGrades tbody tr.headers th > span {
+#gradebookGrades thead th,
+#gradebookGrades thead th > div {
   min-height: 100px;
   height: 100px;
 }
@@ -106,7 +102,7 @@
 }
  
  /* Table Header */
-#gradebookGrades th {
+#gradebookGrades thead th {
   vertical-align: top;
   background: #F0f0f0;
   text-shadow: 1px 1px 0 #FFF;

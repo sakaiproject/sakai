@@ -375,6 +375,9 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
                         attr("role", "presentation").
                         hide();
 
+  var $fixedHeaderHead = $("<thead>");
+  self.$fixedHeader.append($fixedHeaderHead);
+
   $head.find("> tr").each(function() {
     var $tr = $(this);
 
@@ -390,9 +393,9 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
         }
         $cloneRow.append($clone);
       });
-      self.$fixedHeader.append($cloneRow);
+      $fixedHeaderHead.append($cloneRow);
     } else {
-      self.$fixedHeader.append(self._cloneCell($tr));
+      $fixedHeaderHead.append(self._cloneCell($tr));
     }
   });
 
@@ -466,7 +469,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
     var $tr = $("<tr>");
 
     $headers.each(function(i, origTh) {
-      var $td = self._cloneCell($($(origRow).find("> td").get(i)));
+      var $td = self._cloneCell($($(origRow).find("> th, > td").get(i)));
       $tr.append($td);
     });
 

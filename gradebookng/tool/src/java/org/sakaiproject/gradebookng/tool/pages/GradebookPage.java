@@ -18,9 +18,9 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -44,6 +44,8 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
+import org.sakaiproject.gradebookng.tool.component.GbDataTable;
+import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
@@ -208,7 +210,7 @@ public class GradebookPage extends BasePage {
 		cols.add(handleColumn);
 
 		// student name column
-		final AbstractColumn studentNameColumn = new AbstractColumn(new Model("")) {
+		final AbstractColumn studentNameColumn = new AbstractColumn(new Model("studentColumn")) {
 
 			@Override
 			public Component getHeader(final String componentId) {
@@ -452,14 +454,14 @@ public class GradebookPage extends BasePage {
 		}
 
 		// TODO make this AjaxFallbackDefaultDataTable
-		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100);
+		final GbDataTable table = new GbDataTable("table", cols, studentGradeMatrix, 100);
 		table.addBottomToolbar(new NavigationToolbar(table) {
 			@Override
 			protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {
 				return constructTablePaginationLabel(navigatorId, table);
 			}
 		});
-		table.addTopToolbar(new HeadersToolbar(table, null));
+		table.addTopToolbar(new GbHeadersToolbar(table, null));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 
 		// enable drag and drop based on user role (note: entity provider has role checks on exposed API)
