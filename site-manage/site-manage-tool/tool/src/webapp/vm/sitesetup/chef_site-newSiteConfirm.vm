@@ -352,7 +352,7 @@
 				id="addSite" 
 				accesskey="s"
 				value="$!name"
-				onclick="showNotif('submitnotif','addSite','addSiteForm'); document.addSiteForm.option.value='finish'; document.addSiteForm.submit(); return false;"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='finish'; document.addSiteForm.submit(); return false;"
 			/>
 			<input
 				class="disableme" 
@@ -361,7 +361,7 @@
 				id="back" 
 				accesskey="b"
 				value="$tlang.getString('gen.back')"
-				onclick="document.addSiteForm.option.value='back'; document.addSiteForm.submit(); return false;"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='back'; document.addSiteForm.submit(); return false;"
 			/>
 			<input
 				class="disableme" 
@@ -370,9 +370,8 @@
 				id="cancel" 
 				accesskey="x"
 				value="$tlang.getString('gen.cancel')"
-				onclick="document.addSiteForm.option.value='cancel'; document.addSiteForm.submit(); return false;"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='cancel'; document.addSiteForm.submit(); return false;"
 			/>
-			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

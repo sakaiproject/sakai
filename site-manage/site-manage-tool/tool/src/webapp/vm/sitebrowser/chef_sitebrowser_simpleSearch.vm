@@ -1,11 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_simpleSearch.vm,v 1.2 2005/05/19 19:53:16 gsilver.umich.edu Exp $ -->
 <script type="text/javascript" language="JavaScript">
 	focus_path = ["search"];
-</script>
-<script type="text/javascript" src="/library/js/jquery.js">
-    
-</script>
-<script type="text/javascript" language="JavaScript">
     $(document).ready(function(){
        if(!$('#selectTerm')[0]) {
            // selectTerm element doesn't exist
@@ -74,7 +69,7 @@
 		</p>
 		
 		<p class="act">
-			 <input type="submit" class="active"  name="eventSubmit_doSearch" value="$tlang.getString("se.search")" accesskey="s" />
+			<input type="submit" class="active" name="eventSubmit_doSearch" value="$tlang.getString("se.search")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

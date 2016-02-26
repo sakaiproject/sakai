@@ -7,6 +7,7 @@
 	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
 <body>
 <div class="portletBody">
@@ -33,8 +34,8 @@
 			</tr>
 		</table>
 		<p class="act">
-			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
-			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			<input accesskey="s" rsf:id="save" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input accesskey="x" rsf:id="cancel" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>			
 	</form>
 </div>

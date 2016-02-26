@@ -5,5 +5,6 @@
 #header_prepend('<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />')
 #header_append("<script type='text/javascript'>includeLatestJQuery('site-manage-chef-header');</script>")
 #header_append('<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>')
+#header_append('<script type="text/javascript" src="/library/js/spinner.js"></script>')
 
 #chef_start()

@@ -8,6 +8,7 @@
 	<link type="text/css" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" media="screen" />
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
 
 <body>
@@ -79,8 +80,8 @@
 			</table>
 			
 			<p class="act">
-				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit"/>
-				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		</form>
 	</div>

@@ -102,9 +102,9 @@
 		<input type="hidden" name="templateIndex" value="60" />
 		<input type="hidden" name="continue" value="$continue" />
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" />
-			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		<p class="alertMessageInline">
 		$tlang.getString("import.links.warning")

@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
 	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
 
 <body>
@@ -126,9 +127,9 @@
 					</div>
 				</div>
 				<p class="act">
-					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
-					<input accesskey ="x" rsf:id="revert" value="Cancel" type="submit"/>
-					<input accesskey ="r" rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
+					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); serialize('sort1');"/>
+					<input accesskey ="x" rsf:id="revert" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );"/>
+					<input accesskey ="r" rsf:id="reset" value="Reset" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); return checkReset();"/>
 					<input accesskey ="a" rsf:id="sort_alpha" value="Sort" type="button" onclick="return sortByTitle();"/>
 				</p>					
 			</form>
