@@ -108,12 +108,12 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 
 	// output formats
 	public String[] getHandledOutputFormats() {
-		return new String[] { Formats.JSON };
+		return new String[] { Formats.XML, Formats.JSON };
 	}
 
 	// input formats
 	public String[] getHandledInputFormats() {
-		return new String[] { Formats.JSON };
+		return new String[] { Formats.XML, Formats.JSON };
 	}
 
 	/**
@@ -290,12 +290,13 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		DecoratedMailArchiveMessage da = new DecoratedMailArchiveMessage(
 				siteId, channel, mailArchiveMessageId);
 
-		da.setTitle(a.getMailArchiveHeader().getSubject());
+		da.setSubject(a.getMailArchiveHeader().getSubject());
 		da.setBody(a.getBody());
 		da.setCreatedByDisplayName(a.getHeader().getFrom().getDisplayName());
 		da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
 		da.setSiteId(siteId);
 		da.setSiteTitle(siteTitle);
+		da.setHeaders(a.getMailArchiveHeader().getMailHeaders());
 
 		// get attachments
 		List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
@@ -373,7 +374,7 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		DecoratedMailArchiveMessage.setSiteId(tempMsg.getId());
 		DecoratedMailArchiveMessage.setBody(tempMsg.getBody());
 		MailArchiveMessageHeader header = tempMsg.getMailArchiveHeader();
-		DecoratedMailArchiveMessage.setTitle(header.getSubject());
+		DecoratedMailArchiveMessage.setSubject(header.getSubject());
 
 		List attachments = header.getAttachments();
 		List<DecoratedAttachment> attachmentUrls = decorateAttachments(attachments);
@@ -384,6 +385,7 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		DecoratedMailArchiveMessage.setCreatedByDisplayName(header.getFrom()
 				.getDisplayName());
 		DecoratedMailArchiveMessage.setSiteId(siteId);
+		DecoratedMailArchiveMessage.setHeaders(header.getMailHeaders());
 
 		return DecoratedMailArchiveMessage;
 	}
@@ -741,7 +743,10 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 
 		@Getter
 		@Setter
-		private String title;
+		private List headers;
+		@Getter
+		@Setter
+		private String subject;;
 		@Getter
 		@Setter
 		private String body;
