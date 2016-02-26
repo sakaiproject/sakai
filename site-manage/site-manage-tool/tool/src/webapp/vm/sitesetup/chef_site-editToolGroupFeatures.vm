@@ -79,17 +79,17 @@
                     value="$tlang.getString('gen.continue')"
                     accesskey="s"
                     class="active"
-                    onclick="document.featuresForm.option.value='continue';javascript:document.featuresForm.submit();" />
+                    onclick="document.featuresForm.option.value='continue'; SPNR.disableControlsAndSpin( this, null ); javascript:document.featuresForm.submit();" />
             #if (!$!existSite)
             <input type="button" value="$tlang.getString('gen.back')" 
                     name="Back" 
                     accesskey="b"
-                    onclick="document.featuresForm.option.value='back';javascript:document.featuresForm.submit();" />
+                    onclick="document.featuresForm.option.value='back'; SPNR.disableControlsAndSpin( this, null ); javascript:document.featuresForm.submit();" />
             #end
             <input type="button" value="$tlang.getString('gen.cancel')" 
                     name="Cancel"
                     accesskey="x"
-                    onclick="document.featuresForm.option.value='cancel';javascript:document.featuresForm.submit();" />
+                    onclick="document.featuresForm.option.value='cancel'; SPNR.disableControlsAndSpin( this, null ); javascript:document.featuresForm.submit();" />
         </p>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     </form>

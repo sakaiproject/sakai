@@ -212,6 +212,7 @@ SPNR.disableSelects = function( escapeList )
             newSelect.setAttribute( "name", select.getAttribute( "name" ) + "Disabled" );
             newSelect.setAttribute( "className", select.getAttribute( "className" ) );
             newSelect.setAttribute( "disabled", "true" );
+            newSelect.size = select.size;
             newSelect.className = select.className;
             newSelect.innerHTML = select.innerHTML;
 
@@ -272,6 +273,7 @@ SPNR.nodeListToArray = function( nodeList )
 SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
 {
     // First set the button to be invisible
+    var origDisplay = element.style.display;
     element.style.display = "none";
 
     // Now create a new disabled button with the same attributes as the existing button
@@ -290,10 +292,11 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
     newElement.setAttribute( "name", element.getAttribute( "name" ) + "Disabled" );
     newElement.setAttribute( "value", element.getAttribute( "value" ) );
     newElement.setAttribute( "disabled", "true" );
+    newElement.style.display = origDisplay;
     newElement.textContent = element.getAttribute( "value" );
     newElement.className = activateSpinner ? "spinButton formButtonDisabled" : "formButtonDisabled";
 
-    if( element.type === "checkbox" )
+    if( element.type === "checkbox" || element.type === "radio" )
     {
         newElement.checked = element.checked;
     }

@@ -1,5 +1,4 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourse.vm,v 1.3 2005/05/25 17:42:01 gsilver.umich.edu Exp $ -->
-<script type="text/javascript" src="/library/js/spinner.js"></script>
 <div class="portletBody">
 	#if (!$!site)
 		<h3>$tlang.getString("nscourse.creating")</h3>
@@ -53,7 +52,7 @@
 				<input type="hidden" name="itemType" value="$!siteType" />
 				<input type="hidden" name="selectTerm" value="$term.eid" />
 				<input type="button" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
-					onclick="document.getElementById('option').value='change_user'; document.addCourseForm.submit(); return false;"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('option').value='change_user'; document.addCourseForm.submit(); return false;"
 				 />
 				#if ($campusDirectory)
 					<a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;"

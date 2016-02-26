@@ -1,8 +1,4 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_visit.vm,v 1.3 2005/06/03 16:29:11 gsilver.umich.edu Exp $ -->
-##<script type="text/javascript" language="JavaScript">
-## focus_path = [#if(!$site)"id"#else"title"#end];
-##</script>
-
 <div class="portletBody">
 
 	#if($menu)
@@ -18,27 +14,26 @@
 		<div class="itemNav">
 			<form action="#toolForm("$action")" method="post" class="inlineForm">	
 				#if ($prevSite)
-					<a href="#" onclick="location = '#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($prevSite.Id)")';return false;" accesskey="p">
-						<input type="button" value="&lt; $tlang.getString('list.previous')" title="$tlang.getString('vi.prev') $validator.escapeHtml($prevSite.Title)" class="button" />
-						</a>
+					<a href="#" onclick="location='#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($prevSite.Id)")';return false;" accesskey="p">
+						<input type="button" value="&lt; $tlang.getString('list.previous')" title="$tlang.getString('vi.prev') $validator.escapeHtml($prevSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</a>
 				#else
 					<input type="button" value="&lt; $tlang.getString('list.previous')" class="button" disabled="disabled" />	
 				#end
-				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" accesskey="l" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" accesskey="l" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				
 				## bjones86 - SAK-24423 - only show the join button if site browser joining is enabled in sakai.properties
 				#if( $siteBrowserJoinEnabled )
 					#if( $site.isJoinable() && !$alreadyMember && !$joinExcludeFromPublicList )
-						<a href="#" onclick="location = '#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )'; return false;" accesskey="j">
-							<input type="button" value="$tlang.getString( "join.joinNow" )" class="button"
-								title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )" />
+						<a href="#" onclick="location='#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )'; return false;" accesskey="j">
+							<input type="button" value="$tlang.getString( "join.joinNow" )" class="button" onclick="SPNR.disableControlsAndSpin( this, null );"
 						</a>
 					#end
 				#end
 				
 				#if ($nextSite)
 					<a href="#" onclick="location = '#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($nextSite.Id)")';return false;" accesskey="n">
-						<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" />
+						<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</a>
 				#else	
 					<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" disabled="disabled" />
@@ -172,18 +167,18 @@
 	<form action="#toolForm("$action")" method="post" class="inlineForm">	
 	#if ($prevSite)
 		<a href="#" onclick="location = '#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($prevSite.Id)")';return false;">
-		<input type="button" value="&lt; $tlang.getString('list.previous')" title="$tlang.getString('vi.prev') $validator.escapeHtml($prevSite.Title)" class="button" />
+		<input type="button" value="&lt; $tlang.getString('list.previous')" title="$tlang.getString('vi.prev') $validator.escapeHtml($prevSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</a>
 	#else
 		<input type="button" value="&lt; $tlang.getString('list.previous')" class="button" disabled="disabled" />
 	#end
-	<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" />
+	<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 	
 	## bjones86 - SAK-24423 - only show the join button if sitebrowser joining is enabled in sakai.properties
 	#if( $siteBrowserJoinEnabled )
 		#if( $site.isJoinable() && !$alreadyMember && !$joinExcludeFromPublicList )
 			<a href="#" onclick="location = '#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )'; return false;" accesskey="j">
-				<input type="button" value="$tlang.getString( "join.joinNow" )" class="button"
+				<input type="button" value="$tlang.getString( "join.joinNow" )" class="button" onclick="SPNR.disableControlsAndSpin( this, null );"
 					title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )" />
 			</a>
 		#end
@@ -191,7 +186,7 @@
 	
 	#if ($nextSite)
 		<a href="#" onclick="location = '#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($nextSite.Id)")';return false;">
-			<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" />
+			<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</a>
 	#else
 		<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" disabled="disabled" />	
