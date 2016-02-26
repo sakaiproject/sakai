@@ -18,12 +18,12 @@
  * limitations under the License.
  * 
  **********************************************************************************/
-//Could Use adapter to link cells of calendar
 package org.sakaiproject.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -45,7 +45,7 @@ public class CalendarUtil
 	Calendar m_calendar = null;
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 	ResourceLoader rb = new ResourceLoader("calendar");
-
+	//Could put this into an array of dates rather than have to declare dateMonday,dateTuesday,etc
 	Date dateSunday = null;
 	Date dateMonday = null;
 	Date dateTuesday = null;
@@ -68,7 +68,7 @@ public class CalendarUtil
 	Date dateDecember = null;
 
 	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
-	
+	public GregorianCalendar month;
 	/**
 	* Construct.
 	*/
@@ -189,6 +189,7 @@ public class CalendarUtil
 	* Set the calendar to the prev day, and return this.
 	* @return the prev day.
 	*/
+	public String 
 	public String getPrevDate() 
 	{
 		m_calendar.set (Calendar.DAY_OF_MONTH, getDayOfMonth() -1);
@@ -228,7 +229,34 @@ public class CalendarUtil
 		setDay(getYear(),getMonthInteger(),1);
 
 	}	// setNextYear
+	
+	
+	//Shouldn't use java.util.Calendar, java.util.GregorianCalendar is better at calculating leap years, wrote two methods underneath
+	// that implement setNextMonth() and setNextYear() using Gregorian Calendar - haven't looked at other parts of code/m_calendar so might be incompatible
+	protected void setNextMonth() {
+        if (month.get(GregorianCalendar.MONTH) == month
+                .getActualMaximum(GregorianCalendar.MONTH)) {
+            m_calendar.set((month.get(GregorianCalendar.YEAR) + 1),
+                    month.getActualMinimum(GregorianCalendar.MONTH), 1);
+        } else {
+            m_calendar.set(GregorianCalendar.MONTH,
+                    month.get(GregorianCalendar.MONTH) + 1);
+        }
+    }
 
+	protected void setPreviousMonth() {
+        if (month.get(GregorianCalendar.MONTH) == month
+                .getActualMinimum(GregorianCalendar.MONTH)) {
+            m_calendar.set((month.get(GregorianCalendar.YEAR) - 1),
+                    month.getActualMaximum(GregorianCalendar.MONTH), 1);
+        } else {
+            m_calendar.set(GregorianCalendar.MONTH,
+                    month.get(GregorianCalendar.MONTH) - 1);
+        }
+
+
+
+    }
 	/**
 	* Set the calendar to the prev month, and return this.
 	* @return the prev month.
