@@ -21,50 +21,6 @@
 
 (function ($) {
 
-    // jquery.i18n
-	$.i18n.properties({
-	    name:'ui', 
-	    path:'/sakai-roster2-tool/i18n/',
-	    mode: 'both',
-	    language: roster.language
-	});
-    
-	roster.i18n = $.i18n.map;
-
-    roster.i18n.months = roster.i18n.months.split(',');
-	
-    roster.ADMIN = 'admin';
-
-    roster.STATE_OVERVIEW = 'overview';
-    roster.STATE_ENROLLMENT_STATUS = 'status';
-    roster.STATE_VIEW_PROFILE = 'profile';
-    roster.STATE_PERMISSIONS = 'permissions';
-
-    roster.DEFAULT_GROUP_ID = 'all';
-    roster.DEFAULT_ENROLLMENT_STATUS = 'All';
-    roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
-
-    /* Stuff that we always expect to be setup */
-    roster.language = null;
-    roster.currentUserPermissions = null;
-    roster.site = null;
-
-    // so we can return to the previous state after viewing permissions
-    roster.rosterLastStateNotPermissions = null;
-
-    // These are default behaviours, and are global so the tool remembers
-    // the user's choices.
-    roster.hideNames = false;
-    roster.viewSingleColumn = false;
-    roster.groupToView = null;
-    roster.groupToViewText = roster.i18n.roster_sections_all;
-    roster.enrollmentSetToView = null;
-    roster.enrollmentSetToViewText = null;
-    roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
-    roster.rosterOfficialPictureMode = false;
-    roster.nextPage = 0;
-    roster.currentState = null;
-
 	/**
 	*	Check if there is no scroll rendered and there are more pages
 	*/
@@ -638,25 +594,42 @@
 
     roster.init = function () {
 
+	    roster.i18n = $.i18n.map;
+
+        roster.i18n.months = roster.i18n.months.split(',');
+
+        roster.ADMIN = 'admin';
+
+        roster.STATE_OVERVIEW = 'overview';
+        roster.STATE_ENROLLMENT_STATUS = 'status';
+        roster.STATE_VIEW_PROFILE = 'profile';
+        roster.STATE_PERMISSIONS = 'permissions';
+
+        roster.DEFAULT_GROUP_ID = 'all';
+        roster.DEFAULT_ENROLLMENT_STATUS = 'All';
+        roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
+
+        /* Stuff that we always expect to be setup */
+        roster.language = null;
+
+        // so we can return to the previous state after viewing permissions
+        roster.rosterLastStateNotPermissions = null;
+
+        // These are default behaviours, and are global so the tool remembers
+        // the user's choices.
+        roster.hideNames = false;
+        roster.viewSingleColumn = false;
+        roster.groupToView = null;
+        roster.groupToViewText = roster.i18n.roster_sections_all;
+        roster.enrollmentSetToView = null;
+        roster.enrollmentSetToViewText = null;
+        roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
+        roster.rosterOfficialPictureMode = false;
+        roster.nextPage = 0;
+        roster.currentState = null;
+
         roster.rosterOfficialPictureMode = roster.officialPicturesByDefault;
 
-        // Setup the current user's permissions
-        if (roster.userId === roster.ADMIN) {
-            // Admin user. Give the full set.
-            var data = ['roster.export',
-                    'roster.viewallmembers',
-                    'roster.viewenrollmentstatus',
-                    'roster.viewgroup',
-                    'roster.viewhidden',
-                    'roster.viewprofile',
-                    'site.upd'];
-
-            roster.currentUserPermissions = new roster.RosterPermissions(data);
-        } else {
-            roster.currentUserPermissions = new roster.RosterPermissions(
-                roster.sakai.getCurrentUserPermissions(roster.siteId));
-        }
-        
         // We need the toolbar in a template so we can swap in the translations
         roster.render('navbar', {}, 'roster_navbar');
         
@@ -716,12 +689,6 @@
             return roster.switchState(roster.STATE_PERMISSIONS);
         });
                 
-        try {
-            if (window.frameElement) {
-                window.frameElement.style.minHeight = '600px';
-            }
-        } catch (err) {}
-
         $.ajax({
             url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
             dataType: "json",
@@ -736,22 +703,52 @@
         });
     };
 
-    $.ajax({
-        url: "/direct/roster-membership/" + roster.siteId + "/get-site.json",
-        dataType: "json",
-        cache: false,
-        success: function (data) {
+    roster.loadSiteDataAndInit = function () {
 
-            roster.site = data || {};
+        $.ajax({
+            url: "/direct/roster-membership/" + roster.siteId + "/get-site.json",
+            dataType: "json",
+            cache: false,
+            success: function (data) {
 
-            if (!roster.site.siteGroups) roster.site.siteGroups = [];
-            
-            if (!roster.site.userRoles) roster.site.userRoles = [];
-            
-            if (!roster.site.siteEnrollmentSets) roster.site.siteEnrollmentSets = [];
+                roster.site = data || {};
 
-            roster.init();
+                if (!roster.site.siteGroups) roster.site.siteGroups = [];
+
+                if (!roster.site.userRoles) roster.site.userRoles = [];
+
+                if (!roster.site.siteEnrollmentSets) roster.site.siteEnrollmentSets = [];
+
+                // Setup the current user's permissions
+                if (roster.userId === roster.ADMIN) {
+                    // Admin user. Give the full set.
+                    var data = ['roster.export',
+                            'roster.viewallmembers',
+                            'roster.viewenrollmentstatus',
+                            'roster.viewgroup',
+                            'roster.viewhidden',
+                            'roster.viewprofile',
+                            'site.upd'];
+
+                    roster.currentUserPermissions = new roster.RosterPermissions(data);
+                    roster.init();
+                } else {
+                    roster.sakai.setCurrentUserPermissions(roster.siteId, function () { roster.init(); });
+                }
+            }
+        });
+    };
+
+    // jquery.i18n
+    $.i18n.properties({
+        name:'ui',
+        path:'/sakai-roster2-tool/i18n/',
+        mode: 'both',
+        async: true,
+        checkAvailableLanguages: true,
+        language: roster.language,
+        callback: function () {
+            roster.loadSiteDataAndInit();
         }
     });
-    
 }) (jQuery);
