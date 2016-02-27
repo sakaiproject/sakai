@@ -39,9 +39,17 @@ import net.oauth.signature.OAuthSignatureMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIProviderUtil;
+
+import org.tsugi.casa.objects.Application;
+
+import org.tsugi.jackson.JacksonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -55,6 +63,7 @@ import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiCASAUtil;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -222,6 +231,7 @@ public class ProviderServlet extends HttpServlet {
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
 		doPost(request, response);
 	}
 
@@ -252,6 +262,18 @@ public class ProviderServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN,
 					"Basic LTI Provider is Disabled");
 			return;
+		}
+
+		if ( "/casa.json".equals(request.getPathInfo()) ) {
+			if ( ServerConfigurationService.getBoolean("casa.provider", true))  {
+				handleCASAList(request, response);
+				return;
+			} else {
+				M_log.warn("CASA Provider is Disabled IP=" + ipAddress);
+				response.sendError(HttpServletResponse.SC_FORBIDDEN,
+						"CASA Provider is Disabled");
+				return;
+			}
 		}
 
 		if (M_log.isDebugEnabled()) {
@@ -915,4 +937,27 @@ public class ProviderServlet extends HttpServlet {
 
         ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
     }
+
+	private void handleCASAList(HttpServletRequest request, HttpServletResponse response) 
+	{
+                ArrayList<Application> apps = new ArrayList<Application>();
+
+		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
+		String[] allowedTools = allowedToolsConfig.split(":");
+		List<String> allowedToolsList = Arrays.asList(allowedTools);
+
+		for (String toolId : allowedToolsList) {
+			Application app = SakaiCASAUtil.getCASAEntry(toolId);
+			apps.add(app);
+		}
+
+                try {
+                        response.setContentType("application/json");
+                        PrintWriter out = response.getWriter();
+                        out.write(JacksonUtil.prettyPrint(apps));
+                }
+                catch (Exception e) {
+                        e.printStackTrace();
+                }
+	}
 }
