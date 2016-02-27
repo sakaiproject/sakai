@@ -2,7 +2,7 @@
  * $URL$
  * $Id$
  *
- * Copyright (c) 2006-2009 The Sakai Foundation
+ * Copyright (c) 2016- Charles R. Severance
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,16 @@
 
 package org.sakaiproject.basiclti.util;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
+import java.util.ArrayList;
+
+import org.tsugi.casa.objects.Launch;
+import org.tsugi.casa.objects.Use;
+import org.tsugi.casa.objects.Contact;
+import org.tsugi.casa.objects.Original;
+import org.tsugi.casa.objects.Identity;
+import org.tsugi.casa.objects.Application;
+
+import org.tsugi.jackson.JacksonUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +54,7 @@ public class SakaiCASAUtil {
 
 	private static Log M_log = LogFactory.getLog(SakaiCASAUtil.class);
 
-	public static JSONObject getCASAEntry(String toolRegistration)
+	public static Application getCASAEntry(String toolRegistration)
 	{
 		Tool theTool = ToolManager.getTool(toolRegistration);
 		if ( theTool == null ) return null;
@@ -57,36 +65,27 @@ public class SakaiCASAUtil {
 			sample = true;
 		}
 
-		JSONObject jsonResponse = new JSONObject();
-		JSONObject identity = new JSONObject();
-		identity.put("product_instance_guid", cnf.getService_owner_id());
-		identity.put("originator_id", cnf.getService_owner_id());
-		identity.put("id", toolRegistration);
-		jsonResponse.put("identity", identity);
-		JSONObject use = new JSONObject();
-		use.put(CASAUtil.TITLE_SCHEMA,theTool.getTitle());
-		use.put(CASAUtil.TEXT_SCHEMA,theTool.getDescription());
-		JSONArray contact = new JSONArray();
-		JSONObject name = new JSONObject();
-		name.put("name", cnf.getService_owner_owner_name());
-		name.put("email", cnf.getService_owner_support_email());
-		contact.add(name);
-		use.put(CASAUtil.CONTACT_SCHEMA, contact);
-		use.put(CASAUtil.ICON_SCHEMA, "https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
+                Launch launch = new Launch();
+                launch.setLaunch_url(ServerConfigurationService.getServerUrl() + "/imsblis/provider/"+toolRegistration);
 
-		JSONObject launch = new JSONObject();
-		launch.put("launch_url", ServerConfigurationService.getServerUrl() + "/imsblis/provider/"+toolRegistration);
-		use.put(CASAUtil.LAUNCH_SCHEMA, launch);
+		Use use = new Use(launch);
+		// TODO: Fix this 
+                use.setIcon_url("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
+                use.setTitle(theTool.getTitle());
+                use.setText(theTool.getDescription());
+                use.addContact(new Contact(cnf.getService_owner_owner_name(), cnf.getService_owner_support_email()));
 
-		JSONObject original = new JSONObject();
-		original.put("use", use);
-		original.put("timestamp", "2015-01-02T22:17:00.371Z");
-		original.put("uri", ServerConfigurationService.getServerUrl());
-		original.put("share", Boolean.TRUE);
-		original.put("propagate", Boolean.TRUE);
-		jsonResponse.put("original", original);
+                Original orig = new Original(use);
+                orig.setUri(ServerConfigurationService.getServerUrl());
+                orig.setPropagate(Boolean.TRUE);
+                orig.setShare(Boolean.TRUE);
+		// TODO: Fix this when I know the rules
+                orig.setTimestamp("2015-01-02T22:17:00.371Z");
 
-		return jsonResponse;
+                Identity identity = new Identity(cnf.getService_owner_id(), toolRegistration);
+
+                Application app = new Application(identity,orig);
+		return app;
 	}
 
 }

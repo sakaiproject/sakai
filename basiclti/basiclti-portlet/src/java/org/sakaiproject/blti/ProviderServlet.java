@@ -46,6 +46,11 @@ import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIProviderUtil;
 
+import org.tsugi.casa.objects.Application;
+
+import org.tsugi.jackson.JacksonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
@@ -260,8 +265,15 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		if ( "/casa.json".equals(request.getPathInfo()) ) {
-			handleCASAList(request, response);
-			return;
+			if ( ServerConfigurationService.getBoolean("casa.provider", true))  {
+				handleCASAList(request, response);
+				return;
+			} else {
+				M_log.warn("CASA Provider is Disabled IP=" + ipAddress);
+				response.sendError(HttpServletResponse.SC_FORBIDDEN,
+						"CASA Provider is Disabled");
+				return;
+			}
 		}
 
 		if (M_log.isDebugEnabled()) {
@@ -926,23 +938,23 @@ public class ProviderServlet extends HttpServlet {
         ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
     }
 
-	private void handleCASAList(HttpServletRequest request, HttpServletResponse response) {
-		
-		JSONArray retval = new JSONArray();
-		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
+	private void handleCASAList(HttpServletRequest request, HttpServletResponse response) 
+	{
+                ArrayList<Application> apps = new ArrayList<Application>();
 
+		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
 		String[] allowedTools = allowedToolsConfig.split(":");
 		List<String> allowedToolsList = Arrays.asList(allowedTools);
+
 		for (String toolId : allowedToolsList) {
-			JSONObject entry = SakaiCASAUtil.getCASAEntry(toolId);
-			retval.add(entry);
+			Application app = SakaiCASAUtil.getCASAEntry(toolId);
+			apps.add(app);
 		}
 
-		// System.out.println("retval="+retval);
                 try {
                         response.setContentType("application/json");
                         PrintWriter out = response.getWriter();
-                        out.write(retval.toString());
+                        out.write(JacksonUtil.prettyPrint(apps));
                 }
                 catch (Exception e) {
                         e.printStackTrace();
