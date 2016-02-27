@@ -1232,15 +1232,17 @@ GradebookSpreadsheet.prototype.setupColoredCategories = function() {
     var $group = $(this);
     var category = $(this).find(".gradebook-item-category-filter :input").val();
 
-    if (!self._CATEGORY_DATA[category].hasOwnProperty("color")) {
-      self._CATEGORY_DATA[category]["color"] = $group.find("[data-category-color]").data("category-color");
+    if(self._CATEGORY_DATA[category]) {
+    	 if (!self._CATEGORY_DATA[category].hasOwnProperty("color")) {
+    	      self._CATEGORY_DATA[category]["color"] = $group.find("[data-category-color]").data("category-color");
+    	 }
+    	 var color = self._CATEGORY_DATA[category].color;
+
+		$group.find(".gradebook-item-category-filter-signal").
+		       css("backgroundColor", color).
+		       css("borderColor", color);
     }
-
-    var color = self._CATEGORY_DATA[category].color;
-
-    $group.find(".gradebook-item-category-filter-signal").
-           css("backgroundColor", color).
-           css("borderColor", color);
+   
   });
 };
 
