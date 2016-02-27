@@ -301,7 +301,6 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   public void saveLastVisitedPosition(DeliveryBean delivery, int partNumber, int questionNumber) {
 	  GradingService gradingService = new GradingService();
 	  AssessmentGradingData assessmentGradingData = delivery.getAssessmentGrading();
-	  assessmentGradingData.setStatus(2);
 	  assessmentGradingData.setLastVisitedPart(partNumber);
 	  assessmentGradingData.setLastVisitedQuestion(questionNumber);
 	  gradingService.saveOrUpdateAssessmentGradingOnly(assessmentGradingData);
