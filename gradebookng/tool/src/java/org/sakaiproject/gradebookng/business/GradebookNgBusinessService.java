@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -65,6 +66,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
@@ -1771,6 +1773,16 @@ public class GradebookNgBusinessService {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the user's preferred locale from the Sakai resource loader
+	 * 
+	 * @return
+	 */
+	public Locale getUserPreferredLocale() {
+		final ResourceLoader rl = new ResourceLoader();
+		return rl.getLocale();
 	}
 
 	/**
