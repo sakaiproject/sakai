@@ -196,7 +196,7 @@ public class BasePage extends WebPage {
 
 		flagWithPopover.add(new AttributeModifier("title", message));
 		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
-		flagWithPopover.add(new AttributeModifier("data-trigger", "focus"));
+		flagWithPopover.add(new AttributeModifier("data-trigger", "manual"));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
 		flagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
