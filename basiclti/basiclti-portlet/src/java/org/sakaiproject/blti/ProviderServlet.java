@@ -39,6 +39,9 @@ import net.oauth.signature.OAuthSignatureMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIProviderUtil;
@@ -55,6 +58,7 @@ import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiCASAUtil;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -222,6 +226,7 @@ public class ProviderServlet extends HttpServlet {
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
 		doPost(request, response);
 	}
 
@@ -251,6 +256,11 @@ public class ProviderServlet extends HttpServlet {
 			M_log.warn("Basic LTI Provider is Disabled IP=" + ipAddress);
 			response.sendError(HttpServletResponse.SC_FORBIDDEN,
 					"Basic LTI Provider is Disabled");
+			return;
+		}
+
+		if ( "/casa.json".equals(request.getPathInfo()) ) {
+			handleCASAList(request, response);
 			return;
 		}
 
@@ -915,4 +925,27 @@ public class ProviderServlet extends HttpServlet {
 
         ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
     }
+
+	private void handleCASAList(HttpServletRequest request, HttpServletResponse response) {
+		
+		JSONArray retval = new JSONArray();
+		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
+
+		String[] allowedTools = allowedToolsConfig.split(":");
+		List<String> allowedToolsList = Arrays.asList(allowedTools);
+		for (String toolId : allowedToolsList) {
+			JSONObject entry = SakaiCASAUtil.getCASAEntry(toolId);
+			retval.add(entry);
+		}
+
+		// System.out.println("retval="+retval);
+                try {
+                        response.setContentType("application/json");
+                        PrintWriter out = response.getWriter();
+                        out.write(retval.toString());
+                }
+                catch (Exception e) {
+                        e.printStackTrace();
+                }
+	}
 }
