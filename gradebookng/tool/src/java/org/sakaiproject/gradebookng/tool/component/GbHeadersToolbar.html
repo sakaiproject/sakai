@@ -1,4 +1,21 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
+	<tr wicket:id="categoriesRow" class="gb-categories-row" role="row">
+		<th colspan="3"><!-- empty --></th>
+		<th wicket:id="categories" scope="col" role="columnheader">
+			<span class="gb-category-label">
+				<span wicket:id="extraCreditCategoryFlag" class="gb-category-extra-credit"></span>
+				<span wicket:id="name" class="gb-category-name"></span>
+				<span wicket:id="weight" class="gb-category-weight"></span>
+			</span>
+		</th>
+		<th wicket:id="uncategorized" class="gb-uncategorized" scope="col" role="columnheader">
+			<span class="gb-category-label">
+				<span class="gb-category-name">
+					<wicket:message key="gradebookpage.uncategorised"></wicket:message>
+				</span>
+			</span>
+		</th>
+	</tr>
 	<tr role="row" class="gb-headers headers">
 		<wicket:container wicket:id="headers">
 			<th wicket:id="header" scope="col" role="columnheader">

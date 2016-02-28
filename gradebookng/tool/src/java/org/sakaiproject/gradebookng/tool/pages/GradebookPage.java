@@ -16,11 +16,11 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -55,7 +55,6 @@ import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
-import org.sakaiproject.gradebookng.tool.panels.GradebookSpreadsheetFixedTables;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
@@ -169,6 +168,7 @@ public class GradebookPage extends BasePage {
 		if (settings.isCategoriesEnabled()) {
 			// Pre-sort assignments by the categorized sort order
 			sortBy = SortType.SORT_BY_CATEGORY;
+			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
 		}
 
 		// get Gradebook to save additional calls later
@@ -415,10 +415,8 @@ public class GradebookPage extends BasePage {
 		modelData.put("assignments", assignments);
 		modelData.put("categories", categories);
 
-		this.form.add(new GradebookSpreadsheetFixedTables("fixedHeader", Model.ofMap(modelData)));
-
 		// TODO make this AjaxFallbackDefaultDataTable
-		final GbDataTable table = new GbDataTable("table", cols, studentGradeMatrix, 100);
+		final GbDataTable table = new GbDataTable("table", cols, studentGradeMatrix, 100, Model.ofMap(modelData));
 		table.addBottomToolbar(new NavigationToolbar(table) {
 			@Override
 			protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {

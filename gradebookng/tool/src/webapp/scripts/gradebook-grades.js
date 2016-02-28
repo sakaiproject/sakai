@@ -811,7 +811,7 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
   var self = this;
 
   var currentCategory, newColIndex = 3;
-  var $categoriesRow = self.$spreadsheet.find("#gradebookFixedThings").find(".gb-categories-row");
+  var $categoriesRow = self.$spreadsheet.find(".gb-categories-row");
 
   $.each(self._ALL_CATEGORIES, function(i, category) {
     var cellsForCategory = self._CATEGORIES_MAP[category];
@@ -854,9 +854,6 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
       $categoryCell.show();
     }
   });
-
-  self.$table.find("> thead:first").prepend($categoriesRow);
-  self.$spreadsheet.addClass("gb-grouped-by-category");
 
   setTimeout(function() {
     self.refreshFixedTableHeader(true);
