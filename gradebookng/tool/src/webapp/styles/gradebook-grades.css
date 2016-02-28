@@ -243,13 +243,13 @@
   text-align: center;
   white-space: nowrap;
 }
-#gradebookGrades.gb-grouped-by-category .dragtable-sortable {
+#gradebookSpreadsheet.gb-grouped-by-category .dragtable-sortable {
   margin-top: 30px;
 }
 #gradebookGrades .gb-fixed-column-headers-table .gb-categories-row {
   display: none;
 }
-#gradebookGrades.gb-grouped-by-category .gb-fixed-column-headers-table .gb-categories-row {
+#gradebookSpreadsheet.gb-grouped-by-category .gb-fixed-column-headers-table .gb-categories-row {
   display: table-row;
 }
 #gradebookGrades .gb-category-weight {
