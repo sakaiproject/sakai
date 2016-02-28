@@ -56,7 +56,7 @@ public class GradebookSpreadsheetFixedTables extends Panel {
 		}
 
 		for (Assignment assignment : assignments) {
-			if (assignment.getCategoryId() != null) {
+			if (assignment.getCategoryId() != null && categoryCounts.containsKey(assignment.getCategoryId())) {
 				Integer increment = categoryCounts.get(assignment.getCategoryId())+1;
 				categoryCounts.put(assignment.getCategoryId(), increment);
 			}
