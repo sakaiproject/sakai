@@ -68,27 +68,27 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		// iterate over assignments and build map of categoryname to list of assignments as well as category averages
 		for (final Assignment assignment : assignments) {
 
-			final String categoryName = getCategoryName(assignment);
-
-			if (!categoryNamesToAssignments.containsKey(categoryName)) {
-				categoryNames.add(categoryName);
-				categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
-
-				final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
-				if (categoryAverage == null || categoryName.equals(GradebookPage.UNCATEGORISED)) {
-					categoryAverages.put(categoryName, getString("label.nocategoryscore"));
-				} else {
-					categoryAverages.put(categoryName, FormatHelper.formatDoubleAsPercentage(categoryAverage));
-				}
-			}
-
-			categoryNamesToAssignments.get(categoryName).add(assignment);
-
 			// if an assignment is released, update the flag (but don't set it false again)
+			// then build the category map. we don't do any of this for unreleased gradebook items
 			if (assignment.isReleased()) {
 				this.someAssignmentsReleased = true;
-			}
 
+				final String categoryName = getCategoryName(assignment);
+
+				if (!categoryNamesToAssignments.containsKey(categoryName)) {
+					categoryNames.add(categoryName);
+					categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
+
+					final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
+					if (categoryAverage == null || categoryName.equals(GradebookPage.UNCATEGORISED)) {
+						categoryAverages.put(categoryName, getString("label.nocategoryscore"));
+					} else {
+						categoryAverages.put(categoryName, FormatHelper.formatDoubleAsPercentage(categoryAverage));
+					}
+				}
+
+				categoryNamesToAssignments.get(categoryName).add(assignment);
+			}
 		}
 		Collections.sort(categoryNames);
 
