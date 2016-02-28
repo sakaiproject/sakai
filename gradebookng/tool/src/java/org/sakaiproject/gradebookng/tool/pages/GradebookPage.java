@@ -352,6 +352,10 @@ public class GradebookPage extends BasePage {
 			// remove those that have no assignments
 			categories.removeIf(cat -> cat.getAssignmentList().isEmpty());
 
+			Collections.sort(categories, CategoryDefinition.orderComparator);
+
+			int currentColumnIndex = 3; // take into account first three header columns
+
 			for (final CategoryDefinition category : categories) {
 
 				if (category.getAssignmentList().isEmpty()) {
@@ -393,7 +397,15 @@ public class GradebookPage extends BasePage {
 
 				};
 
-				cols.add(column);
+				if (settings.isCategoriesEnabled()) {
+					// insert category column after assignments in that category
+					currentColumnIndex = currentColumnIndex + category.getAssignmentList().size();
+					cols.add(currentColumnIndex, column);
+					currentColumnIndex = currentColumnIndex + 1;
+				} else {
+					// add to the end of the column list
+					cols.add(column);
+				}
 			}
 		}
 
@@ -404,54 +416,6 @@ public class GradebookPage extends BasePage {
 		modelData.put("categories", categories);
 
 		this.form.add(new GradebookSpreadsheetFixedTables("fixedHeader", Model.ofMap(modelData)));
-
-		if (settings.isCategoriesEnabled()) {
-			// Pre-sort columns so the JavaScript doesn't have to
-			// by putting the category total columns after assignments
-			// in that category (which are already grouped by category).
-			// If categories are not enabled, these average columns
-			// will display as the last columns in the table.
-			Collections.sort(cols, new Comparator<IColumn>() {
-				@Override
-				public int compare(final IColumn col1, final IColumn col2) {
-					final IModel model1 = ((AbstractColumn) col1).getDisplayModel();
-					final IModel model2 = ((AbstractColumn) col2).getDisplayModel();
-
-					final Object o1 = model1.getObject();
-					final Object o2 = model2.getObject();
-
-					if (o1.equals(o2)) {
-						return 0;
-					}
-
-					Long cat1;
-					Long cat2;
-					if (o1 instanceof Assignment) {
-						cat1 = ((Assignment) o1).getCategoryId();
-					} else if (o1 instanceof CategoryDefinition) {
-						cat1 = ((CategoryDefinition) o1).getId();
-					} else {
-						return -1;
-					}
-
-					if (o2 instanceof Assignment) {
-						cat2 = ((Assignment) o2).getCategoryId();
-					} else if (o2 instanceof CategoryDefinition) {
-						cat2 = ((CategoryDefinition) o2).getId();
-					} else {
-						return 1;
-					}
-
-					if (cat1 == null) {
-						return 1;
-					} else if (cat2 == null) {
-						return -1;
-					}
-
-					return cat1.compareTo(cat2);
-				}
-			});
-		}
 
 		// TODO make this AjaxFallbackDefaultDataTable
 		final GbDataTable table = new GbDataTable("table", cols, studentGradeMatrix, 100);
