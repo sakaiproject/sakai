@@ -372,52 +372,48 @@ document.links[newindex].onclick();
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="previewMessage"></f:verbatim>
+  <div class="previewMessage">
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton id="done" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
- <f:verbatim></div></f:verbatim>
+  </div>
 </h:panelGroup>
 
-<f:verbatim><div id="delivPageWrapper">
-<div id="delivAssessmentWrapper">
-</f:verbatim>
+<div id="delivPageWrapper">
+  <div id="delivAssessmentWrapper">
 
-<!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
-<h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
+    <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
+    <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
 
-<!-- HEADING -->
-<f:subview id="assessmentDeliveryHeading">
-<%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
-</f:subview>
+    <!-- HEADING -->
+    <f:subview id="assessmentDeliveryHeading">
+      <%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
+    </f:subview>
 
-<!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
-<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-<h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
-<h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
+    <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
+    <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+    <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
+    <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 
-<%-- PART/ITEM DATA TABLES --%>
-
-<h:panelGrid columns="1" width="100%" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" border="0">
+    <%-- PART/ITEM DATA TABLES --%>
+    <h:panelGroup layout="block" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}">
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_1}"/>
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_2}" escape="false"/>
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_3}" escape="false"/>
-</h:panelGrid>
+    </h:panelGroup>
 
 <h:panelGroup rendered="#{!delivery.pageContents.isNoParts || delivery.navigation ne '1'}">
-<f:verbatim><div class="tier1"></f:verbatim>
-  <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part" border="0">
+  <div class="tier1">
+  <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
      <!-- f:subview id="parts" -->
-      <f:verbatim><h4></f:verbatim>
       <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
        <h:panelGroup>
       <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
       <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
          </h:panelGroup>
 
-      <h:outputText value="#{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-</h:panelGrid>
-      <f:verbatim></h4></f:verbatim>
+        <h:outputText value="#{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+      </h:panelGrid>
       <h:outputText value="#{part.description}" escape="false"/>
 
   <!-- PART ATTACHMENTS -->
@@ -426,24 +422,21 @@ document.links[newindex].onclick();
 
    <h:outputText value="#{deliveryMessages.no_question}" escape="false" rendered="#{part.noQuestions}"/>
 
-      <h:dataTable width="100%" value="#{part.itemContents}" var="question">
-        <h:column>
-
-<h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
-         <h:panelGroup>
-           <f:verbatim><h5></f:verbatim>
+   <h:dataTable width="100%" value="#{part.itemContents}" var="question">
+     <h:column>
+       <h:panelGroup styleClass="row" layout="block">
+         <h:panelGroup styleClass="col-md-6" layout="block">
            <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
            <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-           <f:verbatim></h5></f:verbatim>
          </h:panelGroup>
-<h:panelGroup>
-<h:outputText value=" #{question.pointsDisplayString} #{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+         <h:panelGroup styleClass="col-md-6 pull-right" layout="block">
+          <h:outputText value=" #{question.pointsDisplayString} #{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+          <h:outputText value="#{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
+          <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} " rendered="#{question.itemData.discount!='0.0'}" />
+         </h:panelGroup>
+       </h:panelGroup>
 
-        <h:outputText value="#{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
-        <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} " rendered="#{question.itemData.discount!='0.0'}" />
-</h:panelGroup>
-</h:panelGrid>
-          <f:verbatim><div class="tier3"></f:verbatim>
+       <div class="samigo-question-callout">
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">
            <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
@@ -514,16 +507,15 @@ document.links[newindex].onclick();
            </f:subview>
            </h:panelGroup>
           
-           <f:verbatim></div></f:verbatim>
-
+         </div>
         </h:column>
       </h:dataTable>
-<f:verbatim></div></f:verbatim>
+     </div>
      <!-- /f:subview -->
 
     </h:column>
   </h:dataTable>
-<f:verbatim></div></f:verbatim>
+  </div>
 </h:panelGroup>
 
   <f:verbatim><br/></f:verbatim>
