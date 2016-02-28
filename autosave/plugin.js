@@ -66,7 +66,7 @@
     var startTimer = function(event) {
         if (timeOutId) {
         } else {
-            var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 10;
+            var delay = event.editor.config.autosave_delay != null ? event.editor.config.autosave_delay : 10;
             timeOutId = setTimeout(onTimer, delay * 1000, event);
         }
 
