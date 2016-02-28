@@ -79,7 +79,7 @@ table.diff .skip {
 	border-right:1px solid #BBC;
 }
 table.diff .insert {
-	background-color:#CFC
+	background-color:#CFC;
         width: 380px;
         word-break: break-word;
 }
