@@ -10,7 +10,7 @@
     }
 
     CKEDITOR.plugins.add("autosave", {
-        lang: 'ca,cs,de,en,es,fr,ja,pl,pt-br,ru,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
+        lang: 'ca,cs,de,en,es,fr,ja,nl,pl,pt-br,ru,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
         requires: 'notification',
         version: 0.13,
         init: function(editor) {
@@ -106,7 +106,7 @@
                 title: editorInstance.lang.autosave.title,
                 minHeight: 155,
                 height: 300,
-                width: 750,
+                width: 800,
                 onShow: function() {
                     RenderDiff(this, editorInstance, autoSaveKey);
                 },
