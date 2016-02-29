@@ -26,6 +26,8 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 /**
  *
@@ -58,6 +60,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		// get user's role
 		final GbRole role = this.businessService.getUserRole();
+
+		// do they have permission to edit this assignment?
+		final boolean canEditAssignment = canUserEditAssignment(role, assignment);
 
 		final Link<String> title = new Link<String>("title", Model.of(assignment.getName())) {
 			private static final long serialVersionUID = 1L;
@@ -153,17 +158,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(new AttributeModifier("data-category-order", assignment.getCategoryOrder()));
 
 		// menu
-		final WebMarkupContainer menu = new WebMarkupContainer("menu") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public boolean isVisible() {
-				if (role != GbRole.INSTRUCTOR) {
-					return false;
-				}
-				return true;
-			}
-		};
+		final WebMarkupContainer menu = new WebMarkupContainer("menu");
 
 		menu.add(new AjaxLink<Long>("editAssignmentDetails", Model.of(assignment.getId())) {
 			private static final long serialVersionUID = 1L;
@@ -179,6 +174,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				window.show(target);
 			}
 
+			@Override
+			public boolean isVisible() {
+				return role == GbRole.INSTRUCTOR;
+			}
 		});
 
 		menu.add(new AjaxLink<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())) {
@@ -230,6 +229,11 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 				setResponsePage(new GradebookPage());
 			}
+
+			@Override
+			public boolean isVisible() {
+				return role == GbRole.INSTRUCTOR;
+			}
 		});
 
 		menu.add(new Link<Long>("moveAssignmentRight", Model.of(assignment.getId())) {
@@ -263,6 +267,11 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				}
 
 				setResponsePage(new GradebookPage());
+			}
+
+			@Override
+			public boolean isVisible() {
+				return role == GbRole.INSTRUCTOR;
 			}
 		});
 
@@ -300,7 +309,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				if (assignment.isExternallyMaintained()) {
 					return false;
 				}
-				return true;
+				return canEditAssignment;
 			}
 
 		});
@@ -327,7 +336,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				if (assignment.isExternallyMaintained()) {
 					return false;
 				}
-				return true;
+				return role == GbRole.INSTRUCTOR;
 			}
 		});
 
@@ -377,5 +386,25 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		}
 
 		return order;
+	}
+
+	private boolean canUserEditAssignment(GbRole role, Assignment assignment) {
+		boolean canEdit = false;
+		if (role == GbRole.INSTRUCTOR) {
+			canEdit = true;
+		} else {
+			List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
+					this.businessService.getCurrentUser().getId());
+			for (PermissionDefinition permission : permissions) {
+				if (assignment.getCategoryId() != null &&
+						assignment.getCategoryId().equals(permission.getCategoryId())) {
+					if (permission.getFunction().equals(GraderPermission.GRADE.toString())) {
+						canEdit = true;
+						break;
+					}
+				}
+			}
+		}
+		return canEdit;
 	}
 }
