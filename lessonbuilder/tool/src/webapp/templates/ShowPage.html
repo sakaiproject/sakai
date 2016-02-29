@@ -1801,39 +1801,43 @@
                     </p>
                 </form>
 			</div>
+	  <div id="column-dialog" class="controlsPanel lessonsDialog">
+            <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
+              <div class="">                  
+                <input type="hidden" name="columnitem" id="columnitem" />
+		<div>
+                  <span>
+                    <input type="checkbox" id="columndouble" />
+                    <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label><br />
+		    
+                    <input type="checkbox" id="columnsplit" />
+                    <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label><br />
+		    <select id="columnbackground">
+		      <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
+		      <option value="trans" id="columntrans"><span rsf:id="msg=simplepage.columntrans">transparent</span></option>
+		      <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
+		      <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
+		      <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
+		      <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
+		      <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
+		    </select>
+                    <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label>
+                  </span>
 		</div>
+		<p class="act">
+                  <input rsf:id="column-submit"  class="bold" type="submit" id="column-submit" />
+                  <input rsf:id="column-cancel"  type="submit" id="column-cancel" />
+		</p>
+	      </div>
+            </form>
+	  </div>
+
+		</div>
+
+
+
 	</div>
 	
-	<div id="column-dialog" class="controlsPanel lessonsDialog">
-          <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
-            <div class="">                  
-              <input type="hidden" name="columnitem" id="columnitem" />
-              <div>
-                <span>
-                  <input type="checkbox" id="columndouble" />
-                  <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label><br />
-
-                  <input type="checkbox" id="columnsplit" />
-                  <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label><br />
-		  <select id="columnbackground">
-		    <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
-		    <option value="trans" id="columntrans"><span rsf:id="msg=simplepage.columntrans">transparent</span></option>
-		    <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
-		    <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
-		    <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
-		    <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
-		    <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
-		  </select>
-                  <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label>
-                </span>
-              </div>
-              <p class="act">
-                <input rsf:id="column-submit"  class="bold" type="submit" id="column-submit" />
-                <input rsf:id="column-cancel"  type="submit" id="column-cancel" />
-              </p>
-	    </div>
-          </form>
-	</div>
 
 	<div rsf:id="delete-dialog" id="delete-dialog" class="controlsPanel lessonsDialog">
 		<span id="delete-dialog-comment-url" style="display:none"></span>
