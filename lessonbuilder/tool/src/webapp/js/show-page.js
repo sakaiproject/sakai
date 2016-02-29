@@ -70,10 +70,10 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	var breadcrumbs = $(".breadcrumbs span");
 	if (breadcrumbs.size() > 0) {
-	    $(".Mrphs-toolTitleNav__addLeft").append($(".breadcrumbs span"));
-	    $(".Mrphs-toolTitleNav__text").hide();
+	    $(".Mrphs-siteHierarchy").append($(".breadcrumbs span").slice(1));
 	}
-	$(".Mrphs-toolTitleNav__addRight").append($(".action"));
+	$(".Mrphs-siteHierarchy").append($(".action"));
+	$(".Mrphs-siteHierarchy").append("<br style='clear:both'/>");
 
 	// This is called in comments.js as well, however this may be faster.
 	//if(sakai.editor.editors.ckeditor==undefined) {
