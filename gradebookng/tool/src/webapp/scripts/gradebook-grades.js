@@ -82,7 +82,7 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
 
   var tmpHeaderByIndex = [];
 
-  self.$table.find("> thead > tr > th").each(function(cellIndex, cell) {
+  self.$table.find("> thead > tr.gb-headers > th").each(function(cellIndex, cell) {
     var $cell = $(cell);
 
     var model = new GradebookHeaderCell($cell, self);
@@ -224,7 +224,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
 
       if ($targetRow.length == 0) {
         // all rows above are hidden! Jump to the header
-        $targetRow = self.$table.find("> thead > tr:last");
+        $targetRow = self.$table.find("> thead > tr.gb-headers");
       }
 
       $targetCell = $targetRow.find("> *:nth-child("+($cell.index()+1)+")");
@@ -234,7 +234,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
       event.preventDefault();
       event.stopPropagation();
 
-      $targetCell = self.$table.find("> thead > tr:last").
+      $targetCell = self.$table.find("> thead > tr.gb-headers").
                       find("> *:nth-child("+($cell.index()+1)+")");
 
     // or are we at the top!
@@ -381,8 +381,8 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   $head.find("> tr").each(function() {
     var $tr = $(this);
 
-    if ($tr.hasClass("headers")) {
-      var $cloneRow = $("<tr>").addClass("headers");
+    if ($tr.hasClass("gb-headers")) {
+      var $cloneRow = $("<tr>").addClass("gb-headers");
       $.each($tr.find("> td, > th"), function(i, th) {
         var $th = $(th);
         var $clone = self._cloneCell($th);
@@ -403,7 +403,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
 
   if (reset && self.$fixedColumnsHeader) {
     // ensure the $fixedColumnsHeader and $fixedHeader are the same height
-    self.$fixedColumnsHeader.find("> tr.headers > th").height(self.$fixedHeader.find(".headers th:first").height());
+    self.$fixedColumnsHeader.find("> tr.gb-headers > th").height(self.$fixedHeader.find(".headers th:first").height());
   }
 
   self.$fixedHeader.find("th").on("mousedown", function(event) {
@@ -411,7 +411,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
 
     $(document).scrollTop(self.$table.offset().top - 10);
     // find the header row (last in the thead) and get the corresponding th element
-    var $target = $(self.$table.find("> thead > tr:last > *").get($(this).index()));
+    var $target = $(self.$table.find("> thead > tr.gb-headers > *").get($(this).index()));
 
     self.$spreadsheet.data("activeCell", $target);
 
@@ -446,8 +446,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
                                     attr("role", "presentation").
                                     hide();
 
-//  var $headers = self.$table.find("thead tr > *:not(.gb-grade-item-column-cell, .gb-category-item-column-cell)");
-  var $headers = self.$table.find("> thead > tr.headers > th").slice(0,3);
+  var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);
   var $thead = $("<thead>");
   // append a dummy header row for when categorised
   $thead.append($("<tr>").addClass("gb-categories-row").append($("<th>").attr("colspan", $headers.length)));
@@ -495,7 +494,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
     event.preventDefault();
     $(document).scrollTop(self.$table.offset().top - 10);
     self.$spreadsheet.scrollLeft(0);
-    var $targetCell = $(self.$table.find("> thead > tr:last > *").get($(this).index()));
+    var $targetCell = $(self.$table.find("> thead > tr.gb-headers > *").get($(this).index()));
 
     self.$spreadsheet.data("activeCell", $targetCell);
 
@@ -946,7 +945,7 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
   self._ALL_CATEGORIES = [];
   self._CATEGORY_DATA = {};
 
-  self._COLUMN_ORDER = self.$table.find("> thead > tr > th.gb-grade-item-column-cell").map(function() {
+  self._COLUMN_ORDER = self.$table.find("> thead > tr.gb-headers > th.gb-grade-item-column-cell").map(function() {
     return $(this).data("model");
   });
 
@@ -973,7 +972,7 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
   });
 
   // take note of any category total column headers
-  self.$table.find("> thead > tr > th.gb-category-item-column-cell").each(function() {
+  self.$table.find("> thead > tr.gb-headers > th.gb-category-item-column-cell").each(function() {
     var $th = $(this);
     var model = $th.data("model");
     var category = $th.find("[data-category]:first").data("category");
@@ -1033,7 +1032,7 @@ GradebookSpreadsheet.prototype.getCategoriesMap = function() {
 
 
 GradebookSpreadsheet.prototype.getHeaderModelForAssignment = function(assignmentId) {
-  return this.$table.find("thead .gb-grade-item-column-cell [data-assignmentid='" + assignmentId + "']").closest(".gb-grade-item-column-cell").data("model");
+  return this.$table.find("thead .gb-headers .gb-grade-item-column-cell [data-assignmentid='" + assignmentId + "']").closest(".gb-grade-item-column-cell").data("model");
 };
 
 
@@ -1089,7 +1088,7 @@ GradebookSpreadsheet.prototype.refreshHiddenVisualCue = function() {
   };
 
   this.$spreadsheet.find(".gb-hidden-column-visual-cue").remove();
-  $.each(self.$table.find("> thead > tr.headers > th"), function(i, th) {
+  $.each(self.$table.find("> thead > tr.gb-headers > th"), function(i, th) {
     var $th = $(th);
     if ($th.is(":not(:visible)")) {
       var $cue = $("<a>").attr("href", "javascript:void(0);").addClass("gb-hidden-column-visual-cue");
@@ -1625,7 +1624,7 @@ GradebookEditableCell.prototype.setupInput = function() {
 
     // add the "out of XXX marks" label
     var $outOf = $("<span class='gb-out-of'></span>");
-    $outOf.html("/"+self.getGradeItemTotalPoints());
+    $outOf.html(self.getOutOfLabel());
     self.$input.after($outOf);
   }
 
@@ -1659,8 +1658,8 @@ GradebookEditableCell.prototype.getHeaderCell = function() {
 };
 
 
-GradebookEditableCell.prototype.getGradeItemTotalPoints = function() {
-  return this.header.$cell.find(".gb-total-points").html();
+GradebookEditableCell.prototype.getOutOfLabel = function() {
+  return this.header.$cell.find(".gb-total-points").data("outof-label");
 };
 
 

@@ -107,7 +107,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(title);
 
-		add(new Label("totalPoints", Model.of(assignment.getPoints())));
+		add(new Label("totalPoints", Model.of(assignment.getPoints())).
+				add(new AttributeModifier("data-outof-label",
+						new StringResourceModel("grade.outof", null, new Object[] { assignment.getPoints() }))));
 		add(new Label("dueDate", Model.of(FormatHelper.formatDate(assignment.getDueDate(), getString("label.noduedate")))));
 
 		final WebMarkupContainer externalAppFlag = gradebookPage.buildFlagWithPopover("externalAppFlag", "");
