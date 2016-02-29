@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.mailarchive.entityprovider.MailArchiveEntityProvider">
+	
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"></ref></property>
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="mailArchiveService"><ref bean="org.sakaiproject.mailarchive.api.MailArchiveService"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		
+	</bean>
+	
+</beans>
+

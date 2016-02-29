@@ -997,6 +997,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageSkin", skin);
 		rcontext.put("pageTitle", Web.escapeHtml(title));
 		rcontext.put("pageScriptPath", PortalUtils.getScriptPath());
+		rcontext.put("pageWebjarsPath", PortalUtils.getWebjarsPath());
 		rcontext.put("portalCDNPath", PortalUtils.getCDNPath());
 		rcontext.put("portalCDNQuery", PortalUtils.getCDNQuery());
 		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
@@ -1884,6 +1885,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				
 				logoutWarningMessage = rloader.getString("sit_logout_warn");
 			}
+			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
 

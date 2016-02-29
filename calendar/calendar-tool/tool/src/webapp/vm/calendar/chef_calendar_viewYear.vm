@@ -37,13 +37,12 @@
 	<div class="clear"></div>
 			#toolbar($menu_PDF)	
 <!-- how to draw a year-->
-<table width="100%" cellspacing="5" summary="$tlang.getString('viewm.list.summary')">
-   #foreach ($xn in [0..3])
-    <tr>
-        #foreach ($mn in [0..2])
-            <td>
-                <!--<table>-->
-                #set ($mm = $yearArray.getMonth($xn,$mn))
+	<div class="calendarYearContainer">
+	#foreach ($xn in [0..3])
+		#foreach ($mn in [0..2])
+			#set ($monthClass = $xn + "_" + $mn)
+			<div class="calendarYearItem calendarYearItem_$monthClass">
+				#set ($mm = $yearArray.getMonth($xn,$mn))
                 <table width="100%" cellspacing="0" class="calendar"  summary="$tlang.getString('viewy.list.summary2') $mm.MonthName $tlang.getString('viewy.list.summary3')">
                         <tr>
                             ##<td colspan="7" class="borderWhiteYear">
@@ -121,9 +120,8 @@
 							</tr>
                  #end
                 </table>
-            </td>
+			</div>
         #end
-    </tr>
    #end
-</table>
+	</div>
 </div>

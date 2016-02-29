@@ -97,7 +97,7 @@
 					id="duplicateSite" 
 					accesskey="s"
 					value="$tlang.getString("sitdup.dup")"
-					onclick="showNotif('submitnotif','duplicateSite','duplicateSiteForm');document.duplicateSiteForm.option.value='duplicate'; document.duplicateSiteForm.submit(); return false;"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.duplicateSiteForm.option.value='duplicate'; document.duplicateSiteForm.submit(); return false;"
 				/>
 				<input
 					class="disableme" 
@@ -106,9 +106,8 @@
 					id="$tlang.getString("sitdup.can")" 
 					accesskey="x"
 					value="$tlang.getString("sitdup.can")"
-					onclick="document.duplicateSiteForm.option.value='cancel'; document.duplicateSiteForm.submit(); return false;"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.duplicateSiteForm.option.value='cancel'; document.duplicateSiteForm.submit(); return false;"
 				/>
-				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			#else
 				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("pubuncon.fin")" />
 				<input
@@ -118,7 +117,7 @@
 					id="$tlang.getString("pubuncon.fin")" 
 					accesskey="x"
 					value="$tlang.getString("pubuncon.fin")"
-					onclick="document.duplicateSiteForm.option.value='finish'; document.duplicateSiteForm.submit(); return false;"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.duplicateSiteForm.option.value='finish'; document.duplicateSiteForm.submit(); return false;"
 				/>
 			#end
 		</div>

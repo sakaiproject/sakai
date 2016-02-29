@@ -896,3 +896,8 @@ dl.defList dd{
 .unpublishedLabel {
     opacity:0.2;
 }
+
+/* SAK-30378 */
+.actionsContainer {
+    margin-top: 1em;
+}

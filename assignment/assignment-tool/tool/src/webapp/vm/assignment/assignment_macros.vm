@@ -49,7 +49,7 @@
 ## Macro for the paginator
 #macro( paginator $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
     <div class="listNav">
-        <div class="instruction" id="pagingHeader">
+        <div class="instruction" class="pagingHeader">
             $tlang.getString( "gen.viewing" ) $topMsgPos - $btmMsgPos $tlang.getString( "gen.of" ) $allMsgNumber $tlang.getString( "gen.items" )
         </div>
         #if( $pagesize != 0 )

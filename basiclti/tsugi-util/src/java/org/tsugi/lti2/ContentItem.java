@@ -84,6 +84,7 @@ public class ContentItem {
 	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
 	public static final String TYPE_LTILINKITEM = "LtiLinkItem";
+	public static final String TYPE_LTILINK_OLD = "LtiLink";
 	public static final String TYPE_CONTENTITEM = "ContentItem";
 	public static final String TYPE_FILEITEM = "FileItem";
 	public static final String TYPE_IMPORTITEM = "ImportItem";

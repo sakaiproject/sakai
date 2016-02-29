@@ -16,7 +16,6 @@ function resizeFrame(){
 }
 </script>
 <script type="text/javascript">includeLatestJQuery('announcements');</script>
-<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#notiHistoryToggle').click(function(e){
@@ -54,16 +53,19 @@ function resizeFrame(){
 		
 	});
 </script>	
-<div class="portletBody">
-	<h3>
+<div class="portletBody container-fluid">
+	<div class="page-header">
+		<h1>
 		#if ( $newAnn =="true")
 			$tlang.getString("revise.add")
 		#else
 			$tlang.getString("revise.revise")
 		#end
-	</h3>
+		</h1>
+	</div>
+	
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
-	<div class="indnt1">
+		
 		<p class="instruction">
 				#if ( $newAnn =="true")
 					$tlang.getString("revise.complete")<br /><br /> $tlang.getString("revise.required.star")
@@ -71,15 +73,16 @@ function resizeFrame(){
 					$tlang.getString("revise.update") <br /><br /> $tlang.getString("revise.required.star")
 				#end
 		</p>
-	</div>	
+
 		<form name="reviseForm" action="#toolForm("AnnouncementAction")" method="post" onsubmit="return true;" >
-				<input type="hidden" name="eventSubmit_doAnnouncement_form" value="" />
-				<input type="hidden" name="option" id="option" value="" />
-			<div class="indnt1">
+			<input type="hidden" name="eventSubmit_doAnnouncement_form" value="" />
+			<input type="hidden" name="option" id="option" value="" />
+			
 			<input type="hidden" name="fromInterface" value="revise" />
-			<p class="shorttext">
-				<span class="reqStar">*</span>
-				<label for="subject">
+
+			<div class="form-group">
+			    <label for="subject">
+					<span class="reqStar">* </span>
 					$tlang.getString("revise.subject") 
 				</label>
 				#if ($new=="true")
@@ -87,227 +90,228 @@ function resizeFrame(){
 				#else
 					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" />
 				#end
-			</p>
-			<div class="longtext">
-				<label for="body" class="block">
-					$tlang.getString("revise.announcement.star")
-				</label>
-				<table border="0" cellpadding="0" cellspacing="0" >
-					<tr>
-						<td>
-							#if ($new=="true")
-								#if ($!tempBody.length() != 0)
-									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($tempBody)</textarea>
-								#else
-									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
-								#end
-							#else
-								#set($messageBody = $message.body)
-								#if ($!messageBody.length() != 0)
-									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($message.body)</textarea>
-								#else
-									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
-								#end
-							#end
-							#chef_setupformattedtextarea("body")
-						</td>
-					</tr>
-				</table>
 			</div>
-			<fieldset><legend><h4>$tlang.getString("displayto.access")</h4></legend>
-		#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
-		#if ( $motd )
-			## no show this selection, but set default to public
-			<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" onclick="updateEmailDropdownOptions()" />
-		#elseif (($!publicDisable && ($show_group =="false")) || $pubviewset)
-			## no show this selection, but set default to site
-			<input type="radio" name="announceToDisabled" id="site" value="site" checked="checked" disabled="true" onclick="updateEmailDropdownOptions()"/>
-			<input type="hidden" name="announceTo" value="site" checked="checked" onclick="updateEmailDropdownOptions()"/>
-			#if ($pubviewset)
-				## If the channel is public save it as site view, but show that we will display to public.
-				## This means if channel is un-made public announcement will revert to site access (correctly).
-				<label for="site">$tlang.getString("displayto.public")</label>
-			#else
-				<label for="site">$tlang.getString("displayto.site")</label>
-			#end
-		#else
-			#if ($allowAddChannelMessage)
-				<p class="checkbox">
-					<input type="radio" name="announceTo" id="site" 
-						value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end 
-						onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"/>
-					<label for="site">$tlang.getString("displayto.site")</label>
-				</p>	
-				#if (!$!publicDisable)
-				<p class="checkbox">
-					<input type="radio" name="announceTo" id="pubview" 
-						value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end 
-						onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"   />
-					<label for="pubview">$tlang.getString("displayto.public")</label>
-				</p>
-				#end
-			#else
-				#if ($!groups.size() >1)
-					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
-				#else
-					<label for="$tlang.getString('group')">$tlang.getString("group")</label>
-				#end
-			#end
-			#if ($!groups)
-				## added group awareness
-				<p class="checkbox">
-					<input type="radio" name="announceTo" id="groups" 
-					value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end 
-					onclick="$('#groupTable').fadeIn('slow');resizeFrame(); updateEmailDropdownOptions()"  />
-					##<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
 
-					<label for="groups">$tlang.getString("displayto.selected")</label>
-				</p>	
-				#if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))
-					#set ($listDisplay="block")
-				#else
-					#set ($listDisplay="none")
-				#end
-					<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("revise.group.list.summary")">
-					<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
-						<tr>
-							<th id ="selectAllGroups" class="attach">
-								<input type="checkbox" name="selectall" value="" id="selectall" title="$tlang.getString("revise.group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
-							</th>
-					 		<th id ="groupname">
-								$tlang.getString("revise.group.list.title")
-							</th>
-							<th id ="groupdescription">
-								$tlang.getString("revise.group.list.desc")
-							</th>
-						</tr>
-						#foreach ($group in $!groups)
-							<tr>
-								<td headers="selectAllGroups" class="attach">
-									#set($selected=false)
-									#foreach($aGroupRef in $announceToGroups)
-										#set($aGroup = $!site.getGroup($!aGroupRef))
-										#if ($!group.Id == $!aGroup.Id)
-											#set($selected = true)
-										#end
-									#end
-									#if($groups.size() == 1) #set($selected=true) #end
-									#set($disabled=true)
-##									#if($allowedRemoveGroups.contains($group)) 
-										<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$validator.escapeHtml($group.title)" value="$group.Id" #if($selected) checked="checked"#end />
-##									#else
-##										<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
-##									#end
-									
-##									<input #if($disabled) type="hidden" #else type="checkbox" #end name="selectedGroups" id="group-$group.Id" title="$group.Title" value="$group.Id" #if($selected) checked="checked"#end/>
-##									#if($disabled && $selected)<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />#end
-								</td>
-								<td headers="groupname" nowrap="nowrap">
-									<label for="group-$group.Id">
-										$validator.escapeHtml($group.Title)
-									</label>	
-								</td>
-								<td headers="groupdescription" width="100%"> ##mozilla does not resize table children dynamically , so set here
-									#set($description = "")
-									#set($description = $group.Description)
-									$validator.escapeHtml($!description)
-								</td>
-							</tr>
+			<div class="row">
+				<div class="col-md-12">
+					<label for="body" class="block">
+						$tlang.getString("revise.announcement.star")
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					#if ($new=="true")
+						#if ($!tempBody.length() != 0)
+							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($tempBody)</textarea>
+						#else
+							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
 						#end
-					</table>
-			#end
-		#end
-        </fieldset>
+					#else
+						#set($messageBody = $message.body)
+						#if ($!messageBody.length() != 0)
+							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($message.body)</textarea>
+						#else
+							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
+						#end
+					#end
+					#chef_setupformattedtextarea("body")
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-12">
+
+					<fieldset>
+						<legend>
+							<h4>$tlang.getString("displayto.access")</h4>
+						</legend>
+					
+				#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
+				#if ( $motd )
+					## no show this selection, but set default to public
+					<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" onclick="updateEmailDropdownOptions()" />
+				#elseif (($!publicDisable && ($show_group =="false")) || $pubviewset)
+					## no show this selection, but set default to site
+					<input type="radio" name="announceToDisabled" id="site" value="site" checked="checked" disabled="true" onclick="updateEmailDropdownOptions()"/>
+					<input type="hidden" name="announceTo" value="site" checked="checked" onclick="updateEmailDropdownOptions()"/>
+					#if ($pubviewset)
+						## If the channel is public save it as site view, but show that we will display to public.
+						## This means if channel is un-made public announcement will revert to site access (correctly).
+						<label for="site">$tlang.getString("displayto.public")</label>
+					#else
+						<label for="site">$tlang.getString("displayto.site")</label>
+					#end
+				#else
+					#if ($allowAddChannelMessage)
+
+						<div class="checkbox">
+						  <label for="site">
+						  	<input type="radio" name="announceTo" id="site" 
+						  		value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end 
+						  		onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"/>
+						  	$tlang.getString("displayto.site")
+						  </label>
+						</div>
+
+
+						#if (!$!publicDisable)
+						<div class="checkbox">
+						  <label for="pubview">
+						    <input type="radio" name="announceTo" id="pubview" 
+								value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end 
+								onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"   />
+								$tlang.getString("displayto.public")
+						  </label>
+						</div>
+						#end
+					#else
+						#if ($!groups.size() >1)
+							<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+						#else
+							<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+						#end
+					#end
+					#if ($!groups)
+						## added group awareness
+						<div class="checkbox">
+						  <label for="groups">
+							<input type="radio" name="announceTo" id="groups" 
+							value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end 
+							onclick="$('#groupTable').fadeIn('slow');resizeFrame(); updateEmailDropdownOptions()"  />
+							$tlang.getString("displayto.selected")
+						  </label>
+						</div>
+
+						#if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))
+							#set ($listDisplay="block")
+						#else
+							#set ($listDisplay="none")
+						#end
+						<div class="table-responsive">
+							<table id="groupTable" style="display:$listDisplay" class="table table-hover table-striped table-bordered" summary="$tlang.getString("revise.group.list.summary")">
+							<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+								<tr>
+									<th id ="selectAllGroups" class="attach">
+										<input type="checkbox" name="selectall" value="" id="selectall" title="$tlang.getString("revise.group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
+									</th>
+							 		<th id ="groupname">
+										$tlang.getString("revise.group.list.title")
+									</th>
+									<th id ="groupdescription">
+										$tlang.getString("revise.group.list.desc")
+									</th>
+								</tr>
+								#foreach ($group in $!groups)
+									<tr>
+										<td headers="selectAllGroups" class="attach">
+											#set($selected=false)
+											#foreach($aGroupRef in $announceToGroups)
+												#set($aGroup = $!site.getGroup($!aGroupRef))
+												#if ($!group.Id == $!aGroup.Id)
+													#set($selected = true)
+												#end
+											#end
+											#if($groups.size() == 1) #set($selected=true) #end
+											#set($disabled=true)	
+											<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$validator.escapeHtml($group.title)" value="$group.Id" #if($selected) checked="checked"#end />
+										</td>
+										<td headers="groupname" nowrap="nowrap">
+											<label for="group-$group.Id">
+												$validator.escapeHtml($group.Title)
+											</label>	
+										</td>
+										<td headers="groupdescription" width="100%"> ##mozilla does not resize table children dynamically , so set here
+											#set($description = "")
+											#set($description = $group.Description)
+											$validator.escapeHtml($!description)
+										</td>
+									</tr>
+								#end
+							</table>
+						</div>
+					#end
+				#end
+		        </fieldset>
+				
+				</div>			
+			</div>
 ##
 ################### AVAILABLE section (to show/hide and set release/retract dates)
-			<fieldset><legend><h4>$tlang.getString("avail.title")</h4></legend>
-			<table border="0" cellpadding="0">
-				<tr>
-					<td style="padding:1px 0">
-						<input type="radio" class="showHide" name="hidden" id="hidden_false" value="false" #if(!$hidden)checked="checked" #end/>
-					</td>
-					<td style="padding:1px 0"  colspan="4">
-						<label for="hidden_false">
-							$tlang.getString("avail.show.withtips")
-                        </label>
-					</td>
-				</tr>
-				<tr>
-					<td  style="padding:1px 0">
-						<input type="radio" class="showHide" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
-					</td>
-					<td colspan="4"  style="padding:1px 0">
-						<label for="hidden_true">
-                            $tlang.getString("avail.hide.withtips")
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td  style="padding:1px 0">
-						<input type="radio" name="hidden" id="hidden_specify" value="specify" #if($specify)checked="checked" #end/>
-					</td>
-					<td colspan="4"  style="padding:1px 0">
-						<label for="hidden_specify">
-							$tlang.getString("avail.specify.withtips")
-						</label>
-					</td>
-				</tr>
-				<tr class="showHideDates">
-					<td  style="padding:1px 0"></td>
-					<td  style="padding:1px 0">
-						<input type="checkbox" class="beginEnd"  name="use_start_date" id="use_start_date" value="true" #if($useReleaseDate == true)checked="checked" #end/>
-					</td>
-					<td colspan="3"  style="padding:1px 0">
-						<label for="use_start_date">$tlang.getString("avail.release")</label>
-					</td>
-				</tr>
-				<tr class="showHideDates">
-					<td colspan="3"  style="padding:1px 0"></td>
-					<td  style="padding:1px 0"><label for="release_year">$tlang.getString("widget_date")</label></td>
-				</tr>
-                
-                #set($release_year = $releaseDate.breakdownLocal().year)
-                #set($release_month = $releaseDate.breakdownLocal().month)
-                #set($release_day = $releaseDate.breakdownLocal().day)
+			<div class="row">
+				<div class="col-md-12">
+				<fieldset>
+					<legend>
+						<h4>$tlang.getString("avail.title")</h4>
+					</legend>
 
-                #set($release_hour = $releaseDate.breakdownLocal().hour)
-                #set($release_minute = $releaseDate.breakdownLocal().min)
+						<div class="checkbox">
+						  <label for="hidden_false">
+								<input type="radio" class="showHide" name="hidden" id="hidden_false" value="false" #if(!$hidden)checked="checked" #end/>
+								$tlang.getString("avail.show.withtips")						  
+						  </label>
+						</div>
 
-				<tr class="showHideDates">
-					<td colspan="3"  style="padding:1px 0"></td>
-					<td  style="padding:1px 0">
-                         <input type="text" id="opendate">
-					</td>
-				</tr>
-				<tr class="showHideDates">
-					<td  style="padding:1px 0"></td>
-					<td  style="padding:1px 0">
-						<input type="checkbox" class="beginEnd"  name="use_end_date" id="use_end_date" value="true" #if($useRetractDate == true)checked="checked" #end/>
-					</td>
-					<td colspan="4"  style="padding:1px 0">
-						<label for="use_end_date">$tlang.getString("avail.retract")</label>
-					</td>
-				</tr>
-				<tr class="showHideDates">
-					<td colspan="3"  style="padding:1px 0"></td>
-					<td  style="padding:1px 0"><label for="retract_year">$tlang.getString("widget_date")</label></td>
-				</tr>
-                            
-                #set($retract_year = $retractDate.breakdownLocal().year)
-                #set($retract_month = $retractDate.breakdownLocal().month)
-                #set($retract_day = $retractDate.breakdownLocal().day)
+						<div class="checkbox">
+						  <label for="hidden">
+								<input type="radio" class="showHide" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
+								$tlang.getString("avail.hide.withtips")
+						  </label>
+						</div>
 
-                #set($retract_hour = $retractDate.breakdownLocal().hour)
-                #set($retract_minute = $retractDate.breakdownLocal().min)
+						<div class="checkbox">
+						  <label for="hidden_specify">
+								<input type="radio" name="hidden" id="hidden_specify" value="specify" #if($specify)checked="checked" #end/>
+								$tlang.getString("avail.specify.withtips")
+						  </label>
+						</div>
+		                
+		                #set($release_year = $releaseDate.breakdownLocal().year)
+		                #set($release_month = $releaseDate.breakdownLocal().month)
+		                #set($release_day = $releaseDate.breakdownLocal().day)
 
-				<tr class="showHideDates">
-					<td colspan="3"></td>
-					<td>
-                        <input type="text" id="closedate">
-					</td>
-				</tr>
-			</table>
-            </fieldset>
+		                #set($release_hour = $releaseDate.breakdownLocal().hour)
+		                #set($release_minute = $releaseDate.breakdownLocal().min)
+						
+						<div class="form-inline showHideDates">
+							<div class="checkbox">
+							  <label for="use_start_date">
+									<input type="checkbox" class="beginEnd"  name="use_start_date" id="use_start_date" value="true" #if($useReleaseDate == true)checked="checked" #end/>
+									$tlang.getString("avail.release") 
+							  </label>
+							</div>
+							<div class="form-group">
+							  <label for="opendate">
+									$tlang.getString("widget_date")
+							  </label>
+							  <input type="text" id="opendate">
+							</div>
+						</div>
+		                
+		                #set($retract_year = $retractDate.breakdownLocal().year)
+		                #set($retract_month = $retractDate.breakdownLocal().month)
+		                #set($retract_day = $retractDate.breakdownLocal().day)
+
+		                #set($retract_hour = $retractDate.breakdownLocal().hour)
+		                #set($retract_minute = $retractDate.breakdownLocal().min)
+						
+						<div class="form-inline showHideDates">
+							<div class="checkbox">
+								<label for="use_end_date">
+									<input type="checkbox" class="beginEnd"  name="use_end_date" id="use_end_date" value="true" #if($useRetractDate == true)checked="checked" #end/>
+									$tlang.getString("avail.retract")
+								</label>
+							</div>
+							<div class="form-group">
+								<label for="closedate">$tlang.getString("widget_date")</label>
+			                    <input type="text" id="closedate">
+							</div>
+						</div>
+
+
+		        </fieldset>
+		        </div>
+		    </div>
             
             <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
@@ -410,7 +414,8 @@ function resizeFrame(){
 		
 		#if ($notiHistory)
 			<div class="specialLink"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>
-			<table class="listHier indnt2" id="notiHistory" border="0" style="width:auto;display:none" cellpadding="0" cellspacing="0" summary="$tlang.getString("revise.notify.ver_summary")">
+			<div class="table-responsive">
+			<table class="table table-hover table-striped table-bordered" id="notiHistory" style="display:none" summary="$tlang.getString("revise.notify.ver_summary")">
 				<thead>
 					<tr><th scope="col">$tlang.getString("revise.notify.ver_daterevisedtitle")</th><th scope="col">$tlang.getString("revise.notify.ver_typetitle")</th><th scope="col">$tlang.getString("revise.notify.ver_datereleasedtitle")</th></tr>
 				</thead>
@@ -458,8 +463,9 @@ function resizeFrame(){
 					 #end	
 				</tbody>	
 			</table>
+			</div>
 		#end
-		<p class="act">
+		<p class="act act-outer">
 				<input type="button" class="active" name="post" accesskey="s"  id="saveChanges"  value=
 					#if ( $newAnn =="true")				
 						"$tlang.getString("revise.add")"
@@ -473,7 +479,6 @@ function resizeFrame(){
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
-</div>
 <script type="text/JavaScript">
 	<!--
 		function toggleSelectAll(caller, elementName)

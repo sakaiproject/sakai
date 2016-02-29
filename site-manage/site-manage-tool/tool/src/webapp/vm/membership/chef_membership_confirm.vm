@@ -11,8 +11,8 @@
 	</ol>	
 	<form action="#toolForm("$action")" method="post">
 		<div class="act">
-			<input type="submit" class="active" name="eventSubmit_doGoto_unjoinyes" value="$tlang.getString("mb.unjoin")" accesskey="s" />
-			<input type="submit" name="eventSubmit_doGoto_unjoincancel" value="$tlang.getString("mb.cancel")" accesskey="x"  />
+			<input type="submit" class="active" name="eventSubmit_doGoto_unjoinyes" value="$tlang.getString("mb.unjoin")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doGoto_unjoincancel" value="$tlang.getString("mb.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>	

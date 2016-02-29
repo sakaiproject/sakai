@@ -852,10 +852,12 @@ public class SakaiBLTIUtil {
 				outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
 				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
+				setProperty(lti2subst,LTI2Vars.BASICOUTCOME_URL, outcome_url);  
 
 				if ( theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0 ) {
 					setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 					setProperty(lti2subst,LTI2Vars.RESULT_SOURCEDID, result_sourcedid);  
+					setProperty(lti2subst,LTI2Vars.BASICOUTCOME_SOURCEDID, result_sourcedid);  
 					String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
 					setProperty(lti2subst, LTI2Vars.RESULT_URL, result_url);
 				}
@@ -1232,6 +1234,9 @@ public class SakaiBLTIUtil {
 		addSiteInfo(ltiProps, lti2subst, site);
 		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
 		addUserInfo(ltiProps, lti2subst, tool);
+
+		// Don't sent the normal return URL - Certification
+		ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
 		debug = 1;

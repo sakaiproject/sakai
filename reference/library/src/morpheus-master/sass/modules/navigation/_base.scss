@@ -302,6 +302,9 @@ body.is-logged-out{
 	}
 
 	.has-avatar{
+		.#{$namespace}userNav__submenuitem--profilelink{
+			padding: 0 !important;
+		}
 		.#{$namespace}userNav__submenuitem--profilepicture{
 			width:32px;
 			height:32px;
@@ -324,10 +327,6 @@ body.is-logged-out{
 	}
 
 	.#{$namespace}userNav__dropdown, .#{$namespace}userNav__drop{
-		@extend .fa-angle-down;
-		@extend .fa;
-		@extend .fa-lg;
-		@extend .sitesNav__drop;
 		float: right;
 		position: relative;
 		margin-top: -2.5em;
@@ -338,6 +337,9 @@ body.is-logged-out{
 			@include transform( rotate(180deg) );
 			position: relative;
 			top: 0px;
+		}
+		@media #{$phone}{
+			padding: 18px 22px 10px 14px;
 		}
 	}
 
@@ -455,23 +457,29 @@ body.is-logged-out{
 	}
 }
 
-.view-all-sites-btn {
+.view-all-sites-btn{
+	position: relative;
 	display: inline-block;
 	padding-right: 1em;
 	border-right: 1px solid $toolBorderColor;
+
+	@media #{$phone}{
+		display: none;
+	}
 }
 
-.view-all-sites-btn a {
+.view-all-sites-btn a{
 	text-decoration: none;
 }
 
-.all-sites-icon, .all-sites-label {
+.all-sites-icon, .all-sites-label{
 	display: inline-block;
 	vertical-align: middle;
 }
 
-.all-sites-icon {
+.all-sites-icon{
 	font-size: 16pt;
+	padding-right: 2px;
 }
 
 #linkNav{

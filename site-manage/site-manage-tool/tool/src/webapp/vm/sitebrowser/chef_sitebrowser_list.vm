@@ -8,32 +8,6 @@
 </script>
 	
 <div class="portletBody">
-	
-	#*
-	<div class="chefToolBarWrapForm">
-		#if (($menu) && (!$menu.isEmpty()))
-			#foreach ($item in $menu.Items)
-				## figure the link
-				#set ($base=$sakai_ActionURL.reset().setParameter("sakai_action", $item.Action).toString())
-		
-				## enabled not field not divider (i.e. a button)
-				#if (!$item.IsField)
-					<a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">
-						$item.Title
-					</a>
-				## here's a text field in a form for the toolbar
-				#else
-				<form name="$item.Form" action="$base" class="inlineForm" method="post">
-					<input size="15" value="$item.Value" name="$item.Title" id="$item.Title" type="text" class="searchField" />
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-				#end
-			## end of foreach loop
-			#end
-		## end if "if there's a menu" if
-		#end
-	</div>
-	*#
 	<ul class="navIntraTool actionToolBar">
 		<li class="firstToolBarItem"><span><a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;"  title ="$tlang.getString('list.search')">$tlang.getString("list.search")</a></span></li>
 	</ul>
@@ -72,11 +46,14 @@
 				</p>
 			</div>
 			<div class="listNav">
-				<div class="instruction">$tlang.getString("list.view") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")</div>
+				<div class="instruction">
+					$tlang.getString("list.view") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")
+					<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
+				</div>
 				#if ($pagesize != 0)
 					#if ($goPPButton == "true")
 						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString("list.previous") $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;"  title="$tlang.getString("list.previous") $pagesize" accesskey="p" /></fieldset>
+							<fieldset><legend>$tlang.getString("list.previous") $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("list.previous") $pagesize" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
@@ -87,7 +64,7 @@
 				<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
 					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 						<label for="select" class="skip">$tlang.getString("list.select")</label>
-						<select name="selectPageSize" onchange="document.pagesizeForm.submit();" id="select">
+						<select name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.pagesizeForm.submit();" id="select">
 							<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("list.show1")</option>
 							<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("list.show2")</option>
 							<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("list.show3")</option>
@@ -102,7 +79,7 @@
 					#if ($goNPButton == "true")
 						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;"  title="$tlang.getString("list.next") $pagesize" accesskey="n" /></fieldset>
+						<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("list.next") $pagesize" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" /></fieldset>
 						</form>
 					#else
 							<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
@@ -234,8 +211,8 @@
 		</table>
 		#if ($helperMode)
 			<p class="act">
-			 <input type="submit" class="active"  name="eventSubmit_doSelect" value="Select" #if ($sites.size() == 0) disabled="true" #end/>
-			 <input type="submit" class="inactive"  name="eventSubmit_doCancel" value="Cancel" />
+			 <input type="submit" class="active" name="eventSubmit_doSelect" value="Select" #if ($sites.size() == 0) disabled="true" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+			 <input type="submit" class="inactive" name="eventSubmit_doCancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -272,7 +249,7 @@
 			<p class="act">
 				<form action="#toolForm("$action")" method="post">		
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			 	<input type="submit" class="inactive"  name="eventSubmit_doCancel" value="Cancel" />
+				<input type="submit" class="inactive" name="eventSubmit_doCancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</form>
 			</p>
 		#end

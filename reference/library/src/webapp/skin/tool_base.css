@@ -232,29 +232,7 @@ ul.attachList li{
 	padding: 2px;
 }
 
-/*boxes a set of controls for navigating through a series of items - ie. emails, announcements*/
-/*see an announcement */
-.itemNav{
-	float: right;
-	vertical-align: bottom;
-	text-align: right;
-	line-height: 2em;
-	clear: both;
-	margin: .5em;
-	white-space: nowrap;
-}
 
-.itemNav a{
-	white-space: nowrap;
-}
-
-* html body .itemNav input{
-	font-size: 85%;
-}
-
-.itemNav input{
-	font-size: 90%;
-}
 /*for link controls in views */
 /*see calendar */
 .viewLinkControl
@@ -387,17 +365,6 @@ ie - site creation*/
 /*indicate failed validation, non-system errors*/
 /*TODO: consolidate - validationEmbedded used in gradebook, validation in many places, alertMessage legacy*/
 /*see: create an announcement but "forget" to give it a title*/
-.validationEmbedded,.validation,.alertMessage{
-	background: #fff url(images/warn.gif) 5px 5px no-repeat;
-	border: 1px solid #b11;
-	display: block;
-	width: 80%;
-	font-size: 1em;
-	clear: both;
-	color: #b11;
-	margin: 5px 0;
-	padding: 5px 5px 5px 25px !important;
-}
 ul.alertMessage{
    list-style-type: none;
 }

@@ -932,4 +932,14 @@ public class DashboardDaoMock implements DashboardDao {
 		// TODO Auto-generated method stub
 		return new HashMap<String, Set<String>>();
 	}
+
+	@Override
+	public boolean updateAvailabilityCheck(AvailabilityCheck availabilityCheck) {
+		return false;
+	}
+
+	@Override
+	public boolean isScheduleAvailabilityCheckMade(String entityReference) {
+		return false;
+	}
 }

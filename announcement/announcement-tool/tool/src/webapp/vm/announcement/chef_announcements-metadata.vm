@@ -1,13 +1,5 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-metadata.vm,v 1.7 2005/05/15 17:02:52 gsilver.umich.edu Exp $ -->
 
-<script type="text/JavaScript">
-<!--
-	function change_parent_url(url)
-	{
-	  parent.location=url;
-	}		
-//-->
-</script>
 <div class="portletBody">
 	#if($menu && $EnabledMenuItemExists)
 		#toolbar($menu)
@@ -37,65 +29,75 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	#end
-	<h3>
-		$tlang.getString("meta.title")
-	</h3>	
+	
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
-	<table cellspacing="0" class="itemSummary">
-		<tr>
-			<th>$tlang.getString("gen.subject")</th>
-			<td>$validator.escapeHtml($message.Header.subject)</td>
-		</tr>
-		<tr>
-			<th>$tlang.getString("gen.from")</th>
-			<td>$validator.escapeHtml($message.Header.From.DisplayName)</td>
-		</tr>
-		
-		<tr>
-			<th>$tlang.getString("gen.mod")</th>
-			<td>
-			#if ($modDate)
+	
+	<div class="page-header">
+	  <h2>$validator.escapeHtml($message.Header.subject)</h2>
+	</div>
+
+	<div class="form-horizontal">
+	  <div class="form-group">
+	    <label for="" class="col-sm-2">$tlang.getString("gen.from")</label>
+	    <div class="col-sm-10">
+	    	$validator.escapeHtml($message.Header.From.DisplayName)
+	    </div>
+	  </div>
+	  <div class="form-group">
+	    <label for="" class="col-sm-2">$tlang.getString("gen.mod")</label>
+	    <div class="col-sm-10">
+	    	#if ($modDate)
 				$modDate.toStringLocalFull()
 			#elseif ($message.Header.Date)
 				$message.Header.Date.toStringLocalFull()
 			#end
-			</td>
-		</tr>
-		
-		#if($releaseDate)
-		<tr>
-			<th>$tlang.getString("gen.releasedate")</th>			
-			<td>$releaseDate.toStringLocalFull()</td>
-		</tr>
-		#end
-		
-		#if($retractDate)
-		<tr>
-			<th>$tlang.getString("gen.retractdate")</th>			
-			<td>$retractDate.toStringLocalFull()</td>
-		</tr>
-		#end
+	    </div>
+	  </div>
+	  #if($releaseDate)
+	  <div class="form-group">
+	    <label for="" class="col-sm-2">$tlang.getString("gen.releasedate")</label>
+	    <div class="col-sm-10">
+	    	$releaseDate.toStringLocalFull()
+	    </div>
+	  </div>
+	  #end
+	  
+	  #if($retractDate)
+	  <div class="form-group">
+	    <label for="" class="col-sm-2">$tlang.getString("gen.retractdate")</label>
+	    <div class="col-sm-10">
+	    	$retractDate.toStringLocalFull()
+	    </div>
+	  </div>
+	  #end
+	  
+	  #if ($!range)
+	  <div class="form-group">
+	  		<label for="" class="col-sm-2">$tlang.getString("meta.groups")</label>
+	  		<div class="col-sm-10">
+	  			$validator.escapeHtml($!range)
+	  		</div>
+	  </div>
+	  #end
+	  #if($assignmenturl && $assignmenturl !="")
+	  <div class="form-group">
+	  	<label for="" class="col-sm-2">$tlang.getString("gen.assignmentlink")</label>
+	  	<div class="col-sm-10">
+	  		<a href="javascript:change_parent_url('$assignmenturl');">
+	  			$validator.escapeHtml($validator.limit($!assignmenttitle, 40))
+	  		</a>
+	  	</div>
+	  </div>
+	  #end
 
-		#if ($!range)
-			<tr>
-				<th>$tlang.getString("meta.groups")</th>
-				<td>$validator.escapeHtml($!range)</td>
-			</tr>
-		#end
-		#if($assignmenturl && $assignmenturl !="")
-		<tr>
-			<th>$tlang.getString("gen.assignmentlink")</th>
-			<td>
-				<a href="javascript:change_parent_url('$assignmenturl');">
-					$validator.escapeHtml($validator.limit($!assignmenttitle, 40))
-				</a>
-			</td>
-		</tr>
-		#end
-	</table>
-	<h4>
-		$tlang.getString("meta.message")
-	</h4>
+	</div>
+
+	<div class="page-header">
+		<h4>
+			$tlang.getString("meta.message")
+		</h4>
+	</div>
+	
 	<p>$validator.escapeHtmlFormattedText($message.body)</p>
 	#set ($size = 0)
 	#if (!$message.Header.Attachments.isEmpty())

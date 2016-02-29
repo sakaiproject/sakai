@@ -155,6 +155,22 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
     }
 
+    private Long getMaxSequenceValue(Map<String, CalculatedQuestionVariableBean> variables, Map<String, CalculatedQuestionFormulaBean> formulas){
+    	Long maxValue = 0L;
+
+    	for(CalculatedQuestionVariableBean variable:variables.values()){
+    		Long currentSequence = variable.getSequence(); 
+    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    			maxValue = currentSequence;
+    	}
+    	for(CalculatedQuestionFormulaBean formula:formulas.values()){
+    		Long currentSequence = formula.getSequence(); 
+    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    			maxValue = currentSequence;
+    	}
+    	return maxValue;
+    }
+
     /**
      * createFormulasFromInstructions adds any formulas that exist in the list of formulaNames
      * but do not already exist in the question
@@ -165,13 +181,14 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        
         // add any missing formulas
         for (String formulaName : formulaNames) {
             if (!formulas.containsKey(formulaName)) {
                 CalculatedQuestionFormulaBean bean = new CalculatedQuestionFormulaBean();
                 bean.setName(formulaName);
-                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
+                bean.setSequence(++maxSequenceValue);
                 item.getCalculatedQuestion().addFormula(bean);
             } else {
                 CalculatedQuestionFormulaBean bean = formulas.get(formulaName);
@@ -194,13 +211,14 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        
         // add any missing variables
         for (String variableName : variableNames) {
             if (!variables.containsKey(variableName)) {
                 CalculatedQuestionVariableBean bean = new CalculatedQuestionVariableBean();
                 bean.setName(variableName);
-                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
+                bean.setSequence(++maxSequenceValue);
                 item.getCalculatedQuestion().addVariable(bean);
             } else {
                 CalculatedQuestionVariableBean bean = variables.get(variableName);

@@ -44,6 +44,66 @@
 			<version>5.6</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>ckeditor</artifactId>
+			<version>4.5.7</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>dropzone</artifactId>
+			<version>4.2.0</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>momentjs</artifactId>
+			<version>2.11.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>1.11.3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery-migrate</artifactId>
+			<version>1.2.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery-ui</artifactId>
+			<version>1.11.3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>3.3.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery-blockui</artifactId>
+			<version>2.65</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>jquery-i18n-properties</artifactId>
+			<version>1.2.2</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>pnotify</artifactId>
+			<version>2.1.0-1</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
@@ -234,7 +294,7 @@
 							<dependency>
 								<groupId>rubygems</groupId>
 								<artifactId>font-awesome-sass</artifactId>
-								<version>4.3.2.1</version>
+								<version>4.5.0</version>
 								<type>gem</type>
 							</dependency>
 							<dependency>
