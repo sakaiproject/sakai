@@ -144,8 +144,10 @@
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="application" style="z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
-			<ul id="toolbar" role="menubar" style="padding:2px; margin:0px;">
+			<ul id="toolbar" role="menubar">
 				
+<!-- uncomment to get icons for the most common content types
+
 			  <li class="contentButton removeNarrow">
 			    <span>
 			    <a role="menuitem" rsf:id="add-text1" href="#"><span aria-hidden="true" class="fa-button-text fa-font"></span></a>
@@ -169,10 +171,12 @@
 			    <a role="menuitem" href="#" rsf:id="subpage-link1" class="add-at-end subpage-link"><span aria-hidden="true" class="fa-button-text fa-folder-open"></span></a>
 			    </span>
 			  </li>
+-->
 
 				<li class="contentButton dropdown" id="dropdownc">
 					<span>
 					    <a href="#" rsf:id="addcontent" onclick="return false;" class="add-at-end" role="menuitem">
+						<span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
 					        <span aria-hidden="true" class="fa-button-text fa-plus"></span>
 					    </a>				
 					</span>
