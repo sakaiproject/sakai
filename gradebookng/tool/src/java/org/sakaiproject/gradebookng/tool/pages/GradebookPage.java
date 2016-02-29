@@ -313,8 +313,10 @@ public class GradebookPage extends BasePage {
 
 					final Map<String, Object> modelData = new HashMap<>();
 					modelData.put("assignmentId", assignment.getId());
+					modelData.put("assignmentName", assignment.getName());
 					modelData.put("assignmentPoints", assignment.getPoints());
 					modelData.put("studentUuid", studentGrades.getStudentUuid());
+					modelData.put("studentName", studentGrades.getStudentDisplayName());
 					modelData.put("categoryId", assignment.getCategoryId());
 					modelData.put("isExternal", assignment.isExternallyMaintained());
 					modelData.put("externalAppName", assignment.getExternalAppName());

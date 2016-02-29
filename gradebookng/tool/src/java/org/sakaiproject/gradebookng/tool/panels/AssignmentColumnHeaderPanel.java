@@ -330,6 +330,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}
 		});
 
+		menu.add(new WebMarkupContainer("menuButton").add(
+				new AttributeModifier("title", new StringResourceModel("assignment.menulabel", null,
+						new Object[] { assignment.getName() }))));
+
 		add(menu);
 
 		// add abbreviation of header content to aid table accessibility

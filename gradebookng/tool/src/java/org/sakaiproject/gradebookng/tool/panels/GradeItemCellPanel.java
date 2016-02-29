@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
@@ -97,8 +98,10 @@ public class GradeItemCellPanel extends Panel {
 		// unpack model
 		this.modelData = this.model.getObject();
 		final Long assignmentId = (Long) this.modelData.get("assignmentId");
+		final String assignmentName = (String) this.modelData.get("assignmentName");
 		final Double assignmentPoints = (Double) this.modelData.get("assignmentPoints");
 		final String studentUuid = (String) this.modelData.get("studentUuid");
+		final String studentName = (String) this.modelData.get("studentName");
 		final Long categoryId = (Long) this.modelData.get("categoryId");
 		final boolean isExternal = (boolean) this.modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) this.modelData.get("gradeInfo");
@@ -391,6 +394,11 @@ public class GradeItemCellPanel extends Panel {
 
 		editGradeComment.add(new Label("editGradeCommentLabel", editGradeCommentModel));
 		menu.add(editGradeComment);
+
+		menu.add(new WebMarkupContainer("menuButton").
+				add(new AttributeModifier("title",
+						new StringResourceModel("grade.menulabel", null,
+								new Object[] { studentName, assignmentName }))));
 
 		add(menu);
 
