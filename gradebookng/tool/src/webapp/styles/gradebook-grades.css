@@ -179,7 +179,7 @@
   right: 1px;
 }
 #gradebookGrades table td,
-#gradebookGrades table .headers th {
+#gradebookGrades table .gb-headers th {
   cursor: pointer;
 }
 #gradebookGrades tbody .btn.dropdown-toggle {
@@ -216,7 +216,7 @@
 #gradebookGrades.initialized table tbody tr > td:nth-child(3) {
   border-right: 1px solid #BBB;
 }
-#gradebookGrades table tr.headers th {
+#gradebookGrades table tr.gb-headers th {
   border-bottom-color: #BBB;
 }
 #gradebookGrades table.table-striped tbody td {
