@@ -1134,11 +1134,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    String color = i.getAttribute("colcolor");
 
 				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
+				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
+
+				    if (canEditPage) {
 				    UIComponent delIcon = UIOutput.make(columnContainer, "section-td");
 				    if (first)
 					delIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
 
-				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 				    UIOutput.make(columnContainer, "section2");
 				    UIOutput.make(columnContainer, "section3").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.columnopen")));
 				    UIOutput.make(columnContainer, "addbottom");
@@ -1146,6 +1148,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    UILink link = UILink.make(columnContainer, "section-del-link", (String)null, "/" + i.getId());
 				    link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
 				    link.decorate(new UIStyleDecorator(sectionbreak?"section-merge-link":"column-merge-link"));
+				    }
 
 				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
