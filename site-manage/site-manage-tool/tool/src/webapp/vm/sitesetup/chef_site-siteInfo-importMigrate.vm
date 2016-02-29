@@ -1,6 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMigrate.vm,v 1.0 2007/11/01 15:40:02 tnguyen.iupui.edu Exp $ -->
 <div class="portletBody">
-	##if($menu)#toolbar($menu)#end<br/><br/>
 	<h3>
 		$tlang.getString("sitinfimp.reuse")
 	</h3>
@@ -37,9 +36,9 @@
 			<input type="hidden" name="templateIndex" value="59" />
 			<input type="hidden" name="continue" value="60" />
 			<p class="act">
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitinfimp.con")" />
-				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" />
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitinfimp.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		#else
 			## show "no site available warning"
@@ -47,7 +46,7 @@
 				$tlang.getString("import.noOtherSite")
 			</p>
 			<p class="act">
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

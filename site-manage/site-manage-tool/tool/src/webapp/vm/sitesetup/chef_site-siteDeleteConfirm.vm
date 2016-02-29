@@ -50,14 +50,14 @@
 		<div class="act">
 		#if($removals && $removals.size() != 0)
 			#if($softDelete)
-				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.softly.delete")" />
+				<input type="submit" class="active" accesskey="s" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.softly.delete")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#elseif($hardDelete)
-				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.hard.button")" />
+				<input type="submit" class="active" accesskey="s" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.hard.button")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#else	
-				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" />
+				<input type="submit" class="active" accesskey="s" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#end
 		#end
-			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.sitedel.cancel")" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.sitedel.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

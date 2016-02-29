@@ -19,9 +19,9 @@
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doUploadArchive" value="$tlang.getString('archive.createsite.upload')" />
-			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" class="active" name="eventSubmit_doUploadArchive" value="$tlang.getString('archive.createsite.upload')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

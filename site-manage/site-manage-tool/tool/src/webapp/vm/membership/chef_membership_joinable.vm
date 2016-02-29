@@ -25,8 +25,8 @@
 			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
 			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
 			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
-			<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" />
-			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" />
+			<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form> 
 	#end
@@ -57,12 +57,13 @@
 			<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("mb.list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("mb.list.of") $allMsgNumber $tlang.getString("mb.list.sites")
+					<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
 				</div>
 				<div class="innerPannel">
 					#if ($pagesize != 0)
 						#if ($goPPButton == "true")
 							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("mb.list.pager.first")" />
+								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("mb.list.pager.first")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
@@ -73,7 +74,7 @@
 						#end
 						#if ($goPPButton == "true")
 						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("mb.list.pager.prev") $pagesize"  accesskey="p" />
+								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("mb.list.pager.prev") $pagesize" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" />
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
@@ -86,7 +87,7 @@
 					<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 						<label class="skip" for="pagerSelect">$tlang.getString("mb.list.select")</label>
-						<select name="selectPageSize" onchange="document.pagesizeForm.submit();" id="pagerSelect">
+						<select name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.pagesizeForm.submit();" id="pagerSelect">
 						<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("mb.list.pager.show5")</option>
 							<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("mb.list.pager.show10")</option>
 							<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("mb.list.pager.show20")</option>
@@ -99,7 +100,7 @@
 					#if ($pagesize != 0)
 						#if ($goNPButton == "true")
 							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("mb.list.pager.next") $pagesize"  accesskey="n" />
+								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("mb.list.pager.next") $pagesize" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" />
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
@@ -110,7 +111,7 @@
 						#end
 						#if ($goNPButton == "true")
 							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("mb.list.pager.last")" />
+								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("mb.list.pager.last")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else

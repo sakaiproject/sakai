@@ -1,28 +1,3 @@
-<script type="text/javascript">
-<!-- hide from non-JS browsers
-	function submitRemoveSection(index){
-		id = "removeSection"+index;
-   	   	removeSection = document.getElementById(id);
-		removeSection.value="true";
-		document.removeSectionForm.submit();
-		return false;
-	}
-	
-	function resetOption(action){
-		document.findCourseForm.option.value=action;
-		document.findCourseForm.submit();
-		return false;
-	}
-
-	function changeLevel(level){
-		document.getElementById("cmLevelChanged").value="true";
-		document.getElementById("cmChangedLevel").value=level;
-	}
-
-
-// -->
-</script>
-
 <div class="portletBody">
 
 	## bjones86 - SAK-23255
@@ -55,7 +30,7 @@
 								<td>
 									<!-- Remove Section -->
 									<span class="itemAction">
-										<a href="#" onclick="javascript:submitRemoveSection('$item');">$tlang.getString("man.remove")</a>
+										<a href="#" onclick="submitRemoveSection('$item', 'removeSectionForm');">$tlang.getString("man.remove")</a>
 										<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
 									</span>	
 								</td>
@@ -70,7 +45,7 @@
 									<td>
 										<!-- Remove Section -->
 										<span class="itemAction">
-											<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">$tlang.getString("man.remove")</a>
+											<a href="#" onclick="submitRemoveSection('$section.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
 											<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
 										</span>	
 									</td>
@@ -85,7 +60,7 @@
 									<td>
 										<!-- Remove Section -->
 										<span class="itemAction">
-											<a href="#" onclick="javascript:submitRemoveSection('$s.eid');">$tlang.getString("man.remove")</a>
+											<a href="#" onclick="submitRemoveSection('$s.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
 											<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
 										</span>	
 									</td>
@@ -98,7 +73,7 @@
 			#end
 			<!-- end if section for selected courses -->
 		<p class="instruction">$tlang.getString("nscourse.findInstruction")</p>
-	<form name = "findCourseForm" method="post" action="#toolForm($action)">
+	<form name="findCourseForm" id="findCourseForm" method="post" action="#toolForm($action)">
 		
 		<!-- loop through course identifier fields -->
 		<!-- these are place holders for the actual fields - they should
@@ -247,12 +222,11 @@
 				#end
 			 type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
 				#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
-				onclick="showNotif('submitnotif','continueButton','findCourseForm'); resetOption('continue');" />
+				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('continue', 'findCourseForm');" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
-				onclick="resetOption('back');" />
+				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('back', 'findCourseForm');" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
-				onclick="resetOption('cancel');" />
-			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('cancel', 'findCourseForm');" />
 		</p>
 
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -277,9 +251,9 @@
 			<input type="hidden" name="option" value="find"/>
 			<p class="act">
 				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
-					onclick="resetOption('back');" class="active" />
+					onclick="SPNR.disableControlsAndSpin( this, null );resetOption('back', 'findCourseForm');" class="active" />
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
-					onclick="resetOption('cancel');" />
+					onclick="SPNR.disableControlsAndSpin( this, null );resetOption('cancel', 'findCourseForm');" />
  			</p>
 
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

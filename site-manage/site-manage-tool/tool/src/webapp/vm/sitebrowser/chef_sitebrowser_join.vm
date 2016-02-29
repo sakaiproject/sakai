@@ -6,7 +6,8 @@
 	<div class="navPanel">
 		<div class="itemNav">
 			<form action="#toolForm( "$action" )" method="post" class="inlineForm">
-				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString( "vi.ret" )" accesskey="l" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString( "vi.ret" )" accesskey="l" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
 	</div>
