@@ -359,7 +359,7 @@ body.is-logged-out{
 			@extend .userNav__subnav;
 			&:after {
 				bottom: 100%;
-				left: 93%;
+				left: 78%;
 				border: solid transparent;
 				content: " ";
 				height: 0;
@@ -474,6 +474,9 @@ body.is-logged-out{
 
 .view-all-sites-btn a{
 	text-decoration: none;
+	&:hover{
+		text-decoration: none;
+	}
 }
 
 .all-sites-icon, .all-sites-label{
