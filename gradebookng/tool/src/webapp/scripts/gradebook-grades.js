@@ -1747,9 +1747,6 @@ function GradebookHeaderCell($cell, gradebookSpreadsheet) {
 
   this.setupCell($cell);
 
-  // TODO set this in wicket
-  this.$cell.attr("tabindex", 0);
-
   this.setColumnKey();
   this.truncateTitle();
   this.setupTooltip();
