@@ -2,7 +2,9 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -507,12 +509,6 @@ public class SettingsCategoryPanel extends Panel {
 		@Override
 		public Double convertToObject(final String value, final Locale locale) throws ConversionException {
 
-			// want this truncated to four decimal places, or less
-			final NumberFormat df = NumberFormat.getInstance();
-			df.setMinimumFractionDigits(0);
-			df.setMaximumFractionDigits(4);
-			df.setRoundingMode(RoundingMode.HALF_UP);
-
 			// convert
 			Double d;
 			try {
@@ -521,11 +517,21 @@ public class SettingsCategoryPanel extends Panel {
 				throw new ConversionException(e).setResourceKey("settingspage.update.failure.categoryweightnumber");
 			}
 
-			// to string for the rounding/truncation
+			// want this truncated to four decimal places, or less
+			// format, then parse back into a double
+			final DecimalFormat df = new DecimalFormat();
+			df.setMinimumFractionDigits(0);
+			df.setMaximumFractionDigits(4);
+			df.setRoundingMode(RoundingMode.HALF_UP);
+
 			final String s = df.format(d);
 
-			// back to double
-			return Double.valueOf(s);
+			try {
+				return df.parse(s).doubleValue();
+			} catch (final ParseException e) {
+				throw new ConversionException(e).setResourceKey("settingspage.update.failure.categoryweightnumber");
+			}
+
 		}
 
 		/**
@@ -564,7 +570,12 @@ public class SettingsCategoryPanel extends Panel {
 		BigDecimal total = BigDecimal.ZERO;
 		for (final CategoryDefinition categoryDefinition : categories) {
 
-			BigDecimal weight = BigDecimal.valueOf(categoryDefinition.getWeight());
+			Double catWeight = categoryDefinition.getWeight();
+			if (catWeight == null) {
+				catWeight = 0D;
+			}
+
+			BigDecimal weight = BigDecimal.valueOf(catWeight);
 			if (weight == null) {
 				weight = BigDecimal.ZERO;
 			}
