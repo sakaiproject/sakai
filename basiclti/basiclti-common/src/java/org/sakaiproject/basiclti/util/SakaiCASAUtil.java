@@ -66,7 +66,7 @@ public class SakaiCASAUtil {
 		}
 
                 Launch launch = new Launch();
-                launch.setLaunch_url(ServerConfigurationService.getServerUrl() + "/imsblis/provider/"+toolRegistration);
+                launch.setLaunch_url(ServerConfigurationService.getServerUrl() + "/imsblti/provider/"+toolRegistration);
 
 		Use use = new Use(launch);
 		// TODO: Fix this 
