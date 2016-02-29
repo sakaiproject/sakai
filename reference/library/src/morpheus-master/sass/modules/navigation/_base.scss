@@ -571,6 +571,18 @@ body.is-logged-out{
 	}
 }
 
+body.is-logged-out{
+	#linkNav{
+		ul{
+			li.#{$namespace}sitesNav__menuitem{
+				.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+					display: none;
+				}
+			}
+		}
+	}
+}
+
 #show-all-sites{
 	display: none;
 }
