@@ -28,8 +28,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-util</artifactId>
+            <groupId>org.tsugi</groupId>
+            <artifactId>tsugi-util</artifactId>
             <version>${sakai.version}</version>
         </dependency>
 
