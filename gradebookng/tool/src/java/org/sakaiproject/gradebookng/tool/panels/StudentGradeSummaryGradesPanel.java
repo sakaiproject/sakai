@@ -57,7 +57,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final Map<Assignment, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
 		final List<Assignment> assignments = new ArrayList(grades.keySet());
 
+		// get gradebook
+		final Gradebook gradebook = this.businessService.getGradebook();
+
 		// get configured category type
+		// TODO this can come from the Gradebook object above rather than a separate lookup
 		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
 
 		// setup
@@ -65,32 +69,36 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
 		final Map<String, String> categoryAverages = new HashMap<>();
 
-		// iterate over assignments and build map of categoryname to list of assignments as well as category averages
-		for (final Assignment assignment : assignments) {
+		// if gradebook release setting disabled, no work to do
+		if (!gradebook.isAssignmentsDisplayed()) {
 
-			// if an assignment is released, update the flag (but don't set it false again)
-			// then build the category map. we don't do any of this for unreleased gradebook items
-			if (assignment.isReleased()) {
-				this.someAssignmentsReleased = true;
+			// iterate over assignments and build map of categoryname to list of assignments as well as category averages
+			for (final Assignment assignment : assignments) {
 
-				final String categoryName = getCategoryName(assignment);
+				// if an assignment is released, update the flag (but don't set it false again)
+				// then build the category map. we don't do any of this for unreleased gradebook items
+				if (assignment.isReleased()) {
+					this.someAssignmentsReleased = true;
 
-				if (!categoryNamesToAssignments.containsKey(categoryName)) {
-					categoryNames.add(categoryName);
-					categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
+					final String categoryName = getCategoryName(assignment);
 
-					final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
-					if (categoryAverage == null || categoryName.equals(GradebookPage.UNCATEGORISED)) {
-						categoryAverages.put(categoryName, getString("label.nocategoryscore"));
-					} else {
-						categoryAverages.put(categoryName, FormatHelper.formatDoubleAsPercentage(categoryAverage));
+					if (!categoryNamesToAssignments.containsKey(categoryName)) {
+						categoryNames.add(categoryName);
+						categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
+
+						final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
+						if (categoryAverage == null || categoryName.equals(GradebookPage.UNCATEGORISED)) {
+							categoryAverages.put(categoryName, getString("label.nocategoryscore"));
+						} else {
+							categoryAverages.put(categoryName, FormatHelper.formatDoubleAsPercentage(categoryAverage));
+						}
 					}
-				}
 
-				categoryNamesToAssignments.get(categoryName).add(assignment);
+					categoryNamesToAssignments.get(categoryName).add(assignment);
+				}
 			}
+			Collections.sort(categoryNames);
 		}
-		Collections.sort(categoryNames);
 
 		// output all of the categories
 		// within each we then add the assignments in each category
@@ -193,7 +201,6 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		};
 		add(noAssignments);
 
-		final Gradebook gradebook = this.businessService.getGradebook();
 		if (gradebook.isCourseGradeDisplayed()) {
 
 			// check permission for current user to view course grade
