@@ -65,6 +65,9 @@ body.is-logged-out{
 				}
 			}
 		}
+		p{
+			margin: 0.05em 1.5em 0 0;
+		}
 	}
 
 	&.is-maximized{
@@ -187,6 +190,7 @@ body.is-logged-out{
 	width: 100%;
 	@include display-flex(inline-flex);
 	@include align-items(center);
+	@include justify-content( space-between );
 	@include transition( top 0.25s linear );
 	a{
 		color: $background-color;
