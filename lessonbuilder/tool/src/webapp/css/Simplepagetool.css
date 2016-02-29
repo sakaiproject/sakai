@@ -237,7 +237,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	padding: 0.25em 0.8em !important
 }
 .itemclass {
-	margin-top: 1.0em;
+	margin-top: 2.0em;
 	margin-bottom: 1.0em;
 }
 .rowdescription {
@@ -764,6 +764,15 @@ a.peer-eval-stats {
 .duecol {
 	padding-left: 2em !important
 }
+
+/* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
+#toolbar {
+  padding:2px;
+  margin:0px;
+  margin-top:6px;
+  margin-bottom:-10px;
+}
+
 /* Dropdown Menu */
 ul#toolbar li {
 	display: inline;
@@ -1236,7 +1245,7 @@ li.resourceType .right-col {
  border:none;
 }
 .itemclass {
- margin-top:2.0em !important;
+ margin-top:3.0em !important;
 }
 .add-comment-button span {
 font-size: 90%;
@@ -1248,8 +1257,19 @@ font-size: 90%;
  padding: 5px 10px;
 }
 
+/* in full width mode, if we don't do this, and the
+   first region is split, the right column doesn't fit
+   must be overridden for narrow format */
+.Mrphs-container--toolTitleNav {
+  margin-bottom:-30px !important;
+}
+
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
+.Mrphs-container--toolTitleNav {
+  margin-bottom: 0px !important;
+}
+
 .removeNarrow {
  display:none !important;
 }
@@ -1345,7 +1365,6 @@ font-size: 90%;
 .contentButton {
   height: 26px;
   line-height: 21px;
-  float:left;
   margin-top: 3px !important;
   z-index:900;
 }
@@ -1357,7 +1376,7 @@ font-size: 90%;
 }
 /* for ShowItem */
 .itemHeader {
-  margin-bottom:10px; 
+  margin-bottom:20px; 
   border-bottom:solid black 1px
 }
 .itemTitle {
