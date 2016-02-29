@@ -243,7 +243,7 @@ public class SettingsCategoryPanel extends Panel {
 				}
 
 				// reinitialize any custom behaviour
-				target.appendJavaScript("new GradebookCategorySettings($('#settingsCategories'));");
+				target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
 
 				target.add(categoriesWrap);
 			}
@@ -405,7 +405,7 @@ public class SettingsCategoryPanel extends Panel {
 						updateRunningTotal(target, runningTotal, runningTotalMessage);
 
 						// reinitialize any custom behaviour
-						target.appendJavaScript("new GradebookCategorySettings($('#settingsCategories'));");
+						target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
 					}
 				};
 				remove.setDefaultFormProcessing(false);
@@ -463,7 +463,9 @@ public class SettingsCategoryPanel extends Panel {
 				target.add(categoriesWrap);
 
 				// reinitialize any custom behaviour
-				target.appendJavaScript("new GradebookCategorySettings($('#settingsCategories'));");
+				target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
+				// focus the new category input
+				target.appendJavaScript("sakai.gradebookng.settings.categories.focusLastRow();");
 			}
 		};
 		addCategory.setDefaultFormProcessing(false);
