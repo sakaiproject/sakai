@@ -48,28 +48,30 @@
 							<th><wicket:message key="settingspage.categories.removecolhead" /></th>
 						</tr>
 						</thead>
+						<tfoot>
+							<tr class="active gb-category-runningtotal">
+								<td><span class="pull-right"><wicket:message key="settingspage.categories.total" /></span></td>
+								<td><span wicket:id="runningTotal">100%</span></td>
+								<td colspan="6"><span wicket:id="runningTotalMessage" class="text-danger"><wicket:message key="settingspage.categories.runningtotalerror" /></span></td>
+							</tr>
+						</tfoot>
 						<tbody>
-						<tr wicket:id="categoriesView" class="gb-category-row">
-							<td>
-								<a href="javascript:void(0);" class="gb-category-sort-handle ui-sortable-handle"></a>
-								<input wicket:id="categoryOrder" class="gb-category-order-field" type="hidden" />
-							</td>
-							<td>
-								<input wicket:id="name" type="text" class="form-control" />
-							</td>
-							<td class="gb-category-weight"><input wicket:id="weight" type="text" size="5" class="form-control" /></td>
-							<td class="gb-category-extracredit"><input wicket:id="extraCredit" type="checkbox" class="form-control" /></td>
-							<td><span wicket:id="numItems">0 items(s)</span></td>
-							<td class="gb-category-drophighest"><input wicket:id="categoryDropHighest" type="text" size="5" class="form-control" /></td>
-							<td class="gb-category-droplowest"><input wicket:id="categoryDropLowest" type="text" size="5" class="form-control" /></td>
-							<td class="gb-category-keephighest"><input wicket:id="categoryKeepHighest" type="text" size="5" class="form-control" /></td>
-							<td><button wicket:id="remove" class="btn btn-link"><wicket:message key="button.remove" /></button></td>
-						</tr>
-						<tr class="active gb-category-runningtotal">
-							<td><span class="pull-right"><wicket:message key="settingspage.categories.total" /></span></td>
-							<td><span wicket:id="runningTotal">100%</span></td>
-							<td colspan="6"><span wicket:id="runningTotalMessage" class="text-danger"><wicket:message key="settingspage.categories.runningtotalerror" /></span></td>
-						</tr>
+							<tr wicket:id="categoriesView" class="gb-category-row">
+								<td>
+									<a href="javascript:void(0);" class="gb-category-sort-handle ui-sortable-handle"></a>
+									<input wicket:id="categoryOrder" class="gb-category-order-field" type="hidden" />
+								</td>
+								<td>
+									<input wicket:id="name" type="text" class="form-control" />
+								</td>
+								<td class="gb-category-weight"><input wicket:id="weight" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-extracredit"><input wicket:id="extraCredit" type="checkbox" class="form-control" /></td>
+								<td><span wicket:id="numItems">0 items(s)</span></td>
+								<td class="gb-category-drophighest"><input wicket:id="categoryDropHighest" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-droplowest"><input wicket:id="categoryDropLowest" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-keephighest"><input wicket:id="categoryKeepHighest" type="text" size="5" class="form-control" /></td>
+								<td><button wicket:id="remove" class="btn btn-link"><wicket:message key="button.remove" /></button></td>
+							</tr>
 						</tbody>
 					</table>
 					<div>
