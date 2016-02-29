@@ -963,11 +963,7 @@ public class TemplateBean implements Serializable
   }
   
   public boolean getShowAssessmentTypes() {
-	  String showAssessmentTypes = ServerConfigurationService.getString("samigo.showAssessmentTypes");
-	  if ("false".equalsIgnoreCase(showAssessmentTypes)) {
-		  return Boolean.FALSE;
-	  }
-	  return Boolean.TRUE;
+	  return ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
   }
 
   public boolean isSecureDeliveryAvailable() {
