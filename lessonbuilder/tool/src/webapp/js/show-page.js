@@ -243,7 +243,7 @@ $(document).ready(function() {
 			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
 			'#add-multimedia-dialog', '#edit-title-dialog', '#new-page-dialog', '#remove-page-dialog',
 			'#youtube-dialog', '#movie-dialog', '#import-cc-dialog', '#export-cc-dialog',
-			'#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
+		        '#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
 			for (var i = 0; i < modalDialogList.length; i++) {
 				$(modalDialogList[i]).dialog("option", "width", modalDialogWidth());
 			}
@@ -1881,8 +1881,9 @@ $(document).ready(function() {
 				$('#import-cc-dialog').dialog('isOpen') ||
 				$('#export-cc-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
-				$('#student-dialog').dialog('isOpen')) ||
-				$('#question-dialog').dialog('isOpen')) {
+				$('#column-dialog').dialog('isOpen') ||
+			        $('#student-dialog').dialog('isOpen') ||
+			        $('#question-dialog').dialog('isOpen'))) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
                     $('li').removeClass('editInProgress');
