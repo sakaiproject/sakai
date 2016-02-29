@@ -52,6 +52,17 @@ public interface DashboardDao {
 	public boolean addAvailabilityCheck(AvailabilityCheck availabilityCheck);
 	
 	/**
+	 * If an entity uses some form of scheduled release, this method is called to 
+	 * update the scheduled-release time
+	 */
+	public boolean updateAvailabilityCheck(AvailabilityCheck availabilityCheck);
+	
+	/**
+	 * checks if an entity is scheduled for release has entry in the database table or not
+	 */
+	public boolean isScheduleAvailabilityCheckMade(String entityReference);
+	
+	/**
 	 * @param calendarItem
 	 * @return
 	 */
