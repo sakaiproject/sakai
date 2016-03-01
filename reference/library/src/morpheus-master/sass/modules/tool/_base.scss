@@ -35,7 +35,7 @@
 				width: 250px;
   				margin: 10px 0 0 -250px;
   				z-index: 2;
-				@include box-shadow(0 0 5px 0 rgba(0,0,0,0.5));
+				box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
 				label{
 					font-size: $default-font-size;
 					margin: 5px 0 0px 5px;
@@ -79,7 +79,7 @@
 		&:hover{
 			background: $tool-background-color;
 			color: $primary-color;
-			@include box-shadow( 0 0 6px 0 rgba(0,0,0,.15) );
+			box-shadow: 0 0 6px 0 rgba(0,0,0,.15);
 		}
 		@media #{$tablet}{
 			background: $tool-background-color;

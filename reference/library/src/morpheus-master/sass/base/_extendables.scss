@@ -1,3 +1,5 @@
+@import "base/compass";
+
 .sitesNav__drop{
 	cursor: pointer;
 	display: inline-block;
@@ -25,7 +27,7 @@
 		border-bottom: 1px solid darken( $background-color, 10% );
 		margin: 0.5em -1.02em;
 		padding: 1em 0.95em;
-		@include box-shadow( inset 0px 0px 7px 0px rgba(0,0,0,0.25) );
+		box-shadow: inset 0px 0px 7px 0px rgba(0,0,0,0.25);
 	}
 }
 
@@ -88,7 +90,7 @@
 
 .select{
 	background-color: $button-background-secondary-color;
-	background-image: inline-image("icon-arrow-down.png");
+	background-image: url("images/icon-arrow-down.png");
 	background-position: right 50%;
 	background-repeat: no-repeat;
 	border: 1px solid $button-border-color;
@@ -122,12 +124,12 @@
 	@include border-radius(3px);
 	&:hover{
 		text-decoration: none;
-		@include background-image( linear-gradient( $button-color-background-color, $button-color-background-secondary-color ) );
+		background: linear-gradient( $button-color-background-color, $button-color-background-secondary-color );
 	}
 	&:active{
 		text-decoration: none;
 		outline: 0;
-		@include background-image( linear-gradient( $button-color-background-secondary-color, $button-color-background-color ) );
+		background: linear-gradient( $button-color-background-secondary-color, $button-color-background-color );
 	}
 	&[disabled="disabled"],&[disabled],&[disabled="true"]{
 		background: $button-color-background-color;
@@ -157,12 +159,12 @@
 	@include border-radius(3px);
 	&:hover{
 		text-decoration: none;
-		@include background-image( linear-gradient( $button-background-secondary-color, $button-background-color ) );
+		background: linear-gradient( $button-background-secondary-color, $button-background-color );
 	}
 	&:active{
 		outline: 0;
 		text-decoration: none;
-		@include background-image( linear-gradient( $button-background-color, $button-background-secondary-color ) );
+		background: linear-gradient( $button-background-color, $button-background-secondary-color );
 	}
 	&[disabled="disabled"],&[disabled],&[disabled="true"]{
 		background: $button-background-color;
