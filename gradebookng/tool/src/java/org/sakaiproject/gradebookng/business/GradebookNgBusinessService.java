@@ -805,14 +805,12 @@ public class GradebookNgBusinessService {
 						// iterate the permissions
 						// if category, compare the category,
 						// then check the group and find the user in the group
-						// if all ok, mark it as GRADEABLE
-
-						boolean categoryOk = false;
-						boolean groupOk = false;
-						boolean gradeable = false;
-
+						// add all available permission functions to the GbGradeInfo
 						for (final PermissionDefinition permission : permissions) {
 							// we know they are all GRADE so no need to check here
+
+							boolean permissionPassesCategory = false;
+							boolean permissionPassesGroup = false;
 
 							final Long permissionCategoryId = permission.getCategoryId();
 							final String permissionGroupReference = permission.getGroupReference();
@@ -822,33 +820,28 @@ public class GradebookNgBusinessService {
 
 							// if permissions category is null (can grade all categories) or they match (can grade this category)
 							if (permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId)) {
-								categoryOk = true;
+								permissionPassesCategory = true;
 								log.debug("Category check passed");
 							}
 
 							// if group reference is null (can grade all groups) or group membership contains student (can grade this group)
 							if (StringUtils.isBlank(permissionGroupReference)) {
-								groupOk = true;
+								permissionPassesGroup = true;
 								log.debug("Group check passed #1");
 							} else {
 								final List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
 								log.debug("groupMembers: " + groupMembers);
 
 								if (groupMembers != null && groupMembers.contains(student.getId())) {
-									groupOk = true;
+									permissionPassesGroup = true;
 									log.debug("Group check passed #2");
 								}
 							}
 
-							if (categoryOk && groupOk) {
-								gradeable = true;
-								continue;
+							if (permissionPassesGroup && permissionPassesCategory) {
+								entry.getValue().getFunctions().add(permission.getFunction());
 							}
 						}
-
-						// set the gradeable flag on this grade instance
-						final GbGradeInfo gradeInfo = entry.getValue();
-						gradeInfo.setGradeable(gradeable);
 					}
 				}
 			}

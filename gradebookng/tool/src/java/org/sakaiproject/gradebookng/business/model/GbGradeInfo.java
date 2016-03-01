@@ -1,6 +1,8 @@
 package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -8,6 +10,7 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 
 /**
  * Similar to GradeDefinition but serialisable and grader permission aware
@@ -25,12 +28,13 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 	@Getter
 	private final String gradeComment;
 
+
 	/**
-	 * Whether or not a user is able to grade this instance of the grade
+	 * Functions available to the user on this grade
 	 */
 	@Getter
 	@Setter
-	private boolean gradeable;
+	private List<String> functions;
 
 	/**
 	 * Constructor. Takes a GradeDefinition or null. If null, a stub is created.
@@ -43,12 +47,16 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 		if (gd == null) {
 			this.grade = null;
 			this.gradeComment = null;
-			this.gradeable = false;
 		} else {
 			this.grade = gd.getGrade();
 			this.gradeComment = gd.getGradeComment();
-			this.gradeable = false;
 		}
+
+		this.functions = new ArrayList<>(); 
+	}
+
+	public boolean canEdit() {
+		return getFunctions().contains(GraderPermission.GRADE.toString());
 	}
 
 	@Override
@@ -66,5 +74,4 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 				.toComparison();
 
 	}
-
 }
