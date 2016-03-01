@@ -15,7 +15,7 @@ This only will be turned on if the provider is enabled and there are tools to pr
     basiclti.provider.enabled=true
 
     basiclti.provider.allowedtools=sakai.announcements:sakai.singleuser:
-    sakai.assignment.grades:blogger:sakai.dropbox:sakai.mailbox:sakai.forums:
+    sakai.assignment.grades:sakai.dropbox:sakai.forums:
     sakai.gradebook.tool:sakai.podcasts:sakai.poll:sakai.resources:
     sakai.schedule:sakai.samigo:sakai.rwiki
 
