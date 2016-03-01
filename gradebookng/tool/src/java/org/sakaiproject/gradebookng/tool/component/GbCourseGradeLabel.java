@@ -26,11 +26,12 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
- * Component to render a course grade taking into account the configured setings
+ * Component to render a course grade taking into account the configured settings
+ *
+ * Ensure you pass in everything that the Model requires.
  */
 public class GbCourseGradeLabel extends Label {
 
@@ -55,32 +56,30 @@ public class GbCourseGradeLabel extends Label {
 		final String currentUserUuid = (String) modelData.get("currentUserUuid");
 		final GbRole currentUserRole = (GbRole) modelData.get("currentUserRole");
 		final CourseGrade courseGrade = (CourseGrade) modelData.get("courseGrade");
-		final GradebookInformation settings = (GradebookInformation) modelData.get("settings");
+		final Gradebook gradebook = (Gradebook) modelData.get("gradebook");
 		final Boolean showPoints = (Boolean) modelData.get("showPoints");
 		final Boolean showOverride = (Boolean) modelData.get("showOverride");
 
 		// instructor, can view
 		if (currentUserRole == GbRole.INSTRUCTOR) {
-			setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints, showOverride)));
+			setDefaultModel(Model.of(buildCourseGrade(gradebook, courseGrade, showPoints, showOverride)));
 			// TA, permission check
-			// TODO do TAs even get this page?
 		} else if (currentUserRole == GbRole.TA) {
 			if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
 				setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
 			} else {
-				setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints, showOverride)));
+				setDefaultModel(Model.of(buildCourseGrade(gradebook, courseGrade, showPoints, showOverride)));
 			}
 			// student, check if course grade released, and permission check
 		} else {
-			final Gradebook gradebook = this.businessService.getGradebook();
 			if (gradebook.isCourseGradeDisplayed()) {
 				if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
 					setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
 				} else {
-					setDefaultModel(Model.of(buildCourseGrade(settings, courseGrade, showPoints, showOverride)));
+					setDefaultModel(Model.of(buildCourseGrade(gradebook, courseGrade, showPoints, showOverride)));
 				}
 			} else {
-				setDefaultModel(Model.of(getString("label.studentsummary.coursegradenotreleased")));
+				setDefaultModel(Model.of(getString("label.coursegrade.studentnotreleased")));
 			}
 		}
 
@@ -89,17 +88,17 @@ public class GbCourseGradeLabel extends Label {
 	/**
 	 * Takes care of checking the values and configured settings to format the course grade into an applicable display format
 	 *
-	 * @param settings {@link GradebookInformation} object holding the settings
+	 * @param gradebook {@link Gradebook} object holding the settings
 	 * @param courseGrade the {@link CourseGrade} object holding the values
 	 * @param showPoints whether or not to include points. May not be visible due to settings though.
 	 * @param showOverride whether or not any override grade should be shown instead of the mapped grade
 	 * @return formatted string ready for display
 	 */
-	public String buildCourseGrade(final GradebookInformation settings, final CourseGrade courseGrade, final boolean showPoints,
+	public String buildCourseGrade(final Gradebook gradebook, final CourseGrade courseGrade, final boolean showPoints,
 			final boolean showOverride) {
 		final List<String> parts = new ArrayList<>();
 
-		// determine letter grade
+		// letter grade
 		String letterGrade = null;
 		if (showOverride) {
 			letterGrade = courseGrade.getEnteredGrade();
@@ -107,18 +106,14 @@ public class GbCourseGradeLabel extends Label {
 			letterGrade = courseGrade.getMappedGrade();
 		}
 
-		// percentage
-		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
-
-		// points
-		final Double pointsEarned = courseGrade.getPointsEarned();
-		final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
-
-		if (settings.isCourseLetterGradeDisplayed()) {
+		if (gradebook.isCourseLetterGradeDisplayed()) {
 			parts.add(letterGrade);
 		}
 
-		if (settings.isCourseAverageDisplayed()) {
+		// percentage
+		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+
+		if (gradebook.isCourseAverageDisplayed()) {
 			if (parts.isEmpty()) {
 				parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
 						new Object[] { calculatedGrade }).getString());
@@ -128,12 +123,17 @@ public class GbCourseGradeLabel extends Label {
 			}
 		}
 
+		// points
 		if (showPoints) {
+
 			// don't display points for weighted category type
-			final GbCategoryType categoryType = GbCategoryType.valueOf(settings.getCategoryType());
+			final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 			if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
-				if (settings.isCoursePointsDisplayed()) {
+				final Double pointsEarned = courseGrade.getPointsEarned();
+				final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
+
+				if (gradebook.isCoursePointsDisplayed()) {
 					if (parts.isEmpty()) {
 						parts.add(new StringResourceModel("coursegrade.display.points-first", null,
 								new Object[] { pointsEarned, totalPointsPossible }).getString());

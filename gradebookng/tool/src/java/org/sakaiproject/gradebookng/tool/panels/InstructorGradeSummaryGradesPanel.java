@@ -16,17 +16,20 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class InstructorGradeSummaryGradesPanel extends Panel {
@@ -62,6 +65,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		this.categories = this.businessService.getGradebookCategories();
 
 		// get configured category type
+		// TODO this can be fetched from the Gradebook instead
 		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
 
 		// setup
@@ -184,14 +188,19 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		});
 
 		// course grade
+		// GbCourseGradeLabel takes care of all permissions, settings and formatting, we just give it the data
 		final Gradebook gradebook = this.businessService.getGradebook();
+		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		final String currentUserUuid = this.businessService.getCurrentUser().getId();
-		if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
-			add(new Label("courseGrade", new ResourceModel("label.coursegrade.nopermission")));
-		} else {
-			add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
-		}
+		final Map<String, Object> courseGradeModelData = new HashMap<>();
+		courseGradeModelData.put("currentUserUuid", userId);
+		courseGradeModelData.put("currentUserRole", GbRole.INSTRUCTOR);
+		courseGradeModelData.put("courseGrade", courseGrade);
+		courseGradeModelData.put("gradebook", gradebook);
+		courseGradeModelData.put("showPoints", false);
+		courseGradeModelData.put("showOverride", true);
+		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(courseGradeModelData)));
+
 		add(new Label("courseGradeNotReleasedFlag", "*") {
 			@Override
 			public boolean isVisible() {
