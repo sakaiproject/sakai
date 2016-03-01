@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -42,6 +43,7 @@ public class CourseGradeItemCellPanel extends Panel {
 		// unpack model
 		final Map<String, Object> modelData = this.model.getObject();
 		final String studentUuid = (String) modelData.get("studentUuid");
+		final GbRole role = this.businessService.getUserRole();
 
 		// the model map contains a lot of additional info we need for the course grade label, this is passed through
 
@@ -51,7 +53,14 @@ public class CourseGradeItemCellPanel extends Panel {
 		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(modelData)));
 
 		// menu
-		final WebMarkupContainer menu = new WebMarkupContainer("menu");
+		final WebMarkupContainer menu = new WebMarkupContainer("menu") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return role == GbRole.INSTRUCTOR;
+			}
+		};
 		menu.add(new AjaxLink<String>("courseGradeOverride", Model.of(studentUuid)) {
 			private static final long serialVersionUID = 1L;
 

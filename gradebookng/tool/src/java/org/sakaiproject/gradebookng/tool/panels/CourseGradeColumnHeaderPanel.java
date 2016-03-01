@@ -11,7 +11,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+<<<<<<< b6413aeeea81aa4dc6116d5b0937a476afa9669d
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+=======
+import org.sakaiproject.gradebookng.business.GbRole;
+>>>>>>> 1366: hide course grade column menus for TAs
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -42,6 +46,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final GbRole role = this.businessService.getUserRole();
 
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 
@@ -57,8 +62,14 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 				.setVisible(!gradebook.isCourseGradeDisplayed()));
 
 		// menu
-		final WebMarkupContainer menu = new WebMarkupContainer("menu");
+		final WebMarkupContainer menu = new WebMarkupContainer("menu") {
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public boolean isVisible() {
+				return role == GbRole.INSTRUCTOR;
+			}
+		};
 		menu.add(new AjaxLink<Void>("setUngraded") {
 			private static final long serialVersionUID = 1L;
 
