@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.business.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,7 +71,12 @@ public class FormatHelper {
 		String s = null;
 		try {
 			final Double d = Double.parseDouble(grade);
-			s = String.valueOf(d);
+
+			final DecimalFormat df = new DecimalFormat();
+			df.setMinimumFractionDigits(0);
+			df.setGroupingUsed(false);
+
+			s = df.format(d);
 		} catch (final NumberFormatException e) {
 			log.debug("Bad format, returning original string: " + grade);
 			s = grade;
