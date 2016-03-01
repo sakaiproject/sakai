@@ -126,7 +126,7 @@
 		    padding: 0px;
 		    display: none;
 
-		    @include box-shadow( 0 -2px 2px rgba( $text-color, 0.5 ) );
+		    box-shadow: 0 -2px 2px rgba( $text-color, 0.5 );
 			
 			h5{
 				margin-bottom: 5px !important;

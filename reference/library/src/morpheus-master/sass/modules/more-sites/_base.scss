@@ -11,7 +11,7 @@ body.active-more-sites{
 	position: fixed;
         z-index: 1005;
 	overflow:visible;
-	@include transition( left 0.4s linear );
+	@include transition( left 0.4s linear 0s );
 	&.dhtml_more_tabs{
 		background: $toolMenuBGColor;
 		display: block;
@@ -19,7 +19,7 @@ body.active-more-sites{
 		width: 60% ;
 		max-height: 100%;
 		padding: 0 1em 1em 1em;
-		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
+		box-shadow: 5px 0 50px 0px rgba(0,0,0,0.5);
 		@media #{$phone}{
 			width: 100%;
 			height: 100%;
@@ -28,8 +28,8 @@ body.active-more-sites{
 			overflow: visible;
 			position: absolute;
 			padding: 0;
-			@include box-shadow( 0px 0 0px 0px rgba(0,0,0,0) );
-			@include transition( left 0.26s linear );
+			box-shadow: 0px 0 0px 0px rgba(0,0,0,0);
+			@include transition( left 0.26s linear 0s );
 			&:after {
 				bottom: 100%;
 				left: 75%;

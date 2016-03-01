@@ -10,11 +10,11 @@
 		margin:  0 0 0 0;
 
 		@include align-items(center);
-		@include box-shadow( inset 0 0 5px rgba(0,0,0,0.25) );
+		box-shadow: inset 0 0 5px rgba(0,0,0,0.25);
 		@include display-flex(inline-flex);
 		@include flex-direction(row);
 		@include justify-content(space-between);
-		@include transition(top 0.25s linear);
+		@include transition( top 0.25s linear 0s );
 		&.moving{
 			top: -4.2em;
 		}

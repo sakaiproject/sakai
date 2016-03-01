@@ -1,8 +1,3 @@
-/* Compass requirements */
-@import "compass/reset";
-@import "compass/css3";
-
-
 /* Global namespace */
 
 $namespace : "Mrphs-";
@@ -88,6 +83,4 @@ $icon-size: 20px !default;
 
 @import "customization"; //it is created on-the-fly by maven.
 
-@import url( #{$font-family-url}    );
-
-// @import url( #{$header-font-family-url} );
+@import url(#{$font-family-url});
