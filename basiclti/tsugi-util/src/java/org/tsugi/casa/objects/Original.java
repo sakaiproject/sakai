@@ -33,7 +33,7 @@ public class Original extends JacksonBase {
     private Boolean share = Boolean.TRUE;
     @JsonProperty("propagate")
     private Boolean propagate = Boolean.TRUE;
-    @JsonProperty("Use")
+    @JsonProperty("use")
     private Use use;
 
     // Constructor
