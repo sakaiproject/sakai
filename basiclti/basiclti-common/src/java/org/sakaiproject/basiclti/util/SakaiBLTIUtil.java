@@ -986,6 +986,7 @@ public class SakaiBLTIUtil {
 		M_log.debug("ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
+		if ( M_log.isDebugEnabled() ) dodebug = true;
 		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, null);
 
@@ -1077,6 +1078,7 @@ public class SakaiBLTIUtil {
 		M_log.debug("signed ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
+		if ( M_log.isDebugEnabled() ) dodebug = true;
 		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
 
@@ -1238,9 +1240,6 @@ public class SakaiBLTIUtil {
 		// Don't sent the normal return URL - Certification
 		ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 
-		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
-		debug = 1;
-
 		String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM) );
 		parseCustom(ltiProps, customstr);
 
@@ -1250,7 +1249,9 @@ public class SakaiBLTIUtil {
 
 		M_log.debug("signed ltiProps="+ltiProps);
 
-		boolean dodebug = debug == 1;
+		boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
+		if ( M_log.isDebugEnabled() ) dodebug = true;
+
 		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
 
@@ -1345,6 +1346,8 @@ public class SakaiBLTIUtil {
 
 		String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 		boolean dodebug = "on".equals(debugProperty) || "1".equals(debugProperty);
+		if ( M_log.isDebugEnabled() ) dodebug = true;
+
 		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
 

@@ -8,7 +8,7 @@
         <version>12-SNAPSHOT</version>
     </parent>
 
-    <name>Tsugi LTI Utilities (tsugi-util)</name>
+    <name>Tsugi LTI Utilities (basiclti-util variant)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-util</artifactId>
     <organization>

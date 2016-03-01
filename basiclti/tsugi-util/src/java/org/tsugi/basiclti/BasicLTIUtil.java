@@ -19,6 +19,14 @@
 
 package org.tsugi.basiclti;
 
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION_1;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION_2;
 import static org.tsugi.basiclti.BasicLTIConstants.CUSTOM_PREFIX;
 import static org.tsugi.basiclti.BasicLTIConstants.EXTENSION_PREFIX;
 import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
@@ -119,6 +127,31 @@ public class BasicLTIUtil {
 		if (verbosePrint)
 			System.out.println(str);
 		M_log.fine(str);
+	}
+
+	// Returns true if this is a Basic LTI message with minimum values to meet the protocol
+	public static boolean isRequest(HttpServletRequest request) {
+
+		String message_type = request.getParameter(LTI_MESSAGE_TYPE);
+		if ( message_type == null ) return false;
+		if ( message_type.equals(LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST) ||
+		     message_type.equals(LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST) ||
+		     message_type.equals(LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST) ||
+		     message_type.equals(LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST) ) {
+			// Seems plausible
+		} else {
+			return false;
+		}
+
+		String version = request.getParameter(LTI_VERSION);
+		if ( version == null ) return true;
+		if ( version.equals(LTI_VERSION_1) || version.equals(LTI_VERSION_2) ) {
+			// Another pass
+		} else {
+			return false;
+		}
+
+		return true;
 	}
 
 	// expected_oauth_key can be null - if it is non-null it must match the key in the request
@@ -418,6 +451,28 @@ public class BasicLTIUtil {
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
 	 * 
+	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, boolean)}
+	 * @param cleanProperties
+	 * @param endpoint
+	 *		  The LTI launch url.
+	 * @param launchtext
+	 *		  The LTI launch text. Used if javascript is turned off.
+	 * @param autosubmit
+	 *		  Whether or not we want the form autosubmitted
+	 * @param debug
+	 *		  Useful for viewing the HTML before posting to end point.
+	 * @param extra
+	 * @return the HTML ready for IFRAME src = inclusion.
+	 */
+	public static String postLaunchHTML(final Properties cleanProperties,
+			String endpoint, String launchtext, boolean autosubmit, boolean debug, Map<String,String> extra) {
+		Map<String, String> map = convertToMap(cleanProperties);
+		return postLaunchHTML(map, endpoint, launchtext, autosubmit, debug, extra);
+	}
+
+	/**
+	 * Create the HTML to render a POST form and then automatically submit it.
+	 * 
 	 * @param cleanProperties
 	 * @param endpoint
 	 *		  The LTI launch url.
@@ -432,6 +487,28 @@ public class BasicLTIUtil {
 	public static String postLaunchHTML(
 			final Map<String, String> cleanProperties, String endpoint, 
 			String launchtext, boolean debug, Map<String,String> extra) {
+		// Assume autosubmit is true for backwards compatibility
+		boolean autosubmit = true;
+		return postLaunchHTML(cleanProperties, endpoint, launchtext, autosubmit, debug, extra);
+	}
+	/**
+	 * Create the HTML to render a POST form and then automatically submit it.
+	 * 
+	 * @param cleanProperties
+	 * @param endpoint
+	 *		  The LTI launch url.
+	 * @param launchtext
+	 *		  The LTI launch text. Used if javascript is turned off.
+	 * @param autosubmit
+	 *		  Whether or not we want the form autosubmitted
+	 * @param extra
+	 *		  Useful for viewing the HTML before posting to end point.
+	 * @return the HTML ready for IFRAME src = inclusion.
+	 */
+	public static String postLaunchHTML(
+			final Map<String, String> cleanProperties, String endpoint, 
+			String launchtext, boolean autosubmit, boolean debug, 
+			Map<String,String> extra) {
 
 		if (cleanProperties == null || cleanProperties.isEmpty()) {
 			throw new IllegalArgumentException(
@@ -449,10 +526,13 @@ public class BasicLTIUtil {
 		}
 		StringBuilder text = new StringBuilder();
 		// paint form
-		text.append("<div id=\"ltiLaunchFormSubmitArea\">\n");
+		String submit_uuid = UUID.randomUUID().toString().replace("-","_");
+		text.append("<div id=\"ltiLaunchFormArea_");
+		text.append(submit_uuid);
+		text.append("\">\n");
 		text.append("<form action=\"");
 		text.append(endpoint);
-		text.append("\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" ");
+		text.append("\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm_"+submit_uuid+"\" method=\"post\" ");
 		text.append(" encType=\"application/x-www-form-urlencoded\" accept-charset=\"utf-8\">\n");
 		if ( debug ) {
 		}
@@ -477,6 +557,17 @@ public class BasicLTIUtil {
 		text.append(htmlspecialchars(launchtext));
 		text.append("\">\n");
 
+		if ( debug ) {
+			text.append(" <input type=\"Submit\" value=\"Show Launch Data\" onclick=\"document.getElementById('ltiLaunchDebug_");
+			text.append(submit_uuid);
+			text.append("').style.display = 'block';return false;\">\n");
+		}
+
+		if ( extra != null ) {
+			String button_html = extra.get("button_html");
+			if ( button_html != null ) text.append(button_html);
+		}
+
 		text.append("</form>\n");
 		text.append("</div>\n");
 
@@ -484,7 +575,9 @@ public class BasicLTIUtil {
 		// and are not already the top frame...
 		text.append("<script type=\"text/javascript\">\n");
 		text.append("if (window.top!=window.self) {\n");
-    		text.append("  theform = document.getElementById('ltiLaunchForm');\n");
+		text.append("  theform = document.getElementById('ltiLaunchForm_");
+		text.append(submit_uuid);
+		text.append("');\n");
 		text.append("  if ( theform && theform.action ) {\n");
 		text.append("   formAction = theform.action;\n");
 		text.append("   ourUrl = window.location.href;\n");
@@ -498,7 +591,9 @@ public class BasicLTIUtil {
 
 		// paint debug output
 		if (debug) {
-			text.append("<pre>\n");
+			text.append("<pre id=\"ltiLaunchDebug_");
+			text.append(submit_uuid);
+			text.append("\" style=\"display: none\">\n");
 			text.append("<b>BasicLTI Endpoint</b>\n");
 			text.append(endpoint);
 			text.append("\n\n");
@@ -522,12 +617,15 @@ public class BasicLTIUtil {
 					text.append("\n-->\n");
 				}
 			}
-		} else {
+		} else if ( autosubmit ) {
 			// paint auto submit script
-			text
-				.append(" <script language=\"javascript\"> \n"
-						+ "	document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n"
-						+ "	document.ltiLaunchForm.submit(); \n" + " </script> \n");
+			text.append("<script language=\"javascript\"> \n");
+			text.append("    document.getElementById('ltiLaunchFormArea_");
+			text.append(submit_uuid);
+			text.append("').style.display = \"none\";\n");
+			text.append("    document.getElementById('ltiLaunchForm_");
+			text.append(submit_uuid);
+			text.append("').submit(); \n</script> \n");
 		}
 
 		String htmltext = text.toString();
