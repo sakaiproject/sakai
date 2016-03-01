@@ -25,6 +25,7 @@ import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Panel for the course grade override window
@@ -58,7 +59,7 @@ public class CourseGradeOverridePanel extends Panel {
 		final String currentUserUuid = this.businessService.getCurrentUser().getId();
 		final GbRole currentUserRole = this.businessService.getUserRole();
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
-		final GradebookInformation settings = this.businessService.getGradebookSettings();
+		final Gradebook gradebook = this.businessService.getGradebook();
 
 		// form model
 		// we are only dealing with the 'entered grade' so we use this directly
@@ -69,14 +70,14 @@ public class CourseGradeOverridePanel extends Panel {
 
 		form.add(new Label("studentName", studentUser.getDisplayName()));
 		form.add(new Label("studentEid", studentUser.getDisplayId()));
-		form.add(new Label("points", formatPoints(courseGrade, settings)));
+		form.add(new Label("points", formatPoints(courseGrade, gradebook)));
 
 		// setup a map of data for the course grade label
 		final Map<String, Object> modelData = new HashMap<>();
 		modelData.put("currentUserUuid", currentUserUuid);
 		modelData.put("currentUserRole", currentUserRole);
 		modelData.put("courseGrade", courseGrade);
-		modelData.put("settings", settings);
+		modelData.put("gradebook", gradebook);
 		modelData.put("showPoints", false);
 		modelData.put("showOverride", false);
 		form.add(new GbCourseGradeLabel("calculated", Model.ofMap(modelData)));
@@ -146,19 +147,19 @@ public class CourseGradeOverridePanel extends Panel {
 	 * Helper to format the points display
 	 *
 	 * @param courseGrade the {@link CourseGrade}
-	 * @param settings the {@link GradebookInformation} settings
+	 * @param gradebook the {@link Gradebook} which has the settings
 	 * @return fully formatted string ready for display
 	 */
-	private String formatPoints(final CourseGrade courseGrade, final GradebookInformation settings) {
-
-		final Double pointsEarned = courseGrade.getPointsEarned();
-		final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
+	private String formatPoints(final CourseGrade courseGrade, final Gradebook gradebook) {
 
 		// only display points if not weighted category type
-		final GbCategoryType categoryType = GbCategoryType.valueOf(settings.getCategoryType());
+		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 		if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
-			if (settings.isCoursePointsDisplayed()) {
+			final Double pointsEarned = courseGrade.getPointsEarned();
+			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
+
+			if (gradebook.isCoursePointsDisplayed()) {
 				return new StringResourceModel("coursegrade.display.points-first", null,
 						new Object[] { pointsEarned, totalPointsPossible }).getString();
 			} else {

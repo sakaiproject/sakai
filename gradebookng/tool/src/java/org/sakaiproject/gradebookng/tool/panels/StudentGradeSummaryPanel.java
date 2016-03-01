@@ -20,7 +20,7 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 
 /**
  *
- * Cell panel for the student grade summary
+ * Wrapper for the student grade summary tabs
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -94,7 +94,8 @@ public class StudentGradeSummaryPanel extends Panel {
 				studentNavigation.setVisible(showingInstructorView);
 				target.add(studentNavigation);
 
-				target.appendJavaScript(String.format("new GradebookGradeSummary($(\"#%s\"), %s);", getParent().getMarkupId(), showingStudentView));
+				target.appendJavaScript(
+						String.format("new GradebookGradeSummary($(\"#%s\"), %s);", getParent().getMarkupId(), showingStudentView));
 			}
 		});
 
