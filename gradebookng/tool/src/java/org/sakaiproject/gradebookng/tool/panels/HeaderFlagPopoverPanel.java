@@ -8,10 +8,13 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
+
+import java.util.Map;
 
 public class HeaderFlagPopoverPanel extends Panel {
 
@@ -42,18 +45,15 @@ public class HeaderFlagPopoverPanel extends Panel {
 
 	Flag flag;
 	Long assignmentId;
+	GbRole role;
 
-	public HeaderFlagPopoverPanel(final String id, final Flag flag, final Long assignmentId) {
-		super(id);
+	public HeaderFlagPopoverPanel(final String id, final IModel<Map<String, Object>> model) {
+		super(id, model);
 
-		this.flag = flag;
-		this.assignmentId = assignmentId;
-	}
-
-	public HeaderFlagPopoverPanel(final String id, final Flag flag) {
-		super(id);
-
-		this.flag = flag;
+		Map<String, Object> modelData = model.getObject();
+		this.flag = (Flag) modelData.get("flag");
+		this.assignmentId = (Long) modelData.get("assignmentId");
+		this.role = (GbRole) modelData.get("role");
 	}
 
 	@Override
@@ -62,7 +62,6 @@ public class HeaderFlagPopoverPanel extends Panel {
 
 		add(new Label("message", getString(this.flag.getMessageKey())));
 
-		final GbRole role = this.businessService.getUserRole();
 		final boolean isInstructor = GbRole.INSTRUCTOR == role;
 
 		if (isInstructor) {

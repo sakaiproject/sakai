@@ -1,6 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +26,7 @@ import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
@@ -59,7 +62,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		final Assignment assignment = this.modelData.getObject();
 
 		// get user's role
-		final GbRole role = this.businessService.getUserRole();
+		final GbRole role = ((BasePage)getPage()).getRole();
 
 		// do they have permission to edit this assignment?
 		final boolean canEditAssignment = canUserEditAssignment(role, assignment);
@@ -359,8 +362,12 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		}
 	}
 
+
 	private String generateFlagPopover(final HeaderFlagPopoverPanel.Flag flag) {
-		return new HeaderFlagPopoverPanel("popover", flag, this.modelData.getObject().getId()).toPopoverString();
+		Map<String, Object> popoverModel = new HashMap<>();
+		popoverModel.put("assignmentId", this.modelData.getObject().getId());
+		popoverModel.put("flag", flag);
+		return new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString();
 	}
 
 	/**
@@ -393,8 +400,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		if (role == GbRole.INSTRUCTOR) {
 			canEdit = true;
 		} else {
-			List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
-					this.businessService.getCurrentUser().getId());
+			final List<PermissionDefinition> permissions = ((BasePage)getPage()).getPermissions();
 			for (PermissionDefinition permission : permissions) {
 				if (assignment.getCategoryId() != null &&
 						assignment.getCategoryId().equals(permission.getCategoryId())) {
