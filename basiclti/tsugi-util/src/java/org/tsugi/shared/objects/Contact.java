@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
     "name",
     "email"
 })
-public class Contact extends org.tsugi.shared.objects.Base{
+public class Contact extends org.tsugi.jackson.objects.JacksonBase {
 
     @JsonProperty("name")
     private String name;
