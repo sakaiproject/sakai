@@ -92,6 +92,7 @@ import org.sakaiproject.portal.util.PortalUtils;
 import au.com.bytecode.opencsv.CSVReader;
 import java.text.MessageFormat;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.util.PasswordCheck;
@@ -115,6 +116,7 @@ public class UsersAction extends PagedResourceActionII
 	private static final String IMPORT_EMAIL="email";
 	private static final String IMPORT_PASSWORD="password";
 	private static final String IMPORT_TYPE="type";
+	private ValidationLogic validationLogic;
 
 	// SAK-23568
 	private static final PasswordPolicyHelper pwHelper = new PasswordPolicyHelper();
@@ -139,6 +141,7 @@ public class UsersAction extends PagedResourceActionII
 	public UsersAction() {
 		super();
 		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		this.validationLogic = (ValidationLogic)ComponentManager.get(ValidationLogic.class);
 	}
 
 	/**
@@ -940,6 +943,8 @@ public class UsersAction extends PagedResourceActionII
 		
 		// commit the change
 		UserEdit edit = (UserEdit) state.getAttribute("user");
+		String valueEmail = (String)state.getAttribute("valueEmail");
+		String oldEmail = (String)state.getAttribute("oldEmail");
 		if (edit != null)
 		{
 			
@@ -953,6 +958,12 @@ public class UsersAction extends PagedResourceActionII
 			
 			try
 			{
+				//start this validation only when user has changed the email for the account else skip, also skip for admin user
+				if (!SecurityService.isSuperUser() && StringUtils.trimToNull(valueEmail) != null && StringUtils.trimToNull(oldEmail) != null && !(oldEmail.equals(valueEmail))
+						&& EmailValidator.getInstance().isValid(edit.getEid()) && !(StringUtils.equalsIgnoreCase(edit.getEid(), valueEmail))) {
+					validationLogic.createValidationAccount(edit.getId(),valueEmail);
+					addAlert(state,rb.getFormattedMessage("useedi.val.email",new String[]{valueEmail}));
+				}
 				UserDirectoryService.commitEdit(edit);
 			}
 			catch (UserAlreadyDefinedException e)
@@ -1330,6 +1341,18 @@ public class UsersAction extends PagedResourceActionII
 		
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
+		//if user has not changed the email then skip the 'email exists' verification. Also, skip it when user is admin
+		if(!SecurityService.isSuperUser() && user != null && !(StringUtils.equals(user.getEmail(), email))){
+			try {
+				UserDirectoryService.getUserByEid(email);
+				addAlert(state,rb.getString("useedi.email.exists"));
+				return false;
+			} catch (UserNotDefinedException e) {
+				//unique user ,so continue
+			}
+			//user has changed the email so save the old email in the state
+			state.setAttribute("oldEmail",user.getEmail());
+		}
 		
 		//process any additional attributes
 		//we continue processing these until we get an empty attribute KEY

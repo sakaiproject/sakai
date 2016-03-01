@@ -154,6 +154,14 @@ public class UserDirectoryService
 		return service.allowUpdateUser(param0);
 	}
 
+	public static boolean updateUserId(java.lang.String param0,java.lang.String param1)
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return false;
+
+		return service.updateUserId(param0,param1);
+	}
+
 	public static org.sakaiproject.user.api.UserEdit editUser(java.lang.String param0)
 			throws org.sakaiproject.user.api.UserNotDefinedException, org.sakaiproject.user.api.UserPermissionException,
 			org.sakaiproject.user.api.UserLockedException
