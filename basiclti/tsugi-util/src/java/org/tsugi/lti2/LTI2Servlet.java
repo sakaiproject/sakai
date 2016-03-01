@@ -204,7 +204,7 @@ public class LTI2Servlet extends HttpServlet {
 			ltiProps.setProperty(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "launch");
 			System.out.println("ltiProps="+ltiProps);
 
-			boolean dodebug = true;
+			boolean dodebug = M_log.isDebugEnabled();
 			// TODO: Internationalize this
 			// String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 			String launchtext = "Press to Launch External Tool";
@@ -280,7 +280,7 @@ public class LTI2Servlet extends HttpServlet {
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch, "POST",
 				TEST_KEY, shared_secret, null, null, null, extra);
 
-			boolean dodebug = true;
+			boolean dodebug = M_log.isDebugEnabled();
 			// TODO: Internationalize this
 			// String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 			String launchtext = "Press to Launch External Tool";

@@ -24,10 +24,14 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +52,8 @@ import org.tsugi.basiclti.BasicLTIProviderUtil;
 
 import org.tsugi.casa.objects.Application;
 
+import org.tsugi.contentitem.objects.ContentItemResponse;
+
 import org.tsugi.jackson.JacksonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -64,6 +70,8 @@ import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.util.SakaiCASAUtil;
+import org.sakaiproject.basiclti.util.SakaiContentItemUtil;
+import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -235,17 +243,18 @@ public class ProviderServlet extends HttpServlet {
 		doPost(request, response);
 	}
 
-    protected Map getPayloadAsMap(HttpServletRequest request) {
-        Map payload = new HashMap();
-        for (Enumeration e = request.getParameterNames(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            payload.put(key, request.getParameter(key));
-        }
+	protected Map getPayloadAsMap(HttpServletRequest request) {
+		Map payload = new HashMap();
+		for (Enumeration e = request.getParameterNames(); e.hasMoreElements(); ) {
+			String key = (String)e.nextElement();
+			payload.put(key, request.getParameter(key));
+		}
 
-        payload.put("oauth_message", OAuthServlet.getMessage(request, null));
-        payload.put("tool_id", 	request.getPathInfo());
-        return payload;
-    }
+		String requestURL = SakaiBLTIUtil.getOurServletPath(request);
+		payload.put("oauth_message", OAuthServlet.getMessage(request, requestURL));
+		payload.put("tool_id", 	request.getPathInfo());
+		return payload;
+	}
 
 	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -273,6 +282,46 @@ public class ProviderServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_FORBIDDEN,
 						"CASA Provider is Disabled");
 				return;
+			}
+		}
+
+		if ( "/canvas-config.xml".equals(request.getPathInfo()) ) {
+			if ( ServerConfigurationService.getBoolean("canvas.config.enabled", true))  {
+				handleCanvasConfig(request, response);
+				return;
+			} else {
+				M_log.warn("Canvas config is Disabled IP=" + ipAddress);
+				response.sendError(HttpServletResponse.SC_FORBIDDEN,
+						"Canvas config is Disabled");
+				return;
+			}
+		}
+
+		// If this is a LTI request of any kind, make sure we don't have any
+		// prior payload in the session.
+		if ( BasicLTIUtil.isRequest(request) ) {
+			Session sess = SessionManager.getCurrentSession();
+			sess.removeAttribute("payload");
+		}
+
+		// Check if we support ContentItem.
+		// If we are doing ContentItem and have a payload and are not a launch
+		// short-circuit to ContentItem
+		if ( "/content.item".equals(request.getPathInfo()) ) {
+			if ( ! ServerConfigurationService.getBoolean("contentitem.provider", true))  {
+				M_log.warn("ContentItem is Disabled IP=" + ipAddress);
+				response.sendError(HttpServletResponse.SC_FORBIDDEN,
+						"ContentItem is Disabled");
+				return;
+			} else {
+				Session sess = SessionManager.getCurrentSession();
+				Map session_payload = (Map) sess.getAttribute("payload");
+				if ( session_payload != null ) {
+					// Post-Login requests to content.item
+					M_log.debug("ContentItem already logged in "+sess.getUserId());
+					handleContentItem(request, response, session_payload);
+					return;
+				}
 			}
 		}
 
@@ -323,17 +372,43 @@ public class ProviderServlet extends HttpServlet {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterValidation);
 
             User user = userFinderOrCreator.findOrCreateUser(payload, isTrustedConsumer, isEmailTrustedConsumer);
-            
+
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
+            // Check if we are loop-backing on the same server, and already logged in as same user
+            Session sess = SessionManager.getCurrentSession();
+            String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+            String ext_sakai_server = (String) payload.get("ext_sakai_server");
+
+            if ( "/content.item".equals(request.getPathInfo()) && isTrustedConsumer &&
+                ext_sakai_server != null && ext_sakai_server.equals(serverUrl) &&
+                user.getId().equals(sess.getUserId()) ) {
+
+                M_log.debug("ContentItem looping back as "+sess.getUserId());
+                sess.setAttribute("payload", payload);
+                handleContentItem(request, response, payload);
+                return;
+            }
+
             loginUser(ipAddress, user);
-            
+
+            // Re-grab the session
+            sess = SessionManager.getCurrentSession();
+
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
             // This needs to happen after login, when we have a session for the user.
             userLocaleSetter.setupUserLocale(payload, user, isTrustedConsumer,isEmailTrustedConsumer);
-            
+
             userPictureSetter.setupUserPicture(payload, user, isTrustedConsumer, isEmailTrustedConsumer);
+
+            // The first launch of content.item - no site needed
+            if ( "/content.item".equals(request.getPathInfo()) ) {
+                    M_log.debug("ContentItem inital external login "+sess.getUserId());
+                    sess.setAttribute("payload", payload);
+					handleContentItem(request, response, payload);
+                    return;
+            }
 
             Site site = findOrCreateSite(payload, isTrustedConsumer);
 
@@ -353,7 +428,7 @@ public class ProviderServlet extends HttpServlet {
 
             // Construct a URL to this tool
             StringBuilder url = new StringBuilder();
-                url.append(ServerConfigurationService.getServerUrl());
+                url.append(SakaiBLTIUtil.getOurServerUrl());
                 url.append(ServerConfigurationService.getString("portalPath", "/portal"));
                 url.append("/tool-reset/");
                 url.append(toolPlacementId);
@@ -448,9 +523,8 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
-    protected void validate(Map payload, boolean isTrustedConsumer) throws LTIException {
-
-
+    protected void validate(Map payload, boolean isTrustedConsumer) throws LTIException
+    {
           //check parameters
           String lti_message_type = (String) payload.get(BasicLTIConstants.LTI_MESSAGE_TYPE);
           String lti_version = (String) payload.get(BasicLTIConstants.LTI_VERSION);
@@ -460,7 +534,12 @@ public class ProviderServlet extends HttpServlet {
           String context_id = (String) payload.get(BasicLTIConstants.CONTEXT_ID);
 
 
-          if(!BasicLTIUtil.equals(lti_message_type, "basic-lti-launch-request")) {
+          boolean launch = true;
+          if( BasicLTIUtil.equals(lti_message_type, "basic-lti-launch-request") ) {
+              launch = true;
+          } else if ( BasicLTIUtil.equals(lti_message_type, "ContentItemSelectionRequest") ) {
+              launch = false;
+          } else {
               throw new LTIException("launch.invalid", "lti_message_type="+lti_message_type, null);
           }
 
@@ -474,7 +553,7 @@ public class ProviderServlet extends HttpServlet {
 
           }
 
-          if(BasicLTIUtil.isBlank(resource_link_id)) {
+          if(launch && BasicLTIUtil.isBlank(resource_link_id)) {
               throw new LTIException( "launch.missing", "resource_link_id", null);
 
           }
@@ -505,11 +584,11 @@ public class ProviderServlet extends HttpServlet {
           final String[] allowedTools = allowedToolsConfig.split(":");
           final List<String> allowedToolsList = Arrays.asList(allowedTools);
 
-          if (allowedTools != null && !allowedToolsList.contains(tool_id)) {
+          if (launch && allowedTools != null && !allowedToolsList.contains(tool_id)) {
               throw new LTIException( "launch.tool.notallowed", tool_id, null);
           }
           final Tool toolCheck = ToolManager.getTool(tool_id);
-          if (toolCheck == null) {
+          if (launch && toolCheck == null) {
               throw new LTIException("launch.tool.notfound", tool_id, null);
           }
 
@@ -577,9 +656,9 @@ public class ProviderServlet extends HttpServlet {
               throw new LTIException( "launch.key.notfound",oauth_consumer_key, null);
           }
           final OAuthMessage oam = (OAuthMessage) payload.get("oauth_message");
-          
+
           final String forcedURIScheme = ServerConfigurationService.getString("basiclti.provider.forcedurischeme", null);
-          
+
           if(forcedURIScheme != null) {
         	  try {
         		  URI testURI = new URI(oam.URL);
@@ -742,13 +821,13 @@ public class ProviderServlet extends HttpServlet {
 
                 // BLTI-154. If an autocreation site template has been specced in sakai.properties, use it.
                 String autoSiteTemplateId = ServerConfigurationService.getString("basiclti.provider.autositetemplate", null);
-                
+
                 boolean templateSiteExists = SiteService.siteExists(autoSiteTemplateId);
-                
+
                 if(!templateSiteExists) {
                     M_log.warn("A template site id was specced (" + autoSiteTemplateId + ") but no site with this id exists. A default lti site will be created instead.");
                 }
-                
+
                 if(autoSiteTemplateId == null || !templateSiteExists) {
                     //BLTI-151 If the new site type has been specified in sakai.properties, use it.
                     sakai_type = ServerConfigurationService.getString("basiclti.provider.newsitetype", null);
@@ -833,9 +912,9 @@ public class ProviderServlet extends HttpServlet {
         sess.setUserId(user.getId());
         sess.setUserEid(user.getEid());
     }
-    
 
-    public void destroy() {
+
+	public void destroy() {
 
 	}
 
@@ -905,7 +984,7 @@ public class ProviderServlet extends HttpServlet {
 
         final String oauth_consumer_key = (String) payload.get(OAuth.OAUTH_CONSUMER_KEY);
 
-        // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
+        // This is non standard. Moodle's core LTI plugin does not currently do memberships and
         // a fix for this has been proposed at https://tracker.moodle.org/browse/MDL-41724. I don't
         // think this will ever become core and the first time memberships will appear in core lti
         // is with LTI2. At that point this code will be replaced with standard LTI2 JSON type stuff.
@@ -938,7 +1017,7 @@ public class ProviderServlet extends HttpServlet {
         ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
     }
 
-	private void handleCASAList(HttpServletRequest request, HttpServletResponse response) 
+	private void handleCASAList(HttpServletRequest request, HttpServletResponse response)
 	{
                 ArrayList<Application> apps = new ArrayList<Application>();
 
@@ -952,6 +1031,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
                 try {
+		        response.setCharacterEncoding("UTF-8");
                         response.setContentType("application/json");
                         PrintWriter out = response.getWriter();
                         out.write(JacksonUtil.prettyPrint(apps));
@@ -960,4 +1040,117 @@ public class ProviderServlet extends HttpServlet {
                         e.printStackTrace();
                 }
 	}
+
+	private void handleContentItem(HttpServletRequest request, HttpServletResponse response, Map payload)
+		throws ServletException, IOException
+	{
+
+		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
+		String[] allowedTools = allowedToolsConfig.split(":");
+		List<String> allowedToolsList = Arrays.asList(allowedTools);
+
+		String tool_id = (String) request.getParameter("install");
+		if ( tool_id == null ) {
+			ArrayList<Tool> tools = new ArrayList<Tool>();
+			for (String toolId : allowedToolsList) {
+				Tool theTool = ToolManager.getTool(toolId);
+				if ( theTool == null ) continue;
+				tools.add(theTool);
+			}
+			request.setAttribute("tools",tools);
+		} else {
+			if ( !allowedToolsList.contains(tool_id)) {
+				doError(request, response, "launch.tool.notallowed", tool_id, null);
+				return;
+			}
+			final Tool toolCheck = ToolManager.getTool(tool_id);
+			if ( toolCheck == null) {
+				doError(request, response, "launch.tool.notfound", tool_id, null);
+				return;
+			}
+
+			String content_item_return_url = (String) payload.get("content_item_return_url");
+			if ( content_item_return_url == null) {
+				doError(request, response, "content_item.return_url.notfound", tool_id, null);
+				return;
+			}
+
+			ContentItemResponse resp = SakaiContentItemUtil.getContentItemResponse(tool_id);
+			if ( resp == null) {
+				doError(request, response, "launch.tool.notfound", tool_id, null);
+				return;
+			}
+			String content_items = resp.prettyPrintLog();
+
+			// Set up the return
+			Map<String, String> ltiMap = new HashMap<String, String> ();
+			Map<String, String> extra = new HashMap<String, String> ();
+			ltiMap.put(BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTION);
+			ltiMap.put(BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
+			ltiMap.put("content_items", content_items);
+			String data = (String) payload.get("data");
+			if ( data != null ) ltiMap.put("data", data);
+			M_log.debug("ltiMap="+ltiMap);
+
+			boolean dodebug = M_log.isDebugEnabled();
+			boolean autosubmit = false;
+			String launchtext = rb.getString("content_item.install.button");
+			String back_to_store = rb.getString("content_item.back.to.store");
+			extra.put("button_html","<input type=\"submit\" value=\""+back_to_store+"\"onclick=\"location.href='content.item'; return false;\">");
+			String launch_html = BasicLTIUtil.postLaunchHTML(ltiMap, content_item_return_url, launchtext, autosubmit, dodebug, extra);
+
+			request.setAttribute("back_to_store", rb.getString("content_item.back.to.store"));
+			request.setAttribute("install",tool_id);
+			request.setAttribute("launch_html",launch_html);
+			request.setAttribute("tool",toolCheck);
+		}
+
+		// Forward to the JSP
+		ServletContext sc = this.getServletContext();
+		RequestDispatcher rd = sc.getRequestDispatcher("/contentitem.jsp");
+		try {
+			rd.forward(request, response);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void handleCanvasConfig(HttpServletRequest request, HttpServletResponse response)
+		throws IOException
+	{
+		String title = ServerConfigurationService.getString("canvas.config.title",
+			rb.getString("canvas.config.title"));
+		String description = ServerConfigurationService.getString("canvas.config.description",
+			rb.getString("canvas.config.description"));
+		String launch = ServerConfigurationService.getString("canvas.config.launch",
+			SakaiLTIProviderUtil.getProviderLaunchUrl("content.item"));
+		String icon = ServerConfigurationService.getString("canvas.config.domain",
+			"https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
+		request.setAttribute("title", title);
+		request.setAttribute("description", description);
+		request.setAttribute("launch", launch);
+		request.setAttribute("icon",icon);
+
+		try {
+			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+			URL netUrl = new URL(serverUrl);
+			String host = netUrl.getHost();
+			String domain = ServerConfigurationService.getString("canvas.config.domain", host);
+			request.setAttribute("domain", domain);
+		} catch (MalformedURLException e) {
+			doError(request, response, "canvas.error.missing.domain", e.getMessage(), e.getCause());
+		}
+
+		// Forward to the JSP
+		ServletContext sc = this.getServletContext();
+		RequestDispatcher rd = sc.getRequestDispatcher("/canvas-config.jsp");
+		try {
+			rd.forward(request, response);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

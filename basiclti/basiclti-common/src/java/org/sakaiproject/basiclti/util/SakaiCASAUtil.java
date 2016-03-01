@@ -42,7 +42,8 @@ import org.sakaiproject.lti2.SakaiLTI2Base;
 
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 /**
  * Some Sakai Utility code for IMS CASA
@@ -65,26 +66,26 @@ public class SakaiCASAUtil {
 			sample = true;
 		}
 
-                Launch launch = new Launch();
-                launch.setLaunch_url(ServerConfigurationService.getServerUrl() + "/imsblti/provider/"+toolRegistration);
+		Launch launch = new Launch();
+		launch.setLaunch_url(SakaiBLTIUtil.getOurServerUrl() + "/imsblti/provider/"+toolRegistration);
 
 		Use use = new Use(launch);
 		// TODO: Fix this 
-                use.setIcon_url("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
-                use.setTitle(theTool.getTitle());
-                use.setText(theTool.getDescription());
-                use.addContact(new Contact(cnf.getService_owner_owner_name(), cnf.getService_owner_support_email()));
+		use.setIcon_url("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
+		use.setTitle(theTool.getTitle());
+		use.setText(theTool.getDescription());
+		use.addContact(new Contact(cnf.getService_owner_owner_name(), cnf.getService_owner_support_email()));
 
-                Original orig = new Original(use);
-                orig.setUri(ServerConfigurationService.getServerUrl());
-                orig.setPropagate(Boolean.TRUE);
-                orig.setShare(Boolean.TRUE);
+		Original orig = new Original(use);
+		orig.setUri(SakaiBLTIUtil.getOurServerUrl());
+		orig.setPropagate(Boolean.TRUE);
+		orig.setShare(Boolean.TRUE);
 		// TODO: Fix this when I know the rules
-                orig.setTimestamp("2015-01-02T22:17:00.371Z");
+		orig.setTimestamp("2015-01-02T22:17:00.371Z");
 
-                Identity identity = new Identity(cnf.getService_owner_id(), toolRegistration);
+		Identity identity = new Identity(cnf.getService_owner_id(), toolRegistration);
 
-                Application app = new Application(identity,orig);
+		Application app = new Application(identity,orig);
 		return app;
 	}
 

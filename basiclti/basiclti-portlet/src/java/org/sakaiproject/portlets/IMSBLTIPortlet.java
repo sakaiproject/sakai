@@ -212,7 +212,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				String frameHeight =  getCorrectProperty(request, "frameheight", null);
 				dPrint("fh="+frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
-				String serverUrl = ServerConfigurationService.getServerUrl();
+				String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 				boolean forcePopup = false;
 				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
 					if ( launch != null && launch.startsWith("http://") ) {
