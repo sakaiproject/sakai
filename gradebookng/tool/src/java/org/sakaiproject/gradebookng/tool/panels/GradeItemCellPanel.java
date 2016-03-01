@@ -70,7 +70,8 @@ public class GradeItemCellPanel extends Panel {
 		HAS_COMMENT("grade.notifications.hascomment"),
 		CONCURRENT_EDIT("grade.notifications.concurrentedit"),
 		ERROR("grade.notifications.haserror"),
-		INVALID("grade.notifications.invalid");
+		INVALID("grade.notifications.invalid"),
+		READONLY("grade.notifications.readonly");
 
 		private String message;
 
@@ -131,6 +132,9 @@ public class GradeItemCellPanel extends Panel {
 			if (isExternal) {
 				getParentCellFor(this).add(new AttributeModifier("class", "gb-external-item-cell"));
 				this.notifications.add(GradeCellNotification.IS_EXTERNAL);
+			} else if (!this.gradeable) {
+				getParentCellFor(this).add(new AttributeModifier("class", "gb-readonly-item-cell"));
+				this.notifications.add(GradeCellNotification.READONLY);
 			} else {
 				getParentCellFor(this).add(new AttributeModifier("class", "gb-grade-item-cell"));
 			}
@@ -516,7 +520,8 @@ public class GradeItemCellPanel extends Panel {
 				addPopover(errorNotification, this.notifications);
 			} else if (this.notifications.contains(GradeCellNotification.INVALID)
 					|| this.notifications.contains(GradeCellNotification.CONCURRENT_EDIT)
-					|| this.notifications.contains(GradeCellNotification.IS_EXTERNAL)) {
+					|| this.notifications.contains(GradeCellNotification.IS_EXTERNAL)
+					|| this.notifications.contains(GradeCellNotification.READONLY)) {
 				warningNotification.setVisible(true);
 				addPopover(warningNotification, this.notifications);
 			} else if (this.notifications.contains(GradeCellNotification.OVER_LIMIT)) {

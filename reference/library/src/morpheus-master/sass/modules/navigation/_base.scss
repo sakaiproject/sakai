@@ -25,11 +25,8 @@ body.is-logged-out{
 		padding: 0 1em;
 		text-align: left;
 		width: 		auto;
-
+		@include flex-shrink( 0 );
 		@include transition(width 0.5s linear);
-		@media #{$phone}{
-			width: 0px;
-		}
 		.#{$namespace}headerLogo--institution{
 			background: url($logo) no-repeat center center;
 			width: 		50px;
@@ -68,13 +65,16 @@ body.is-logged-out{
 				}
 			}
 		}
+		p{
+			margin: 0.05em 1.5em 0 0;
+		}
 	}
 
 	&.is-maximized{
 		.siteNavWrap{
-			width: calc( 100% - 370px );
+			@include flex-grow( 1 );
 			@media #{$phone}{
-				
+				display: none;
 			}
 		}
 	}
@@ -187,23 +187,29 @@ body.is-logged-out{
 	color: $background-color;
 	font-size: 0.9em;
 	min-height: 45px;
+	width: 100%;
+	@include display-flex(inline-flex);
+	@include align-items(center);
+	@include justify-content( space-between );
 	@include transition( top 0.25s linear );
 	a{
 		color: $background-color;
 		font-weight: 300;
 	}
 	> * {
-		display: inline-block;
-		vertical-align: middle;
 		@media #{$phone}{
 			display: inline;
 		}
 	}
 	.#{$namespace}loginNav{
 		float: right;
-		margin: 0 1em 0 0px
+		margin: 0 1em 0 0px;
+		@include flex-shrink( 0 );
+		@include align-self( flex-start );
 	}
+
 	@media #{$phone}{
+		display: block;
 		position: fixed;
 		width: 100%;
 		top: 0;
@@ -218,8 +224,6 @@ body.is-logged-out{
 }
 
 #mastLogin{
-
-	//width: calc( 100% - #{$tool-menu-width} - 4px ); //Fix for inline-block margin.
 	
 	@media #{$phone}{
 		margin: 0 0 0 0;
@@ -279,7 +283,7 @@ body.is-logged-out{
 
 	.has-avatar, .no-avatar{
 		display: inline-block;
-		padding: 0em 1.5em 0.8em 0px;
+		padding: 0em 1.5em 0.2em 0px;
 		position: relative;
 		margin-top: -0.8em;
 		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
@@ -568,6 +572,18 @@ body.is-logged-out{
 	}
 	@media #{$phone}{
 		display: none;
+	}
+}
+
+body.is-logged-out{
+	#linkNav{
+		ul{
+			li.#{$namespace}sitesNav__menuitem{
+				.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+					display: none;
+				}
+			}
+		}
 	}
 }
 

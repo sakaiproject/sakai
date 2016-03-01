@@ -2,12 +2,16 @@ package org.sakaiproject.gradebookng.business.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 
+import lombok.extern.apachecommons.CommonsLog;
+
+@CommonsLog
 public class FormatHelper {
 
 	/**
@@ -63,7 +67,22 @@ public class FormatHelper {
 		if (StringUtils.isBlank(grade)) {
 			return "";
 		}
-		return StringUtils.removeEnd(String.valueOf(Double.parseDouble(grade)), ".0");
+
+		String s = null;
+		try {
+			final Double d = Double.parseDouble(grade);
+
+			final DecimalFormat df = new DecimalFormat();
+			df.setMinimumFractionDigits(0);
+			df.setGroupingUsed(false);
+
+			s = df.format(d);
+		} catch (final NumberFormatException e) {
+			log.debug("Bad format, returning original string: " + grade);
+			s = grade;
+		}
+
+		return StringUtils.removeEnd(s, ".0");
 	}
 
 	/**

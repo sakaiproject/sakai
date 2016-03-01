@@ -578,6 +578,13 @@ $PBJQ(document).ready(function($){
       $('#organizeFavoritesPurgatoryList').empty();
 
       $.each(favoritesList, function (idx, siteid) {
+        if (!itemsBySiteId[siteid]) {
+          // Skip any favorite site that wasn't properly found for some reason
+          // (this might happen if the user's favorites list contains sites that
+          // they've had their access revoked from)
+          return;
+        }
+
         if ($(itemsBySiteId[siteid]).hasClass('my-workspace')) {
           // Don't show an entry for the user's workspace since it can't be rearranged anyway.
           return;

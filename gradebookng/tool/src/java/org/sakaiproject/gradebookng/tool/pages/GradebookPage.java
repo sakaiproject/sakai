@@ -129,6 +129,8 @@ public class GradebookPage extends BasePage {
 		this.form.add(this.deleteItemWindow);
 
 		this.gradeStatisticsWindow = new GbModalWindow("gradeStatisticsWindow");
+		this.gradeStatisticsWindow.setWidthUnit("%");
+		this.gradeStatisticsWindow.setInitialWidth(70);
 		this.form.add(this.gradeStatisticsWindow);
 
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
@@ -641,7 +643,7 @@ public class GradebookPage extends BasePage {
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
 		// Drag and Drop/Date Picker (requires jQueryUI)
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/jquery/ui/1.11.3/jquery-ui.min.js?version=%s", version)));
+		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
 
 		// Include Sakai Date Picker
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js?version=%s", version)));

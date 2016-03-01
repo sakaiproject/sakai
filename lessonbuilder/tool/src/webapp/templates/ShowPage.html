@@ -74,7 +74,7 @@
  </script>
 
 
-	 <div class="portletBody" id="outer" style="z-index:1">
+	 <div class="portletBody">
 
 		 <div rsf:id="needPermissions">
 			 <p rsf:id="msg=simplepage.needpermissions"></p>
@@ -114,8 +114,8 @@
 			   </h2>
 		       </div>
 	     <div class="action">
-		 <a href="#" class="lessonsToolButton" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false"></a>
-		 <a href="#" class="lessonsToolButton" rsf:id="show-pages" id="show-pages"></a>
+		 <a href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false"></a>
+		 <a href="#" rsf:id="show-pages" id="show-pages"></a>
 
 		 <span rsf:id="gradingSpan" class="gradingarea">
 		     <a href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
@@ -142,42 +142,46 @@
         </div>
 		
 	
-		<div rsf:id="tool-bar:" class="navIntraTool" role="application" style="clear:both;z-index:100000" aria-labelledby="tool-bar::toolbar-label">
+		<div rsf:id="tool-bar:" class="navIntraTool" role="application" style="z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
-			<ul id="toolbar" role="menubar" style="padding:2px; margin:0px; text-align:right">
+			<ul id="toolbar" role="menubar">
 				
-			  <li class="contentButton" style="float:left; margin-top:0px !important" >
+<!-- uncomment to get icons for the most common content types
+
+			  <li class="contentButton removeNarrow">
 			    <span>
 			    <a role="menuitem" rsf:id="add-text1" href="#"><span aria-hidden="true" class="fa-button-text fa-font"></span></a>
 			    </span>
 			  </li>
 
-			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			  <li class="contentButton removeNarrow">
 			    <span>
 			    <a role="menuitem" href="#" rsf:id="add-resource1" class="add-at-end add-resource"><span aria-hidden="true" class="fa-button-text fa-link"></span></a>
 			    </span>
 			  </li>
 
-			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			  <li class="contentButton removeNarrow">
 			    <span>
 			    <a role="menuitem" href="#" rsf:id="add-multimedia1" class="add-at-end add-multimedia"><span aria-hidden="true" class="fa-button-text fa-youtube-play"></span></a>
 			    </span>
 			  </li>
 
-			  <li class="contentButton" style="float:left; margin-top:0px !important" >
+			  <li class="contentButton removeNarrow">
 			    <span>
 			    <a role="menuitem" href="#" rsf:id="subpage-link1" class="add-at-end subpage-link"><span aria-hidden="true" class="fa-button-text fa-folder-open"></span></a>
 			    </span>
 			  </li>
+-->
 
-				<li class="contentButton dropdown" id="dropdownc" style="float:left; margin-top:0px !important; z-index:900" >
+				<li class="contentButton dropdown" id="dropdownc">
 					<span>
 					    <a href="#" rsf:id="addcontent" onclick="return false;" class="add-at-end" role="menuitem">
+						<span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
 					        <span aria-hidden="true" class="fa-button-text fa-plus"></span>
 					    </a>				
 					</span>
 				</li>
-				<li class="dropdown" rsf:id="dropdown" id="dropdown" style="z-index:900">
+				<li class="contentButton dropdown" rsf:id="dropdown" id="dropdown">
 					<span>
 					    <a role="menuitem" href="#" onclick="return false;">
 					        <span rsf:id="msg=simplepage.more-tools" ></span>
@@ -187,11 +191,11 @@
 				</li>
 
                 
-		<li rsf:id="remove-student" style="float:left; margin-top: 0px !important"><a role="menuitem" href="#" rsf:id="remove-page-student" class="remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></li>
+		<li rsf:id="remove-student" class="contentButton"><span><a role="menuitem" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
-                <li><span><a role="menuitem" href="#" rsf:id="reorder"></a></span></li>
-                <li><span><a role="menuitem" href="#" rsf:id="help" target="_blank"></a></span></li>
-                <li class="contentButton">
+                <li class="contentButton"><span><a role="menuitem" class="add-at-end" href="#" rsf:id="reorder"><span class="fa-button-text"></span></a></span></li>
+                <li  class="contentButton"><span><a role="menuitem" href="#" rsf:id="help" target="_blank"></a></span></li>
+                <li  class="contentButton">
                     <span rsf:id="title-descrip">
                     <a role="menuitem" href="#" rsf:id="edit-title" id="edit-title"><span aria-hidden="true" class="fa-button-text fa-cog"></span><span class="skip" rsf:id="edit-title-text"></span></a>
                     </span>
@@ -1797,39 +1801,43 @@
                     </p>
                 </form>
 			</div>
+	  <div id="column-dialog" class="controlsPanel lessonsDialog">
+            <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
+              <div class="">                  
+                <input type="hidden" name="columnitem" id="columnitem" />
+		<div>
+                  <span>
+                    <input type="checkbox" id="columndouble" />
+                    <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label><br />
+		    
+                    <input type="checkbox" id="columnsplit" />
+                    <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label><br />
+		    <select id="columnbackground">
+		      <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
+		      <option value="trans" id="columntrans"><span rsf:id="msg=simplepage.columntrans">transparent</span></option>
+		      <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
+		      <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
+		      <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
+		      <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
+		      <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
+		    </select>
+                    <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label>
+                  </span>
 		</div>
+		<p class="act">
+                  <input rsf:id="column-submit"  class="bold" type="submit" id="column-submit" />
+                  <input rsf:id="column-cancel"  type="submit" id="column-cancel" />
+		</p>
+	      </div>
+            </form>
+	  </div>
+
+		</div>
+
+
+
 	</div>
 	
-	<div id="column-dialog" class="controlsPanel lessonsDialog">
-          <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
-            <div class="">                  
-              <input type="hidden" name="columnitem" id="columnitem" />
-              <div>
-                <span>
-                  <input type="checkbox" id="columndouble" />
-                  <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label><br />
-
-                  <input type="checkbox" id="columnsplit" />
-                  <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label><br />
-		  <select id="columnbackground">
-		    <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
-		    <option value="trans" id="columntrans"><span rsf:id="msg=simplepage.columntrans">transparent</span></option>
-		    <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
-		    <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
-		    <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
-		    <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
-		    <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
-		  </select>
-                  <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label>
-                </span>
-              </div>
-              <p class="act">
-                <input rsf:id="column-submit"  class="bold" type="submit" id="column-submit" />
-                <input rsf:id="column-cancel"  type="submit" id="column-cancel" />
-              </p>
-	    </div>
-          </form>
-	</div>
 
 	<div rsf:id="delete-dialog" id="delete-dialog" class="controlsPanel lessonsDialog">
 		<span id="delete-dialog-comment-url" style="display:none"></span>

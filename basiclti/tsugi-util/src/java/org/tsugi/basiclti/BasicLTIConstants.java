@@ -235,6 +235,8 @@ public class BasicLTIConstants {
 	public static final String LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST = "ToolProxyRegistrationRequest";
 	public static final String LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST = "ToolProxyReregistrationRequest";
 	public static final String LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST = "basic-lti-launch-request";
+	public static final String LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST = "ContentItemSelectionRequest";
+	public static final String LTI_MESSAGE_TYPE_CONTENTITEMSELECTION = "ContentItemSelection";
 	/**
 	 * lti_version=LTI-1p0
 	 * <p>

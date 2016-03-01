@@ -8,7 +8,7 @@
 function GradebookSettings($container) {
   this.$container = $container;
 
-  new GradebookCategorySettings($container.find("#settingsCategories"));
+  this.categories = new GradebookCategorySettings($container.find("#settingsCategories"));
 };
 
 
@@ -20,6 +20,7 @@ function GradebookCategorySettings($container) {
   this.$table = this.$container.find("table");
 
   this.setupSortableCategories();
+  this.setupKeyboardSupport();
 }
 
 
@@ -39,6 +40,36 @@ GradebookCategorySettings.prototype.setupSortableCategories = function() {
       update: $.proxy(self.updateCategoryOrders, self)
     });
 };
+
+
+GradebookCategorySettings.prototype.setupKeyboardSupport = function() {
+  var self = this;
+
+  self.$table.on("keydown", ":text", function(event) {
+    // add new row upon return
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      self.$container.find(".btn-add-category").trigger("click");
+    }
+  });
+};
+
+
+GradebookCategorySettings.prototype.focusLastRow = function() {
+  console.log("focusLastRow");
+  console.log(this.$table);
+  console.log(this.$table.find(".gb-category-row:last :text:first"));
+  console.log(this.$table.find(".gb-category-row:last :text:first").is(":visible"));
+  // get the first input#text in the last row of the table
+  var $input = this.$table.find(".gb-category-row:last :text:first");
+  // attempt to set focus
+  $input.focus();
+  // Wicket may try to set focus on the input last focused before form submission
+  // so set this manually to our desired input
+  Wicket.Focus.setFocusOnId($input.attr("id"));
+}
 
 
 GradebookCategorySettings.prototype.updateCategoryOrders = function() {
