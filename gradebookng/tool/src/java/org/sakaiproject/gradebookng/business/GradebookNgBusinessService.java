@@ -807,12 +807,13 @@ public class GradebookNgBusinessService {
 						// then check the group and find the user in the group
 						// if all ok, mark it as GRADEABLE
 
-						boolean categoryOk = false;
-						boolean groupOk = false;
 						boolean gradeable = false;
 
 						for (final PermissionDefinition permission : permissions) {
 							// we know they are all GRADE so no need to check here
+
+							boolean categoryOk = false;
+							boolean groupOk = false;
 
 							final Long permissionCategoryId = permission.getCategoryId();
 							final String permissionGroupReference = permission.getGroupReference();
@@ -842,7 +843,7 @@ public class GradebookNgBusinessService {
 
 							if (categoryOk && groupOk) {
 								gradeable = true;
-								continue;
+								break;
 							}
 						}
 

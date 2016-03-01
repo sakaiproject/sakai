@@ -275,10 +275,12 @@
 /* Table Cells */
 #gradebookGrades .gb-grade-item-cell,
 #gradebookGrades .gb-external-item-cell,
+#gradebookGrades .gb-readonly-item-cell,
 #gradebookGrades td.gb-category-item-column-cell {
   text-align: center;
   white-space: nowrap;
 }
+#gradebookGrades .gb-readonly-item-cell,
 #gradebookGrades .gb-external-item-cell {
   color: #777;
   font-style: italic;
@@ -822,14 +824,18 @@ ul.feedbackPanel li span {
   content: "\f071";
   color: rgb(200,144,0);
 }
+.gb-readonly-item-cell .gb-cell-notification-warning,
 .gb-external-item-cell .gb-cell-notification-warning {
   opacity: 0.2;
   font-style: normal;
 }
+.gb-readonly-item-cell .gb-cell-notification-warning:before,
 .gb-external-item-cell .gb-cell-notification-warning:before {
   color: #CCC;
   content: '\f023';
 }
+.gb-readonly-item-cell:focus .gb-cell-notification-warning,
+.gb-readonly-item-cell .gb-cell-notification-warning:focus,
 .gb-external-item-cell:focus .gb-cell-notification-warning,
 .gb-external-item-cell .gb-cell-notification-warning:focus {
   display:block;
