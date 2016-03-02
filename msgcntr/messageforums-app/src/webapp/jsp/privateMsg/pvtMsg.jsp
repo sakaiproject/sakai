@@ -32,7 +32,7 @@
   	//show entire page, otherwise, don't allow anon user to use this tool:
 %>
 
-		       		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+		       		<script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js?version="></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
 			
@@ -49,7 +49,8 @@
   			
   		<%@ include file="msgHeader.jsp"%>
 		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>	
-	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
+	  <div class="table-responsive">
+	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
 					 columnClasses="attach,attach,attach,specialLink,bogus,bogus,bogus">
@@ -181,8 +182,9 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</h:dataTable>
+	</div>
 		
-	  <mf:hierPvtMsgDataTable styleClass="listHier lines nolines" id="threaded_pvtmsgs" width="100%" 
+	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"

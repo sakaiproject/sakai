@@ -1,6 +1,6 @@
 <%-- For breadcrumb, displays either Messages & Forums / Messages / or just Messages /
 	 also displays the Previous/Next folder links --%>
- <h:panelGrid columns="2" width="100%" styleClass="navPanel">	 		
+ <h:panelGrid columns="2" width="100%" styleClass="navPanel mobile_blocked">	 		
 	<h:panelGroup>
 		<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
@@ -25,14 +25,13 @@
 	</h:panelGroup>
 	<h:panelGroup styleClass="itemNav specialLink">
 		<%-- gsilver:huh? renders anyway - because it is looking at topics instead of at folders?--%>
-		<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="#{msgs.pvt_prev_folder}"  
+		<h:commandLink styleClass="button" action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="#{msgs.pvt_prev_folder}"  
 			                rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}" title=" #{msgs.pvt_prev_folder}">
 			<f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
 		</h:commandLink>
 		<h:outputText value="#{msgs.pvt_prev_folder}" rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
-		<f:verbatim><h:outputText value=" | " /></f:verbatim>
 	
-		<h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="#{msgs.pvt_next_folder}" 
+		<h:commandLink styleClass="button" action="#{PrivateMessagesTool.processDisplayNextTopic}" value="#{msgs.pvt_next_folder}" 
 				  		                  rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}" title=" #{msgs.pvt_next_folder}">
 			<f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
 		</h:commandLink>

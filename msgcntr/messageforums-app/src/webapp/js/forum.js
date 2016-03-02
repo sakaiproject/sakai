@@ -479,10 +479,20 @@ $(document).ready(function () {
             });
         }
     }
+
+
+});
+
+$(document).ready(function () {
+    
+    $('#prefs_pvt_form\\:search_by_date').change( function(){
+      $('#prefs_pvt_form\\:pvt_beg_date, #prefs_pvt_form\\:pvt_end_date').toggleClass('showed');
+    });
+
 });
 
 function FCKeditor_OnComplete(editorInstance) {
-	   
+     
     fckeditor_word_count(editorInstance);
     editorInstance.Events.AttachEvent('OnSelectionChange', fckeditor_word_count);
 }
