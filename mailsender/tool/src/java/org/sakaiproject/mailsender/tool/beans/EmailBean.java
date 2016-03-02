@@ -328,7 +328,7 @@ public class EmailBean
 				}
 			}
 			String emailarchive = "/mailarchive/channel/" + siteId + "/main";
-			String content = emailEntry.getContent() + attachment_info.toString();
+			String content = Web.cleanHtml(emailEntry.getContent()) + attachment_info.toString();
 			externalLogic.addToArchive(config, emailarchive, fromString, subject, content, attachments);
 		}
 	}
