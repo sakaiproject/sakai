@@ -163,6 +163,23 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 			marginheight="0"
 			scrolling="auto">
 		</iframe>
+		<script>
+		window.addEventListener('message', function(e) {
+			try {
+				var message = JSON.parse(e.data);
+				var idval = 'iframe1';
+				if ( message.subject == 'lti.frameResize' ) {
+					var height = message.height;
+					document.getElementById(idval).height = height;
+					console.log('Reveived lti.frameResize height='+height);
+				}
+			} catch (error) {
+				console.log('lti.frameResize of '+idval+' failed height='+height);
+				console.log(e.data);
+			}
+		});
+		</script>
+
 	</div>	
 </body>
 </html>
