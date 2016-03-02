@@ -529,7 +529,6 @@ textarea{
 /*border that needs to match the background to avoid some tedious problems in IE	*/
 .checkbox{
 	margin: .2em 0;
-	border: 1px solid #fff;
 }
 
 /*certain longtext/label pairs need to display label and control on separate lines - their label is classed "block"*/
@@ -706,11 +705,6 @@ td table.checkbox {
 /*so that the same table does not inherit the padding from the parent*/
 td table.checkbox td{
 	padding: 0;
-}
-
-/*to avoid IE drawing a border around the input*/
-table.checkbox label input {
-	border: 1px solid #fff;
 }
 
 /*SECTION 11 WIDGETS*/
