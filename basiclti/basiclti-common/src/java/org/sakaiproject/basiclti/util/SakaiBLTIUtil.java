@@ -647,7 +647,7 @@ public class SakaiBLTIUtil {
 		// Send along the CSS URL list
 		String tool_css_all = ServerConfigurationService.getString("basiclti.consumer.ext_sakai_launch_presentation_css_url_all",null);
 		if ( site != null && tool_css_all == null ) {
-			tool_css_all = getOurServerUrl() + CSSUtils.getCssToolBase() + ',' + getOurServerUrl() + CSSUtils.getCssToolSkin(site);
+			tool_css_all = getOurServerUrl() + CSSUtils.getCssToolBase() + ',' + getOurServerUrl() + CSSUtils.getCssToolSkinCDN(CSSUtils.getSkinFromSite(site));
 		}
 		setProperty(props,"ext_sakai_" + BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);  
 
