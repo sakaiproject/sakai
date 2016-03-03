@@ -18,6 +18,7 @@
 		min-height:325px;
 	}
 	html>body #outer{height:auto}
+        .Mrphs-toolTitleNav{margin-top:-10px !important}
         span.siteTitle{background-color:red;display:none !important;}
 </style>
 <script type="text/javascript">
@@ -66,12 +67,22 @@ setMainFrameHeight(window.name);
 
 <script type="text/javascript" language="JavaScript">
 $(function() {
-//        $(".Mrphs-toolTitleNav__addLeft").append($(".title-tools .title span"));
-//        $(".Mrphs-toolTitleNav__text").hide();
+         if ($(".showItemMorpheus").size() != 0) {
+         // inline, move action (next/prev buttons) to top area
+	   $(".Mrphs-siteHierarchy").append($(".action"));
+           $(".Mrphs-siteHierarchy .nextprev").removeClass("nextprev usebutton returnheader");
+           $(".itemHeader").show();
+	   // move hierarchy to top area -- only present for resources
+           if ($(".returnwarning").size() === 0) {
+	       // inline, resource mode
+	       var title = $(".title span").slice(-2).text();
+	       $(".Mrphs-siteHierarchy").append($(".title span").slice(1));
+	       // leave the file name as a title
+	       $(".title span").text(title);
+           }
 
-//	$(".Mrphs-toolTitleNav__addRight").append($(".action .returnheader"));
+         }
         
-
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
 	    $('.usebutton').button({text:true});
 	} else {
@@ -107,7 +118,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 
 </script>
 
-	<div class="portletBody" id="outer">
+	<div rsf:id="portletBody" class="portletBody" id="outer">
 		
 		
 		<div rsf:id="hiddenAlert" class="ui-widget">
@@ -134,9 +145,9 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
                     <span class="returnheader nextprev"><a style="background:none; width:auto" href="#" class="usebutton nextprev" rsf:id="return"></a></span>
                     <span rsf:id="returnwarning" class="returnwarning"></span>
                 </div>
-                <div class="action">
+                <div class="action itemAction">
                     
-                    <span class="returnheader nextprev"><a style="background:none; width: auto" href="#" rsf:id="prev" class="usebutton nextprev">prev</a><a href="#" rsf:id="next" style="background:none; width:auto" class="usebutton nextprev">next</a></span>
+                    <span class="returnheader nextprev"><a style="background:none; width: auto" href="#" rsf:id="prev" class="button usebutton nextprev">prev</a><a href="#" rsf:id="next" style="background:none; width:auto" class="usebutton nextprev">next</a></span>
                     <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
 	            </a>

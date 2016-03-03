@@ -1382,3 +1382,69 @@ font-size: 90%;
 .itemTitle {
   margin-top:10px
 }
+.startupHelp {
+  margin-top: 20px;
+}
+/* this section is to make things work when lessons is in an iframe */
+.contentButton span a {
+  display:inline-block !important;
+}
+.navIntraTool {
+  display:inline-block !important;
+}
+body > .portletBody {
+  margin-top:-15px;
+  padding-top:0px;
+  padding-bottom:0px;
+}
+.oldPortal + .navIntroTool {
+}
+.oldPortal .title {
+
+}
+.oldPortal + .navIntraTool {
+  padding-top:0px;
+}
+.title-tools {
+  line-height:30px;
+}
+.oldPortal + .navIntraTool #toolbar{
+ margin-top:0px;
+}
+.oldPortal .action {
+  margin-right:150px;
+}
+/* old portal, but only for students. instructors need more spacing */
+.oldPortal ~ .itemclass {
+  margin-top: 1.0em !important;
+}
+/* put back default value if an instructor */
+.navIntraTool + .itemclass {
+  margin-top: 3.0em !important;
+}
+.title-tools {
+  float:none;
+  position:static;
+  margin-bottom:0px !important;
+}
+.navIntraTool {
+  display:block;
+  position: static;
+}
+.action {
+  display:inline-block;
+  float:right !important;
+}
+.Mrphs-container--toolTitleNav {
+  text-align: left;
+}
+.oldPortal .title {
+  display: inline-block;
+  float:none !important;
+  text-align: left;
+}
+.showItemNoMorpheus .action{
+  margin-right: 170px;
+  margin-top: -10px;
+}
+/* end lessons in iframe */
