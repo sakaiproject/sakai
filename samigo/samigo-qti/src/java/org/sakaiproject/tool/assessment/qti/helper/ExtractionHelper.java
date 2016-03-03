@@ -917,6 +917,18 @@ public class ExtractionHelper
     {
       control.setItemNumbering(control.RESTART_NUMBERING_BY_PART);
     }
+    
+    //display scores
+    if ("HIDE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.HIDE_ITEM_SCORE_DURING_ASSESSMENT);
+    }
+    else if ("SHOW".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.DISPLAY_ITEM_SCORE_DURING_ASSESSMENT);
+    }
 
     //question layout
     if ("I".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(

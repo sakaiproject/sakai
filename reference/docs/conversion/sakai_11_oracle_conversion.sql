@@ -651,3 +651,52 @@ ALTER TABLE SAKAI_SESSION MODIFY SESSION_END NULL;
 
 -- 1389 GradebookNG sortable assignments within categories, add CATEGORIZED_SORT_ORDER to GB_GRADABLE_OBJECT_T
 ALTER TABLE GB_GRADABLE_OBJECT_T ADD COLUMN CATEGORIZED_SORT_ORDER number;
+-- 
+-- SAM-1117 - Option to not display scores
+--
+
+alter table SAM_ASSESSACCESSCONTROL_T add DISPLAYSCORE integer;
+alter table SAM_PUBLISHEDACCESSCONTROL_T add DISPLAYSCORE integer;
+alter table SAM_ITEM_T add SCORE_DISPLAY_FLAG number(1,0) default '0' not null;
+alter table SAM_PUBLISHEDITEM_T add SCORE_DISPLAY_FLAG number(1,0) default '0' not null;
+
+INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
+     "ENTRY")
+     VALUES(sam_assessMetaData_id_s.nextVal, 1, 'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Quiz'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Problem Set'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Survey'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Test'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+

@@ -81,7 +81,18 @@
 <f:validateDoubleRange minimum="0.00"/>
 </h:inputText>
  <h:message for="answerptr" styleClass="validate"/>
-  </div><br/>
+  </div>
+  <div class="longtext">
+    <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
+	<div class="tier3">
+    <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+     <f:selectItem itemValue="true"
+       itemLabel="#{authorMessages.yes}" />
+     <f:selectItem itemValue="false"
+       itemLabel="#{authorMessages.no}" />
+    </h:selectOneRadio>
+  </div>
+  <br/>
 
   <!-- 1.2 MIN POINTS -->
 <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">

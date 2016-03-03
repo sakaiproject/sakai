@@ -54,6 +54,9 @@ public interface AssessmentAccessControlIfc
   // itemNumbering
   public static Integer CONTINUOUS_NUMBERING = Integer.valueOf(1);
   public static Integer RESTART_NUMBERING_BY_PART = Integer.valueOf(2);
+  // itemScoreDisplay
+  public static Integer DISPLAY_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(1);
+  public static Integer HIDE_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(2);
   //markForReview
   public static final Integer MARK_FOR_REVIEW = Integer.valueOf(1);
   public static final Integer NOT_MARK_FOR_REVIEW = Integer.valueOf(0);
@@ -138,6 +141,10 @@ public interface AssessmentAccessControlIfc
   void setItemNumbering(Integer itemNumbering);
 
   Integer getItemNumbering();
+  
+  void setDisplayScoreDuringAssessments(Integer displayScore);
+  
+  Integer getDisplayScoreDuringAssessments();
 
   void setSubmissionMessage(String submissionMessage);
 

@@ -303,6 +303,23 @@
     </h:panelGroup>
     </h:panelGrid>
 
+<!-- Display Scores -->
+      <div class="longtext"><h:outputLabel value="#{templateMessages.displayScores}"/></div>
+      <div class="tier3">
+     <h:panelGrid columns="2" summary="#{templateMessages.displayScores_sub}">
+     
+        <h:selectBooleanCheckbox id="displayScores"
+          value="#{template.valueMap.displayScores_isInstructorEditable}"/>
+        <h:outputLabel for="numbering" value="#{templateMessages.template_canbedefault}"/>
+
+       <h:outputText value=" "/>
+       <h:panelGroup>
+    <h:selectOneRadio layout="pageDirection" value="#{template.displayScoreDuringAssessments}" required="true">
+      <f:selectItem itemValue="1" itemLabel="#{templateMessages.displayScores_show}"/>
+      <f:selectItem itemValue="2" itemLabel="#{templateMessages.displayScores_hide}"/>
+    </h:selectOneRadio>
+    </h:panelGroup>
+    </h:panelGrid>
 </div></div>
   </samigo:hideDivision>
 
