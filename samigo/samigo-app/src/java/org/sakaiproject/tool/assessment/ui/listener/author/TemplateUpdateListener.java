@@ -214,6 +214,8 @@ public class TemplateUpdateListener
       aac.setItemNavigation(Integer.valueOf(templateBean.getItemAccessType()));
       aac.setAssessmentFormat(Integer.valueOf(templateBean.getDisplayChunking()));
       aac.setItemNumbering(Integer.valueOf(templateBean.getQuestionNumbering()));
+      aac.setDisplayScoreDuringAssessments(Integer.valueOf(templateBean.getDisplayScoreDuringAssessments()));
+      
       if (templateBean.getMarkForReview() != null && templateBean.getMarkForReview().equals(Boolean.TRUE)) {
     	  aac.setMarkForReview(Integer.valueOf(1));
       }

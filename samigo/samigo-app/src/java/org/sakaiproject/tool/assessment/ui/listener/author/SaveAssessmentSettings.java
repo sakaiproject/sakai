@@ -147,6 +147,8 @@ public class SaveAssessmentSettings
     }
     if (assessmentSettings.getItemNumbering()!=null)
       control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
+    if(assessmentSettings.getDisplayScoreDuringAssessments() != null)
+    	control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
     if (assessmentSettings.getAssessmentFormat()!=null )
      control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
 

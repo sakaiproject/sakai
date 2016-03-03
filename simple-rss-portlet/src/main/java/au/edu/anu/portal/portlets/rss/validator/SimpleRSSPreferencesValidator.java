@@ -35,16 +35,17 @@ import au.edu.anu.portal.portlets.rss.utils.Constants;
  * @throws ValidatorException if there are any errors
  */
 public class SimpleRSSPreferencesValidator implements PreferencesValidator  {
+	private final String PREF_FEED_URL = "feed_url";
 
 	@Override
 	public void validate(PortletPreferences prefs) throws ValidatorException {
 		
 		//get prefs as strings
 		String max_items = prefs.getValue("max_items", Integer.toString(Constants.MAX_ITEMS));
-		String feed_url = prefs.getValue("feed_url", null);
+		String feed_url = prefs.getValue(PREF_FEED_URL, null);
 		
 		//check readonly
-		boolean feedUrlIsLocked = prefs.isReadOnly("feed_url");
+		boolean feedUrlIsLocked = prefs.isReadOnly(PREF_FEED_URL);
 		
 		/**
 		 * max_items
@@ -73,17 +74,17 @@ public class SimpleRSSPreferencesValidator implements PreferencesValidator  {
 			
 			//check not null
 			if(StringUtils.isBlank(feed_url)){
-				throw new ValidatorException("You must specify a URL for the RSS feed", Collections.singleton("feed_url"));
+				throw new ValidatorException("You must specify a URL for the RSS feed", Collections.singleton(PREF_FEED_URL));
 			}
 			
 		    //check valid scheme
 		    if(!urlValidator.isValidScheme(feed_url)){
-				throw new ValidatorException("Invalid feed scheme. Must be one of: " + Arrays.toString(schemes), Collections.singleton("feed_url"));
+				throw new ValidatorException("Invalid feed scheme. Must be one of: " + Arrays.toString(schemes), Collections.singleton(PREF_FEED_URL));
 		    }
 		    
 		    //check valid URL
 		    if(!urlValidator.isValid(feed_url)){
-				throw new ValidatorException("Invalid feed URL", Collections.singleton("feed_url"));
+				throw new ValidatorException("Invalid feed URL", Collections.singleton(PREF_FEED_URL));
 	
 		    }
 		}

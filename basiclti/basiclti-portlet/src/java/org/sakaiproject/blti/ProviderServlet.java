@@ -1027,6 +1027,10 @@ public class ProviderServlet extends HttpServlet {
 
 		for (String toolId : allowedToolsList) {
 			Application app = SakaiCASAUtil.getCASAEntry(toolId);
+			if ( app == null ) {
+				M_log.warn("Could not produce CASA entry for "+toolId);
+				continue;
+			}
 			apps.add(app);
 		}
 

@@ -2,7 +2,7 @@
 <emailTemplates>
 	<emailTemplate>
 		<subject>Welcome To ${localSakaiName}!</subject>
-		<message>You have been invited to one or more sites in {localSakaiName}.
+		<message>You have been invited to one or more sites in ${localSakaiName}.
 
 Accept this invitation:
 

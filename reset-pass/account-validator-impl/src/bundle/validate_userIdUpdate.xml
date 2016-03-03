@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>Please Validate your ${localSakaiName} Account</subject>
+		<message>Dear ${displayName},
+
+			You have an account on ${localSakaiName} and have recently updated your Email address to ${newUserId}.
+
+			In order to make accessing  ${localSakaiName} as easy possible, your username will be updated to match this new email address. If you are happy with the change then please follow this ${url} to complete the process.
+			If you do not wish to change your username to match your email address then simply ignore this email, however, we would *strongly* recommend that you do *not* follow this course of action.
+
+			If you have any questions about this then please contact ${localSupportMail}.
+			*Please note*: Accounts that have been deactivated for longer than 90 days will be deleted.
+
+		</message>
+		<messagehtml>&lt;p&gt;Dear ${displayName}&lt;p&gt;
+
+&lt;p&gt;You have an account on ${localSakaiName} and have recently updated your Email address to ${newUserId} &lt;br/&gt;
+			
+&lt;/p&gt;
+
+&lt;p&gt;In order to make accessing  ${localSakaiName} as easy possible, your username will be updated to match this new email address. If you are happy with the change then please follow this &lt;a href=&quot;${url}&quot;&gt;link&lt;/a&gt;&lt;/p&gt; to complete the process.
+
+&lt;/p&gt;If you do not wish to change your username to match your email address then simply ignore this email, however, we would *strongly* recommend that you do *not* follow this course of action.If you have any questions about this then please contact ${localSupportMail} &lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Please note&lt;/strong&gt;: Accounts that have been deactivated for longer than 90 days will be deleted.&lt;/p&gt;</messagehtml>
+		<locale></locale>
+	</emailTemplate>
+
+</emailTemplates>

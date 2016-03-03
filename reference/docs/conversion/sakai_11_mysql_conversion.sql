@@ -2,10 +2,10 @@
 -- ---------------------------
 -- Add the titles from all existing news tools
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY (site_id, tool_id, name, value)
-	SELECT site_id, tool_id, 'javax.portlet:portlet_title', title FROM SAKAI_SITE_TOOL WHERE registration = 'sakai.news';
+	SELECT site_id, tool_id, 'javax.portlet-portlet_title', title FROM SAKAI_SITE_TOOL WHERE registration = 'sakai.news';
 
 -- Setup all instances with the URL
-UPDATE SAKAI_SITE_TOOL_PROPERTY SET name = 'javax.portlet:feed_url' WHERE name = 'channel-url';
+UPDATE SAKAI_SITE_TOOL_PROPERTY SET name = 'javax.portlet-feed_url' WHERE name = 'channel-url';
 
 -- Finally, convert all news tools to the new portlet (must run last)
 UPDATE SAKAI_SITE_TOOL SET registration = 'sakai.simple.rss' WHERE registration = 'sakai.news';
@@ -606,3 +606,51 @@ ALTER TABLE SAKAI_SESSION MODIFY SESSION_END NULL;
 
 -- 1389 GradebookNG sortable assignments within categories, add CATEGORIZED_SORT_ORDER to GB_GRADABLE_OBJECT_T
 ALTER TABLE GB_GRADABLE_OBJECT_T ADD COLUMN CATEGORIZED_SORT_ORDER int NULL;
+--
+-- SAM-1117 - Option to not show score
+--
+
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD COLUMN DISPLAYSCORE integer;
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD COLUMN DISPLAYSCORE integer;
+
+ALTER TABLE SAM_ITEM_T ADD COLUMN SCORE_DISPLAY_FLAG bit(1);
+ALTER TABLE SAM_PUBLISHEDITEM_T ADD COLUMN SCORE_DISPLAY_FLAG bit(1);
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(NULL, 1, 'displayScores_isInstructorEditable', 'true') ;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Quiz'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Problem Set'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Survey'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Test'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+    ENTRY)
+    VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
+     AND TYPEID='142' AND ISTEMPLATE=1),
+      'displayScores_isInstructorEditable', 'true');

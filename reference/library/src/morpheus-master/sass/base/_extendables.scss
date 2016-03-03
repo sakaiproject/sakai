@@ -9,6 +9,26 @@
 	@include filter( blur(0.1em) );
 }
 
+.mobile_blocked{
+	@media #{$phone}{
+		display: inline;
+		td{
+			display: block;
+		}
+	}
+}
+
+.space_mobile{
+	@media #{$phone}{
+		background: darken( $background-color, 2% );
+		border-top:    1px solid darken( $background-color, 10% );
+		border-bottom: 1px solid darken( $background-color, 10% );
+		margin: 0.5em -1.02em;
+		padding: 1em 0.95em;
+		@include box-shadow( inset 0px 0px 7px 0px rgba(0,0,0,0.25) );
+	}
+}
+
 @mixin bs-callout($color, $bgcolor) {
   display: block;
   margin: 20px 0;
@@ -88,7 +108,7 @@
 @mixin sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color ){
 	background: $button-color-background-color;
 	border: 1px solid $button-color-border-color;
-	color: $button-color-text-color;
+	color: $button-color-text-color !important;
 	cursor: pointer;
 	font-family: $font-family;
 	font-size: #{$default-font-size - 2 };
@@ -97,7 +117,7 @@
 	margin: 0.5em 0.8em 0.5em 0;
 	padding: 6px 10px 7px 12px;
 	position: relative;
-	text-decoration: none;
+	text-decoration: none !important;
 	@include appearance(none);
 	@include border-radius(3px);
 	&:hover{
@@ -124,7 +144,7 @@
 @mixin sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color ){
 	background: $button-background-color;
 	border: 1px solid $button-border-color;
-	color: $button-text-color;
+	color: $button-text-color !important;
 	cursor: pointer;
 	display: inline-block;
 	font-family: $font-family;
@@ -132,7 +152,7 @@
 	letter-spacing: 0.8px;
 	margin: 0.5em 0.8em 0.5em 0;
 	padding: 0.4em 0.8em 0.45em 0.8em;
-	text-decoration: none;
+	text-decoration: none !important;
 	@include appearance(none);
 	@include border-radius(3px);
 	&:hover{

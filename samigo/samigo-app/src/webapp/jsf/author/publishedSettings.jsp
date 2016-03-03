@@ -345,6 +345,18 @@
         <f:verbatim></div></f:verbatim>
     </h:panelGroup>
 
+    <!-- Display Scores -->
+    <h:panelGroup rendered="#{publishedSettings.valueMap.displayScores_isInstructorEditable==true}">
+      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> <f:verbatim> </div><div class="tier3"> </f:verbatim>
+        <h:panelGrid columns="2"  >
+          <h:selectOneRadio id="displayScores" value="#{publishedSettings.displayScoreDuringAssessments}"  layout="pageDirection">
+            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}"/>
+            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}"/>
+          </h:selectOneRadio>
+       </h:panelGrid>
+       <f:verbatim></div></f:verbatim>
+    </h:panelGroup>
+
 <f:verbatim><div id="jqueryui-accordion-security"></f:verbatim><!-- This is sub-accordion for high security and submission message -->
 
   <!-- *** HIGH SECURITY *** -->

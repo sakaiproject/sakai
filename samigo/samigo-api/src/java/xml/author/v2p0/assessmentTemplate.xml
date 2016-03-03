@@ -665,6 +665,12 @@
       <!--Possible Values -->
       <!--True, False -->
       <qtimetadatafield>
+        <fieldlabel>displayScores_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>      
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
         <fieldlabel>submissionModel_isInstructorEditable</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>

@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Testing lti.frameResize</title>
+</head>
+<body>
+<h1>Testing lti.frameResize</h1>
+<p>
+This script sends the "lti.frameResize" to its parent 
+frame using <b>parent.postMessage()</b> to sneak across
+origins.  You can just link to this file with any
+key and secret to test the behavior.
+</p>
+<script>
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+function zap() {
+	var num = getRandomInt(200,800);
+	console.log("Sending "+num);
+	parent.postMessage(JSON.stringify({
+		subject: "lti.frameResize",
+		height: num
+	}), "*");
+}
+</script>
+<button onclick="zap();return false;" value="click">Press to Send Random Height</button><br/>
+</body>
