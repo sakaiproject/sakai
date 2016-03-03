@@ -69,11 +69,17 @@ var blankRubricTemplate, blankRubricRow;
 // $(function() {
 $(document).ready(function() {
 	var breadcrumbs = $(".breadcrumbs span");
-	if (breadcrumbs.size() > 0) {
-	    $(".Mrphs-siteHierarchy").append($(".breadcrumbs span").slice(1));
+	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
+	if ($(".oldPortal").size() === 0) {
+	    var title = $(".title span:last").text();
+	    if (breadcrumbs.size() > 0) {
+		$(".Mrphs-siteHierarchy").append($(".breadcrumbs span").slice(1));
+	    }
+	    $(".Mrphs-siteHierarchy").append($(".action"));
+	    $(".Mrphs-siteHierarchy").append("<br style='clear:both'/>");
+	    $(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
+	    $(".genTitle").text(title);
 	}
-	$(".Mrphs-siteHierarchy").append($(".action"));
-	$(".Mrphs-siteHierarchy").append("<br style='clear:both'/>");
 
 	// This is called in comments.js as well, however this may be faster.
 	//if(sakai.editor.editors.ckeditor==undefined) {

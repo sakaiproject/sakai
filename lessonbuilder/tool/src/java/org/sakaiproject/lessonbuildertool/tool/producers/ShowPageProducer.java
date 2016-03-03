@@ -1028,7 +1028,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			} else {
 			    if (reseturl != null) {
 				UIOutput.make(tofill, "pagetitletext", currentPage.getTitle());
-			    } else if (!inline) {
+			    } else if (true || !inline) {
 				UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 			    }
 			}
@@ -1036,7 +1036,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    if (reseturl != null) {
 			UILink.make(tofill, "pagetitlelink", reseturl);
 			UIOutput.make(tofill, "pagetitletext", currentPage.getTitle());
-		    } else if (!inline) {
+		    } else if (true || !inline) {
 			UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 		    }
 		}
