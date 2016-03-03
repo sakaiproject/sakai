@@ -25,7 +25,7 @@
 			</h3>
 			<script type="text/javascript">
 				$(document).ready(function() {
-				$('.listHier tr th a').fadeTo("fast",0.50)	
+				$('.table table-hover table-striped table-bordered tr th a').fadeTo("fast",0.50)	
 			    //deactivate remove link if nothing checked
 			    $(':checkbox').click(function(){
 			        var makeActive = false
@@ -37,10 +37,10 @@
 			            }
 			        });
 			        if (makeActive) {
-						$('.listHier tr th a').fadeTo("fast",1)
+						$('.table table-hover table-striped table-bordered tr th a').fadeTo("fast",1)
 			        }
 			        else {
-						$('.listHier tr th a').fadeTo("fast",0.50)			        }
+						$('.table table-hover table-striped table-bordered tr th a').fadeTo("fast",0.50)			        }
 
 			    });
 
@@ -60,7 +60,7 @@
 	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
 	  
 		<h:dataTable id="pendingMsgs" value="#{ForumTool.pendingMessages}" width="100%" var="message" 
-				columnClasses="bogus,nopadd" styleClass="listHier specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">
+				columnClasses="bogus,nopadd" styleClass="table table-hover table-striped table-bordered specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">
 			<h:column>
 				<f:facet name="header">
 					<h:selectBooleanCheckbox title="#{msgs.cdfm_checkall}" id="mainCheckbox" onclick="javascript:selectDeselectCheckboxes(this.id, document.forms[0]);"/>

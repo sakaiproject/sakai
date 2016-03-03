@@ -64,7 +64,7 @@
 		<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 		<f:verbatim></h3></div></f:verbatim>
           	  
-  		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
+  		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column id="_msg_subject" >
    			<h:panelGroup rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}" style="display:block;padding:0 5px;">
 				<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>

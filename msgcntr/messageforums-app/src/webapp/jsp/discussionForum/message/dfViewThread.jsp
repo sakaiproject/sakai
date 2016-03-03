@@ -153,7 +153,7 @@
 		<div id="messNavHolder" style="clear:both;"></div>
 		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
 		<h:dataTable id="expandedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{!ForumTool.threaded}"
-   	 		styleClass="listHier messagesFlat specialLink" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
+   	 		styleClass="table table-hover table-striped table-bordered messagesFlat specialLink" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
 			
 				<%@ include file="dfViewThreadBodyInclude.jsp" %>
@@ -162,7 +162,7 @@
 		
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{ForumTool.threaded}"
-   	 		noarrows="true" styleClass="listHier messagesThreaded specialLink" border="0" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
+   	 		noarrows="true" styleClass="table table-hover table-striped table-bordered messagesThreaded specialLink" border="0" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<%@ include file="dfViewThreadBodyInclude.jsp" %>
 			</h:column>

@@ -111,7 +111,7 @@
 	   			     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
 					<h:outputText value="#{msgs.cdfm_reply_title}" />
 				</h:outputLabel>
-					<h:inputText value="#{ForumTool.composeTitle}" style="width: 30em;" maxlength="250" required="true" id="df_compose_title">
+					<h:inputText value="#{ForumTool.composeTitle}" styleClass="form-control" maxlength="250" required="true" id="df_compose_title">
 					 <f:validateLength minimum="1" maximum="255"/>
 				   </h:inputText>
  					  </h:panelGroup>
@@ -124,7 +124,7 @@
 		    <h:inputHidden id="titleHidden" value="#{ForumTool.selectedMessage.message.title}" />
 			<h:outputText value="&nbsp;&nbsp;&nbsp; " escape="false" />
 			<img src="/library/image/silk/paste_plain.png" />
-			<a  href="#"  onclick="InsertHTML('<b><i><h:outputText value="#{msgs.cdfm_insert_original_text_comment}"/></i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedTopic.topic.postAnonymous ? ForumTool.selectedMessage.anonId : ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format_static}" locale="#{ForumTool.userLocale}" timeZone="#{ForumTool.userTimeZone}"/></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
+			<a href="javascript:void(0)"  onclick="InsertHTML('<b><i><h:outputText value="#{msgs.cdfm_insert_original_text_comment}"/></i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedTopic.topic.postAnonymous ? ForumTool.selectedMessage.anonId : ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format_static}" locale="#{ForumTool.userLocale}" timeZone="#{ForumTool.userTimeZone}"/></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
 					<h:outputText value="#{msgs.cdfm_message_insert}" />
 				</a>
 				<span style="margin-left:3em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>		
@@ -143,7 +143,7 @@
 	        
 	        // set the previous message variable
 				var textareas = document.getElementsByTagName("textarea");
-				var rteId = textareas.item(0).id;
+				var rteId = textareas.item(1).id;
 
 	        var messagetext = document.forms['dfCompose'].elements['dfCompose:msgHidden'].value;
 	        var titletext = document.forms['dfCompose'].elements['dfCompose:titleHidden'].value;

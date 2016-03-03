@@ -72,7 +72,7 @@
 				
 			<div class="textPanel toggle"  id="toggle">
 				<mf:htmlShowArea hideBorder="true" id="topic_fullDescription"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/>
-				<h:dataTable value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" styleClass="listHier" columnClasses="attach,bogus">
+				<h:dataTable value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" styleClass="table table-hover table-striped table-bordered" columnClasses="attach,bogus">
 				  <h:column>
 					<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />					
@@ -131,7 +131,7 @@
 		</p>
 	  </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm" hideByDefault="true">
-          <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.topicControlPermissions}" var="cntrl_settings">
+          <h:dataTable styleClass="table table-hover table-striped table-bordered" id="control_permissions" value="#{ForumTool.topicControlPermissions}" var="cntrl_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
 				<h:outputText value="#{cntrl_settings.role}"/>
@@ -159,7 +159,7 @@
 		</h:dataTable>
       </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm" hideByDefault="true">
-      <h:dataTable styleClass="listHier" id="message_permissions" value="#{ForumTool.topicMessagePermissions}" var="msg_settings">
+      <h:dataTable styleClass="table table-hover table-striped table-bordered" id="message_permissions" value="#{ForumTool.topicMessagePermissions}" var="msg_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
 				<h:outputText value="#{msg_settings.role}"/>
