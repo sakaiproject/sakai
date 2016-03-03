@@ -32,7 +32,7 @@
 	
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.pFMessages}" var="message" 
-						noarrows="true" styleClass="listHier printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
+						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<h:panelGroup styleClass="heading">
 					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" 

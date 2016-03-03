@@ -56,10 +56,6 @@ function showHideDivBlock(hideDivisionNo, context)
 			}
 			$( frame ).height( clientH );
 		}
-		else
-		{
-			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-		}
 	}
 
 
@@ -432,6 +428,7 @@ function toggleExtendedDescription(hideShowEl, parent, element) {
     hideShowEl.toggle();
     parent.slideToggle(resize);
     element.toggle();
+    element[0].classList.toggle('opened');
 }
 
 function toggleDates(hideShowEl, parent, element) {
@@ -554,6 +551,7 @@ function InsertHTML(header) {
 		}
 		else alert( 'You must be in WYSIWYG mode!' );
 	}
+  return false;
 }
 
 var setupLongDesc = function(){
