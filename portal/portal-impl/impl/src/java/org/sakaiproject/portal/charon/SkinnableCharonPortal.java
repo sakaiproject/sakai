@@ -1257,32 +1257,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		Properties retval = new Properties();
 
-		// setup html information that the tool might need (skin, body on load,
-		// js includes, etc).
-
-		String headCssPortalSkin = "<link href=\"" 
-			+ PortalUtils.getCDNPath()
-			+ CSSUtils.getCssPortalSkin(skin)
-			+ PortalUtils.getCDNQuery()
-			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-
-		String headCssToolBase = "<link href=\""
-			+ PortalUtils.getCDNPath()
-			+ CSSUtils.getCssToolBase()
-			+ PortalUtils.getCDNQuery()
-			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-
-		if ( ! ToolUtils.isInlineRequest(req) ) {
-			headCssToolBase = headCssPortalSkin + headCssToolBase;
-		}
-
-		String headCssToolSkin = "<link href=\"" 
-			+ PortalUtils.getCDNPath()
-			+ CSSUtils.getCssToolSkin(skin)
-			+ PortalUtils.getCDNQuery()
-			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-
-		String headCss = headCssToolBase + headCssToolSkin;
+		String headCss = CSSUtils.getCssHead(skin,ToolUtils.isInlineRequest(req));
 		
 		Editor editor = portalService.getActiveEditor(placement);
 		String preloadScript = editor.getPreloadScript() == null ? ""
@@ -1375,8 +1350,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		retval.setProperty("sakai.html.head", head);
 		retval.setProperty("sakai.html.head.css", headCss);
 		retval.setProperty("sakai.html.head.lang", rloader.getLocale().getLanguage());
-		retval.setProperty("sakai.html.head.css.base", headCssToolBase);
-		retval.setProperty("sakai.html.head.css.skin", headCssToolSkin);
+		req.setAttribute("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(skin,ToolUtils.isInlineRequest(req)));
+		req.setAttribute("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(skin));
 		retval.setProperty("sakai.html.head.js", headJs.toString());
 
 		return retval;

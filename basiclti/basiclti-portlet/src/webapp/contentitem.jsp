@@ -5,7 +5,7 @@
 <%@ page import="org.sakaiproject.portal.util.PortalUtils" %>
 <%@ page import="org.sakaiproject.portal.util.CSSUtils" %>
 <title>IMS ContentItem Experimental Support</title>
-<link href="<%= CSSUtils.getCssToolSkinCDN((String) null) %>" rel="stylesheet">        
+<%= CSSUtils.getCssToolSkinLink((String) null) %>        
 <script src="<%= PortalUtils.getScriptPath() %>headscripts.js<%= PortalUtils.getCDNQuery() %>"></script>
 <style>
 .card {
