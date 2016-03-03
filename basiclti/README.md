@@ -1,7 +1,8 @@
-Sakai's Support for IMS LTI
----------------------------
+Sakai's Support for IMS Standards
+---------------------------------
 
-This folder holds our code for IMS Learning Tools Interoperability.   This area has many different contributors.  
+This folder holds the Sakai code for IMS Learning Tools Interoperability and other standards.
+This area has many different contributors.  
 
 There are several internal documents that you might find useful ranging from test plans to developer/configuration
 documentation.  These documents are stored here in github:
