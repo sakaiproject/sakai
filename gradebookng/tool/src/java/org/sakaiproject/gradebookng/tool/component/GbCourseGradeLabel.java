@@ -112,14 +112,16 @@ public class GbCourseGradeLabel extends Label {
 			letterGrade = this.courseGrade.getMappedGrade();
 		}
 
-		if (this.gradebook.isCourseLetterGradeDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR) {
+		if (StringUtils.isNotBlank(letterGrade)
+				&& (this.gradebook.isCourseLetterGradeDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
 			parts.add(letterGrade);
 		}
 
 		// percentage
 		final String calculatedGrade = FormatHelper.formatStringAsPercentage(this.courseGrade.getCalculatedGrade());
 
-		if (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR) {
+		if (StringUtils.isNotBlank(calculatedGrade)
+				&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
 			if (parts.isEmpty()) {
 				parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
 						new Object[] { calculatedGrade }).getString());
@@ -151,6 +153,11 @@ public class GbCourseGradeLabel extends Label {
 			}
 		}
 
-		return StringUtils.join(parts, " ");
+		// if parts is empty, there are no grades, display a -
+		if (parts.isEmpty()) {
+			parts.add(getString("coursegrade.display.none"));
+		}
+
+		return String.join(" ", parts);
 	}
 }
