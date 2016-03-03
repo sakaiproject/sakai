@@ -165,7 +165,7 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
 
   // 0-9 48-57 and keypad 0-9 96-105
   } else if (isEditableCell &&
-      ((event.keyCode >= 48 && event.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105))) {
+      ((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105))) {
     event.preventDefault();
     self.getCellModel($eventTarget).enterEditMode(event.keyCode);
 
@@ -1673,7 +1673,7 @@ GradebookEditableCell.prototype.enterEditMode = function(keyCode) {
     // only buffer 0-9 key strokes
     if (keyCode >= 48 && keyCode <= 57) {
       initialValue = keyCode - 48;
-    } else if(keyCode >= 96 && e.keyCode <= 105) {
+    } else if (keyCode >= 96 && keyCode <= 105) {
       initialValue = keyCode - 96;
     }
   }
