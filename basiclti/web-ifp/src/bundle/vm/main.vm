@@ -22,6 +22,22 @@ $tlang.getString("new.page.launch") </p> <p>
 	scrolling="auto"
 	src="$!source">
 </iframe>
+<script>
+window.addEventListener('message', function(e) {
+  try {
+    var message = JSON.parse(e.data);
+    var idval = 'wciframe';
+    if ( message.subject == 'lti.frameResize' ) {
+      var height = message.height;
+      document.getElementById(idval).height = height;
+      console.log('Reveived lti.frameResize height='+height);
+    }
+  } catch (error) {
+   console.log('lti.frameResize of '+idval+' failed height='+height);
+   console.log(e.data);
+  }
+});
+</script>
 </div>
 #end
 </div>
