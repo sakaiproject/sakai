@@ -274,7 +274,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		if ( "/casa.json".equals(request.getPathInfo()) ) {
-			if ( ServerConfigurationService.getBoolean("casa.provider", true))  {
+			if ( ServerConfigurationService.getBoolean("casa.provider.enabled", true))  {
 				handleCASAList(request, response);
 				return;
 			} else {

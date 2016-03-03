@@ -42,6 +42,7 @@ import org.sakaiproject.lti2.SakaiLTI2Base;
 
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
@@ -70,10 +71,20 @@ public class SakaiCASAUtil {
 		launch.setLaunch_url(SakaiBLTIUtil.getOurServerUrl() + "/imsblti/provider/"+toolRegistration);
 
 		Use use = new Use(launch);
-		// TODO: Fix this 
+		// TODO: Fix this by generating all the PNGs for Sakai icons
 		use.setIcon_url("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
 		use.setTitle(theTool.getTitle());
-		use.setText(theTool.getDescription());
+
+		String desc = theTool.getDescription();
+		if ( desc == null ) desc = theTool.getTitle();
+		if ( desc == null ) desc = "";
+                String note = ServerConfigurationService.getString("casa.provider.note", null);
+		if ( note != null ) {
+			desc = desc.trim();
+			if ( ! desc.endsWith(".") ) desc += ".";
+			desc += " "+note;
+		}
+		use.setText(desc);
 		use.addContact(new Contact(cnf.getService_owner_owner_name(), cnf.getService_owner_support_email()));
 
 		Original orig = new Original(use);
