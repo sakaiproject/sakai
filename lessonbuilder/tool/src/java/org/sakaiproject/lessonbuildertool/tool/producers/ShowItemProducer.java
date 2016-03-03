@@ -170,6 +170,15 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    }
 
+	    boolean inline = false;
+	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
+	    if ("morpheus".equals(portalTemplates) && httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
+		inline = true;
+	    }
+
+	    UIComponent portletBody = UIOutput.make(tofill, "portletBody");
+	    portletBody.decorate(new UIFreeAttributeDecorator("class", "showItem" + (inline?" showItemMorpheus":" showItemNoMorpheus")));
+
 	    // this is a "next" page where we couldn't tell if the item is
 	    // available. Need to check here in order to set ACLs. If not available,
 	    // return to calling page
@@ -208,12 +217,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    Placement placement = ToolManager.getCurrentPlacement();
 	    String toolId = placement.getToolId();
-	    boolean inline = false;
-	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
-
-	    if ("morpheus".equals(portalTemplates) && httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
-		inline = true;
-	    }
 
 	    if (helpurl != null || reseturl != null) {
 
