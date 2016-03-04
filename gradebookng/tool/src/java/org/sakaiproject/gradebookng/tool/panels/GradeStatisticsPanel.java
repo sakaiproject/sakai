@@ -95,9 +95,11 @@ public class GradeStatisticsPanel extends Panel {
 		SortedMap<String, Integer> counts = new TreeMap();
 		Integer extraCredits = 0;
 
-		int range = 10;
+		// Start off with a 0-50% range
+		counts.put(String.format("%d-%d", 0, 50), 0);
 
-		for (int start=0; start < 100; start=start+range) {
+		int range=10;
+		for (int start=50; start < 100; start=start+range) {
 			String key = String.format("%d-%d", start, start + range);
 			counts.put(key, 0);
 		}
@@ -119,7 +121,13 @@ public class GradeStatisticsPanel extends Panel {
 			if (start == 100) {
 				start = start - range;
 			}
+
 			String key = String.format("%d-%d", start, start + range);
+
+			if (start < 50) {
+				key = String.format("%d-%d", 0, 50);
+			}
+
 			counts.put(key, counts.get(key) + 1);
 		}
 
