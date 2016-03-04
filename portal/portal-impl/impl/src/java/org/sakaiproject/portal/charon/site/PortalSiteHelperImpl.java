@@ -385,11 +385,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						.equals(myWorkspaceSiteId))));
 		
 		// SAK-29138
-		m.put( "siteTitleNotTruncated", getUserSpecificSiteTitle( s, false ) );
-
-		String siteTitle = getUserSpecificSiteTitle( s );
-		m.put( "siteTitle", siteTitle );
-		m.put( "fullTitle", siteTitle );
+		String siteTitleTruncated = getUserSpecificSiteTitle( s, true );
+		String siteTitleNotTruncated = getUserSpecificSiteTitle( s, false );
+		m.put( "siteTitleNotTruncated", siteTitleNotTruncated );
+		m.put( "siteTitle", siteTitleTruncated );
+		m.put( "fullTitle", siteTitleNotTruncated );
 		
 		m.put("siteDescription", s.getHtmlDescription());
 
