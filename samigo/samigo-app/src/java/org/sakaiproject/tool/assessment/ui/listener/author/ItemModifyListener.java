@@ -217,7 +217,8 @@ public class ItemModifyListener implements ActionListener
          score = 0.0d;
        }
       bean.setItemScore(score);
-      
+      bean.setItemScoreDisplayFlag(itemfacade.getScoreDisplayFlag() ? "true" : "false");
+ 
       Double minPoints = itemfacade.getMinScore();
       Double minScore;
       if (minPoints!=null && !"".equals(minPoints))

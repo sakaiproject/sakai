@@ -1,6 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editClass.vm,v 1.2 2005/05/13 21:39:38 gsilver.umich.edu Exp $ -->
 ## edit classes list in course site
-<script type="text/javascript" src="/library/js/spinner.js"></script>
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>

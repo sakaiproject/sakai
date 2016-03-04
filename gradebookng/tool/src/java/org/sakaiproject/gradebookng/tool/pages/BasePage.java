@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
@@ -60,6 +62,9 @@ public class BasePage extends WebPage {
 
 		// role check
 		this.role = this.businessService.getUserRole();
+
+		// set locale
+		setUserPreferredLocale();
 
 		// nav container
 		final WebMarkupContainer nav = new WebMarkupContainer("gradebookPageNav") {
@@ -196,7 +201,7 @@ public class BasePage extends WebPage {
 
 		flagWithPopover.add(new AttributeModifier("title", message));
 		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
-		flagWithPopover.add(new AttributeModifier("data-trigger", "focus"));
+		flagWithPopover.add(new AttributeModifier("data-trigger", "manual"));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
 		flagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
@@ -215,5 +220,14 @@ public class BasePage extends WebPage {
 		final String wrappedPopoverContent = String.format(popoverHTML, message);
 
 		return wrappedPopoverContent;
+	}
+
+	/**
+	 * Allow overrides of the user's locale
+	 */
+	public void setUserPreferredLocale() {
+		final Locale locale = this.businessService.getUserPreferredLocale();
+		log.debug("User preferred locale: " + locale);
+		getSession().setLocale(locale);
 	}
 }

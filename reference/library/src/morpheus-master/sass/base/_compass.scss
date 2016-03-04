@@ -1,0 +1,55 @@
+@mixin align-items($p: center) {
+    align-items: $p;
+    -webkit-align-items: $p; /* safari */
+}
+@mixin display-flex($p: flex) {
+    display: $p;
+    display: -webkit-flex; /* safari */
+}
+@mixin flex-direction($p: row) {
+    flex-direction: $p;
+    -webkit-flex-direction: $p; /* safari */
+}
+@mixin flex-shrink($p: 0) {
+    -webkit-flex-shrink: $p;
+    flex-shrink: $p;
+}
+@mixin flex-grow($p: 0) {
+    -webkit-flex-grow: $p;
+    flex-grow: $p;
+}
+@mixin flex-basis($p: auto) {
+    -webkit-flex-basis: $p;
+    flex-basis: $p;
+}
+@mixin appearance($p: none) {
+	-moz-appearance: $p;
+	-webkit-appearance: $p;
+}
+@mixin border-radius($p: 0) {
+    -moz-border-radius: $p;
+    -webkit-border-radius: $p;
+    border-radius: $p;
+}
+@mixin justify-content($p: flex-start) {
+	@include display-flex(flex);
+	-webkit-justify-content: $p;
+	justify-content: $p;
+}
+@mixin align-self($p: auto) {
+    -webkit-align-self: $p; /* safari */
+    align-self: $p;
+}
+@mixin filter($p: none) {
+	-webkit-filter: $p; /* Chrome, Safari, Opera */
+	filter: $p;
+}
+@mixin transition($property: all, $duration: 0s, $timing: ease, $delay: 0s) {
+    -webkit-transition: $property $duration $timing $delay; /* Safari 3.1 to 6.0 */
+    transition: $property $duration $timing $delay;	
+}
+@mixin transform($p: p) {
+    -ms-transform: $p; /* IE 9 */
+    -webkit-transform: $p; /* Chrome, Safari, Opera */
+    transform: $p;
+}

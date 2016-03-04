@@ -199,6 +199,7 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
   public String getEmiAnswerOptionsRichText();
   public boolean getIsAnswerOptionsSimple();
   public boolean getIsAnswerOptionsRich();
-  
   String getImageMapSrc();
+  Boolean getScoreDisplayFlag();
+  void setScoreDisplayFlag(Boolean scoreDisplayFlag);
 }

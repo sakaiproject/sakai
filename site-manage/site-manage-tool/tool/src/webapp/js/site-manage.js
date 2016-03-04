@@ -1221,3 +1221,167 @@ function findSelectedInCheckboxes( checkboxes )
         }
     }
 }
+
+function toggleSelectAll(caller, elementName)
+{
+    var newValue = caller.checked;
+    var elements = document.getElementsByName(elementName);
+
+    if(elements)
+    {
+        for(var i = 0; i < elements.length; i++)
+        {
+            elements[i].checked = newValue;
+        }
+    }
+}
+
+function printPreview(target)
+{
+    var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
+    var content=  "";
+    var content=  document.getElementById('groupListContent').innerHTML;
+    w.document.writeln(
+        '<html><head>'
+        + '<style type=\"text/css\">.listHier td, .listHier th {text-align:left}</style>'
+        + '</head>'
+        + '<body> '
+        + content
+        + '</body>'
+        + '</html>'
+    );
+    w.focus();
+    w.print();
+    return false;
+}
+
+function submitform(id)
+{
+    var theForm = document.getElementById(id);
+    if(theForm && theForm.onsubmit)
+    {
+        theForm.onsubmit();
+    }
+    if(theForm && theForm.submit)
+    {
+        theForm.submit();
+    }
+}
+
+function LimitText(fieldObj,maxChars)
+{
+    var result = true;
+    if (fieldObj.value.length >= maxChars)
+    {
+        fieldObj.value = fieldObj.value.substring(0,maxChars);
+        result = false;
+    }
+
+    if (window.event)
+    {
+        window.event.returnValue = result;
+    }
+
+    return result;
+}
+
+function submitRemoveSection(index, formID)
+{
+    id = "removeSection"+index;
+    removeSection = document.getElementById(id);
+    removeSection.value="true";
+    document.getElementById("option").value="removeSection";
+    document.getElementById( formID ).submit();
+    return false;
+}
+
+function resetOption(action, formID)
+{
+    var form = document.getElementById( formID );
+    form.option.value=action;
+    form.submit();
+    return false;
+}
+
+function checkUnpublish(checked)
+{
+    if (checked) 
+    { 
+        document.getElementById('publicChangeableDiv').style.display = 'none';
+        document.getElementById('publicChangeableNoDiv').style.display = 'none';
+        document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'block';
+        document.getElementById('globalAccessDiv').style.display = 'none';
+        document.getElementById('globalAccessNoDiv').style.display = 'block';
+        utils.resizeFrame('shrink');
+    }
+}
+
+// SAK-24423 - joinable site settings - checkbox synchronization
+function doCategoryCheck( clickedElement )
+{
+    var clickedElementName = clickedElement.getAttribute( "name" );
+    var isChecked = clickedElement.checked;
+
+    var checkboxes = document.getElementsByName( clickedElementName );
+    var maxBoxes = checkboxes.length;
+
+    for( var i = 0; i < maxBoxes; i++ )
+    {
+        checkboxes[i].checked = isChecked;
+    }
+}
+
+// Returns true iff the limitByAccountType checkboxes are in a valid state.
+// Also responsible for the visibility of the "You must select at least one account type below" message
+function limitByAccountTypesValidation()
+{
+    // assume the checkboxes are in a valid state, and that we don't need to alert the user to select an account
+    var valid = true;
+    var displayJoinLimitInfo = false;
+
+    // the 'Limit join to specific accounts' checkbox
+    var chkJoinLimitByAccountType = document.getElementById("chkJoinLimitByAccountType");
+    if (chkJoinLimitByAccountType && chkJoinLimitByAccountType.checked)
+    {
+        // get the account type checkboxes
+        var joinAccountTypesDiv = document.getElementById("joinerAccountTypes");
+        var chkAccountTypes = joinAccountTypesDiv.getElementsByTagName('input');
+
+        // determine if at least one is checked
+        var atLeastOneChecked = false;
+        for (var i = 0; i < chkAccountTypes.length; i++)
+        {
+            if (chkAccountTypes[i].checked)
+            {
+                atLeastOneChecked = true;
+                break;
+            }
+        }
+
+        if (!atLeastOneChecked)
+        {
+            // 'Limit join to specific accounts' is checked, but no accounts are checked; the page is invalid
+            displayJoinLimitInfo = true;
+            valid = false;
+        }
+    }
+
+    // Control the visibility of the "You must select at least one account type below" message
+    var joinLimitInfoDiv = document.getElementById("joinLimitInfoDiv");
+    if (displayJoinLimitInfo)
+    {
+        joinLimitInfoDiv.removeAttribute("style");
+    }
+    else
+    {
+        joinLimitInfoDiv.setAttribute("style", "display:none;");
+    }
+
+    return valid;
+}
+
+function changeLevel(level)
+{
+    document.getElementById("cmLevelChanged").value="true";
+    document.getElementById("cmChangedLevel").value=level;
+}

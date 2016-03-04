@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -65,6 +66,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
@@ -805,12 +807,13 @@ public class GradebookNgBusinessService {
 						// then check the group and find the user in the group
 						// if all ok, mark it as GRADEABLE
 
-						boolean categoryOk = false;
-						boolean groupOk = false;
 						boolean gradeable = false;
 
 						for (final PermissionDefinition permission : permissions) {
 							// we know they are all GRADE so no need to check here
+
+							boolean categoryOk = false;
+							boolean groupOk = false;
 
 							final Long permissionCategoryId = permission.getCategoryId();
 							final String permissionGroupReference = permission.getGroupReference();
@@ -840,7 +843,7 @@ public class GradebookNgBusinessService {
 
 							if (categoryOk && groupOk) {
 								gradeable = true;
-								continue;
+								break;
 							}
 						}
 
@@ -1771,6 +1774,16 @@ public class GradebookNgBusinessService {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the user's preferred locale from the Sakai resource loader
+	 * 
+	 * @return
+	 */
+	public Locale getUserPreferredLocale() {
+		final ResourceLoader rl = new ResourceLoader();
+		return rl.getLocale();
 	}
 
 	/**

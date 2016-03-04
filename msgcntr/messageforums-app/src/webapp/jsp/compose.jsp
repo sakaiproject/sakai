@@ -62,8 +62,8 @@
 				});
 			</script>
 		<!-- compose.jsp -->
-  			<div class="breadCrumb specialLink">
-				<h3>
+  			<div class="page-header">
+				<h1>
 				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
 				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
 				  	<f:verbatim>&nbsp; / </f:verbatim>
@@ -73,8 +73,10 @@
 									rendered="#{! PrivateMessagesTool.fromMain}" />
 				  <h:outputText escape="false" value=" / " rendered="#{! PrivateMessagesTool.fromMain}" />
 				  <h:outputText value="#{msgs.pvt_compose1}" />
-				</h3>
+				</h1>
 			</div>
+	
+	<div class="container_messages">
 
 			<sakai:tool_bar_message value="#{msgs.pvt_pvtcompose}" />
 
@@ -99,7 +101,7 @@
 		         <f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 		      </h:selectManyListbox>
 		      <f:verbatim>
-		      	<span>
+		      	<span class="delete_selection">
 	       			&nbsp;
 	       			</f:verbatim>
 	       			<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
@@ -169,10 +171,10 @@
 
 
 			 <h:panelGroup styleClass="shorttext" rendered= "#{PrivateMessagesTool.emailCopyOptional || PrivateMessagesTool.emailCopyAlways}">
-			   <h:outputLabel><h:outputText value="#{msgs.pvt_send_cc}"/></h:outputLabel>
+			   <h:outputLabel><h:outputText styleClass="pvt_send_cc" value="#{msgs.pvt_send_cc}"/></h:outputLabel>
 			 </h:panelGroup>
 
-			<h:panelGroup styleClass="checkbox" style="white-space: nowrap;" rendered= "#{PrivateMessagesTool.emailCopyOptional}">
+			<h:panelGroup styleClass="checkbox" rendered= "#{PrivateMessagesTool.emailCopyOptional}">
 			  <h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut}" id="send_email_out"></h:selectBooleanCheckbox>
 			  <h:outputLabel for="send_email_out"><h:outputText value="#{msgs.pvt_send_as_email}"/></h:outputLabel>
 			</h:panelGroup>
@@ -186,11 +188,11 @@
             <f:selectItem itemValue="pvt_priority_high" itemLabel="#{msgs.pvt_priority_high}"/>
         </h:selectOneListbox>
 
-				<h:panelGroup styleClass="shorttext required">
+				<h:panelGroup styleClass="form-label required">
 				 <h:outputLabel for="subject"><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_subject}" /></h:outputLabel>
 				</h:panelGroup>
 				<h:panelGroup styleClass="shorttext">
-					<h:inputText value="#{PrivateMessagesTool.composeSubject}" id="subject" size="45">
+					<h:inputText value="#{PrivateMessagesTool.composeSubject}" styleClass="form-control" id="subject" size="45">
 					  <f:validateLength minimum="1" maximum="255"/>
 					</h:inputText>
 				</h:panelGroup>
@@ -202,7 +204,7 @@
 			</sakai:inputRichText>
 
 <%--********************* Attachment *********************--%>
-			  <h4>
+		  <h4>
 	        <h:outputText value="#{msgs.pvt_att}"/>
 	      </h4>
 
@@ -216,6 +218,7 @@
 	                                 accesskey="a" />
 	        </sakai:button_bar>
 	      </sakai:doc_section>
+	        
 	        <%--designNote: copying the redenred attribute used in the first h:column to the dataTable - is there are no attachmetns - do not render the table at all.--%>
 			<h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"
 			columnClasses="attach,bogus,itemAction specialLink,bogus,bogus"  id="attmsg" width="100%" value="#{PrivateMessagesTool.attachments}" var="eachAttach"   rendered="#{!empty PrivateMessagesTool.attachments}">
@@ -280,6 +283,9 @@
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSaveDraft}" value="#{msgs.pvt_savedraft}" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgComposeCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
       </sakai:button_bar>
+
+  	</div>
+
     </h:form>
 
    </sakai:view>

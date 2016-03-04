@@ -20,9 +20,17 @@
 }
 
 /* Container */
-#gradebookGrades {
+#gradebookSpreadsheet {
   margin-top: 10px;
+}
+#gradebookGrades {
+  position: relative;
+  overflow: hidden;
   width: 100%;
+}
+#gradebookHorizontalOverflowWrapper {
+  width: 100%;
+  padding-bottom: 120px;
   overflow: auto;
   position: relative;
   -webkit-overflow-scrolling: touch;
@@ -85,10 +93,10 @@
   position: relative;
   display: block;
 }
-#gradebookGrades thead th,
-#gradebookGrades tbody th,
-#gradebookGrades thead th > span,
-#gradebookGrades tbody th > span {
+#gradebookGrades thead tr.headers th,
+#gradebookGrades tbody tr.headers th,
+#gradebookGrades thead tr.headers th > span,
+#gradebookGrades tbody tr.headers th > span {
   min-height: 100px;
   height: 100px;
 }
@@ -174,7 +182,8 @@
   bottom: 2px;
   right: 1px;
 }
-#gradebookGrades .gb-cell {
+#gradebookGrades table td,
+#gradebookGrades table .headers th {
   cursor: pointer;
 }
 #gradebookGrades tbody .btn.dropdown-toggle {
@@ -206,24 +215,30 @@
      so that the bottom-most menus display without being cropped */
   min-height: 40px;
 }
-/* Distinguish Fixed Columns */
+/* Distinguish Headers and Fixed Columns */
 #gradebookGrades.initialized table thead tr > th:nth-child(3),
 #gradebookGrades.initialized table tbody tr > td:nth-child(3) {
-  border-right: 1px solid #AAA;
+  border-right: 1px solid #BBB;
+}
+#gradebookGrades table tr.headers th {
+  border-bottom-color: #BBB;
+}
+#gradebookGrades table.table-striped tbody td {
+  border-color: #EEE;
 }
 /* Categories */
-#gradebookGrades table tr.gb-categories-row td {
-  height: 30px;
+#gradebookGrades table tr.gb-categories-row th {
+  height: 26px;
   line-height: 16px;
   font-size: 16px;
 }
-#gradebookGrades.initialized table tr.gb-categories-row > td:nth-child(1) {
+#gradebookGrades.initialized table tr.gb-categories-row > th:nth-child(1) {
   border-right: 1px solid #AAA;
 }
-#gradebookGrades.initialized table tr.gb-categories-row > td:nth-child(3) {
+#gradebookGrades.initialized table tr.gb-categories-row > th:nth-child(3) {
   border-right: 1px solid #DDD;
 }
-#gradebookGrades .gb-categories-row td {
+#gradebookGrades .gb-categories-row th {
   background: #e6e6e6;
   overflow: hidden;
 }
@@ -260,10 +275,12 @@
 /* Table Cells */
 #gradebookGrades .gb-grade-item-cell,
 #gradebookGrades .gb-external-item-cell,
+#gradebookGrades .gb-readonly-item-cell,
 #gradebookGrades td.gb-category-item-column-cell {
   text-align: center;
   white-space: nowrap;
 }
+#gradebookGrades .gb-readonly-item-cell,
 #gradebookGrades .gb-external-item-cell {
   color: #777;
   font-style: italic;
@@ -363,10 +380,15 @@
 #gradebookGrades .gb-fixed-header-table,
 #gradebookGrades .gb-fixed-columns-table,
 #gradebookGrades .gb-fixed-column-headers-table {
-  position: absolute;
   border-collapse: collapse;
-  box-shadow: 0 1px 1px #AAA;
   width: auto;
+}
+#gradebookGrades .gb-fixed-columns-table,
+#gradebookGrades .gb-fixed-column-headers-table {
+  position: fixed;
+}
+#gradebookGrades .gb-fixed-header-table {
+  position: absolute;
 }
 #gradebookGrades .gb-fixed-columns-table,
 #gradebookGrades .gb-fixed-column-headers-table {
@@ -431,18 +453,12 @@
   visibility: hidden;
 }
 /* Toolbar */
-#gradebookGrades {
-  padding-top: 40px;
-  padding-bottom: 80px;
-}
 #gradebookGradesToolbar {
+  position: relative;
   background: #FAFAFA;
   font-size: 0.8em;
   overflow: visible;
   padding: 0 0.4em;
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   white-space: nowrap; /* don't wrap so it stays on one line */
   height: 40px;
@@ -808,14 +824,18 @@ ul.feedbackPanel li span {
   content: "\f071";
   color: rgb(200,144,0);
 }
+.gb-readonly-item-cell .gb-cell-notification-warning,
 .gb-external-item-cell .gb-cell-notification-warning {
   opacity: 0.2;
   font-style: normal;
 }
+.gb-readonly-item-cell .gb-cell-notification-warning:before,
 .gb-external-item-cell .gb-cell-notification-warning:before {
   color: #CCC;
   content: '\f023';
 }
+.gb-readonly-item-cell:focus .gb-cell-notification-warning,
+.gb-readonly-item-cell .gb-cell-notification-warning:focus,
 .gb-external-item-cell:focus .gb-cell-notification-warning,
 .gb-external-item-cell .gb-cell-notification-warning:focus {
   display:block;

@@ -151,6 +151,7 @@ public void setTitle(String title)
     setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
     setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
     setFieldentry("ATTACHMENT", getAttachment(section));
+    setFieldentry("QUESTIONS_ORDERING", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
     
     // items
     addItems(section.getItemArray());

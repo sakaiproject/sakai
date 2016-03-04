@@ -321,6 +321,7 @@ public abstract class AssessmentHelperBase
     Integer bookmarking = accessControl.getBookMarkingItem();
     Integer itemNavigation = accessControl.getItemNavigation();
     Integer itemNumbering = accessControl.getItemNumbering();
+    Integer displayScores = accessControl.getDisplayScoreDuringAssessments();
     Integer assessmentFormat = accessControl.getAssessmentFormat();
     Integer markForReview = accessControl.getMarkForReview();
     Integer lateHandling = accessControl.getLateHandling();
@@ -381,6 +382,12 @@ public abstract class AssessmentHelperBase
     else if (accessControl.RESTART_NUMBERING_BY_PART.equals(itemNumbering))
     {
       assessmentXml.setFieldentry("QUESTION_NUMBERING", "RESTART");
+    }
+    
+    if(accessControl.HIDE_ITEM_SCORE_DURING_ASSESSMENT.equals(displayScores)){
+    	assessmentXml.setFieldentry("DISPLAY_SCORES", "HIDE");
+    }else{
+    	assessmentXml.setFieldentry("DISPLAY_SCORES", "SHOW");
     }
 
     if (accessControl.MARK_FOR_REVIEW.equals(markForReview))
@@ -495,6 +502,7 @@ public abstract class AssessmentHelperBase
       "itemAccessType_isInstructorEditable",
       "displayChunking_isInstructorEditable",
       "displayNumbering_isInstructorEditable",
+      "displayScores_isInstructorEditable",
       "submissionModel_isInstructorEditable",
       "lateHandling_isInstructorEditable",
       "markForReview_isInstructorEditable",

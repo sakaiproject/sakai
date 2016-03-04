@@ -7,7 +7,7 @@
 	min-height: 14em;
 
 	background: $background-color;
-	@include box-shadow( 0 0 5px rgba( $text-color , 0.25 ) );
+	box-shadow: 0 0 5px rgba( $text-color , 0.25 );
 	.logo{
 		background: $primary-color url($logo) no-repeat center center;
 		width: 100%;
@@ -72,7 +72,7 @@
 
 	&.loadedByAjax{
 		z-index: 1010;
-		@include box-shadow( 0 0 15px rgba( $text-color , 0.25 ) );
+		box-shadow: 0 0 15px rgba( $text-color , 0.25 );
 	}
 
 	@media #{$phone}{
@@ -87,7 +87,7 @@
 
 #Mrphs-xlogin-container{
 	opacity: 0;
-	@include transition(opacity 0.25s linear);
+	@include transition(opacity 0.25s linear 0s);
 	&.loaded{
 		opacity: 1;
 	}

@@ -28,12 +28,7 @@
         
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
     <p class="instruction">
-        ## if there is NO template site types
         $tlang.getString("sitetype.chothetyp.withouttemplate")
-    ##  #if ($templateSites.size() > 0)
-    ##      ## if there is template site types
-    ##      $tlang.getString("sitetype.chothetyp.withtemplate")
-    ##  #end
     </p>
     <form name="typeform" id="typeform" action="#toolForm("$action")&special=upload" method="post">
         <p class="checkbox indnt1">
@@ -48,8 +43,7 @@
          a site type has been picked, and then the user (from the next screen) hits "back"  - the "Build own" radio
          should be checked, as well as the selected site type
          *#
-        <div id="siteTypeList" 
-             #* if templates enabled *# class="indnt3" #*end templates enabled *#>
+        <div id="siteTypeList" class="indnt3">
             #foreach ($type in $siteTypes)
 				#set($courseTypeWithPerm    = (($courseSiteTypeStrings.contains($type) || $type == "course")    && $canAddCourse ))
 				#set($portfolioTypeWithPerm = (($portfolioSiteTypeStrings.contains($type) || $type == "portfolio") && $canAddPortfolio )) 
@@ -95,24 +89,6 @@
                         </div>  
                     #end ## end of #if ($courseTypeWithPerm)
                 #end ## end of #if (courseTypeWithPerm || portfolioTypeWithPerm || projectTypeWithPerm))
-                #*
-                #if ($templateList.size() > 0 && $templateList.containsKey($type))
-                    <p class="checkbox indnt3">
-                        #set($templatetype="useTemplate")
-                        #set($templatetype=$templatetype.concat($type))
-                        <input type="checkbox" name="$templatetype" id="$templatetype" value="$templatetype" onchange="toggleTemplateSelectList('$type');"/>
-                        <label for = "$templatetype">$tlang.getString("sitetype.usetemplate")</label>
-                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                        <select name="selectTemplate$type" id="selectTemplate$type" disabled="true">
-                            #foreach($template in $templateList.get($type))
-                                <option value ="$template.getId()">
-                                    $template.getTitle()
-                                </option>
-                            #end
-                        </select> 
-                    </p>
-                #end
-                *#
             #end  ##end of #foreach ($type in $siteTypes)
         </div>
         #if ($templateSites.size() > 0)
@@ -313,13 +289,12 @@
              it should be set style="display:none" if user is coming back
              ot this template from building own flow
              *#
-            <input type="submit" accesskey="s"  id="submitFromTemplate" disabled="disabled" style="display:none" class="active" name="submitFromTemplate" value="$tlang.getString('sitetype.done')" onclick="showNotif('submitnotif','submitFromTemplate','typeform'); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
-            <input type="submit" accesskey="s"  id="submitFromTemplateCourse" disabled="disabled" style="display:none" class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="showNotif('submitnotif','submitFromTemplateCourse','typeform'); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
-            <input type="submit" accesskey="s" id="submitFromArchive" style="display:none" class="active" name="submitFromArchive" value="$tlang.getString('sitetype.con')" onclick="showNotif('submitnotif','submitFromArchive','typeform'); document.typeform.option.value='createFromArchive'; document.typeform.submit(); return false;" />
+            <input type="submit" accesskey="s" id="submitFromTemplate" disabled="disabled" style="display:none" class="active" name="submitFromTemplate" value="$tlang.getString('sitetype.done')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
+            <input type="submit" accesskey="s" id="submitFromTemplateCourse" disabled="disabled" style="display:none" class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
+            <input type="submit" accesskey="s" id="submitFromArchive" style="display:none" class="active" name="submitFromArchive" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null );  document.typeform.option.value='createFromArchive'; document.typeform.submit(); return false;" />
             ## this submit should be ther normal one
-            <input type="submit" accesskey="s"  id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="showNotif('submitnotif','submitBuildOwn','typeform'); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />
-            <input type="submit" accesskey="x" id="cancelCreate" name="cancelCreate" value="$tlang.getString('sitetype.can')" onclick="document.typeform.option.value='cancel'; document.typeform.submit(); return false;" />
-            <span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+            <input type="submit" accesskey="s" id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />
+            <input type="submit" accesskey="x" id="cancelCreate" name="cancelCreate" value="$tlang.getString('sitetype.can')" onclick="SPNR.disableControlsAndSpin( this, null );document.typeform.option.value='cancel'; document.typeform.submit(); return false;" />
         </div>
 
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

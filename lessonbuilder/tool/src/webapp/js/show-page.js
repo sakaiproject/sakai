@@ -68,12 +68,7 @@ var blankRubricTemplate, blankRubricRow;
 // Note from Chuck S. - Is there a strong reason to do this before ready()?
 // $(function() {
 $(document).ready(function() {
-	var breadcrumbs = $(".breadcrumbs span");
-	if (breadcrumbs.size() > 0) {
-	    $(".Mrphs-toolTitleNav__addLeft").append($(".breadcrumbs span"));
-	    $(".Mrphs-toolTitleNav__text").hide();
-	}
-	$(".Mrphs-toolTitleNav__addRight").append($(".action"));
+	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
 	// This is called in comments.js as well, however this may be faster.
 	//if(sakai.editor.editors.ckeditor==undefined) {
@@ -243,7 +238,7 @@ $(document).ready(function() {
 			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
 			'#add-multimedia-dialog', '#edit-title-dialog', '#new-page-dialog', '#remove-page-dialog',
 			'#youtube-dialog', '#movie-dialog', '#import-cc-dialog', '#export-cc-dialog',
-			'#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
+		        '#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
 			for (var i = 0; i < modalDialogList.length; i++) {
 				$(modalDialogList[i]).dialog("option", "width", modalDialogWidth());
 			}
@@ -1881,8 +1876,9 @@ $(document).ready(function() {
 				$('#import-cc-dialog').dialog('isOpen') ||
 				$('#export-cc-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
-				$('#student-dialog').dialog('isOpen')) ||
-				$('#question-dialog').dialog('isOpen')) {
+				$('#column-dialog').dialog('isOpen') ||
+			        $('#student-dialog').dialog('isOpen') ||
+			        $('#question-dialog').dialog('isOpen'))) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
                     $('li').removeClass('editInProgress');

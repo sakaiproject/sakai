@@ -67,6 +67,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -917,6 +919,18 @@ public class ExtractionHelper
     {
       control.setItemNumbering(control.RESTART_NUMBERING_BY_PART);
     }
+    
+    //display scores
+    if ("HIDE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.HIDE_ITEM_SCORE_DURING_ASSESSMENT);
+    }
+    else if ("SHOW".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.DISPLAY_ITEM_SCORE_DURING_ASSESSMENT);
+    }
 
     //question layout
     if ("I".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
@@ -1500,6 +1514,12 @@ public class ExtractionHelper
   {
     section.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) sectionMap.get("title")));
     section.setDescription(makeFCKAttachment((String) sectionMap.get("description")));
+    
+    // Add Section MetaData
+    section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, (String) sectionMap.get("keyword"));
+    section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, (String) sectionMap.get("objective"));
+    section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, (String) sectionMap.get("rubric"));
+    section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, (String) sectionMap.get("questions-ordering"));
   }
 
   /**

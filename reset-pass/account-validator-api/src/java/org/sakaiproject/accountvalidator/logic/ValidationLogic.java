@@ -85,6 +85,14 @@ public interface ValidationLogic {
 	 */
 	public ValidationAccount createValidationAccount(String UserId, boolean newAccount);
 	
+
+	/**
+	 *  Create a new validation Validation account
+	 * @param userRef existing userId
+	 * @param newUserId is the new id which the user wants to have as userId
+	 * @return
+	 */
+	public ValidationAccount createValidationAccount(String userRef,String newUserId);
 	/**
 	 * Create a validation token for an account of a given status
 	 * @param UserId

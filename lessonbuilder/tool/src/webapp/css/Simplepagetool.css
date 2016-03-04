@@ -105,9 +105,6 @@
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
 }
-.portletTitle .title, .portletTitle .action {
-	padding-bottom: 0px !important;
-}
 .breadcrumbs a[title="Reset"] {
 
 }
@@ -240,7 +237,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	padding: 0.25em 0.8em !important
 }
 .itemclass {
-	margin-top: 1.0em;
+	margin-top: 2.0em;
 	margin-bottom: 1.0em;
 }
 .rowdescription {
@@ -767,6 +764,15 @@ a.peer-eval-stats {
 .duecol {
 	padding-left: 2em !important
 }
+
+/* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
+#toolbar {
+  padding:2px;
+  margin:0px;
+  margin-top:6px;
+  margin-bottom:-10px;
+}
+
 /* Dropdown Menu */
 ul#toolbar li {
 	display: inline;
@@ -873,7 +879,7 @@ img {
 	padding: 1px 5px;
 	display: inline-block;
 	font-size: 90%;
-	background-color: #acf;
+	border: solid 1px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
@@ -1024,16 +1030,15 @@ div[role="dialog"] {
     width: 100%;
     height: 100%;
 }
-.portletTitle .action {
-    padding: 2px -1px 6px 2px;
-    float: right; 
-    vertical-align: middle;
-}
-.Mrphs-toolTitleNav .Mrphs-toolTitleNav__addRight .action {
+.Mrphs-siteHierarchy .action {
     display: inline-block;
-    margin-top: -5px;
-    padding-right: 50px;
+    vertical-align: middle;
+    float:right;
+    top: 50%;
 }			      
+.Mrphs-siteHierarchy {
+    height: auto !important;
+}
 .portletTitle .action a#jsr-edit {
     padding: 2px;
     background: url(../images/page_edit.gif) center right no-repeat;
@@ -1072,20 +1077,6 @@ div[role="dialog"] {
 }
 .portletTitle .action a.tool-directurl:hover{
     background: url(/library/image/silk/link_go.png) center right no-repeat;
-}
-.portletTitle .action a.Mrphs-toolTitleNav__link--directurl{
-    background: none;
-    display:inline
-}
-.portletTitle .action a.Mrphs-toolTitleNav__link--directurl:hover{
-    background: none
-}
-a.Mrphs-toolTitleNav__link--help-popup {
-    display:inline
-}
-a.Mrphs-toolTitleNav__link--reset {
-    display:inline;
-    border:none !important
 }
 .direct-url-wrap {
     font-size: 85%;
@@ -1142,21 +1133,11 @@ a.Mrphs-toolTitleNav__link--reset {
  left:10px;
 }
 
-.Mrphs-toolTitleNav__title {
-  width: auto !important;
-}
 .Mrphs-container--toolTitleNav {
   text-align:right;
 }
-.Mrphs-toolTitleNav__title {
-  float:left;
-  text-align:left;
-}
-.returnwarning, .returnheader, .Mrphs-toolTitleNav__addLeft .usebutton span {
+.returnwarning, .returnheader, .xMrphs-toolTitleNav__addLeft .usebutton span {
   font-size: .75em;
-}
-.Mrphs-toolTitleNav__addRight {
-  display:inline-block;
 }
 #content, #outer, nav.Mrphs-toolTitleNav {
 }
@@ -1264,7 +1245,7 @@ li.resourceType .right-col {
  border:none;
 }
 .itemclass {
- margin-top:2.0em !important;
+ margin-top:3.0em !important;
 }
 .add-comment-button span {
 font-size: 90%;
@@ -1276,10 +1257,21 @@ font-size: 90%;
  padding: 5px 10px;
 }
 
+/* in full width mode, if we don't do this, and the
+   first region is split, the right column doesn't fit
+   must be overridden for narrow format */
+.Mrphs-container--toolTitleNav {
+  margin-bottom:-30px !important;
+}
+
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
-.contentButton {
-  display:none !important;
+.Mrphs-container--toolTitleNav {
+  margin-bottom: 0px !important;
+}
+
+.removeNarrow {
+ display:none !important;
 }
 .column {
   margin-left: 2px;
@@ -1331,6 +1323,8 @@ font-size: 90%;
 .navIntraTool li.contentButton a {
   padding-top:2px !important;
   padding-bottom:2px !important;
+}
+.navIntraTool li.contentButton a .fa-button-text {
   font-family:FontAwesome;
 }
 .fa-item-text {
@@ -1359,4 +1353,98 @@ font-size: 90%;
 /* nothing - used to save information */
 }
 
+.Mrphs-siteHierarchy span:last-child {
+  margin-left: 6px;
+}
+.Mrphs-container--toolTitleNav {
+  float:right;
+}
+.contentButton span a {
+  height: 24px;
+}
+.contentButton {
+  height: 26px;
+  line-height: 21px;
+  margin-top: 3px !important;
+  z-index:900;
+}
+.Mrphs-siteHierarchy .action .lessonsToolButton {
+  background-color: transparent;
+  padding-top: 1px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+/* for ShowItem */
+.itemHeader {
+  margin-bottom:20px; 
+  border-bottom:solid black 1px
+}
+.itemTitle {
+  margin-top:10px
+}
+.startupHelp {
+  margin-top: 20px;
+}
+/* this section is to make things work when lessons is in an iframe */
+.contentButton span a {
+  display:inline-block !important;
+}
+.navIntraTool {
+  display:inline-block !important;
+}
+body > .portletBody {
+  margin-top:-15px;
+  padding-top:0px;
+  padding-bottom:0px;
+}
+.oldPortal + .navIntroTool {
+}
+.oldPortal .title {
 
+}
+.oldPortal + .navIntraTool {
+  padding-top:0px;
+}
+.title-tools {
+  line-height:30px;
+}
+.oldPortal + .navIntraTool #toolbar{
+ margin-top:0px;
+}
+.oldPortal .action {
+  margin-right:150px;
+}
+/* old portal, but only for students. instructors need more spacing */
+.oldPortal ~ .itemclass {
+  margin-top: 1.0em !important;
+}
+/* put back default value if an instructor */
+.navIntraTool + .itemclass {
+  margin-top: 3.0em !important;
+}
+.title-tools {
+  float:none;
+  position:static;
+  margin-bottom:0px !important;
+}
+.navIntraTool {
+  display:block;
+  position: static;
+}
+.action {
+  display:inline-block;
+  float:right !important;
+}
+.Mrphs-container--toolTitleNav {
+  text-align: left;
+}
+.oldPortal .title {
+  display: inline-block;
+  float:none !important;
+  text-align: left;
+}
+.showItemNoMorpheus .action{
+  margin-right: 170px;
+  margin-top: -10px;
+}
+/* end lessons in iframe */

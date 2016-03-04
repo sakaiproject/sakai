@@ -23,6 +23,7 @@
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
     <property name="score" type="double" column="SCORE" not-null="false" />
     <property name="minScore" type="double" column="MIN_SCORE" not-null="false" />
+    <property name="scoreDisplayFlag" type="boolean" column="SCORE_DISPLAY_FLAG" not-null="false"/>
     <property name="partialCreditFlag" type="boolean" column="PARTIAL_CREDIT_FLAG" not-null="false"/>
     <property name="discount" type="double" column="DISCOUNT" not-null="false" />
     <property name="answerOptionsRichCount" type="integer" column="ANSWER_OPTIONS_RICH_COUNT" not-null="false" />

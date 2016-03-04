@@ -1,7 +1,7 @@
 .#{$namespace}siteHierarchy{
 	$svg-gradient-shim-threshold: 1 !global;
-	@include background-image( linear-gradient( to right, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df ) );
-	@include box-shadow( inset 0px -1px 5px rgba(0,0,0,0.1) );
+	background: linear-gradient( to right, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df );
+	box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);
 	height: $hierarchy-size;
 	padding: 1em;
 	h1{
@@ -24,7 +24,7 @@
 	    top: 5.5em;
 	    width: 100%;
 	    z-index: 18;
-	    @include transition( top 0.25s linear );
+	    @include transition( top 0.25s linear 0s );
 		&.moving{
   			top: -4.2em;
   		}

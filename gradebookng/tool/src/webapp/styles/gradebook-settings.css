@@ -20,8 +20,8 @@
 }
 .gb-category-sort-handle,
 .gb-category-sort-handle:hover {
-  text-decoration: none;
-  color: #CCC;
+  text-decoration: none !important;
+  color: #BBB !important;
 }
 .gb-category-sort-handle:before {
   font-family: "gradebook-icons";

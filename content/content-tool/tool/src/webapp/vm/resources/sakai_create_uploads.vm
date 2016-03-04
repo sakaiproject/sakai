@@ -182,7 +182,11 @@ Dropzone.options.fileUploader = {
 
         this.on("sending", function(file, xhr, formData) {
             formData.append("fullPath",file.fullPath);
-            formData.append("hidden", document.querySelector('input[name="hidden"]:checked').value);
+            #if($model.isDropbox() || $model.isUserSite() || !$availability_is_enabled)
+                formData.append("hidden", false);
+            #else
+                formData.append("hidden", document.querySelector('input[name="hidden"]:checked').value);
+            #end
         });
 
         this.on("error", function(file, message, xhr) {

@@ -31,10 +31,6 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
-        <module>news-api/api</module>
-        <module>news-impl/impl</module>
-        <module>news-impl/pack</module>
-        <module>news-tool/tool</module>
         <module>web-api/api</module>
         <module>web-impl/impl</module>
         <module>web-impl/pack</module>
@@ -45,11 +41,6 @@
   </profiles>
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-news-impl</artifactId>
-        <version>${project.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-web-impl</artifactId>

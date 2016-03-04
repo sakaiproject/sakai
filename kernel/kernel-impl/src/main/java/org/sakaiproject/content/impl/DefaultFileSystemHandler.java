@@ -1,11 +1,14 @@
 package org.sakaiproject.content.impl;
 
 import org.sakaiproject.content.api.FileSystemHandler;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -88,4 +91,9 @@ public class DefaultFileSystemHandler implements FileSystemHandler {
         }
         return false;
     }
+
+	@Override
+	public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
+		return null;
+	}
 }

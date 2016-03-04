@@ -89,6 +89,8 @@
     <property name="autoSubmit" type="integer" column="AUTOSUBMIT" not-null="false" />
     <property name="itemNavigation" type="integer" column="ITEMNAVIGATION" not-null="false" />
     <property name="itemNumbering" type="integer" column="ITEMNUMBERING" not-null="false" />
+    <property name="displayScoreDuringAssessments" type="integer" column="DISPLAYSCORE" not-null="false" />
+    
     <property name="submissionMessage" type="string" length="4000" column="SUBMISSIONMESSAGE" not-null="false" />
     <property name="releaseTo" type="string" length="255" column="RELEASETO" not-null="false" />
     <property name="username" type="string" length="255" column="USERNAME" not-null="false" />

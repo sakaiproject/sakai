@@ -22,6 +22,10 @@
       <fieldlabel>ATTACHMENT</fieldlabel>
       <fieldentry/>
     </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>QUESTIONS_ORDERING</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
   </qtimetadata>
   <presentation_material>
     <flow_mat>
