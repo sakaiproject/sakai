@@ -1,3 +1,5 @@
+@import "base/compass";
+
 body{
 	background:  $tool-background-color;
 	color: 		 $text-color;
@@ -8,7 +10,7 @@ body{
 	&.#{$namespace}portalBody{
 		background:  $background-color;
 		@media #{$phone}{
-			@include background-image( linear-gradient( to bottom, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df ) );
+			background: linear-gradient( to bottom, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df );
 			background-size: 120%;
 			padding: 2.8em 0 0 0;
 		}
@@ -99,14 +101,14 @@ input[type="checkbox"], input[type="radio"]{
 input[type="checkbox"]{
 	@include border-radius(3px);
 	&:checked{
-		background-image: inline-image("check.png");
+		background-image: url("images/check.png");
 		background-size: 16px;
 	}
 }
 input[type="radio"]{
 	@include border-radius(24px);
 	&:checked{
-		@include background-image(radial-gradient(#60b3e3, #FFF 5px));
+		background: radial-gradient(#60b3e3, #FFF 5px);
 	}
 }
 
