@@ -16,6 +16,7 @@ public class GbModalWindow extends ModalWindow {
 
 	private Component componentToReturnFocusTo;
 	private List<WindowClosedCallback> closeCallbacks;
+	private boolean positionAtTop = false;
 
 	public GbModalWindow(final String id) {
 		super(id);
@@ -47,11 +48,19 @@ public class GbModalWindow extends ModalWindow {
 
 	@Override
 	protected CharSequence getShowJavaScript() {
-		// focus the first input field in the content pane
-		final String focusJavascript = String.format("setTimeout(function() {$('#%s :input:first:visible').focus();});",
-				getContent().getMarkupId());
+		StringBuilder extraJavascript = new StringBuilder();
 
-		return super.getShowJavaScript().toString() + focusJavascript;
+		// focus the first input field in the content pane
+		extraJavascript.append(String.format("setTimeout(function() {$('#%s :input:first:visible').focus();});",
+				getContent().getMarkupId()));
+
+		// position at the top of the page
+		if (this.positionAtTop) {
+			extraJavascript.append(String.format("setTimeout(function() {$('#%s').closest('.wicket-modal').css('top', '30px');});",
+					getContent().getMarkupId()));
+		}
+
+		return super.getShowJavaScript().toString() + extraJavascript.toString();
 	}
 
 	@Override
@@ -78,6 +87,10 @@ public class GbModalWindow extends ModalWindow {
 	public void clearWindowClosedCallbacks() {
 		this.closeCallbacks = new ArrayList<>();
 		setDefaultWindowClosedCallback();
+	}
+
+	public void setPositionAtTop(final boolean positionAtTop) {
+		this.positionAtTop = positionAtTop;
 	}
 
 	private void setDefaultWindowClosedCallback() {
