@@ -1513,11 +1513,7 @@ public class AssignmentAction extends PagedResourceActionII
 				    context.put("submitterId", s.getSubmitterId() );
 				    String _grade_override= s.getGradeForUser(UserDirectoryService.getCurrentUser().getId());
 				    if (_grade_override != null) {
-				        if (assignment.getContext() != null && assignment.getContent().getTypeOfGrade() == 3) {
-				            context.put("override", displayGrade(state, _grade_override, assignment.getContent().getFactor()));
-				        } else {
 				            context.put("override", _grade_override);
-				        }
 				    }
 				}
 
@@ -2156,12 +2152,7 @@ public class AssignmentAction extends PagedResourceActionII
             if (assignment.isGroup()) {
                 String _grade_override= submission.getGradeForUser(UserDirectoryService.getCurrentUser().getId());
                 if (_grade_override != null) {
-                    if (assignment.getContext() != null && assignment.getContent().getTypeOfGrade() == 3) {
-                        context.put("override", displayGrade(state, _grade_override, assignment.getContent().getFactor()));
-                    }
-                    else {
                         context.put("override", _grade_override);
-                    }
                 }
             }
 
@@ -4225,8 +4216,7 @@ public class AssignmentAction extends PagedResourceActionII
 			            		if (_agrade != null) {
 			                		_ugrades.put(
 			                        	_users[i].getId(),
-			                        	assignmentContent != null && assignmentContent.getTypeOfGrade() == 3 ?
-			                                	displayGrade(state, _agrade, assignmentContent.getFactor()): _agrade);
+			                        	_agrade);
 			            		}	
 			        	}
 				}
@@ -5156,7 +5146,7 @@ public class AssignmentAction extends PagedResourceActionII
 									for (int i=0; submitters != null && i < submitters.length; i++) {
  										String submitterId = submitters[i].getId();
 										String gradeStringToUse = (a.isGroup() && aSubmission.getGradeForUser(submitterId) != null)
-										        ? displayGrade(state,aSubmission.getGradeForUser(submitterId), a.getContent().getFactor()): grade;
+										        ? aSubmission.getGradeForUser(submitterId): grade;
 										sm.put(submitterId, gradeStringToUse);
 										cm.put(submitterId, commentString);
 									}
@@ -5209,7 +5199,7 @@ public class AssignmentAction extends PagedResourceActionII
 								String gradeString = displayGrade(state, StringUtils.trimToNull(aSubmission.getGrade(false)), factor);
 								for (int i=0; submitters != null && i < submitters.length; i++) {
 								    String gradeStringToUse = (a.isGroup() && aSubmission.getGradeForUser(submitters[i].getId()) != null) 
-								            ? displayGrade(state,aSubmission.getGradeForUser(submitters[i].getId()), factor): gradeString;
+								            ? aSubmission.getGradeForUser(submitters[i].getId()): gradeString;
 								    //Gradebook only supports plaintext strings
 								    String commentString = FormattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
 									if (associateGradebookAssignment != null)
@@ -11848,11 +11838,7 @@ public class AssignmentAction extends PagedResourceActionII
 					        String ug = StringUtil.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId()));
 					        if ("null".equals(ug)) ug = null;
 					        if (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) {
-					            if (typeOfGrade == Assignment.SCORE_GRADE_TYPE) {
-					                hasChange = valueDiffFromStateAttribute(state, scalePointGrade(state, ug, factor), submission.getGradeForUser(_users[i].getId()));
-					            } else {
 					                hasChange = valueDiffFromStateAttribute(state, ug, submission.getGradeForUser(_users[i].getId()));
-					            }
 					        }
 					        if (ug == null) {
 					            state.removeAttribute(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId());
@@ -13064,25 +13050,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		public String getGradeForUser(String id) {
 		    String grade = getSubmission() == null ? null: getSubmission().getGradeForUser(id);
-		    if (grade != null 
-		            && getSubmission().getAssignment().getContent() != null 
-		            && getSubmission().getAssignment().getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
-		    {
-		        if (grade.length() > 0 && !"0".equals(grade)) {
-		            try {
-		                Integer.parseInt(grade);
-		                // if point grade, display the grade with one decimal place
-		                return grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
-		            } catch (Exception e) {
-		                return grade;
-		            }
-		        } else {
-		            return StringUtil.trimToZero(grade);
-		        }
-		    }
 		    return grade;
 		}
-
 	}
 
 	/**
