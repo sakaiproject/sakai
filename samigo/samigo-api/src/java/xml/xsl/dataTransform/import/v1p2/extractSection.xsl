@@ -29,6 +29,9 @@
     <attachment>
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[5]/fieldentry"/>
     </attachment>
+    <questions-ordering>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[6]/fieldentry"/>
+    </questions-ordering>
   </sectionData>
 </xsl:template>
 
