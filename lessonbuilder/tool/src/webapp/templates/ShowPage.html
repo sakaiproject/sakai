@@ -736,6 +736,10 @@
                         <span style="display:none" rsf:id="questionCorrectText" class="questionCorrectText"></span>
                         <span style="display:none" rsf:id="questionIncorrectText" class="questionIncorrectText"></span>
                     </div>
+		    <script type="text/javascript">
+		    // to avoid flickering, process buttons in this item now
+		    $(document.currentScript).closest('li').find('.usebutton').button({text:true});
+		    </script>
                 </li>
             </ul>
 	    </div>	
