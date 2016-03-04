@@ -177,6 +177,13 @@
   position: absolute;
   bottom: 2px;
   right: 1px;
+  display: none;
+}
+#gradebookGrades td:focus .btn-group,
+#gradebookGrades td:hover .btn-group,
+#gradebookGrades td.gb-cell-editing .btn-group,
+#gradebookGrades .gb-highlighted-row .btn-group {
+  display: block;
 }
 #gradebookGrades table td,
 #gradebookGrades table .gb-headers th {
@@ -212,14 +219,15 @@
   min-height: 40px;
 }
 /* Distinguish Headers and Fixed Columns */
-#gradebookGrades.initialized table thead tr > th:nth-child(3),
-#gradebookGrades.initialized table tbody tr > td:nth-child(3) {
-  border-right: 1px solid #BBB;
+#gradebookGrades table thead tr > *:nth-child(3),
+#gradebookGrades table tbody tr > *:nth-child(3) {
+  border-right: 1px solid #BBB !important;
 }
 #gradebookGrades table tr.gb-headers th {
   border-bottom-color: #BBB;
 }
-#gradebookGrades table.table-striped tbody td {
+#gradebookGrades table.table-striped tbody td,
+#gradebookGrades table.table-striped tbody th {
   border-color: #EEE;
 }
 /* Categories */
@@ -228,11 +236,11 @@
   line-height: 16px;
   font-size: 16px;
 }
-#gradebookGrades.initialized table tr.gb-categories-row > th:nth-child(1) {
-  border-right: 1px solid #AAA;
+#gradebookGrades table tr.gb-categories-row > th:nth-child(1) {
+  border-right: 1px solid #AAA !important;
 }
-#gradebookGrades.initialized table tr.gb-categories-row > th:nth-child(3) {
-  border-right: 1px solid #DDD;
+#gradebookGrades table tr.gb-categories-row > th:nth-child(3) {
+  border-right: 1px solid #DDD !important;
 }
 #gradebookGrades .gb-categories-row th {
   background: #e6e6e6;

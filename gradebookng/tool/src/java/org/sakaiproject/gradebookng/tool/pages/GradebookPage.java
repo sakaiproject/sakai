@@ -230,6 +230,8 @@ public class GradebookPage extends BasePage {
 
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
+				cellItem.add(new AttributeModifier("abbr", studentGradeInfo.getStudentDisplayName()));
+				cellItem.add(new AttributeModifier("aria-label", studentGradeInfo.getStudentDisplayName()));
 
 				// TODO may need a subclass of Item that does the onComponentTag override and then tag.setName("th");
 			}
