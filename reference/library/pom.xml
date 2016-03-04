@@ -139,6 +139,7 @@
 				<sakai.skin.source>morpheus-master</sakai.skin.source>
 				<sakai.skin.target>morpheus-default</sakai.skin.target>
 				<sakai.skin.customization.file>src/${sakai.skin.source}/sass/examples/_customization_example_empty.scss</sakai.skin.customization.file>
+				<sakai.skin.outputSyle>compressed</sakai.skin.outputSyle>
 			</properties>
 			<build>
 				<plugins>
@@ -273,7 +274,7 @@
 					       </execution>
 					   </executions>
 					   <configuration>
-					       <outputStyle>compressed</outputStyle>
+					       <outputStyle>${sakai.skin.outputSyle}</outputStyle>
 					       <imgPath>${basedir}/src/${sakai.skin.source}/images/</imgPath>
 					       <inputPath>${basedir}/src/${sakai.skin.source}/sass/</inputPath>
 					       <outputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</outputPath>
