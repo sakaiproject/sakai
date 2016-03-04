@@ -171,7 +171,7 @@ public class GradeStatisticsPanel extends Panel {
 		categoryPlot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
 		categoryPlot.setBackgroundPaint(new Color(238, 238, 238));
 
-		add(new JFreeChartImageWithToolTip("chart", Model.of(chart), "tooltip", 792, 440));
+		add(new JFreeChartImageWithToolTip("chart", Model.of(chart), "tooltip", 540, 300));
 
 		add(new Label("graded", String.valueOf(allGrades.size())));
 
