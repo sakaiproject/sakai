@@ -151,6 +151,8 @@ public class GradeStatisticsPanel extends Panel {
 
 		chart.setBorderVisible(false);
 
+		chart.setAntiAlias(false);
+
 		CategoryPlot categoryPlot = chart.getCategoryPlot();
 		BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
 
