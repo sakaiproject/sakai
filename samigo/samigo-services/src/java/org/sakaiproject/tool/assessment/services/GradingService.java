@@ -3174,7 +3174,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  ItemGradingData itemCheck = (ItemGradingData) iter.next();
 		  Long itemId = itemCheck.getPublishedItemId();
 		  ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
-		  if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+		  if (item != null && (TypeIfc.CALCULATED_QUESTION).equals(item.getTypeId())) {
 	    	  return true;
 	      }
 	  }
