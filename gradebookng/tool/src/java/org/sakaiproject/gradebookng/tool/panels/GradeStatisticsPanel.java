@@ -171,7 +171,7 @@ public class GradeStatisticsPanel extends Panel {
 
 		// show only integers in the count axis
 		categoryPlot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
-		categoryPlot.setBackgroundPaint(new Color(238, 238, 238));
+		categoryPlot.setBackgroundPaint(Color.white);
 
 		add(new JFreeChartImageWithToolTip("chart", Model.of(chart), "tooltip", 540, 300));
 
