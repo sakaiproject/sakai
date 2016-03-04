@@ -141,6 +141,20 @@
     		</div>
         </div>
 		
+<script type="text/javascript">
+	var breadcrumbs = jQuery(".breadcrumbs span");
+	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
+	if (jQuery(".oldPortal").size() === 0) {
+	    var title = jQuery(".title span:last").text();
+	    if (breadcrumbs.size() > 0) {
+		jQuery(".Mrphs-siteHierarchy").append(jQuery(".breadcrumbs span").slice(1));
+	    }
+	    jQuery(".Mrphs-siteHierarchy").append(jQuery(".action"));
+//	    jQuery(".Mrphs-siteHierarchy").append("<br style='clear:both'/>");
+	    jQuery(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
+	    jQuery(".genTitle").text(title);
+	}
+</script>
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="application" style="z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
