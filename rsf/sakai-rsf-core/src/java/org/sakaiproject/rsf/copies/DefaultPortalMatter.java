@@ -32,22 +32,16 @@
 package org.sakaiproject.rsf.copies;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import javax.servlet.http.HttpServletRequest;
+
+import org.sakaiproject.portal.util.CSSUtils;
+import org.sakaiproject.portal.util.ToolUtils;
+
+import org.sakaiproject.site.api.Site;
 
 public class DefaultPortalMatter {
-	public static String getDefaultPortalMatter() {
-		// This code copied from CharonPortal.java/ToolPortal.java setupForward
-		// It should really be available in a standard Sakai API.
-		String skin = ServerConfigurationService.getString("skin.default");
-		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String headCssToolBase = "<link href=\"" + skinRepo
-				+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
-				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-		String headCss = headCssToolBase + headCssToolSkin;
-		// String headJs = "<script type=\"text/javascript\"
-		// language=\"JavaScript\"
-		// src=\"/library/js/headscripts.js\"></script>\n";
-		// String head = headCss + headJs;
+	public static String getDefaultPortalMatter(Site site, HttpServletRequest req) {
+		String headCss = CSSUtils.getCssHead(CSSUtils.getSkinFromSite(site),ToolUtils.isInlineRequest(req));
 		return headCss;
 	}
 }
