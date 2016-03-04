@@ -267,7 +267,7 @@
 					       </execution>
 					   </executions>
 					   <configuration>
-					       <outputStyle>nested</outputStyle>
+					       <outputStyle>compressed</outputStyle>
 					       <imgPath>${basedir}/src/${sakai.skin.source}/images/</imgPath>
 					       <inputPath>${basedir}/src/${sakai.skin.source}/sass/</inputPath>
 					       <outputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</outputPath>
