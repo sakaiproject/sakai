@@ -18,6 +18,8 @@
 	 
  		```mvn clean install -Dsakai.skin.customization.file=/folder/to/your/file.scss```
 
+    ***Note the profile ```-P compile-skin``` is active by default and need not be added as a command line option.***
+
 More commands are listed here:  *[https://github.com/sakaiproject/sakai/blob/master/reference/library/src/morpheus-master/compile-skin.md](https://github.com/sakaiproject/sakai/blob/master/reference/library/src/morpheus-master/compile-skin.md)* 
 
 
@@ -62,7 +64,7 @@ NOTE: Any changes or additions in one section should be changed or added in othe
 
     3. All necessary documentation related to the variables is located at the variable definition itself. 
 
-* **More involved:** Explaining SASS and compass and Morpheus folder structure ( [https://github.com/sakaiproject/sakai/blob/master/reference/library/src/morpheus-master/customization-tool.md](https://github.com/sakaiproject/sakai/blob/master/reference/library/src/morpheus-master/customization-tool.md) )
+* **More involved:** Explaining SASS and Morpheus folder structure ( [https://github.com/sakaiproject/sakai/blob/master/reference/library/src/morpheus-master/customization-tool.md](https://github.com/sakaiproject/sakai/blob/master/reference/library/src/morpheus-master/customization-tool.md) )
 
     1. Tool customizations: 
 

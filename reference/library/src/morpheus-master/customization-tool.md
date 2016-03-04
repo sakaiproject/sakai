@@ -2,7 +2,7 @@
 
 The new skin of Sakai is made on SASS. SASS (**S**yntactically **A**wesome **S**tyle **S**heets) is just a CSS preprocessor which give us many tools and functions to make our work easier. 
 
-## Why SASS (and Compass)?
+## Why SASS?
 
 **Variables:**
 
@@ -55,14 +55,6 @@ You'll notice that the *ul*, *li*, and *a* selectors are nested inside the nav s
           padding: 6px 12px;
           text-decoration: none;
         }
-
-## Compass?
-
-Compass is a SASS framework that gives you full support for browsers. For example, if we want to add a *transform* to a div, we don't need to add all vendor prefixes, just:
-
-	@include transform( rotate(-135deg) skew(-10deg, -10deg) );
-
-Full Documentation is here: http://compass-style.org/reference/compass/
 
 ## What should I do with a tool
 

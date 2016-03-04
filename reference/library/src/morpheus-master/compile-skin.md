@@ -25,9 +25,3 @@ We have uploaded a non-icons version compiled by:
 `mvn clean install -Dsakai.skin.target=morpheus-default-noicons -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withouticons.scss`
 
 Feel free to repeat this commands to generate as many skins as you want.
-
-## I want to design my skin from scratch using morpheus
-
-You can use and test your own compass instalation to generate skins by typing inside morpheus-master folder:
-
-`compass compile --css-dir=../webapp/skin/morpheus-custom --http-path=/library/skin/morpheus-custom`
