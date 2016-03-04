@@ -167,3 +167,8 @@ button[class="disabled"]:hover,
 	cursor: not-allowed;
 	text-decoration: none;
 }
+
+ul, ol {
+    list-style: none;
+    padding: 0 0 0 0;
+}

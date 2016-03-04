@@ -1,7 +1,5 @@
 # Morpheus update
 
-We have removed external gems to Compass. By now, just with Compass we can do all the responsive design and RTL support for the skins.
-
 ## New folder structure
 
 We have thought about a new folder and files structure for Morpheus (beyond the user experience), 
