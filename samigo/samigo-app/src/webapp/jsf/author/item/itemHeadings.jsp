@@ -1,28 +1,4 @@
-<%--
-Headings for item edit pages, needs to have msg=AuthorMessages.properties.
---%>
-<!--
-* $Id$
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
+<%-- Headings for item edit pages, needs to have msg=AuthorMessages.properties.  --%>
 <!-- Core files -->
 <script type="text/JavaScript">
 function changeTypeLink(field){
@@ -42,7 +18,6 @@ document.links[newindex].onclick();
 function displayEMIHelp(){
 	window.open('../../../../../../samigo-app/emi/help.txt', '_blank', 'location=no,menubar=no,status=no,toolbar=no');
 }
-//-->
 </script>
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form
@@ -104,19 +79,22 @@ function displayEMIHelp(){
 <br/></f:verbatim>
 
 <!-- breadcrumb-->
-<div>
+<ol class="breadcrumb">
+  <li>
     <h:commandLink title="#{authorMessages.t_assessment}" rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
       <h:outputText value="#{authorMessages.global_nav_assessmt}" />
     </h:commandLink>
-    <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" #{authorMessages.greater} " />
+  </li>
+  <li>
     <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
       <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false"/>
     </h:commandLink>
-    <h:outputText value=" #{authorMessages.greater} " rendered="#{itemauthor.target == 'assessment'}" />
+  </li>
+  <li>
     <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" rendered="#{itemauthor.target == 'assessment'}"/>
+  </li>
+</ol>
 
-</div>
-<div>
 <h:outputText rendered="#{itemauthor.target == 'questionpool'}" value="#{authorMessages.global_nav_pools}> "/>
 
 <samigo:dataLine rendered="#{itemauthor.target == 'questionpool'}" value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
@@ -133,15 +111,20 @@ function displayEMIHelp(){
   <h:outputText value="#{questionpool.currentPool.displayName}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
 </h:commandLink>
+
+<div class="page-header">
+  <h1>
+    <h:outputText value="#{authorMessages.modify_q}#{authorMessages.column} "/>
+    <small> 
+      <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}" escape="false"/>
+    </small>
+  </h1>
 </div>
 
-<h3>
-   <h:outputText value="#{authorMessages.modify_q}#{authorMessages.column} "/>
-   <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}" escape="false"/>
-</h3>
 <!-- CHANGE TYPE -->
 <div class="tier1">
-<div class=" shorttext"><h:outputLabel value="#{authorMessages.change_q_type}" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
+  <div class="shorttext">
+    <h:outputLabel value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
 <%-- todo:
 listener set selectFromQuestionPool, eliminating the rendered attribute
 --%>
@@ -203,30 +186,10 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
    </b>
  </span>
  <span class="rightNav">
-
- <%--
-  temporily comment put Preview link for a specific question in Author. It will not be the feature in Sam 1.5.
-  <h:commandLink id="preview" immediate="true" action="preview">
-          <h:outputText value="#{commonMessages.action_preview}" />
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
-  </h:commandLink>
-
-
-  <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" #{authorMessages.separator} " />
---%>
   <h:commandLink title="#{authorMessages.t_removeQ}" rendered="#{author.isEditPendingAssessmentFlow && itemauthor.currentItem.itemId != null}" styleClass="navList" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
                 <h:outputText value="#{commonMessages.remove_action}" />
                 <f:param name="itemid" value="#{itemauthor.currentItem.itemId}"/>
               </h:commandLink>
-
-
-<%-- removed MyQuestion link per new mockup
-  <h:outputText rendered="#{itemauthor.target == 'assessment' && itemauthor.currentItem.itemId != null}" value=" | " />
-  <h:commandLink immediate="true" rendered="#{itemauthor.target == 'assessment'}" action="editAssessment">
-    <h:outputText value="#{authorMessages.my_qs}" />
-  </h:commandLink>
---%>
  </span>
     <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 </p>

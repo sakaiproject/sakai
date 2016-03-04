@@ -38,7 +38,7 @@
       </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>;resetInsertAnswerSelectMenus();disablePartialCreditField();">
 
-<div class="portletBody">
+<div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
 <!-- HEADING -->
@@ -78,14 +78,13 @@
   <!-- this is for creating multiple choice questions -->
   <!-- 1 POINTS -->
 <div class="tier2">
-
-<div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-<h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true"  disabled="#{author.isEditPoolFlow}" size="6" onchange="toPoint(this.id);">
-<f:validateDoubleRange minimum="0.00" />
-</h:inputText>
-
-<h:message for="answerptr" styleClass="validate" />
-</div>
+  <div class="shorttext"> 
+    <h:outputLabel value="#{authorMessages.answer_point_value}" />
+    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true"  disabled="#{author.isEditPoolFlow}" size="6" onchange="toPoint(this.id);">
+      <f:validateDoubleRange minimum="0.00" />
+    </h:inputText>
+    <h:message for="answerptr" styleClass="validate" />
+  </div>
 <div class="longtext">
     <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
 	<div class="tier3">
@@ -253,43 +252,39 @@ function toggleNegativePointVal(val){
 
 	<!-- dynamicaly generate rows of answers based on number of answers-->
 <div class="tier2">
- <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="navView longtext">
-<h:column>
-<h:panelGrid columns="2" border="0">
-<h:panelGroup>
-      
+  <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="navView longtext">
+    <h:column>
+      <h:panelGrid columns="2" border="0">
+        <h:panelGroup styleClass="answer-group">
+          <h:outputText value="#{authorMessages.correct_answer}"  /><br/>
 
-	
-<h:outputText value="#{authorMessages.correct_answer}"  />
-<f:verbatim><br/></f:verbatim>
-<!-- if multiple correct, use checkboxes -->
-        <h:selectManyCheckbox value="#{itemauthor.currentItem.corrAnswers}" id="mccheckboxes"
+  <!-- if multiple correct, use checkboxes -->
+  <h:selectManyCheckbox value="#{itemauthor.currentItem.corrAnswers}" id="mccheckboxes"
 	rendered="#{itemauthor.currentItem.itemType == 2 || itemauthor.currentItem.itemType == 12}">
 	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
-        </h:selectManyCheckbox>
+  </h:selectManyCheckbox>
 
-<h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}" rendered="#{itemauthor.currentItem.multipleCorrect}">
-  <h:outputText id="text" value="#{commonMessages.remove_action}"/>
-  <f:param name="answerid" value="#{answer.label}"/>
-</h:commandLink>		 
+  <h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}" rendered="#{itemauthor.currentItem.multipleCorrect}">
+    <h:outputText id="text" value="#{commonMessages.remove_action}"/>
+    <f:param name="answerid" value="#{answer.label}"/>
+  </h:commandLink>		 
 
-	<!-- if single correct, use radiobuttons -->
-<h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="mcradiobtn"
+  <!-- if single correct, use radiobuttons -->
+  <h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="mcradiobtn"
 	layout="pageDirection"
 	value="#{itemauthor.currentItem.corrAnswer}"
 	rendered="#{itemauthor.currentItem.itemType == 1}">
-
-	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
-</h:selectOneRadio>
+    <f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
+  </h:selectOneRadio>
 
 <h:commandLink title="#{authorMessages.t_removeC}" id="removelinkSingle" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoicesSingle}" rendered="#{!itemauthor.currentItem.multipleCorrect}">
   <h:outputText id="textSingle" value="#{commonMessages.remove_action}"/>
   <f:param name="answeridSingle" value="#{answer.label}"/>
 </h:commandLink>
  </h:panelGroup>
-        <!-- WYSIWYG -->
- <h:panelGrid>
 
+ <!-- WYSIWYG -->
+ <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="plain" mode="author">
      <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
