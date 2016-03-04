@@ -133,6 +133,7 @@ public class GradebookPage extends BasePage {
 		this.gradeStatisticsWindow = new GbModalWindow("gradeStatisticsWindow");
 		this.gradeStatisticsWindow.setWidthUnit("%");
 		this.gradeStatisticsWindow.setInitialWidth(70);
+		this.gradeStatisticsWindow.setPositionAtTop(true);
 		this.form.add(this.gradeStatisticsWindow);
 
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
