@@ -3,6 +3,8 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 
@@ -119,8 +121,9 @@
 	<h:form id="syllabus">
 		<%--gsilver: would be best if used all sakai tags, or none, 2 blocks
 		following just gets tries to get around the mix --%>		
-		<syllabus:syllabus_ifnot test="#{SyllabusTool.editAble}">
-			<f:verbatim><ul class="navIntraTool actionToolbar">
+		<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
+				<c:if test="${SyllabusTool.addItem}">
+				<f:verbatim>
 				<li class="firstToolBarItem">
 					<span>
 							<a href="javascript:void(0)" onclick="showConfirmAddHelper();">
@@ -128,7 +131,10 @@
 							</a>
 							<input type="hidden" id="siteId" value="</f:verbatim><h:outputText value="#{SyllabusTool.siteId}"/><f:verbatim>">
 					</span>
-				</li>
+				</li></f:verbatim>
+				</c:if>
+				<c:if test="${SyllabusTool.bulkAddItem}">
+				<f:verbatim>
 				<li>
 					<span>
 					</f:verbatim>
@@ -138,6 +144,10 @@
 					<f:verbatim>
 					</span>
 				</li>
+				</f:verbatim>
+				</c:if>
+				<c:if test="${SyllabusTool.bulkEdit}">
+				<f:verbatim>
 				<li>
 					<span>
 					</f:verbatim>
@@ -147,6 +157,10 @@
 					<f:verbatim>
 					</span>
 				</li>
+				</f:verbatim>
+				</c:if>
+				<c:if test="${SyllabusTool.redirect}">
+				<f:verbatim>
 				<li>
 					<span>
 					</f:verbatim>
@@ -156,6 +170,9 @@
 					<f:verbatim>
 					</span>
 				</li>
+				</f:verbatim>
+				</c:if>
+				<f:verbatim>
 				<li>
 					<span>
 							<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
@@ -183,7 +200,6 @@
 				</li>
 			</ul></f:verbatim>			
 		
-		</syllabus:syllabus_ifnot>
 
 		<syllabus:syllabus_if test="#{SyllabusTool.editAble}" >
 
