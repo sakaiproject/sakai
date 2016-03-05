@@ -67,6 +67,7 @@
 			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
 		</property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 	</bean>
 
 	<bean id="FixPublicSyllabusAttachmentsJob"
