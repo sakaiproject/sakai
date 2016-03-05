@@ -802,9 +802,18 @@ public interface GradebookService {
      * 
      * @param gradebookUid
      * @param userUuid uuid of the user
-     * @return The CourseGrade for the student
+     * @return The {@link CourseGrade} for the student
      */
 	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
+	
+	 /**
+     * Get the course grade for a list of students
+     * 
+     * @param gradebookUid
+     * @param userUuids uuids of the users
+     * @return a List of {@link CourseGrade} for the students
+     */
+	List<CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids);
 	
 	/**
 	 * Get a list of CourseSections that the current user has access to in the given gradebook.
