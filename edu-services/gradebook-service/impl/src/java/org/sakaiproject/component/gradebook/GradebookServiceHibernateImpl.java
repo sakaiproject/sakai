@@ -3125,8 +3125,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	@Override
 	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid) {
+		return this.getCourseGradeForStudents(gradebookUid, Collections.singletonList(userUuid)).get(0);
+	}
+	
+	@Override
+	public List<org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids) {
 		
-		org.sakaiproject.service.gradebook.shared.CourseGrade rval = new org.sakaiproject.service.gradebook.shared.CourseGrade();
+		List<org.sakaiproject.service.gradebook.shared.CourseGrade> rval = new ArrayList<>();
 
 		try {
 			Gradebook gradebook = getGradebook(gradebookUid);
@@ -3138,44 +3143,44 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			
 			List<Assignment> assignments = getAssignmentsCounted(gradebook.getId());
+			GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
 			
 			//this takes care of drop/keep scores
-			List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), Collections.singletonList(userUuid));
+			List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids);
 			
-			if(gradeRecords.size() != 1) {
-				throw new IllegalStateException("More than one course grade record found for student: " + userUuid);
-			}
-			
-			CourseGradeRecord gradeRecord = gradeRecords.get(0);
-						
-			//ID of the course grade item
-			rval.setId(gradeRecord.getCourseGrade().getId());
-			
-			//set entered grade
-			rval.setEnteredGrade(gradeRecord.getEnteredGrade());
-						
-			if(!assignments.isEmpty()) {
+			gradeRecords.forEach(gr -> {
 				
-				//calculated grade
-				//may be null if no grade entries to calculate
-				Double calculatedGrade = gradeRecord.getAutoCalculatedGrade();
-				if(calculatedGrade != null) {
-					rval.setCalculatedGrade(calculatedGrade.toString());
-				}
+				org.sakaiproject.service.gradebook.shared.CourseGrade cg = new org.sakaiproject.service.gradebook.shared.CourseGrade();
 
-				//mapped grade
-				GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
-				String mappedGrade = gradeMap.getGrade(calculatedGrade);
-				rval.setMappedGrade(mappedGrade);
+				//ID of the course grade item
+				cg.setId(gr.getCourseGrade().getId());
 				
-				//points
-				rval.setPointsEarned(gradeRecord.getPointsEarned()); //synonymous with gradeRecord.getCalculatedPointsEarned()
-				rval.setTotalPointsPossible(gradeRecord.getTotalPointsPossible());
+				//set entered grade
+				cg.setEnteredGrade(gr.getEnteredGrade());
 				
-			}
+				if(!assignments.isEmpty()) {
+					
+					//calculated grade
+					//may be null if no grade entries to calculate
+					Double calculatedGrade = gr.getAutoCalculatedGrade();
+					if(calculatedGrade != null) {
+						cg.setCalculatedGrade(calculatedGrade.toString());
+					}
+
+					//mapped grade
+					String mappedGrade = gradeMap.getGrade(calculatedGrade);
+					cg.setMappedGrade(mappedGrade);
+					
+					//points
+					cg.setPointsEarned(gr.getPointsEarned()); //synonymous with gradeRecord.getCalculatedPointsEarned()
+					cg.setTotalPointsPossible(gr.getTotalPointsPossible());
+					
+				}
+				rval.add(cg);
+			});
 		}
 		catch(Exception e) {
-			log.error("Error in getCourseGradeForStudent", e);
+			log.error("Error in getCourseGradeForStudents", e);
 		}
 		return rval;
 	}
