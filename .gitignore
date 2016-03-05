@@ -12,3 +12,4 @@ sakai-demo.zip
 .directory
 .sass-cache
 .metadata
+.DS_Store
