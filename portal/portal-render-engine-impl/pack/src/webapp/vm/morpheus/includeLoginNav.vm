@@ -37,7 +37,6 @@
                                         </a>
 
                                     #end ## END of IF (${tabsSites.mrphs_profileToolUrl})
-                                    <span class="Mrphs-userNav__drop Mrphs-userNav__drop-btn" tabindex="-1"><i class="fa fa-angle-down"></i></span>
 
                                 #end ## END of IF (${displayUserloginInfo})
 
@@ -52,7 +51,7 @@
                                                 </a>
                                             </div>
                                             <div class="Mrphs-userNav__submenuitem--profile">
-                                                <a role="menuitem" href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--dashboard">
+                                                <a role="menuitem" href="${tabsSites.mrphs_profileToolUrl}">
                                                     <span>${rloader.sit_profile}</span>
                                                 </a>
                                             </div>
@@ -69,7 +68,7 @@
                                 </li>
 
                                 <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                    <a role="menuitem" href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--profile">
+                                    <a role="menuitem" href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--dashboard">
                                         <span>${rloader.sit_dashboard}</span>
                                     </a>
                                 </li>

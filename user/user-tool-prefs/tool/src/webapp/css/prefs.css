@@ -266,8 +266,14 @@
 
 .site-entry-star {
     margin-right: 5px;
-    color: #ababab;
     visibility: hidden;
+}
+
+.site-entry-star:before {
+    font-style: normal;
+    font-family: FontAwesome;
+    content: '\f005';
+    color: #ababab;
 }
 
 .site-entry.favorite-site .site-entry-star {

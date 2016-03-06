@@ -129,13 +129,15 @@ body.active-more-sites{
 ul#otherSitesMenu{
 	margin: 0;
 	@media #{$desktop}{
-		float: right;
+		margin-top: 0.5em;
+		width: 100%;
+		text-align: right;
 	}
 	@media #{$phone}{
 		margin-left: 5px;
 	}
 	display: inline-block;
-	li{
+	li:not(.otherSitesMenuClose){
 		display: inline-block;
 		a{
 			@extend .button;
@@ -144,7 +146,16 @@ ul#otherSitesMenu{
 			}
 		}
 	}
+
+	li.otherSitesMenuClose{
+		display: inline-block;
+		font-size: 1.5em;
+		@media #{$phone}{
+			display: none;
+		}
+	}
 }
+
 
 #otherSitesCategorWrap{
 	width: 100%;
@@ -227,12 +238,13 @@ ul.otherSitesCategorList{
         .other-site-search-clear{
 		position: relative;
 		text-decoration: none;
+		font-family: 'FontAwesome';
 	}
 
 	.other-site-search-clear:before{
-		position: relative;
-		top: 1px;
-		right: 25px;
+		position: absolute;
+		top: -3px;
+		right: 8px;
 		content: '\f057';
 		font-family: 'FontAwesome';
 		color: #ccc;
@@ -360,13 +372,24 @@ ul.favoriteSiteList > li{
 	}
 }
 
-.site-nonfavorite{
+.site-favorite-icon.site-favorite:before{
+	@extend .fa;
+	@extend .fa-star;
+	color: #F49D08;
+}
+
+.site-favorite-icon.site-nonfavorite:before{
+	@extend .fa;
+	@extend .fa-star-o;
 	color: #CDCDCD;
 }
 
-.site-favorite{
-	color: #F49D08;
+.site-favorite-icon.site-workspace:before{
+	@extend .fa;
+	@extend .fa-home;
+	color: #000;
 }
+
 
 .site-favorite-icon{
 	font-size: 1.3em;
@@ -375,9 +398,14 @@ ul.favoriteSiteList > li{
 	top: 2px;
 }
 
-.my-workspace .site-favorite{
-	color: #000;
+.site-favorite-icon.site-favorite:hover{
+	text-shadow: -1px 0 #F49D08, 0 1px #F49D08, 1px 0 #F49D08, 0 -1px #F49D08;
 }
+
+.site-favorite-icon.site-nonfavorite:hover:before{
+	color: #999;
+}
+
 
 .moresites-refresh-notification{
 	position: absolute;

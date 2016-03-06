@@ -29,7 +29,7 @@ $(function () {
 
         $.each(sites, function (i, site) {
             var item = $('<div class="manage-hidden-entry site-entry" />');
-            item.append($('<i class="fa fa-star site-entry-star" />'));
+            item.append($('<i class="fa site-entry-star" />'));
             item.append($('<span class="title" />').text(site.title));
             item.append($('<input type="checkbox" class="site-hidden hidden-checkbox">').data('site-id', site.siteid));
 

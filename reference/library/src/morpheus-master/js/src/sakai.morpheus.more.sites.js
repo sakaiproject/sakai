@@ -11,7 +11,9 @@ var dhtml_view_sites = function(){
   // then recast the function to the post initialized state which will run from then on
   dhtml_view_sites = function(){
 
-    if ($PBJQ('#selectSiteModal').hasClass('outscreen') ) {
+    var modal = $PBJQ('#selectSiteModal');
+
+    if (modal.hasClass('outscreen') ) {
 
       $PBJQ('body').toggleClass('active-more-sites');
 
@@ -23,19 +25,28 @@ var dhtml_view_sites = function(){
       // Align with the bottom of the main header in desktop mode
       var allSitesButton = $('.view-all-sites-btn:visible');
 
+      var topPadding = 10;
+
       if (allSitesButton.length > 0) {
         // Raise the button to keep it visible over the modal overlay
         allSitesButton.css('z-index', 1005);
 
-        var topPadding = 10;
         var topPosition = allSitesButton.offset().top + allSitesButton.outerHeight() + topPadding;
         var rightPosition = $PBJQ('body').outerWidth() - (allSitesButton.offset().left + allSitesButton.outerWidth());
-        $PBJQ('#selectSiteModal').css('top', topPosition).css('right', rightPosition);
+        modal.css('top', topPosition).css('right', rightPosition);
       }
 
-      $PBJQ('.tab-pane').css('max-height', $PBJQ('body').height());
+      var paneHeight = $PBJQ(window).height();
 
-      $PBJQ('#selectSiteModal').toggleClass('outscreen');
+      // Adjust for our offset from the top of the screen
+      paneHeight -= $PBJQ('.tab-pane').offset().top;
+
+      // and adjust to show the bottom of the modal frame
+      paneHeight -= parseInt(modal.css('padding-bottom'), 10);
+
+      $PBJQ('.tab-pane').css('max-height', paneHeight);
+
+      modal.toggleClass('outscreen');
 
       $PBJQ('#txtSearch').focus();
       createDHTMLMask(dhtml_view_sites);
@@ -45,80 +56,11 @@ var dhtml_view_sites = function(){
         return false;
       });
 
-      $PBJQ('#selectSite a:first').focus();
-
-      // If we hit escape or the up arrow on any of the links in the drawer, slide it
-      // up and focus on the more tab.
-      $PBJQ('#selectSite a').keydown(function (e) {
-
-        if(e.keyCode == 38 || e.keyCode == 27) {
-          e.preventDefault();
-          closeDrawer();
-        }
-
-      });
-
-      // Show the tool popup on the down arrow, or slide up the drawer on escape.
-      $PBJQ('.moreSitesLink').keydown(function (e){
-        if (e.keyCode == 40) {
-          e.preventDefault();
-          showToolMenu($(this));
-        }
- 
-      });
-
-      // If we've tabbed backwards to the first element in the drawer, it could be the
-      // search box or the all sites list, stop tabbing. This is a hack as we are
-      // currently attaching keydown handlers to the list item text rather that the link
-      // and you can only explicitly set focus to links and form elements.
-      var txtSearch = $PBJQ('#txtSearch');
-
-      if(txtSearch.length) {
-
-        $PBJQ(txtSearch[0]).keydown(function (e) {
-
-          if (e.keyCode == 9 && e.shiftKey) {
-            e.preventDefault();
-          }
-
-        });
-
-      } else {
-
-        $PBJQ('#allSites').keydown(function (e) {
-
-          if (e.keyCode == 9 && e.shiftKey) {
-            e.preventDefault();
-          }
-
-        });
-      }
-
-      // If we tab off the right of the sites list, cycle the focus.
-      $PBJQ('#otherSiteList > li:last').keydown(function (e) {
-
-        if (e.keyCode == 9 && !e.shiftKey) {
-
-          e.preventDefault();
-
-          if (txtSearch.length) {
-
-            txtSearch[0].focus();
-
-          } else {
-
-            $PBJQ('#allSites').focus();
-
-          }
-
-        }
-      });
+      $PBJQ('.tab-pane:first').focus();
 
       $PBJQ(document).trigger('view-sites-shown');
     }
-
     else {
-
       // hide the dropdown
       $PBJQ('body').toggleClass('active-more-sites');
       $PBJQ('#selectSiteModal').toggleClass('outscreen'); //hide the box
@@ -204,6 +146,11 @@ function showToolMenu(jqObj){
     $PBJQ.getJSON(siteURL, function(data){
       $PBJQ.each(data, function(i, item){
 
+        if (!item.tools[0]) {
+          // This item has a page with no tool.  Skip over it.
+          return true;
+        }
+
         if (i < maxToolsInt) {
           var li = li_template.clone();
           // Set the item URL and text
@@ -237,23 +184,6 @@ function showToolMenu(jqObj){
       jqObj.closest('li').append(subsubmenu_elt);
 
       jqObj.parent().find('.toolMenus').addClass("toolMenusActive");
-      // On up arrow or escape, hide the popup
-      subsubmenu_elt.keydown(function(e){
-        if (e.keyCode == 27) {
-          e.preventDefault();
-          jqObj.focus();
-          $PBJQ(this).remove();
-          $PBJQ('.' + id).remove();
-          jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
-        }
-      });
-
-      addArrowNavAndDisableTabNav(subsubmenu_elt, function () {
-        jqObj.focus();
-        $PBJQ('.' + id).remove();
-        // Switch the arrows
-        jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
-      });
     }); // end json call
   }
 }
@@ -263,16 +193,6 @@ $PBJQ(document).ready(function(){
   if ($PBJQ('#eid').length === 1) {
     $PBJQ('#eid').focus()
   }
-
-  // SAK-22026. Attach down and up arrow handlers to the more sites tab.
-  $PBJQ('.more-tab a').keydown(function (e) {
-
-    if (e.keyCode == 40 || e.keyCode == 38 || e.keyCode == 27) {
-      e.preventDefault();
-      return dhtml_view_sites();
-    }
-
-  });
 
   // Open all Sites with mobile view
    $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", dhtml_view_sites);
@@ -397,13 +317,13 @@ $PBJQ(document).ready(function($){
 
   var button_states = {
     favorite: {
-      markup: '<i class="site-favorite-icon fa fa-star site-favorite" />'
+      markup: '<i class="site-favorite-icon site-favorite"></i>'
     },
     nonfavorite: {
-      markup: '<i class="site-favorite-icon fa fa-star-o site-nonfavorite" />'
+      markup: '<i class="site-favorite-icon site-nonfavorite"></i>'
     },
     myworkspace: {
-      markup: '<i class="site-favorite-icon fa fa-home site-favorite" />'
+      markup: '<i class="site-favorite-icon site-workspace site-favorite"></i>'
     }
   };
 
@@ -426,6 +346,15 @@ $PBJQ(document).ready(function($){
     var entry = button_states[state];
 
     $(btn).data('favorite-state', state);
+
+    if (state === 'favorite') {
+      $(btn).attr('title', $('#removeFromFavoritesText').text());
+    } else if (state === 'nonfavorite') {
+      $(btn).attr('title', $('#addToFavoritesText').text());
+    } else {
+      $(btn).attr('title', null);
+    }
+
     $(btn).empty().append($(entry.markup));
   };
 
@@ -670,4 +599,10 @@ $PBJQ(document).ready(function($){
       loadFromServer();
     });
   });
+
+  $('.otherSitesMenuClose').on('click', function () {
+    // Close the pane
+    dhtml_view_sites();
+  });
+
 });
