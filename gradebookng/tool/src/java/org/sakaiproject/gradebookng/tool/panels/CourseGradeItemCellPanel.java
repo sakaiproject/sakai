@@ -6,18 +6,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
-import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 /**
  * Panel that is rendered for each student's course grade
@@ -44,39 +41,14 @@ public class CourseGradeItemCellPanel extends Panel {
 
 		// unpack model
 		final Map<String, Object> modelData = this.model.getObject();
-		final String courseGrade = (String) modelData.get("courseGrade");
 		final String studentUuid = (String) modelData.get("studentUuid");
+
+		// the model map contains a lot of additional info we need for the course grade label, this is passed through
 
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
 
-		// label
-		final Label courseGradeLabel = new Label("courseGrade", Model.of(courseGrade)) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(final IEvent<?> event) {
-				super.onEvent(event);
-				if (event.getPayload() instanceof ScoreChangedEvent) {
-					final ScoreChangedEvent scoreChangedEvent = (ScoreChangedEvent) event.getPayload();
-					if (studentUuid.equals(scoreChangedEvent.getStudentUuid())) {
-						final CourseGrade updatedCourseGrade = CourseGradeItemCellPanel.this.businessService
-								.getCourseGrade(scoreChangedEvent.getStudentUuid());
-
-						((Model<String>) getDefaultModel()).setObject(
-								// display entered grade preferentially
-								(StringUtils.isNotBlank(updatedCourseGrade.getEnteredGrade()) ? updatedCourseGrade.getEnteredGrade()
-										: updatedCourseGrade.getMappedGrade()));
-
-						scoreChangedEvent.getTarget().add(this);
-						scoreChangedEvent.getTarget().appendJavaScript(
-								String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');",
-										this.getMarkupId()));
-					}
-				}
-			}
-		};
-		courseGradeLabel.setOutputMarkupId(true);
-		add(courseGradeLabel);
+		// course grade label
+		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(modelData)));
 
 		// menu
 		final WebMarkupContainer menu = new WebMarkupContainer("menu");

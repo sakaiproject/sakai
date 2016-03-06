@@ -57,11 +57,11 @@ public class BasePage extends WebPage {
 	public BasePage() {
 		log.debug("BasePage()");
 
-		// get current user
+		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
-
-		// role check
 		this.role = this.businessService.getUserRole();
+
+		//
 
 		// set locale
 		setUserPreferredLocale();
@@ -205,7 +205,8 @@ public class BasePage extends WebPage {
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
 		flagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
-		flagWithPopover.add(new AttributeModifier("data-template", "'<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>'"));
+		flagWithPopover.add(new AttributeModifier("data-template",
+				"'<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>'"));
 		flagWithPopover.add(new AttributeModifier("data-content", generatePopoverContent(message)));
 		flagWithPopover.add(new AttributeModifier("tabindex", "0"));
 
