@@ -811,9 +811,9 @@ public interface GradebookService {
      * 
      * @param gradebookUid
      * @param userUuids uuids of the users
-     * @return a List of {@link CourseGrade} for the students
+     * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
      */
-	List<CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids);
+	Map<String,CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids);
 	
 	/**
 	 * Get a list of CourseSections that the current user has access to in the given gradebook.
