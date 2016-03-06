@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -25,11 +26,14 @@ import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Component to render a course grade taking into account the configured settings
+ *
+ * Is also able to refresh itself via events
  *
  * Ensure you pass in everything that the Model requires.
  */
@@ -47,6 +51,7 @@ public class GbCourseGradeLabel extends Label {
 	private boolean showOverride;
 	private CourseGrade courseGrade;
 	private GbRole currentUserRole;
+	private String studentUuid;
 
 	public GbCourseGradeLabel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -59,12 +64,18 @@ public class GbCourseGradeLabel extends Label {
 
 		// unpack model
 		final Map<String, Object> modelData = this.model.getObject();
+
+		// required
 		this.currentUserRole = (GbRole) modelData.get("currentUserRole");
 		this.courseGrade = (CourseGrade) modelData.get("courseGrade");
 		this.gradebook = (Gradebook) modelData.get("gradebook");
 		this.showPoints = (Boolean) modelData.get("showPoints");
 		this.showOverride = (Boolean) modelData.get("showOverride");
 
+		// optional
+		this.studentUuid = (String) modelData.get("studentUuid");
+
+		// required for TA and student
 		final String currentUserUuid = (String) modelData.get("currentUserUuid");
 
 		// instructor, can view
@@ -72,6 +83,7 @@ public class GbCourseGradeLabel extends Label {
 			setDefaultModel(Model.of(buildCourseGrade()));
 			// TA, permission check
 		} else if (this.currentUserRole == GbRole.TA) {
+			// TODO this could be passed in though we have groups to cater for
 			if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
 				setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
 			} else {
@@ -90,6 +102,30 @@ public class GbCourseGradeLabel extends Label {
 			}
 		}
 
+		// always
+		setOutputMarkupId(true);
+	}
+
+	@Override
+	public void onEvent(final IEvent<?> event) {
+		super.onEvent(event);
+		if (event.getPayload() instanceof ScoreChangedEvent) {
+			final ScoreChangedEvent scoreChangedEvent = (ScoreChangedEvent) event.getPayload();
+
+			// if event is for this student (which may not be applicable if we have no student)
+			if (StringUtils.equals(this.studentUuid, scoreChangedEvent.getStudentUuid())) {
+
+				// get the new course grade
+				final CourseGrade updatedCourseGrade = this.businessService.getCourseGrade(scoreChangedEvent.getStudentUuid());
+				this.courseGrade = updatedCourseGrade;
+
+				// update the string and announce
+				setDefaultModel(Model.of(buildCourseGrade()));
+				scoreChangedEvent.getTarget().add(this);
+				scoreChangedEvent.getTarget().appendJavaScript(
+						String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
+			}
+		}
 	}
 
 	/**
@@ -160,4 +196,5 @@ public class GbCourseGradeLabel extends Label {
 
 		return String.join(" ", parts);
 	}
+
 }

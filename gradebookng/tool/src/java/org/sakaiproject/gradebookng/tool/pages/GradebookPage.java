@@ -1,12 +1,12 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Comparator;
-import java.util.Collections;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
@@ -60,6 +60,7 @@ import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
@@ -167,6 +168,9 @@ public class GradebookPage extends BasePage {
 			sortBy = SortType.SORT_BY_CATEGORY;
 		}
 
+		// get Gradebook to save additional calls later
+		final Gradebook gradebook = this.businessService.getGradebook();
+
 		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from
 		// the map
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
@@ -178,9 +182,6 @@ public class GradebookPage extends BasePage {
 				settings.getGroupFilter());
 
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
-
-		// get course grade visibility
-		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
 
 		// categories enabled?
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
@@ -260,17 +261,16 @@ public class GradebookPage extends BasePage {
 
 				cellItem.add(new AttributeModifier("tabindex", 0));
 
-				// process the course grade
-				String courseGrade;
-				if (courseGradeVisible) {
-					courseGrade = studentGradeInfo.getCourseGrade();
-				} else {
-					courseGrade = getString("label.coursegrade.nopermission");
-				}
-
+				// setup model
+				// note we have additional fields here fornthe course grade model
 				final Map<String, Object> modelData = new HashMap<>();
-				modelData.put("courseGrade", courseGrade);
+				modelData.put("courseGrade", studentGradeInfo.getCourseGrade());
 				modelData.put("studentUuid", studentGradeInfo.getStudentUuid());
+				modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
+				modelData.put("currentUserRole", GradebookPage.this.role);
+				modelData.put("gradebook", gradebook);
+				modelData.put("showPoints", true); // this will come from the GbUiSettings
+				modelData.put("showOverride", true);
 
 				cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.setOutputMarkupId(true);
@@ -396,7 +396,6 @@ public class GradebookPage extends BasePage {
 
 		Temp.time("all Columns added", stopwatch.getTime());
 
-
 		final Map<String, Object> modelData = new HashMap<>();
 		modelData.put("assignments", assignments);
 		modelData.put("categories", categories);
@@ -411,12 +410,12 @@ public class GradebookPage extends BasePage {
 			// will display as the last columns in the table.
 			Collections.sort(cols, new Comparator<IColumn>() {
 				@Override
-				public int compare(IColumn col1, IColumn col2) {
-					IModel model1 = ((AbstractColumn) col1).getDisplayModel();
-					IModel model2 = ((AbstractColumn) col2).getDisplayModel();
+				public int compare(final IColumn col1, final IColumn col2) {
+					final IModel model1 = ((AbstractColumn) col1).getDisplayModel();
+					final IModel model2 = ((AbstractColumn) col2).getDisplayModel();
 
-					Object o1 = model1.getObject();
-					Object o2 = model2.getObject();
+					final Object o1 = model1.getObject();
+					final Object o2 = model2.getObject();
 
 					if (o1.equals(o2)) {
 						return 0;
@@ -426,7 +425,7 @@ public class GradebookPage extends BasePage {
 					Long cat2;
 					if (o1 instanceof Assignment) {
 						cat1 = ((Assignment) o1).getCategoryId();
-					} else if(o1 instanceof CategoryDefinition) {
+					} else if (o1 instanceof CategoryDefinition) {
 						cat1 = ((CategoryDefinition) o1).getId();
 					} else {
 						return -1;
@@ -434,7 +433,7 @@ public class GradebookPage extends BasePage {
 
 					if (o2 instanceof Assignment) {
 						cat2 = ((Assignment) o2).getCategoryId();
-					} else if(o2 instanceof CategoryDefinition) {
+					} else if (o2 instanceof CategoryDefinition) {
 						cat2 = ((CategoryDefinition) o2).getId();
 					} else {
 						return 1;
@@ -643,7 +642,8 @@ public class GradebookPage extends BasePage {
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
 		// Drag and Drop/Date Picker (requires jQueryUI)
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
 
 		// Include Sakai Date Picker
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js?version=%s", version)));
@@ -656,7 +656,6 @@ public class GradebookPage extends BasePage {
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
 	}
-
 
 	/**
 	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
@@ -673,14 +672,12 @@ public class GradebookPage extends BasePage {
 		return String.format("rgb(%d,%d,%d)", r, g, b);
 	}
 
-
 	/**
 	 * Build a table row summary for the table
 	 */
 	private Label constructTableSummaryLabel(final String componentId, final DataTable table) {
 		return constructTableLabel(componentId, table, false);
 	}
-
 
 	/**
 	 * Build a table pagination summary for the table
@@ -690,14 +687,13 @@ public class GradebookPage extends BasePage {
 	}
 
 	/**
-	 * Build a table summary for the table along the lines of
-	 * if verbose: "Showing 1{from} to 100{to} of 153{of} students"
-	 * else: "Showing 100{to} students"
+	 * Build a table summary for the table along the lines of if verbose: "Showing 1{from} to 100{to} of 153{of} students" else:
+	 * "Showing 100{to} students"
 	 */
 	private Label constructTableLabel(final String componentId, final DataTable table, final boolean verbose) {
-		long of = table.getItemCount();
-		long from = (of == 0 ? 0 : table.getCurrentPage() * table.getItemsPerPage() + 1);
-		long to = (of == 0 ? 0 : Math.min(of, from + table.getItemsPerPage() - 1));
+		final long of = table.getItemCount();
+		final long from = (of == 0 ? 0 : table.getCurrentPage() * table.getItemsPerPage() + 1);
+		final long to = (of == 0 ? 0 : Math.min(of, from + table.getItemsPerPage() - 1));
 
 		StringResourceModel labelText;
 
@@ -711,12 +707,11 @@ public class GradebookPage extends BasePage {
 					to);
 		}
 
-		Label label = new Label(componentId, labelText);
+		final Label label = new Label(componentId, labelText);
 		label.setEscapeModelStrings(false); // to allow embedded HTML
 
 		return label;
 	}
-
 
 	/**
 	 * Comparator class for sorting Assignments in their categorised ordering
@@ -734,7 +729,7 @@ public class GradebookPage extends BasePage {
 				}
 				return Integer.compare(a1.getCategorizedSortOrder(), a2.getCategorizedSortOrder());
 
-			// otherwise, sort by their category order
+				// otherwise, sort by their category order
 			} else {
 				if (a1.getCategoryOrder() == null && a2.getCategoryOrder() == null) {
 					// both orders are null.. so order by A-Z
