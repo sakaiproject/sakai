@@ -3125,13 +3125,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	@Override
 	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid) {
-		return this.getCourseGradeForStudents(gradebookUid, Collections.singletonList(userUuid)).get(0);
+		return this.getCourseGradeForStudents(gradebookUid, Collections.singletonList(userUuid)).get(userUuid);
 	}
 	
 	@Override
-	public List<org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids) {
+	public Map<String,org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids) {
 		
-		List<org.sakaiproject.service.gradebook.shared.CourseGrade> rval = new ArrayList<>();
+		Map<String,org.sakaiproject.service.gradebook.shared.CourseGrade> rval = new HashMap<>();
 
 		try {
 			Gradebook gradebook = getGradebook(gradebookUid);
@@ -3176,7 +3176,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					cg.setTotalPointsPossible(gr.getTotalPointsPossible());
 					
 				}
-				rval.add(cg);
+				rval.put(gr.getStudentId(), cg);
 			});
 		}
 		catch(Exception e) {
