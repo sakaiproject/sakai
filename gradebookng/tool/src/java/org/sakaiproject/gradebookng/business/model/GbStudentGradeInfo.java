@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.user.api.User;
 
 import lombok.Getter;
@@ -35,7 +36,7 @@ public class GbStudentGradeInfo implements Serializable {
 
 	@Getter
 	@Setter
-	private String courseGrade;
+	private CourseGrade courseGrade;
 
 	@Getter
 	private Map<Long, GbGradeInfo> grades;

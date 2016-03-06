@@ -23,8 +23,6 @@ import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
@@ -39,7 +37,6 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.Temp;
-import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
@@ -254,7 +251,6 @@ public class GradebookNgBusinessService {
 		}
 	}
 
-
 	/**
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
 	 *
@@ -263,7 +259,6 @@ public class GradebookNgBusinessService {
 	public List<Assignment> getGradebookAssignments() {
 		return getGradebookAssignments(getCurrentSiteId(), SortType.SORT_BY_SORTING);
 	}
-
 
 	/**
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
@@ -274,17 +269,15 @@ public class GradebookNgBusinessService {
 		return getGradebookAssignments(siteId, SortType.SORT_BY_SORTING);
 	}
 
-
 	/**
-	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
-	 * sorted by the provided SortType
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access sorted by the provided
+	 * SortType
 	 *
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final SortType sortBy) {
 		return getGradebookAssignments(getCurrentSiteId(), sortBy);
 	}
-
 
 	/**
 	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
@@ -361,24 +354,18 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a map of course grades for all users in the site. key = student eid value = course grade
+	 * Get a map of course grades for the given users. key = studentUuid, value = course grade
 	 *
-	 * Note that this map is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling
-	 * service needs to do the filtering
-	 *
-	 * @param userUuids
+	 * @param studentUuids uuids for the students
 	 * @return the map of course grades for students, or an empty map
 	 */
-	public Map<String, String> getSiteCourseGrades() {
+	public Map<String, CourseGrade> getCourseGrades(final List<String> studentUuids) {
 
-		Map<String, String> rval = new HashMap<>();
+		Map<String, CourseGrade> rval = new HashMap<>();
 
 		final Gradebook gradebook = this.getGradebook();
 		if (gradebook != null) {
-
-			// get course grades. THis new method for Sakai 11 does the override automatically, so GB1 data is preserved
-			rval = this.gradebookService.getImportCourseGrade(gradebook.getUid());
-
+			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), this.getGradeableUsers());
 		}
 		return rval;
 	}
@@ -596,8 +583,8 @@ public class GradebookNgBusinessService {
 			}
 		}
 
-		// because this map is based on eid not uuid, we do the filtering later so we can save an iteration
-		final Map<String, String> courseGrades = getSiteCourseGrades();
+		// get course grades
+		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
 
 		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 
@@ -613,7 +600,7 @@ public class GradebookNgBusinessService {
 			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
 
 			// add the course grade
-			sg.setCourseGrade(courseGrades.get(student.getEid()));
+			sg.setCourseGrade(courseGrades.get(student.getId()));
 
 			// add to map so we can build on it later
 			matrix.put(student.getId(), sg);
@@ -740,14 +727,14 @@ public class GradebookNgBusinessService {
 		// TODO this iteration may not be necessary as we could instead
 		// add a boolean to the GbStudentGradeInfo object for each student and when calling addGrade set it to true
 		// then check the boolean on the front end, but then it needs to be checked everywhere so this may be better.
-		for (final User student : students) {
-			final GbStudentGradeInfo sg = matrix.get(student.getId());
-
-			if (sg.getGrades().isEmpty()) {
-				sg.setCourseGrade("-");
-			}
-		}
-		Temp.timeWithContext("buildGradeMatrix", "course grade override done", stopwatch.getTime());
+		// for (final User student : students) {
+		// final GbStudentGradeInfo sg = matrix.get(student.getId());
+		//
+		// if (sg.getGrades().isEmpty()) {
+		// sg.setCourseGrade("-");
+		// }
+		// }
+		// Temp.timeWithContext("buildGradeMatrix", "course grade override done", stopwatch.getTime());
 
 		// for a TA, apply the permissions to each grade item to see if we can render it
 		// the list of students, assignments and grades is already filtered to those that can be viewed
@@ -1100,7 +1087,6 @@ public class GradebookNgBusinessService {
 		updateAssignmentCategorizedOrder(gradebook.getUid(), assignmentToMove.getCategoryId(), assignmentToMove.getId(), order);
 	}
 
-
 	/**
 	 * Update the categorized order of an assignment via the gradebook service.
 	 *
@@ -1109,10 +1095,10 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
 	 */
-	private void updateAssignmentCategorizedOrder(final String gradebookId, final Long categoryId, final Long assignmentId, final int order) {
+	private void updateAssignmentCategorizedOrder(final String gradebookId, final Long categoryId, final Long assignmentId,
+			final int order) {
 		this.gradebookService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId, new Integer(order));
 	}
-
 
 	/**
 	 * Comparator class for sorting a list of users by last name Secondary sort is on first name to maintain consistent order for those with
@@ -1573,9 +1559,6 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId the id of the assignment to remove
 	 */
 	public void removeAssignment(final Long assignmentId) {
-		final Assignment assignment = getAssignment(assignmentId);
-		final String category = assignment.getCategoryName();
-
 		this.gradebookService.removeAssignment(assignmentId);
 	}
 
@@ -1756,7 +1739,7 @@ public class GradebookNgBusinessService {
 
 	/**
 	 * Update the course grade (override) for this student
-	 * 
+	 *
 	 * @param studentUuid uuid of the student
 	 * @param grade the new grade
 	 * @return
@@ -1778,7 +1761,7 @@ public class GradebookNgBusinessService {
 
 	/**
 	 * Get the user's preferred locale from the Sakai resource loader
-	 * 
+	 *
 	 * @return
 	 */
 	public Locale getUserPreferredLocale() {
