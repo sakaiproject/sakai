@@ -1,34 +1,35 @@
 <div id="maxToolsText" style="display: none">${rloader.sit_alltools}</div>
 <div id="maxToolsInt" style="display: none">${maxToolsInt}</div>
 <div id="refreshNotificationText" style="display: none">${rloader.sit_refresh_favorites}</div>
+<div id="addToFavoritesText" style="display: none">${rloader.moresite_add_to_favorites}</div>
+<div id="removeFromFavoritesText" style="display: none">${rloader.moresite_remove_from_favorites}</div>
 
 <div id="selectSiteModal" class="outscreen">
+
+    <ul id="otherSitesMenu">
+        #if (${tabsSites.worksiteToolUrl})
+
+            <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
+
+            #if ($allowAddSite)
+
+                <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
+
+            #end ## END of IF ($allowAddSite)
+
+        #end ## END of IF (${tabsSites.worksiteToolUrl})
+
+        #if (${tabsSites.prefsToolUrl})
+
+            <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
+
+        #end ## END of IF (${tabsSites.prefsToolUrl})
+
+        <li class="otherSitesMenuClose"><a href="javascript:void(0);"><i class="fa fa-times"></i></a></li>
+    </ul>
+
     <div id="selectSite">
-        <div id="selectSite-navbar" class="Mrphs-toolTitleNav">
-            <!-- View all sites, add new site, preferences -->
-
-            <ul id="otherSitesMenu">
-                #if (${tabsSites.worksiteToolUrl})
-
-                    <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
-
-                    #if ($allowAddSite)
-
-                        <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
-
-                    #end ## END of IF ($allowAddSite)
-
-                #end ## END of IF (${tabsSites.worksiteToolUrl})
-
-                #if (${tabsSites.prefsToolUrl})
-
-                    <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
-
-                #end ## END of IF (${tabsSites.prefsToolUrl})
-            </ul>
-
-        </div>
-
+        <!-- View all sites, add new site, preferences -->
         <ul class="tab-bar">
             <li class="tab-btn active" data-tab-target="otherSitesCategorWrap">${rloader.sit_worksites}</li>
             <li class="organizeFavorites tab-btn" data-tab-target="organizeFavorites">
