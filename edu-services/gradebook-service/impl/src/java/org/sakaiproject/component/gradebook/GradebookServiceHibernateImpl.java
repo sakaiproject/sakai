@@ -956,6 +956,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					double totalPointsPossible = getTotalPointsInternal(gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns, false);
 					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
 					if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
+					if(log.isDebugEnabled()) log.debug("Points possible = " + cgr.getTotalPointsPossible());
 				}
 
 				return records;
@@ -3090,7 +3091,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Assignment assignment = gradeRecord.getAssignment();
 						
 			//check category ids match, otherwise skip
-			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+			if(assignment.getCategory() != null && categoryId != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
 				continue;
 			}
 						
@@ -3135,9 +3136,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			if(!gradebook.isCourseGradeDisplayed() && (!currentUserHasEditPerm(gradebookUid) || !currentUserHasGradingPerm(gradebookUid))){
 				return rval;
 			}
-						
+			
 			List<Assignment> assignments = getAssignmentsCounted(gradebook.getId());
-						
+			
+			//this takes care of drop/keep scores
 			List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), Collections.singletonList(userUuid));
 			
 			if(gradeRecords.size() != 1) {
@@ -3165,6 +3167,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
 				String mappedGrade = gradeMap.getGrade(calculatedGrade);
 				rval.setMappedGrade(mappedGrade);
+				
+				//points
+				rval.setPointsEarned(gradeRecord.getPointsEarned()); //synonymous with gradeRecord.getCalculatedPointsEarned()
+				rval.setTotalPointsPossible(gradeRecord.getTotalPointsPossible());
+				
 			}
 		}
 		catch(Exception e) {
