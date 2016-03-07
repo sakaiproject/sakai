@@ -28,8 +28,6 @@
  		<property name="developerHelperService"><ref bean="org.sakaiproject.entitybroker.DeveloperHelperService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
  		
- 		<!--<property name="contentReviewService"><ref bean="org.sakaiproject.contentreview.service.ContentReviewService"/></property>-->
- 		
  		<!--use to allow group awareness option in assignments. 
  			By default this is true.-->
  		<property name="allowGroupAssignments"><value>true</value></property>
