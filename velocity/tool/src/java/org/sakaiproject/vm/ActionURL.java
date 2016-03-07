@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.api.ToolURLManager;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>
@@ -198,7 +199,7 @@ public class ActionURL
 	public String toString()
 	{
 		String toolURL = getToolURL();
-		if (toolURL != null) return toolURL;
+		if (toolURL != null) return FormattedText.sanitizeHrefURL(toolURL);
 
 		String rv = m_base;
 		char c = '?';
@@ -248,7 +249,7 @@ public class ActionURL
 		}
 
 		reset();
-		return rv;
+		return FormattedText.sanitizeHrefURL(rv);
 	}
 
 	private String getToolURL()
