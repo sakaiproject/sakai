@@ -52,6 +52,7 @@ import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -251,7 +252,26 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		return connectionsLogic.getConnectionStatus(uuid, parameters.get("friendId").toString());
 	}
-	
+
+	@EntityCustomAction(action="unreadMessagesCount",viewKey=EntityView.VIEW_SHOW)
+	public Object getUnreadMessagesCount(EntityReference ref) {
+
+		if (!sakaiProxy.isLoggedIn()) {
+			throw new SecurityException("You must be logged in to get the unread messages count.");
+		}
+
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if (StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+        
+		if (sakaiProxy.isAdminUser() || sakaiProxy.getCurrentUserId().equals(uuid)) {
+			return new ActionReturn(messagingLogic.getAllUnreadMessagesCount(uuid));
+		} else {
+			throw new SecurityException("You can only view your own message count.");
+		}
+	}
 	
 	@EntityCustomAction(action="formatted",viewKey=EntityView.VIEW_SHOW)
 	public Object getFormattedProfile(EntityReference ref) {
@@ -683,5 +703,8 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	
 	@Setter	
 	private ProfileLinkLogic linkLogic;
+
+	@Setter	
+	private ProfileMessagingLogic messagingLogic;
 	
 }
