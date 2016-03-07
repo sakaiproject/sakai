@@ -542,6 +542,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	Session ses = SessionManager.getCurrentSession();
 
 	AssessmentGradingData grading = null;
+	try {
 	if (assessment.getEvaluationModel().getScoringType() == EvaluationModelIfc.LAST_SCORE) {
 	    grading = gradingService.getLastSubmittedAssessmentGradingByAgentId(Long.toString(id), ses.getUserId(), null);
 	} else {
@@ -550,11 +551,15 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    // seems to be true. I believe this cast will work either way.
 	    grading = (AssessmentGradingData)gradingService.getHighestSubmittedAssessmentGrading(Long.toString(id), ses.getUserId());
 	}
-
+	} catch (Exception e) {
+	    log.info("unable to find submission for samigo item " + id);
+	    grading = null;
+	}
 	if (grading == null)
 	    return null;
 
 	return new LessonSubmission(toDouble(grading.getFinalScore()));
+
     }
 
     public Double toDouble(Object f) {
