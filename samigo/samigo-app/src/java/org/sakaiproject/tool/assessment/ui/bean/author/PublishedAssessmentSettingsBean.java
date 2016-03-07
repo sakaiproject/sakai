@@ -1090,20 +1090,27 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return getDisplayFormatFromDate(startDate);
 	}
   }
-   
+
   public void setStartDateString(String startDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+    if (startDateString == null || startDateString.trim().equals("")) {
+      this.isValidStartDate = true;
+      this.startDate = null;
+    }
+    else {
 
-	if (tempDate != null) {
-		this.isValidStartDate = true;
-		this.startDate = tempDate;
-	}
-	else {
-		log.error("setStartDateString could not parse hidden start date: " + ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
-		this.isValidStartDate = false;
-		this.originalStartDateString = startDateString;
-	}
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidStartDate = true;
+        this.startDate = tempDate;
+      }
+      else {
+        log.error("setStartDateString could not parse hidden start date: " + ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+        this.isValidStartDate = false;
+        this.originalStartDateString = startDateString;
+      }
+    }
   }
 
   public String getDueDateString()
@@ -1118,17 +1125,24 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   public void setDueDateString(String dueDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
-	
-	if (tempDate != null) {
-		this.isValidDueDate = true;
-		this.dueDate = tempDate;
-	}
-	else {
-		log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
-		this.isValidDueDate = false;
-		this.originalDueDateString = dueDateString;
-	}
+    if (dueDateString == null || dueDateString.trim().equals("")) {
+      this.isValidDueDate = true;
+      this.dueDate = null;
+    }
+    else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidDueDate = true;
+        this.dueDate = tempDate;
+      }
+      else {
+        log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+        this.isValidDueDate = false;
+        this.originalDueDateString = dueDateString;
+      }
+    }
   }
 
   public String getRetractDateString()
@@ -1143,17 +1157,24 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   public void setRetractDateString(String retractDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+    if (retractDateString == null || retractDateString.trim().equals("")) {
+      this.isValidRetractDate = true;
+      this.retractDate = null;
+    }
+    else {
 
-	if (tempDate != null) {
-		this.isValidRetractDate = true;
-		this.retractDate = tempDate;
-	}
-	else {
-		log.error("setRetractDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
-		this.isValidRetractDate = false;
-		this.originalRetractDateString = retractDateString;
-	}
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidRetractDate = true;
+        this.retractDate = tempDate;
+      } else {
+
+        log.error("setRetractDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+        this.isValidRetractDate = false;
+        this.originalRetractDateString = retractDateString;
+      }
+    }
   }
 
   public String getFeedbackDateString()
@@ -1166,19 +1187,25 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	}	  	  	  
   }
 
-  public void setFeedbackDateString(String feedbackDateString)
-  {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
-	
-	if (tempDate != null) {
-		this.isValidFeedbackDate = true;
-		this.feedbackDate = tempDate;
-	}
-	else {
-		log.error("setFeedbackDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
-		this.isValidFeedbackDate = false;
-		this.originalFeedbackDateString = feedbackDateString;
-	} 
+  public void setFeedbackDateString(String feedbackDateString) {
+    if (feedbackDateString == null || feedbackDateString.trim().equals("")) {
+      this.isValidFeedbackDate = true;
+      this.feedbackDate = null;
+    }
+    else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidFeedbackDate = true;
+        this.feedbackDate = tempDate;
+      }
+      else {
+        log.error("setFeedbackDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+        this.isValidFeedbackDate = false;
+        this.originalFeedbackDateString = feedbackDateString;
+      }
+    }
   }
   
   public String getPublishedUrl() {
