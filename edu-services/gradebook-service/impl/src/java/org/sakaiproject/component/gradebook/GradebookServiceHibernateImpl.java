@@ -24,6 +24,7 @@ package org.sakaiproject.component.gradebook;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -2383,7 +2384,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  	if (assignmentScore == null)
 	  		return null;
 	  	
-	  	return Double.valueOf(assignmentScore).toString();
+	  	// avoid scientific notation on large scores by using a formatter
+	  	final DecimalFormat df = new DecimalFormat();
+	  	df.setGroupingUsed(false);
+
+	  	return df.format(assignmentScore);
   	}
   
   	@Override
