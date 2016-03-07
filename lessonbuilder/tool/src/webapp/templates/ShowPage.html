@@ -141,20 +141,6 @@
     		</div>
         </div>
 		
-<script type="text/javascript">
-	var breadcrumbs = jQuery(".breadcrumbs span");
-	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
-	if (jQuery(".oldPortal").size() === 0) {
-	    var title = jQuery(".title span:last").text();
-	    if (breadcrumbs.size() > 0) {
-		jQuery(".Mrphs-siteHierarchy").append(jQuery(".breadcrumbs span").slice(1));
-	    }
-	    jQuery(".Mrphs-siteHierarchy").append(jQuery(".action"));
-//	    jQuery(".Mrphs-siteHierarchy").append("<br style='clear:both'/>");
-	    jQuery(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
-	    jQuery(".genTitle").text(title);
-	}
-</script>
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="application" style="z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
@@ -218,6 +204,21 @@
 
 		</div>
 		
+<script type="text/javascript">
+	var breadcrumbs = jQuery(".breadcrumbs span");
+	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
+	if (jQuery(".oldPortal").size() === 0) {
+	    var title = jQuery(".title span:last").text();
+	    if (breadcrumbs.size() > 0) {
+		jQuery(".Mrphs-siteHierarchy").append(jQuery(".breadcrumbs span").slice(1));
+	    }
+	    jQuery(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
+	    jQuery(".genTitle").text(title);
+         }
+	 jQuery(".navIntraTool").append(jQuery(".action"));
+
+</script>
+
 		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="Add content menu">
 		<ul>
 		  <li>
@@ -736,12 +737,12 @@
                         <span style="display:none" rsf:id="questionCorrectText" class="questionCorrectText"></span>
                         <span style="display:none" rsf:id="questionIncorrectText" class="questionIncorrectText"></span>
                     </div>
-		    <script type="text/javascript">
-		    // to avoid flickering, process buttons in this item now
-		    $(document.currentScript).closest('li').find('.usebutton').button({text:true});
-		    </script>
                 </li>
             </ul>
+		    <script type="text/javascript">
+		    // to avoid flickering, process buttons in this item now
+		    $('.usebutton').button({text:true});
+		    </script>
 	    </div>	
 	    </div>			
 			<script rsf:id="swfobject" type="text/javascript" src="swfobject.js"></script>
