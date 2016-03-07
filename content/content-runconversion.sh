@@ -69,7 +69,7 @@ done
 shift $(($OPTIND - 1))
 
 CLASSPATH="$CLASSPATH:"$m2repository"/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"
-CLASSPATH="$CLASSPATH:"$m2repository"/commons-collections/commons-collections/3.2/commons-collections-3.2.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar"
 CLASSPATH="$CLASSPATH:"$m2repository"/commons-dbcp/commons-dbcp/1.2.2/commons-dbcp-1.2.2.jar"
 CLASSPATH="$CLASSPATH:"$m2repository"/commons-pool/commons-pool/1.3/commons-pool-1.3.jar"
 CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-api/$KERNELVERSION/sakai-kernel-api-$KERNELVERSION.jar"
