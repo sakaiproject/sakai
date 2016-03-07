@@ -769,8 +769,8 @@ a.peer-eval-stats {
 #toolbar {
   padding:2px;
   margin:0px;
-  margin-top:6px;
   margin-bottom:-10px;
+  display:inline-block !important;
 }
 
 /* Dropdown Menu */
@@ -1030,12 +1030,16 @@ div[role="dialog"] {
     width: 100%;
     height: 100%;
 }
-.Mrphs-siteHierarchy .action {
-    display: inline-block;
-    vertical-align: middle;
-    float:right;
-    top: 50%;
+.action {
+  display:inline-block;
+  float:right !important;
+}
+.action {
+  margin-top:5px;
 }			      
+.Mrphs-toolTitleNav .Mrphs-toolTitleNav__button_container {
+  top:-10px !important;
+}
 .Mrphs-siteHierarchy {
     height: auto !important;
 }
@@ -1147,6 +1151,7 @@ div[role="dialog"] {
 }
 div.navIntraTool {
   border-top:none;
+  margin-bottom:
 }
 
 /* temporary, to avoid changing old stuff for the moment */
@@ -1389,9 +1394,6 @@ font-size: 90%;
 .contentButton span a {
   display:inline-block !important;
 }
-.navIntraTool {
-  display:inline-block !important;
-}
 body > .portletBody {
   margin-top:-15px;
   padding-top:0px;
@@ -1408,32 +1410,25 @@ body > .portletBody {
 .title-tools {
   line-height:30px;
 }
-.oldPortal + .navIntraTool #toolbar{
- margin-top:0px;
+.oldPortal + .navIntraTool {
+  border: none;
 }
-.oldPortal .action {
-  margin-right:150px;
+.oldPortal + .navIntraTool #toolbar{
+ margin-top:5px;
+ margin-bottom:0px;
 }
 /* old portal, but only for students. instructors need more spacing */
 .oldPortal ~ .itemclass {
-  margin-top: 1.0em !important;
+  margin-top: 0.0em !important;
 }
 /* put back default value if an instructor */
-.navIntraTool + .itemclass {
+.navIntraTool ~ div.itemclass {
   margin-top: 3.0em !important;
 }
 .title-tools {
   float:none;
   position:static;
   margin-bottom:0px !important;
-}
-.navIntraTool {
-  display:block;
-  position: static;
-}
-.action {
-  display:inline-block;
-  float:right !important;
 }
 .Mrphs-container--toolTitleNav {
   text-align: left;
@@ -1443,8 +1438,12 @@ body > .portletBody {
   float:none !important;
   text-align: left;
 }
-.showItemNoMorpheus .action{
-  margin-right: 170px;
-  margin-top: -10px;
+.oldPortal .action {
+     margin-top:0px;
+ }
+@media only screen and (min-width: 855px) {
+.oldPortal .action {
+     margin-top:20px;
+   }
 }
 /* end lessons in iframe */
