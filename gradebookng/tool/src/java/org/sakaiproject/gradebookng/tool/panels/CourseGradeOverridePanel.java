@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -82,7 +83,9 @@ public class CourseGradeOverridePanel extends Panel {
 		modelData.put("showOverride", false);
 		form.add(new GbCourseGradeLabel("calculated", Model.ofMap(modelData)));
 
-		form.add(new TextField<String>("overrideGrade", formModel));
+		final TextField<String> overrideField = new TextField<>("overrideGrade", formModel);
+		overrideField.setOutputMarkupId(true);
+		form.add(overrideField);
 
 		final AjaxButton submit = new AjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
@@ -133,6 +136,25 @@ public class CourseGradeOverridePanel extends Panel {
 		};
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
+
+		// revert link
+		final AjaxSubmitLink revertLink = new AjaxSubmitLink("revertOverride", form) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, null);
+				if (success) {
+					getSession().info(getString("message.addcoursegradeoverride.success"));
+					setResponsePage(getPage().getPageClass());
+				} else {
+					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());
+					target.addChildren(form, FeedbackPanel.class);
+				}
+			}
+		};
+		revertLink.setDefaultFormProcessing(false);
+		form.add(revertLink);
 
 		add(form);
 
