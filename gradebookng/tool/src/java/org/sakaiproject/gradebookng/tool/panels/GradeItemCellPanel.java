@@ -214,8 +214,7 @@ public class GradeItemCellPanel extends Panel {
 								break;
 							case ERROR:
 								markError(getComponent());
-								// TODO fix this message
-								error("oh dear");
+								error(getString("message.edititem.error"));
 								break;
 							case OVER_LIMIT:
 								markOverLimit(GradeItemCellPanel.this.gradeCell);
