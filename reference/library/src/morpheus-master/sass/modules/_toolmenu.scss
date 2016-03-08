@@ -23,6 +23,9 @@ body.#{$namespace}toolMenu-collapsed{
 		width: #{ $tool-menu-width / 2 };
 	}
 	#toolMenu{
+		.img_site_toolmenu{
+			display: none;
+		}
 		ul{
 			li{
 				a{
@@ -53,16 +56,21 @@ body.#{$namespace}toolMenu-collapsed{
 	}
 }
 
-#toolMenuWrap img{
-  max-width: 100%;
+#toolMenuWrap .img_site_toolmenu{
+  width: 100%;
+  max-width: $tool-menu-width;
   height: auto;
+  margin: 0 auto; 
 }
 
 #toolMenuWrap{
 	background: $toolMenuBGColor;
 	display: block;
 	min-width: $tool-menu-width;
+	width: $tool-menu-width;
+	@include flex-basis( 7.5em );
 	margin: 0 0 0 0;
+	text-align: center;
 	@include transition( left 0.25s linear 0s );
 	
 	@media #{$phone}{
@@ -161,6 +169,14 @@ body.#{$namespace}toolMenu-collapsed{
 					height:  5.5em;
 					overflow: hidden;
 					padding: 0.85em 0.25em 0.1em;
+				}
+				.#{$namespace}toolsNav__menuitem--title{
+					display: block;
+					max-width: 100%;
+					width: 100%;
+					text-overflow: ellipsis;
+					white-space: pre-wrap;
+					overflow: hidden;
 				}
 			}
 			&.is-current{

@@ -7,8 +7,10 @@
 			font-weight: 400;
 			letter-spacing: 1.2px;
 			margin: 0px;
+			position: relative;
 			text-transform: uppercase;
 			width: calc(100% - 90px);
+			z-index: 21;
 			a{
 				color: rgba(21,21,21,0.5);
 				font-weight: 400;
