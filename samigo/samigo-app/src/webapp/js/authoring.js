@@ -351,10 +351,13 @@ function disableFeedbackDateCheck(feedbackType) {
 
     if (feedbackType == dateFeedback) {
     	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", false);
-    	$("td.feedbackColumn2 > img.ui-datepicker-trigger").prop("hidden", false);
+    	$("td.feedbackColumn1 > img.ui-datepicker-trigger").prop("hidden", false);
+        $("td.feedbackColumn2").prop("hidden", false);
     } else {
     	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", true);
-    	$("td.feedbackColumn2 > img.ui-datepicker-trigger").prop("hidden", true);
+        $("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").val( "" );
+    	$("td.feedbackColumn1 > img.ui-datepicker-trigger").prop("hidden", true);
+        $("td.feedbackColumn2").prop("hidden", true);
     }
 }
 
@@ -710,3 +713,10 @@ function mySetMainFrameHeight(id, minHeight)
 	}
 }
 
+//To allow reset the datepickers in the settings
+function resetDatePicker(name){
+    var datePicker = document.getElementById("assessmentSettingsAction:"+name);
+    datePicker.value="";
+    var hiddenDate = document.getElementById(name+"ISO8601");
+    hiddenDate.value="";
+}

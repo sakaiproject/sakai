@@ -65,6 +65,7 @@
               input: '#assessmentSettingsAction\\:startDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'startDateISO8601' }
           });
@@ -72,6 +73,7 @@
               input: '#assessmentSettingsAction\\:endDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.dueDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'endDateISO8601' }
           });
@@ -79,6 +81,7 @@
               input: '#assessmentSettingsAction\\:retractDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'retractDateISO8601' }
           });
@@ -86,6 +89,7 @@
               input: '#assessmentSettingsAction\\:feedbackDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.feedbackDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
@@ -284,15 +288,24 @@
   <!-- *** DELIVERY DATES *** -->
   <h:panelGrid columns="1" columnClasses="samigoCell" border="0">
     <h:panelGroup>
+      <h:panelGroup id="startDateGroup">
       <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
       <h:inputText value="#{publishedSettings.startDateString}" size="25" id="startDate" />
 	  <h:outputText value="" />
 	  <h:outputText value="" />
-	  
+      </h:panelGroup>
+        <f:verbatim>&nbsp;</f:verbatim>
+        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('startDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+        <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+      <h:panelGroup id="endDateGroup">
       <h:outputLabel for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
       <h:inputText value="#{publishedSettings.dueDateString}" size="25" id="endDate"/>
 	  <h:outputText value="" />
 	  <h:outputText value="" />
+      </h:panelGroup>
+        <f:verbatim>&nbsp;</f:verbatim>
+        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('endDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+        <f:verbatim>&nbsp;&nbsp;</f:verbatim>
   
   <!-- *** TIMED *** -->
       <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
@@ -314,7 +327,7 @@
   <!-- LATE HANDLING -->
   <h:panelGrid columns="1" rendered="#{publishedSettings.valueMap.lateHandling_isInstructorEditable==true}" border="0">
     <h:outputText value="#{assessmentSettingsMessages.late_accept}" />
-    <h:panelGrid columns="4" border="0" columnClasses="alignBottom">
+    <h:panelGrid columns="5" border="0" columnClasses="alignBottom">
       <f:verbatim>&nbsp;&nbsp;</f:verbatim>
       <h:selectOneRadio id="lateHandling" onclick="checkLastHandling();" value="#{publishedSettings.lateHandling}"  layout="pageDirection">
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
@@ -322,7 +335,9 @@
       </h:selectOneRadio>
 
 	  <h:inputText value="#{publishedSettings.retractDateString}" size="25" id="retractDate"/>
-	  
+        <f:verbatim>&nbsp;</f:verbatim>
+        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('retractDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+        <f:verbatim>&nbsp;&nbsp;</f:verbatim>
 	  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_stop_accepting_now}" action="confirmAssessmentRetract"  styleClass="active" />
     </h:panelGrid>
   </h:panelGrid>
@@ -483,10 +498,17 @@
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
         </h:selectOneRadio>
     </h:panelGroup>
-    <h:panelGroup>
-        <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
-    </h:panelGroup>
-  </h:panelGrid>
+ </h:panelGrid>
+      <h:panelGrid columns="2" border="0" rendered="#{publishedSettings.valueMap.feedbackType_isInstructorEditable==true}" columnClasses="feedbackColumn1,feedbackColumn2">
+          <h:panelGroup>
+              <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
+          </h:panelGroup>
+          <h:panelGroup>
+              <f:verbatim>&nbsp;</f:verbatim>
+              <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('feedbackDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+          </h:panelGroup>
+      </h:panelGrid>
+
 
     <!-- FEEDBACK COMPONENTS -->
     <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}">

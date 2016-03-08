@@ -2234,9 +2234,13 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 					setHiddenFields($(this).datepicker("getDate"), options, input);
 				}
 				var mh = moment(getHiddenFields());
-				var stringDay = $.datepicker.formatDate($(this).datepicker("option","dateFormat"),mh.toDate());
-				var stringTime = $.datepicker.formatTime($(this).datepicker("option","timeFormat"),{hour:mh.format("HH"),minute:mh.format("mm")});
-				$(input).val(stringDay + ' ' + stringTime);
+				if (!mh.isValid() && options.allowEmptyDate){
+					$(input).val("");
+				}else{
+					var stringDay = $.datepicker.formatDate($(this).datepicker("option","dateFormat"),mh.toDate());
+					var stringTime = $.datepicker.formatTime($(this).datepicker("option","timeFormat"),{hour:mh.format("HH"),minute:mh.format("mm")});
+					$(input).val(stringDay + ' ' + stringTime);
+				}
 			});
 		};
 		// on select, runs our custom method for setting dates
@@ -2255,16 +2259,19 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 
 			if (typeof d == 'string') {
 				window.console && console.log("string date: " + d + ";parseFormat: " + cfg.parseFormat);
+				if (d == "" && options.allowEmptyDate){
+					parseDate="";
+				}else{
+					// formatList can be added to as needed. Refer to Moment Docs for reference
+					// http://momentjs.com/docs/#/parsing/string-format/
+					var formatList = [];
 
-				// formatList can be added to as needed. Refer to Moment Docs for reference
-				// http://momentjs.com/docs/#/parsing/string-format/
-				var formatList = [];
-
-				if (typeof cfg.parseFormat !== 'undefined') {
-					parseDate = new Date(moment(d, cfg.parseFormat));
-				} else {
-					parseDate = new Date(moment(d, cfg.parseFormat));
-				};
+					if (typeof cfg.parseFormat !== 'undefined') {
+						parseDate = new Date(moment(d, cfg.parseFormat));
+					} else {
+						parseDate = new Date(moment(d, cfg.parseFormat));
+					};
+				}
 
 			} else {
 				window.console && console.log("date object: " + d);
@@ -2379,7 +2386,11 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 
 			// finally trim the initVal and make sure it is set so we don't Dec 1969 the user
 			initVal = jQuery.trim(initVal);
-			if (!initVal) initVal = new Date();
+
+			if (!(initVal == "" && options.allowEmptyDate)){
+				if (!initVal) initVal = new Date();
+			}
+
 
 			// set localDate to the time to use, predefined or current date/time
 			localDate = getDate(initVal);
@@ -2436,17 +2447,19 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 			// instantiate datetimepicker
 			localDTPicker = $(options.input).css('min-width','200px').datetimepicker(cfg);
 
-			// set the datepicker date if we've got a pre-set value
-			if (typeof options.val !== 'undefined' || typeof options.getval !== 'undefined' || typeof options.duration !== 'undefined') {
-				localDTPicker.datetimepicker("setDate", localDate);
-				// At this point we can go and ask the picker what it has rounded the time to.
-				localDate = localDTPicker.datetimepicker("getDate");
-				// Handle duration, which relies on the datepicker being set
-				handleDuration();
-			}
+			if ((localDate != "") || (!(options.allowEmptyDate))){
+				// set the datepicker date if we've got a pre-set value
+				if (typeof options.val !== 'undefined' || typeof options.getval !== 'undefined' || typeof options.duration !== 'undefined') {
+					localDTPicker.datetimepicker("setDate", localDate);
+					// At this point we can go and ask the picker what it has rounded the time to.
+					localDate = localDTPicker.datetimepicker("getDate");
+					// Handle duration, which relies on the datepicker being set
+					handleDuration();
+				}
 
-			// if the picker is reliant in hudden fields, set them
-			setHiddenFields(localDate); 
+				// if the picker is reliant in hidden fields, set them
+				setHiddenFields(localDate);
+			}
 		};
 
 		/**
