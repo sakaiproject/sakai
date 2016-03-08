@@ -321,13 +321,13 @@ public class GradingServiceTest {
         Assert.assertEquals("0", result);
         result = gradingService.processFormulaIntoValue("sin(PI)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("0", result);
+        Assert.assertEquals("1.23E-16", result);
         result = gradingService.processFormulaIntoValue("cos(PI)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("-1", result);
         result = gradingService.processFormulaIntoValue("tan(PI)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("0", result);
+        Assert.assertEquals("-1.23E-16", result);
         result = gradingService.processFormulaIntoValue("sin(1)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0.84", result);
@@ -355,7 +355,62 @@ public class GradingServiceTest {
         Assert.assertEquals("0", result);
         result = gradingService.processFormulaIntoValue("atan(1)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("0.78", result);
+        Assert.assertEquals("0.79", result);
+        
+        result = gradingService.processFormulaIntoValue("log(E)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("log(1)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("log(10.0)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2.3", result); 
+        
+        result = gradingService.processFormulaIntoValue("exp(1)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2.72", result);
+        result = gradingService.processFormulaIntoValue("exp(5)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("148.41", result);
+        result = gradingService.processFormulaIntoValue("exp(10)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2.2E4", result); 
+        result = gradingService.processFormulaIntoValue("exp(0)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1", result);
+        
+        result = gradingService.processFormulaIntoValue("sqrt(9)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("3", result);
+        result = gradingService.processFormulaIntoValue("sqrt(12)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("3.46", result);
+        result = gradingService.processFormulaIntoValue("sqrt(25)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("5", result); 
+        result = gradingService.processFormulaIntoValue("sqrt(1e-20)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1E-10", result);   
+        
+        result = gradingService.processFormulaIntoValue("abs(1)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("abs(-1)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("abs(1e10)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1E10", result); 
+        result = gradingService.processFormulaIntoValue("abs(-1e10)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1E10", result);
+        result = gradingService.processFormulaIntoValue("abs(1e-10)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1E-10", result); 
+        result = gradingService.processFormulaIntoValue("abs(-1e-10)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1E-10", result);                 
     }
 
     @Test
