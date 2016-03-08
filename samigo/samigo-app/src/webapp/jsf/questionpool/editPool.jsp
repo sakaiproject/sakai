@@ -51,7 +51,7 @@ function textCounter(field, maxlimit) {
 
 <f:verbatim><body onload="disableIt();checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
   
- <div class="portletBody">
+<div class="portletBody container-fluid">
 <h:form id="editform">
   <!-- HEADINGS -->
   <%@ include file="/jsf/questionpool/questionpoolHeadings.jsp" %>
@@ -71,13 +71,16 @@ function textCounter(field, maxlimit) {
 <h:outputText rendered="#{questionpool.currentPool.showParentPools}" value=" > " />
 <h:outputText rendered="#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.displayName}"/>
 
-<h3 class="insColor insBak insBor">
-<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}"/>
-</h3>
+<div class="page-header">
+  <h1>
+    <h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}"/>
+  </h1>
+</div>
+
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
- <div class="tier2">
-<h:panelGrid columns="2" columnClasses="shorttext" rowClasses="poolName, creator, dept, description, objectives, keywords, hidden" id="samPool">
+ <div class="table-responsive">
+<h:panelGrid styleClass="table table-striped" columns="2" columnClasses="shorttext" rowClasses="poolName, creator, dept, description, objectives, keywords, hidden" id="samPool">
   <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}"/>
   <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="namefield" size="30" maxlength="255" value="#{questionpool.currentPool.displayName}" />
   <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>

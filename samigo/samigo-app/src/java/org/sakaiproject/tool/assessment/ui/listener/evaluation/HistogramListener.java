@@ -2892,7 +2892,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     int index=0;
     while(index <numStudents.length){
 	if(totalResponse>0)
-	    height[index] = (int)((600*numStudents[index])/totalResponse);
+	    height[index] = (int)((100*numStudents[index])/totalResponse);
         else 
 	    height[index]=0;
         index++;
