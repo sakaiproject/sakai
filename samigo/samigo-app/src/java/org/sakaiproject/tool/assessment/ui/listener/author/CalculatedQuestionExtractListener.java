@@ -64,7 +64,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
         ItemBean item = itemauthorbean.getCurrentItem();
                 
-        List<String> errors = this.validate(item);        
+        List<String> errors = this.validate(item,true);        
         
         if (errors.size() > 0) {
             item.setOutcome("calculatedQuestion");
@@ -82,15 +82,18 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * <p>Errors include <ul><li>no variables or formulas named in the instructions</li>
      * <li>variables and formulas sharing a name</li>
      * <li>variables with invalid ranges of values</li>
-     * <li>formulas that are syntactically wrong</li></ul>
+     * <li>formulas that are syntactically wrong</li>
+     * <li>formulas with no variables inside (only when saving a question)</li></ul>
      * Any errors are written to the context messager
      * <p>The validate formula is also called directly from the ItemAddListner, before
      * saving a calculated question, to ensure any last minute changes are caught.
      * @param item - an ItemBean, which contains all of the needed information 
      * about the CalculatedQuestion
+     * @param extracting - boolean. True when extracting Variables a formulas, false when saving
+     * a question.
      * @returns a List<String> of error messages to be displayed in the context messager.
      */
-    public List<String> validate(ItemBean item) {
+    public List<String> validate(ItemBean item,boolean extracting) {
         List<String> errors = new ArrayList<String>();
 
         // prepare any already existing variables and formula for new extracts
@@ -120,7 +123,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
         // don't bother looking at formulas if any data validations have failed
         if (errors.size() == 0) {
-            errors.addAll(validateFormulas(item, service));
+            errors.addAll(validateFormulas(item, service,extracting));
             errors.addAll(validateCalculations(item.getCalculatedQuestion(), service));
         } else {
             errors.add(getErrorMessage("formulas_not_validated"));
@@ -500,10 +503,12 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * is returned.  This is a syntax checker; a syntactically valid formula can
      * definitely return the wrong value if the author enters a wrong formula.
      * @param item
+     * @param extracting - boolean. True when extracting Variables a formulas, false when saving
+     * a question
      * @return a map of errors.  The Key is an integer value, set by the SamigoExpressionParser, the
      * value is the string result of that error message.
      */
-    private List<String> validateFormulas(ItemBean item, GradingService service) {
+    private List<String> validateFormulas(ItemBean item, GradingService service,boolean extracting) {
         List<String> errors = new ArrayList<String>();
         if (service == null) {
             service = new GradingService();
@@ -535,6 +540,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 if (formulaStr == null || formulaStr.length() == 0) {
                     formulaBean.setValidFormula(false);
                     errors.add(getErrorMessage("empty_field"));
+                }else if ( !extracting && !formulaStr.contains("{")){
+                    formulaBean.setValidFormula(false);
+                    errors.add(getErrorMessage("no_variables_formula") + " : " + formulaBean.getName() + " = "+ formulaStr);                    
                 } else {
                     String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
                     
