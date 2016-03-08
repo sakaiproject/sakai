@@ -111,13 +111,6 @@ public class SakaiRequestParser {
 		Tool tool = (Tool) request.getAttribute("sakai.tool");
 		placement = (Placement) request.getAttribute("sakai.tool.placement");
 
-		SakaiPortalMatterSCR matterscr = new SakaiPortalMatterSCR();
-		String headMatter = (String) request.getAttribute("sakai.html.head");
-		if (headMatter == null) {
-			headMatter = DefaultPortalMatter.getDefaultPortalMatter();
-		}
-		matterscr.setHeadMatter(headMatter);
-
 		if (tool != null && placement != null) {
 			String toolid = tool.getId();
 			String toolinstancepid = placement.getId();
@@ -159,6 +152,12 @@ public class SakaiRequestParser {
 			src.addSCR(bodyscr2);
 		}
 
+		SakaiPortalMatterSCR matterscr = new SakaiPortalMatterSCR();
+		String headMatter = (String) request.getAttribute("sakai.html.head");
+		if (headMatter == null) {
+			headMatter = DefaultPortalMatter.getDefaultPortalMatter(site,request);
+		}
+		matterscr.setHeadMatter(headMatter);
 		src.addSCR(matterscr);
 
 		consumerinfo = new ConsumerInfo();
