@@ -49,8 +49,7 @@ body.#{$namespace}toolMenu-collapsed{
 				}
 				&.#{$namespace}collapseTools{
 					i{
-					   @include rotate(180deg);
-						@include transform( rotate(180deg) );
+						@include transform( scaleX(-1) ); /* flip horizontally */
 					}
 				}
 			}
@@ -162,10 +161,33 @@ nav#subSites{
 		padding: 0;
 		margin:  0;
 		li{
-			&.#{$namespace}collapseTools{
-				text-align: center;
+			&.#{$namespace}collapseTools
+			{
+				display:flex;
+				align-items:center;
+				justify-content:flex-end; /* right-align the arrows when expanded */
+				height:3em;
+				padding: 0 1em;
+				border-right: 1px solid $toolMenuBGColor;
+				border-bottom: 1px solid darken( $toolMenuBGColor, 10% );
+				cursor:pointer;
 				font-size: 1.2em;
-				padding: 0.3em;
+				background-color: $toolTabBGColor;
+				&:hover
+				{
+					background: $primary-color;
+					color: $tool-background-color;
+				}
+				&.min
+				{
+					justify-content:center; /* center the arrows when collapsed */
+				}
+				
+				i
+				{
+					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */
+				}
+				
 				@media #{$phone}{
 					display: none;
 				}
