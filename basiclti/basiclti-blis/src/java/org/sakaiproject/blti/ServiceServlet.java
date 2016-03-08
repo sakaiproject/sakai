@@ -638,9 +638,20 @@ public class ServiceServlet extends HttpServlet {
 		boolean success = false;
 		try { 
 			List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
-			Set<Member> members = site.getMembers();
 			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
-			for (Member member : members ) {
+
+			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
+			Set<Member> members = site.getMembers();
+			Map<String, Member> memberMap = new HashMap<String, Member>();
+			List<String> userIds = new ArrayList<String>();
+			for (Member member : members) {
+				userIds.add(member.getUserId());
+				memberMap.put(member.getUserId(), member);
+			}
+			List<User> users = UserDirectoryService.getUsers(userIds);
+
+			for (User user : users ) {
+				Member member = memberMap.get(user.getId());
 				Map<String,Object> mm = new TreeMap<String,Object>();
 				Role role = member.getRole();
 				String ims_user_id = member.getUserId();
@@ -663,16 +674,13 @@ public class ServiceServlet extends HttpServlet {
 
 				mm.put("/role",ims_role);
 				mm.put("/roles",ims_role);
-				User user = null;
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
-					user = UserDirectoryService.getUser(ims_user_id);
 					String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
 					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
 					if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
 				}
 
 				if ( "on".equals(releaseName) || "on".equals(releaseEmail) ) {
-					if ( user == null ) user = UserDirectoryService.getUser(ims_user_id);
 					if ( "on".equals(releaseName) ) {
 						mm.put("/person_name_given",user.getFirstName());
 						mm.put("/person_name_family",user.getLastName());
