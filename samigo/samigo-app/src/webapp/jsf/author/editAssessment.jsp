@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -31,25 +32,12 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <!-- for sam-939 -->
-      <style type="text/css">
-        .TableColumn {
-      	  text-align: center
-        }
-        .TableClass {
-      	  border-style: dotted;
-      	  border-width: 0.5px;
-      	  border-color: light grey;
-        }
-      </style>
-
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
       <samigo:script path="/js/authoring.js"/>
 
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
 
-<!--
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");
 
@@ -61,21 +49,15 @@ function resetSelectMenus(){
 }
 
 function clickInsertLink(field){
-var insertlinkid= field.id.replace("changeQType", "hiddenlink");
-
-var newindex = 0;
-for (i=0; i<document.links.length; i++) {
-  if(document.links[i].id == insertlinkid)
-  {
-    newindex = i;
-    break;
-  }
+  var insertlinkid = field.id.replace("changeQType", "hiddenlink");
+  var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
+  $(hiddenSelector).click();
 }
 
-document.links[newindex].onclick();
-}
-
-//-->
+$(window).load( function() {
+  // No need for an insert question box after every single question!
+  $('table.parts-table').find('div.part-insert-question:not(:last)').hide();
+});
 </script>
 
 <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
@@ -327,7 +309,7 @@ document.links[newindex].onclick();
 
     <h:outputText escape="false" value="#{partBean.description}" />
 
-    <div class="row">
+    <div class="question-row">
         <!-- PART ATTACHMENTS -->
         <%@ include file="/jsf/author/part_attachment.jsp" %>
 
@@ -346,7 +328,7 @@ document.links[newindex].onclick();
         
 <!-- this insert should only show up when there are no questions in this part -->
 <h:panelGroup rendered="#{partBean.itemContentsSize eq '0' && author.isEditPendingAssessmentFlow && !author.isEditPoolFlow}">
-    <div class="row"> 
+    <div class="insert-question-row"> 
 	  <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
 	  <h:outputText value="&#160;" escape="false" />
         <!-- each selectItem stores the itemtype, current sequence -->
@@ -361,7 +343,7 @@ document.links[newindex].onclick();
     </h:commandLink>
 </h:panelGroup>
 
-<h:dataTable id="parts" width="100%"
+<t:dataTable id="parts" styleClass="parts-table" width="100%" rowIndexVar="rowIndex"
         value="#{partBean.itemContents}" var="question" rendered="#{(! author.isEditPoolFlow && (partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString ==  '1')) || (author.isEditPoolFlow && author.editPoolSectionId != null && partBean.sectionId == author.editPoolSectionId)}" >
 
       <h:column>
@@ -419,7 +401,7 @@ document.links[newindex].onclick();
           </h:panelGroup>
         </h:panelGrid>
 
-     <div class="samigo-question-callout">
+       <div class="samigo-question-callout">
 		  <h:panelGroup rendered="#{question.itemData.typeId == 11}">
 	  			<%@ include file="/jsf/author/preview_item/FillInNumeric.jsp" %>
           </h:panelGroup>
@@ -478,29 +460,30 @@ document.links[newindex].onclick();
           <h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- IMAGEMAP_QUESTION -->
                 <%@ include file="/jsf/author/preview_item/ImageMapQuestion.jsp" %>
           </h:panelGroup>   
-    </div>
+      </div>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
-  <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
-</h:commandLink>
-</h:column>
-</h:dataTable>
-</div>
-  </h:column>
-</h:dataTable>
-
-<h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
-    <div class="row bs-callout-primary">
-	    <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
-        <h:outputText value="&#160;" escape="false" />
-        <!-- each selectItem stores the itemtype, current sequence -->
-        <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}" >
+      <!-- Only want this displayed at the bottom of each part not on every question -->
+      <h:panelGroup styleClass="part-insert-question" layout="block" rendered="#{author.isEditPendingAssessmentFlow}">
+        <div class="bs-callout-primary">
+	      <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
+          <h:outputText value="&#160;" escape="false" />
+          <!-- each selectItem stores the itemtype, current sequence -->
+          <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);" value="#{itemauthor.itemTypeString}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
             <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
-        </h:selectOneMenu>
-    </div>
-</h:panelGroup>
+          </h:selectOneMenu>
+          <h:commandLink id="hiddenlink" styleClass="hiddenLink" action="#{itemauthor.doit}" value="">
+            <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
+          </h:commandLink>
+        </div>
+      </h:panelGroup>
+
+    </h:column>
+  </t:dataTable>
+</div>
+  </h:column>
+</h:dataTable>
 
 <h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />

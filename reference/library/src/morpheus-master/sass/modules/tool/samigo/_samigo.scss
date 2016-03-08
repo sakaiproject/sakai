@@ -21,10 +21,10 @@
 	}
 
 	.samigo-question-callout {
-			@include bs-callout($toolBorderColor, $background-color);
-			input[type="checkbox"], input[type="radio"] {
-				margin-right: 0.25em;
-			}
+		@include bs-callout($toolBorderColor, $background-color);
+		input[type="checkbox"], input[type="radio"] {
+			margin-right: 0.25em;
+		}
 	}
 
 	.listNav {
