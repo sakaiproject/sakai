@@ -13,7 +13,7 @@
     <h1 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h1>
     <!--Added this check in to make sure that we just don't have an empty img element in the page. -->
 	#if(${sitePages.pageNavIconUrl} != "")
-        <img src="${sitePages.pageNavIconUrl}" alt="">
+        <img src="${sitePages.pageNavIconUrl}" alt="" class="img_site_toolmenu">
 	#end
 
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
@@ -62,7 +62,7 @@
 		                #if (${page.ispopup})
 
 		                    <li>
-		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open( '${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768' )">
+		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="javascript:;" title="${page.pageTitle} - ${page.pageTitle}" onclick="window.open( '${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768' )">
 		                            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
 		                            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 		                        </a>
@@ -71,7 +71,7 @@
 		                #else
 
 		                    <li>
-		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}" title="${page.description}">
+		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}" title="${page.pageTitle} - ${page.description}">
 		                            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
 		                            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 		                        </a>
