@@ -15,6 +15,10 @@
 	    margin: 0 0.5em 0 0.5em;
 	    padding: 0em 0em 0.2em 0em;
 	    text-decoration: none;
+	    &:hover{
+	    	border-bottom: 1px solid #B0B0B0;
+		    text-decoration: none;
+	    }
     }
 	@media #{$phone}{
 		background-color: $primary-color;

@@ -110,7 +110,7 @@ body.is-logged-out{
 .userNav__subnav{
 	font-family: $header-font-family;
 	position: absolute;
-	right: 0.5em;
+	right: 0em;
 	width: #{ $tool-menu-width * 2.5 };
 	z-index: 99;
 	box-shadow: 0 0 4px rgba( $text-color ,0.35);
@@ -531,14 +531,16 @@ body.is-logged-out{
 				}
 			}
 			.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+				outline: 0;
 				@extend .fa-angle-down;
 				@extend .fa;
 				@extend .fa-lg;
 				@extend .sitesNav__drop;
 				&.is-clicked{
 					@include transform( rotate(180deg) );
+					left: -5px;
 					position: relative;
-					top: 3px;
+					top: -2px;
 				}
 			}
 			ul{

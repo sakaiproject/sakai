@@ -2,9 +2,16 @@
 	margin: -14px -14px 0 -14px;
 	background: $tool-background-color;
 	border-bottom: 1px solid $toolBorderColor;
-	padding: 0 0 0 1em;
+	padding: 0 170px 0 1em;
+	//max-width: calc(100% - 170px);
 	@media #{$phone}{
 		padding: 0.3em 0.7em;
+		//max-width: 100%;
+	}
+	&:after{
+		content: " ";
+		display: block;
+		width: 100%;
 	}
 	li{
 		display: inline-block;
