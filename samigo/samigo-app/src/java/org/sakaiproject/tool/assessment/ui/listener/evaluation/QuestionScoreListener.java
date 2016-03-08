@@ -560,6 +560,10 @@ public class QuestionScoreListener implements ActionListener,
 					String answerText = noAnswer;
 					String rationale = "";
 					String fullAnswerText = noAnswer;
+					
+					// Answer Key and Decimal Places for Calculated Questions
+					String answerKey = noAnswer;
+					int decimalPlaces;
 
 					// if question type = MC, MR, Survey, TF, Matching, if user
 					// has not submit an answer
@@ -735,6 +739,14 @@ public class QuestionScoreListener implements ActionListener,
 							}
 						}
 						else if (bean.getTypeId().equals("15")) {  // CALCULATED_QUESTION
+							// Answers Keys
+							answerKey = (String)answersMap.get(i);
+							decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
+							answerKey = answerKey.substring(0, answerKey.indexOf("|")); // cut off extra data e.g. "|2,3"
+							// We need the key formatted in scientificNotation
+							answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);							
+							
+							// Answers
 							if (delegate.getCalcQResult(gdata, item, answersMap, i++)) {
 								answerText = checkmarkGif + answerText;
 							} else {
@@ -767,6 +779,9 @@ public class QuestionScoreListener implements ActionListener,
 									results.getExactTotalAutoScore())).doubleValue()));
 						}
 						results.setItemGradingAttachmentList(itemGradingAttachmentList);
+						if (bean.getTypeId().equals("15")){ // CALCULATED_QUESTION Answer Key
+							results.setAnswerKey(results.getAnswerKey()+ " <br/>" + answerKey);
+						}
 					} else {
 						results.setItemGradingId(gdata.getItemGradingId());
 						results.setAssessmentGradingId(gdata
@@ -781,6 +796,9 @@ public class QuestionScoreListener implements ActionListener,
 						}
 						results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
 						results.setAnswer(answerText);
+						if (bean.getTypeId().equals("15")){ // CALCULATED_QUESTION Answer Key
+							results.setAnswerKey(answerKey);
+						}
 						results.setFullAnswer(fullAnswerText);
 						results.setRationale(rationale);
 						results.setSubmittedDate(gdata.getSubmittedDate());

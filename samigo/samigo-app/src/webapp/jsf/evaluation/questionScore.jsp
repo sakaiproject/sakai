@@ -1145,8 +1145,67 @@ function hiddenLinkOnClick(){
 			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
 		</h:outputLink>
       </h:panelGroup>
-    </h:column> 
-
+    </h:column>
+     
+	<!-- ANSWER KEY -->
+	<h:column rendered="#{questionScores.typeId == '15' && questionScores.sortType!='answerKey'}">
+     <f:facet name="header">
+     
+        <h:panelGroup>
+          <h:commandLink title="#{evaluationMessages.t_sortAnswerKey}" id="answerKey" action="questionScores" >
+            <h:outputText value="#{commonMessages.answer_key}"/>
+            <f:actionListener
+               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+            <f:actionListener
+               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+            <f:param name="sortBy" value="answerKey" />
+            <f:param name="sortAscending" value="true" />
+          </h:commandLink>
+        </h:panelGroup>        
+     </f:facet>	
+     
+	 <h:outputText value="#{description.answerKey}" escape="false"/>
+	</h:column>
+	
+	<!--  Answer Key sortDescending -->
+	<h:column rendered="#{questionScores.typeId == '15' && questionScores.sortType eq 'answerKey' && questionScores.sortAscending}">
+     <f:facet name="header">
+     
+        <h:panelGroup>
+          <h:commandLink title="#{evaluationMessages.t_sortAnswerKey}" action="questionScores" >
+            <h:outputText value="#{commonMessages.answer_key}"/>
+            <f:param name="sortAscending" value="false" />
+            <h:graphicImage alt="#{evaluationMessages.alt_sortAnswerKeyDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	    <f:actionListener
+              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+            <f:actionListener
+              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>
+        </h:panelGroup>        
+     </f:facet>	
+     
+	 <h:outputText value="#{description.answerKey}" escape="false"/>
+	</h:column>	
+	
+	<!--  Answer Key sortAscending -->
+	<h:column rendered="#{questionScores.typeId == '15' && questionScores.sortType eq 'answerKey' && !questionScores.sortAscending}">
+     <f:facet name="header">
+     
+        <h:panelGroup>
+          <h:commandLink title="#{evaluationMessages.t_sortAnswerKey}" action="questionScores" >
+            <h:outputText value="#{commonMessages.answer_key}"/>
+            <f:param name="sortAscending" value="true" />
+            <h:graphicImage alt="#{evaluationMessages.alt_sortAnswerKeyAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	    <f:actionListener
+              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+            <f:actionListener
+              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>
+        </h:panelGroup>        
+     </f:facet>	
+     
+	 <h:outputText value="#{description.answerKey}" escape="false"/>
+	</h:column>	
 
     <!-- COMMENT -->
     <h:column rendered="#{questionScores.sortType!='comments'}">

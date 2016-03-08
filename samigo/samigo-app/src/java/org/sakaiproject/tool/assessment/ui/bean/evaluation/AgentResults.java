@@ -81,6 +81,7 @@ public class AgentResults
   private String finalScore; // final total score
   private String answer; // The abbreviated text or link of the answer
   private String fullAnswer=""; // The full text or link of the answer
+  private String answerKey; // Answer Key for Calculated Questions
   private String comments;
   private Integer status;
   private String gradedBy;
@@ -320,6 +321,15 @@ public class AgentResults
   public void setAnswer(String answer) {
     this.answer = answer;
   }
+  
+  public String getAnswerKey() {
+	return answerKey;
+  }
+
+  public void setAnswerKey(String answerKey) {
+	this.answerKey = answerKey;
+  }
+
   public String getComments() {
     return Validator.check(comments, "");
   }
