@@ -11,6 +11,12 @@ UPDATE SAKAI_SITE_TOOL_PROPERTY SET name = 'javax.portlet-feed_url' WHERE name =
 UPDATE SAKAI_SITE_TOOL SET registration = 'sakai.simple.rss' WHERE registration = 'sakai.news';
 -- End SAK-25784
 
+-- New permissions
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.myGroupMembers');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.myGroups');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.users');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.viewHidden.groups');
+
 -- Access 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.permissions.allowToField.myGroupMembers'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.permissions.allowToField.myGroups'));
@@ -366,9 +372,9 @@ CREATE TABLE `pasystem_banner_dismissed` (
    INDEX `state` (`state`)
 );
 
-INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1500', '!admin', 'PA System', '0', 20, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1550', '!admin-1500', '!admin', 'sakai.pasystem', 1, 'PA System', NULL );
-INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1500', 'sitePage.customTitle', 'true');
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1600', '!admin', 'PA System', '0', 20, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1650', '!admin-1600', '!admin', 'sakai.pasystem', 1, 'PA System', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1600', 'sitePage.customTitle', 'true');
 
 
 -- END SAK-29422 Incorporate NYU's "public announcement system"
@@ -654,3 +660,174 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
     VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
      AND TYPEID='142' AND ISTEMPLATE=1),
       'displayScores_isInstructorEditable', 'true');
+
+-- LTI CHANGES !!!
+alter table LTI_CONTENT add FA_ICON varchar(1024);
+alter table LTI_CONTENT add CONTENTITEM mediumtext;
+alter table lti_tools add pl_launch tinyint(4) default 0;
+alter table lti_tools add pl_linkselection tinyint(4) default 0;
+alter table lti_tools add pl_fileitem tinyint(4) default 0;
+alter table lti_tools add pl_contenteditor tinyint(4) default 0;
+alter table lti_tools add pl_assessmentselection tinyint(4) default 0;
+alter table lti_tools add pl_importitem tinyint(4) default 0;
+alter table lti_tools add fa_icon varchar(1024);
+alter table lti_tools add tool_proxy_binding mediumtext;
+
+ALTER TABLE lti_content MODIFY (     title VARCHAR(1024) );
+ALTER TABLE lti_content MODIFY (     pagetitle VARCHAR(1024) );
+ALTER TABLE lti_content MODIFY (     consumerkey VARCHAR(1024) );
+ALTER TABLE lti_content MODIFY (     secret VARCHAR(1024) );
+alter table lti_content modify ( 	custom varchar(65536) );
+
+ALTER TABLE lti_tools MODIFY (     title VARCHAR(1024) );
+ALTER TABLE lti_tools MODIFY (     pagetitle VARCHAR(1024) );
+ALTER TABLE lti_tools MODIFY (     consumerkey VARCHAR(1024) );
+ALTER TABLE lti_tools MODIFY (     secret VARCHAR(1024) );
+alter table lti_tools modify (	custom varchar(65536) );
+
+ALTER TABLE lti_deploy MODIFY (     title VARCHAR(1024) );
+ALTER TABLE lti_deploy MODIFY (     pagetitle VARCHAR(1024) );
+ALTER TABLE lti_deploy ADD (     allowcontentitem tinyint(4) DEFAULT 0 );
+ALTER TABLE lti_deploy MODIFY (     reg_key VARCHAR(1024) );
+ALTER TABLE lti_deploy MODIFY (     reg_password VARCHAR(1024) );
+ALTER TABLE lti_deploy ADD (	reg_ack CLOB );
+ALTER TABLE lti_deploy MODIFY (     consumerkey VARCHAR(1024) );
+ALTER TABLE lti_deploy MODIFY (     secret VARCHAR(1024) );
+ALTER TABLE lti_deploy ADD (     new_secret VARCHAR(1024) );
+
+CREATE TABLE lti_memberships_jobbbs (
+    SITE_ID VARCHAR(99),
+    memberships_id VARCHAR(256),
+    memberships_url mediumtext,
+    consumerkey VARCHAR(1024),
+    lti_version VARCHAR(32)
+);
+-- END LTI CHANGES !!
+
+-- LSNBLDR-500
+alter table lesson_builder_pages add folder varchar(250);
+
+-- ------------------------------
+-- DASHBOARD                -----
+-- ------------------------------
+      
+create table dash_availability_check 
+( id bigint not null auto_increment, entity_ref varchar(255) not null, 
+entity_type_id varchar(255) not null, scheduled_time datetime not null, primary key (id)); 
+create unique index dash_availability_check_idx on dash_availability_check(entity_ref, scheduled_time); 
+create index dash_availability_check_time_idx on dash_availability_check(scheduled_time);
+
+create table if not exists dash_calendar_item ( id bigint not null auto_increment, 
+calendar_time datetime not null, calendar_time_label_key varchar(40), title varchar(255) not null, 
+entity_ref varchar(255) not null, entity_type bigint not null, subtype varchar(255), context_id bigint not null, 
+repeating_event_id bigint, sequence_num integer, primary key (id) ); 
+create index dash_calendar_time_idx on dash_calendar_item (calendar_time); 
+create unique index dash_calendar_entity_label_idx on dash_calendar_item (entity_ref, calendar_time_label_key, sequence_num); 
+create index dash_calendar_entity_idx on dash_calendar_item (entity_ref); 
+
+create table if not exists dash_calendar_link ( id bigint not null auto_increment, 
+person_id bigint not null, context_id bigint not null, item_id bigint not null, hidden bit default 0, 
+sticky bit default 0, unique (person_id, context_id, item_id), primary key (id) ); 
+create index dash_calendar_link_idx on dash_calendar_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_calendar_link_item_id_idx on dash_calendar_link (item_id);
+
+create table if not exists dash_config ( id bigint not null auto_increment, 
+property_name varchar(99) not null, property_value integer not null, primary key (id) ); 
+create unique index dash_config_name_idx on dash_config(property_name); 
+insert into dash_config (property_name, property_value) values ('PROP_DEFAULT_ITEMS_IN_PANEL', 5); 
+insert into dash_config (property_name, property_value) values ('PROP_DEFAULT_ITEMS_IN_DISCLOSURE', 20); 
+insert into dash_config (property_name, property_value) values ('PROP_DEFAULT_ITEMS_IN_GROUP', 2); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_NEWS_ITEMS_AFTER_WEEKS', 8); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_STARRED_NEWS_ITEMS_AFTER_WEEKS', 26); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_HIDDEN_NEWS_ITEMS_AFTER_WEEKS', 4); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_CALENDAR_ITEMS_AFTER_WEEKS', 2); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_STARRED_CALENDAR_ITEMS_AFTER_WEEKS', 26); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_HIDDEN_CALENDAR_ITEMS_AFTER_WEEKS', 1); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_NEWS_ITEMS_WITH_NO_LINKS', 1); 
+insert into dash_config (property_name, property_value) values ('PROP_REMOVE_CALENDAR_ITEMS_WITH_NO_LINKS', 1); 
+insert into dash_config (property_name, property_value) values ('PROP_DAYS_BETWEEN_HORIZ0N_UPDATES', 1); 
+insert into dash_config (property_name, property_value) values ('PROP_WEEKS_TO_HORIZON', 4); 
+insert into dash_config (property_name, property_value) values ('PROP_MOTD_MODE', 1); 
+insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_FOR_NAVIGATION_EVENTS', 2); 
+insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS', 2); 
+insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_FOR_PREFERENCE_EVENTS', 2); 
+insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_FOR_DASH_NAV_EVENTS', 2);
+insert into dash_config (property_name, property_value) values ('PROP_LOOP_TIMER_ENABLED', 0);
+
+
+create table if not exists dash_context ( id bigint not null auto_increment, context_id varchar(255) not null, 
+context_url varchar(1024) not null, context_title varchar(255) not null, primary key (id) ); 
+create unique index dash_context_idx on dash_context (context_id);
+
+create table dash_event (event_id bigint auto_increment, event_date timestamp, event varchar (32), 
+ref varchar (255), context varchar (255), session_id varchar (163), event_code varchar (1), primary key (event_id));
+
+create table if not exists dash_news_item ( id bigint not null auto_increment, news_time datetime not null, 
+news_time_label_key varchar(40), title varchar(255) not null, 
+entity_ref varchar(255) not null, entity_type bigint not null, subtype varchar(255), 
+context_id bigint not null, grouping_id varchar(90), primary key (id) ); 
+create index dash_news_time_idx on dash_news_item (news_time); 
+create index dash_news_grouping_idx on dash_news_item (grouping_id); 
+create unique index dash_news_entity_idx on dash_news_item (entity_ref);
+
+create table if not exists dash_news_link ( id bigint not null auto_increment, person_id bigint not null, 
+context_id bigint not null, item_id bigint not null, hidden bit default 0, sticky bit default 0, 
+unique (person_id, context_id, item_id), primary key (id) ); 
+create index dash_news_link_idx on dash_news_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_news_link_item_id_idx on dash_news_link (item_id);
+
+create table if not exists dash_person ( id bigint not null auto_increment,user_id varchar(99) not null,
+sakai_id varchar(99), primary key (id) ); 
+create unique index dash_person_user_id_idx on dash_person (user_id); 
+create unique index dash_person_sakai_id_idx on dash_person (sakai_id);
+
+create table if not exists dash_repeating_event (id bigint not null auto_increment, 
+first_time datetime not null, last_time datetime, frequency varchar(40) not null, max_count integer, 
+calendar_time_label_key varchar(40), title varchar(255) not null, 
+entity_ref varchar(265) not null, subtype varchar(255), entity_type bigint not null, context_id bigint not null, 
+primary key (id) ); 
+create index dash_repeating_event_first_idx on dash_repeating_event (first_time); 
+create index dash_repeating_event_last_idx on dash_repeating_event (last_time);
+
+create table if not exists dash_sourcetype 
+( id bigint not null auto_increment, identifier varchar(255) not null, primary key (id) ); 
+create unique index dash_source_idx on dash_sourcetype (identifier);
+
+create table if not exists dash_task_lock
+( id bigint not null auto_increment, 
+task varchar(255) not null, 
+server_id varchar(255) not null, 
+claim_time timestamp, 
+last_update timestamp, 
+has_lock bit default 0,
+primary key (id));
+create index dash_lock_ct_idx on dash_task_lock (claim_time); 
+create unique index dash_lock_ts_idx on dash_task_lock (task, server_id);      
+
+-- ---------------------------------------------------------------------------
+-- SAKAI_CONFIG_ITEM - KNL-1063 - MYSQL
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE SAKAI_CONFIG_ITEM (
+	ID				BIGINT(20) NOT NULL AUTO_INCREMENT,
+	NODE			VARCHAR(255),
+	NAME			VARCHAR(255) NOT NULL,
+	VALUE			LONGTEXT,  
+	RAW_VALUE		LONGTEXT,
+	TYPE			VARCHAR(255) NOT NULL,
+	DEFAULT_VALUE	LONGTEXT,
+	DESCRIPTION		LONGTEXT,
+	SOURCE			VARCHAR(255) DEFAULT NULL,
+	DEFAULTED		BIT(1) NOT NULL,
+	REGISTERED		BIT(1) NOT NULL,
+	SECURED			BIT(1) NOT NULL,
+	DYNAMIC			BIT(1) NOT NULL,
+	CREATED			DATETIME NOT NULL,
+	MODIFIED		DATETIME NOT NULL,
+	POLL_ON			DATETIME DEFAULT NULL,
+	PRIMARY KEY (ID)
+);
+
+CREATE INDEX SCI_NODE_IDX ON SAKAI_CONFIG_ITEM (NODE ASC);
+CREATE INDEX SCI_NAME_IDX ON SAKAI_CONFIG_ITEM (NAME ASC);
+
