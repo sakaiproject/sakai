@@ -1136,14 +1136,8 @@ div[role="dialog"] {
 .right-col3 {
  left:10px;
 }
-
-.Mrphs-container--toolTitleNav {
-  text-align:right;
-}
 .returnwarning, .returnheader, .xMrphs-toolTitleNav__addLeft .usebutton span {
   font-size: .75em;
-}
-#content, #outer, nav.Mrphs-toolTitleNav {
 }
 #content{
   padding-top: 1px;
@@ -1274,7 +1268,16 @@ font-size: 90%;
 .Mrphs-container--toolTitleNav {
   margin-bottom: 0px !important;
 }
-
+.genTitle {
+  display:none;
+}
+/* student mode only */
+.genTitle ~ .action {
+  margin-top:-5px;
+}
+.itemclass {
+  margin-top: 0.5em !important;
+}
 .removeNarrow {
  display:none !important;
 }
@@ -1361,9 +1364,6 @@ font-size: 90%;
 .Mrphs-siteHierarchy span:last-child {
   margin-left: 6px;
 }
-.Mrphs-container--toolTitleNav {
-  float:right;
-}
 .contentButton span a {
   height: 24px;
 }
@@ -1430,9 +1430,6 @@ body > .portletBody {
   position:static;
   margin-bottom:0px !important;
 }
-.Mrphs-container--toolTitleNav {
-  text-align: left;
-}
 .oldPortal .title {
   display: inline-block;
   float:none !important;
@@ -1442,8 +1439,15 @@ body > .portletBody {
      margin-top:0px;
  }
 @media only screen and (min-width: 855px) {
+/* student mode only */
+body > .portletBody > .action {
+  margin-right:150px;
+}
 .oldPortal .action {
      margin-top:20px;
    }
 }
 /* end lessons in iframe */
+/* narrow screen */
+
+

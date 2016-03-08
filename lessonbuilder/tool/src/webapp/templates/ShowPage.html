@@ -215,7 +215,10 @@
 	    jQuery(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
 	    jQuery(".genTitle").text(title);
          }
-	 jQuery(".navIntraTool").append(jQuery(".action"));
+	 if (jQuery(".navIntraTool").size() > 0)
+  	   jQuery(".navIntraTool").append(jQuery(".action"));
+	 else
+	   jQuery(".neoPortletTitleWrap").before(jQuery(".action"));
 
 </script>
 
