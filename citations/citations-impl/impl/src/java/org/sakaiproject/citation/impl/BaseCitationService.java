@@ -2624,6 +2624,8 @@ public abstract class BaseCitationService implements CitationService
 
 		protected Map<String, Citation> m_citations = new LinkedHashMap<String, Citation>();
 
+		protected List<CitationCollectionOrder> m_nestedCitationCollectionOrders = new ArrayList<CitationCollectionOrder>();
+
 		protected Comparator m_comparator = DEFAULT_COMPARATOR;
 
 		protected String m_sortOrder;
@@ -2870,6 +2872,14 @@ public abstract class BaseCitationService implements CitationService
 			return citations;
 		}
 
+		public List<CitationCollectionOrder> getNestedCitationCollectionOrders() {
+			return m_nestedCitationCollectionOrders;
+		}
+
+		public void setNestedCitationCollectionOrders(List<CitationCollectionOrder> m_nestedCitationCollectionOrders) {
+			this.m_nestedCitationCollectionOrders = m_nestedCitationCollectionOrders;
+		}
+
 		public CitationCollection getCitations(Comparator c)
 		{
 			checkForUpdates();
@@ -3073,6 +3083,15 @@ public abstract class BaseCitationService implements CitationService
 			save(citation);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.sakaiproject.citation.api.CitationCollection#saveCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+		 */
+		public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			save(citationCollectionOrder);
+		}
 		/**
 		 *
 		 * @param comparator
@@ -3208,6 +3227,35 @@ public abstract class BaseCitationService implements CitationService
 					M_log.warn("copy(" + oldCitation.getId() + ") ==> " + newCitation.getId(), e);
 				}
 			}
+
+			Iterator iterator = other.getNestedCitationCollectionOrders().iterator();
+			while(iterator.hasNext()) {
+				CitationCollectionOrder citationCollectionOrder = (CitationCollectionOrder) iterator.next();
+				if (citationCollectionOrder.isCitation()){
+					try {
+						// copy the citation
+						CitationCollection collection = getCollection(citationCollectionOrder.getCollectionId());
+						BasicCitation oldCitation = (BasicCitation) collection.getCitation(citationCollectionOrder.getCitationid());
+						BasicCitation newCitation = new BasicCitation();
+						newCitation.copy(oldCitation);
+						newCitation.m_temporary = isTemporary;
+						this.saveCitation(newCitation);
+
+						// copy the citation's citationCollectionOrder
+						CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId(), newCitation.getId());
+						this.saveCitationCollectionOrder(newCitationCollectionOrder);
+
+					} catch (IdUnusedException e) {
+						M_log.warn("copying citationcollectionorder(" + citationCollectionOrder.getCitationid() + ") ==> " + citationCollectionOrder.getValue(), e);
+					}
+				}
+				else {
+					// copy the citationCollectionOrder
+					CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId());
+					this.saveCitationCollectionOrder(newCitationCollectionOrder);
+				}
+			}
+
 			this.m_mostRecentUpdate = TimeService.newTime().getTime();
 
 		}
@@ -3843,6 +3891,8 @@ public abstract class BaseCitationService implements CitationService
 		public void removeSchema(Schema schema);
 
 		public void saveCitation(Citation edit);
+
+		public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder);
 
 		public void saveCollection(CitationCollection collection);
 
@@ -5451,6 +5501,17 @@ public abstract class BaseCitationService implements CitationService
 		this.m_storage.saveCitation(citation);
 	}
 
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#save(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void save(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.saveCitationCollectionOrder(citationCollectionOrder);
+	}
+
 	public void setIdManager(IdManager idManager)
 	{
 		m_idManager = idManager;
@@ -5650,7 +5711,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			ContentResourceEdit edit = contentService.editResource(reference.getId());
 			String collectionId = new String(edit.getContent());
-			CitationCollection oldCollection = getCollection(collectionId);
+			CitationCollection oldCollection = getUnnestedCitationCollection(collectionId);
 			BasicCitationCollection newCollection = new BasicCitationCollection();
 			newCollection.copy((BasicCitationCollection) oldCollection);
 			save(newCollection);

@@ -131,4 +131,26 @@ public class CitationCollectionOrder {
 		}
 		return citationNo;
 	}
+
+	public CitationCollectionOrder copy(String collectionId) {
+
+		CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder();
+
+		citationCollectionOrder.setCollectionId(collectionId);
+
+		citationCollectionOrder.setChildren(this.getChildren());
+		citationCollectionOrder.setCitationid(this.getCitationid());
+		citationCollectionOrder.setLocation(this.getLocation());
+		citationCollectionOrder.setSectiontype(this.getSectiontype());
+		citationCollectionOrder.setValue(this.getValue());
+
+		return citationCollectionOrder;
+	}
+
+	public CitationCollectionOrder copy(String collectionId, String citationId) {
+
+		CitationCollectionOrder citationCollectionOrder = copy(collectionId);
+		citationCollectionOrder.setCitationid(citationId);
+		return citationCollectionOrder;
+	}
 }
