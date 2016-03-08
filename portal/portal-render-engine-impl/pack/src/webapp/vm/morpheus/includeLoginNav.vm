@@ -33,10 +33,11 @@
 
                                         <a id="loginUser" role="menuitem" href="javascript:void(0);" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
                                             <span class="Mrphs-userNav__submenuitem--username">${loginUserFirstName}</span>
+                                            <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                                         </a>
 
                                     #end ## END of IF (${tabsSites.mrphs_profileToolUrl})
-                                    <span class="Mrphs-userNav__drop Mrphs-userNav__drop-btn" tabindex="-1"></span>
+                                    <span class="Mrphs-userNav__drop Mrphs-userNav__drop-btn" tabindex="-1"><i class="fa fa-angle-down"></i></span>
 
                                 #end ## END of IF (${displayUserloginInfo})
 
