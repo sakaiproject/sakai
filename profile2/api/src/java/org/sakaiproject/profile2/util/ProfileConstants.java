@@ -334,6 +334,10 @@ public class ProfileConstants {
 	public static final String EVENT_MESSAGE_SENT = "profile.message.sent";
 	
 	public static final String EVENT_GALLERY_IMAGE_UPLOAD = "profile.gallery.image.upload";
+
+	public static final String EVENT_WALL_ITEM_NEW = "profile.wall.item.new";
+	public static final String EVENT_WALL_ITEM_REMOVE = "profile.wall.item.remove";
+	public static final String EVENT_WALL_ITEM_COMMENT_NEW = "profile.wall.item.comment.new";
 	
 	
 	/*
