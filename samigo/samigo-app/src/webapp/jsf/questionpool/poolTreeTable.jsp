@@ -19,9 +19,8 @@
 **********************************************************************************/
 --%>
 -->
-<h:dataTable cellpadding="0" cellspacing="0" id="TreeTable" value="#{questionpool.qpools}"
-    var="pool" styleClass="listHier" >
-
+<div class="table-responsive">
+  <h:dataTable styleClass="table table-striped" id="TreeTable" value="#{questionpool.qpools}" var="pool">
     <h:column id="col1">
 
      <f:facet name="header">
@@ -48,15 +47,10 @@
      </f:facet>
 <h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
-<h:outputLink  title="#{questionPoolMessages.t_toggletree}" id="parenttogglelink"  onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
-<h:graphicImage id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
-</h:outputLink>
-<h:outputLink title="#{questionPoolMessages.t_toggletree}" id="togglelink"  value="#" styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
-<h:graphicImage id="spacer_for_mozilla1" style="border:0" width="30" height="14"  value="/images/delivery/spacer.gif" />
-</h:outputLink>
+<h:outputLink  title="#{questionPoolMessages.t_toggletree}" id="parenttogglelink"  onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" />
+<h:outputLink title="#{questionPoolMessages.t_toggletree}" id="togglelink"  value="#" styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" />
 
-<h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}"
-   rendered="#{authorization.editOwnQuestionPool}">
+<h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}" rendered="#{authorization.editOwnQuestionPool}">
   <h:outputText id="poolnametext" value="#{pool.displayName}" escape="false"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="orderBy" value="text"/>
@@ -66,14 +60,12 @@
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
 </h:commandLink>
 
-<h:panelGroup rendered="#{!authorization.editOwnQuestionPool}">
+<h:panelGroup rendered="#{!authorization.editOwnQuestionPool}" styleClass="pool-display-name">
   <h:outputText id="poolnametext2" value="#{pool.displayName}" escape="false"/>
 </h:panelGroup>
 
-
-<f:verbatim><br/></f:verbatim>
-<h:graphicImage id="spacer" style="border:0" width="30" height="14" value="/images/delivery/spacer.gif" />
- <f:verbatim><span class="itemAction"></f:verbatim>
+<br/>
+ <span class="itemAction">
  <!-- Add Pool -->
  <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool && pool.ownerId==questionpool.agentId}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/>
@@ -116,7 +108,7 @@
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 --%>
- <f:verbatim></span></f:verbatim>
+ </span>
 </h:panelGroup>
     </h:column>
 
@@ -244,13 +236,9 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
        <h:outputText value="#{questionPoolMessages.remove_chbox}"/>
      </f:facet>
 
-<h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}">
-
-	<f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
-</h:selectManyCheckbox>
+      <h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}">
+	    <f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
+      </h:selectManyCheckbox>
     </h:column>
-
-
-
   </h:dataTable>
-
+</div>

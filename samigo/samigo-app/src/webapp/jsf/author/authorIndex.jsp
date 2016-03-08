@@ -35,7 +35,7 @@
       <title><h:outputText value="#{authorFrontDoorMessages.auth_front_door}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
-      <div class="portletBody">
+      <div class="portletBody container-fluid">
 
 <script type="text/javascript" src="/samigo-app/js/info.js"></script>
 <script type="text/JavaScript">
@@ -134,43 +134,36 @@ $(document).ready(function() {
 </script>
 
 <!-- content... -->
-
 <h:form id="authorIndexForm">
   <!-- HEADINGS -->
    <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
 
-  <h3>
-    <h:outputText value="#{authorFrontDoorMessages.assessments}"/>
-  </h3>
 <p>
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 </p>
 
-<div class="tier1">
-  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h4>"/>
-    <h:outputText value="#{authorFrontDoorMessages.assessment_new}" rendered="#{authorization.createAssessment}" />
-  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4><br/>"/>
+<div class="samigo-container">
+    <h1>
+        <h:outputText value="#{authorFrontDoorMessages.assessment_new}"/>
+    </h1>
 
-  <div id="samigo-create-container">
- 	<div id="samigo-create-new">
-		<div>
-		  	<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h4>"/>
+  <div class="row">
+ 	<div id="samigo-create-new-box" class="col-md-6">
+		<div class="lead">
 	  		<h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" />
-	  		<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4>"/>
     	</div>
 
-    	<div>
-		  <f:verbatim><span class="new_assessment"></f:verbatim>
-	      <h:outputText value="#{authorFrontDoorMessages.assessment_create}"/>
-	      <f:verbatim></span></f:verbatim>
-		  <h:inputText id="title" maxlength="255" value="#{author.assessTitle}" size="32" />
+            <div class="form-group form-inline">
+                <h:outputLabel value="#{authorFrontDoorMessages.assessment_create}"/>
+                <h:outputText value="&#160;" escape="false" />
+                <h:inputText id="title" maxlength="255" value="#{author.assessTitle}" styleClass="form-control" />
     	</div>
 
-    	<div>
-			<h:selectOneRadio id="creationMode" layout="spread" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}">
+    	<div class="form-group">
+			<t:selectOneRadio id="creationMode" layout="spread" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}">
 		      <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
 		      <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
-		    </h:selectOneRadio>
+		    </t:selectOneRadio>
 			<!-- SAM-2487 mark them up manually -->
 			<ul class="creation-mode-list no-list">
 			  <li><t:radio for="creationMode" index="0" /></li>
@@ -178,26 +171,26 @@ $(document).ready(function() {
 			</ul>
     	</div>
 
-  		<div>
-		  	<h:outputText value="#{authorFrontDoorMessages.assessment_choose} " rendered="#{author.showTemplateList}" />
+  		<div class="form-group">
+		  	<h:outputLabel value="#{authorFrontDoorMessages.assessment_choose} " rendered="#{author.showTemplateList}" />
 			<h:selectOneMenu id="assessmentTemplate" value="#{author.assessmentTemplateId}" rendered="#{author.showTemplateList}">
 		      <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
 		      <f:selectItems value="#{author.assessmentTemplateList}" />
 		    </h:selectOneMenu>
       	</div>
     
-		<div>
+            <div class="form-group">
 	      <h:commandButton id="createnew" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
 	      </h:commandButton>
     	</div>
   </div>
 
-  <div id="samigo-create-or">
+        <div id="samigo-create-or-box" class="col-md-1" style="text-align:center">
     <h:outputText value="#{authorFrontDoorMessages.label_or}"/>
   </div>
 
- <div id="samigo-create-import">
+        <div id="samigo-create-import-box" class="col-md-5">
 	  <div>
 		<h4>
       		<h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
@@ -207,22 +200,25 @@ $(document).ready(function() {
     </h:commandButton>
 	  </div>
   </div>
-</div>
+    </div>
 
-<div id="tabs">
+    <div id="tabs">
 	<ul>
 		<h:outputText escape="false" value="<li><a href=\"#tabs-1\" onclick=\"resizeFrame();\">" rendered="#{authorization.adminCoreAssessment}"/>
 		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pending}:" rendered="#{authorization.adminCoreAssessment}"/>
 		<h:outputText escape="false" value="<span class=\"samigo-tab-sub\">" rendered="#{authorization.adminCoreAssessment}"/>
+		<h:outputText value="&#160;" escape="false" />
 		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pending_sub}" rendered="#{authorization.adminCoreAssessment}"/>
 		<h:outputText escape="false" value="</span></a></li>" rendered="#{authorization.adminCoreAssessment}"/>
 		
 		<h:outputText escape="false" value="<li><a href=\"#tabs-2\" onclick=\"resizeFrame();\">" rendered="#{authorization.adminPublishedAssessment}"/>
 		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pub}:" rendered="#{authorization.adminPublishedAssessment}"/>
 		<h:outputText escape="false" value="<span class=\"samigo-tab-sub\">" rendered="#{authorization.adminPublishedAssessment}"/>
+		<h:outputText value="&#160;" escape="false" />
 		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pub_sub}" rendered="#{authorization.adminPublishedAssessment}"/>
 		<h:outputText escape="false" value="</span></a></li>" rendered="#{authorization.adminPublishedAssessment}"/>
 	</ul>
+
  <!-- CORE ASSESSMENTS-->
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div id=\"tabs-1\">"/>
   <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="tablesorter" id="coreAssessments" value="#{author.assessments}" var="coreAssessment" rendered="#{authorization.adminCoreAssessment}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">

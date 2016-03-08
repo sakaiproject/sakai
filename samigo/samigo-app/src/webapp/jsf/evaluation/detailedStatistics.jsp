@@ -36,7 +36,7 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
 --%>
 -->
 <!-- content... -->
- <div class="portletBody">
+ <div class="portletBody container-fluid">
 <h:form id="histogram">
 
   <h:inputHidden id="publishedId" value="#{histogramScores.publishedId}" />
@@ -45,16 +45,12 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
   
-  <h:panelGrid columns="1">
-  <h:panelGroup>
-  <f:verbatim><h3></f:verbatim>
-  	<h:outputText value="#{evaluationMessages.item_analysis}#{evaluationMessages.column} " escape="false"/>
-  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
-  	<h:outputText value="#{histogramScores.assessmentName} " escape="false"/>
-  <f:verbatim></span></f:verbatim>
-  <f:verbatim></h3></f:verbatim>
-  </h:panelGroup>
-  </h:panelGrid>
+  <h1>
+    <h:outputText value="#{evaluationMessages.item_analysis}#{evaluationMessages.column} " escape="false"/>
+    <small>
+  	  <h:outputText value="#{histogramScores.assessmentName} " escape="false"/>
+    </small>
+  </h1>
   
   <!-- Per UX, for formatting -->
   <div class="textBelowHeader">
@@ -121,7 +117,7 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
  
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
-<div class="tier1">
+<div class="table-responsive">
 
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
@@ -151,21 +147,10 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
      </h:selectOneMenu>
     </h:panelGroup>
 
-<!-- 
-***************************************************
-***************************************************
-***************************************************
-Below added by gopalrc Nov 2007 
-***************************************************
-***************************************************
-***************************************************
--->
-
-<br/>
 <br/>
 <br/>
 
-  <h:dataTable value="#{histogramScores.detailedStatistics}" var="item" styleClass="listHier lines">
+  <h:dataTable value="#{histogramScores.detailedStatistics}" var="item" styleClass="table table-striped">
 
     <h:column>
         <f:facet name="header">

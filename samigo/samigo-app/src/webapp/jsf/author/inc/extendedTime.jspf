@@ -1,10 +1,9 @@
 <!-- Extended Time -->
-<h:panelGroup>
-	<h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.extendedTimeHeading} </h4>" escape="false"/>
-		
+<h:panelGroup styleClass="form-group row" layout="block">
+	<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeHeading}"/>
+    <div class="col-md-10">
 		<f:verbatim>
-			<a href="#" id="xt_show" onclick="showExtendedTime()" class="tier2"
-				style="color: #0080C0">
+			<a href="#" id="xt_show" onclick="showExtendedTime()" class="tier2">
 		</f:verbatim>
 		<h:outputText value="#{assessmentSettingsMessages.extendedTimeAdd}" />
 		<f:verbatim>
@@ -33,4 +32,5 @@
 		<f:verbatim>
 			</div>
 		</f:verbatim>
+    </div>
 </h:panelGroup>

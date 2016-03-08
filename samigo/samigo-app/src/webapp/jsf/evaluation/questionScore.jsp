@@ -82,7 +82,7 @@ function hiddenLinkOnClick(){
 </script>
 
 <!-- content... -->
- <div class="portletBody">
+<div class="portletBody container">
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{questionScores.publishedId}" />
   <h:inputHidden id="itemId" value="#{questionScores.itemId}" />
@@ -90,16 +90,14 @@ function hiddenLinkOnClick(){
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <h:panelGrid columns="1">
-  <h:panelGroup>
-  <f:verbatim><h3></f:verbatim>
-  	<h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{questionScores.itemName} " escape="false"/>
-  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
-  	<h:outputText value="(#{totalScores.assessmentName}) " escape="false"/>
-  <f:verbatim></span></f:verbatim>
-  <f:verbatim></h3></f:verbatim>
-  </h:panelGroup>
-   </h:panelGrid>
+  <div class="page-header">
+    <h1>
+  	  <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{questionScores.itemName} " escape="false"/>
+      <small>
+  	    <h:outputText value="(#{totalScores.assessmentName}) " escape="false"/>
+      </small>
+    </h1>
+  </div>
   
   <!-- Per UX, for formatting -->
   <div class="textBelowHeader">
@@ -164,7 +162,7 @@ function hiddenLinkOnClick(){
     
   <h:outputText value="</span></li></ul>" escape="false"/>
 
-<f:verbatim><br /></f:verbatim>
+<br/>
 
 <div class="tier1">
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
@@ -211,83 +209,88 @@ function hiddenLinkOnClick(){
 
 <!--h:panelGrid styleClass="navModeQuestion" columns="2" columnClasses="alignLeft,alignCenter" width="100%" -->
 
-  <h:dataTable value="#{questionScores.deliveryItem}" var="question" border="0" >
-    <h:column>
-    <f:verbatim><div><h4></f:verbatim>
+  <t:dataList value="#{questionScores.deliveryItem}" var="question">
+    <div class="page-header">
+      <h2>
      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
-         <h:outputText value=" - #{evaluationMessages.q_aud} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         <small>
+           <h:outputText value=" - #{evaluationMessages.q_aud} (#{questionScores.maxPoint})"/>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '6'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
          <h:outputText value=" - #{evaluationMessages.q_fu} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '8'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
          <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '11'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
+         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_fin} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
       <h:panelGroup rendered="#{questionScores.typeId == '9'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
+         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_match} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '2'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
+         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{commonMessages.multipl_mc_ms} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '4'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
+         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_tf} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '5'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
+         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_short_ess} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '3'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
          <h:outputText value=" - #{evaluationMessages.q_mult_surv} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '13'}">
          <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_matrix_choices_surv}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '1'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
          <h:outputText value=" - #{commonMessages.multiple_choice_sin} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '12'}">
 		 <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-         <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
          <h:outputText value=" - #{commonMessages.multipl_mc_ss} (#{questionScores.maxPoint})"/>
-         <f:verbatim></span></f:verbatim>
+         </small>
      </h:panelGroup>
 	 <h:panelGroup rendered="#{questionScores.typeId == '16'}"><!-- // IMAGEMAP_QUESTION -->
 		 <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
-		 <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+         <small>
 		 <h:outputText value=" - #{evaluationMessages.q_imq} (#{questionScores.maxPoint})"/>
-		 <f:verbatim></span></f:verbatim>
+         </small>
       </h:panelGroup>
     <h:panelGroup rendered="#{questionScores.typeId == '14'}">
       <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_emi}"/>
@@ -295,12 +298,11 @@ function hiddenLinkOnClick(){
     <h:panelGroup rendered="#{questionScores.typeId == '15'}"><!-- // CALCULATED_QUESTION -->
       <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_cq}"/>
     </h:panelGroup>
-      <f:verbatim></h4></div></f:verbatim>
-    </h:column>
-  </h:dataTable>
+      </h2>
+    </div>
+  </t:dataList>
 
-  <h:dataTable value="#{questionScores.deliveryItem}" var="question">
-  <h:column>
+  <t:dataList value="#{questionScores.deliveryItem}" var="question">
   <h:panelGroup rendered="#{questionScores.typeId == '7'}">
     <f:subview id="displayAudioRecording">
       <%@ include file="/jsf/evaluation/item/displayAudioRecordingQuestion.jsp" %>
@@ -368,26 +370,19 @@ function hiddenLinkOnClick(){
     <%@ include file="/jsf/evaluation/item/displayImageMapQuestion.jsp" %>
     </f:subview>
   </h:panelGroup>
-  </h:column>
-  </h:dataTable>
+  </t:dataList>
 
-<h4>
-<h:panelGrid columns="2" columnClasses="navView" width="100%">	
-	<h:panelGroup>
-	 <p class=" navView navModeAction">
-	<h:outputText value="#{evaluationMessages.responses}"/>
-	</p>
-	</h:panelGroup>	 
-</h:panelGrid>
-</h4>
+  <h2 class="hide">
+    <p class="navView navModeAction">
+      <h:outputText value="#{evaluationMessages.responses}"/>
+    </p>
+  </h2>
 
 <sakai:flowState bean="#{questionScores}" />
-<h:panelGrid columns="3" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'false'}" border="0">
-
-  <h:panelGroup>
-    <h:panelGrid columns="4" columnClasses="samLeftTopNav,samLeftNav,,samLeftNav" border="0">
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
       <h:outputText value="#{evaluationMessages.view}"/>
-	  <h:panelGroup>
+      <h:outputText value="&#160;" escape="false" />
+	  <h:panelGroup styleClass="view-submissions">
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL1"
          required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true'  }">
           <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
@@ -418,7 +413,6 @@ function hiddenLinkOnClick(){
         
         <h:outputText value="&nbsp;" escape="false" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}"/>
         
-        
         <!-- SECTION AWARE -->
         <h:outputText value="&nbsp;#{evaluationMessages.forAllSectionsGroups}" escape="false" rendered="#{totalScores.availableSectionSize < 1}"/>
         
@@ -430,7 +424,6 @@ function hiddenLinkOnClick(){
         </h:selectOneMenu>
 		
 		<h:outputText value="&nbsp;" escape="false" />
-
       </h:panelGroup>
          
       <h:outputText value="&nbsp;#{evaluationMessages.separator}&nbsp;&nbsp;" style="color: #999999;" rendered="#{questionScores.typeId == '6'}" escape="false"/>
@@ -442,8 +435,9 @@ function hiddenLinkOnClick(){
 
       <h:outputText value="&nbsp;" rendered="#{questionScores.typeId != '6'}" escape="false"/>  
 
-      <h:outputText value="#{evaluationMessages.search}"/>
-	  <h:panelGroup>
+	  <h:panelGroup styleClass="samigo-search-student" layout="block">
+        <h:outputText value="#{evaluationMessages.search}"/>
+        <h:outputText value="&#160;" escape="false" />
 			<h:inputText
 				id="searchString"
 				value="#{questionScores.searchString}"
@@ -454,9 +448,6 @@ function hiddenLinkOnClick(){
 			<h:outputText value="&nbsp;" escape="false" />
 			<h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
 	  </h:panelGroup>
-	  <h:outputText value="&nbsp;" escape="false"/>
-	  <h:outputText value="&nbsp;" escape="false"/>
-    </h:panelGrid>
   </h:panelGroup>
    
    <h:panelGroup>
@@ -464,13 +455,11 @@ function hiddenLinkOnClick(){
 		  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
 	</sakai:pager>
   </h:panelGroup>  
-</h:panelGrid>
 
 <h:panelGrid columns="3" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'true'}">
   <h:panelGroup>
-    <h:panelGrid columns="4" columnClasses="samLeftTopNav,,samLeftNav" border="0">
       <h:outputText value="#{evaluationMessages.view}" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true' || (questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}"/>
-      <h:panelGroup>
+      <h:panelGroup styleClass="all-submissions" layout="block">
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL2"
          required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true' }">
         <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
@@ -510,7 +499,6 @@ function hiddenLinkOnClick(){
       </h:outputLink>   
       <h:outputText value="&nbsp;" rendered="#{questionScores.typeId != '6'}" escape="false"/>  
      
-    </h:panelGrid>
   </h:panelGroup>
   
   <h:panelGroup>
@@ -520,14 +508,12 @@ function hiddenLinkOnClick(){
   </h:panelGroup>
 </h:panelGrid>
 
-
 </div>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="tier2">
-  <h:dataTable cellpadding="0" cellspacing="0" id="questionScoreTable" value="#{questionScores.agents}"
-    var="description" styleClass="listHier" columnClasses="textTable">
+<div class="table-responsive">
+  <h:dataTable id="questionScoreTable" value="#{questionScores.agents}" var="description" styleClass="table table-bordered table-striped" columnClasses="textTable">
 
     <!-- NAME/SUBMISSION ID -->
     <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType ne 'lastName'}">
