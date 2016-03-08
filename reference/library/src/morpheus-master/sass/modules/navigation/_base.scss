@@ -295,14 +295,17 @@ body.is-logged-out{
 			text-decoration: none;
 			top: 0.6em;
 			white-space: nowrap;
-			@media #{$phone}{
-				display: none;
-			}
 		}
 	}
 
 	.no-avatar{
 		padding-top: 1em;
+		.#{$namespace}userNav__submenuitem--username{
+			@media #{$phone}{
+				display: none;
+			}
+		}
+
 	}
 
 	.has-avatar{
@@ -320,6 +323,11 @@ body.is-logged-out{
 			position: relative;
 			top: 0.8em;
 		}
+		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
+			@media #{$phone}{
+				display: none;
+			}
+		}
 	}
 
 	#loginUser{
@@ -336,14 +344,17 @@ body.is-logged-out{
 		margin-top: -2.5em;
 		padding: 18px 22px 27px 14px;
 		display: block;
+		outline: 0;
 		left: 12px;
 		&.is-clicked{
 			@include transform( rotate(180deg) );
 			position: relative;
-			top: 0px;
+			top: -0.2em;
+    		left: 1.3em;
+			outline: 0;
 		}
 		@media #{$phone}{
-			padding: 18px 22px 10px 14px;
+			padding: 18px 22px 3px 14px;
 		}
 	}
 
@@ -371,6 +382,9 @@ body.is-logged-out{
 				border-width: 7px;
 				margin-left: -7px;
 				outline: 0;
+				@media #{$phone}{
+					left: 85%;
+				}
 			}
 			.#{$namespace}userNav__submenuitem-indented{
 				padding-left: 1.5em;
@@ -379,7 +393,7 @@ body.is-logged-out{
 				margin: 3.3em 0 0 -9.8em;
 				position: fixed;
 			    top: 0.3em;
-			    z-index: 21;
+			    z-index: 61;
 			}
 			.Mrphs-loginUser{
 				padding: 0 0 0 0;
@@ -404,6 +418,13 @@ body.is-logged-out{
 				&:hover{
 					color: lighten( $primary-color, 10% );
 				}
+			}
+		}
+		.#{$namespace}userNav__drop-btn{
+			i {
+				position: relative;
+	    		top: -0.6em;
+	    		left: 0.4em;
 			}
 		}
 	}
@@ -650,3 +671,9 @@ body.is-logged-out{
 	}
 }
 
+.user-dropdown-overlay{
+	height: 100%; 
+	position: fixed; 
+	width: 100%; 
+	z-index: 20;
+}

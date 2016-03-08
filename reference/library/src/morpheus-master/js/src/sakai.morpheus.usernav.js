@@ -11,7 +11,6 @@ function toggleUserNav(event){
     // Add an invisible overlay to allow clicks to close the dropdown
 
     var overlay = $('<div class="user-dropdown-overlay" />');
-    overlay.css({width: '100%', height: '100%', position: 'fixed', zIndex: 50});
     overlay.on('click', function () { $(event.target).trigger('click'); });
 
     $('body').prepend(overlay);
