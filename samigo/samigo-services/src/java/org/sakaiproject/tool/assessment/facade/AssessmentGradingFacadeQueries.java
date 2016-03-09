@@ -3440,7 +3440,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
 						" and c.retractDate <= ?" +
 						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
-						" and a.submittedDate is not null " +
+						" and a.attemptDate is not null " +
 						" and (a.attemptDate <= c.retractDate or (c.dueDate <= ? and c.lateHandling = 2)) " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId", values);
 		
@@ -3478,20 +3478,29 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		adata = (AssessmentGradingData) iter.next();
 	    		adata.setHasAutoSubmissionRun(Boolean.TRUE);
 	    		
-	    		if (Boolean.FALSE.equals(adata.getForGrade())){
+				Date endDate = new Date();
+				if (Boolean.FALSE.equals(adata.getForGrade())){
 
-    				adata.setForGrade(Boolean.TRUE);
-    				if (adata.getTotalAutoScore() == null) {
-    					adata.setTotalAutoScore(0d);
-    				}
-    				if (adata.getFinalScore() == null) {
-    					adata.setFinalScore(0d);
-    				}
-    				// SAM-1088
-    				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
-    						adata.getSubmittedDate().after(assessment.getDueDate())) {
-    					adata.setIsLate(true);
-    				}
+						adata.setForGrade(Boolean.TRUE);
+						if (adata.getTotalAutoScore() == null) {
+								adata.setTotalAutoScore(0d);
+						}
+						if (adata.getFinalScore() == null) {
+								adata.setFinalScore(0d);
+						}
+						if (adata.getAttemptDate() != null && assessment != null && assessment.getDueDate() != null &&
+										adata.getAttemptDate().after(assessment.getDueDate())) {
+								adata.setIsLate(true);
+						}
+						// SAM-1088
+						else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+										adata.getSubmittedDate().after(assessment.getDueDate())) {
+								adata.setIsLate(true);
+						}
+						// SAM-2729 user probably opened assessment and then never submitted a question
+						if (adata.getSubmittedDate() == null && adata.getAttemptDate() != null) {
+								adata.setSubmittedDate(endDate);
+						}
 
     				updateCurrentGrade = true;
     				adata.setIsAutoSubmitted(Boolean.TRUE);
@@ -3522,7 +3531,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     					EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
     					//will do the i18n issue later.
     					eventLogData.setErrorMsg("No Errors (Auto submit)");
-    					Date endDate = new Date();
     					eventLogData.setEndDate(endDate);
     					if(endDate != null && eventLogData.getStartDate() != null) {
     						double minute= 1000*60;
