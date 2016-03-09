@@ -149,8 +149,8 @@ function clickSubmitForGrade(){
   </h5>
   <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/whiteBubble15.png" />
   <h:outputText value="#{deliveryMessages.unans_q}" /><br/>
-  <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/blackBubble15.png" />
-  <h:outputText value="answered question" /><br/>
+  <h:graphicImage  alt="#{deliveryMessages.alt_ans_q}" url="/images/blackBubble15.png" />
+  <h:outputText value="#{deliveryMessages.ans_q}" /><br/>
   <h:graphicImage  alt="#{deliveryMessages.alt_q_marked}" url="/images/questionMarkBubble15.png" rendered="#{delivery.displayMardForReview}" />
   <h:outputText value="#{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
 

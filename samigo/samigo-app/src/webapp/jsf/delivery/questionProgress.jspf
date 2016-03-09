@@ -27,13 +27,13 @@
 
 <div class="tier1">
 <h2>
-    <h:outputText value="Question Progress " />
+    <h:outputText value="#{deliveryMessages.qprogress}" />
 </h2>
 
 
 <f:verbatim><p class="progressItem"></f:verbatim>
         <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" /><h:outputText value=" #{deliveryMessages.unans_q}" /><br/>
-        <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" /><h:outputText value=" answered question" escape="false" /><br/>
+        <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" /><h:outputText value=" #{deliveryMessages.ans_q}" escape="false" /><br/>
         <h:graphicImage alt="marked for review icon" url="#{delivery.questionProgressMardPath}" rendered="#{delivery.displayMardForReview}" /><h:outputText value=" #{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
 <f:verbatim></p></f:verbatim>
 
@@ -49,7 +49,7 @@
         <h:graphicImage alt="a right arrow" id="rightArrow" value="/images/right_arrow.gif" styleClass="arrow #{(part.number eq delivery.partIndex+1) ? 'hiddenArrow' : ''}" />
         <h:graphicImage alt="a down arrow" id="downArrow" value="/images/down_arrow.gif" styleClass="arrow #{(part.number eq delivery.partIndex+1) ? '' : 'hiddenArrow'}" />
         <h:outputText value=" #{deliveryMessages.p} #{part.number}: #{part.nonDefaultText}</button>" escape="false" />
-        <h:outputText value="<span class=\"numberOfQuestionsInPart\">#{part.questions} question(s)</span></div>" escape="false" />
+        <h:outputText value="<span class=\"numberOfQuestionsInPart\">#{part.questions} #{deliveryMessages.qprogress_questions}</span></div>" escape="false" />
         <h:outputText value="<div id=\"partTable-#{part.number}\" >" escape="false"/>
         <h:dataTable value="#{part.itemContents}" var="question" id="tocquestions" styleClass="#{(delivery.navigation eq '2') ? 'questionProgressTable' : 'questionProgressTable_linear'}">
           <h:column>
@@ -95,5 +95,5 @@
 <f:verbatim></div></f:verbatim>
 
 <f:verbatim><div id='questionProgressClick'>
-<p class="rotateQP"><span id="qpOpen">&#9660; Question Progress &#9660;</span><span id="qpClose">&#9650; Question Progress &#9650;</span></p>
+<p class="rotateQP"><span id="qpOpen">&#9660; <h:outputText escape="false" value="#{deliveryMessages.qprogress}"/> &#9660;</span><span id="qpClose">&#9650; <h:outputText escape="false" value="#{deliveryMessages.qprogress}"/> &#9650;</span></p>
 </div><br/>&nbsp;</f:verbatim>
