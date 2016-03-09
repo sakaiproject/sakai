@@ -564,6 +564,21 @@ body.is-logged-out{
 	margin-bottom:0px;
 }
 
+.portal-bullhorns-buttons{
+	position: relative;
+	display: inline-block;
+	padding-right: 1em;
+	border-right: 1px solid $tool-border-color;
+}
+
+##{$namespace}academic-bullhorn{
+	display: inline-block; /* Sakai 11.1 makes it flex, which is wrong */
+}
+
+##{$namespace}social-bullhorn{
+	display: inline-block; /* Sakai 11.1 makes it flex, which is wrong */
+}
+
 .view-all-sites-btn{
 	position: relative;
 	display: inline-block;

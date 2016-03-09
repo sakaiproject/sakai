@@ -459,6 +459,18 @@ public interface SakaiProxy {
 	public String getDirectUrlToProfileComponent(String userId, String component, Map<String, String> extraParams);
 
 	/**
+	 * Creates a direct URL to a component (profile, messages etc) of a user's profile page
+	 * from another user's My Workspace.
+	 *
+	 * @param viewerUuid uuid of the viewing user
+	 * @param viewedUuid uuid of the user being viewed
+	 * @param component - currently only 'viewprofile' is supported.
+	 * @param extraParams a map of params that each component may need, used to build the URL
+	 * @return
+	 */
+	public String getDirectUrlToProfileComponent(String viewerUuid, String viewedUuid, String component, Map<String, String> extraParams);
+
+	/**
 	 * Check if a user is allowed to update their account. The User could come from LDAP so updates not allowed. This will check if any
 	 * updates are allowed.
 	 *

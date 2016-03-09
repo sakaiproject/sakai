@@ -49,6 +49,14 @@ public interface ProfileLinkLogic {
 	 * @return the url or null if they don't have the tool installed.
 	 */
 	public String getInternalDirectUrlToUserProfile(final String userUuid);
+
+	/**
+	 * Creates a full URL to the viewed user's profile page viewed from within the viewer's
+	 * ViewProfile page in Profile2 on their My Workspace
+	 * 
+	 * @return the url or null if they don't have the tool installed.
+	 */
+	public String getInternalDirectUrlToUserProfile(final String viewerUuid, final String viewedUuid);
 	
 	/**
 	 * Creates a full URL to the messages page (and optionally directly to a message view) of the currently logged in user's
@@ -63,6 +71,19 @@ public interface ProfileLinkLogic {
 	 * @return the url or null if they don't have the tool installed.
 	 */
 	public String getInternalDirectUrlToUserMessages(final String threadId);
+
+	/**
+	 * Creates a full URL to the connections page of the specified user's
+	 * profile page on their My Workspace.
+	 * 
+	 * <p>
+	 * This should only be used internally by Profile2 as the URL is long and ugly.
+	 * If you need to generate a URL to a user's profile, see {@link getUrlToUserConnections}
+	 * </p>
+	 * 
+	 * @return the url or null if they don't have the tool installed.
+	 */
+	public String getInternalDirectUrlToUserConnections(String userId);
 	
 	/**
 	 * Creates a full URL to the connections page of the currently logged in user's
