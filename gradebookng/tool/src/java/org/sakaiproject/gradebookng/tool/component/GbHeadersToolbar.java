@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -24,27 +25,28 @@ import java.util.stream.Collectors;
 
 public class GbHeadersToolbar extends HeadersToolbar {
 
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	private GradebookNgBusinessService businessService;
+	private IModel<Map<String, Object>> model;
 
-
-	public GbHeadersToolbar(final DataTable table, final ISortStateLocator stateLocator) {
+	public GbHeadersToolbar(final DataTable table, final ISortStateLocator stateLocator, final IModel<Map<String, Object>> model) {
 		super(table, stateLocator);
+		this.model = model;
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-		final Map<String, Object> gradebookData = ((GbDataTable)getTable()).getGradebookData();
 		final GradebookPage page = (GradebookPage) getPage();
 		final GradebookUiSettings settings = page.getUiSettings();
+
+		final Map<String, Object> modelData = model.getObject();
 
 		if (settings.isCategoriesEnabled()) {
 			WebMarkupContainer categoriesRow = new WebMarkupContainer("categoriesRow");
 
-			List<Assignment> assignments = (List<Assignment>) gradebookData.get("assignments");
-			List<CategoryDefinition> categories = (List<CategoryDefinition>) gradebookData.get("categories");
+			List<Assignment> assignments = (List<Assignment>) modelData.get("assignments");
+			List<CategoryDefinition> categories = (List<CategoryDefinition>) modelData.get("categories");
+			GbCategoryType categoryType = (GbCategoryType) modelData.get("categoryType");
 
 			Collections.sort(categories, CategoryDefinition.orderComparator);
 
@@ -62,8 +64,6 @@ public class GbHeadersToolbar extends HeadersToolbar {
 					categoryCounts.put(assignment.getCategoryId(), increment);
 				}
 			}
-
-			final GbCategoryType categoryType = GbHeadersToolbar.this.businessService.getGradebookCategoryType();
 
 			categories = categories.stream().
 					filter(c -> categoryCounts.get(c.getId()) > 0).collect(Collectors.toList());
