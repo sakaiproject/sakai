@@ -99,6 +99,14 @@ public class SettingsPage extends BasePage {
 					}
 				}
 
+				// if categories and weighting selected AND if course grade display points was selected,
+				// give error message
+				if (model.getGradebookInformation().getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()
+						&& model.getGradebookInformation().isCourseGradeDisplayed()
+						&& model.getGradebookInformation().isCoursePointsDisplayed()) {
+					error(getString("settingspage.displaycoursegrade.incompatible"));
+				}
+
 				// validate the course grade display settings
 				if (model.getGradebookInformation().isCourseGradeDisplayed()) {
 					int displayOptions = 0;
