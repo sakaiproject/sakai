@@ -1,13 +1,12 @@
-
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <!--
 * $Id$
 <%--
@@ -42,139 +41,107 @@
       </head>
 <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
 
-<div class="portletBody">
+<div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
-
-
-
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
 
-<p class="act">
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
-  </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
-  </h:commandButton>
-
-
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
-  </h:commandButton>
-
- <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
- </h:commandButton>
-</p>
 
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
-  <div class="tier2">
-    <div class="shorttext">  <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
-	<f:validateDoubleRange minimum="0.00"/>
-	</h:inputText>
-	<br/> 
+  <div class="form-group row"> 
+    <h:outputLabel styleClass="col-md-2" value="#{authorMessages.answer_point_value}" />
+    <div class="col-md-2">
+      <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
+	    <f:validateDoubleRange minimum="0.00"/>
+	  </h:inputText>
 	<h:message for="answerptr" styleClass="validate"/>
-	</div>
-	<div class="longtext">
-    <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
-	<div class="tier3">
-    <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
-     <f:selectItem itemValue="true"
-       itemLabel="#{authorMessages.yes}" />
-     <f:selectItem itemValue="false"
-       itemLabel="#{authorMessages.no}" />
-    </h:selectOneRadio>
+    </div>
   </div>
-	<br/>
-<!-- 1.2 MIN POINTS -->
 
-<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-<f:verbatim>
-<div class="shorttext">
-</f:verbatim>
-<h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
-	<f:validateDoubleRange/>
-	</h:inputText>
-<f:verbatim><div></f:verbatim>
-<h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
-<f:verbatim></div></f:verbatim>
-	<br/> 
-	<h:message for="answerminptr" styleClass="validate"/>
-<f:verbatim>
+  <div class="form-group row">
+    <h:outputLabel styleClass="col-md-2" value="#{authorMessages.answer_point_value_display}" />
+	<div class="col-md-10">
+      <t:selectOneRadio id="itemScore" value="#{itemauthor.currentItem.itemScoreDisplayFlag}" layout="spread">
+        <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
+        <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
+      </t:selectOneRadio>
+      <ul class="item-score">
+        <li><t:radio for="itemScore" index="0" /></li> 
+        <li><t:radio for="itemScore" index="1" /></li> 
+      </ul>
+    </div>
   </div>
-<br/>
-</f:verbatim>
+
+<!-- 1.2 MIN POINTS -->
+<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
+  <div class="shorttext">
+    <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
+    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
+	  <f:validateDoubleRange/>
+	</h:inputText>
+    <h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
+	<h:message for="answerminptr" styleClass="validate"/>
+  </div>
 </f:subview>
 
   <!-- 2 TEXT -->
-   <div class="longtext"><h:outputLabel value="#{authorMessages.q_text}" />
-  <br/>
+  <div class="longtext">
+  <h:outputLabel value="#{authorMessages.q_text}" />
   <!-- WYSIWYG -->
-
-  <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
      <f:validateLength minimum="1" maximum="60000"/>
    </samigo:wysiwyg>
-
-  </h:panelGrid>
   </div>
 
   <!-- 2a ATTACHMENTS -->
   <%@ include file="/jsf/author/item/attachment.jsp" %>
 
    <!-- 3 PART -->
-  <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-  <f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel value="#{authorMessages.assign_to_p}" />
-  <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
-     <f:selectItems  value="#{itemauthor.sectionSelectList}" />
-  </h:selectOneMenu>
-  </h:panelGrid>
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
+    <h:outputLabel styleClass="col-md-2" value="#{authorMessages.assign_to_p} " />
+    <div class="col-md-10">
+      <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
+        <f:selectItems value="#{itemauthor.sectionSelectList}" />
+      </h:selectOneMenu>
+    </div>
+  </h:panelGroup>
 
 
   <!-- 4 POOL -->
-  <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-  <f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel value="#{authorMessages.assign_to_question_p}" />
-  <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
-     <f:selectItems value="#{itemauthor.poolSelectList}" />
-  </h:selectOneMenu>
-  </h:panelGrid>
-  <br/>
- <!-- 5 ANSWER and ANSWERFEEDBACK -->
-   <div class="longtext">
-  <h:outputLabel value="#{authorMessages.answer_provide_a_mo}" />  </div>
-<div class="tier2">
-<h:outputText value="#{authorMessages.model_short_answer}" />
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
+    <h:outputLabel styleClass="col-md-2" value="#{authorMessages.assign_to_question_p} " />
+    <div class="col-md-10">
+      <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
+        <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
+        <f:selectItems value="#{itemauthor.poolSelectList}" />
+      </h:selectOneMenu>
+    </div>
+  </h:panelGroup>
+
+</div>
+
+  <!-- 5 ANSWER and ANSWERFEEDBACK -->
+  <h2>
+    <h:outputText value="#{authorMessages.answer_provide_a_mo}" />  
+  </h2>
+
+  <div class="tier2">
+    <h:outputLabel value="#{authorMessages.model_short_answer}" />
 
  <!-- WYSIWYG -->
- <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" hasToggle="yes" mode="author">
      <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
-</h:panelGrid>
-<br/>
- <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputText value="#{commonMessages.feedback_optional}" />
- <h:panelGrid>
+
+ <h:panelGroup styleClass="form-group" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+  <h:outputLabel value="#{commonMessages.feedback_optional}" />
    <!-- WYSIWYG  -->
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-</h:panelGrid>
 </h:panelGroup>
 
   </div>
@@ -184,7 +151,6 @@
 
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
 
 

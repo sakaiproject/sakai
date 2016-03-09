@@ -135,8 +135,7 @@ public class StartInsertItemListener implements ValueChangeListener
       }
       catch (Exception ex)
       {
-        log.warn("unable to process value change: " + ex);
-//        ex.printStackTrace();
+        log.warn("unable to process value change", ex);
         return;
       }
       itemauthorbean.setItemType(newitemtype);
