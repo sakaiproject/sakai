@@ -25,7 +25,8 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 -->
 </STYLE>
 
- <h:dataTable cellpadding="0" cellspacing="0" value="#{questionpool.allItems}" var="question" styleClass="listHier">
+ <t:dataTable cellpadding="0" cellspacing="0" value="#{questionpool.allItems}" var="question" styleClass="listHier"
+ 				rowIndexVar="row">
 
 <h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >
   <f:facet name="header">
@@ -68,8 +69,8 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 
 <h:commandLink title="#{questionPoolMessages.t_editQuestion}" id="modify" action="#{itemauthor.doit}">
 
-    <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{question.themeText}" rendered="#{question.typeId == 14}"/>
-    <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14}"/>
+    <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{row + 1} : #{question.themeText}" rendered="#{question.typeId == 14}"/>
+    <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{row + 1} : #{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14}"/>
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
     <f:param name="itemid" value="#{question.itemId}"/>
@@ -156,4 +157,4 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
      </h:column>
 
 
-  </h:dataTable>
+  </t:dataTable>
