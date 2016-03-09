@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -1144,7 +1145,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		//toolSession.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
-		String itemId = params.getString("itemId");
+		String itemId = null;
+		try {
+		    itemId = URLDecoder.decode(params.getString("itemId"), "UTF-8");
+		} catch (java.io.UnsupportedEncodingException e) {
+		    // should be impossible. use original, with warning
+		    logger.warn("UTF-8 unsupported???");
+		    itemId = params.getString("itemId");
+		}
 
 		Object attach_links = toolSession.getAttribute(STATE_ATTACH_LINKS);
 
