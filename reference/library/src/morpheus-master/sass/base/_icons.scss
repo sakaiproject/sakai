@@ -93,6 +93,10 @@
   .icon-sakai--subsite {                                    @extend .fa-level-up; }
   .icon-sakai--subsites-list {                              @extend .fa-level-down; }
 
+  // bullhorn icons
+  .icon-sakai--academic-bullhorn {                          @extend .fa-bullhorn; padding-right: 5px;}
+  .icon-sakai--social-bullhorn {                            @extend .fa-users;}
+
   // when we're showing the motd tool as "Welcome" on the gateway page, use a different icon.
   a.Mrphs-hierarchy-item.Mrphs-hierarchy--toolName[href*="!gateway"] .icon-sakai--sakai-motd,
   a.Mrphs-toolsNav__menuitem--link[href*="!gateway"] .icon-sakai--sakai-motd {

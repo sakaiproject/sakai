@@ -23,6 +23,7 @@ package org.sakaiproject.portal.service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.sql.ResultSet;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,12 +35,17 @@ import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
+import org.apache.commons.lang.StringUtils;
 import org.exolab.castor.util.LocalConfiguration;
 import org.exolab.castor.util.Configuration.Property;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.BaseEditor;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -52,11 +58,15 @@ import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.api.StyleAbleProvider;
+import org.sakaiproject.portal.beans.BullhornAlert;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * @author ieb
@@ -73,6 +83,18 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
+	private static final String ALERTS_SELECT_SQL =
+				"SELECT * FROM BULLHORN_ALERTS WHERE ALERT_TYPE = ? AND TO_USER = ? ORDER BY EVENT_DATE DESC";
+
+	private static final String ALERTS_COUNT_SQL =
+				"SELECT COUNT(*) FROM BULLHORN_ALERTS WHERE ALERT_TYPE = ? AND TO_USER = ?";
+
+	private static final String ALERT_DELETE_SQL =
+				"DELETE FROM BULLHORN_ALERTS WHERE ID = ? AND TO_USER = ?";
+
+	private static final String ALERTS_DELETE_SQL =
+				"DELETE FROM BULLHORN_ALERTS WHERE ALERT_TYPE = ? AND TO_USER = ?";
+
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<String, PortalRenderEngine>();
 
 	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<String, Map<String, PortalHandler>>();
@@ -88,7 +110,27 @@ public class PortalServiceImpl implements PortalService
 	private ContentHostingService contentHostingService;
 	
 	private EditorRegistry editorRegistry;
-	
+
+	private MemoryService memoryService;
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
+	}
+
+	private SqlService sqlService;
+	public void setSqlService(SqlService sqlService) {
+		this.sqlService = sqlService;
+	}
+
+	private UserDirectoryService userDirectoryService;
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	private SiteService siteService;
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 
 	public void init()
@@ -563,7 +605,7 @@ public class PortalServiceImpl implements PortalService
 		if (placement != null) {
 			//Allow tool- or user-specific editors?
 			try {
-				Site site = SiteService.getSite(placement.getContext());
+				Site site = siteService.getSite(placement.getContext());
 				Object o = site.getProperties().get("wysiwyg.editor");
 				if (o != null) {
 					activeEditor = o.toString();
@@ -692,4 +734,162 @@ public class PortalServiceImpl implements PortalService
 		return Collections.unmodifiableList(quickLinks);
 
 	}
+
+	public List<BullhornAlert> getSocialAlerts(String userId) {
+
+		List<BullhornAlert> alerts = sqlService.dbRead(ALERTS_SELECT_SQL
+				, new Object[] { SOCIAL, userId }
+				, new SqlReader() {
+						public Object readSqlResultRecord(ResultSet rs) {
+							return new BullhornAlert(rs);
+						}
+					}
+				);
+
+		for (BullhornAlert alert : alerts) {
+			try {
+				User fromUser = userDirectoryService.getUser(alert.from);
+				alert.fromDisplayName = fromUser.getDisplayName();
+			} catch (UserNotDefinedException unde) {
+				alert.fromDisplayName = alert.from;
+			}
+		}
+
+		return alerts;
+	}
+
+	public int getSocialAlertCount(String userId) {
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+
+		Map<String, Integer> cachedCounts = (Map<String, Integer>) countCache.get(userId);
+
+		if (cachedCounts == null) { cachedCounts = new HashMap(); }
+
+		Integer count = cachedCounts.get("social");
+
+		if (count != null) {
+			log.debug("bullhorn_alert_count_cache hit");
+			return count;
+		} else {
+			log.debug("bullhorn_alert_count_cache miss");
+
+			List<Integer> counts = sqlService.dbRead(ALERTS_COUNT_SQL
+			, new Object[] { SOCIAL, userId }
+			, new SqlReader() {
+					public Object readSqlResultRecord(ResultSet rs) {
+
+						try {
+							return rs.getInt(1);
+						} catch (Exception e) {
+							log.error("Failed to get social alert count. Returning 0 ..." , e);
+							return 0;
+						}
+					}
+				}
+			);
+			count = counts.get(0);
+			cachedCounts.put("social", count);
+			countCache.put(userId, cachedCounts);
+			return count;
+		}
+	}
+
+	public boolean clearBullhornAlert(String userId, long alertId) {
+
+		sqlService.dbWrite(ALERT_DELETE_SQL
+						, new Object[] {alertId, userId});
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+		countCache.remove(userId);
+
+		return true;
+	}
+
+	public boolean clearAllSocialAlerts(String userId) {
+
+		sqlService.dbWrite(ALERTS_DELETE_SQL
+						, new Object[] {SOCIAL, userId});
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+		countCache.remove(userId);
+
+		return true;
+	}
+
+	public List<BullhornAlert> getAcademicAlerts(String userId) {
+
+		List<BullhornAlert> alerts = sqlService.dbRead(ALERTS_SELECT_SQL
+				, new Object[] { ACADEMIC, userId }
+				, new SqlReader() {
+						public Object readSqlResultRecord(ResultSet rs) {
+							return new BullhornAlert(rs);
+						}
+					}
+				);
+
+		for (BullhornAlert alert : alerts) {
+			try {
+				User fromUser = userDirectoryService.getUser(alert.from);
+				alert.fromDisplayName = fromUser.getDisplayName();
+				if (!StringUtils.isBlank(alert.siteId)) {
+					alert.siteTitle = siteService.getSite(alert.siteId).getTitle();
+				}
+			} catch (UserNotDefinedException unde) {
+				alert.fromDisplayName = alert.from;
+			} catch (IdUnusedException iue) {
+				alert.siteTitle = alert.siteId;
+			}
+		}
+
+		return alerts;
+	}
+
+	public int getAcademicAlertCount(String userId) {
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+
+		Map<String, Integer> cachedCounts = (Map<String, Integer>) countCache.get(userId);
+
+		if (cachedCounts == null) { cachedCounts = new HashMap(); }
+
+		Integer count = cachedCounts.get("academic");
+
+		if (count != null) {
+			log.debug("bullhorn_alert_count_cache hit");
+			return count;
+		} else {
+			log.debug("bullhorn_alert_count_cache miss");
+			List<Integer> counts = sqlService.dbRead(ALERTS_COUNT_SQL
+				, new Object[] { ACADEMIC, userId }
+				, new SqlReader() {
+						public Object readSqlResultRecord(ResultSet rs) {
+
+							try {
+								return rs.getInt(1);
+							} catch (Exception e) {
+								log.error("Failed to get social alert count. Returning 0 ..." , e);
+								return 0;
+							}
+						}
+					}
+				);
+			count = counts.get(0);
+			cachedCounts.put("academic", count);
+			countCache.put(userId, cachedCounts);
+			return count;
+		}
+	}
+
+	public boolean clearAllAcademicAlerts(String userId) {
+
+		sqlService.dbWrite(ALERTS_DELETE_SQL
+						, new Object[] {ACADEMIC, userId});
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+		countCache.remove(userId);
+
+		return true;
+	}
+
 }
