@@ -21,13 +21,13 @@
  *
  **********************************************************************************
 -->
-<script type="text/javascript" src="#libraryLink('js/jquery/1.7.1/jquery-1.7.1.min.js')">	
+<script type="text/javascript" src="#libraryLink('webjars/jquery/1.11.3/jquery.min.js')">
 </script>
-<script type="text/javascript" src="#libraryLink('js/jquery/ui/1.11.3/jquery-ui.min.js')">	
+<script type="text/javascript" src="#libraryLink('webjars/jquery-ui/1.11.3/jquery-ui.min.js')">
 </script>
 <script type="text/javascript" src="#libraryLink('js/jquery/sortable/jquery.sortable.min.js')">
 </script>
-<link media="all" rel="stylesheet" type="text/css" href="#libraryLink('js/jquery-ui-latest/css/ui-lightness/jquery-ui.css')">
+<link media="all" rel="stylesheet" type="text/css" href="#libraryLink('webjars/jquery-ui/1.11.3/jquery-ui.min.css')">
 <link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">
 <style type="text/css">
 span.searchTargetLink { margin-right:50px; }
