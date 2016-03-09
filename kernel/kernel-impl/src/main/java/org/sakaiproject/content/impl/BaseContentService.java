@@ -14236,7 +14236,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
      * 
      * See SAK-23587
      */
-    private String expandMacros(String url) {
+    public String expandMacros(String url) {
     	
     	if(M_log.isDebugEnabled()){
     		M_log.debug("Original url: " + url);
