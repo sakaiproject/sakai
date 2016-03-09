@@ -60,6 +60,7 @@
 
         </div> ## END: Mrphs-container Mrphs-container--extras    
         <div id="tutorial" class="Mrphs-tutorial Mrphs-modal"></div>
+        <div id="social-alerts" class="Mrphs-tutorial Mrphs-modal"></div>
 
     #else 
 

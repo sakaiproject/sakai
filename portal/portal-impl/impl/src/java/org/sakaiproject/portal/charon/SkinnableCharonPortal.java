@@ -1746,6 +1746,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
 
+			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("useBullhornAlerts", true);
+			rcontext.put("useBullhornAlerts", useBullhornAlerts);
+
 			// SAK-25931 - Do not remove this from session here - removal is done by /direct
 	                Session s = SessionManager.getCurrentSession();
 			String userWarning = (String) s.getAttribute("userWarning");
