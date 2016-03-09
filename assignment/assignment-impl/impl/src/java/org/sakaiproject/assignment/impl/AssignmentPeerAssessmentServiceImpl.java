@@ -403,11 +403,11 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			return new ArrayList<PeerAssessmentAttachment>();
 		}
 		HibernateCallback hcb = session -> {
-            Query q = session.getNamedQuery("findPeerAssessmentAttachmentsByUserAndSubmission");
-            q.setParameter("submissionId", submissionId);
-            q.setParameter("assessorUserId", assessorUserId);
-            return q.list();
-        };
+			Query q = session.getNamedQuery("findPeerAssessmentAttachmentsByUserAndSubmission");
+			q.setParameter("submissionId", submissionId);
+			q.setParameter("assessorUserId", assessorUserId);
+			return q.list();
+		};
 
 		return (List<PeerAssessmentAttachment>) getHibernateTemplate().execute(hcb);
 	}
@@ -434,7 +434,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 
 	public void savePeerAssessmentAttachments(PeerAssessmentItem item){
 		if(item != null && item.getAttachmentList() != null){
-			getHibernateTemplate().saveOrUpdateAll(item.getAttachmentList());
+			for(PeerAssessmentAttachment element : item.getAttachmentList()) {
+				getHibernateTemplate().saveOrUpdate(element);
+			}
 			getHibernateTemplate().flush();
 		}
 	}
