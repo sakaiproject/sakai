@@ -75,11 +75,6 @@ public class CategoryColumnCellPanel extends Panel {
 		};
 		scoreLabel.setOutputMarkupId(true);
 		add(scoreLabel);
-
-		// accessibility
-		getParent().add(new AttributeModifier("scope", "row"));
-		getParent().add(new AttributeModifier("role", "rowheader"));
-
 	}
 
 	/**

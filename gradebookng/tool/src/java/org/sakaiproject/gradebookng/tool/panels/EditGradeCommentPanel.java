@@ -107,8 +107,9 @@ public class EditGradeCommentPanel extends Panel {
 		// TODO if user/assignment has been deleted since rendering the GradebookPage, handle nulls here gracefully
 		final GbUser user = this.businessService.getUser(studentUuid);
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
-		add(new Label("heading", new StringResourceModel("heading.editcomment", null,
-				new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })));
+		EditGradeCommentPanel.this.window.setTitle(
+				(new StringResourceModel("heading.editcomment", null,
+						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString());
 
 		// textarea
 		form.add(new TextArea<String>("comment", new PropertyModel<String>(formModel, "gradeComment"))

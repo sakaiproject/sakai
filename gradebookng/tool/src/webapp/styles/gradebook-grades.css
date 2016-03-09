@@ -86,17 +86,13 @@
   max-width: 220px;
   min-width: 220px;
 }
-#gradebookGrades thead th > span,
-#gradebookGrades tbody th > span,
 #gradebookGrades thead th > div,
 #gradebookGrades tbody td > div {
   position: relative;
   display: block;
 }
-#gradebookGrades thead tr.headers th,
-#gradebookGrades tbody tr.headers th,
-#gradebookGrades thead tr.headers th > span,
-#gradebookGrades tbody tr.headers th > span {
+#gradebookGrades thead th,
+#gradebookGrades thead th > div {
   min-height: 100px;
   height: 100px;
 }
@@ -106,7 +102,7 @@
 }
  
  /* Table Header */
-#gradebookGrades th {
+#gradebookGrades thead th {
   vertical-align: top;
   background: #F0f0f0;
   text-shadow: 1px 1px 0 #FFF;
@@ -183,7 +179,7 @@
   right: 1px;
 }
 #gradebookGrades table td,
-#gradebookGrades table .headers th {
+#gradebookGrades table .gb-headers th {
   cursor: pointer;
 }
 #gradebookGrades tbody .btn.dropdown-toggle {
@@ -220,7 +216,7 @@
 #gradebookGrades.initialized table tbody tr > td:nth-child(3) {
   border-right: 1px solid #BBB;
 }
-#gradebookGrades table tr.headers th {
+#gradebookGrades table tr.gb-headers th {
   border-bottom-color: #BBB;
 }
 #gradebookGrades table.table-striped tbody td {
@@ -247,13 +243,13 @@
   text-align: center;
   white-space: nowrap;
 }
-#gradebookGrades.gb-grouped-by-category .dragtable-sortable {
+#gradebookSpreadsheet.gb-grouped-by-category .dragtable-sortable {
   margin-top: 30px;
 }
 #gradebookGrades .gb-fixed-column-headers-table .gb-categories-row {
   display: none;
 }
-#gradebookGrades.gb-grouped-by-category .gb-fixed-column-headers-table .gb-categories-row {
+#gradebookSpreadsheet.gb-grouped-by-category .gb-fixed-column-headers-table .gb-categories-row {
   display: table-row;
 }
 #gradebookGrades .gb-category-weight {
@@ -707,6 +703,16 @@
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
+}
+div.wicket-modal h3.w_captionText {
+  padding: 20px;
+  font-size: 1.5em;
+  position: relative;
+  height: auto;
+}
+div.wicket-modal div.w_caption {
+  min-height: 60px;
+  height: auto;
 }
 div.wicket-mask-dark {
   background-color: #FFF;

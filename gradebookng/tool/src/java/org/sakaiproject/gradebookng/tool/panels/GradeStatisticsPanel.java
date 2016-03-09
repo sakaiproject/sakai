@@ -67,8 +67,9 @@ public class GradeStatisticsPanel extends Panel {
 
 		final Assignment assignment = this.businessService.getAssignment(assignmentId.longValue());
 
-		add(new Label("title", new StringResourceModel("label.statistics.title",
-				null, new Object[] { assignment.getName() }).getString()));
+		GradeStatisticsPanel.this.window.setTitle(
+				(new StringResourceModel("label.statistics.title", null,
+						new Object[] { assignment.getName() }).getString()));
 
 		final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(Arrays.asList(assignment));
 

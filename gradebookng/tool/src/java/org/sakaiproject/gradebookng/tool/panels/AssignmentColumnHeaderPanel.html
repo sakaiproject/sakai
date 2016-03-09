@@ -10,11 +10,11 @@
 	</div>
 	
 	<div class="gb-grade-section">
-		<span wicket:message="value:label.total">Total: </span><span wicket:id="totalPoints" class="gb-total-points">100</span>
+		<wicket:message key="label.total">Total: </wicket:message> <span wicket:id="totalPoints" class="gb-total-points">100</span>
 	</div>
 	
 	<div class="gb-due-date">
-		<span wicket:message="value:label.due">Due: </span><span wicket:id="dueDate">23/5/2014</span>
+		<wicket:message key="label.due">Due: </wicket:message> <span wicket:id="dueDate">23/5/2014</span>
 	</div>
 	
 	<div class="gb-grade-item-flags">
@@ -27,7 +27,7 @@
 
 	<!-- dropdown -->
 	<div class="btn-group" wicket:id="menu">
-	    <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
+	    <a wicket:id="menuButton" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true">
 	    	<span class="caret"></span>
 	    </a>
 	    <ul class="dropdown-menu dropdown-menu-right" role="menu">
@@ -36,8 +36,8 @@
 			<li><a wicket:id="moveAssignmentLeft" href="#" class="move-assignment-left" role="menuitem"><wicket:message key="assignment.option.moveleft" /></a></li>
 			<li><a wicket:id="moveAssignmentRight" href="#" class="move-assignment-right" role="menuitem"><wicket:message key="assignment.option.moveright" /></a></li>
 			<li><a wicket:id="hideAssignment" href="#" role="menuitem"><wicket:message key="assignment.option.hide" /></a></li>
-	    	<li><a wicket:id="setUngraded" href="#" role="menuitem" aria-haspopup="true"><wicket:message key="assignment.option.setungraded" /></a></li>
-			<li><a wicket:id="deleteGradeItem" href="#" role="menuitem" aria-haspopup="true" class="gb-delete-item"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
+	    	<li><a wicket:id="setUngraded" href="#" role="menuitem"><wicket:message key="assignment.option.setungraded" /></a></li>
+			<li><a wicket:id="deleteGradeItem" href="#" role="menuitem" class="gb-delete-item"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
 	    </ul>
     </div>
 	

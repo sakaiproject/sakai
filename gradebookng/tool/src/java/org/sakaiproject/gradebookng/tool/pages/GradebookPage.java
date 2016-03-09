@@ -16,11 +16,12 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -44,6 +45,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
+import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
@@ -53,7 +55,6 @@ import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
-import org.sakaiproject.gradebookng.tool.panels.GradebookSpreadsheetFixedTables;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
@@ -141,6 +142,7 @@ public class GradebookPage extends BasePage {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form form) {
 				final GbModalWindow window = getAddOrEditGradeItemWindow();
+				window.setTitle(getString("heading.addgradeitem"));
 				window.setComponentToReturnFocusTo(this);
 				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
 				window.show(target);
@@ -166,6 +168,7 @@ public class GradebookPage extends BasePage {
 		if (settings.isCategoriesEnabled()) {
 			// Pre-sort assignments by the categorized sort order
 			sortBy = SortType.SORT_BY_CATEGORY;
+			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
 		}
 
 		// get Gradebook to save additional calls later
@@ -195,7 +198,6 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
-				cellItem.add(new AttributeModifier("tabindex", 0));
 				cellItem.add(new EmptyPanel(componentId));
 			}
 
@@ -207,7 +209,7 @@ public class GradebookPage extends BasePage {
 		cols.add(handleColumn);
 
 		// student name column
-		final AbstractColumn studentNameColumn = new AbstractColumn(new Model("")) {
+		final AbstractColumn studentNameColumn = new AbstractColumn(new Model("studentColumn")) {
 
 			@Override
 			public Component getHeader(final String componentId) {
@@ -217,8 +219,6 @@ public class GradebookPage extends BasePage {
 			@Override
 			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
 				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
-
-				cellItem.add(new AttributeModifier("tabindex", 0));
 
 				final Map<String, Object> modelData = new HashMap<>();
 				modelData.put("userId", studentGradeInfo.getStudentUuid());
@@ -313,15 +313,15 @@ public class GradebookPage extends BasePage {
 
 					final Map<String, Object> modelData = new HashMap<>();
 					modelData.put("assignmentId", assignment.getId());
+					modelData.put("assignmentName", assignment.getName());
 					modelData.put("assignmentPoints", assignment.getPoints());
 					modelData.put("studentUuid", studentGrades.getStudentUuid());
+					modelData.put("studentName", studentGrades.getStudentDisplayName());
 					modelData.put("categoryId", assignment.getCategoryId());
 					modelData.put("isExternal", assignment.isExternallyMaintained());
 					modelData.put("externalAppName", assignment.getExternalAppName());
 					modelData.put("gradeInfo", gradeInfo);
 					modelData.put("role", GradebookPage.this.role);
-
-					cellItem.add(new AttributeModifier("tabindex", 0));
 
 					cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
 
@@ -348,6 +348,10 @@ public class GradebookPage extends BasePage {
 
 			// remove those that have no assignments
 			categories.removeIf(cat -> cat.getAssignmentList().isEmpty());
+
+			Collections.sort(categories, CategoryDefinition.orderComparator);
+
+			int currentColumnIndex = 3; // take into account first three header columns
 
 			for (final CategoryDefinition category : categories) {
 
@@ -379,7 +383,6 @@ public class GradebookPage extends BasePage {
 						modelData.put("categoryId", category.getId());
 
 						cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
-						cellItem.add(new AttributeModifier("tabindex", 0));
 						cellItem.setOutputMarkupId(true);
 					}
 
@@ -390,75 +393,70 @@ public class GradebookPage extends BasePage {
 
 				};
 
-				cols.add(column);
+				if (settings.isCategoriesEnabled()) {
+					// insert category column after assignments in that category
+					currentColumnIndex = currentColumnIndex + category.getAssignmentList().size();
+					cols.add(currentColumnIndex, column);
+					currentColumnIndex = currentColumnIndex + 1;
+				} else {
+					// add to the end of the column list
+					cols.add(column);
+				}
 			}
 		}
 
 		Temp.time("all Columns added", stopwatch.getTime());
 
-		final Map<String, Object> modelData = new HashMap<>();
-		modelData.put("assignments", assignments);
-		modelData.put("categories", categories);
-
-		this.form.add(new GradebookSpreadsheetFixedTables("fixedHeader", Model.ofMap(modelData)));
-
-		if (settings.isCategoriesEnabled()) {
-			// Pre-sort columns so the JavaScript doesn't have to
-			// by putting the category total columns after assignments
-			// in that category (which are already grouped by category).
-			// If categories are not enabled, these average columns
-			// will display as the last columns in the table.
-			Collections.sort(cols, new Comparator<IColumn>() {
-				@Override
-				public int compare(final IColumn col1, final IColumn col2) {
-					final IModel model1 = ((AbstractColumn) col1).getDisplayModel();
-					final IModel model2 = ((AbstractColumn) col2).getDisplayModel();
-
-					final Object o1 = model1.getObject();
-					final Object o2 = model2.getObject();
-
-					if (o1.equals(o2)) {
-						return 0;
-					}
-
-					Long cat1;
-					Long cat2;
-					if (o1 instanceof Assignment) {
-						cat1 = ((Assignment) o1).getCategoryId();
-					} else if (o1 instanceof CategoryDefinition) {
-						cat1 = ((CategoryDefinition) o1).getId();
-					} else {
-						return -1;
-					}
-
-					if (o2 instanceof Assignment) {
-						cat2 = ((Assignment) o2).getCategoryId();
-					} else if (o2 instanceof CategoryDefinition) {
-						cat2 = ((CategoryDefinition) o2).getId();
-					} else {
-						return 1;
-					}
-
-					if (cat1 == null) {
-						return 1;
-					} else if (cat2 == null) {
-						return -1;
-					}
-
-					return cat1.compareTo(cat2);
-				}
-			});
-		}
-
 		// TODO make this AjaxFallbackDefaultDataTable
-		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100);
+		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100) {
+			@Override
+			protected Item newCellItem(final String id, final int index, final IModel model) {
+				return new Item(id, index, model) {
+					@Override
+					protected void onComponentTag(ComponentTag tag) {
+						super.onComponentTag(tag);
+
+						Object modelObject = model.getObject();
+
+						if (modelObject instanceof AbstractColumn &&
+								"studentColumn".equals(((AbstractColumn) modelObject).getDisplayModel().getObject())) {
+							tag.setName("th");
+							tag.getAttributes().put("role", "rowheader");
+							tag.getAttributes().put("scope", "row");
+						} else {
+							tag.getAttributes().put("role", "gridcell");
+						}
+						tag.getAttributes().put("tabindex", "0");
+					}
+				};
+			}
+
+			@Override
+			protected Item newRowItem(String id, int index, IModel model) {
+				return new Item(id, index, model) {
+					@Override
+					protected void onComponentTag(ComponentTag tag) {
+						super.onComponentTag(tag);
+
+						tag.getAttributes().put("role", "row");
+					}
+				};
+			}
+		};
 		table.addBottomToolbar(new NavigationToolbar(table) {
 			@Override
 			protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {
 				return constructTablePaginationLabel(navigatorId, table);
 			}
 		});
-		table.addTopToolbar(new HeadersToolbar(table, null));
+
+
+		final Map<String, Object> modelData = new HashMap<>();
+		modelData.put("assignments", assignments);
+		modelData.put("categories", categories);
+		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
+
+		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 
 		// enable drag and drop based on user role (note: entity provider has role checks on exposed API)
@@ -492,6 +490,7 @@ public class GradebookPage extends BasePage {
 				if (settings.isCategoriesEnabled()) {
 					add(new AttributeModifier("class", "on"));
 				}
+				add(new AttributeModifier("aria-pressed", settings.isCategoriesEnabled()));
 			}
 
 			@Override

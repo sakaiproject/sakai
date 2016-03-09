@@ -57,7 +57,7 @@ public class CourseGradeItemCellPanel extends Panel {
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
-				final GbModalWindow window = gradebookPage.getGradeLogWindow();
+				final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(new CourseGradeOverridePanel(window.getContentId(), getModel(), window));
 				window.showUnloadConfirmation(false);
@@ -69,7 +69,7 @@ public class CourseGradeItemCellPanel extends Panel {
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
-				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
+				final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
 				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), getModel(), window));
 				window.showUnloadConfirmation(false);

@@ -39,6 +39,9 @@ public class UpdateCourseGradeDisplayPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		// set window title
+		UpdateCourseGradeDisplayPanel.this.window.setTitle(getString("heading.updatecoursegradedisplay"));
+
 		// get settings data
 		final GradebookInformation settings = this.businessService.getGradebookSettings();
 
