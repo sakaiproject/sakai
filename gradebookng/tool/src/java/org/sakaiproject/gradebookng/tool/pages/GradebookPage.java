@@ -21,6 +21,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -44,7 +45,6 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
-import org.sakaiproject.gradebookng.tool.component.GbDataTable;
 import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -407,19 +407,56 @@ public class GradebookPage extends BasePage {
 
 		Temp.time("all Columns added", stopwatch.getTime());
 
-		final Map<String, Object> modelData = new HashMap<>();
-		modelData.put("assignments", assignments);
-		modelData.put("categories", categories);
-
 		// TODO make this AjaxFallbackDefaultDataTable
-		final GbDataTable table = new GbDataTable("table", cols, studentGradeMatrix, 100, Model.ofMap(modelData));
+		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100) {
+			@Override
+			protected Item newCellItem(final String id, final int index, final IModel model) {
+				return new Item(id, index, model) {
+					@Override
+					protected void onComponentTag(ComponentTag tag) {
+						super.onComponentTag(tag);
+
+						Object modelObject = model.getObject();
+
+						if (modelObject instanceof AbstractColumn &&
+								"studentColumn".equals(((AbstractColumn) modelObject).getDisplayModel().getObject())) {
+							tag.setName("th");
+							tag.getAttributes().put("role", "rowheader");
+							tag.getAttributes().put("scope", "row");
+						} else {
+							tag.getAttributes().put("role", "gridcell");
+						}
+						tag.getAttributes().put("tabindex", "0");
+					}
+				};
+			}
+
+			@Override
+			protected Item newRowItem(String id, int index, IModel model) {
+				return new Item(id, index, model) {
+					@Override
+					protected void onComponentTag(ComponentTag tag) {
+						super.onComponentTag(tag);
+
+						tag.getAttributes().put("role", "row");
+					}
+				};
+			}
+		};
 		table.addBottomToolbar(new NavigationToolbar(table) {
 			@Override
 			protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {
 				return constructTablePaginationLabel(navigatorId, table);
 			}
 		});
-		table.addTopToolbar(new GbHeadersToolbar(table, null));
+
+
+		final Map<String, Object> modelData = new HashMap<>();
+		modelData.put("assignments", assignments);
+		modelData.put("categories", categories);
+		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
+
+		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 
 		// enable drag and drop based on user role (note: entity provider has role checks on exposed API)
