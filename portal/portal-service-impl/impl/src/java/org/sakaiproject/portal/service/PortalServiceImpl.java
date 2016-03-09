@@ -27,11 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.sql.ResultSet;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
@@ -42,7 +44,11 @@ import org.exolab.castor.util.Configuration.Property;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.BaseEditor;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -55,11 +61,15 @@ import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.api.StyleAbleProvider;
+import org.sakaiproject.portal.beans.BullhornAlert;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * @author ieb
@@ -93,7 +103,27 @@ public class PortalServiceImpl implements PortalService
 	private ContentHostingService contentHostingService;
 	
 	private EditorRegistry editorRegistry;
-	
+
+	private MemoryService memoryService;
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
+	}
+
+	private SqlService sqlService;
+	public void setSqlService(SqlService sqlService) {
+		this.sqlService = sqlService;
+	}
+
+	private UserDirectoryService userDirectoryService;
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	private SiteService siteService;
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 
 	public void init()
@@ -573,7 +603,7 @@ public class PortalServiceImpl implements PortalService
 		if (placement != null) {
 			//Allow tool- or user-specific editors?
 			try {
-				Site site = SiteService.getSite(placement.getContext());
+				Site site = siteService.getSite(placement.getContext());
 				Object o = site.getProperties().get("wysiwyg.editor");
 				if (o != null) {
 					activeEditor = o.toString();
@@ -618,5 +648,173 @@ public class PortalServiceImpl implements PortalService
 		return "";
 	}
 
+	public List<BullhornAlert> getSocialAlerts(String userId) {
 
+		List<BullhornAlert> alerts = sqlService.dbRead(
+                "SELECT * FROM SOCIAL_ALERTS WHERE TO_USER = ? ORDER BY EVENT_DATE DESC"
+				, new Object[] { userId }
+				, new SqlReader() {
+						public Object readSqlResultRecord(ResultSet rs) {
+							return new BullhornAlert(rs);
+						}
+					}
+				);
+
+		for (BullhornAlert alert : alerts) {
+			try {
+				User fromUser = userDirectoryService.getUser(alert.from);
+				alert.fromDisplayName = fromUser.getDisplayName();
+			} catch (UserNotDefinedException unde) {
+				alert.fromDisplayName = alert.from;
+			}
+		}
+
+		return alerts;
+	}
+
+	public int getSocialAlertCount(String userId) {
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+
+		Map<String, Integer> cachedCounts = (Map<String, Integer>) countCache.get(userId);
+
+		if (cachedCounts == null) { cachedCounts = new HashMap(); }
+
+		Integer count = cachedCounts.get("social");
+
+		if (count != null) {
+			log.debug("bullhorn_alert_count_cache hit");
+			return count;
+		} else {
+			log.debug("bullhorn_alert_count_cache miss");
+
+			List<Integer> counts = sqlService.dbRead("SELECT COUNT(*) FROM SOCIAL_ALERTS WHERE TO_USER = ?"
+			, new Object[] { userId }
+			, new SqlReader() {
+					public Object readSqlResultRecord(ResultSet rs) {
+
+						try {
+							return rs.getInt(1);
+						} catch (Exception e) {
+							log.error("Failed to get social alert count. Returning 0 ..." , e);
+							return 0;
+						}
+					}
+				}
+			);
+			count = counts.get(0);
+			cachedCounts.put("social", count);
+			countCache.put(userId, cachedCounts);
+			return count;
+		}
+	}
+
+	public boolean clearSocialAlert(String userId, long alertId) {
+
+		sqlService.dbWrite("DELETE FROM SOCIAL_ALERTS WHERE ID = ? AND TO_USER = ?"
+						, new Object[] {alertId, userId});
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+		countCache.remove(userId);
+
+		return true;
+	}
+
+	public boolean clearAllSocialAlerts(String userId) {
+
+		sqlService.dbWrite("DELETE FROM SOCIAL_ALERTS WHERE TO_USER = ?"
+						, new Object[] {userId});
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+		countCache.remove(userId);
+
+		return true;
+	}
+
+	public List<BullhornAlert> getAcademicAlerts(String userId) {
+
+		List<BullhornAlert> alerts = sqlService.dbRead(
+                "SELECT * FROM ACADEMIC_ALERTS WHERE TO_USER = ? ORDER BY EVENT_DATE DESC"
+				, new Object[] { userId }
+				, new SqlReader() {
+						public Object readSqlResultRecord(ResultSet rs) {
+							return new BullhornAlert(rs);
+						}
+					}
+				);
+
+		for (BullhornAlert alert : alerts) {
+			try {
+				User fromUser = userDirectoryService.getUser(alert.from);
+				alert.fromDisplayName = fromUser.getDisplayName();
+				if (!StringUtils.isBlank(alert.siteId)) {
+					alert.siteTitle = siteService.getSite(alert.siteId).getTitle();
+				}
+			} catch (UserNotDefinedException unde) {
+				alert.fromDisplayName = alert.from;
+			} catch (IdUnusedException iue) {
+				alert.siteTitle = alert.siteId;
+			}
+		}
+
+		return alerts;
+	}
+
+	public int getAcademicAlertCount(String userId) {
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+
+		Map<String, Integer> cachedCounts = (Map<String, Integer>) countCache.get(userId);
+
+		if (cachedCounts == null) { cachedCounts = new HashMap(); }
+
+		Integer count = cachedCounts.get("academic");
+
+		if (count != null) {
+			log.debug("bullhorn_alert_count_cache hit");
+			return count;
+		} else {
+			log.debug("bullhorn_alert_count_cache miss");
+			List<Integer> counts = sqlService.dbRead("SELECT COUNT(*) FROM ACADEMIC_ALERTS WHERE TO_USER = ?"
+				, new Object[] { userId }
+				, new SqlReader() {
+						public Object readSqlResultRecord(ResultSet rs) {
+
+							try {
+								return rs.getInt(1);
+							} catch (Exception e) {
+								log.error("Failed to get social alert count. Returning 0 ..." , e);
+								return 0;
+							}
+						}
+					}
+				);
+			count = counts.get(0);
+			cachedCounts.put("academic", count);
+			countCache.put(userId, cachedCounts);
+			return count;
+		}
+	}
+
+	public boolean clearAcademicAlert(String userId, long alertId) {
+
+		sqlService.dbWrite("DELETE FROM ACADEMIC_ALERTS WHERE ID = ? AND TO_USER = ?"
+						, new Object[] {alertId, userId});
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+		countCache.remove(userId);
+
+		return true;
+	}
+
+	public boolean clearAllAcademicAlerts(String userId) {
+
+		sqlService.dbWrite("DELETE FROM ACADEMIC_ALERTS WHERE TO_USER = ?"
+						, new Object[] {userId});
+
+		Cache countCache = memoryService.newCache("bullhorn_alert_count_cache");
+		countCache.remove(userId);
+
+		return true;
+	}
 }

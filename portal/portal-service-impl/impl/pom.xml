@@ -33,6 +33,22 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.announcement</groupId>
+            <artifactId>sakai-announcement-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.assignment</groupId>
+            <artifactId>sakai-assignment-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.message</groupId>
+            <artifactId>sakai-message-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.profile2</groupId>
+            <artifactId>profile2-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
@@ -49,12 +65,20 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-container</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-descriptor-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 
@@ -64,6 +88,12 @@
                 <directory>${basedir}/src/bundle</directory>
                 <includes>
                     <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/sql</directory>
+                <includes>
+                    <include>**/*.sql</include>
                 </includes>
             </resource>
         </resources>

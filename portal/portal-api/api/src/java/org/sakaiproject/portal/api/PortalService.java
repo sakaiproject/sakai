@@ -22,11 +22,13 @@
 package org.sakaiproject.portal.api;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.portal.beans.BullhornAlert;
 import org.sakaiproject.tool.api.Placement;
 
 /**
@@ -325,4 +327,53 @@ public interface PortalService
 	 */
 	public String getSkinPrefix();
 
+	/**
+	 * @param userId The user to retrieve the alert count for
+	 * @return the number of current social alerts for the specified user
+	 */
+	public int getSocialAlertCount(String userId);
+
+	/**
+	 * @param userId The user to retrieve alerts for
+	 * @return the list of current social alerts for the specified user
+	 */
+	public List<BullhornAlert> getSocialAlerts(String userId);
+
+	/**
+	 * @param userId The user to clear the alert for
+	 * @param alertId The alert to clear
+	 * @return boolean to indicate success
+	 */
+	public boolean clearSocialAlert(String userId, long alertId);
+
+	/**
+	 * @param userId The user to clear the alerts for
+	 * @return boolean to indicate success
+	 */
+	public boolean clearAllSocialAlerts(String userId);
+
+    /**
+	 * @param userId The user to retrieve the alert count for
+	 * @return the number of current academic alerts for the specified user
+	 */
+	public int getAcademicAlertCount(String userId);
+
+	/**
+	 * @param userId The user to retrieve alerts for
+	 * @return the list of current academic alerts for the specified user
+	 */
+	public List<BullhornAlert> getAcademicAlerts(String userId);
+
+	/**
+	 * @param userId The user to clear the alert for
+	 * @param alertId The alert to clear
+	 * @return boolean to indicate success
+	 */
+	public boolean clearAcademicAlert(String userId, long alertId);
+
+	/**
+	 * @param userId The user to clear the alerts for
+	 * @return boolean to indicate success
+	 */
+	public boolean clearAllAcademicAlerts(String userId);
 }

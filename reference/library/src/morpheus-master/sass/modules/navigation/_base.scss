@@ -442,6 +442,13 @@ body.is-logged-out{
 	margin-bottom:0px;
 }
 
+.portal-bullhorns-buttons{
+	position: relative;
+	display: inline-block;
+	padding-right: 1em;
+	border-right: 1px solid $toolBorderColor;
+}
+
 .view-all-sites-btn{
 	position: relative;
 	display: inline-block;
