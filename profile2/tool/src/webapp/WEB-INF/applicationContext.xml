@@ -12,6 +12,7 @@
 		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
 		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+		<property name="messagingLogic" ref="org.sakaiproject.profile2.logic.ProfileMessagingLogic" />
 	</bean>
 	
 	
