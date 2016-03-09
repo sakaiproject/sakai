@@ -896,3 +896,47 @@ ASN.toggleAutoAnnounceOptions = function(checked){
         resizeFrame('shrink');
     }
 };
+
+// SAK-30032
+ASN.setupPeerReviewAttachment = function(){
+    $('#submissionFileCount').val(1);
+    $('#addMoreAttachmentControls').click(function(e){
+        e.preventDefault();
+        if ($('#submissionFileCount').val() < 5) {
+            var $input = $('#clonableUpload').clone().removeAttr('id').addClass('cloned').appendTo('#clonedHolder').children('input');
+            $input.val('');
+            var $count = $('#submissionFileCount').val();
+            var $nameCount = "upload"+$count;
+            $input.attr("name", $nameCount);
+            $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) + 1);
+            if ($('#submissionFileCount').val() == 5) {
+                $('#addMoreAttachmentControls').hide();
+                $('#addMoreAttachmentControlsInactive').show();
+            }
+        }
+        $('.cloned a').show();
+        resizeFrame('grow');
+    });
+    var notifyDeleteControl = function(){
+        $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
+        if ($('#submissionFileCount').val() < 5) {
+            $('#addMoreAttachmentControls').show();
+            $('#addMoreAttachmentControlsInactive').hide();
+        }
+    };
+};
+
+// SAK-30032
+ASN.submitPeerReviewAttachment = function(id, action)
+{
+    var theForm = document.getElementById(id);
+    if(action !== null) {
+        theForm.action = action;
+    }
+    if(theForm && theForm.onsubmit) {
+        theForm.onsubmit();
+    }
+    if(theForm && theForm.submit) {
+        theForm.submit();
+    }
+};

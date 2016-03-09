@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.entity.api.Reference;
 
 public class PeerAssessmentItem implements Serializable{
 
@@ -23,7 +24,7 @@ public class PeerAssessmentItem implements Serializable{
 	//resource ids for attachments associated with this item stored in separate table
 	private List<PeerAssessmentAttachment> attachmentList;
 
-	private List attachmentRefList;
+	private List<Reference> attachmentRefList;
 
 	private Integer scaledFactor = AssignmentConstants.DEFAULT_SCALED_FACTOR;
 	
@@ -100,11 +101,11 @@ public class PeerAssessmentItem implements Serializable{
 		this.attachmentList = attachmentList;
 	}
 
-	public List getAttachmentRefList() {
+	public List<Reference> getAttachmentRefList() {
 		return attachmentRefList;
 	}
 
-	public void setAttachmentRefList(List attachmentRefList) {
+	public void setAttachmentRefList(List<Reference> attachmentRefList) {
 		this.attachmentRefList = attachmentRefList;
 	}
 }

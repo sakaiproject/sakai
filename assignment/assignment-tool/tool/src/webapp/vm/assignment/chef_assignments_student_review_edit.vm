@@ -5,45 +5,8 @@
 	focus_path = [ '$fField' ];
 	$(document).ready(function(){
 		ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
-        $('#submissionFileCount').val(1);
-        $('#addMoreAttachmentControls').click(function(e){
-            e.preventDefault();
-            if ($('#submissionFileCount').val() < 5) {
-                var $input = $('#clonableUpload').clone().removeAttr('id').addClass('cloned').appendTo('#clonedHolder').children('input');
-					$input.val('');
-                var $count = $('#submissionFileCount').val();
-                var $nameCount = "upload"+$count;
-					$input.attr("name", $nameCount);
-                $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) + 1);
-                if ($('#submissionFileCount').val() == 5) {
-                    $('#addMoreAttachmentControls').hide();
-                    $('#addMoreAttachmentControlsInactive').show();
-                }
-            }
-            $('.cloned a').show();
-            resizeFrame('grow');
-        });
-        var notifyDeleteControl = function(){
-            $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
-            if ($('#submissionFileCount').val() < 5) {
-                $('#addMoreAttachmentControls').show();
-                $('#addMoreAttachmentControlsInactive').hide();
-            }
-        };
+		ASN.setupPeerReviewAttachment();
      });
-
-    function submitform(id)
-    {
-        var theForm = document.getElementById(id);
-        if(theForm && theForm.onsubmit)
-        {
-            theForm.onsubmit();
-        }
-        if(theForm && theForm.submit)
-        {
-            theForm.submit();
-        }
-    }
 </script>
 <div class="portletBody">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
@@ -437,24 +400,10 @@
                                 <span>$howManySubAtts</span>
                             </td>
                             <td>
-                                <div id="clonableUpload">
-                                    <input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','gradeForm');document.getElementById('gradeForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "")';submitform('gradeForm');""/>
-                                    <span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+                                <div id="clonableUpload spinnerBesidesContainer">
+									<input type="file" name="upload" class="upload" id="clonableUpload" onchange="SPNR.insertSpinnerAfter(this, null, null);ASN.submitPeerReviewAttachment('gradeForm', '#toolLinkParam("AssignmentAction" "doAttachUpload" "")');""/>
                                 </div>
                             </td>
-                            <!-- <td>
-            	 	                                                                                                 <span class="navIntraToolLink">
-	 	                                                                                                         <input
-                                                                                                                         class="disableme enabled"
-                                                                                                                         type="button"
-                                                                                                                         value="$howManySubAttsLinks"
-                                                                                                                         name="attach"
-                                                                                                                         id="attach"
-                                                                                                                         accesskey="a"
-                                                                                                                         onclick="document.gradeForm.onsubmit();document.gradeForm.option.value='peerAttach'; document.gradeForm.submit(); return false;"
-                                                                                                                         />
-	 	                                                                                                 </span>
-                            </td> -->
                         </tr>
                         <tr>
                             <td></td>
