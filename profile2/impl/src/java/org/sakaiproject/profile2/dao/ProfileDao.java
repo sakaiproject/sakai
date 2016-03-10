@@ -523,6 +523,22 @@ public interface ProfileDao {
 	 * @return <code>true</code> on success, <code>false</code> on failure.
 	 */
 	public boolean removeWallItemFromWall(final WallItem item);
+
+	/**
+	 * Returns the specified wall item.
+	 *
+	 * @param wallItemId the wall item to return.
+	 * @return the wall item for the specified id.
+	 */
+	public WallItem getWallItem(final long wallItemId);
+
+	/**
+	 * Returns the specified wall item comment.
+	 *
+	 * @param wallItemCommentId the wall item comment to return.
+	 * @return the wall item comment for the specified id.
+	 */
+	public WallItemComment getWallItemComment(final long wallItemCommentId);
 	
 	/**
 	 * Retrieves all wall items for the specified user.
@@ -611,10 +627,12 @@ public interface ProfileDao {
 	
 	//from WallItem.hbm.xml
 	final String QUERY_GET_WALL_ITEMS = "getWallItemRecords";
+
+	//from WallItem.hbm.xml
+	final String QUERY_GET_WALL_ITEM = "getWallItemRecord";
 	
-	// TODO remove these unused strings
 	//from WallItemComment.hbm.xml
-	//final String QUERY_GET_WALL_ITEM_COMMENTS = "getWallItemComments";
+	final String QUERY_GET_WALL_ITEM_COMMENT = "getWallItemCommentRecord";
 	
 	//final String QUERY_GET_WALL_ITEMS_COUNT = "getWallItemsCount";
 	

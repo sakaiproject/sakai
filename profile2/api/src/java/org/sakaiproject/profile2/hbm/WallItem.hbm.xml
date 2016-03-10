@@ -30,6 +30,11 @@
   	<!-- get wall item records -->
 	<query name="getWallItemRecords">
     	<![CDATA[from WallItem item WHERE item.userUuid = :userUuid]]>
+    </query>
+
+  	<!-- get wall item record -->
+	<query name="getWallItemRecord">
+    	<![CDATA[from WallItem item WHERE item.id = :id]]>
 	</query>
 	
 </hibernate-mapping>
