@@ -5,9 +5,7 @@
 
 
 	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
-		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl"
-		singleton="true">
-		
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl">
 	</bean>
 
 </beans>

@@ -1,0 +1,16 @@
+<html xmlns:wicket>
+<body>
+	<wicket:panel>
+		<div class="innerPanel">
+			<form wicket:id="pagingForm" class="inlineForm">
+				<input wicket:id="first" type="submit" value="|&lt" wicket:message="title:button.pager.first" />
+				<input wicket:id="prev" type="submit" value="&lt" wicket:message="title:button.pager.prev"  accesskey="p" />
+				<label class="skip" for="pagerSelect"><wicket:message key="select.label"/></label>
+				<select wicket:id="pagingDropDownChoice" id="pagerSelect" />
+				<input wicket:id="next" type="submit" value="&gt" wicket:message="title:button.pager.next"  accesskey="n" />
+				<input wicket:id="last" type="submit" value="&gt|" wicket:message="title:button.pager.last" />
+			</form>
+		</div>
+	</wicket:panel>
+</body>
+</html>
