@@ -18,18 +18,6 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
-//http://www.quirksmode.org/js/findpos.html
-function findPos(obj) {
-    var curleft = curtop = 0;
-    if (obj.offsetParent) {
-        do {
-            curleft += obj.offsetLeft;
-            curtop += obj.offsetTop;
-        } while (obj = obj.offsetParent);
-        return [curleft,curtop];
-    }
-}
 var sakai = sakai || {};
 sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
@@ -45,6 +33,33 @@ var basePath = "/library/editor/ckextraplugins/";
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
 sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
+    //http://www.quirksmode.org/js/findpos.html
+    function findPos(obj) {
+        var curleft = curtop = 0;
+        if (obj.offsetParent) {
+            do {
+                curleft += obj.offsetLeft;
+                curtop += obj.offsetTop;
+            } while (obj = obj.offsetParent);
+            return [curleft,curtop];
+        }
+    }
+
+    //http://stackoverflow.com/a/1038781/3708872
+    function getWidth() {
+      if (self.innerHeight) {
+        return self.innerWidth;
+      }
+
+      if (document.documentElement && document.documentElement.clientWidth) {
+        return document.documentElement.clientWidth;
+      }
+
+      if (document.body) {
+        return document.body.clientWidth;
+      }
+    }
+
     var folder = "";
 
     var collectionId = "";
@@ -157,7 +172,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     //To add extra plugins outside the plugins directory, add them here! (And in the variable)
     (function() {
         // SAK-30370 present a nice and simple editor without plugins to the user on a tiny screen.
-        if ($(window).width() < 800) {
+        if (getWidth() < 800) {
             ckconfig.toolbar = 'Basic';
         }
         else {
