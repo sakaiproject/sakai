@@ -1159,7 +1159,41 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return false;
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItem getWallItem(final long wallItemId) {
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+				Query q = session.getNamedQuery(QUERY_GET_WALL_ITEM);
+				q.setParameter(ID, wallItemId, Hibernate.LONG);
+				return q.list();
+			}
+		};
+
+		return ((List<WallItem>) getHibernateTemplate().executeFind(hcb)).get(0);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItemComment getWallItemComment(final long wallItemCommentId) {
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+				Query q = session.getNamedQuery(QUERY_GET_WALL_ITEM_COMMENT);
+				q.setParameter(ID, wallItemCommentId, Hibernate.LONG);
+				return q.list();
+			}
+		};
+
+		return ((List<WallItemComment>) getHibernateTemplate().executeFind(hcb)).get(0);
+	}
+
 	/**
  	 * {@inheritDoc}
  	 */

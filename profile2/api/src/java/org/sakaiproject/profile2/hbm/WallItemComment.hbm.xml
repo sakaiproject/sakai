@@ -21,6 +21,11 @@
 		<property name="text" column="WALL_ITEM_COMMENT_TEXT" type="string" length="4000" not-null="true" />
 		<property name="date" column="WALL_ITEM_COMMENT_DATE" not-null="true" />
 	
-  	</class>
+    </class>
+
+  	<!-- get wall item records -->
+	<query name="getWallItemCommentRecord">
+    	<![CDATA[from WallItemComment comment WHERE comment.id = :id]]>
+	</query>
   		
 </hibernate-mapping>

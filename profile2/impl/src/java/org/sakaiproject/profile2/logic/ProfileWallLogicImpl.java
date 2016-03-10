@@ -199,6 +199,20 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			return false;
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItem getWallItem(long wallItemId) {
+		return dao.getWallItem(wallItemId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItemComment getWallItemComment(final long wallItemCommentId) {
+		return dao.getWallItemComment(wallItemCommentId);
+	}
 	
 	/**
  	 * {@inheritDoc}

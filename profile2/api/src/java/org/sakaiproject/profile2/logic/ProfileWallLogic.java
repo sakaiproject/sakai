@@ -70,15 +70,31 @@ public interface ProfileWallLogic {
 	
 	/**
 	 * Removes the specified wall item.
-	 * 
+	 *
 	 * @param wallItem the wall item to remove.
 	 */
 	public boolean removeWallItemFromWall(WallItem wallItem);
+
+	/**
+	 * Returns the specified wall item.
+	 *
+	 * @param wallItemId the wall item to return.
+	 * @return the wall item for the specified id.
+	 */
+	public WallItem getWallItem(long wallItemId);
+
+	/**
+	 * Returns the specified wall item comment.
+	 *
+	 * @param wallItemCommentId the wall item comment to return.
+	 * @return the wall item comment for the specified id.
+	 */
+	public WallItemComment getWallItemComment(long wallItemCommentId);
 	
 	/**
 	 * Returns the wall for the specified user. The privacy record will
 	 * be looked up.
-	 * 
+	 *
 	 * @param userUuid the user to query by.
 	 * @return the wall for the specified user.
 	 */
@@ -87,7 +103,7 @@ public interface ProfileWallLogic {
 	/**
 	 * Returns the wall for the specified user. Privacy settings are used
 	 * to determine if the user is allowed to access the requested wall.
-	 * 
+	 *
 	 * @param userUuid the user to query by.
 	 * @param privacy the privacy record for the user.
 	 * @return the wall for the specified user.
@@ -97,7 +113,7 @@ public interface ProfileWallLogic {
 	/**
 	 * Returns the number of available wall items for the specified user. The
 	 * privacy record will be looked up.
-	 * 
+	 *
 	 * @param userUuid the user to query by.
 	 * @return the number of available wall items for the specified user.
 	 */
@@ -107,7 +123,7 @@ public interface ProfileWallLogic {
 	 * Returns the number of available wall items for the specified user.
 	 * Privacy settings are used to determine if the user is allowed to access
 	 * the requested wall items.
-	 * 
+	 *
 	 * @param userUuid the user to query by.
 	 * @param privacy the privacy record for the user.
 	 * @return the number of available wall items for the specified user.
