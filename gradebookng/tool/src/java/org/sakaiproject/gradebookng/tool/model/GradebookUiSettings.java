@@ -61,6 +61,13 @@ public class GradebookUiSettings implements Serializable {
 	@Setter
 	private GbCategoryAverageSortOrder categorySortOrder;
 
+	/**
+	 * For showing/hiding the points
+	 */
+	@Getter
+	@Setter
+	private Boolean showPoints;
+
 	public GradebookUiSettings() {
 		// defaults. Note there is no default for assignmentSortOrder as that requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
@@ -68,6 +75,7 @@ public class GradebookUiSettings implements Serializable {
 		this.categoryScoreVisibility = new HashMap<String, Boolean>();
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 		this.categoryColors = new HashMap<String, String>();
+		this.showPoints = false;
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {

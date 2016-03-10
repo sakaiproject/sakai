@@ -247,8 +247,7 @@ public class GradebookPage extends BasePage {
 		final AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
 			@Override
 			public Component getHeader(final String componentId) {
-				final CourseGradeColumnHeaderPanel panel = new CourseGradeColumnHeaderPanel(componentId);
-				return panel;
+				return new CourseGradeColumnHeaderPanel(componentId, Model.of(settings.getShowPoints()));
 			}
 
 			@Override
@@ -270,7 +269,7 @@ public class GradebookPage extends BasePage {
 				modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
 				modelData.put("currentUserRole", GradebookPage.this.role);
 				modelData.put("gradebook", gradebook);
-				modelData.put("showPoints", true); // this will come from the GbUiSettings
+				modelData.put("showPoints", settings.getShowPoints());
 				modelData.put("showOverride", true);
 
 				cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
@@ -414,10 +413,10 @@ public class GradebookPage extends BasePage {
 			protected Item newCellItem(final String id, final int index, final IModel model) {
 				return new Item(id, index, model) {
 					@Override
-					protected void onComponentTag(ComponentTag tag) {
+					protected void onComponentTag(final ComponentTag tag) {
 						super.onComponentTag(tag);
 
-						Object modelObject = model.getObject();
+						final Object modelObject = model.getObject();
 
 						if (modelObject instanceof AbstractColumn &&
 								"studentColumn".equals(((AbstractColumn) modelObject).getDisplayModel().getObject())) {
@@ -433,10 +432,10 @@ public class GradebookPage extends BasePage {
 			}
 
 			@Override
-			protected Item newRowItem(String id, int index, IModel model) {
+			protected Item newRowItem(final String id, final int index, final IModel model) {
 				return new Item(id, index, model) {
 					@Override
-					protected void onComponentTag(ComponentTag tag) {
+					protected void onComponentTag(final ComponentTag tag) {
 						super.onComponentTag(tag);
 
 						tag.getAttributes().put("role", "row");
@@ -450,7 +449,6 @@ public class GradebookPage extends BasePage {
 				return constructTablePaginationLabel(navigatorId, table);
 			}
 		});
-
 
 		final Map<String, Object> modelData = new HashMap<>();
 		modelData.put("assignments", assignments);
