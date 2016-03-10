@@ -24,6 +24,7 @@ package org.sakaiproject.component.gradebook;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1933,15 +1934,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  Double gradeAsDouble = Double.parseDouble(grade);
 				  // grade must be greater than or equal to 0
 				  if (gradeAsDouble.doubleValue() >= 0) {
+						String[] splitOnDecimal = grade.split("\\.");
 					  // check that there are no more than 2 decimal places
-					  String[] splitOnDecimal = grade.split("\\.");
-					  if (splitOnDecimal == null || splitOnDecimal.length < 2) {
+					  if (splitOnDecimal == null) {
 						  gradeIsValid = true;
-					  } else if (splitOnDecimal.length == 2) {
-						  String decimal = splitOnDecimal[1];
-						  if (decimal.length() <= 2) {
-							  gradeIsValid = true;
-						  }
+
+					  // check for a valid score matching ##########.##
+					  // where integer is maximum of 10 integers in length
+					  // and maximum of 2 decimal places
+					  } else if (grade.matches("[0-9]{0,10}(\\.[0-9]{0,2})?")) {
+						  gradeIsValid = true;
 					  }
 				  }
 			  } catch (NumberFormatException nfe) {
@@ -2383,7 +2385,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  	if (assignmentScore == null)
 	  		return null;
 	  	
-	  	return Double.valueOf(assignmentScore).toString();
+	  	// avoid scientific notation on large scores by using a formatter
+	  	final DecimalFormat df = new DecimalFormat();
+	  	df.setGroupingUsed(false);
+
+	  	return df.format(assignmentScore);
   	}
   
   	@Override
