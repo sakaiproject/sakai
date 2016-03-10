@@ -1,17 +1,16 @@
 README
 
-This project is originally developed and maintained by UC Davis and made available on an ECL 1 license. 
+This project was originally developed and maintained by UC Davis and made available on an ECL 1 license. 
 
-UC Davis never got to finishing the project and never took the SCORM player to production.
+UC Davis never got around to finishing the project and never took deployed the tool to production.
 
-At EDIA saw a growing demand for a workable SCORM player for Sakai. We've been fixing bugs and working
-on the code base at several moments in time improving the stability. Furthermore, the option 
-has been added to synchronized the results to the gradebook.
+EDIA saw a growing demand for a working SCORM player for Sakai. EDIA has been fixing bugs and working
+on the code base at several points in time to improving the stability. Furthermore, the ability to
+synchronize results to the gradebook has been implemented.
 
-We at EDIA are dedicated to committing back our work and fixes. We've made our work available 
+We at EDIA are dedicated to committing our work and fixes back to the community. We've made our work available 
 at the Sakai contrib repository.
-
 
 Bugs and issues can be reported to:
 
-https://jira.sakaiproject.org/browse/SCO      
+https://jira.sakaiproject.org/browse/SCO

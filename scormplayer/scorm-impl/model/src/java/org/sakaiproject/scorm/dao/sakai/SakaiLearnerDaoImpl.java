@@ -12,10 +12,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -110,7 +111,7 @@ public abstract class SakaiLearnerDaoImpl implements LearnerDao {
 
 		Map<String, Learner> learnerMap = new ConcurrentHashMap<String, Learner>();
 		try {
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = ComponentManager.get( AuthzGroupService.class ).getAuthzGroup(realmId);
 			String providerGroupId = realm.getProviderGroupId();
 
 			List<String> providerCourseList = getProviderCourseList(StringUtils.trimToNull(providerGroupId));

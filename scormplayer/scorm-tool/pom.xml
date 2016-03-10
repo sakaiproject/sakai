@@ -1,224 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sakai-scorm-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>3.1.10-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>sakai-scorm-tool</name>
-  <groupId>org.sakaiproject.scorm</groupId>
-  <artifactId>sakai-scorm-tool</artifactId>
-  <description>
-          This project creates a war containing the Sakai Scorm Tool
-        </description>
-  <packaging>war</packaging>
-  <dependencies>
-    <!-- SCORM dependencies -->
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-api</artifactId>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-adl-impl</artifactId>
-    </dependency>
-    <!-- Wicket -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-wicket-for-scorm-tool</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
+    <modelVersion>4.0.0</modelVersion>
 
-    <!-- Other dependencies -->
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-    </dependency>
-    <!-- Needed for unit testing with Hibernate 3. -->
-    <dependency>
-      <groupId>antlr</groupId>
-      <artifactId>antlr</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <!-- Test deps: need to replicate the entire IMPL package -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-service-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xmlParserAPIs</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- SCO-85 -->
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>    
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.2.7</version>
-    </dependency>
-  </dependencies>
-  <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <includes>
-          <include>**/*.html</include>
-          <include>**/*.js</include>
-          <include>**/*.properties</include>
-          <include>**/*.gif</include>
-          <include>**/*.css</include>
-          <include>**/*.png</include>
-        </includes>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test</directory>
-        <includes>
-          <include>**/*.xml</include>
-          <include>**/*.properties</include>
-          <include>**/*.zip</include>
-        </includes>
-      </testResource>
-    </testResources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.1.1</version>
-      </plugin>
-    </plugins>
-  </build>
-  <profiles>
-    <profile>
-      <id>sakai2.7</id>
-      <dependencies>
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-scorm-base</artifactId>
+        <version>12-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-scorm-tool</name>
+    <groupId>org.sakaiproject.scorm</groupId>
+    <artifactId>sakai-scorm-tool</artifactId>
+    <packaging>war</packaging>
+    <description>This project creates a war containing the Sakai Scorm Tool</description>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+
+    <dependencies>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-api</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-adl-impl</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-          <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-wicket-for-scorm-tool</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>sakai2.8</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-          <artifactId>gradebook-service-api</artifactId>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-      </dependencies>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-    </profile>
-    <profile>
-      <id>sakai2.9</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-          <artifactId>gradebook-service-api</artifactId>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
+            <groupId>${sakai.hibernate.groupId}</groupId>
+            <artifactId>${sakai.hibernate.artifactId}</artifactId>
+            <version>${sakai.hibernate.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>net.sf.ehcache</groupId>
-          <artifactId>ehcache-core</artifactId>
-          <type>jar</type>
-          <scope>provided</scope>
-        </dependency>        
-      </dependencies>
-    </profile>
-  </profiles>
+            <groupId>${sakai.hibernate.groupId}</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.12.1.GA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>2.5.6.SEC03</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>2.5.6.SEC03</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-service-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${sakai.ehcache.version}</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            <artifactId>gradebook-service-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.html</include>
+                    <include>**/*.js</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.gif</include>
+                    <include>**/*.css</include>
+                    <include>**/*.png</include>
+                </includes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.zip</include>
+                </includes>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.1.1</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>

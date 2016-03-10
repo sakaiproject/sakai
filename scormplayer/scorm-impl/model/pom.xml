@@ -1,163 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sakai-scorm-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>3.1.10-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
-  <name>sakai-scorm-model-impl</name>
-  <groupId>org.sakaiproject.scorm</groupId>
-  <artifactId>sakai-scorm-model-impl</artifactId>
-  <description>
-          This project creates the model implementation used by the Sakai Scorm Tool
-        </description>
-  <packaging>jar</packaging>
-  <dependencies>
-    <!-- SCORM dependencies -->
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-adl-impl</artifactId>
-    </dependency>
-    <!-- Sakai dependencies -->
-    <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <version>${sakai.hibernate.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-    </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.course-management</groupId>
-      <artifactId>coursemanagement-api</artifactId>
-    </dependency>
-     -->
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
+    <modelVersion>4.0.0</modelVersion>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- SCO-85 -->
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>    
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.2.7</version>
-    </dependency>
-  </dependencies>
-  <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test</directory>
-        <includes>
-          <include>**/*.xml</include>
-          <include>**/*.properties</include>
-        </includes>
-      </testResource>
-    </testResources>
-  </build>
-  <profiles>
-    <profile>
-      <id>sakai2.7</id>
-      <dependencies>
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-scorm-base</artifactId>
+        <version>12-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-scorm-model-impl</name>
+    <groupId>org.sakaiproject.scorm</groupId>
+    <artifactId>sakai-scorm-model-impl</artifactId>
+    <packaging>jar</packaging>
+    <description>This project creates the model implementation used by the Sakai Scorm Tool</description>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+
+    <dependencies>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-adl-impl</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.course-management</groupId>
-          <artifactId>coursemanagement-api</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>sakai2.8</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.course-management</groupId>
-          <artifactId>coursemanagement-api</artifactId>
-        </dependency>
-      </dependencies>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-    </profile>
-    <profile>
-      <id>sakai2.9</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
+            <groupId>org.sakaiproject.edu-services.course-management</groupId>
+            <artifactId>coursemanagement-api</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.course-management</groupId>
-          <artifactId>coursemanagement-api</artifactId>
+            <groupId>${sakai.hibernate.groupId}</groupId>
+            <artifactId>${sakai.hibernate.artifactId}</artifactId>
+            <version>${sakai.hibernate.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>net.sf.ehcache</groupId>
-          <artifactId>ehcache-core</artifactId>
-          <type>jar</type>
-          <scope>provided</scope>
-        </dependency>        
+            <groupId>${sakai.hibernate.groupId}</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+        </dependency>
         <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-          <type>jar</type>
-          <scope>provided</scope>
-        </dependency>        
+            <groupId>javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.12.1.GA</version>
+        </dependency>
         <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-          <type>jar</type>
-          <scope>provided</scope>
-        </dependency>        
-      </dependencies>
-    </profile>
-  </profiles>
+            <groupId>${sakai.spring.groupId}</groupId>
+            <artifactId>${sakai.spring.artifactId}</artifactId>
+            <version>2.5.6.SEC03</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>2.5.6.SEC03</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>2.5.6.SEC03</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${sakai.ehcache.version}</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </testResource>
+        </testResources>
+    </build>
 </project>

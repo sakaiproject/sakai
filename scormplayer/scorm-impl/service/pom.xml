@@ -1,133 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sakai-scorm-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>3.1.10-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
-  <name>sakai-scorm-service-impl</name>
-  <groupId>org.sakaiproject.scorm</groupId>
-  <artifactId>sakai-scorm-service-impl</artifactId>
-  <description>
-          This project creates the service implementation used by the Sakai Scorm Tool
-        </description>
-  <packaging>jar</packaging>
-  <dependencies>
-    <!-- SCORM dependencies -->
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-adl-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-content-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scorm</groupId>
-      <artifactId>sakai-scorm-model-impl</artifactId>
-    </dependency>
-    <!-- External dependencies -->
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-  </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+    <modelVersion>4.0.0</modelVersion>
 
-  <profiles>
-    <profile>
-      <id>sakai2.7</id>
-      <dependencies>
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-scorm-base</artifactId>
+        <version>12-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-scorm-service-impl</name>
+    <groupId>org.sakaiproject.scorm</groupId>
+    <artifactId>sakai-scorm-service-impl</artifactId>
+    <packaging>jar</packaging>
+    <description>This project creates the service implementation used by the Sakai Scorm Tool</description>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+
+    <dependencies>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-          <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-adl-impl</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-content-impl</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>sakai2.8</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>sakai-scorm-model-impl</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-          <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
+            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            <artifactId>gradebook-service-api</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-      </dependencies>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-    </profile>
-    <profile>
-      <id>sakai2.9</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-          <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>

@@ -13,8 +13,7 @@
 	</bean>
 
 	<!-- This bean serves the Scorm API calls -->
-	<bean id="org.sakaiproject.scorm.service.api.ScormApplicationServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl"
-		singleton="true">
+	<bean id="org.sakaiproject.scorm.service.api.ScormApplicationServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl">
 
 		<!-- Scorm Sequencing Service to manage navigate calls -->
 		<lookup-method name="scormSequencingService" bean="org.sakaiproject.scorm.service.api.ScormSequencingService" />
@@ -39,8 +38,7 @@
 			</props>
 		</property>
 	</bean>
-	<bean id="org.sakaiproject.scorm.service.api.ScormResultServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl"
-		singleton="true">
+	<bean id="org.sakaiproject.scorm.service.api.ScormResultServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl">
 
 		<!-- Service beans -->
 		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
@@ -63,8 +61,7 @@
 	</bean>
 	
 	<!-- This bean manages content -->
-	<bean id="org.sakaiproject.scorm.service.api.ScormContentServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormContentServiceImpl"
-		singleton="true">
+	<bean id="org.sakaiproject.scorm.service.api.ScormContentServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormContentServiceImpl">
 		
 		<!-- Service beans -->
 		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
@@ -87,8 +84,7 @@
 			</props>
 		</property>
 	</bean>
-	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormSequencingServiceImpl"
-		singleton="true">
+	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormSequencingServiceImpl">
 		
 		<!-- Service beans -->
 		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />

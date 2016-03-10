@@ -1,0 +1,9 @@
+<wicket:panel>
+	<form wicket:id="filterForm">
+		<p class="instruction"><wicket:message key="filter.showing"/></p>
+		<select wicket:id="dropdown"/> <a href="#" wicket:id="configurer"><wicket:message key="filter.configurer"/></a>
+		<wicket:enclosure child="limiter">
+			<wicket:message key="filter.limiter.prefix"></wicket:message><input type="checkbox" wicket:id="limiter" ></input><wicket:message key="filter.limiter.suffix"></wicket:message>
+		</wicket:enclosure>
+	</form>
+</wicket:panel>
