@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.BufferedInputStream;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
@@ -635,7 +636,18 @@ public class LessonBuilderAccessService {
 								URI uri = new URI(new String(content, "UTF-8"));
 								eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ,
 										resource.getReference(null), false));
-								res.sendRedirect(uri.toASCIIString());
+
+								String decodedUrl = null;
+								if (id.endsWith(".URL")) {
+								    // created by resources tool. Use new processing for it.
+									decodedUrl = URLDecoder.decode(uri.toString(), "UTF-8");
+									decodedUrl = contentHostingService.expandMacros(decodedUrl);
+								} else {
+								    // created by Lessons. Use it as is.
+								    decodedUrl = uri.toString();
+								}
+
+								res.sendRedirect(decodedUrl);
 							} else {
 								// 	we have a text/url mime type, but the body is too
 								// 	long to issue as a redirect
