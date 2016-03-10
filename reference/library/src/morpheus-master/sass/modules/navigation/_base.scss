@@ -13,7 +13,7 @@ body.is-logged-out{
 	}
 	.#{$namespace}topHeader{
 		@media #{$phone}{
-			min-height:4.2em;
+			min-height: $header-size;
 		}
 	}
 }
