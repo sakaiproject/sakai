@@ -2026,4 +2026,15 @@ public interface ContentHostingService extends EntityProducer
 	 * @param resourceId The zip file resource that we want to expand
 	 */
 	public void expandZippedResource(String resourceId) throws Exception;
+
+	/**
+	 * Expand macros in a URL
+	 *
+	 * @param url - string, a URL to be expanded
+	 *
+	 * @return URL with macro expansion
+	 */
+
+	public String expandMacros(String url);
+
 }
