@@ -3,7 +3,7 @@ body.is-logged-out{
 	#toolMenuWrap{
 		//top: 0;
 		@media #{$phone}{
-			top: $header-size;
+			//top: $header-size;
 		}
 	}
 	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
