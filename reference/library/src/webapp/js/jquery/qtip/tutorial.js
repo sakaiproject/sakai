@@ -14,8 +14,10 @@ var dialogPosition = {
 
 function startTutorial(opts){
 	showTutorialPage(sakaiTutorialStartUrl, opts);
-	$PBJQ(".Mrphs-userNav__subnav").toggleClass("is-hidden", true); //add class, if class not on element
-	$PBJQ(".Mrphs-userNav__drop").toggleClass("is-clicked", false); //remove class, if class is on element
+	if (!$PBJQ(".Mrphs-userNav__subnav").hasClass("is-hidden")) {
+		// Hide the user dropdown menu so it doesn't obstruct the tutorial
+		$('.Mrphs-userNav__submenuitem--username').trigger('click');
+	}
 }
 
 function showTutorialPage(url, opts){

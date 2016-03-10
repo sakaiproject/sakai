@@ -176,7 +176,6 @@ body.is-logged-out{
 
 		.#{$namespace}userNav__submenuitem--profile{
 			display: block;
-			margin-top: -0.85em;
 			margin-left: 0.5em;
 		}
 	}
@@ -370,7 +369,7 @@ body.is-logged-out{
 			@extend .userNav__subnav;
 			&:after {
 				bottom: 100%;
-				left: 78%;
+				left: 82%;
 				border: solid transparent;
 				content: " ";
 				height: 0;
