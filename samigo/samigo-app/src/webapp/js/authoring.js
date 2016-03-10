@@ -674,3 +674,19 @@ function toggleNegativePointVal(val){
 	}
 }
 
+function resetSelectMenus(){
+  var selectlist = document.getElementsByTagName("SELECT");
+
+  for (var i = 0; i < selectlist.length; i++) {
+        if ( selectlist[i].id.indexOf("changeQType") >=0){
+          selectlist[i].value = "";
+        }
+  }
+}
+
+function clickInsertLink(field){
+  var insertlinkid = field.id.replace("changeQType", "hiddenlink");
+  var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
+  $(hiddenSelector).click();
+}
+

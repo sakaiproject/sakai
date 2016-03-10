@@ -38,22 +38,6 @@
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
 
-function resetSelectMenus(){
-  var selectlist = document.getElementsByTagName("SELECT");
-
-  for (var i = 0; i < selectlist.length; i++) {
-        if ( selectlist[i].id.indexOf("changeQType") >=0){
-          selectlist[i].value = "";
-        }
-  }
-}
-
-function clickInsertLink(field){
-  var insertlinkid = field.id.replace("changeQType", "hiddenlink");
-  var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
-  $(hiddenSelector).click();
-}
-
 $(window).load( function() {
   // No need for an insert question box after every single question!
   $('table.parts-table').find('div.part-insert-question:not(:last)').hide();
