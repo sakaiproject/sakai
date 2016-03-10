@@ -167,7 +167,7 @@ public class GbCourseGradeLabel extends Label {
 			}
 		}
 
-		// points
+		// requested points
 		if (this.showPoints) {
 
 			// don't display points for weighted category type
@@ -177,7 +177,9 @@ public class GbCourseGradeLabel extends Label {
 				final Double pointsEarned = this.courseGrade.getPointsEarned();
 				final Double totalPointsPossible = this.courseGrade.getTotalPointsPossible();
 
-				if (this.gradebook.isCoursePointsDisplayed()) {
+				// if instructor, show the points if requested
+				// otherwise check the settings
+				if (this.currentUserRole == GbRole.INSTRUCTOR || this.gradebook.isCoursePointsDisplayed()) {
 					if (parts.isEmpty()) {
 						parts.add(new StringResourceModel("coursegrade.display.points-first", null,
 								new Object[] { pointsEarned, totalPointsPossible }).getString());

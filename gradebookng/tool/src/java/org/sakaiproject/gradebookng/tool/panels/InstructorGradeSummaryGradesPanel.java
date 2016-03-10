@@ -26,6 +26,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -69,6 +70,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
 
 		// setup
+		final GradebookPage gradebookPage = (GradebookPage) getPage();
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
 
@@ -150,7 +152,6 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 						final Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
 
-						final GradebookPage gradebookPage = (GradebookPage) getPage();
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
 						flags.add(gradebookPage.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
 								.setVisible(assignment.getExtraCredit()));
@@ -192,12 +193,14 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
+
 		final Map<String, Object> courseGradeModelData = new HashMap<>();
 		courseGradeModelData.put("currentUserUuid", userId);
 		courseGradeModelData.put("currentUserRole", GbRole.INSTRUCTOR);
 		courseGradeModelData.put("courseGrade", courseGrade);
 		courseGradeModelData.put("gradebook", gradebook);
-		courseGradeModelData.put("showPoints", false);
+		courseGradeModelData.put("showPoints", settings.getShowPoints());
 		courseGradeModelData.put("showOverride", true);
 		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(courseGradeModelData)));
 
