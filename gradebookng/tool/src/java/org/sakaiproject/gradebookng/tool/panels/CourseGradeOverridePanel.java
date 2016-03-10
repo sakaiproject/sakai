@@ -162,12 +162,6 @@ public class CourseGradeOverridePanel extends Panel {
 		form.add(revertLink);
 
 		add(form);
-
-		// heading
-		add(new Label("heading",
-				new StringResourceModel("heading.coursegrade", null,
-						new Object[] { studentUser.getDisplayName(), studentUser.getDisplayId() })));
-
 	}
 
 	/**
