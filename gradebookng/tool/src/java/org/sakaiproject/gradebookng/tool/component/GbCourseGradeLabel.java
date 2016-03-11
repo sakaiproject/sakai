@@ -104,6 +104,9 @@ public class GbCourseGradeLabel extends Label {
 
 		// always
 		setOutputMarkupId(true);
+
+		// allow HTML in strings
+		setEscapeModelStrings(false);
 	}
 
 	@Override
