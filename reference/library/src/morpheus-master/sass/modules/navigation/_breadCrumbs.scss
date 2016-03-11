@@ -2,7 +2,7 @@
 	$svg-gradient-shim-threshold: 1 !global;
 	background: linear-gradient( to right, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df );
 	box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);
-	height: $hierarchy-size;
+	min-height: $hierarchy-size;
 	padding: 1em;
 	h1{
 		color: $background-color;
@@ -27,10 +27,10 @@
 		position: fixed;
 	    top: 5.5em;
 	    width: 100%;
-	    z-index: 18;
+	    z-index: 25;
 	    @include transition( top 0.25s linear 0s );
 		&.moving{
-  			top: -4.2em;
+  			top: -22.2em;
   		}
 	    h1{
 	    	color: $background-color;
@@ -38,6 +38,11 @@
 	    a{
 	    	border-bottom: 0px none;
 	    	color: $background-color;
+	    	font-size: 0.9em;
+	    	.#{$namespace}breadcrumb--icon{
+	    		font-size: 0.95em;
+	    		vertical-align: 15%;
+	    	}
 	    }
 	    .#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{
 	    	display: none;
