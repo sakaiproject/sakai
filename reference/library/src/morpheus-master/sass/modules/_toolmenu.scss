@@ -22,7 +22,7 @@ body.#{$namespace}toolMenu-collapsed{
 		min-width: #{ $tool-menu-width / 2 };
 		width: #{ $tool-menu-width / 2 };
 	}
-	#toolMenu{
+	#toolMenu, ul#subSites{
 		.img_site_toolmenu{
 			display: none;
 		}
@@ -129,9 +129,36 @@ body.#{$namespace}toolMenu-collapsed{
 	}
 }
 
-#toolMenu{
+#subSites{
+	background: darken( $toolMenuBGColor, 10% );
+}
+
+nav#subSites{
+	max-width: #{$tool-menu-width * 2 };
+	z-index: 9999;
+	&.floating{
+		margin: 0 0 0 7px;
+		&:after{
+			right: 100%;
+			top: 25%;
+			border: solid transparent;
+			content: " ";
+			height: 0;
+			width: 0;
+			position: absolute;
+			pointer-events: none;
+			border-color: rgba( darken( $toolMenuBGColor, 10% ) , 0);
+			border-right-color: darken( $toolMenuBGColor, 10% );
+			border-width: 7px;
+			margin-top: -7px;
+		}
+	}
+}
+
+#toolMenu, #subSites{
 	ul{
 		padding: 0;
+		margin:  0;
 		li{
 			&.#{$namespace}collapseTools{
 				text-align: center;

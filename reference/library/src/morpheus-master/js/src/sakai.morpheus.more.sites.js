@@ -285,9 +285,11 @@ $PBJQ(document).ready(function(){
     var subsitesLink = $PBJQ(this);
     if($PBJQ('#subSites').css('display') == 'block') {
       $PBJQ('#subSites').hide();
+      $PBJQ('#subSites').removeClass('floating');
     } else {
       var position = subsitesLink.position();
-      $PBJQ('#subSites').css({'position': 'absolute','display': 'block','left': position.left + subsitesLink.width() + 14 + 'px','top': position.top + 'px'});
+      $PBJQ('#subSites').css({'position': 'absolute','display': 'block','left': position.left + subsitesLink.width() + 6 + 'px','top': position.top + 'px'});
+      $PBJQ('#subSites').addClass('floating');
     }
   });
 

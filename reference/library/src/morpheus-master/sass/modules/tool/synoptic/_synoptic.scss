@@ -1,7 +1,5 @@
 .#{$namespace}sakai-synoptic-announcement, .#{$namespace}sakai-summary-calendar, .#{$namespace}sakai-synoptic-messagecenter, .#{$namespace}sakai-synoptic-chat{
 	iframe{
-		position: relative;
-		top: -2.9em;
 		z-index: 0;
 	}
 }

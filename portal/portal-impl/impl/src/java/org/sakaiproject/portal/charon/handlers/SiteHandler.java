@@ -543,9 +543,11 @@ public class SiteHandler extends WorksiteHandler
 		}
 		
 		if (SiteService.isUserSite(siteId)){
-			rcontext.put("siteTitle", rb.getString("sit_mywor"));
+			rcontext.put("siteTitle", rb.getString("sit_mywor") );
+			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
 		}else{
 			rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
+			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site ) );
 		}
 		
 		addLocale(rcontext, site, session.getUserId());
