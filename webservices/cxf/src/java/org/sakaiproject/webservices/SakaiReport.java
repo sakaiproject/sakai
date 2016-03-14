@@ -161,9 +161,20 @@ public class SakaiReport extends AbstractWebService {
 
     protected String executeQueryInternal(String sessionid, String query, String hash, int rowCount, String format) {
         Session session = establishSession(sessionid);
+
+        boolean isEnabled = serverConfigurationService.getBoolean("webservice.report.enabled", false);
+        if (isEnabled == false) {
+            LOG.warn("Report service not enabled, use webservice.report.enabled=true to enable");
+            throw new RuntimeException("Report service not enabled.");
+        }
         if (session == null) {
-            LOG.warn("No session: " + session.getUserId());
-            throw new RuntimeException("No session: " + session.getUserId());
+            LOG.warn("No session for: " + sessionid);
+            throw new RuntimeException("No session for " + sessionid);
+        }
+        
+        if (!securityService.isSuperUser()) {
+            LOG.warn("Non super user attempted access to report service: " + session.getUserId());
+            throw new RuntimeException("Non super user attempted to access report service: " + session.getUserId());
         }
 
         // validate hash
