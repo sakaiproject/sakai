@@ -5,7 +5,7 @@ This project was originally developed and maintained by UC Davis and made availa
 UC Davis never got around to finishing the project and never took deployed the tool to production.
 
 EDIA saw a growing demand for a working SCORM player for Sakai. EDIA has been fixing bugs and working
-on the code base at several points in time to improving the stability. Furthermore, the ability to
+on the code base at several points in time to improve the stability. Furthermore, the ability to
 synchronize results to the gradebook has been implemented.
 
 We at EDIA are dedicated to committing our work and fixes back to the community. We've made our work available 
