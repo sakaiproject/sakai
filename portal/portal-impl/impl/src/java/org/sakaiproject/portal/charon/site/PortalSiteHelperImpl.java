@@ -422,14 +422,22 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			if (pwd != null)
 			{
 				List<Map> l = new ArrayList<>();
-				for (int i = 0; i < pwd.size(); i++)
+				// SAK-30477
+				// Skip current site size - 1
+				for (int i = 0; i < pwd.size() - 1; i++)
 				{
 					Site site = pwd.get(i);
 					// System.out.println("PWD["+i+"]="+site.getId()+"
 					// "+site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
-					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
+					String siteTitleTruncatedBreadCrumb = getUserSpecificSiteTitle( site, true );
+					String siteTitleNotTruncatedBreadCrumb = getUserSpecificSiteTitle( site, false );
+					
+					pm.put("siteTitleNotTruncated", siteTitleNotTruncatedBreadCrumb );
+					pm.put("siteTitle", siteTitleTruncatedBreadCrumb );
+					pm.put("fullTitle", siteTitleNotTruncatedBreadCrumb );
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
+
 					l.add(pm);
 					isChild = true;
 				}

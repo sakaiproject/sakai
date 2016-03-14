@@ -24,13 +24,15 @@
 
                 #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
                
-                    #set ($tabCountBread = 0)
+                #set ($tabCountBread = 0)
                 
                 #foreach ( $pwd in $portalPwd )
 
                     #set ($tabCountBread = $tabCountBread + 1)
-                    <span class="Mrphs-hierarchy-item Mrphs-hierarchy--$tabCountBread">
-                        <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
+                    <span class="Mrphs-hierarchy-item Mrphs-hierarchy--portalPwd Mrphs-hierarchy--$tabCountBread">
+                        <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
+                        </span></a>
                     </span>
                     <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator">/</span>
 
@@ -39,26 +41,27 @@
                 #foreach ( $pwd in $portalBreadCrumbs )
 
                     #set ($tabCountBread = $tabCountBread + 1)
-                    <span class="Mrphs-hierarchy-item Mrphs-hierarchy--$tabCountBread">
-                        <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
-                    </span>
+                    <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
+                    </span></a>
                     <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator">/</span>
 
                 #end ## END of FOREACH ( $pwd in $portalBreadCrumbs )
 
         #end ## END of IF ( $portalBreadCrumbs or $portalPwd )
-
+        
         #set($index = 0)
         #foreach( $page in $sitePages.pageNavTools )
             #if ( $index == 0 )
-                <span class="Mrphs-hierarchy--siteName" title="$!{shortDescription}">
-                    <a href="${page.pageResetUrl}">${siteTitle}</a>
+                <span class="Mrphs-hierarchy--siteName" title="${siteTitle}">
+                    <a href="${page.pageResetUrl}">${siteTitleTruncated}</a>
                 </span>
                 <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator">/</span>
             #end
             #set($index = $index + 1 )
         #end
 
+        
         #foreach( $page in $sitePages.pageNavTools )
             #if (${page.current})
             <a href="${page.pageResetUrl}" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
