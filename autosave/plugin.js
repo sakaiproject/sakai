@@ -48,7 +48,7 @@
         });
 
         jQuery(saveDetectionSelectors).click(function() {
-            RemoveStorage(autoSaveKey);
+            RemoveStorage(autoSaveKey, editorInstance);
         });
 
         editorInstance.on('change', startTimer);
@@ -60,14 +60,14 @@
         });
     }
 
-    var timeOutId = 0,
-        savingActive = false;
+        editorInstance.config.autosave_timeOutId = 0;
+        var savingActive = false;
 
     var startTimer = function(event) {
-        if (timeOutId) {
+        if (event.editor.config.autosave_timeOutId) {
         } else {
             var delay = event.editor.config.autosave_delay != null ? event.editor.config.autosave_delay : 10;
-            timeOutId = setTimeout(onTimer, delay * 1000, event);
+            event.editor.config.autosave_timeOutId = setTimeout(onTimer, delay * 1000, event);
         }
 
     };
@@ -81,7 +81,7 @@
 
             SaveData(autoSaveKey, editor);
 
-            timeOutId = 0;
+            event.editor.config.autosave_timeOutId = 0;
             savingActive = false;
         }
     };
@@ -115,11 +115,11 @@
                         var jsonSavedContent = LoadData(autoSaveKey);
                         editorInstance.loadSnapshot(jsonSavedContent.data);
 
-                        RemoveStorage(autoSaveKey);
+                        RemoveStorage(autoSaveKey, editorInstance);
                     }
                 },
                 onCancel: function() {
-                    RemoveStorage(autoSaveKey);
+                    RemoveStorage(autoSaveKey, editorInstance);
                 },
                 contents: [
                     {
@@ -189,7 +189,7 @@
 
             // Ignore if autosaved content is older then x minutes
             if (moment(new Date()).diff(new Date(autoSavedContentDate), 'minutes') > notOlderThen) {
-                RemoveStorage(autoSaveKey);
+                RemoveStorage(autoSaveKey, editorInstance);
 
                 return;
             }
@@ -199,7 +199,7 @@
                 // Open DIFF Dialog
                 editorInstance.openDialog('autosaveDialog');
             } else {
-                RemoveStorage(autoSaveKey);
+                RemoveStorage(autoSaveKey, editorInstance);
             }
         }
     }
@@ -219,9 +219,9 @@
         }
     }
 
-    function RemoveStorage(autoSaveKey) {
-        if (timeOutId) {
-            clearTimeout(timeOutId);
+    function RemoveStorage(autoSaveKey, editor) {
+        if (editor.config.autosave_timeOutId) {
+            clearTimeout(editor.config.autosave_timeOutId);
         }
 
         localStorage.removeItem(autoSaveKey);
