@@ -178,7 +178,7 @@ public class ComposeNewMessage extends Panel {
 				if(messagingLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
 					
 					//post event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + newMessage.getFrom(), true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + newMessage.getTo(), true);
 					
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
