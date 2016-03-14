@@ -1475,3 +1475,9 @@ body > .portletBody > .action {
 #Mrphs-footerApp__chat, .Mrphs-userNav__subnav {
         z-index: 100002 !important;
 }
+
+.stylingstuff {
+    padding: .5em;
+    margin: .5em 0;
+    border: 1px solid #ccc;
+}

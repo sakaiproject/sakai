@@ -1367,6 +1367,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    }
 					}
 
+					// Indent level - default to 0 if not previously set
+					String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
+					// Indent number in em is 4 times the level of indent
+					Integer indentLevelNumber = Integer.valueOf(indentLevel) * 4;
+					linktd.decorate(new UIFreeAttributeDecorator("style", "padding-left:"+indentLevelNumber.toString()+"em;"));
+					UIOutput.make(tableRow, "indentLevel", indentLevel);
+
+					// Custom css class(es)
+					String customCssClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
+					UIOutput.make(tableRow, "custom-css-class", customCssClass);
+					linktd.decorate(new UIStyleDecorator(customCssClass));
+
 					// note that a lot of the info here is used by the
 					// javascript that prepares
 					// the jQuery dialogs
@@ -3662,6 +3674,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
+
+		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
+		UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentOptions[0]);
+
+		// If current user is an admin show the css class input box
+		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
+		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
 		// can't use site groups on user content, and don't want students to hack
 		// on groups for site content

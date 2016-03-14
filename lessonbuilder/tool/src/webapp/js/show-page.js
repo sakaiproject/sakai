@@ -1309,7 +1309,10 @@ $(document).ready(function() {
 
 			$("#name").val(row.find(".link-text").text());
 			$("#description").val(row.find(".rowdescription").text());
-					      
+
+			$("select[name=indent-level-selection]").val(row.find(".indentLevel").text());
+			$("#customCssClass").val(row.find(".custom-css-class").text());
+
 			var prereq = row.find(".prerequisite-info").text();
 
 			if(prereq === "true") {
