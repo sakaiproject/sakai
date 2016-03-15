@@ -225,6 +225,10 @@ var escapeHtml = function (str) {
 }
 
 $(document).ready(function(){
+
+    $('[data-toggle="popover"]').popover()
+
+
     $('#navigate').prop('disabled',false)
     $('#navigatePanelSearch').keyup(function(){
          var v = $('#navigatePanelSearch').val();
@@ -239,66 +243,11 @@ $(document).ready(function(){
     if ($('#content_print_result_url').length) {
         window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
     }
-    $('.portletBody').click(function(e){
-        if (e.target.className != 'menuOpen' && e.target.className != 'dropdn') {
-            $('.makeMenuChild').hide();
-        }
-        else {
-            if (e.target.className == 'dropdn') {
-                $('.makeMenuChild').hide();
-                $(e.target).parent('li').find('ul').show().find('li:first a').focus();
-                
-            }
-            else {
-                $('.makeMenuChild').hide();
-                $(e.target).find('ul').show().find('li:first a').focus();
-            }
-        }
-    });
     
     $('#navigatePanel p.close').on('click', function(){
         $('.keep-open').removeClass('open');
     });
-    $('.toggleDescription').click(function(e){
-        e.preventDefault();
-        $('.descPanel').css({
-            'top': '-1000px',
-            'left': '-1000px',
-            'display': 'none'
-        }).attr({
-            'aria-hidden': 'true',
-            'tabindex': '-1'
-        });
-        $(this).next('div').css({
-            'top': e.pageY + 10,
-            'left': e.pageX + 10,
-            'cursor': 'pointer',
-            'display': 'block'
-        }).attr({
-            'aria-hidden': 'false',
-            'tabindex': '0'
-        });
-    });
-    $('.descPanel').blur(function(){
-        $(this).css({
-            'top': '-1000px',
-            'left': '-1000px',
-            'display': 'none'
-        }).attr({
-            'aria-hidden': 'true',
-            'tabindex': '-1'
-        });
-    });
-    $('.descPanel').click(function(){
-        $(this).css({
-            'top': '-1000px',
-            'left': '-1000px',
-            'display': 'none'
-        }).attr({
-            'aria-hidden': 'true',
-            'tabindex': '-1'
-        });
-    });
+
     
     $('#navigatePanelInnerCollapse').on('click', function(e){
         e.preventDefault();
