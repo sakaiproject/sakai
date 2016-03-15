@@ -4,7 +4,7 @@
 	focus_path = [ "$form-notify" ];
 </script>
 
-<div class="portletBody container">
+<div class="portletBody container-fluid">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "options" )
 
 	<div class="page-header">
