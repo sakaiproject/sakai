@@ -6306,6 +6306,8 @@ public class SimplePageBean {
 	}
 	
 	// May add or edit comments
+        // handle situation where user opens CKedit and then opens a
+        // different page. So we can't depend upon current page.
 	public String addComment() {
 		if (!checkCsrf())
 		    return "permission-failed";
@@ -6321,6 +6323,57 @@ public class SimplePageBean {
 		StringBuilder error = new StringBuilder();
 		comment = FormattedText.processFormattedText(comment, error);
 		
+		// get this from itemId to avoid issues if someone has opened
+		// a different page in another window
+		Long currentPageId = null;
+		SimplePageItem commentItem = findItem(itemId);
+		if (commentItem == null) {
+		    // should be impossible
+		    return "failure";
+		}
+		currentPageId = commentItem.getPageId();
+		if (currentPageId == -1L) {
+		    // student page. item doesn't have pageid because the same item
+		    // is on all pages / subpages for that student. instead the sakaid
+		    // points to a studentpage entry.
+		    long studentPageId = -1L;
+		    try {
+			studentPageId = Long.parseLong(commentItem.getSakaiId());
+		    } catch (Exception e){}
+		    SimpleStudentPage studentPage = null;
+		    if (studentPageId != -1L) 
+			studentPage = simplePageToolDao.findStudentPage(studentPageId);
+		    // this gets the top-level student page for this student.
+		    // that seems good enough for testing whether the user has successfully gotten to the page
+		    if (studentPage != null)
+			currentPageId = studentPage.getPageId();
+		}
+		if (currentPageId == null) {
+		    // should be impossible
+		    return "failure";
+		}
+		SimplePage currentPage = getPage(currentPageId);
+		if (currentPage == null) {
+		    // should be impossible
+		    return "failure";
+		}
+
+		// student page
+		boolean isStudent = (currentPage.getOwner() != null);
+
+		// testing whether user can get to the page is complex.
+		// but you can't add a comment to a page you haven't seen,
+		// so just check that. After that we know user can read page.
+                // Use methods that let us pass page so we don't use current page
+		// Student pages don't use avaiable / visible tests
+
+		if (!simplePageToolDao.isPageVisited(currentPageId, getCurrentUserId(), currentPage.getOwner()) ||
+		    !isStudent && !isItemAvailable(commentItem, currentPageId) ||
+		    !isStudent && !isItemVisible(commentItem, currentPage, true)) {
+		    // security failure
+		    return "failure";
+		}		    
+
 		if(comment == null || comment.equals("")) {
 			setErrMessage(messageLocator.getMessage("simplepage.empty-comment-error"));
 			return "failure";
@@ -6330,14 +6383,14 @@ public class SimplePageBean {
 			String userId = UserDirectoryService.getCurrentUser().getId();
 			
 			Double grade = null;
-			if(findItem(itemId).getGradebookId() != null) {
+			if(commentItem.getGradebookId() != null) {
 				List<SimplePageComment> comments = simplePageToolDao.findCommentsOnItemByAuthor(itemId, userId);
 				if(comments != null && comments.size() > 0) {
 					grade = comments.get(0).getPoints();
 				}
 			}
 			
-			SimplePageComment commentObject = simplePageToolDao.makeComment(itemId, getCurrentPage().getPageId(), userId, comment, IdManager.getInstance().createUuid(), html);
+			SimplePageComment commentObject = simplePageToolDao.makeComment(itemId, currentPageId, userId, comment, IdManager.getInstance().createUuid(), html);
 			commentObject.setPoints(grade);
 			
 			saveItem(commentObject, false);
@@ -6353,7 +6406,7 @@ public class SimplePageBean {
 		}
 		
 		if(getCurrentPage().getOwner() != null) {
-			SimpleStudentPage student = simplePageToolDao.findStudentPage(getCurrentPage().getTopParent());
+			SimpleStudentPage student = simplePageToolDao.findStudentPage(currentPage.getTopParent());
 			student.setLastCommentChange(new Date());
 			update(student, false);
 		}
@@ -7711,6 +7764,7 @@ public class SimplePageBean {
 
 
 	// May add or edit comments
+        // can't find a call to this. Security cheking is probaby wrong.
 		public String addComment1() {
 			boolean html = false;
 			
