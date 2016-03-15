@@ -277,6 +277,9 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			log.info("User: " + fromUser + " confirmed friend request from: " + toUser); 
 			//send email notification
 			sendConnectionEmailNotification(fromUser, toUser, EmailType.EMAIL_NOTIFICATION_CONFIRM);
+
+			//post event
+			sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_CONFIRM, "/profile/"+fromUser, true);
 			
 			//invalidate the confirmed connection caches for each user as they are now stale
 			evictFromCache(fromUser);
