@@ -1559,7 +1559,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 						}
 
-						String releaseString = simplePageBean.getReleaseString(i);
+						String releaseString = simplePageBean.getReleaseString(i, M_locale);
 						if (itemGroupString != null || releaseString != null || entityDeleted || notPublished) {
 							if (itemGroupString != null)
 							    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString, i);
