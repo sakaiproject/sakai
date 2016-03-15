@@ -9,8 +9,8 @@
         <version>12-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai SCORM Project</name>
-    <artifactId>sakai-scorm-base</artifactId>
+    <name>SCORM Player</name>
+    <artifactId>scorm-base</artifactId>
     <version>12-SNAPSHOT</version>
     <packaging>pom</packaging>
     <organization>
@@ -41,56 +41,52 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>${sakai.spring.test.version}</version>
-                <scope>test</scope>
-            </dependency>
+            <!-- SCORM Player dependencies -->
             <dependency>
                 <groupId>org.sakaiproject.scorm</groupId>
-                <artifactId>sakai-scorm-adl-impl</artifactId>
+                <artifactId>scorm-adl-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.scorm</groupId>
-                <artifactId>sakai-scorm-content-impl</artifactId>
+                <artifactId>scorm-content-impl</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.scorm</groupId>
-                <artifactId>sakai-scorm-client-impl</artifactId>
+                <artifactId>scorm-client-impl</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.scorm</groupId>
-                <artifactId>sakai-scorm-model-impl</artifactId>
+                <artifactId>scorm-model-impl</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.scorm</groupId>
-                <artifactId>sakai-scorm-service-impl</artifactId>
+                <artifactId>scorm-service-impl</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.scorm</groupId>
-                <artifactId>sakai-scorm-api</artifactId>
+                <artifactId>scorm-api</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.scorm</groupId>
-                <artifactId>sakai-wicket-for-scorm-tool</artifactId>
+                <artifactId>wicket-for-scorm-tool</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>

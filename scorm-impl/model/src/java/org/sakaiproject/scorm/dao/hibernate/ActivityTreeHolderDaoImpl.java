@@ -12,8 +12,10 @@ public class ActivityTreeHolderDaoImpl extends HibernateDaoSupport implements Ac
 		List r = getHibernateTemplate().find("from " + ActivityTreeHolder.class.getName() + " where contentPackageId=? and learnerId=?",
 		        new Object[] { contentPackageId, learnerId });
 
-		if (r.size() == 0)
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		ActivityTreeHolder holder = (ActivityTreeHolder) r.get(0);
 
