@@ -19,7 +19,7 @@
 					$tlang.getString("sitinfimp.migrate")
 				</a>
 			</div>
-			<p class="instruction indnt2">
+			<p class="indnt2">
 				$tlang.getString("sitinfimp.migrate.info")
 			</p>
 			<p></p>
@@ -28,7 +28,7 @@
 					$tlang.getString("sitinfimp.import")
 				</a>
 			</div>
-			<p class="instruction indnt2">
+			<p class="indnt2">
 				$tlang.getString("sitinfimp.import.info")
 			</p>
 			<p></p>
@@ -37,7 +37,7 @@
 					$tlang.getString("sitinfimp.import.user")
 				</a>
 			</div>
-			<p class="instruction indnt2">
+			<p class="indnt2">
 				$tlang.getString("sitinfimp.import.user.info")
 			</p>
 		#else
