@@ -393,9 +393,23 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				q.setParameterList("studentIds", studentIds);
 				existingScores = q.list();
 			} else {
-				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go");
-				q.setParameter("go", assignment);
-				existingScores = filterGradeRecordsByStudents(q.list(), studentIds);
+				//rather do this in batches for scalability
+				log.debug("large list of student ids going to batch query ...");
+				int qi = 0;
+				List ret = new ArrayList();
+				Iterator<String> it = studentIds.iterator();
+				while (it.hasNext()) {
+					List<String> toQuery = new ArrayList<String>();
+					toQuery.add(it.next());
+					if (qi == MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST || !it.hasNext()) {
+						Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go");
+						q.setParameter("go", assignment);
+						q.setParameterList("studentId", studentIds);
+						ret.addAll(q.list());
+						qi++;
+					}
+				}
+				existingScores = ret;
 			}
 
 			Set previouslyUnscoredStudents = new HashSet(studentIds);
