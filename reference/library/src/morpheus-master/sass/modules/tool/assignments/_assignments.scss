@@ -1,0 +1,13 @@
+.#{$namespace}sakai-assignment-grades {
+	.assignment-pager {
+		margin-top: 1em;
+		max-width: 350px;
+		text-align: center;
+		.panel-heading {
+			padding: 5px 10px;
+		}
+		input {
+			margin: 0;
+		}
+	}
+}

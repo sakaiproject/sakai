@@ -48,27 +48,21 @@
 
 ## Macro for the paginator
 #macro( paginator $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
-    <div class="listNav">
-        <div class="instruction" class="pagingHeader">
+    <nav class="assignment-pager panel panel-default">
+        <div class="panel-heading">
             $tlang.getString( "gen.viewing" ) $topMsgPos - $btmMsgPos $tlang.getString( "gen.of" ) $allMsgNumber $tlang.getString( "gen.items" )
         </div>
+        <div class="panel-body">
         #if( $pagesize != 0 )
             <form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-                <fieldset>
-                    <legend>$tlang.getString( "gen.first" )</legend>
+                    <span class="skip">$tlang.getString( "gen.first" )</span>
                     <input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")"
                         onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
                         #if( $goFPButton != "true" ) disabled="disabled" #end />
-                </fieldset>
-                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-            </form>
-            <form name="prevpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                <fieldset>
-                    <legend>$tlang.getString( "gen.previous" ) $pagesize</legend>
+                    <span class="skip">$tlang.getString( "gen.previous" ) $pagesize</span>
                     <input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString( "gen.previous" ) $pagesize" accesskey="p"
                         onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
                         #if( $goPPButton != "true" ) disabled="disabled" #end />
-                </fieldset>
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             </form>
         #end
@@ -84,25 +78,19 @@
         </form>
         #if( $pagesize != 0 )
             <form name="nextpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                <fieldset>
-                    <legend>$tlang.getString( "gen.next" ) $pagesize</legend>
+                    <span class="skip">$tlang.getString( "gen.next" ) $pagesize</span>
                     <input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString( "gen.next" ) $pagesize" accesskey="n"
                         onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
                         #if( $goNPButton != "true" ) disabled="disabled" #end />
-                </fieldset>
-                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-            </form>
-            <form name="lastpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                <fieldset>
-                    <legend>$tlang.getString( "gen.last" )</legend>
+                    <span class="skip">$tlang.getString( "gen.last" )</span>
                     <input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString( "gen.last" )"
                         onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
                         #if( $goLPButton != "true" ) disabled="disabled" #end />
-                </fieldset>
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             </form>
         #end
-    </div>
+        </div>
+    </nav>
 #end
 
 ## Macro for the top nav bar HREF and #toolLink/#toolLinkParam
