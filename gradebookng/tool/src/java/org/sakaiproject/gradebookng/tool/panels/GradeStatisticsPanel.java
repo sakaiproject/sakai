@@ -142,7 +142,7 @@ public class GradeStatisticsPanel extends Panel {
 		JFreeChart chart = ChartFactory.createBarChart(
 				null,			// the chart title
 				getString("label.statistics.chart.xaxis"),	// the label for the category axis
-				null,						// the label for the value axis
+				getString("label.statistics.chart.yaxis"),	// the label for the value axis
 				data,					// the dataset for the chart
 				PlotOrientation.VERTICAL,		// the plot orientation 
 				false,				// show legend

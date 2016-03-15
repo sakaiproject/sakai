@@ -1556,6 +1556,12 @@ GradebookSpreadsheet.prototype.editAssignmentFromFlag = function(assignmentId) {
 };
 
 
+GradebookSpreadsheet.prototype.positionModalAtTop = function($modal) {
+  // position the modal at the top of the viewport
+  // taking into account the current scroll offset
+  $modal.css('top', 30 + $(document).scrollTop() + "px");
+};
+
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
  */
