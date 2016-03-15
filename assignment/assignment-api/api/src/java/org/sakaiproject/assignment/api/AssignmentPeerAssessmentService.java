@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
+import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 
 public interface AssignmentPeerAssessmentService extends ScheduledInvocationCommand{
@@ -30,4 +31,12 @@ public interface AssignmentPeerAssessmentService extends ScheduledInvocationComm
 	 * @return
 	 */
 	public boolean updateScore(String submissionId);
+
+	public List<PeerAssessmentAttachment> getPeerAssessmentAttachments(String submissionId, String assessorUserId);
+
+	public PeerAssessmentAttachment getPeerAssessmentAttachment(String submissionId, String assessorUserId, String resourceId);
+
+	public void savePeerAssessmentAttachments(PeerAssessmentItem item);
+
+	public void removePeerAttachment(PeerAssessmentAttachment peerAssessmentAttachment);
 }

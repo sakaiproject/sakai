@@ -15,6 +15,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.Assignment;
@@ -23,6 +25,7 @@ import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
+import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -394,13 +397,55 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	    }
 	}
 
+	public List<PeerAssessmentAttachment> getPeerAssessmentAttachments(final String submissionId, final String assessorUserId){
+		if(submissionId == null || "".equals(submissionId) || assessorUserId == null || "".equals(assessorUserId)){
+			//return an empty list
+			return new ArrayList<PeerAssessmentAttachment>();
+		}
+		HibernateCallback hcb = session -> {
+			Query q = session.getNamedQuery("findPeerAssessmentAttachmentsByUserAndSubmission");
+			q.setParameter("submissionId", submissionId);
+			q.setParameter("assessorUserId", assessorUserId);
+			return q.list();
+		};
+
+		return (List<PeerAssessmentAttachment>) getHibernateTemplate().execute(hcb);
+	}
+
+	public PeerAssessmentAttachment getPeerAssessmentAttachment(final String submissionId, final String assessorUserId, final String resourceId) {
+		DetachedCriteria d = DetachedCriteria.forClass(PeerAssessmentAttachment.class)
+				.add(Restrictions.eq("submissionId", submissionId))
+				.add(Restrictions.eq("assessorUserId", assessorUserId))
+				.add(Restrictions.eq("resourceId", resourceId));
+		List attachments = getHibernateTemplate().findByCriteria(d);
+		if (attachments == null || attachments.isEmpty()) {
+			return null;
+		} else {
+			return (PeerAssessmentAttachment) attachments.get(0);
+		}
+	}
+
 	public void savePeerAssessmentItem(PeerAssessmentItem item){
 		if(item != null && item.getAssessorUserId() != null && item.getSubmissionId() != null){
 			getHibernateTemplate().saveOrUpdate(item);
 			getHibernateTemplate().flush();
 		}
 	}
-	
+
+	public void savePeerAssessmentAttachments(PeerAssessmentItem item){
+		if(item != null && item.getAttachmentList() != null){
+			for(PeerAssessmentAttachment element : item.getAttachmentList()) {
+				getHibernateTemplate().saveOrUpdate(element);
+			}
+			getHibernateTemplate().flush();
+		}
+	}
+
+	public void removePeerAttachment(PeerAssessmentAttachment peerAssessmentAttachment) {
+		getHibernateTemplate().delete(peerAssessmentAttachment);
+		getHibernateTemplate().flush();
+	}
+
 	public boolean updateScore(String submissionId){
 		boolean saved = false;
 		SecurityAdvisor sa =  new SecurityAdvisor() {
