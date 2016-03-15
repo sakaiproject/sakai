@@ -51,14 +51,14 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=? and learnerId=? order by attemptNumber desc");
 
-		return getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId });
+		return (List<Attempt>) getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId });
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<Attempt> find(String courseId, String learnerId) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=? and learnerId=? order by attemptNumber desc");
-		return getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, learnerId });
+		return (List<Attempt>) getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, learnerId });
 	}
 
 	
@@ -67,9 +67,11 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=? and learnerId=? and attemptNumber=? ");
 		
 		@SuppressWarnings("unchecked")
-		List<Attempt> r = getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, learnerId, attemptNumber });
-		if (r.size() == 0)
+		List<Attempt> r = (List<Attempt>) getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, learnerId, attemptNumber });
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		return (Attempt) r.get(r.size() - 1);
 	}

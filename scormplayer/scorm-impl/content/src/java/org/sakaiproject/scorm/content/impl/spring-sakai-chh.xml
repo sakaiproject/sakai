@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- The Sakai version that makes use of the ContentHostingHandlerResolver to unzip and serve content -->
 	<bean id="org.sakaiproject.scorm.service.api.ScormResourceService"
@@ -22,14 +22,14 @@
 	<!-- This is just an ehcache for the content hosting handler below -->
 	<bean id="org.sakaiproject.scorm.content.api.ZipCHH.cache" 
 		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-    	<property name="cacheName"><value>org.sakaiproject.scorm.content.api.ZipCHH</value></property>
-    	<property name="maxElementsInMemory" ><value>10000</value></property>
-    	<property name="diskPersistent" ><value>false</value></property>
-    	<property name="eternal" ><value>false</value></property>
-   	 	<property name="timeToLive" ><value>300</value></property>
-    	<property name="timeToIdle" ><value>600</value></property>
-  	</bean>
+		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
+		<property name="cacheName"><value>org.sakaiproject.scorm.content.api.ZipCHH</value></property>
+		<property name="maxElementsInMemory" ><value>10000</value></property>
+		<property name="diskPersistent" ><value>false</value></property>
+		<property name="eternal" ><value>false</value></property>
+		<property name="timeToLive" ><value>300</value></property>
+		<property name="timeToIdle" ><value>600</value></property>
+	</bean>
 
 	<!-- This is the content hosting handler that the component uses to manage content in the
 		Sakai content repository so the zip files can be read as virtual file systems -->
@@ -42,5 +42,4 @@
 		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
 		<property name="cache"><ref bean="org.sakaiproject.scorm.content.api.ZipCHH.cache"/></property>
 	</bean>
-	
 </beans>

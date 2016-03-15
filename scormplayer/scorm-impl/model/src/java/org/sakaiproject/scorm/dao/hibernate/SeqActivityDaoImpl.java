@@ -9,11 +9,13 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class SeqActivityDaoImpl extends HibernateDaoSupport implements SeqActivityDao {
 
 	public SeqActivitySnapshot findSnapshot(String activityId) {
-		List<SeqActivitySnapshot> r = getHibernateTemplate().find("from " + SeqActivitySnapshot.class.getName() + " where activityId=?",
+		List<SeqActivitySnapshot> r = (List<SeqActivitySnapshot>) getHibernateTemplate().find("from " + SeqActivitySnapshot.class.getName() + " where activityId=?",
 		        new Object[] { activityId });
 
-		if (r.size() == 0)
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		for (SeqActivitySnapshot snapshot : r) {
 			if (snapshot.getScoId() != null)

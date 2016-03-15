@@ -4,14 +4,14 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-scorm-base</artifactId>
+        <artifactId>scorm-base</artifactId>
         <version>12-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>SCORM Wicket Toolset</name>
     <groupId>org.sakaiproject.scorm</groupId>
-    <artifactId>sakai-wicket-for-scorm-tool</artifactId>
+    <artifactId>wicket-for-scorm-tool</artifactId>
     <packaging>jar</packaging>
     <description>This project creates a jar containing the SCORM Wicket Toolset</description>
     <organization>
@@ -25,6 +25,7 @@
     </properties>
 
     <dependencies>
+        <!-- Sakai API Dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -33,17 +34,11 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
+
+        <!-- External Dependencies -->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
@@ -69,6 +64,14 @@
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-datetime</artifactId>
             <version>${scorm.wicket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
         </dependency>
     </dependencies>
 

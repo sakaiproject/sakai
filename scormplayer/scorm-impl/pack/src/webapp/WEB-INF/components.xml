@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
 	<!-- Bring in the HBM related beans -->
 	<import resource="classpath*:org/sakaiproject/scorm/**/spring-hibernate-hbms.xml" />
 
 	<!-- Bring in the hibernate daos -->
 	<import resource="classpath*:org/sakaiproject/scorm/**/spring-hibernate-daos.xml" />
-
 	
 	<!-- Bring in the sakai daos -->
 	<import resource="classpath*:org/sakaiproject/scorm/**/spring-sakai-hbms.xml" />
@@ -36,5 +36,4 @@
 	<!--
 	<import resource="spring-standalone-webapp.xml" />
 	-->
-
 </beans>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Grab the learner information from Sakai -->
 	<bean id="org.sakaiproject.scorm.service.api.LearningManagementSystem"
@@ -16,7 +17,5 @@
 		<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService" />
 		<lookup-method name="scormResultService" bean="org.sakaiproject.scorm.service.api.ScormResultService" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
-
 	</bean>
-	
 </beans>

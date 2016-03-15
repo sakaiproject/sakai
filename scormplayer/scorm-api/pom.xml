@@ -4,14 +4,14 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-scorm-base</artifactId>
+        <artifactId>scorm-base</artifactId>
         <version>12-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>sakai-scorm-api</name>
+    <name>SCORM API</name>
     <groupId>org.sakaiproject.scorm</groupId>
-    <artifactId>sakai-scorm-api</artifactId>
+    <artifactId>scorm-api</artifactId>
     <packaging>jar</packaging>
     <description>This project creates the general APIs used by the Sakai Scorm Tool</description>
     <organization>
@@ -25,6 +25,21 @@
     </properties>
 
     <dependencies>
+        <!-- Sakai API Dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+        </dependency>
+
+        <!-- External Dependencies -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -36,14 +51,6 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
         </dependency>
     </dependencies>
 

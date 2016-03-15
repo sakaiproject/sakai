@@ -4,14 +4,14 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-scorm-base</artifactId>
+        <artifactId>scorm-base</artifactId>
         <version>12-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <name>sakai-scorm-pack</name>
+    <name>SCORM Pack</name>
     <groupId>org.sakaiproject.scorm</groupId>
-    <artifactId>sakai-scorm-pack</artifactId>
+    <artifactId>scorm-pack</artifactId>
     <packaging>sakai-component</packaging>
     <description>This project packs the components used by the Sakai Scorm Tool</description>
     <organization>
@@ -25,40 +25,43 @@
     </properties>
 
     <dependencies>
+        <!-- SCORM Player Dependencies -->
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-adl-impl</artifactId>
+            <artifactId>scorm-adl-impl</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-content-impl</artifactId>
+            <artifactId>scorm-content-impl</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-client-impl</artifactId>
+            <artifactId>scorm-client-impl</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-model-impl</artifactId>
+            <artifactId>scorm-model-impl</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-service-impl</artifactId>
+            <artifactId>scorm-service-impl</artifactId>
             <type>jar</type>
         </dependency>
+
+        <!-- External Dependencies -->
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
             <type>jar</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
             <type>jar</type>
             <scope>runtime</scope>
         </dependency>

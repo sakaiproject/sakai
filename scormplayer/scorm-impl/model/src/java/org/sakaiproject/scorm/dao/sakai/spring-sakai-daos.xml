@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Grab the learner information from Sakai -->
 	<bean id="org.sakaiproject.scorm.dao.LearnerDao"
@@ -13,7 +13,6 @@
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" /> 
 	</bean>
 	
-	
 	<!--bean id="org.sakaiproject.scorm.dao.api.DataManagerDao"
 		class="org.sakaiproject.scorm.dao.sakai.DataManagerDaoImpl">
 		
@@ -21,7 +20,6 @@
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
 		
 	</bean-->
-	
 	
 	<!--
 	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
@@ -37,5 +35,4 @@
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
 	</bean>
 	-->
-
 </beans>

@@ -31,18 +31,20 @@ import org.sakaiproject.scorm.model.api.SeqActivityTreeSnapshot;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqActivityTreeDao {
-	private static Log log = LogFactory.getLog(SeqActivityTreeDaoImpl.class);
+	private static final Log LOG = LogFactory.getLog(SeqActivityTreeDaoImpl.class);
 
 	public ISeqActivityTree find(long contentPackageId, String userId) {
 		List r = getHibernateTemplate().find("from " + SeqActivityTree.class.getName() + " where contentPackageId=? and mLearnerID=?",
 		        new Object[] { contentPackageId, userId });
 
-		if (log.isInfoEnabled()) {
-			log.info("SeqActivityTreeDAO::find: records: " + r.size());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("SeqActivityTreeDAO::find: records: " + r.size());
 		}
 
-		if (r.size() == 0)
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		return (ISeqActivityTree) r.get(0);
 	}
@@ -51,12 +53,14 @@ public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqAc
 		List r = getHibernateTemplate().find("from " + SeqActivityTreeSnapshot.class.getName() + " where mCourseID=? and mLearnerID=?",
 		        new Object[] { courseId, userId });
 
-		if (log.isInfoEnabled()) {
-			log.info("SeqActivityTreeDAO::findSnapshot: records: " + r.size());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("SeqActivityTreeDAO::findSnapshot: records: " + r.size());
 		}
 
-		if (r.size() == 0)
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		return (SeqActivityTreeSnapshot) r.get(0);
 	}
@@ -64,8 +68,8 @@ public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqAc
 	public List<SeqActivityTreeSnapshot> findUserSnapshots(String userId) {
 		List r = getHibernateTemplate().find("from " + SeqActivityTreeSnapshot.class.getName() + " where mLearnerID=?", new Object[] { userId });
 
-		if (log.isInfoEnabled()) {
-			log.info("SeqActivityTreeDAO::findUserSnapshots: records: " + r.size());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("SeqActivityTreeDAO::findUserSnapshots: records: " + r.size());
 		}
 
 		return r;

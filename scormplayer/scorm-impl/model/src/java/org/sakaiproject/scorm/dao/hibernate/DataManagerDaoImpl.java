@@ -32,14 +32,14 @@ import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManagerDao {
-	private static Log log = LogFactory.getLog(DataManagerDaoImpl.class);
+	private static final Log LOG = LogFactory.getLog(DataManagerDaoImpl.class);
 
 	public List<IDataManager> find(long contentPackageId, String learnerId, long attemptNumber) {
 		StringBuilder buffer = new StringBuilder();
 
 		buffer.append("from ").append(SCODataManager.class.getName()).append(" where contentPackageId=? and userId=? and attemptNumber=? ");
 
-		return getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId, attemptNumber });
+		return (List<IDataManager>) getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId, attemptNumber });
 	}
 
 	public IDataManager find(long contentPackageId, String learnerId, long attemptNumber, String scoId) {
@@ -49,8 +49,10 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 
 		List r = getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId, attemptNumber, scoId });
 
-		if (r.size() == 0)
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		SCODataManager dm = (SCODataManager) r.get(0);
 
@@ -76,12 +78,14 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 
 		List r = getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, scoId, userId, attemptNumber });
 
-		if (log.isDebugEnabled()) {
-			log.debug("DataManagerDaoImpl::find: records: " + r.size());
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("DataManagerDaoImpl::find: records: " + r.size());
 		}
 
-		if (r.size() == 0)
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		SCODataManager dm = (SCODataManager) r.get(r.size() - 1);
 
@@ -101,12 +105,14 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 
 		List r = getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, activityId, userId, attemptNumber });
 
-		if (log.isDebugEnabled()) {
-			log.debug("DataManagerDaoImpl::findByActivityId: records: " + r.size());
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("DataManagerDaoImpl::findByActivityId: records: " + r.size());
 		}
 
-		if (r.size() == 0)
+		if (r.isEmpty())
+		{
 			return null;
+		}
 
 		SCODataManager dm = (SCODataManager) r.get(r.size() - 1);
 
