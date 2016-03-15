@@ -112,10 +112,6 @@ public class ConfirmFriend extends Panel {
 				//if ok, request friend
 				if(connectionsLogic.confirmFriendRequest(userY, userX)) {
 					friendActionModel.setConfirmed(true);
-					
-					//post event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_CONFIRM, "/profile/"+userY, true);
-					
 					window.close(target);
 				} else {
 					text.setDefaultModel(new StringResourceModel("error.friend.confirm.failed", null, new Object[]{ friendName } ));
