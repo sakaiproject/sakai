@@ -106,5 +106,21 @@ public class SignupGroup {
 	public void setCalendarId(String calendarId) {
 		this.calendarId = calendarId;
 	}
+	
+	/**
+	 * check if the two SignupSite object are equal
+	 */
+	public boolean equals(Object object) {
+		if (object == null || !(object instanceof SignupGroup))
+			return false;
+		SignupGroup other = (SignupGroup) object;
+
+
+		return (groupId.equals(other.getGroupId()) );
+	}
+
+	public int hashCode() {
+		return groupId.hashCode();
+	}	
 
 }

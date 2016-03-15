@@ -41,6 +41,7 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
+import org.sakaiproject.signup.tool.jsf.SignupSiteWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
@@ -64,6 +65,16 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	private int maxNumOfAttendees;
 
 	private boolean showAttendeeName;
+	
+	private SignupSiteWrapper currentSite;
+
+	private List<SignupSiteWrapper> otherSites;
+
+	private List<String> missingSites;
+
+	private List<String> missingGroups;
+	
+	private boolean missingSitGroupWarning;	
 
 	// private int addMoreTimeslots;
 	
@@ -222,6 +233,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		/*pre-load all possible coordinators for step2*/
 		this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinatorsOnFastTrack(this.signupMeeting);
 		populateExistingCoordinators();
+		
+		missingSitGroupWarning = false;
+		/* Initialize site/groups for current organizer */
+		initializeSitesGroups();
 
 	}
 
@@ -428,6 +443,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 				editMeeting.setCurrentAttachList(this.readyToModifyAttachmentCopyList);
 			}
 			
+			/* Set Sites and Groups selected by user */
+			editMeeting.setCurrentSite(getCurrentSite());
+			editMeeting.setOtherSites(getOtherSites());
+			
 			/* update to DB */
 			editMeeting.saveModifiedMeeting(meeting);
 			
@@ -497,7 +516,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 				/*remove calendar if any*/
 				signupMeetingService.removeCalendarEventsOnModifiedMeeting(successUpdatedMeetings);
 			}
-			
+		
 
 		} catch (PermissionException pe) {
 			Utilities.addErrorMessage(Utilities.rb.getString("no.permissoin.do_it"));
@@ -598,6 +617,12 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
 			return;
 		}
+		
+		if (!CreateSitesGroups.isAtleastASiteOrGroupSelected(this.getCurrentSite(), this.getOtherSites())) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("select.atleast.oneGroup.for.editMeeting"));
+
+		}		
 		
 		/*for custom defined time slot case*/
 		if(!validationError && isUserDefinedTS()){
@@ -1107,5 +1132,83 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	public void setSendEmailByOwner(boolean sendEmailByOwner) {
 		this.sendEmailByOwner = sendEmailByOwner;
 	}
+	
+	private void initializeSitesGroups() {
+		/*
+		 * Temporary bug fix for AuthZ code ( isAllowed(..) ), which gives wrong
+		 * permission for the first time at 'Create new or Copy meeting pages'.
+		 * The bug will be gone by second time go into it. Once it's fixed,
+		 * remove this below and other places and make it into a more clean way
+		 * by not sharing the same CreateSitesGroups Object. new
+		 * CreateSitesGroups(getSignupMeeting(),sakaiFacade,signupMeetingService);
+		 **/
+		CreateSitesGroups createSiteGroups = Utilities.getSignupMeetingsBean().getCreateSitesGroups();		
+		createSiteGroups.resetSiteGroupCheckboxMark();
+		createSiteGroups.setSignupMeeting(this.getSignupMeeting());
+		createSiteGroups.processSiteGroupSelectionMarks();
+		setCurrentSite(createSiteGroups.getCurrentSite());
+		setOtherSites(createSiteGroups.getOtherSites());
+		setMissingSitGroupWarning(createSiteGroups.isSiteOrGroupTruncated());
+		setMissingSites(createSiteGroups.getMissingSites());
+		setMissingGroups(createSiteGroups.getMissingGroups());
 		
+		
+	}
+
+	public SignupSiteWrapper getCurrentSite() {
+		return currentSite;
+	}
+
+	public void setCurrentSite(SignupSiteWrapper currentSite) {
+		this.currentSite = currentSite;
+	}
+
+	public List<SignupSiteWrapper> getOtherSites() {
+		return otherSites;
+	}
+
+	public void setOtherSites(List<SignupSiteWrapper> otherSites) {
+		this.otherSites = otherSites;
+	}
+
+	public boolean isMissingSitGroupWarning() {
+		return missingSitGroupWarning;
+	}
+
+	public void setMissingSitGroupWarning(boolean missingSitGroupWarning) {
+		this.missingSitGroupWarning = missingSitGroupWarning;
+	}
+
+	public List<String> getMissingSites() {
+		return missingSites;
+	}
+
+	public void setMissingSites(List<String> missingSites) {
+		this.missingSites = missingSites;
+	}
+	
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isMissingSitesThere() {
+		if (this.missingSites == null || this.missingSites.isEmpty())
+			return false;
+		return true;
+	}
+
+	public List<String> getMissingGroups() {
+		return missingGroups;
+	}
+
+	public void setMissingGroups(List<String> missingGroups) {
+		this.missingGroups = missingGroups;
+	}
+	
+	public boolean isMissingGroupsThere() {
+		if (this.missingGroups == null || this.missingGroups.isEmpty())
+			return false;
+		return true;
+	}
 }

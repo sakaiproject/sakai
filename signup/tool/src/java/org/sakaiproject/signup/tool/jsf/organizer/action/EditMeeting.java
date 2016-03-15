@@ -36,8 +36,12 @@ import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
+import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.SignupGroupWrapper;
+import org.sakaiproject.signup.tool.jsf.SignupSiteWrapper;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean;
@@ -120,6 +124,12 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	
 	//it make sure not running this job multiple times
 	private boolean hasProcessedSyn_createGroups_job = false;
+	
+	private SignupSiteWrapper currentSite;
+
+	private List<SignupSiteWrapper> otherSites;
+	
+	List<SignupSite> sitesDeleteEvents;
 	
 	public EditMeeting(String userId, String siteId, SignupMeetingService signupMeetingService, AttachmentHandler attachmentHandler, boolean isOrganizer) {
 		super(userId, siteId, signupMeetingService, isOrganizer);
@@ -268,6 +278,13 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		
 		newlyModifyMeeting.setSendEmailByOwner(isSendEmailByOwner());
 		newlyModifyMeeting.setCoordinatorIds(getCoordinators());
+		
+		// TODO Build site and group list
+		// Check current Site	
+		List<SignupSiteWrapper> listWrappers = new ArrayList<SignupSiteWrapper>();
+		listWrappers.add(this.getCurrentSite());
+		listWrappers.addAll(this.getOtherSites());
+		sitesDeleteEvents = updateSitesList(newlyModifyMeeting, listWrappers);
 		
 		/*new attachments changes*/
 		if(this.currentAttachList !=null){
@@ -850,6 +867,89 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		}
 		
 	}
+	
+	private List<SignupSite> updateSitesList(SignupMeeting meeting,List<SignupSiteWrapper> listWrapper){
+
+		int index;
+		List<SignupGroup> listGroups;
+		SignupSite signupSite;
+		List<SignupSite> tobeDeletedSitesEV= new ArrayList<SignupSite>();
+		
+		for (SignupSiteWrapper siteWrapper : listWrapper) {
+
+			if (meeting.getSignupSites().contains(siteWrapper.getSignupSite())) {
+				
+				// Get The list of Groups from the Meeting
+				index = meeting.getSignupSites().indexOf(siteWrapper.getSignupSite());
+				listGroups = meeting.getSignupSites().get(index).getSignupGroups();
+				
+				// If the SiteWrapper is selected only we clear the Group List
+				if (siteWrapper.isSelected()) {
+					
+					if ( listGroups != null && !listGroups.isEmpty()){
+						SignupSite siteCopy = (SignupSite) org.apache.commons.lang.SerializationUtils.clone(meeting.getSignupSites().get(index));
+						listGroups.clear();
+						tobeDeletedSitesEV.add(siteCopy);
+					}					
+				} else {
+					if (listGroups == null) {
+						listGroups = new ArrayList<SignupGroup>();
+					}
+
+					// Loop through the groups wrappers to see which groups are selected
+					for (SignupGroupWrapper signupGroupWrapper : siteWrapper.getSignupGroupWrappers()) {
+						if (signupGroupWrapper.isSelected()) {
+							// We only add the group if is not on the group list
+							// of the meeting
+							if (!listGroups.contains(signupGroupWrapper.getSignupGroup())) {
+								listGroups.add(signupGroupWrapper.getSignupGroup());
+							}
+						} else {
+							// If the group exists we have to delete it
+							if (listGroups.contains(signupGroupWrapper.getSignupGroup())) {
+								listGroups.remove(signupGroupWrapper.getSignupGroup());
+							}
+						}
+					}
+					
+					// Remove site with no groups inside
+					if (listGroups == null || listGroups.isEmpty()){
+						meeting.getSignupSites().remove(siteWrapper.getSignupSite());
+					}
+				}
+
+			} else {
+				listGroups = new ArrayList<SignupGroup>();
+				if (siteWrapper.isSelected()){
+					signupSite = new SignupSite();
+					signupSite.setTitle(siteWrapper.getSignupSite().getTitle());
+					signupSite.setSiteId(siteWrapper.getSignupSite().getSiteId());					
+					signupSite.setSignupGroups(listGroups);
+				
+					meeting.getSignupSites().add(signupSite);
+				}else{
+					
+					// Loop through the groups to see which groups are selected
+					for (SignupGroupWrapper signupGroupWrapper : siteWrapper.getSignupGroupWrappers()) {
+						if (signupGroupWrapper.isSelected()) {
+							listGroups.add(signupGroupWrapper.getSignupGroup());
+						}
+					}
+				
+					// The Site should have at least one group selected
+					if (!listGroups.isEmpty()) {						
+						signupSite = new SignupSite();
+						signupSite.setTitle(siteWrapper.getSignupSite().getTitle());
+						signupSite.setSiteId(siteWrapper.getSignupSite().getSiteId());
+						signupSite.setSignupGroups(listGroups);
+						
+						meeting.getSignupSites().add(signupSite);
+					}
+				}
+			}
+		}
+		return tobeDeletedSitesEV;
+	}
 
 	public List<TimeslotWrapper> getCustomTimeSlotWrpList() {
 		return customTimeSlotWrpList;
@@ -906,8 +1006,22 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	public void setSendEmailByOwner(boolean sendEmailByOwner) {
 		this.sendEmailByOwner = sendEmailByOwner;
 	}
-	
-	
+
+	public SignupSiteWrapper getCurrentSite() {
+		return currentSite;
+	}
+
+	public void setCurrentSite(SignupSiteWrapper currentSite) {
+		this.currentSite = currentSite;
+	}
+
+	public List<SignupSiteWrapper> getOtherSites() {
+		return otherSites;
+	}
+
+	public void setOtherSites(List<SignupSiteWrapper> otherSites) {
+		this.otherSites = otherSites;
+	}
 }
 
 

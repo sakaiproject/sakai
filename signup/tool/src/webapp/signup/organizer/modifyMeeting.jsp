@@ -303,6 +303,100 @@
 								<h:outputLabel value="#{msgs.attend_taken}" for="attendanceSelection" styleClass="titleText"/>
 								<h:outputText value="#{msgs.attend_track_selected}" escape="false" styleClass="textPanelFooter"/>
 							  </h:panelGroup>
+							  
+							  
+							<%-- display site/groups --%>
+				            <h:panelGroup styleClass="titleText" style="margin-top:5px">
+				            	<h:outputText value="#{msgs.star_character}"  style="color:#B11;"/>
+				            	<h:outputText value ="#{msgs.event_publish_to}" />
+				            </h:panelGroup>				            
+				            <h:panelGroup rendered="#{EditMeetingSignupMBean.missingSitGroupWarning}">
+				            	<h:panelGrid columns="1">
+				            		<h:outputText value="#{msgs.event_some_orig_sitegroup_unavail_due_to_your_create_permission}" styleClass="alertMessage" 
+				            				  escape="false"/>
+				            		<h:panelGroup>	
+				   	    				<h:outputLabel  id="imageOpen_missingSiteGroup" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_missingSiteGroup','meeting:imageClose_missingSiteGroup','meeting:missingSiteGroups');">
+					   	    				<h:graphicImage value="/images/open.gif"  alt="open" style="border:none; vertical-align:middle;" styleClass="openCloseImageIcon"/>
+					   	    				<h:outputText value="#{msgs.event_hide_me_details}" escape="false" />
+				   	    				</h:outputLabel>
+				   	    				<h:outputLabel id="imageClose_missingSiteGroup" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_missingSiteGroup','meeting:imageClose_missingSiteGroup','meeting:missingSiteGroups');">
+				   	    					<h:graphicImage value="/images/closed.gif" alt="close" style="border:none; vertical-align:middle;" styleClass="openCloseImageIcon" />
+				   	    					<h:outputText value="#{msgs.event_show_me_details}" escape="false" />
+				   	    				</h:outputLabel>
+				            		</h:panelGroup>
+				            		<%-- display missing ones --%>
+				            		<h:panelGroup id="missingSiteGroups">
+				            			<h:panelGrid columns="2">
+				            					<h:outputText value="#{msgs.event_missing_site}" escape="false" rendered="#{EditMeetingSignupMBean.missingSitesThere}"/>
+						            			<h:dataTable id="missingSite" value="#{EditMeetingSignupMBean.missingSites}" var="missingSite" styleClass="meetingTypeTable" rendered="#{EditMeetingSignupMBean.missingSitesThere}">
+						            				<h:column>
+						            					<h:outputText value="#{missingSite}" style="color:#B11;"/>
+						            				</h:column>
+						            			</h:dataTable>
+						            			
+						            			<h:outputText value="#{msgs.event_missing_group}" escape="false" rendered="#{EditMeetingSignupMBean.missingGroupsThere}"/>
+						            			<h:dataTable id="missingGroup" value="#{EditMeetingSignupMBean.missingGroups}" var="missingGroups" styleClass="meetingTypeTable" rendered="#{EditMeetingSignupMBean.missingGroupsThere}">
+						            				<h:column>
+						            					<h:outputText value="#{missingGroups}" style="color:#B11;"/>
+						            				</h:column>
+						            			</h:dataTable>
+				            			</h:panelGrid>			            		
+				            		</h:panelGroup>
+				           		</h:panelGrid>
+				            </h:panelGroup>
+				            <h:outputText value="&nbsp;" escape="false" rendered="#{EditMeetingSignupMBean.missingSitGroupWarning}"/>
+				            
+				                               
+				            <h:panelGrid  columns="1" styleClass="meetingGpsSitesTable" style="">                    
+				                    <h:panelGroup>
+				                        <h:selectBooleanCheckbox id="siteSelection" value="#{EditMeetingSignupMBean.currentSite.selected}" disabled="#{!EditMeetingSignupMBean.currentSite.allowedToCreate}"
+				                            onclick="currentSiteSelection();"/>
+				                        <h:outputText value="#{EditMeetingSignupMBean.currentSite.signupSite.title}" styleClass="longtext"/>
+				                   		<h:outputText value="#{msgs.event_current_site}" style="margin-left:3px" escape="false"/>
+				                   
+				                    </h:panelGroup>
+				                    <h:dataTable id="currentSiteGroups" value="#{EditMeetingSignupMBean.currentSite.signupGroupWrappers}" var="currentGroup" styleClass="meetingTypeTable">
+				                        <h:column>
+				                            <h:panelGroup>
+				                                <h:selectBooleanCheckbox id="groupSelection" value="#{currentGroup.selected}" disabled="#{!currentGroup.allowedToCreate}"/>
+				                                <h:outputText value="#{currentGroup.signupGroup.title}" styleClass="longtext"/>
+				                            </h:panelGroup>
+				                        </h:column>
+				                    </h:dataTable>
+				                   
+				                    <h:panelGroup>
+										<h:outputText value="<span id='imageOpen_otherSites' style='display:none'>"  escape="false"/>
+				   	    					<h:graphicImage value="/images/minus.gif"  alt="open" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');" />
+				   	    				<h:outputText value="</span>" escape="false" />
+				   	    			
+				   	    				<h:outputText value="<span id='imageClose_otherSites'>"  escape="false"/>
+				   	    					<h:graphicImage value="/images/plus.gif" alt="close" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"/>
+				   	    				<h:outputText value="</span>" escape="false" />
+				                        <h:outputLabel value="#{msgs.event_other_sites}" style='font-weight:bold; cursor:pointer;' onmouseover='style.color=\"blue\"' onmouseout='style.color=\"black\"' onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');" />
+				                    </h:panelGroup>   
+				                    <h:panelGroup>
+				                        <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>   
+				                        <h:dataTable id="userSites" value="#{EditMeetingSignupMBean.otherSites}" var="site" styleClass="meetingTypeTable" style="left:1px;">
+				                        
+				                            <h:column>
+				                                <h:panelGroup>
+				                                    <h:selectBooleanCheckbox id="otherSitesSelection" value="#{site.selected}" disabled="#{!site.allowedToCreate}" onclick="otherUserSitesSelection();"/>
+				                                    <h:outputText value="#{site.signupSite.title}" styleClass="editText" escape="false"/>
+				                                </h:panelGroup>
+				                                <h:dataTable id="userGroups" value="#{site.signupGroupWrappers}" var="group" styleClass="meetingTypeTable">
+				                                    <h:column>
+				                                        <h:panelGroup>
+				                                            <h:selectBooleanCheckbox id="otherGroupsSelection" value="#{group.selected}" disabled="#{!group.allowedToCreate}" onclick=""/>
+				                                            <h:outputText value="#{group.signupGroup.title}" styleClass="longtext"/>
+				                                        </h:panelGroup>
+				                                    </h:column>
+				                               
+				                                </h:dataTable>
+				                            </h:column>
+				                        </h:dataTable>
+				                        <h:outputText value="</div>" escape="false" />
+				                    </h:panelGroup>   				                        
+				          	</h:panelGrid>							  
               
 							<%-- handle meeting types --%>
 				           	<h:panelGroup styleClass="titleText">

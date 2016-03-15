@@ -19,6 +19,7 @@
 
 package org.sakaiproject.signup.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -27,7 +28,12 @@ import java.util.List;
  * directly to the DB storage by Hibernate
  * </p>
  */
-public class SignupSite {
+public class SignupSite implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5141609372732065997L;
 
 	private Long id;
 
@@ -175,7 +181,11 @@ public class SignupSite {
 			return false;
 		SignupSite other = (SignupSite) object;
 
-		return (siteId.equals(other.getSiteId()) || id.equals(other.getId()));
+		if (id != null){
+			return (siteId.equals(other.getSiteId()) || id.equals(other.getId()));
+		}else{
+			return (siteId.equals(other.getSiteId()) );
+		}
 	}
 
 	public int hashCode() {

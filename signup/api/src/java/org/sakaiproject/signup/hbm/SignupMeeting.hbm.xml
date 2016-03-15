@@ -66,7 +66,7 @@
 				class="org.sakaiproject.signup.model.SignupTimeslot" />
 		</list>
 		
-		<list name="signupSites" cascade="save-update,delete" fetch="select" batch-size="50">
+		<list name="signupSites" cascade="save-update,delete-orphan" fetch="select" batch-size="50">
 			<key column="meeting_id" not-null="true"/>
 			<list-index column="list_index" />
 			<one-to-many
