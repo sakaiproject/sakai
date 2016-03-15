@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<!-- documented by aaronz@vt.edu -->
-	<!--
-		RSF version by antranig@caret.cam.ac.uk - some contents moved from
-		"spring-beans.xml"
-	-->
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- entity providers -->
 	<bean
@@ -123,7 +119,7 @@
 			</bean>
 		</property>
 	</bean>
-	<bean id="sakai-ErrorFilter" class="uk.ac.cam.caret.sakai.rsf.errors.ErrorFilter">
+	<bean id="sakai-ErrorFilter" class="org.sakaiproject.rsf.errors.ErrorFilter">
 		<property name="ignoredKeys" value="rsf.invalid.date" />
 	</bean> -->
 </beans>

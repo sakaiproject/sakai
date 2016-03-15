@@ -1,0 +1,99 @@
+<!--
+* $Id: questionProgress.jspf
+* This is an include file to display the quesitonProgress module.
+<%--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.opensource.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License. 
+*
+**********************************************************************************/
+--%>
+-->
+
+<f:verbatim><div id='questionProgressPanel'>
+</f:verbatim>
+
+<div class="tier1">
+<h2>
+    <h:outputText value="#{deliveryMessages.qprogress}" />
+</h2>
+
+
+<f:verbatim><p class="progressItem"></f:verbatim>
+        <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" /><h:outputText value=" #{deliveryMessages.unans_q}" /><br/>
+        <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" /><h:outputText value=" #{deliveryMessages.ans_q}" escape="false" /><br/>
+        <h:graphicImage alt="marked for review icon" url="#{delivery.questionProgressMardPath}" rendered="#{delivery.displayMardForReview}" /><h:outputText value=" #{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
+<f:verbatim></p></f:verbatim>
+
+
+</div>
+<br />
+<div class="tier1">
+    <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part" >
+      <h:column>
+      <h:panelGroup>
+        <h:outputText value="<div class=\"partTitle\">" escape="false" />
+        <h:outputText value="<button type=\"button\" id=\"partLink-#{part.number}\" class=\"partLink\">" escape="false"/>
+        <h:graphicImage alt="a right arrow" id="rightArrow" value="/images/right_arrow.gif" styleClass="arrow #{(part.number eq delivery.partIndex+1) ? 'hiddenArrow' : ''}" />
+        <h:graphicImage alt="a down arrow" id="downArrow" value="/images/down_arrow.gif" styleClass="arrow #{(part.number eq delivery.partIndex+1) ? '' : 'hiddenArrow'}" />
+        <h:outputText value=" #{deliveryMessages.p} #{part.number}: #{part.nonDefaultText}</button>" escape="false" />
+        <h:outputText value="<span class=\"numberOfQuestionsInPart\">#{part.questions} #{deliveryMessages.qprogress_questions}</span></div>" escape="false" />
+        <h:outputText value="<div id=\"partTable-#{part.number}\" >" escape="false"/>
+        <h:dataTable value="#{part.itemContents}" var="question" id="tocquestions" styleClass="#{(delivery.navigation eq '2') ? 'questionProgressTable' : 'questionProgressTable_linear'}">
+          <h:column>
+            <h:panelGroup>
+
+		<f:verbatim><p class="progressItem"></f:verbatim>
+              <h:panelGroup styleClass="#{((question.number eq delivery.questionIndex+1) and (part.number eq delivery.partIndex+1)) ? 'currentQuestion' : ''} #{((delivery.navigation eq '1') and ((part.number le delivery.partIndex+1 and question.number lt delivery.questionIndex+1) or (part.number lt delivery.partIndex+1))) ? 'linearPastQuestion' : ''}">
+		<h:graphicImage alt="Loading question..." url="/images/loading.gif" style="display:none;padding-left:1em;"/>
+		<h:commandLink title="#{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.goto_question}" rendered="#{delivery.navigation eq '2'}" onmouseup="questionProgress.disableLink(this);">
+                <h:outputText escape="false" value="#{question.sequence} " >
+			<f:convertNumber maxFractionDigits="2"/>
+        	</h:outputText>
+
+                <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" rendered="#{question.unanswered && !question.review}" />
+                <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" rendered="#{!question.unanswered && !question.review}" />
+                <h:graphicImage alt="marked for review icon" url="#{delivery.questionProgressMardPath}" rendered="#{question.review}"/>
+
+
+                <f:param name="partnumber" value="#{part.number}" />
+                <f:param name="questionnumber" value="#{question.number}" />
+              </h:commandLink>
+                  <h:commandButton styleClass="linearButton" type="reset" rendered="#{delivery.navigation eq '1'}">
+                      <h:outputText escape="false" value="#{question.sequence} " >
+                          <f:convertNumber maxFractionDigits="2"/>
+                      </h:outputText>
+
+                      <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" rendered="#{question.unanswered}" />
+                      <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" rendered="#{!question.unanswered}" />
+                  </h:commandButton>
+                  </h:panelGroup>
+		        <f:verbatim></p></f:verbatim>
+            </h:panelGroup>
+          </h:column>
+        </h:dataTable>
+          <f:verbatim></div></f:verbatim>
+      </h:panelGroup>
+      </h:column>
+    </h:dataTable>
+
+
+</div>
+
+<f:verbatim></div></f:verbatim>
+
+<f:verbatim><div id='questionProgressClick'>
+<p class="rotateQP"><span id="qpOpen">&#9660; <h:outputText escape="false" value="#{deliveryMessages.qprogress}"/> &#9660;</span><span id="qpClose">&#9650; <h:outputText escape="false" value="#{deliveryMessages.qprogress}"/> &#9650;</span></p>
+</div><br/>&nbsp;</f:verbatim>

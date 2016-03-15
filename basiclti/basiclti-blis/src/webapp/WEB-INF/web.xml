@@ -16,7 +16,7 @@
 
   <servlet>
     <servlet-name>SampleServlet</servlet-name>
-    <servlet-class>org.imsglobal.lti2.LTI2Servlet</servlet-class>
+    <servlet-class>org.tsugi.lti2.LTI2Servlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -35,7 +35,7 @@
   </servlet-mapping>
   
   <listener>
-    <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
   </listener>
 
 </web-app>

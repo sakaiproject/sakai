@@ -5,14 +5,13 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>11-SNAPSHOT</version>
+		<version>12-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 
 	<name>Sakai Signup Module</name>
 	<groupId>org.sakaiproject.signup</groupId>
 	<artifactId>signup</artifactId>
-	<version>11-SNAPSHOT</version>
 
 	<organization>
 		<name>Sakai Project</name>
@@ -88,12 +87,6 @@
 				<artifactId>entitybroker-utils</artifactId>
 				<version>${sakai.version}</version>
 				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject</groupId>
-				<artifactId>generic-dao</artifactId>
-				<version>${generic-dao.version}</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.jsf</groupId>

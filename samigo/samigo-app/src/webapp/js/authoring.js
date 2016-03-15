@@ -1,62 +1,3 @@
-/* ====================================================================
- * The Apache Software License, Version 1.1
- *
- * Copyright (c) 2000-2004 The Apache Software Foundation.  All rights
- * reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:
- *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowledgment may appear in the software itself,
- *    if and wherever such third-party acknowledgments normally appear.
- *
- * 4. The names "Apache" and "Apache Software Foundation" must
- *    not be used to endorse or promote products derived from this
- *    software without prior written permission. For written
- *    permission, please contact apache@apache.org.
- *
- * 5. Products derived from this software may not be called "Apache",
- *    nor may "Apache" appear in their name, without prior written
- *    permission of the Apache Software Foundation.
- *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- * ====================================================================
- *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
- *
- * Portions of this software are based upon public domain software
- * originally written at the National Center for Supercomputing Applications,
- * University of Illinois, Urbana-Champaign.
- *
- */
-
 var checkflag = "false";
 
 function checkAll(field) {
@@ -351,10 +292,13 @@ function disableFeedbackDateCheck(feedbackType) {
 
     if (feedbackType == dateFeedback) {
     	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", false);
-    	$("td.feedbackColumn2 > img.ui-datepicker-trigger").prop("hidden", false);
+    	$("td.feedbackColumn1 > img.ui-datepicker-trigger").prop("hidden", false);
+        $("td.feedbackColumn2").prop("hidden", false);
     } else {
     	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", true);
-    	$("td.feedbackColumn2 > img.ui-datepicker-trigger").prop("hidden", true);
+        $("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").val( "" );
+    	$("td.feedbackColumn1 > img.ui-datepicker-trigger").prop("hidden", true);
+        $("td.feedbackColumn2").prop("hidden", true);
     }
 }
 
@@ -589,6 +533,15 @@ function lockdownMarkForReview(value) {
   }
 }
 
+function initTimedCheckBox(){
+		var timedHours = document.getElementById("assessmentSettingsAction\:timedHours");
+		var timedHoursVal = timedHours.options[timedHours.selectedIndex].value;
+		var timedMinutes = document.getElementById("assessmentSettingsAction\:timedMinutes");
+		var timedMinutesVal = timedMinutes.options[timedMinutes.selectedIndex].value;
+		
+		if((timedHoursVal != "0") || (timedMinutesVal != "0")) document.getElementById("assessmentSettingsAction\:selTimeAssess").checked=true;
+}
+
 function lockdownAnonyGrading(value) {
 	if (value == 'Anonymous Users') {
 		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', 'checked');
@@ -633,3 +586,107 @@ function checkLastHandling(){
 		$(retractDate).next().show();
 	}
 }
+
+//if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
+//ie/xp reports clientHeight == offsetHeight, but has a good scrollHeight
+function mySetMainFrameHeight(id)
+{
+	mySetMainFrameHeight(id, null);
+}
+
+function mySetMainFrameHeight(id, minHeight)
+{
+	// run the script only if this window's name matches the id parameter
+	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
+	if (typeof window.name != "undefined" && id != window.name) return;
+
+	var frame = parent.document.getElementById(id);
+	if (frame)
+	{
+
+		var objToResize = (frame.style) ? frame.style : frame;
+
+		var height; 
+		
+		var scrollH = document.body.scrollHeight;
+		var offsetH = document.body.offsetHeight;
+		var clientH = document.body.clientHeight;
+		var innerDocScrollH = null;
+
+		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		{
+			// very special way to get the height from IE on Windows!
+			// note that the above special way of testing for undefined variables is necessary for older browsers
+			// (IE 5.5 Mac) to not choke on the undefined variables.
+			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+		}
+
+		if (document.all && innerDocScrollH != null)
+		{
+			// IE on Windows only
+			height = innerDocScrollH;
+		}
+		else
+		{
+			// every other browser!
+			height = offsetH;
+			if(innerDocScrollH != null && innerDocScrollH > height){
+				height = innerDocScrollH;
+			}
+		}
+
+		// here we fudge to get a little bigger
+		//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody		
+		var newHeight = height + 150;
+		//contributed patch from hedrick@rutgers.edu (for very long documents)
+		if (newHeight > 32760)
+		newHeight = 32760;
+
+		// no need to be smaller than...
+		if(minHeight && minHeight > newHeight){
+			newHeight = minHeight;
+		}
+		objToResize.height=newHeight + "px";
+	
+		var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
+
+	}
+}
+
+//To allow reset the datepickers in the settings
+function resetDatePicker(name){
+    var datePicker = document.getElementById("assessmentSettingsAction:"+name);
+    datePicker.value="";
+    var hiddenDate = document.getElementById(name+"ISO8601");
+    hiddenDate.value="";
+}
+
+function toggleNegativePointVal(val){
+	var negPointField = document.getElementById('itemForm:answerdsc');
+	if(negPointField){
+		if(val){
+			negPointField.value = 0;
+			negPointField.disabled = true;
+		}else{
+			negPointField.disabled = false;
+		}
+	}
+}
+
+function resetSelectMenus(){
+  var selectlist = document.getElementsByTagName("SELECT");
+
+  for (var i = 0; i < selectlist.length; i++) {
+        if ( selectlist[i].id.indexOf("changeQType") >=0){
+          selectlist[i].value = "";
+        }
+  }
+}
+
+function clickInsertLink(field){
+  var insertlinkid = field.id.replace("changeQType", "hiddenlink");
+  var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
+  $(hiddenSelector).click();
+}
+

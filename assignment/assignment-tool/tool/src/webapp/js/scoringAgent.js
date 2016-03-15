@@ -1,18 +1,21 @@
-function openScoringAgent(url) {
+// Namespace
+var ASN_SCRAGNT = ASN_SCRAGNT || {};
+
+ASN_SCRAGNT.openScoringAgent = function(url) {
 	window.open(url,'_blank',
-     'width=800,height=600,top=20,left=100,menubar=yes,status=yes,location=no,toolbar=yes,scrollbars=yes,resizable=yes');
-}
+		'width=800,height=600,top=20,left=100,menubar=yes,status=yes,location=no,toolbar=yes,scrollbars=yes,resizable=yes');
+};
 
 /*
  * Retrieve a student's grade from the external scoring service and update
  * the score input with the returned grade
  */
-function refreshScore(refreshUrl) {
-	jQuery.getJSON(encodeUrl(refreshUrl),function(data){
+ASN_SCRAGNT.refreshScore = function(refreshUrl) {
+	jQuery.getJSON(ASN_SCRAGNT.encodeUrl(refreshUrl),function(data){
 		if (data['score']) {
 			var newScore = data['score'];
 			var inp = document.getElementById("grade");
-			if(newScore != '' && newScore > 0) {
+			if(newScore !== '' && newScore > 0) {
 				newScore = Math.round(newScore*10)/10;
 			}
 			
@@ -20,13 +23,13 @@ function refreshScore(refreshUrl) {
 			$('#scoringAgent-refresh-reminder').hide();
 		}
 	});
-}
+};
 
-function displayRefreshReminder() {
+ASN_SCRAGNT.displayRefreshReminder = function() {
 	$('#scoringAgent-refresh-reminder').show();
-}
+};
 
-function encodeUrl(url) {
+ASN_SCRAGNT.encodeUrl = function(url) {
 
 	if (url.indexOf("?") > 0) {
 		encodedParams = "?";
@@ -47,4 +50,4 @@ function encodeUrl(url) {
 		url = parts[0] + encodedParams;
 	}
 	return url;
-}
+};

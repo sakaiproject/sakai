@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sections</artifactId>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>12-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <name>sakai-sections-integrationsupport</name>
@@ -140,7 +140,6 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.1</version>
         </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
@@ -179,13 +178,13 @@
         </resources>
         <testResources>
             <testResource>
-                <directory>${basedir}/</directory>
+                <directory>src/test</directory>
                 <includes>
                     <include>log4j.properties</include>
                 </includes>
             </testResource>
             <testResource>
-                <directory>${basedir}/src/test/</directory>
+                <directory>src/test</directory>
                 <includes>
                     <include>hibernate.properties</include>
                 </includes>

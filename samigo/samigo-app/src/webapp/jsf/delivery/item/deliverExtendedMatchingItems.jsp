@@ -100,9 +100,8 @@ should be included in file importing DeliveryMessages
             alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
           </h:graphicImage>
           <h:graphicImage id="image2"
-            rendered="#{responseAndCorrectStatus.isCorrect ne 'true'}"
-            width="16" height="16"
-            alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
+            rendered="#{responseAndCorrectStatus.isCorrect eq 'false'}"
+            alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
           </h:graphicImage>
         </h:column>
         <h:column>

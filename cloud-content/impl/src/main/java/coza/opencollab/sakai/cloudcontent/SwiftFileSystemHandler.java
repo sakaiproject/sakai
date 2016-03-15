@@ -10,6 +10,8 @@ import com.google.inject.Module;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.ContextBuilder;
 import org.jclouds.http.options.GetOptions;
@@ -83,6 +85,12 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
      * for container and resource names.
      */
     private String invalidCharactersRegex = "[:*?<|>]";
+
+    /**
+     * This is how long we want the signed URL to be valid for.
+     */
+    private static final int SIGNED_URL_VALIDITY_SECONDS = 10 * 60;
+
     /**
      * The logger for warnings and errors.
      */
@@ -267,6 +275,21 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
      * {@inheritDoc}
      */
     @Override
+    public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
+        ContainerAndName can = getContainerAndName(id, root, filePath);
+        ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
+        SwiftObject so = objectApi.get(can.name, GetOptions.NONE);
+        if(so == null){
+            throw new IOException("No object found for " + id);
+        }
+        
+        return so.getUri();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public InputStream getInputStream(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
         ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
@@ -292,10 +315,20 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
         createContainerIfNotExist(can.container);
         checkContainerSpace(can.container);
         ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
-        CountingInputStream in = new CountingInputStream((stream));
-        Payload payload = Payloads.newInputStreamPayload(in);
-        objectApi.put(can.name, payload, PutOptions.Builder.metadata(ImmutableMap.of("id", id, "path", filePath)));
-        return in.getCount();
+
+        CountingInputStream in = null;
+        Payload payload = null;
+
+        try {
+			in = new CountingInputStream((stream));
+			payload = Payloads.newInputStreamPayload(in);
+			objectApi.put(can.name, payload, PutOptions.Builder.metadata(ImmutableMap.of("id", id, "path", filePath)));
+			return in.getCount();
+		} finally {
+			Closeables.close(stream, true);
+			Closeables.close(in, true);
+			payload.release();
+		}
     }
 
     /**

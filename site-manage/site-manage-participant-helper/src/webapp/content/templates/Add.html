@@ -5,9 +5,10 @@
 	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<script type="text/javascript" rsf:id="resize"/>
-	<link type="text/css" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" media="screen" />
+	<link type="text/css" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" media="screen" />
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
 
 <body>
@@ -79,8 +80,8 @@
 			</table>
 			
 			<p class="act">
-				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit"/>
-				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		</form>
 	</div>

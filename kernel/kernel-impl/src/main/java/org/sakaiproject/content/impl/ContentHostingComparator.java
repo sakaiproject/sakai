@@ -102,27 +102,27 @@ public class ContentHostingComparator implements Comparator
 		{
 			Entity entity1 = (Entity) o1;
 			Entity entity2 = (Entity) o2;
-			String str1 = entity1.getProperties().getProperty(property);
-			String str2 = entity2.getProperties().getProperty(property);
+			Integer rank1 = null;
+			Integer rank2 = null;
 
-			if(str1 == null || str2 == null)
-			{
-				// ignore -- default to a different sort
+			try {
+				rank1 = new Integer(entity1.getProperties().getProperty(property));
+			} catch (NumberFormatException e) { /* ignore, rank1 will be null */ }
+
+			try {
+				rank2 = new Integer(entity2.getProperties().getProperty(property));
+			} catch (NumberFormatException e) { /* ignore, rank2 will be null */ }
+
+			// Priorities can be null if a resource or collection was created before priorities were
+			// introduced. Sort null priorities to the bottom.
+			if (rank1 != null && rank2 != null) {
+				return m_ascending ? rank1.compareTo(rank2) : rank2.compareTo(rank1);
 			}
-			else
-			{
-				try
-				{
-					Integer rank1 = new Integer(str1);
-					Integer rank2 = new Integer(str2);
-					return m_ascending ? rank1.compareTo(rank2) : rank2.compareTo(rank1) ;
-				}
-				catch(NumberFormatException e)
-				{
-					// ignore -- default to a different sort
-				}
-			}
-			// if unable to do a priority sort, sort by title
+
+			if (rank1 != null) { return m_ascending ? -1 : 1; }
+			if (rank2 != null) { return m_ascending ? 1 : -1; }
+			
+			// If priorities are null for both items, fall back to display name sort.
 			property = ResourceProperties.PROP_DISPLAY_NAME;
 		}
 		
@@ -172,11 +172,8 @@ public class ContentHostingComparator implements Comparator
 		catch (Exception ignore)
 		{
 		}
-
-		// do a formatted interpretation - case insensitive
-		if (o1 == null) return -1;
-		if (o2 == null) return +1;
 		
+		// do a formatted interpretation - case insensitive
 		int rv = 0;
 		if (m_smart_sort) {
 			rv = compareLikeMacFinder( 

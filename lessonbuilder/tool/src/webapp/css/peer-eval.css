@@ -62,6 +62,10 @@ text-decoration: underline;
 .inactive-member-id{
 	display:none;
 }
+.inactive-member-name, .rubric-activity, .rating {
+	text-decoration: underline;
+	cursor: pointer;
+}
 .inactive-member-collection{
 	background: #EEEEEE;
 	margin-top: 10px;
@@ -70,4 +74,7 @@ text-decoration: underline;
 .peer-eval-btn{
     padding:5px;
     font-weight:bold;
+}
+.select-peer-cell {
+   background-color: rgb(173,216,230);
 }

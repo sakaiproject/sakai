@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -41,7 +40,7 @@
 		</style> 
       </head>
       <body onload="disableIt();<%= request.getAttribute("html.body.onload") %>">
- <div class="portletBody">
+ <div class="portletBody container-fluid">
 
  <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
@@ -84,9 +83,7 @@ function disableIt()
     }
   }
 }
-
 </script>
-
 
 <!-- content... -->
 <h:form id="editTotalResults">
@@ -96,18 +93,14 @@ function disableIt()
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <h:panelGrid columns="1">
-  <h:panelGroup>
-  <f:verbatim><h3></f:verbatim>
-  	<h:outputText value="#{commonMessages.total_scores}#{evaluationMessages.column} " escape="false"/>
-  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
-  	<h:outputText value="#{totalScores.assessmentName} " escape="false"/>
-  <f:verbatim></span></f:verbatim>
-  <f:verbatim></h3></f:verbatim>
+  <h:panelGroup layout="block" styleClass="page-header">
+    <h1>
+  	  <h:outputText value="#{commonMessages.total_scores}#{evaluationMessages.column} " escape="false"/>
+  	  <h:outputText value="#{totalScores.assessmentName} " escape="false"/>
+    </h1>
   </h:panelGroup>
-  </h:panelGrid>
 
-  <div class="textBelowHeader">
+  <div class="hide">
     <h:outputText value="#{evaluationMessages.auto_scored_tip}" rendered="#{totalScores.isAutoScored}" />
   </div>
 
@@ -180,28 +173,26 @@ function disableIt()
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
 <sakai:flowState bean="#{totalScores}" />
-<h:panelGrid border="0" columns="2" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'false'}">
+<h:panelGroup styleClass="total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
   <h:panelGroup>
-    <h:panelGrid rendered="#{!totalScores.hasRandomDrawPart}">
-        <h:outputText value="<h4>#{evaluationMessages.max_score_poss}<span style='font-weight:normal !important;'>: #{totalScores.maxScore}</span></h4>" escape="false"/>
-    </h:panelGrid>
+    <h:panelGroup styleClass="max-score-possible" layout="block" rendered="#{!totalScores.hasRandomDrawPart}">
+        <h:outputText value="<h2>#{evaluationMessages.max_score_poss}<small>: #{totalScores.maxScore}</small></h2>" escape="false"/>
+    </h:panelGroup>
     
-      <h:panelGroup rendered="#{totalScores.allSubmissions!='4'}">
+      <h:panelGroup styleClass="apply-grades" layout="block" rendered="#{totalScores.allSubmissions!='4'}">
 	    <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit">
-	  				<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-	  	</h:commandButton>
-	  	<h:outputText value=" "/>
-	  	<h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}"  onkeydown="inIt()" onchange="toPoint(this.id);" size="5"/>
-		<h:outputText value=" #{evaluationMessages.applyGradesDesc}"/>
-	  </h:panelGroup>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+      </h:commandButton>
+      <h:outputText value="&#160;" escape="false" />
+      <h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}"  onkeydown="inIt()" onchange="toPoint(this.id);" size="5"/>
+      <h:outputText value=" #{evaluationMessages.applyGradesDesc}"/>
+    </h:panelGroup>
 
-    <h:panelGrid columns="2" columnClasses="samLeftNav" border="0" style="padding-top:.5em;">
-      <h:outputText value="&nbsp;" escape="false"/>
-      <h:outputText value="&nbsp;" escape="false"/>
-	  <h:outputText value="#{evaluationMessages.view}"/>
-	  <h:panelGroup>
 
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
+    <h:panelGroup styleClass="all-submissions">
+      <h:outputText value="#{evaluationMessages.view}"/>
+      <h:outputText value="&#160;" escape="false" />
+      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
       <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
@@ -229,18 +220,19 @@ function disableIt()
      <h:outputText value="&nbsp;" escape="false" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true'}"/>
      <h:outputText value="&nbsp;#{evaluationMessages.forAllSectionsGroups}" escape="false" rendered="#{totalScores.availableSectionSize < 1 && totalScores.multipleSubmissionsAllowed eq 'true'}"/>
      <h:outputText value="&nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize < 1 && !totalScores.multipleSubmissionsAllowed eq 'true'}"/>
-        
      <h:outputText value="&nbsp;#{evaluationMessages.for_s}&nbsp;&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" escape="false"/>
-        
+
         <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
           <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener"/>
         </h:selectOneMenu>
       </h:panelGroup>
-      
+
+	  <h:panelGroup styleClass="search-student">
+      <h:outputText value="&#160;" escape="false" />
       <h:outputText value="#{evaluationMessages.search}"/>
-	  <h:panelGroup>
+      <h:outputText value="&#160;" escape="false" />
  	        <h:inputText
 				id="searchString"
 				value="#{totalScores.searchString}"
@@ -251,23 +243,19 @@ function disableIt()
 			<h:outputText value="&nbsp;" escape="false" />
 			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
 	  </h:panelGroup>
-	  
-    </h:panelGrid>
   </h:panelGroup>
+</h:panelGroup>
    
-   <h:panelGroup>
-	<sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
+  <h:panelGroup layout="block" styleClass="samigo-pager">
+    <sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
   </h:panelGroup>
-</h:panelGrid>
 
-<h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'true'}">
+<h:panelGroup styleClass="total-scores-anon" layout="block" rendered="#{totalScores.anonymous eq 'true'}">
   <h:panelGroup>
-    <h:panelGrid rendered="#{!totalScores.hasRandomDrawPart}">
+    <h:panelGroup layout="block" rendered="#{!totalScores.hasRandomDrawPart}">
         <h:outputText value="<h4>#{evaluationMessages.max_score_poss}<span style='font-weight:normal !important;'>: #{totalScores.maxScore}</span></h4>" escape="false"/>
-    </h:panelGrid>
+    </h:panelGroup>
       
-    <h:panelGrid columns="2" columnClasses="samLeftNav" style="padding-top:.5em;">
-	 
 	  <h:outputText value="#{evaluationMessages.view}" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true' }"/>
       <h:panelGroup>
         <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL2"
@@ -292,19 +280,17 @@ function disableIt()
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
 		 </h:selectOneMenu>
       </h:panelGroup>
-    </h:panelGrid>
   </h:panelGroup>
   
   <h:panelGroup>
 	<sakai:pager id="pager2" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
   </h:panelGroup>
-</h:panelGrid>
+</h:panelGroup>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="tier2">
-  <h:dataTable cellpadding="0" cellspacing="0" id="totalScoreTable" value="#{totalScores.agents}"
-    var="description" styleClass="listHier" columnClasses="textTable">
+<div class="table-responsive">
+  <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
     
     <!-- NAME/SUBMISSION ID -->
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType ne 'lastName'}">
@@ -904,6 +890,9 @@ function disableIt()
 
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
    <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
+   <h:panelGroup rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}">
+   		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
+   </h:panelGroup>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='comments' && totalScores.sortAscending}">
@@ -925,6 +914,9 @@ function disableIt()
       </f:facet>
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
    <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
+   <h:panelGroup rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}">
+   		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
+   </h:panelGroup>
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='comments'  && !totalScores.sortAscending}">
@@ -946,6 +938,9 @@ function disableIt()
       </f:facet>
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
    <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
+   <h:panelGroup rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}" >
+   		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
+   </h:panelGroup>
     </h:column>
   </h:dataTable>
 

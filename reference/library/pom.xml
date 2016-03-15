@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>reference-base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>11-SNAPSHOT</version>
+		<version>12-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>
@@ -34,6 +34,75 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-fck-connector</artifactId>
 			<type>war</type>
+		</dependency>
+		<!-- At the moment we're unpacking the webjars, so we don't want them bundled into the WAR
+		     but we still need them as dependencies so the plugin unpacks them, that's why they
+		     have a scope of runtime -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>codemirror</artifactId>
+			<version>5.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>ckeditor</artifactId>
+			<version>4.5.7</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>dropzone</artifactId>
+			<version>4.2.0</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>momentjs</artifactId>
+			<version>2.11.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>1.11.3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery-migrate</artifactId>
+			<version>1.2.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery-ui</artifactId>
+			<version>1.11.3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>3.3.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery-blockui</artifactId>
+			<version>2.65</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>jquery-i18n-properties</artifactId>
+			<version>1.2.2</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>pnotify</artifactId>
+			<version>2.1.0-1</version>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	<profiles>
@@ -66,16 +135,11 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>rubygems-releases</id>
-					<url>http://rubygems-proxy.torquebox.org/releases</url>
-				</pluginRepository>
-			</pluginRepositories>
 			<properties>
 				<sakai.skin.source>morpheus-master</sakai.skin.source>
 				<sakai.skin.target>morpheus-default</sakai.skin.target>
 				<sakai.skin.customization.file>src/${sakai.skin.source}/sass/examples/_customization_example_empty.scss</sakai.skin.customization.file>
+				<sakai.skin.outputSyle>compressed</sakai.skin.outputSyle>
 			</properties>
 			<build>
 				<plugins>
@@ -126,7 +190,10 @@
 									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/fonts/</outputDirectory>
 									<resources>
 										<resource>
-											<directory>src/${sakai.skin.source}/fonts/</directory>
+											<directory>${basedir}/src/${sakai.skin.source}/font-awesome-sass-4.5.0/assets/fonts/</directory>
+										</resource>
+										<resource>
+										  <directory>${basedir}/src/${sakai.skin.source}/bootstrap-sass-3.3.6/assets/fonts/</directory>
 										</resource>
 									</resources>
 								</configuration>
@@ -195,40 +262,24 @@
 						</configuration>
 					</plugin>
 					<plugin>
-						<groupId>de.saumya.mojo</groupId>
-						<artifactId>gem-maven-plugin</artifactId>
-						<version>1.0.10</version>
-						<extensions>true</extensions>
-						<executions>
-							<execution>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<phase>process-resources</phase>
-								<configuration>
-									<jrubyVersion>1.7.20</jrubyVersion>
-									<execArgs>${project.build.directory}/rubygems/bin/compass
-										compile -c ${basedir}/src/${sakai.skin.source}/config.rb
-										--css-dir=../webapp/skin/${sakai.skin.target}
-										--http-path=/library/skin/${sakai.skin.target}
-										${basedir}/src/${sakai.skin.source}/</execArgs>
-								</configuration>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>rubygems</groupId>
-								<artifactId>compass</artifactId>
-								<version>1.0.3</version>
-								<type>gem</type>
-							</dependency>
-							<dependency>
-								<groupId>rubygems</groupId>
-								<artifactId>font-awesome-sass</artifactId>
-								<version>4.3.2.1</version>
-								<type>gem</type>
-							</dependency>
-						</dependencies>
+					   <groupId>com.github.warmuuh</groupId>
+					   <artifactId>libsass-maven-plugin</artifactId>
+					   <version>0.2.2-libsass_3.3.3</version>
+					   <executions>
+					       <execution>
+					           <phase>process-resources</phase>
+					           <goals>
+					               <goal>compile</goal>
+					           </goals>
+					       </execution>
+					   </executions>
+					   <configuration>
+					       <outputStyle>${sakai.skin.outputSyle}</outputStyle>
+					       <imgPath>${basedir}/src/${sakai.skin.source}/images/</imgPath>
+					       <inputPath>${basedir}/src/${sakai.skin.source}/sass/</inputPath>
+					       <outputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</outputPath>
+					       <includePath>${basedir}/src/${sakai.skin.source}/bootstrap-sass-3.3.6/assets/stylesheets/${path.separator}${basedir}/src/${sakai.skin.source}/font-awesome-sass-4.5.0/assets/stylesheets/</includePath>
+					   </configuration>
 					</plugin>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
@@ -273,7 +324,22 @@
 		</profile>
 	</profiles>
 	<build>
-		<resources />
-		<!-- java source -->
+		<plugins>
+			<!-- This unpacks the webjars into the webapp -->
+			<plugin>
+				<groupId>org.sakaiproject.maven.plugins</groupId>
+				<artifactId>webjars-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>unpack-webjars</id>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<phase>generate-resources</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 </project>

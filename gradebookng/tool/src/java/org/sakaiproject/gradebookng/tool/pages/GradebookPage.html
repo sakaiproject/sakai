@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<body>
+
+<wicket:extend>
+  <form wicket:id="form" id="gradebookSpreadsheet">
+    <p>
+      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
+      	 <wicket:message key="button.addgradeitem" />
+      </button>
+    </p>
+    
+    <div wicket:id="addOrEditGradeItemWindow" />
+    <div wicket:id="studentGradeSummaryWindow" />
+    <div wicket:id="updateUngradedItemsWindow" />
+	<div wicket:id="gradeLogWindow" />
+	<div wicket:id="gradeCommentWindow" />
+	<div wicket:id="deleteItemWindow" />
+	<div wicket:id="gradeStatisticsWindow" />
+	<div wicket:id="updateCourseGradeDisplayWindow" />
+
+    <div id="gradebookGradesToolbar">
+      <ul class="gb-toolbar-left">
+        <li>
+          <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
+          <select id="filterByGroup" wicket:id="groupFilter">
+            <option value="1">Section 1</option>
+            <option value="2">Section 2</option>
+          </select>
+        </li>
+        <li><span wicket:id="studentSummary" class="gradebook-student-summary" role="status">Showing 20 of 25 Students</span></li>
+      </ul>
+      <ul class="gb-toolbar-right">
+        <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
+        <li>
+          <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" aria-popup="true" aria-controls="gradeItemsTogglePanel">Show/Hide Items</button>
+        </li>
+        <li>
+          <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" aria-controls="gradebookGradesTable">Group By Category</button>
+        </li>
+      </ul>
+    </div>
+    <div id="gradebookGrades">
+      <div id="gradebookHorizontalOverflowWrapper">
+          <div id="gradebookVerticalOverflowWrapper">
+              <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
+          </div>
+      </div>
+	  <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
+	  <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
+    </div>
+  </form>
+
+  <div wicket:id="gradeItemsTogglePanel" id="gradeItemsTogglePanel" style="display: none;"/>
+  <div id="gradeItemsConcurrentUserWarning" style="display: none;">
+    <ul class="gb-popover-notifications">
+      <li class="gb-popover-notification-concurrentedit text-danger">
+        <wicket:message key="grade.notifications.concurrenteditbyuser" />
+      </li>
+    </ul>
+  </div>
+
+	<div id="gradeItemCellDropdownMenu" style="display:none">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:grade.menulabel">
+				<span class="caret"></span>
+			</a>
+			<ul class="dropdown-menu dropdown-menu-right" role="menu">
+				<li><a class="gb-view-log" href="#" role="menuitem"><wicket:message key="grade.option.viewlog" /></a></li>
+				<li><a class="gb-edit-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
+			</ul>
+		</div>
+	</div>
+</wicket:extend>
+
+</body>
+</html>

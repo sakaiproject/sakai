@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.content</groupId>
     <artifactId>cloud-content</artifactId>
-    <version>11-SNAPSHOT</version><!-- KernelVersion -->
+    <version>12-SNAPSHOT</version><!-- KernelVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.sakaiproject.content</groupId>
       <artifactId>cloud-content-impl</artifactId>
-      <version>11-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

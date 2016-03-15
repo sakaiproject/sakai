@@ -32,14 +32,10 @@ import java.util.Vector;
 
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
+import org.sakaiproject.citation.api.CitationCollectionOrder;
 import org.sakaiproject.citation.api.Schema;
-import org.sakaiproject.citation.impl.BaseCitationService.BasicCitationCollection;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+
+import java.util.*;
 
 /**
  * This is a test class to implement a concrete CitationService using the Storage interface to define the 
@@ -51,6 +47,7 @@ public class BasicCitationService extends BaseCitationService
 	public class BasicCitationStorage implements Storage
 	{
 		protected Map m_collections;
+		protected Map m_citationCollections;
 		protected Map m_citations;
 		protected Map m_schemas;
 
@@ -60,6 +57,7 @@ public class BasicCitationService extends BaseCitationService
         {
 	        super();
 	       	m_collections = new Hashtable();
+	       	m_citationCollections = new Hashtable();
         	m_citations = new Hashtable();
  	        m_schemas = new Hashtable();
         }
@@ -79,6 +77,9 @@ public class BasicCitationService extends BaseCitationService
         	m_collections.clear();
         	m_collections = null;
         	
+        	m_citationCollections.clear();
+        	m_citationCollections = null;
+
         	m_citations.clear();
         	m_citations = null;
         	
@@ -255,6 +256,15 @@ public class BasicCitationService extends BaseCitationService
 	        this.m_citations.put(edit.getId(), edit);
         }
 
+
+        /* (non-Javadoc)
+         * @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+         */
+        public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+        {
+        	this.m_citationCollections.put(citationCollectionOrder.getLocation(), citationCollectionOrder);
+        }
+
 		/* (non-Javadoc)
          * @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveCollection(java.util.Collection)
          */
@@ -264,6 +274,62 @@ public class BasicCitationService extends BaseCitationService
         }
 
 		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveSection(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		public void saveSection(CitationCollectionOrder citationCollectionOrder)
+		{
+			this.m_citationCollections.put(citationCollectionOrder.getCollectionId() + ":" + citationCollectionOrder.getLocation() + ":" + citationCollectionOrder.getSectiontype(), citationCollectionOrder);
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveSubsection(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		public void saveSubsection(CitationCollectionOrder citationCollectionOrder)
+		{
+			this.m_citationCollections.put(citationCollectionOrder.getCollectionId() + ":" + citationCollectionOrder.getLocation() + ":" + citationCollectionOrder.getSectiontype(), citationCollectionOrder);
+		}
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveCitationCollectionOrders(java.util.ArrayList, java.lang.String)
+		*/
+		public void saveCitationCollectionOrders(List<CitationCollectionOrder> citationCollectionOrders, String citationCollectionId)
+		{
+			for (CitationCollectionOrder citationCollectionOrder : citationCollectionOrders) {
+				this.m_citationCollections.put(citationCollectionId + ":" + citationCollectionOrder.getLocation() + ":" + citationCollectionOrder.getSectiontype(), citationCollectionOrder);
+			}
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#updateCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		@Override
+		public void updateCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder) {
+			this.m_citationCollections.get(citationCollectionOrder.getCollectionId() + ":" + citationCollectionOrder.getLocation() + ":" + citationCollectionOrder.getSectiontype());
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getNestedSections(java.lang.String)
+		*/
+		public CitationCollectionOrder getNestedSections(String citationCollectionId)
+		{
+			return (CitationCollectionOrder) m_citationCollections.get(0);
+		}
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getUnnestedCitationCollection(java.lang.String)
+		*/
+		public CitationCollection getUnnestedCitationCollection(String citationCollectionId)
+		{
+			return (CitationCollection) m_citationCollections;
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#removeLocation(java.lang.String, int)
+		*/
+		public void removeLocation(String collectionId, int locationId)
+		{
+			this.m_citationCollections.remove(collectionId + ":" + locationId);
+		}
+
+         /* (non-Javadoc)
          * @see org.sakaiproject.citation.impl.BaseCitationService.Storage#addCitation(java.lang.String)
          */
         public Citation addCitation(String mediatype)

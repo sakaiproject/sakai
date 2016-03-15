@@ -520,7 +520,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 		AcademicSessionCmImpl as = (AcademicSessionCmImpl)getObjectByEid(eid, AcademicSessionCmImpl.class.getName());
 
 		// Remove the course offerings in this academic session
-		List<CourseOffering> courseOfferings = getHibernateTemplate().find("select co from CourseOfferingCmImpl as co where co.academicSession.eid = ?", eid);
+		List<CourseOffering> courseOfferings = (List<CourseOffering>) getHibernateTemplate().find("select co from CourseOfferingCmImpl as co where co.academicSession.eid = ?", eid);
 		for(Iterator<CourseOffering> iter = courseOfferings.iterator(); iter.hasNext();) {
 			removeCourseOffering(iter.next().getEid());
 		}
@@ -536,7 +536,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 		removeEquiv(cc);
 		
 		// Remove the associated course offerings (see removeCourseOffering for further cascades)
-		Set<CourseOffering> coSet = new HashSet<CourseOffering>(getHibernateTemplate().findByNamedQueryAndNamedParam("findCourseOfferingsByCanonicalCourse", "canonicalCourseEid",eid));
+		Set<CourseOffering> coSet = new HashSet<CourseOffering>((List<CourseOffering>) getHibernateTemplate().findByNamedQueryAndNamedParam("findCourseOfferingsByCanonicalCourse", "canonicalCourseEid",eid));
 		for(Iterator<CourseOffering> iter = coSet.iterator(); iter.hasNext();) {
 			CourseOffering co = iter.next();
 			removeCourseOffering(co.getEid());
@@ -669,7 +669,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 				return q.list();
 			}
 		};
-		return new HashSet<Membership>(getHibernateTemplate().executeFind(hc));
+		return new HashSet<Membership>((List<Membership>) getHibernateTemplate().executeFind(hc));
 	}
 
 	public void setCurrentAcademicSessions(final List<String> academicSessionEids) {

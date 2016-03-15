@@ -151,6 +151,7 @@ public void setTitle(String title)
     setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
     setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
     setFieldentry("ATTACHMENT", getAttachment(section));
+    setFieldentry("QUESTIONS_ORDERING", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
     
     // items
     addItems(section.getItemArray());
@@ -178,6 +179,7 @@ public void setTitle(String title)
       for (ItemDataIfc item: items)
       {
         Long type = item.getTypeId();
+        if ( !(TypeIfc.IMAGEMAP_QUESTION).equals(type)){ //Image Map question is not exported.
         Item itemXml;
         if ( (TypeIfc.MULTIPLE_CHOICE_SURVEY).equals(type))
         {
@@ -203,6 +205,7 @@ public void setTitle(String title)
           "Item ident is: " + itemElement.getAttribute("ident"));
         this.addElement(xpath, itemElement);
       }
+    }
     }
     catch (Exception e)
     {

@@ -6,14 +6,15 @@
 	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
-	<link type="text/css" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" media="screen" />
+	<link type="text/css" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" media="screen" />
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
 	<script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
-	<SCRIPT LANGUAGE="JavaScript">
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
+	<script language="JavaScript" type="text/javascript">
 	var opt = new OptionTransfer("siteMembers-selection","groupMembers-selection");
 	opt.setAutoSort(true);
 	opt.setDelimiter("##");
@@ -24,15 +25,15 @@
 	opt.saveAddedRightOptions("addedRight");
 	opt.saveNewLeftOptions("newLeft");
 	opt.saveNewRightOptions("newRight");
-	</SCRIPT>
-	<script language="JavaScript" type="text/javascript">
-		<!--
+	
+	var escapeList = ["siteMembers-selection", "groupMembers-selection"];
+	
 		function checkform ( form, message )
 		{
 		  // check whether the title field is null
 		
 		  // ** START **
-		  if (form.group_title.value == "") {
+		  if (form.group_title.value === "") {
 		   	$('.messageValidation').show();
 		    form.group_title.focus();
 		    return false ;
@@ -40,7 +41,6 @@
 		  // ** END **
 		  return true ;
 		}
-		//-->
 	</script>
 </head>
 <body>
@@ -94,8 +94,8 @@
 		<input rsf:id="groupId" id="groupId" type="hidden"/>
 		<p class="act">
 
-			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
-			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			<input accesskey="s" rsf:id="save" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, escapeList );" />
+			<input accesskey="x" rsf:id="cancel" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, escapeList );" />
 		</p>			
 	</form>
 	<SCRIPT LANGUAGE="JavaScript">

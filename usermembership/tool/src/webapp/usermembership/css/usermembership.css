@@ -54,7 +54,6 @@ div#sitelistform\:actionContainer1 input, div#sitelistform\:actionContainer2 inp
 	width: 100%;
 	text-align: left;
 	text-shadow: none !important;
-	padding-right: 4em !important;
 }
 
 div#sitelistform\:actionContainer1 input:hover:enabled, div#sitelistform\:actionContainer2 input:hover:enabled {
@@ -74,16 +73,5 @@ div#sitelistform\:actionContainer2 div.column2, div#sitelistform\:actionContaine
 	padding-left: 1em;
 	margin-left: 1em;
 	vertical-align: top;
-}
-
-.spinner {
-	display: inline;
-	vertical-align: middle;
-	visibility: hidden;
-}
-
-input#sitelistform\:setToActive1Disabled.spinnerOverlay, input#sitelistform\:setToActive2Disabled.spinnerOverlay,
-input#sitelistform\:setToInactive1Disabled.spinnerOverlay, input#sitelistform\:setToInactive2Disabled.spinnerOverlay {
-	background: transparent url("/../library/image/indicator.gif") no-repeat scroll right 5px !important;
 }
 /* end SAK-29637 */

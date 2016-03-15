@@ -1,8 +1,5 @@
 <!--[if (lt IE 9)]>
   <link href="${pageSkinRepo}/${pageSkin}/tool-ie.css$!{portalCDNQuery}" rel="stylesheet">
 <![endif]-->
-## downlevel revealed conditional comment only loads for IE9+, IEMobile and Non IE browsers see http://css-tricks.com/downlevel-hidden-downlevel-revealed/
-<!--[if (gte IE 9)|(IEMobile)|(!IE)]><!-->
-  <link href="${pageSkinRepo}/${pageSkin}/tool.css$!{portalCDNQuery}" rel="stylesheet">
-<!--<![endif]--> 
- ## END downlevel revealed conditional comment -->
+<link href="${pageSkinRepo}/${pageSkin}/tool.css$!{portalCDNQuery}" rel="stylesheet" media="screen, tty, tv, handheld, projection">
+<link href="${pageSkinRepo}/${pageSkin}/print.css$!{portalCDNQuery}" rel="stylesheet" media="print">

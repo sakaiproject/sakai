@@ -2,7 +2,7 @@ package org.sakaiproject.lti.impl.jobs;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.imsglobal.basiclti.BasicLTIProviderUtil;
+import org.tsugi.basiclti.BasicLTIProviderUtil;
 
 import java.util.List;
 import java.util.Map;

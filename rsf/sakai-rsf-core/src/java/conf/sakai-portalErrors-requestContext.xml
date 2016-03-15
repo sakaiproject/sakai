@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- Special definitions required for users requiring http://www.caret.cam.ac.uk/jira/browse/RSF-68 behaviour of escalating errors 
+	to the portal handler -->
+
+	<bean id="sakai-ExplodingWrapper" class="org.sakaiproject.rsf.errors.ExplodingWrapper">
+		<property name="errorStateManager" ref="errorStateManager" />
+		<property name="errorFilter" ref="sakai-ErrorFilter" />
+	</bean>
+
+</beans>

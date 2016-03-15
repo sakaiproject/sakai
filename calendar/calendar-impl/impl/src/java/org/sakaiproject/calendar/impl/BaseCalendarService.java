@@ -6375,15 +6375,22 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 	
 	/* Given a current date via the calendarUtil paramter, returns a TimeRange for the year,
-	 * 6 months either side of the current date. (calculate milleseconds in 6 months)
+	  *fromMonthsInput number of months from past to be included
++	  *toMonthsInput number of months in future  to be included.
 	 */
-   private static long SIX_MONTHS = (long)1000 * (long)60 * (long)60 * (long)24 * (long)183;
-	
 	public TimeRange getICalTimeRange()
 	{
-		Time now = m_timeService.newTime();
-		Time startTime = m_timeService.newTime( now.getTime() - SIX_MONTHS );
-		Time endTime = m_timeService.newTime( now.getTime() + SIX_MONTHS );
+		int toMonthsInput = m_serverConfigurationService.getInt("calendar.export.next.months",6);
+		int fromMonthsInput = m_serverConfigurationService.getInt("calendar.export.previous.months",6);
+
+		java.util.Calendar calTo = java.util.Calendar.getInstance();
+		calTo.add(java.util.Calendar.MONTH, toMonthsInput);
+
+		java.util.Calendar calFrom = java.util.Calendar.getInstance();
+		calFrom.add(java.util.Calendar.MONTH, -fromMonthsInput);
+
+		Time startTime = m_timeService.newTime(calFrom.getTimeInMillis());
+		Time endTime = m_timeService.newTime(calTo.getTimeInMillis());
 		
 		return m_timeService.newTimeRange(startTime,endTime,true,true);
 	}

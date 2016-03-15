@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -115,6 +116,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId);
   
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo);
+  
+  public PublishedAssessmentFacade getPublishedAssessmentQuick(Long assessmentId);
 
   public Long getPublishedAssessmentId(Long assessmentId);
 
@@ -365,7 +368,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void removeSectionAttachment(Long sectionAttachmentId);
 
-  public void saveOrUpdateAttachments(List list);
+  public void saveOrUpdateAttachments(List<AttachmentIfc> list);
   
   public TreeMap getGroupsForSite();
   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);
@@ -374,4 +377,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(	final String agentId, final String siteId, boolean allAssessments);
      
+  public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId);
 }

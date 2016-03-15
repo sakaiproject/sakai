@@ -633,7 +633,7 @@ public class QuestionPoolFacadeQueries
 
           // a. delete item and pool association in SAM_ITEMMETADATA_T - this is the primary
           // pool that item is attached to
-          ArrayList metaList = new ArrayList();
+          ArrayList<ItemMetaDataIfc> metaList = new ArrayList<>();
           for (int j=0; j<list.size(); j++){
             Long itemId = ((QuestionPoolItemData)list.get(j)).getItemId();
             String query = "from ItemMetaData as meta where meta.item.itemId=? and meta.label=?";
@@ -642,12 +642,15 @@ public class QuestionPoolFacadeQueries
             if (m.size()>0){
               ItemMetaDataIfc meta = (ItemMetaDataIfc)m.get(0);
               meta.setEntry(null);
-	    }
+              metaList.add(meta);
+            }
           }
           try{
-            getHibernateTemplate().saveOrUpdateAll(metaList);
+            for (ItemMetaDataIfc meta : metaList) {
+              getHibernateTemplate().saveOrUpdate(meta);	
+            }
             retryCount = 0;
-	  }
+          }
           catch (DataAccessException e) {
             log.warn("problem delete question and questionpool map inside itemMetaData: "+e.getMessage());
             retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
@@ -898,7 +901,7 @@ public class QuestionPoolFacadeQueries
         if (parentPoolId != 0) {
         	List<QuestionPoolAccessData> listSubpool = new ArrayList();
         	try {
-        		listSubpool = getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?", 
+        		listSubpool = (List<QuestionPoolAccessData>) getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?", 
         				new Object[] { Long.valueOf(parentPoolId), ownerId});
         	} catch (Exception e1) {
         		log.warn("problem finding pool: "+e1.getMessage());
@@ -1479,7 +1482,7 @@ public class QuestionPoolFacadeQueries
 			  return q.list();
 		  };
 	  };
-	  List<QuestionPoolAccessData> qpaList = getHibernateTemplate().executeFind(hcb);
+	  List<QuestionPoolAccessData> qpaList = (List<QuestionPoolAccessData>) getHibernateTemplate().executeFind(hcb);
 
 	  List<AgentFacade> agents = new ArrayList();
 	  for (QuestionPoolAccessData pool : qpaList) {
@@ -1602,16 +1605,14 @@ public class QuestionPoolFacadeQueries
                   boolean autoCommit = conn.getAutoCommit();
   		  String query = "";
   		  if (!"".equals(updateOwnerIdInPoolTableQueryString)) {
-  			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = ? WHERE questionpoolid IN (?) AND accesstypeid = 34";
+  			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = ? WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ") AND accesstypeid = 34";
   			  statement = conn.prepareStatement(query);
   			  statement.setString(1, ownerId);
-  			  statement.setString(2, updateOwnerIdInPoolTableQueryString);
   			  statement.executeUpdate();
   			  
-  			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = ? WHERE questionpoolid IN (?)";
+  			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = ? WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
 			  statement = conn.prepareStatement(query);
   			  statement.setString(1, ownerId);
-  			  statement.setString(2, updateOwnerIdInPoolTableQueryString);
 			  statement.executeUpdate();
                           
                           if (!autoCommit) {
@@ -1621,9 +1622,8 @@ public class QuestionPoolFacadeQueries
   
   		  // if the pool has parent but the parent doesn't transfer, need to remove the child-parent relationship.
   		  if (!"".equals(removeParentPoolString)) {
-  			  query = "UPDATE SAM_QUESTIONPOOL_T SET parentpoolid = 0 WHERE questionpoolid IN (?)";
+  			  query = "UPDATE SAM_QUESTIONPOOL_T SET parentpoolid = 0 WHERE questionpoolid IN (" + removeParentPoolString + ")";
   			  statement = conn.prepareStatement(query);
-  			  statement.setString(1, removeParentPoolString);
   			  statement.executeUpdate();	
                           
                           if (!autoCommit) {

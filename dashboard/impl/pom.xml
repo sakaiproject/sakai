@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>dashboard</artifactId>
 		<groupId>org.sakaiproject.dash</groupId>
-		<version>11-SNAPSHOT</version>
+		<version>12-SNAPSHOT</version>
 	</parent>
 
 	<name>dashboard - Implementation</name>
@@ -105,6 +105,18 @@
 			<groupId>org.sakaiproject.assignment</groupId>
 			<artifactId>sakai-assignment-api</artifactId>
 		</dependency>
+		<dependency>
+		  <groupId>org.sakaiproject.samigo</groupId>
+		  <artifactId>samigo-api</artifactId>
+		</dependency>
+		<dependency>
+		  <groupId>org.sakaiproject.samigo</groupId>
+		  <artifactId>samigo-hibernate</artifactId>
+		</dependency>
+		<dependency>
+		  <groupId>org.sakaiproject.samigo</groupId>
+		  <artifactId>samigo-services</artifactId>
+ 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.announcement</groupId>
 			<artifactId>sakai-announcement-api</artifactId>

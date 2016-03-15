@@ -124,13 +124,9 @@ public class EditorServlet extends HttpServlet
 
 			if (EDITOR_JS.equals(name)) {
 				res.sendRedirect(editor.getEditorUrl());
-				//res.sendRedirect("/library/editor/FCKeditor/fckeditor.js");
-				//res.sendRedirect("/library/editor/ckeditor/ckeditor.js");
 			}
 			else if (EDITOR_LAUNCH_JS.equals(name)) {
 				res.sendRedirect(editor.getLaunchUrl());
-				//res.sendRedirect("/library/editor/launchfck.js");
-				//res.sendRedirect("/library/editor/ckeditor.launch.js");
 			}
 			else if (EDITOR_BOOTSTRAP_JS.equals(name)) {
 				res.addHeader("Pragma", "no-cache");
@@ -139,9 +135,13 @@ public class EditorServlet extends HttpServlet
 				
 				//Note that this is the same stuff as in SkinnableCharonPortal. We should probably do a bit of refactoring.
 				PrintWriter out = res.getWriter();
-				out.print("var sakai = sakai || {}; sakai.editor = sakai.editor || {}; \n");
+				out.print("var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
+						"sakai.editor.editors = sakai.editor.editors || {}; " +
+						"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
+						"\n");
 				out.print("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(tool) + "';\n");
 				out.print("sakai.editor.enableResourceSearch = '" + EditorConfiguration.enableResourceSearch() + "';\n");
+				out.print("sakai.editor.editors.ckeditor.browser = '" + EditorConfiguration.getCKEditorFileBrowser() + "';\n");
 				out.print(editor.getPreloadScript());
 			}
 			else {

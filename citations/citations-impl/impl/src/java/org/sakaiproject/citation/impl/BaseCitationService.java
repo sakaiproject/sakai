@@ -26,22 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.net.URLEncoder;
 
@@ -55,13 +40,7 @@ import org.osid.repository.PartIterator;
 import org.osid.repository.Record;
 import org.osid.repository.RecordIterator;
 import org.osid.repository.RepositoryException;
-import org.sakaiproject.citation.api.ActiveSearch;
-import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationIterator;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.citation.api.ConfigurationService;
-import org.sakaiproject.citation.api.Schema;
+import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.impl.openurl.ContextObject;
 import org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl;
@@ -2643,7 +2622,9 @@ public abstract class BaseCitationService implements CitationService
 
 		}
 
-		protected Map<String, Citation> m_citations = new Hashtable<String, Citation>();
+		protected Map<String, Citation> m_citations = new LinkedHashMap<String, Citation>();
+
+		protected List<CitationCollectionOrder> m_nestedCitationCollectionOrders = new ArrayList<CitationCollectionOrder>();
 
 		protected Comparator m_comparator = DEFAULT_COMPARATOR;
 
@@ -2891,6 +2872,14 @@ public abstract class BaseCitationService implements CitationService
 			return citations;
 		}
 
+		public List<CitationCollectionOrder> getNestedCitationCollectionOrders() {
+			return m_nestedCitationCollectionOrders;
+		}
+
+		public void setNestedCitationCollectionOrders(List<CitationCollectionOrder> m_nestedCitationCollectionOrders) {
+			this.m_nestedCitationCollectionOrders = m_nestedCitationCollectionOrders;
+		}
+
 		public CitationCollection getCitations(Comparator c)
 		{
 			checkForUpdates();
@@ -3094,6 +3083,15 @@ public abstract class BaseCitationService implements CitationService
 			save(citation);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.sakaiproject.citation.api.CitationCollection#saveCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+		 */
+		public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			save(citationCollectionOrder);
+		}
 		/**
 		 *
 		 * @param comparator
@@ -3229,6 +3227,35 @@ public abstract class BaseCitationService implements CitationService
 					M_log.warn("copy(" + oldCitation.getId() + ") ==> " + newCitation.getId(), e);
 				}
 			}
+
+			Iterator iterator = other.getNestedCitationCollectionOrders().iterator();
+			while(iterator.hasNext()) {
+				CitationCollectionOrder citationCollectionOrder = (CitationCollectionOrder) iterator.next();
+				if (citationCollectionOrder.isCitation()){
+					try {
+						// copy the citation
+						CitationCollection collection = getCollection(citationCollectionOrder.getCollectionId());
+						BasicCitation oldCitation = (BasicCitation) collection.getCitation(citationCollectionOrder.getCitationid());
+						BasicCitation newCitation = new BasicCitation();
+						newCitation.copy(oldCitation);
+						newCitation.m_temporary = isTemporary;
+						this.saveCitation(newCitation);
+
+						// copy the citation's citationCollectionOrder
+						CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId(), newCitation.getId());
+						this.saveCitationCollectionOrder(newCitationCollectionOrder);
+
+					} catch (IdUnusedException e) {
+						M_log.warn("copying citationcollectionorder(" + citationCollectionOrder.getCitationid() + ") ==> " + citationCollectionOrder.getValue(), e);
+					}
+				}
+				else {
+					// copy the citationCollectionOrder
+					CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId());
+					this.saveCitationCollectionOrder(newCitationCollectionOrder);
+				}
+			}
+
 			this.m_mostRecentUpdate = TimeService.newTime().getTime();
 
 		}
@@ -3865,7 +3892,23 @@ public abstract class BaseCitationService implements CitationService
 
 		public void saveCitation(Citation edit);
 
+		public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder);
+
 		public void saveCollection(CitationCollection collection);
+
+		public void saveSection(CitationCollectionOrder citationCollectionOrder);
+
+		public void saveSubsection(CitationCollectionOrder citationCollectionOrder);
+
+		public void saveCitationCollectionOrders(List<CitationCollectionOrder> citationCollectionOrders, String citationCollectionId);
+
+		public void updateCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder);
+
+		public CitationCollectionOrder getNestedSections(String citationCollectionId);
+
+		public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
+
+		public void removeLocation(String collectionId, int locationId);
 
 		public void updateSchema(Schema schema);
 
@@ -4753,6 +4796,11 @@ public abstract class BaseCitationService implements CitationService
 	    		CitationService.CITATION_LIST_ID,
 	    		false );
 
+	    BaseServiceLevelAction makeSitePageAction = new BaseServiceLevelAction(ResourceToolAction.MAKE_SITE_PAGE,
+	    		ResourceToolAction.ActionType.MAKE_SITE_PAGE,
+	    		CitationService.CITATION_LIST_ID,
+	    		true );
+
 	    BasicSiteSelectableResourceType typedef = new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID);
 	    typedef.setSizeLabeler(new CitationSizeLabeler());
 	    typedef.setLocalizer(new CitationLocalizer());
@@ -4763,6 +4811,7 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
+	    typedef.addAction(makeSitePageAction);
 	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
@@ -5452,6 +5501,17 @@ public abstract class BaseCitationService implements CitationService
 		this.m_storage.saveCitation(citation);
 	}
 
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#save(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void save(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.saveCitationCollectionOrder(citationCollectionOrder);
+	}
+
 	public void setIdManager(IdManager idManager)
 	{
 		m_idManager = idManager;
@@ -5465,6 +5525,72 @@ public abstract class BaseCitationService implements CitationService
 	public void save(CitationCollection collection)
 	{
 		this.m_storage.saveCollection(collection);
+	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#saveSection(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void saveSection(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.saveSection(citationCollectionOrder);
+	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#saveSubsection(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void saveSubsection(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.saveSubsection(citationCollectionOrder);
+	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#save(java.util.ArrayList, java.lang.String)
+	 */
+	public void save(List<CitationCollectionOrder> citationCollectionOrders, String citationCollectionId ) {
+		this.m_storage.saveCitationCollectionOrders(citationCollectionOrders, citationCollectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#updateSection(org.sakaiproject.citation.api.CitationCollectionOrder)
+	 */
+	public void updateSection(CitationCollectionOrder citationCollectionOrder)
+	{
+		this.m_storage.updateCitationCollectionOrder(citationCollectionOrder);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getNestedCollection(java.lang.String)
+	 */
+	public CitationCollectionOrder getNestedCollection(String citationCollectionId)
+	{
+		return this.m_storage.getNestedSections(citationCollectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getUnnestedCitationCollection(java.lang.String)
+	 */
+	public CitationCollection getUnnestedCitationCollection(String citationCollectionId)
+	{
+		return this.m_storage.getUnnestedCitationCollection(citationCollectionId);
+	}
+
+	/*
+	* (non-Javadoc)
+
+	* @see org.sakaiproject.citation.api.CitationService#removeLocation(java.lang.String, int)
+	*/
+	public void removeLocation(String collectionId, int locationId)
+	{
+		this.m_storage.removeLocation(collectionId, locationId);
 	}
 	/**
 	 * Dependency: ConfigurationService.
@@ -5585,7 +5711,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			ContentResourceEdit edit = contentService.editResource(reference.getId());
 			String collectionId = new String(edit.getContent());
-			CitationCollection oldCollection = getCollection(collectionId);
+			CitationCollection oldCollection = getUnnestedCitationCollection(collectionId);
 			BasicCitationCollection newCollection = new BasicCitationCollection();
 			newCollection.copy((BasicCitationCollection) oldCollection);
 			save(newCollection);

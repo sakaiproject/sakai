@@ -36,7 +36,7 @@
 </script>
       </head>
 <body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>;disabledButton()">
- <div class="portletBody">
+ <div class="portletBody container-fluid">
 <!-- content... -->
 <h:form id="questionpool">
 
@@ -86,11 +86,18 @@
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
     </h:commandLink>
 <f:verbatim></span></li>
-</ul></f:verbatim>
+<li role="menuitem" ><span></f:verbatim>
+	<h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
+		<h:outputText value="#{generalMessages.section_activity}" />
+		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
+	</h:commandLink>
+    </span>
+  </li> 
+</ul>
 
-
-
- <h3><h:outputText value="#{generalMessages.questionPool}"/></h3>
+<h1>
+  <h:outputText value="#{generalMessages.questionPool}"/>
+</h1>
 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_poolmanager}"/>
 
@@ -103,6 +110,7 @@
 </h:commandLink>
 
 <h:outputText value=" #{generalMessages.separator}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" />
+<h:outputText value="&#160;" escape="false" />
 
 <h:commandLink title="#{questionPoolMessages.t_importPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="import" immediate="true" action="importPool">
  <h:outputText value="#{questionPoolMessages.t_importPool}"/>
@@ -112,6 +120,8 @@
 
 <!-- SAM-2049 -->
 <h:outputText value=" #{generalMessages.separator}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" />
+<h:outputText value="&#160;" escape="false" />
+
 <h:commandLink title="#{questionPoolMessages.t_transferPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" 
 	id="transfer" immediate="true" action="#{questionpool.transferPool}">
 	<h:outputText value="#{questionPoolMessages.transfer_pool_ownership}" />

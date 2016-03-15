@@ -1,0 +1,36 @@
+<!-- Extended Time -->
+<h:panelGroup styleClass="form-group row" layout="block">
+	<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeHeading}"/>
+    <div class="col-md-10">
+		<f:verbatim>
+			<a href="#" id="xt_show" onclick="showExtendedTime()" class="tier2">
+		</f:verbatim>
+		<h:outputText value="#{assessmentSettingsMessages.extendedTimeAdd}" />
+		<f:verbatim>
+			</a>
+		</f:verbatim>
+		<f:verbatim>
+			<div id="extendedTimeEntries" class="tier2" style="display: none;"></div>
+		</f:verbatim>
+
+		<f:verbatim>
+			<div style="display: none;">
+				<br />
+		</f:verbatim>
+		<h:inputText id="xt1" value="#{assessmentSettings.extendedTimes}"
+			size="120" />
+		<f:verbatim>
+			</div>
+		</f:verbatim>
+
+		<f:verbatim>
+			<div style="display: none">
+		</f:verbatim>
+		<h:selectOneMenu id="extendedTimeTarget" value="">
+			<f:selectItems value="#{assessmentSettings.extendedTimeTargets}" />
+		</h:selectOneMenu>
+		<f:verbatim>
+			</div>
+		</f:verbatim>
+    </div>
+</h:panelGroup>

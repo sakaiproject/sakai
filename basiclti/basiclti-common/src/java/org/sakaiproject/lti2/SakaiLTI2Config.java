@@ -1,7 +1,7 @@
 
 package org.sakaiproject.lti2;
 
-import org.imsglobal.lti2.LTI2Config;
+import org.tsugi.lti2.LTI2Config;
 import org.sakaiproject.lti2.SakaiLTI2Base;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -31,31 +31,31 @@ public class SakaiLTI2Config implements LTI2Config {
 	private String product_info_product_version;
 	private String product_info_product_description;
 
-    public String getGuid() { return guid; } 
-    public String getSupport_email() { return support_email; } 
-    public String getService_owner_id() { return service_owner_id; } 
-    public String getService_owner_owner_name() { return service_owner_owner_name; } 
-    public String getService_owner_description() { return service_owner_description; } 
-    public String getService_owner_support_email() { return service_owner_support_email; } 
-    public String getService_provider_id() { return service_provider_id; } 
-    public String getService_provider_provider_name() { return service_provider_provider_name; } 
-    public String getService_provider_description() { return service_provider_description; } 
-    public String getService_provider_support_email() { return service_provider_support_email; } 
-    public String getProduct_family_product_code() { return product_family_product_code; } 
-    public String getProduct_family_vendor_code() { return product_family_vendor_code; } 
-    public String getProduct_family_vendor_name() { return product_family_vendor_name; } 
-    public String getProduct_family_vendor_description() { return product_family_vendor_description; } 
-    public String getProduct_family_vendor_website() { return product_family_vendor_website; } 
-    public String getProduct_family_vendor_contact() { return product_family_vendor_contact; } 
-    public String getProduct_info_product_name() { return product_info_product_name; } 
-    public String getProduct_info_product_version() { return product_info_product_version; } 
-    public String getProduct_info_product_description() { return product_info_product_description; } 
+	public String getGuid() { return guid; } 
+	public String getSupport_email() { return support_email; } 
+	public String getService_owner_id() { return service_owner_id; } 
+	public String getService_owner_owner_name() { return service_owner_owner_name; } 
+	public String getService_owner_description() { return service_owner_description; } 
+	public String getService_owner_support_email() { return service_owner_support_email; } 
+	public String getService_provider_id() { return service_provider_id; } 
+	public String getService_provider_provider_name() { return service_provider_provider_name; } 
+	public String getService_provider_description() { return service_provider_description; } 
+	public String getService_provider_support_email() { return service_provider_support_email; } 
+	public String getProduct_family_product_code() { return product_family_product_code; } 
+	public String getProduct_family_vendor_code() { return product_family_vendor_code; } 
+	public String getProduct_family_vendor_name() { return product_family_vendor_name; } 
+	public String getProduct_family_vendor_description() { return product_family_vendor_description; } 
+	public String getProduct_family_vendor_website() { return product_family_vendor_website; } 
+	public String getProduct_family_vendor_contact() { return product_family_vendor_contact; } 
+	public String getProduct_info_product_name() { return product_info_product_name; } 
+	public String getProduct_info_product_version() { return product_info_product_version; } 
+	public String getProduct_info_product_description() { return product_info_product_description; } 
 
-    public SakaiLTI2Config() {
+	public SakaiLTI2Config() {
 		ServerConfigurationService cnf = (ServerConfigurationService) ComponentManager
-                        .get(ServerConfigurationService.class);
+						.get(ServerConfigurationService.class);
 
-        String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 		LTI2Config base = new SakaiLTI2Base();
 
 		guid = cnf.getString("lti2.guid", null);

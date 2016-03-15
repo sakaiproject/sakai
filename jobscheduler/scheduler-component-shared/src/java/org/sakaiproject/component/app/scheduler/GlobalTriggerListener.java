@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
+import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.TriggerListener;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
@@ -62,15 +63,13 @@ public class GlobalTriggerListener implements TriggerListener
 	  return serverConfigurationService.getServerId();
   }
   
-  public void triggerFired(Trigger trigger,
-      JobExecutionContext jobExecutionContext)
+  public void triggerFired(Trigger trigger, JobExecutionContext jobExecutionContext)
   {
 	  
-      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.FIRED, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger fired", getServerId());
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.FIRED, jobExecutionContext.getJobDetail().getKey(), trigger.getKey(), new Date(), "Trigger fired", getServerId());
   }
 
-  public boolean vetoJobExecution(Trigger trigger,
-      JobExecutionContext jobExecutionContext)
+  public boolean vetoJobExecution(Trigger trigger, JobExecutionContext jobExecutionContext)
   {
     return false;
   }
@@ -78,12 +77,12 @@ public class GlobalTriggerListener implements TriggerListener
   public void triggerMisfired(Trigger trigger)
   {
   }
-
-  public void triggerComplete(Trigger trigger,
-      JobExecutionContext jobExecutionContext, int triggerInstructionCode)
-  {
-      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger complete", getServerId());
+  
+  @Override
+  public void triggerComplete(Trigger trigger, JobExecutionContext context, CompletedExecutionInstruction triggerInstructionCode) {
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, context.getJobDetail().getKey(), trigger.getKey(), new Date(), "Trigger complete", getServerId());
   }
+
 
   /**
    * @return Returns the triggerEvents.

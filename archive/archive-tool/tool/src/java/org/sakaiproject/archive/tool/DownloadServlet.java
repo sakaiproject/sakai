@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -62,32 +64,30 @@ public class DownloadServlet extends HttpServlet {
 		if (!securityService.isSuperUser()){
 			log.error("Must be super user to download archives");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Must be super user to download archives");
+			return;
 		}
 		
-		String archiveName = (String)request.getParameter("archive");
-		String archiveBaseDir = serverConfigurationService.getString("archive.storage.path", "sakai/archive");
-		
-		//add in some basic protection
-		if(StringUtils.contains(archiveName, "..")) {
-			log.error("Archive param must be a valid site archive");
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Archive param must be a valid site archive. Param was: " + archiveName);
-		}
+		String archiveName = request.getParameter("archive");
+		Path sakaiHome = Paths.get(serverConfigurationService.getSakaiHomePath());
+		Path archives = sakaiHome.resolve(serverConfigurationService.getString("archive.storage.path", "archive"));
 		
 		response.setContentType("application/zip");
         response.setHeader("Content-Disposition","attachment;filename=" +archiveName);
 		
-		//need to ensure user cant spoof this to get other files. Check for .. in name?
-		//does this even matter? Surely we can trust an admin?
-		String archivePath = archiveBaseDir + File.separator + archiveName;
-		File archiveFile = new File(archivePath);
-		
+		Path archivePath = archives.resolve(archiveName).normalize();
+		if (!archivePath.startsWith(archives)) {
+			log.error(String.format("The archive file (%s) is not inside the archives folder (%s)",
+			archivePath.toString(), archives.toString()));
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+					"Archive param must be a valid site archive. Param was: " + archiveName);
+			return;
+		}
 		OutputStream out = response.getOutputStream();
-		
-        InputStream in = FileUtils.openInputStream(archiveFile);
-        IOUtils.copyLarge(in, out);
-        out.flush();
-        out.close();
-        		
-        
+
+		try (InputStream in = FileUtils.openInputStream(archivePath.toFile())) {
+			IOUtils.copyLarge(in, out);
+			out.flush();
+			out.close();
+		}
 	}
 }

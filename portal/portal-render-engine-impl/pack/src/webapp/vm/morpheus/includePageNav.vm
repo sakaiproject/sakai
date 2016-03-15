@@ -11,15 +11,25 @@
     #end ## END of IF ($sitePages.siteHTMLInclude)
 
     <h1 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h1>
+    <!--Added this check in to make sure that we just don't have an empty img element in the page. -->
+	#if(${sitePages.pageNavIconUrl} != "")
+        <img src="${sitePages.pageNavIconUrl}" alt="" class="img_site_toolmenu">
+	#end
 
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
         <ul>
+        	<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav">
+        		<i class="fa fa-lg fa-angle-double-left"></i>
+        	</li>
+        	#if ($viewAsStudentLink)
+        	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+        	#end ## END of IF ($viewAsStudentLink)
 		#set( $categoryMap = {})
 		#set( $categoryList = [])
 
 		## create a map of tools and categories ,if tool does not belong to category display them now.
 
-	    	#foreach( $page in $sitePages.pageNavTools )
+	    #foreach( $page in $sitePages.pageNavTools )
   		#if (${page.pageProps.get("sitePage.pageCategory")})
 			#if (!$categoryMap.get(${page.pageProps.get("sitePage.pageCategory")}))
 				#set ( $success = $categoryList.add($page.pageProps.get("sitePage.pageCategory")))
@@ -27,6 +37,7 @@
 			#set($dummy = $categoryMap.put($page.pageProps.get("sitePage.pageCategory"), $page.pageProps.get("sitePage.pageCategory").replace(" ","_")))
 		#else
 		        #if (${page.current})
+		        	#set( $breadToolName  = $page.pageTitle )
 
 		            <li class="Mrphs-toolsNav__menuitem is-current">
 		                <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
@@ -51,7 +62,7 @@
 		                #if (${page.ispopup})
 
 		                    <li>
-		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open( '${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768' )">
+		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="javascript:;" title="${page.pageTitle} - ${page.pageTitle}" onclick="window.open( '${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768' )">
 		                            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
 		                            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 		                        </a>
@@ -60,7 +71,7 @@
 		                #else
 
 		                    <li>
-		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}" title="${page.description}">
+		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}" title="${page.pageTitle} - ${page.description}">
 		                            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
 		                            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 		                        </a>
@@ -137,7 +148,7 @@
 
                 <li class="Mrphs-toolsNav__menuitem--subsite">
                     <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
-                        <span class="Mrphs-toolsNav__menuitem--icon"> </span>
+                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai-subsites-list"> </span>
                         <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsites}</span>
                     </a>
                 </li>
@@ -190,10 +201,6 @@
         </nav>
 
     #end ## END of IF ( $subSites )
-
-	#if ($viewAsStudentLink)
-	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-	#end ## END of IF ($viewAsStudentLink)
 
 </div>
 

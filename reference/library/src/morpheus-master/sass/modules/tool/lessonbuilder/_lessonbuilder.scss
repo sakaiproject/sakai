@@ -1,0 +1,19 @@
+.Mrphs-sakai-lessonbuildertool{
+	.navIntraTool{
+		margin: 0 0 0 0;
+		padding: 0 0 0 0;
+		border-bottom: 0px none;
+		li{
+			span{
+				a{
+					border-bottom: 1px solid $toolBorderColor;
+					display: inline-block;
+				}
+			}
+		}
+	}
+	.portletBody > * {
+		position: inherit;
+		top: 0;
+	}
+}

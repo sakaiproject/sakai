@@ -19,8 +19,6 @@
 	}
 	#cookie-notice-close{
 		display: inline;
-		@include sakai-button( $background-color-secondary, 
-							   darken( $background-color-secondary, 10% ), 
-							   $background-color-secondary, $text-color );
+		@extend .button;
 	}
 }

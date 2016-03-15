@@ -1327,7 +1327,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    siteService.save(toSite);
 		    ToolSession session = sessionManager.getCurrentToolSession();
 
-		    if (session.getAttribute(ATTR_TOP_REFRESH) == null) {
+		    if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
 			session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 		    }
 			
@@ -2096,7 +2096,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	simplePageBean.setAssignmentEntity(assignmentEntity);
 	simplePageBean.setBltiEntity(bltiEntity);
 	simplePageBean.setGradebookIfc(gradebookIfc);
-	simplePageBean.setMemoryService(memoryService);
 	simplePageBean.setCurrentSiteId(siteId);
 	return simplePageBean;
     }

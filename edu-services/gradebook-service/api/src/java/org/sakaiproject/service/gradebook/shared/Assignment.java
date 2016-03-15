@@ -24,11 +24,15 @@ package org.sakaiproject.service.gradebook.shared;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * JavaBean to hold data associated with a Gradebook assignment.
  * The Course Grade is not considered an assignment.
  */
-public class Assignment implements Serializable {
+public class Assignment implements Serializable, Comparable<Assignment> {
 	private static final long serialVersionUID = 1L;
 
     private String name;
@@ -47,7 +51,9 @@ public class Assignment implements Serializable {
     //Needed for transfer
     private boolean categoryExtraCredit;
     private Integer sortOrder;
+    private Integer categorizedSortOrder;
     private Long categoryId;
+    private Integer categoryOrder;
     
 
     public Assignment() {
@@ -230,4 +236,31 @@ public class Assignment implements Serializable {
 		this.categoryId = categoryId;
 	}
 
+	public Integer getCategoryOrder() {
+		return categoryOrder;
+	}
+
+	public void setCategoryOrder(Integer categoryOrder) {
+		this.categoryOrder = categoryOrder;
+	}
+	
+	@Override
+	public int compareTo(Assignment o) {
+		return new CompareToBuilder()
+	       .append(this.id, o.id)
+	       .toComparison();
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
+
+	public Integer getCategorizedSortOrder() {
+		return categorizedSortOrder;
+	}
+
+	public void setCategorizedSortOrder(Integer categorizedSortOrder) {
+		this.categorizedSortOrder = categorizedSortOrder;
+	}
 }

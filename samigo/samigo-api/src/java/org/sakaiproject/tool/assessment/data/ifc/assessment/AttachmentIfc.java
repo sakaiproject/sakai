@@ -35,6 +35,7 @@ public interface AttachmentIfc
   public static Long ITEM_ATTACHMENT = Long.valueOf(3);
   //This parameter is for SAM_GRADINGATTACHMENT_T table
   public static Long ITEMGRADING_ATTACHMENT = Long.valueOf(1);
+  public static Long ASSESSMENTGRADING_ATTACHMENT = Long.valueOf(4);
   
   public static Long ITEM_TEXT_ATTACHMENT = Long.valueOf(5);//for EMI sub-item attachments 
   public static Integer ACTIVE_STATUS = Integer.valueOf(1);

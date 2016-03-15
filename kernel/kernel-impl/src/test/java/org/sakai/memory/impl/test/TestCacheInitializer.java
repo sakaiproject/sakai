@@ -1,67 +1,77 @@
 package org.sakai.memory.impl.test;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.memory.util.CacheInitializer;
 
-import junit.framework.TestCase;
 import net.sf.ehcache.config.CacheConfiguration;
 
-public class TestCacheInitializer extends TestCase {
+public class TestCacheInitializer {
 
 	private CacheConfiguration config;
 	private CacheInitializer initializer;
 	
+	@Before
 	public void setUp() {
 		config = new CacheConfiguration();
 		initializer = new CacheInitializer();
 	}
 
+	@Test
 	public void testSingleConfig() {
 		initializer.configure("timeToLiveSeconds=400").initialize(config);
-		assertEquals(400, config.getTimeToLiveSeconds());
+		Assert.assertEquals(400, config.getTimeToLiveSeconds());
 	}
 	
+	@Test
 	public void testMultipleConfig() {
 		initializer.configure("timeToLiveSeconds=300,timeToIdleSeconds=150")
 			.initialize(config);
-		assertEquals(300, config.getTimeToLiveSeconds());
-		assertEquals(150, config.getTimeToIdleSeconds());
+		Assert.assertEquals(300, config.getTimeToLiveSeconds());
+		Assert.assertEquals(150, config.getTimeToIdleSeconds());
 	}
 	
+	@Test
 	public void testDuplicateConfig() {
 		initializer.configure("timeToLiveSeconds=300,timeToIdleSeconds=150,timeToLiveSeconds=10")
 			.initialize(config);
-		assertEquals(10, config.getTimeToLiveSeconds());
-		assertEquals(150, config.getTimeToIdleSeconds());
+		Assert.assertEquals(10, config.getTimeToLiveSeconds());
+		Assert.assertEquals(150, config.getTimeToIdleSeconds());
 	}
 	
+	@Test
 	public void testBadKey() {
 		initializer.configure("doesNotExist=300,timeToIdleSeconds=150")
 			.initialize(config);
-		assertEquals(150, config.getTimeToIdleSeconds());
+		Assert.assertEquals(150, config.getTimeToIdleSeconds());
 	}
 	
+	@Test
 	public void testBadValue() {
 		initializer.configure("timeToLiveSeconds=300a,timeToIdleSeconds=150")
 			.initialize(config);
-		assertEquals(150, config.getTimeToIdleSeconds());
+		Assert.assertEquals(150, config.getTimeToIdleSeconds());
 	}
 	
+	@Test
 	public void testStringValue() {
 		initializer.configure("name=other")
 			.initialize(config);
-		assertEquals("other", config.getName());
+		Assert.assertEquals("other", config.getName());
 	}
 	
+	@Test
 	public void testIntValue() {
 		initializer.configure("maxElementsOnDisk=150")
 			.initialize(config);
-		assertEquals(150, config.getMaxElementsOnDisk());
+		Assert.assertEquals(150, config.getMaxElementsOnDisk());
 	}
 	
+	@Test
 	public void testBooleanValue() {
 		initializer.configure("eternal=true")
 			.initialize(config);
-		assertEquals(true, config.isEternal());
+		Assert.assertEquals(true, config.isEternal());
 	}
-	 
 }

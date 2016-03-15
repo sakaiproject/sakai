@@ -37,62 +37,57 @@
  			<sakai:tool_bar_item value=" #{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}" rendered="#{PrivateMessagesTool.showSettingsLink}" />
  			<sakai:tool_bar_item value=" #{msgs.pvt_permissions}" action="#{PrivateMessagesTool.processActionPermissions}" rendered="#{PrivateMessagesTool.instructor}" />
  			</sakai:tool_bar>
- 		
-			<h:panelGrid columns="2" width="100%"
-				styleClass="navPanel  specialLink" >
-				<h:panelGroup>
-					<f:verbatim>
-						<div class="breadCrumb">
-						<h3>
-					</f:verbatim>
-					<h:commandLink action="#{PrivateMessagesTool.processActionHome}"
-						value="#{msgs.cdfm_message_forums}"
-						title=" #{msgs.cdfm_message_forums}" 
-						rendered="#{PrivateMessagesTool.messagesandForums}" />
-					<h:outputText value=" /" rendered="#{PrivateMessagesTool.messagesandForums}" />
-					<h:outputText value=" #{msgs.pvt_message_nav}" />
-					<f:verbatim>
-						</h3>
-						</div>
-					</f:verbatim>
-				</h:panelGroup>
+ 			
+			<h:panelGroup>
+				<f:verbatim>
+					<div class="page-header">
+					<h1>
+				</f:verbatim>
+				<h:commandLink action="#{PrivateMessagesTool.processActionHome}"
+					value="#{msgs.cdfm_message_forums}"
+					title=" #{msgs.cdfm_message_forums}" 
+					rendered="#{PrivateMessagesTool.messagesandForums}" />
+				<h:outputText value=" /" rendered="#{PrivateMessagesTool.messagesandForums}" />
+				<h:outputText value=" #{msgs.pvt_message_nav}" />
+				<f:verbatim>
+					</h1>
+					</div>
+				</f:verbatim>
+			</h:panelGroup>
 
-				<h:panelGroup styleClass="itemNav" rendered="#{PrivateMessagesTool.messagesandForums}" >
-					<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"
-						title=" #{msgs.pvt_compose}">
-						<h:outputText value="#{msgs.pvt_compose}" />
-					</h:commandLink>
+			<h:panelGroup styleClass="itemNav" rendered="#{PrivateMessagesTool.messagesandForums}" >
+				<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"
+					title=" #{msgs.pvt_compose}">
+					<h:outputText value="#{msgs.pvt_compose}" />
+				</h:commandLink>
 
-					<h:outputText value=" | " rendered="#{ForumTool.selectedForum.changeSettings}" />
+				<h:outputText value=" | " rendered="#{ForumTool.selectedForum.changeSettings}" />
 
-					<h:commandLink
-						action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"
-						title=" #{msgs.pvt_newfolder}">
-						<h:outputText value="#{msgs.pvt_newfolder}" />
-					</h:commandLink>
-				</h:panelGroup>
+				<h:commandLink
+					action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"
+					title=" #{msgs.pvt_newfolder}" styleClass="button">
+					<h:outputText value="#{msgs.pvt_newfolder}" />
+				</h:commandLink>
+			</h:panelGroup>
 
-				<h:outputText value=" " rendered="#{PrivateMessagesTool.messages}" />
-				
-				<h:panelGroup rendered="#{PrivateMessagesTool.messages && PrivateMessagesTool.dispError}" >
-				  <f:verbatim><br /></f:verbatim>
-	 			  <h:outputText value="#{msgs.pvt_hlprpgerror}" styleClass="instruction" />
-				</h:panelGroup>
+			<h:outputText value=" " rendered="#{PrivateMessagesTool.messages}" />
+			
+			<h:panelGroup rendered="#{PrivateMessagesTool.messages && PrivateMessagesTool.dispError}" >
+			  <f:verbatim><br /></f:verbatim>
+ 			  <h:outputText value="#{msgs.pvt_hlprpgerror}" styleClass="bs-callout-danger" />
+			</h:panelGroup>
 
-			</h:panelGrid>
-
+			<div class="table-responsive">
+			
 			<h:dataTable value="#{PrivateMessagesTool.decoratedForum}"
 				var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}"
 				cellpadding="0" cellspacing="0" styleClass="hierItemBlockWrapper" style="width: 100%;">
 				<h:column>
 
-					<h:dataTable id="privateForums" value="#{forum.topics}" var="topic"
-						width="99%" cellpadding="0" cellspacing="0" style="margin:0;">
+					<h:dataTable id="privateForums" value="#{forum.topics}" var="topic" styleClass="table table-hover table-striped table-bordered" >
 						<h:column>
 
-							<h:panelGrid columns="2" width="100%"
-												   cellpadding="0" cellspacing="0" styleClass="listHier"
-								           style="margin:0">
+							<!-- h:panelGrid columns="2" styleClass="table table-hover table-striped table-bordered" -->
 								           
 				
 								
@@ -132,7 +127,7 @@
 										<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId" />
 									</h:commandLink>
 								
-								<h:outputText	value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}"
+									<h:outputText	value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}"
 										            rendered="#{topic.totalNoMessages < 2}"
 										            styleClass="textPanelFooter" />
 									<h:outputText	value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs}"
@@ -153,12 +148,14 @@
 									</h:commandLink>
 								</h:panelGroup>
 					
-							</h:panelGrid>
+							<!-- /h:panelGrid -->
 
 						</h:column>
 					</h:dataTable>
 				</h:column>
 			</h:dataTable>
+
+			</div>
 
 			<h:inputHidden id="mainOrHp" value="pvtMsgHpView" />
 

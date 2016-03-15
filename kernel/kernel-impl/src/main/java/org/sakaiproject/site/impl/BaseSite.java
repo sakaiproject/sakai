@@ -1066,24 +1066,46 @@ public class BaseSite implements Site
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getGroupsWithMember(String userId)
+	public Collection<Group> getGroupsWithMember(String userId)
 	{
-		Collection siteGroups = getGroups();
+		Collection<Group> rv = new Vector<Group>();
+		rv = getGroupsWithMembers(new String[] {userId});
+		return rv;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Collection<Group> getGroupsWithMembers(String[] userIds)
+	{
+		Collection<Group> siteGroups = getGroups();
 		ArrayList<String> siteGroupRefs = new ArrayList<String>(siteGroups.size());
 		for ( Iterator it=siteGroups.iterator(); it.hasNext(); )
 			siteGroupRefs.add( ((Group)it.next()).getReference() );
-			
-		List groups = authzGroupService.getAuthzUserGroupIds(siteGroupRefs, userId);
+		
+		List groups = authzGroupService.getAuthzUserGroupIds(siteGroupRefs, userIds[0]);
 		Collection<Group> rv = new Vector<Group>();
+		
 		for (Iterator i = groups.iterator(); i.hasNext();)
 		{
 			Member m = null;
 			Group g = getGroup( (String)i.next() );
 			
 			if ( g != null )
-				m = g.getMember(userId);
-			if ((m != null) && (m.isActive()))
-				rv.add(g);
+			{
+				for (int j=0; j<userIds.length;j++)
+				{
+					m = g.getMember(userIds[j]);
+					if ((m == null) || (!m.isActive()))
+					{
+						break;
+					}
+				}
+				if ((m != null) && (m.isActive()))
+				{
+					rv.add(g);
+				}
+			}
 		}
 
 		return rv;

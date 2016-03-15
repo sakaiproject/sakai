@@ -22,6 +22,7 @@
 package org.sakaiproject.portal.charon.site;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -117,79 +118,8 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 		} // ignore
 
-		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
-		
-		boolean loggedIn = session.getUserId() != null;
-
-		if (!loggedIn)
-		{
-			tabsToDisplay = serverConfigurationService.getInt(
-					"gatewaySiteListDisplayCount", tabsToDisplay);
-		}
-		else
-		{
-			Preferences prefs = preferencesService
-					.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-			try
-			{
-				tabsToDisplay = (int) props.getLongProperty("tabs");
-			}
-			catch (Exception any)
-			{
-			}
-		}
-
 		// we allow one site in the drawer - that is OK
 		moreSites = new ArrayList<Site>();
-		if (mySites.size() > tabsToDisplay)
-		{
-			// Check to see if the selected site is in the first
-			// "tabsToDisplay" tabs
-			boolean found = false;
-			for (int i = 0; i < tabsToDisplay && i < mySites.size(); i++)
-			{
-				Site site = mySites.get(i);
-				String effectiveId = siteHelper.getSiteEffectiveId(site);
-				if (site.getId().equals(currentSiteId)
-						|| effectiveId.equals(currentSiteId)) found = true;
-			}
-
-			// Save space for the current site
-			if (!found) tabsToDisplay = tabsToDisplay - 1;
-			if (tabsToDisplay < 2) tabsToDisplay = 2;
-
-			// Create the list of "additional sites"- but do not
-			// include the currently selected set in the list
-			Site currentSelectedSite = null;
-
-			int remove = mySites.size() - tabsToDisplay;
-			for (int i = 0; i < remove; i++)
-			{
-				// We add the site the the drop-down
-				// unless it it the current site in which case
-				// we retain it for later
-				Site site = mySites.get(tabsToDisplay);
-				mySites.remove(tabsToDisplay);
-
-				String effectiveId = siteHelper.getSiteEffectiveId(site);
-				if (site.getId().equals(currentSiteId)
-						|| effectiveId.equals(currentSiteId))
-				{
-					currentSelectedSite = site;
-				}
-				else
-				{
-					moreSites.add(site);
-				}
-			}
-
-			// check to see if we need to re-add the current site
-			if (currentSelectedSite != null)
-			{
-				mySites.add(currentSelectedSite);
-			}
-		}
 		
 		processMySites();
 
@@ -306,7 +236,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			String type = site.getType();
 			String term = null;
 
-			if ("course".equals(type))
+			if (isCourseType(type))
 			{
 				term = siteProperties.getProperty("term");
 				if(null==term) {
@@ -314,7 +244,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 				}
 
 			}
-			else if ("project".equals(type))
+			else if (isProjectType(type))
 			{
 				term = rb.getString("moresite_projects");
 			}
@@ -430,10 +360,39 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 			}
 		}
-		renderContextMap.put("tabsMoreTerms", tabsMoreTerms);
+
+		SitePanesArrangement sitesByPane = arrangeSitesIntoPanes(tabsMoreTerms);
+		renderContextMap.put("tabsMoreTermsLeftPane", sitesByPane.sitesInLeftPane);
+		renderContextMap.put("tabsMoreTermsRightPane", sitesByPane.sitesInRightPane);
+
 		renderContextMap.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
 
 	}
+
+	private static class SitePanesArrangement {
+		public Map<String, List> sitesInLeftPane = new TreeMap<String, List>();
+		public Map<String, List> sitesInRightPane = new TreeMap<String, List>();
+	}
+
+	private SitePanesArrangement arrangeSitesIntoPanes(Map<String, List> tabsMoreTerms) {
+		SitePanesArrangement result = new SitePanesArrangement();
+
+		for (String term : tabsMoreTerms.keySet()) {
+			result.sitesInLeftPane.put(term, new ArrayList());
+			result.sitesInRightPane.put(term, new ArrayList());
+
+			for (Map site : (List<Map>)tabsMoreTerms.get(term)) {
+				if (isCourseType((String)site.get("siteType"))) {
+					result.sitesInLeftPane.get(term).add(site);
+				} else {
+					result.sitesInRightPane.get(term).add(site);
+				}
+			}
+		}
+
+		return result;
+	}
+
 
 	/*
 	 * (non-Javadoc)
@@ -465,6 +424,33 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	{
 		this.toolContextPath = toolContextPath;
 
+	}
+	
+	/**
+	 * read the site Type definition from configuration files
+	 */
+	public List<String> getSiteTypeStrings(String type)
+	{
+		String[] siteTypes = serverConfigurationService.getStrings(type + "SiteType");
+		if (siteTypes == null || siteTypes.length == 0)
+		{
+			siteTypes = new String[] {type};
+		}
+		return Arrays.asList(siteTypes);
+	}
+
+	private boolean isCourseType(String type)
+	{
+		List<String> courseSiteTypes = getSiteTypeStrings("course");
+		if (courseSiteTypes.contains(type)) return true;
+		else return false;
+	}
+
+	private boolean isProjectType(String type)
+	{
+		List<String> projectSiteTypes = getSiteTypeStrings("project");
+		if (projectSiteTypes.contains(type)) return true;
+		else return false;
 	}
 
 }

@@ -5,17 +5,13 @@
     <parent>
         <artifactId>hierarchy</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>11-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Hierarchy Implementation</name>
     <groupId>org.sakaiproject.hierarchy</groupId>
     <artifactId>hierarchy-impl</artifactId>
     <packaging>jar</packaging>
-
-    <properties>
-        <sakai.generic-dao.version>0.9.18</sakai.generic-dao.version>
-    </properties>
 
     <profiles>
         <profile>
@@ -94,9 +90,8 @@
 
         <!-- generic DAO -->
         <dependency>
-            <groupId>org.sakaiproject</groupId>
+            <groupId>org.sakaiproject.genericdao</groupId>
             <artifactId>generic-dao</artifactId>
-            <version>${sakai.generic-dao.version}</version>
         </dependency>
 
         <!-- sakai dependencies -->
@@ -146,7 +141,6 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.2</version>
             <scope>test</scope>
         </dependency>
 

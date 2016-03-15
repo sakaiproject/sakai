@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'image2', 'tr', {
@@ -10,11 +10,11 @@ CKEDITOR.plugins.setLang( 'image2', 'tr', {
 	infoTab: 'Resim Bilgisi',
 	lockRatio: 'Oranı Kilitle',
 	menu: 'Resim Özellikleri',
-	pathName: 'image', // MISSING
+	pathName: 'Resim',
 	pathNameCaption: 'caption', // MISSING
 	resetSize: 'Boyutu Başa Döndür',
-	resizer: 'Click and drag to resize', // MISSING
+	resizer: 'Boyutlandırmak için, tıklayın ve sürükleyin',
 	title: 'Resim Özellikleri',
 	uploadTab: 'Karşıya Yükle',
-	urlMissing: 'Resmin URL kaynağı eksiktir.'
+	urlMissing: 'Resmin URL kaynağı bulunamadı.'
 } );

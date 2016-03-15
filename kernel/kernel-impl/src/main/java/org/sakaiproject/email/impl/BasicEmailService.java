@@ -21,9 +21,8 @@
 
 package org.sakaiproject.email.impl;
 
-import java.io.UnsupportedEncodingException;
-import javax.mail.internet.MimeUtility;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,9 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -51,7 +49,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -134,6 +134,10 @@ public class BasicEmailService implements EmailService
 
 	/** Whether to turn on mail debugging */
 	public static final String MAIL_DEBUG = "mail.debug";
+
+	public static final String MAIL_SENDFROMSAKAI = "mail.sendfromsakai";
+	public static final String MAIL_SENDFROMSAKAI_EXCEPTIONS = "mail.sendfromsakai.exceptions";
+	public static final String MAIL_SENDFROMSAKAI_FROMTEXT = "mail.sendfromsakai.fromtext";
 
 	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
 
@@ -542,6 +546,9 @@ public class BasicEmailService implements EmailService
 		if ((replyTo != null) && (msg.getHeader(EmailHeaders.REPLY_TO) == null))
 			msg.setReplyTo(replyTo);
 
+		// update to be Postmaster if necessary
+		checkFrom(msg);
+
 		// figure out what charset encoding to use
 		//
 		// first try to use the charset from the forwarded
@@ -618,6 +625,97 @@ public class BasicEmailService implements EmailService
 		sendMessageAndLog(from, to, subject, headerTo, start, msg, session);
 			}
 
+
+
+	/**
+	 * fix up From and ReplyTo if we need it to be from Postmaster
+	 */
+	private void checkFrom(MimeMessage msg) {
+
+	    String sendFromSakai = serverConfigurationService.getString(MAIL_SENDFROMSAKAI, "true");
+	    String sendExceptions = serverConfigurationService.getString(MAIL_SENDFROMSAKAI_EXCEPTIONS, null);
+	    InternetAddress from = null;
+	    InternetAddress[] replyTo = null;
+
+	    try {
+		Address[] fromA = msg.getFrom();
+		if (fromA == null || fromA.length == 0) {
+		    M_log.info("message from missing");
+		    return;
+		} else if (fromA.length > 1) {
+		    M_log.info("message from more than 1");
+		    return;
+		} else if (fromA instanceof InternetAddress[]) {
+		    from = (InternetAddress) fromA[0];
+		} else {
+		    M_log.info("message from not InternetAddress");
+		    return;
+		}
+		
+		Address[] replyToA = msg.getReplyTo();
+		if (replyToA == null)
+		    replyTo = null;
+		else if (replyToA instanceof InternetAddress[])
+		    replyTo = (InternetAddress[]) replyToA;
+		else {
+		    M_log.info("message replyto isn't internet address");
+		    return;
+		}
+		
+		// should we replace from address with a Sakai address?
+		if (sendFromSakai != null && !sendFromSakai.equalsIgnoreCase("false")) {
+		    // exceptions -- addresses to leave alone. Our own addresses are always exceptions.
+		    // you can also configure a regexp of exceptions.
+		    if (!from.getAddress().toLowerCase().endsWith("@" + serverConfigurationService.getServerName().toLowerCase()) && 
+			(sendExceptions == null || sendExceptions.equals("") || !from.getAddress().toLowerCase().matches(sendExceptions))) {
+			
+			// not an exception. do the replacement.
+			// First, decide on the replacement address. The config variable
+			// may be the replacement address. If not, use postmaster
+			if (sendFromSakai.indexOf("@") < 0)
+			    sendFromSakai = POSTMASTER + "@" + serverConfigurationService.getServerName();
+		    
+			// put the original from into reply-to, unless a replyto exists
+			if (replyTo == null || replyTo.length == 0 || replyTo[0].getAddress().equals("")) {
+			    replyTo = new InternetAddress[1];
+			    replyTo[0] = from;
+			    msg.setReplyTo(replyTo);
+			}
+			// for some reason setReplyTo doesn't work, though setFrom does. Have to create the
+			// actual header line
+			if (msg.getHeader(EmailHeaders.REPLY_TO) == null)
+			    msg.addHeader(EmailHeaders.REPLY_TO, from.getAddress());
+			
+			// and use the new from address
+			// biggest issue is the "personal address", i.e. the comment text
+
+			String origFromText = from.getPersonal();
+			String origFromAddress = from.getAddress();
+			String fromTextPattern = serverConfigurationService.getString(MAIL_SENDFROMSAKAI_FROMTEXT, "{}");
+
+			String fromText = null;
+			if (origFromText != null && !origFromText.equals(""))
+			    fromText = fromTextPattern.replace("{}", origFromText + " (" + origFromAddress + ")");
+			else
+			    fromText = fromTextPattern.replace("{}", origFromAddress);
+		    
+			from = new InternetAddress(sendFromSakai);
+			try {
+			    from.setPersonal(fromText);
+			} catch (Exception e) {}
+			
+			msg.setFrom(from);
+		    }
+		}
+	    } catch (javax.mail.internet.AddressException e) {
+		M_log.info("checkfrom address exception " + e);
+	    } catch (javax.mail.MessagingException e) {
+		M_log.info("checkfrom messaging exception " + e);
+	    }
+
+	}
+
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -631,21 +729,22 @@ public class BasicEmailService implements EmailService
 			return;
 		}
 
-		if (fromStr == null)
+		// email should not be sent if from/to/content is empty or null
+		if (StringUtils.isBlank(fromStr))
 		{
-			M_log.warn("send: null fromStr");
+			M_log.warn("send: null/empty fromStr");
 			return;
 		}
 
-		if (toStr == null)
+		if (StringUtils.isBlank(toStr))
 		{
-			M_log.warn("send: null toStr");
+			M_log.warn("send: null/empty toStr");
 			return;
 		}
 
-		if (content == null)
+		if (StringUtils.isBlank(content))
 		{
-			M_log.warn("send: null content");
+			M_log.warn("send: null/empty content");
 			return;
 		}
 
@@ -653,34 +752,21 @@ public class BasicEmailService implements EmailService
 		{
 			InternetAddress from = new InternetAddress(fromStr);
 
-			StringTokenizer tokens = new StringTokenizer(toStr, ", ");
-			InternetAddress[] to = new InternetAddress[tokens.countTokens()];
-
-			int i = 0;
-			while (tokens.hasMoreTokens())
-			{
-				String next = (String) tokens.nextToken();
-				to[i] = new InternetAddress(next);
-
-				i++;
-			} // cycle through and collect all of the Internet addresses from the list.
+			InternetAddress[] to = InternetAddress.parse(toStr);
 
 			InternetAddress[] headerTo = null;
-			if (headerToStr != null)
-			{
-				headerTo = new InternetAddress[1];
-				headerTo[0] = new InternetAddress(headerToStr);
+			if (StringUtils.isNotBlank(headerToStr)) {
+				headerTo = InternetAddress.parse(headerToStr);
+			} else {
+				headerTo = InternetAddress.parse(toStr);
 			}
 
 			InternetAddress[] replyTo = null;
-			if (replyToStr != null)
-			{
-				replyTo = new InternetAddress[1];
-				replyTo[0] = new InternetAddress(replyToStr);
+			if (StringUtils.isNotBlank(replyToStr)) {
+				replyTo = InternetAddress.parse(replyToStr);
 			}
 
 			sendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders);
-
 		}
 		catch (AddressException e)
 		{
@@ -780,6 +866,9 @@ public class BasicEmailService implements EmailService
 
 		// form our Message
 		MimeMessage msg = new MyMessage(session, headers, message);
+
+		// fix From and ReplyTo if necessary
+		checkFrom(msg);
 
 		// transport the message
 		long time1 = 0;

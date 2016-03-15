@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+	  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+  version="2.4">
+
+  <listener>
+    <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>
+      org.sakaiproject.util.SakaiContextLoaderListener
+    </listener-class>
+  </listener>
+
+  <!-- Configure standard Spring application contexts. Be sure to mention
+    rsf config files first, so any overrides may be processed. The first two
+    config files are loaded from inside the rsf-core jar  -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+      classpath:conf/rsf-config.xml,
+      classpath:conf/blank-applicationContext.xml,
+      classpath:conf/sakai-applicationContext.xml,
+      classpath:conf/components-applicationContext.xml,
+      classpath:conf/sakaiComponents-applicationContext.xml,
+     /WEB-INF/testcomponents-applicationContext.xml,
+     /WEB-INF/applicationContext.xml
+    </param-value>
+  </context-param>
+  <!-- Configure "request scope" Spring application contexts (RSAC).
+    Be sure to mention rsf config files first, so any overrides may be
+    processed. -->
+  <context-param>
+    <param-name>requestContextConfigLocation</param-name>
+    <param-value>
+      classpath:conf/rsf-requestscope-config.xml,
+      classpath:conf/blank-requestContext.xml,
+      classpath:conf/sakai-requestContext.xml,
+      classpath:conf/components-requestContext.xml,
+      classpath:conf/sakaiComponents-requestContext.xml,
+      /WEB-INF/testcomponents-requestContext.xml
+      /WEB-INF/requestContext.xml
+    </param-value>
+  </context-param>
+
+  <filter>
+    <filter-name>sakai.request</filter-name>
+    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>sakai.request</filter-name>
+    <servlet-name>sakai.rsf.components</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
+  <servlet>
+    <!-- This must agree with the name advertised in the tool registration,
+      in this case sakai.rsfnumberguess.xml -->
+    <servlet-name>sakai.rsf.components</servlet-name>
+    <servlet-class>
+      org.sakaiproject.rsf.servlet.ReasonableSakaiServlet
+    </servlet-class>
+    <!--<load-on-startup>1</load-on-startup>-->
+  </servlet>
+  
+</web-app>

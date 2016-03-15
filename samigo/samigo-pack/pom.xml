@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>11-SNAPSHOT</version>
+		<version>12-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Component Package (samigo-pack)</name>
@@ -26,10 +26,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
@@ -59,7 +55,10 @@
 			<artifactId>jsr173</artifactId>
 			<version>1.0_api</version>
 		</dependency>
-
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-impl</artifactId>
+		</dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>samigo-qti</artifactId>
@@ -73,6 +72,13 @@
 				<directory>src/sql</directory>
 				<includes>
 					<include>**/*.sql</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.xml</include>
 				</includes>
 			</resource>
 		</resources>

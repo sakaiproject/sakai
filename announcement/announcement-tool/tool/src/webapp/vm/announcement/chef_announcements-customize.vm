@@ -3,10 +3,14 @@
 <script type="text/javascript">
 	focus_path = [ "$form-notify" ];
 </script>
-<div class="portletBody">
-	<h3>
-		$tlang.getString("custom.options")
-	</h3>
+<div class="portletBody container-fluid">
+
+	<div class="page-header">
+		<h1>
+			$tlang.getString("custom.options")
+		</h1>
+	</div>
+
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	<p class="instruction indnt2">
 		#if ($toolId == "sakai.announcements")
@@ -35,67 +39,70 @@
 		#else
 			#set ($selected = $tlang.getString("custom.lisvie"))
 		#end
-		<p class="checkbox  indnt2">
-		<input type="radio" id="sortable" name="VarNameDisplaySelection" value="sortable"
-			#if ($selected == $tlang.getString("custom.sortab"))
-				checked="checked" 
-			#end
-			/> 
-		<label for="sortable">
-			$tlang.getString("custom.sortab")
-		</label>
-		</p>
-		
-		<p class="checkbox  indnt2">
-		<input 	type="radio" id="sortableWithBody" name="VarNameDisplaySelection" value="sortableWithBody"
-			#if ($selected == $tlang.getString("custom.sortabbod"))
-				checked="checked" 
-			#end
-			/> 
-		<label for="sortableWithBody">
-			$tlang.getString("custom.sortabbod")
-		</label>
-		</p>
-		
-		<p class="checkbox  indnt2">
-		<input 	type="radio" id="showList" name="VarNameDisplaySelection" value="list"
-			#if ($selected == $tlang.getString("custom.lisvie"))
-				checked="checked" 
-			#end
-			/> 
-		<label for="showList">
-			$tlang.getString("custom.lisvie")
-		</label>
-		</p>
-		
-		<p class="shorttext indnt4" id="charDisplay"> 
-			<label for="changeChars">
-				$tlang.getString("custom.charbody")
+
+		<div class="checkbox">
+			<label for="sortable">
+				<input type="radio" id="sortable" name="VarNameDisplaySelection" value="sortable"
+				#if ($selected == $tlang.getString("custom.sortab"))
+					checked="checked" 
+				#end
+				/> 
+				$tlang.getString("custom.sortab")
 			</label>
-			#if ($displayOptions.isEnforceNumberOfCharsPerAnnouncement())
-				#if ($displayOptions.NumberOfCharsPerAnnouncement == 50)
-					#set ($selectedChars = $tlang.getString("custom.shofir"))
-				#else 
-					#if ($displayOptions.NumberOfCharsPerAnnouncement == 100)
-						#set ($selectedChars = $tlang.getString("custom.shofirtwo"))
+		</div>
+		
+		<div class="checkbox">
+			<label for="sortableWithBody">
+				<input 	type="radio" id="sortableWithBody" name="VarNameDisplaySelection" value="sortableWithBody"
+				#if ($selected == $tlang.getString("custom.sortabbod"))
+					checked="checked" 
+				#end
+				/> 
+				$tlang.getString("custom.sortabbod")
+			</label>
+		</div>
+		
+		<div class="checkbox">
+			<label for="showList">
+				<input 	type="radio" id="showList" name="VarNameDisplaySelection" value="list"
+				#if ($selected == $tlang.getString("custom.lisvie"))
+					checked="checked" 
+				#end
+				/> 
+				$tlang.getString("custom.lisvie")
+			</label>
+		</div>
+		
+		<div class="form-inline" id="charDisplay"> 
+			<div class="form-group">
+				<label for="changeChars">
+					$tlang.getString("custom.charbody")
+				</label>
+				#if ($displayOptions.isEnforceNumberOfCharsPerAnnouncement())
+					#if ($displayOptions.NumberOfCharsPerAnnouncement == 50)
+						#set ($selectedChars = $tlang.getString("custom.shofir"))
+					#else 
+						#if ($displayOptions.NumberOfCharsPerAnnouncement == 100)
+							#set ($selectedChars = $tlang.getString("custom.shofirtwo"))
+						#else
+							#set ($selectedChars = $tlang.getString("custom.shoall"))
+						#end
+					#end
+				#else
+					#set ($selectedChars = $tlang.getString("custom.shoall"))
+				#end
+				
+				<select id="changeChars"  name="changeChars" size="1">
+				#foreach ($chars in ["$tlang.getString('custom.shofir')", "$tlang.getString('custom.shofirtwo')", "$tlang.getString('custom.shoall')"])
+					#if ($selectedChars.equals($chars))
+						<option value="$chars" selected="selected" >$chars</option>
 					#else
-						#set ($selectedChars = $tlang.getString("custom.shoall"))
+						<option value="$chars" >$chars</option>
 					#end
 				#end
-			#else
-				#set ($selectedChars = $tlang.getString("custom.shoall"))
-			#end
-			
-			<select id="changeChars"  name="changeChars" size="1">
-			#foreach ($chars in ["$tlang.getString('custom.shofir')", "$tlang.getString('custom.shofirtwo')", "$tlang.getString('custom.shoall')"])
-				#if ($selectedChars.equals($chars))
-					<option value="$chars" selected="selected" >$chars</option>
-				#else
-					<option value="$chars" >$chars</option>
-				#end
-			#end
-			</select>
-		</p>
+				</select>
+			</div>
+		</div>
 		</fieldset>
         <fieldset>
             <legend>
@@ -103,20 +110,27 @@
         			$tlang.getString("custom.rss_option.full") 
         		</h4>
             </legend>
-		<p class="shorttext indnt2">
-			<label for ="rssAlias">
-				$tlang.getString("custom.rss_alias")
-			</label>
-			<input type="text" name="rssAlias" id="rssAlias" maxlength="40" 	value="$!rssAlias" />
-		</p>
-		
-		<p class="shorttext indnt2">
-			<label>
-				$tlang.getString("custom.rss_url")
-			</label>
-			<a target="_blank" href="$!rssUrl" target="_new_">$rssUrl</a>
-		</p>
+            <br />
+            <div class="form-group">
+            	<label for="rssAlias" class="col-sm-2 control-label">
+					$tlang.getString("custom.rss_alias")
+            	</label>
+            	<div class="col-sm-10">
+					<input type="text" name="rssAlias" id="rssAlias" maxlength="40" value="$!rssAlias" />
+            	</div>
+          	</div>
+            
+            <div class="form-group">
+				<label class="col-sm-2 control-label">
+					$tlang.getString("custom.rss_url")
+				</label>
+				<div class="col-sm-10">
+					<a target="_blank" href="$!rssUrl" class="url" target="_new_">$rssUrl</a>
+				</div>
+            </div>
+
 		</fieldset>
+
 	<!-- end of announcement options -->
 
 	#else
@@ -127,8 +141,9 @@
                    $tlang.getString("custom.display")
                </h4>
                </legend>
-
+               <br />
 		<p class="checkbox indnt2">
+
 		<input 	type="checkbox"
 				name="$displayOptions.getVarNameShowAnnouncementBody()" 
 				id="${displayOptions.getVarNameShowAnnouncementBody()}Check" 
@@ -181,33 +196,45 @@
                     $tlang.getString("custom.dplimits")
                 </h4>
             </legend>
-		<p class="shorttext indnt4">
-			<label for="${displayOptions.getVarNameNumberOfDaysInPast()}EntryField">
-				$tlang.getString("custom.number") 
-			</label>
-			<input type="text" id="${displayOptions.getVarNameNumberOfDaysInPast()}EntryField" name="$displayOptions.getVarNameNumberOfDaysInPast()"   size="2"
-				#if ($displayOptions.isEnforceNumberOfDaysInThePastLimit()) 
-					value="$displayOptions.NumberOfDaysInThePast"
-				#else
-					value=""
-				#end
-			/>
-		</p>
-		<p class="shorttext indnt4">	
-			<label for="${displayOptions.getVarNameNumberOfAnnouncements()}EntryField">
-				$tlang.getString("custom.numbann") 
-			</label>
-			<input type="text" 
-				id="${displayOptions.getVarNameNumberOfAnnouncements()}EntryField"  size="2" 
-				name="$displayOptions.getVarNameNumberOfAnnouncements()" 
-				#if ($displayOptions.isEnforceNumberOfAnnouncementsLimit()) 
-					value="$displayOptions.NumberOfAnnouncements"
-				#else
-					value=""
-				#end
-			/>
-		</p>
+            <br />
+            <div class="row">
+	            <div class="form-group">
+					<label for="${displayOptions.getVarNameNumberOfDaysInPast()}EntryField" class="col-sm-2 control-label">
+						$tlang.getString("custom.number") 
+					</label>
+					<div class="col-sm-10">
+						<input type="text" id="${displayOptions.getVarNameNumberOfDaysInPast()}EntryField" name="$displayOptions.getVarNameNumberOfDaysInPast()" size="2"
+							#if ($displayOptions.isEnforceNumberOfDaysInThePastLimit()) 
+								value="$displayOptions.NumberOfDaysInThePast"
+							#else
+								value=""
+							#end
+						/>
+					</div>
+	            </div>
+            </div>
+		
+            <div class="row">
+				<div class="form-group">
+					<label class="col-sm-2 control-label" for="${displayOptions.getVarNameNumberOfAnnouncements()}EntryField">
+						$tlang.getString("custom.numbann") 
+					</label>
+					<div class="col-sm-10">
+						<input type="text" 
+							id="${displayOptions.getVarNameNumberOfAnnouncements()}EntryField"  size="2" 
+							name="$displayOptions.getVarNameNumberOfAnnouncements()" 
+							#if ($displayOptions.isEnforceNumberOfAnnouncementsLimit()) 
+								value="$displayOptions.NumberOfAnnouncements"
+							#else
+								value=""
+							#end
+						/>
+					</div>
+				</div>
+			</div>
+
         </fielset>
+
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString("gen.update")"  accesskey="s" />
 			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")"  accesskey="x" />

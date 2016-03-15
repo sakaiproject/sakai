@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.imsglobal.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -146,7 +146,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		logger.info(this +".init()");
 
 		if (ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
-			logger.warn("BasicLTI secrets in database unencrypted, please set "+ SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY);
+			logger.error("BasicLTI secrets in database unencrypted, please set "+ SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY);
 		}
 		try
 		{
@@ -299,7 +299,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					} 
 					else
 					{ 
-						retval = SakaiBLTIUtil.postReRegisterHTML(deployKey, deploy, rb, placementId);
+						retval = SakaiBLTIUtil.postReregisterHTML(deployKey, deploy, rb, placementId);
 					} 
 				} 
 				else if ( refId.startsWith("tool:") && refId.length() > 5 ) 
@@ -361,11 +361,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							}
 						}
 
-						// Adjust the content items based on the tool items
-						if ( tool != null || content != null ) 
-						{
-							ltiService.filterContent(content, tool);
-						}
+						ltiService.filterContent(content, tool);
 					}
 					String splash = null;
 					if ( tool != null ) splash = (String) tool.get("splash");

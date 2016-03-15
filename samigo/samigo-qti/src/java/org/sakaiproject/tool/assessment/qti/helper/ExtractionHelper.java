@@ -44,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 //import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -66,6 +67,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -916,6 +919,18 @@ public class ExtractionHelper
     {
       control.setItemNumbering(control.RESTART_NUMBERING_BY_PART);
     }
+    
+    //display scores
+    if ("HIDE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.HIDE_ITEM_SCORE_DURING_ASSESSMENT);
+    }
+    else if ("SHOW".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.DISPLAY_ITEM_SCORE_DURING_ASSESSMENT);
+    }
 
     //question layout
     if ("I".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
@@ -1499,6 +1514,12 @@ public class ExtractionHelper
   {
     section.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) sectionMap.get("title")));
     section.setDescription(makeFCKAttachment((String) sectionMap.get("description")));
+    
+    // Add Section MetaData
+    section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, (String) sectionMap.get("keyword"));
+    section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, (String) sectionMap.get("objective"));
+    section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, (String) sectionMap.get("rubric"));
+    section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, (String) sectionMap.get("questions-ordering"));
   }
 
   /**
@@ -2185,10 +2206,10 @@ public class ExtractionHelper
     
     StringBuilder itemTextStringbuf = new StringBuilder();
      
-    
+    // SAM-2703
     for (int i = 0; i < itemTextList.size(); i++)
     {
-      String text = XmlUtil.processFormattedText(log, (String) itemTextList.get(i));
+      String text = (String) itemTextList.get(i);
       // we are assuming non-empty text/answer/non-empty text/answer etc.
       if (text == null)
       {
@@ -2201,7 +2222,7 @@ public class ExtractionHelper
         itemTextStringbuf.append(FIB_BLANK_INDICATOR);
       }
     }
-    String itemTextString = itemTextStringbuf.toString();
+    String itemTextString = XmlUtil.processFormattedText(log,itemTextStringbuf.toString());
     
     itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
     log.debug("itemTextString="+itemTextString);
@@ -3121,7 +3142,7 @@ public class ExtractionHelper
 					text, answers);
 			itemText.setRequiredOptionsCount(required);
 			index = itemdata.indexOf("@ANSWERS@");
-//			itemText.setItemTextAttachmentSet(makeEMIItemTextAttachmentSet(itemText, itemdata.substring(0, index)));
+			itemText.setItemTextAttachmentSet(makeEMIItemTextAttachmentSet(itemText, itemdata.substring(0, index)));
 			itemTextSet.add(itemText);
 			itemdata = itemdata.substring(index + "@ANSWERS@".length()).trim();
 			index = itemdata.indexOf("[");
@@ -3143,14 +3164,13 @@ public class ExtractionHelper
 		return itemTextSet;
 	}
 
-	private Set<ItemTextAttachmentIfc> makeEMIItemTextAttachmentSet(
-			ItemText itemText,  String attachments) {
+	private Set<ItemTextAttachmentIfc> makeEMIItemTextAttachmentSet(ItemText itemText,  String attachments) {
 		attachments = attachments.trim();
 		if(attachments.length() == 0){
 			return null;
 		}
 		List<String> attachList = Arrays.asList(attachments.split("@"));
-		Set<ItemTextAttachmentIfc> attachSet = new TreeSet<ItemTextAttachmentIfc>();
+		Set<ItemTextAttachmentIfc> attachSet = new HashSet<ItemTextAttachmentIfc>();
 		for(String attach: attachList){
 			attach = attach.trim();
 			if(attach.length() == 0) continue;
@@ -3162,13 +3182,19 @@ public class ExtractionHelper
 			index = attach.indexOf("(");
 			attach = attach.substring(index);
 			index = attach.indexOf(")");
-			Long size = Long.valueOf(attach.substring(1, index));
-			attach = attach.substring(index+1);
-			String location = attach;
-			String resourceId = location.replace("%2B", "+").replace("%20", " ").replace("/access/content", "");
-			attachSet.add(new ItemTextAttachment(null, itemText, resourceId, 
-					fileName, mimeType, size, null, location, 
-					false, ItemTextAttachmentIfc.ACTIVE_STATUS, null, null, null, null));
+			if (index > 1) {
+				Long size = Long.valueOf(attach.substring(1, index));
+				attach = attach.substring(index+1);
+				String resourceId = attach.replace("%2B", "+").replace("%20", " ").replace("/access/content", "");
+				try {
+					ContentResource cr = new AssessmentService().createCopyOfContentResource(resourceId, fileName);
+
+					attachSet.add(new ItemTextAttachment(null, itemText, cr.getId(), fileName, mimeType, size, null, cr.getUrl(true),
+							false, ItemTextAttachmentIfc.ACTIVE_STATUS, itemText.getItem().getCreatedBy(), new Date(), itemText.getItem().getLastModifiedBy(), new Date()));
+				} catch (Exception e) {
+					log.warn("Unable to add EMI attachment " + resourceId + ", " + e.getMessage());
+				}
+			}
 		}
 		return attachSet;
 	}

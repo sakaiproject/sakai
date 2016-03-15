@@ -110,6 +110,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 					return true;
 				} else if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebook.gwt.rpc")) {
 					return true;
+				} else if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebookng")) {
+					return true;
 				}
 
 			}
@@ -294,6 +296,22 @@ public void removeExternalAssessment(String gradebookUId,
 		  throw new Exception("Encountered an error in update ExternalAssessmentScore.");
 	  }
   }
+  
+  public void updateExternalAssessmentComment(Long publishedAssessmentId, String studentUid, String comment,
+          GradebookExternalAssessmentService g) throws Exception {
+	  boolean testErrorHandling=false;
+	  PublishedAssessmentService pubService = new PublishedAssessmentService();
+	  String gradebookUId = pubService.getPublishedAssessmentOwner(publishedAssessmentId);
+	  if (gradebookUId == null) {
+		  return;
+	  }	
+	  g.updateExternalAssessmentComment(gradebookUId, publishedAssessmentId.toString(), studentUid, comment);
+
+	  if (testErrorHandling){
+          throw new Exception("Encountered an error in update ExternalAssessmentComment.");
+	  }
+  }
+
 
 	public Long getExternalAssessmentCategoryId(String gradebookUId,
 			String publishedAssessmentId, GradebookExternalAssessmentService g) {

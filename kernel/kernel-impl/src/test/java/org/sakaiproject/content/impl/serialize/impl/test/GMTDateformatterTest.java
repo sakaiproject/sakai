@@ -26,61 +26,31 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Test;
 import org.sakaiproject.content.impl.util.GMTDateformatter;
 
-/**
- * @author ieb
- */
-public class GMTDateformatterTest extends TestCase
+public class GMTDateformatterTest
 {
-
 	private static final Log log = LogFactory.getLog(GMTDateformatterTest.class);
 
-	/**
-	 * @param name
-	 */
-	public GMTDateformatterTest(String name)
-	{
-		super(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception
-	{
-		super.setUp();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception
-	{
-		super.tearDown();
-	}
-
+	@Test
 	public void testPad()
 	{
-		assertEquals("10", pad(10, 2));
-		assertEquals("010", pad(10, 3));
-		assertEquals("01", pad(1, 2));
-		assertEquals("001", pad(1, 3));
-		assertEquals("1", pad(1, 1));
+		Assert.assertEquals("10", pad(10, 2));
+		Assert.assertEquals("010", pad(10, 3));
+		Assert.assertEquals("01", pad(1, 2));
+		Assert.assertEquals("001", pad(1, 3));
+		Assert.assertEquals("1", pad(1, 1));
 	}
 
 	/**
 	 * Test method for
 	 * {@link org.sakaiproject.content.impl.util.GMTDateformatter#parse(java.lang.String)}.
 	 */
+	@Test
 	public final void testParse()
 	{
 		// String format = "yyyyMMddHHmmssSSS";
@@ -140,14 +110,14 @@ public class GMTDateformatterTest extends TestCase
 			GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 
 			gc.setTime(result[i]);
-			assertEquals(testPattern[i] + " year", year, gc.get(Calendar.YEAR));
-			assertEquals(testPattern[i] + " month", month, gc.get(Calendar.MONTH) + 1);
-			assertEquals(testPattern[i] + " day", day, gc.get(Calendar.DATE));
-			assertEquals(testPattern[i] + " hour", hour, gc.get(Calendar.HOUR_OF_DAY));
-			assertEquals(testPattern[i] + " minute", minute, gc.get(Calendar.MINUTE));
-			assertEquals(testPattern[i] + " second", second, gc.get(Calendar.SECOND));
-			assertEquals(testPattern[i] + " millis", millis, gc.get(Calendar.MILLISECOND));
-			assertEquals("Format Check ", testPattern[i], GMTDateformatter
+			Assert.assertEquals(testPattern[i] + " year", year, gc.get(Calendar.YEAR));
+			Assert.assertEquals(testPattern[i] + " month", month, gc.get(Calendar.MONTH) + 1);
+			Assert.assertEquals(testPattern[i] + " day", day, gc.get(Calendar.DATE));
+			Assert.assertEquals(testPattern[i] + " hour", hour, gc.get(Calendar.HOUR_OF_DAY));
+			Assert.assertEquals(testPattern[i] + " minute", minute, gc.get(Calendar.MINUTE));
+			Assert.assertEquals(testPattern[i] + " second", second, gc.get(Calendar.SECOND));
+			Assert.assertEquals(testPattern[i] + " millis", millis, gc.get(Calendar.MILLISECOND));
+			Assert.assertEquals("Format Check ", testPattern[i], GMTDateformatter
 					.format(result[i]));
 		}
 	}
@@ -174,5 +144,4 @@ public class GMTDateformatterTest extends TestCase
 		}
 		return new String(c);
 	}
-
 }

@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
@@ -53,6 +54,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
@@ -60,12 +62,16 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.ImageMapItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -169,6 +175,30 @@ public class ItemModifyListener implements ActionListener
       }
       else {
           // This item is in a question pool
+          UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+          String currentUserId = userDirectoryService.getCurrentUser().getId();
+          QuestionPoolService qpdelegate = new QuestionPoolService();
+          List<Long> poolIds = qpdelegate.getPoolIdsByItem(itemId);
+          boolean authorized = false;
+          poolloop:
+          for (Long poolId: poolIds) {
+              List agents = qpdelegate.getAgentsWithAccess(poolId);
+              for (Object agent: agents) {
+                  if (currentUserId.equals(((AgentDataIfc)agent).getIdString())) {
+                      authorized = true;
+                      break poolloop;
+                  }
+              }
+          }
+          if (!authorized) {
+              String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+              context.addMessage(null,new FacesMessage(err));
+              itemauthorbean.setOutcome("author");
+              if (log.isDebugEnabled()) {
+                  log.debug("itemID " + itemId + " in pool is being returned null from populateItemBean because it fails isUSerAllowedToEditAssessment for user " + currentUserId);
+              }
+              return false;
+          }
       }
 
       bean.setItemId(itemfacade.getItemId().toString());
@@ -187,6 +217,18 @@ public class ItemModifyListener implements ActionListener
          score = 0.0d;
        }
       bean.setItemScore(score);
+      bean.setItemScoreDisplayFlag(itemfacade.getScoreDisplayFlag() ? "true" : "false");
+ 
+      Double minPoints = itemfacade.getMinScore();
+      Double minScore;
+      if (minPoints!=null && !"".equals(minPoints))
+       {
+    	  minScore = minPoints;
+    	  bean.setItemMinScore(minScore);
+       }else{
+    	   bean.setItemMinScore(0.0d);
+       }
+      
 
       Double discount = itemfacade.getDiscount();
       if (discount == null)
@@ -232,6 +274,9 @@ public class ItemModifyListener implements ActionListener
       }
       else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.CALCULATED_QUESTION)) {
           populateItemTextForCalculatedQuestion(itemauthorbean, itemfacade, bean);          
+      }
+      else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.IMAGEMAP_QUESTION)) {
+    	  populateItemTextForImageMapQuestion(itemauthorbean, itemfacade, bean);          
       }
       else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATRIX_CHOICES_SURVEY)){
     	  populateItemTextForMatrix(itemauthorbean, itemfacade, bean);
@@ -314,6 +359,12 @@ public class ItemModifyListener implements ActionListener
                     MatchItemBean variableItem = new MatchItemBean();
                     bean.setCurrentMatchPair(variableItem);
                     nextpage = "calculatedQuestionVariableItem";
+                    break;
+                case 16: // IMAGEMAP_QUESTION
+                    itemauthorbean.setItemTypeString("Image Map Question");  //  need to get it from properties file
+                    ImageMapItemBean variableItemImag = new ImageMapItemBean();
+                    //bean.setCurrentImageMapPair(variableItemImag);
+                    nextpage = "imageMapItem";
                     break;
         }
     }
@@ -771,6 +822,69 @@ public class ItemModifyListener implements ActionListener
       bean.setCalculatedQuestion(calcQuestionBean);
   }
   
+  private void populateItemTextForImageMapQuestion(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
+
+	  Set itemtextSet = itemfacade.getItemTextSet();
+	    Iterator<ItemTextIfc> choiceIter = itemtextSet.iterator();
+	    ArrayList<ImageMapItemBean> imageMapItemBeanList = new ArrayList<ImageMapItemBean>();
+
+	    // once a match has been assigned to a choice, subsequent matches set the controlling sequences
+	    Map<String, ImageMapItemBean> alreadyMatched = new HashMap<String, ImageMapItemBean>(); 
+	    ////REVISAR La ANTERIOR
+	    // loop through all choices
+	    while (choiceIter.hasNext()){
+	       ItemTextIfc itemText = choiceIter.next();
+	       ImageMapItemBean choicebean =  new ImageMapItemBean();
+	       choicebean.setChoice(itemText.getText());
+	       choicebean.setSequence(itemText.getSequence());
+	       choicebean.setSequenceStr(itemText.getSequence().toString());
+	       Set<AnswerIfc> answerSet = itemText.getAnswerSet();
+	       Iterator<AnswerIfc> answerIter = answerSet.iterator();
+	       
+	       // loop through all matches
+	       while (answerIter.hasNext()){
+	    	 AnswerIfc answer = answerIter.next();
+	         if (answer.getIsCorrect() != null &&
+	             answer.getIsCorrect().booleanValue()){
+	           choicebean.setMatch(answer.getText());
+	           choicebean.setIsCorrect(Boolean.TRUE);
+	           
+	           // if match has been used already, set the controlling sequence
+	           if (alreadyMatched.containsKey(answer.getLabel())) {
+	        	   ImageMapItemBean matchBean = alreadyMatched.get(answer.getLabel());
+	        	   choicebean.setControllingSequence(matchBean.getSequenceStr());
+	           } else {
+	        	   alreadyMatched.put(answer.getLabel(), choicebean);
+	           }
+	           
+	           // add feedback
+	           Set<AnswerFeedbackIfc> feedbackSet = answer.getAnswerFeedbackSet();
+	           Iterator<AnswerFeedbackIfc> feedbackIter = feedbackSet.iterator();
+	           while (feedbackIter.hasNext()){
+
+	        	   AnswerFeedbackIfc feedback = feedbackIter.next();
+	             if (feedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
+	               choicebean.setCorrImageMapFeedback(feedback.getText());
+	             }
+	             else if (feedback.getTypeId().equals(AnswerFeedbackIfc.INCORRECT_FEEDBACK)) {
+	               choicebean.setIncorrImageMapFeedback(feedback.getText());
+	             }
+	           }
+	         }
+	       }
+	       
+	       // if match was not found, must be a distractor
+	       /*if (choicebean.getMatch() == null || "".equals(choicebean.getMatch())) {
+	    	   choicebean.setMatch(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
+	    	   choicebean.setIsCorrect(Boolean.TRUE);
+	    	   choicebean.setControllingSequence(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
+	       }*/
+	       imageMapItemBeanList.add(choicebean);
+	     }
+
+	     bean.setImageMapItemBeanList(imageMapItemBeanList);
+  }
+  
  private void populateItemTextForMatching(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 
     Set itemtextSet = itemfacade.getItemTextSet();
@@ -856,6 +970,12 @@ public class ItemModifyListener implements ActionListener
        if (meta.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 	 bean.setRandomized(meta.getEntry());
        }
+       if (meta.getLabel().equals(ItemMetaDataIfc.REQUIRE_ALL_OK)){
+    		 bean.setRequireAllOk(meta.getEntry());
+    	       }
+    	       if (meta.getLabel().equals(ItemMetaDataIfc.IMAGE_MAP_SRC)){
+    	    		 bean.setImageMapSrc(meta.getEntry());
+    	       }
        if (meta.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
     	   bean.setMcmsPartialCredit(meta.getEntry());
        }

@@ -4,7 +4,7 @@
   <parent>
     <artifactId>search</artifactId>
     <groupId>org.sakaiproject.search</groupId>
-    <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-search-tool</name>
@@ -97,7 +97,6 @@
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
-      <version>3.1</version>
       <type>jar</type>
     </dependency>
     <dependency>

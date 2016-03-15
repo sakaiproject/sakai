@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>11-SNAPSHOT</version>
+    <version>12-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -11,7 +11,6 @@
   <groupId>org.sakaiproject.emailtemplateservice</groupId>
   <artifactId>emailtemplateservice</artifactId>
   <packaging>pom</packaging>
-  <version>11-SNAPSHOT</version>
   <organization>
     <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>

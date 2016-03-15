@@ -38,7 +38,7 @@ import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
-import uk.ac.cam.caret.sakai.rsf.helper.HelperViewParameters;
+import org.sakaiproject.rsf.helper.HelperViewParameters;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
@@ -119,15 +119,21 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
                 UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
+		Long itemId = ((FilePickerViewParameters) viewparams).getPageItemId();
+		
 		// parameters for helper
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, "Please Choose a File");
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, messageLocator.getMessage("simplepage.filepicker_instructions"));
-		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
+		// multiple files not valid if replacing an existing item
+		if (itemId == null || itemId == -1)
+		    toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
+		else
+		    toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, new Integer(1));
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, new ArrayList());
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER, null);
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, ServerConfigurationService.getString("lessonbuilder.attachlinks", "true"));
-		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ITEMID, ((FilePickerViewParameters) viewparams).getPageItemId());
+		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ITEMID, itemId);
 		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ADDBEFORE, ((FilePickerViewParameters) viewparams).getAddBefore());
 
 		if (simplePageBean.getCurrentPage().getOwner() != null) {

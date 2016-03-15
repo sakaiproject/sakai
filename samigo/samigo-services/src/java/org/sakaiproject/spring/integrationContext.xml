@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-  "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<!-- this file holds the behavior-helper classes for the integrated version -->
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 <!-- behavior-helper factory implementation injected for the integrated version -->
 <bean name="integrationContextFactory"
-    class="org.sakaiproject.tool.assessment.integration.context.spring.IntegrationContext"
-    singleton="true">
+    class="org.sakaiproject.tool.assessment.integration.context.spring.IntegrationContext">
    <property name="integrated">
         <value>true</value>
    </property>
@@ -81,7 +78,7 @@
 
 <bean name="assessmentGradeInfoProvider"
       class="org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider"
-      singleton="true" lazy-init="false" init-method="init" destroy-method="destroy">
+      lazy-init="false" init-method="init" destroy-method="destroy">
       <property name="gradebookExternalAssessmentService"><ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/></property>
       <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
       <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>

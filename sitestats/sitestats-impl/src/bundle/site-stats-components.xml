@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- 
 	IMPORTANT:
@@ -22,7 +23,7 @@
 	<!-- StatsManager ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsManager"
 		class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
-		singleton="true" depends-on="org.sakaiproject.sitestats.api.DBHelper"
+		depends-on="org.sakaiproject.sitestats.api.DBHelper"
 		init-method="init">
 		
 		<!-- OPTIONS: -->		
@@ -69,6 +70,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="lessonBuilderService" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
@@ -93,8 +95,7 @@
 	<bean id="org.sakaiproject.sitestats.api.event.EventRegistryService"
 		class="org.sakaiproject.sitestats.impl.event.EventRegistryServiceImpl"
 		lazy-init="true"
-		init-method="init"
-		singleton="true">
+		init-method="init">
 		
 		<!-- Event Registries -->
 		<property name="fileEventRegistry" ref="org.sakaiproject.sitestats.api.event.FileEventRegistry"/>
@@ -112,7 +113,7 @@
 	</bean>	
 	<bean id="org.sakaiproject.sitestats.api.event.FileEventRegistry"
 	   class="org.sakaiproject.sitestats.impl.event.FileEventRegistry"
-	   lazy-init="true" singleton="true">
+	   lazy-init="true">
             <!-- Tool event definition file (events to be collected) -->
             <!-- Default:
                     1. File specified in property below
@@ -129,7 +130,7 @@
     </bean>
     <bean id="org.sakaiproject.sitestats.api.event.EntityBrokerEventRegistry"
         class="org.sakaiproject.sitestats.impl.event.EntityBrokerEventRegistry"
-        init-method="init" lazy-init="true" singleton="true">
+        init-method="init" lazy-init="true">
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
         <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"/>
@@ -142,7 +143,7 @@
 	<bean id="org.sakaiproject.sitestats.api.report.ReportManager"
 		class="org.sakaiproject.sitestats.impl.report.ReportManagerImpl"
         lazy-init="true"
-		singleton="true" init-method="init" destroy-method="destroy">
+		init-method="init" destroy-method="destroy">
 		
 		<!-- Sakai services -->
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
@@ -187,8 +188,7 @@
 	
 	<!-- ChartService ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.chart.ChartService"
-		class="org.sakaiproject.sitestats.impl.chart.ChartServiceImpl"
-		singleton="true">
+		class="org.sakaiproject.sitestats.impl.chart.ChartServiceImpl">
 		
 		<!-- Sakai services -->
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
@@ -202,7 +202,6 @@
 	<!-- StatsUpdateManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
 		class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
-		singleton="true"
 		init-method="init"
 		destroy-method="destroy">
 		
@@ -244,7 +243,6 @@
 	<!-- ServerWideReportManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.ServerWideReportManager"
 		class="org.sakaiproject.sitestats.impl.ServerWideReportManagerImpl"
-		singleton="true"
 		lazy-init="true"
 		init-method="init"
 		destroy-method="destroy">
@@ -261,7 +259,6 @@
 	<!-- Authz _________________________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsAuthz"
 		class="org.sakaiproject.sitestats.impl.StatsAuthzImpl"
-		singleton="true"
 		init-method="init">
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
@@ -305,7 +302,7 @@
 	</bean>
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateJobBeanWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="jobName" value="SiteStats Event Aggregator" />
 		<property name="beanId" value="org.sakaiproject.sitestats.api.StatsAggregateJob" />
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
@@ -321,7 +318,7 @@
     </bean>
     <bean id="org.sakaiproject.sitestats.api.ConvOldPrefsJobBeanWrapper"
         class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-        singleton="true" init-method="init">
+        init-method="init">
         <property name="jobName" value="SiteStats old SST_PREFS table conversion" />
         <property name="beanId" value="org.sakaiproject.sitestats.api.ConvOldPrefsJob" />
         <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
@@ -331,7 +328,7 @@
     <!-- DBHelper ______________________________________________________________________________ -->
     <bean id="org.sakaiproject.sitestats.api.DBHelper"
         class="org.sakaiproject.sitestats.impl.DBHelper"
-        singleton="true" init-method="init">
+        init-method="init">
         <property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
     </bean>
     <!-- Transaction proxy: ReportManager -->
@@ -369,9 +366,6 @@
 
 
 	<!-- Hibernate objects api-impl mapping _________________________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.CommonStatGrpByDate"
-		class="org.sakaiproject.sitestats.impl.CommonStatGrpByDateImpl">
-	</bean>	
 	<bean id="org.sakaiproject.sitestats.api.Prefs"
 		class="org.sakaiproject.sitestats.impl.PrefsImpl">
 	</bean>	

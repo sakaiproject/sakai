@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+
+	<div class="gb-title">
+		<wicket:container wicket:id="title" />
+	</div>
+
+	<div class="gb-grade-item-flags">
+		<span wicket:id="isReleasedFlag" class="gb-flag-is-released"></span>
+		<span wicket:id="notReleasedFlag" class="gb-flag-not-released"></span>
+	</div>
+	
+	<!-- dropdown -->
+	<div class="btn-group" wicket:id="menu">
+		<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:coursegrade.header.menulabel">
+			<span class="caret"></span>
+		</a>
+		<ul class="dropdown-menu dropdown-menu-right" role="menu">
+			<li><a wicket:id="setUngraded" href="#" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
+			<li><a wicket:id="showHidePoints" href="#" role="menuitem" aria-controls="gradebookGradesTable"><span wicket:id="showHidePointsLabel">Show/hide points</span></a></li>
+		</ul>
+	</div>
+
+</wicket:panel>
+</body>
+</html>

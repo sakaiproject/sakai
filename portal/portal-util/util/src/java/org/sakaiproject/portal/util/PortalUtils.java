@@ -37,6 +37,14 @@ public class PortalUtils
 	}
 
 	/**
+	 * Returns an absolute for "/library/webjars" with CDN path as necessary
+	 */
+	public static String getWebjarsPath()
+	{
+		return getLibraryPath() + "webjars/";
+	}
+
+	/**
 	 * Returns an absolute for "/library/js" servlet with CDN path as necessary
 	 */
 	public static String getScriptPath()
@@ -84,29 +92,46 @@ public class PortalUtils
              "var needJQuery = true;\n" +
              "if ( window.jQuery ) {\n" +
              "       tver = jQuery.fn.jquery;\n" +
-             "       if ( tver.indexOf('1.9.') == 0 ) {\n" +
-             "               window.console && console.log('"+where+" detected jQuery '+tver);\n" +
+             "       if ( tver.indexOf('1.11.') == 0 ) {\n" +
+             "               window.console && console.log('"+where+" PortalUtils.includeLatestJquery() detected jQuery '+tver);\n" +
              "               needJQuery = false;\n" +
              "       } else {\n" +
              "               var overrideJQuery = true;\n" +
-             "               window.console && console.log('"+where+" found jQuery '+tver);\n" +
+             "               window.console && console.log('"+where+" PortalUtils.includeLatestJquery() found jQuery '+tver);\n" +
              "       }\n" +
              "}\n" +
              "if ( needJQuery ) {\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getScriptPath() + "jquery/jquery-1.9.1.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery/1.11.3/jquery.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getScriptPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-migrate/1.2.1/jquery-migrate.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getScriptPath() + "jquery/ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "bootstrap/3.3.6/js/bootstrap.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
+             "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
+                 getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
+                 "\">'+'\\x3C/script>')\n" +
+             "} else { \n" +
+             "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);\n" +
+             "   if (typeof jQuery.migrateWarnings == 'undefined') {\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           window.console && console.log('Adding jQuery migrate');\n" +
+             "   }\n" +
+             "   if ( typeof jQuery.fn.popover == 'undefined') {\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "bootstrap/3.3.6/js/bootstrap.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           window.console && console.log('Adding Bootstrap');\n" +
+             "   }\n" +
+             "   if (typeof jQuery.ui == 'undefined') {\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           window.console && console.log('Adding jQuery UI');\n" +
+             "   }\n" +
              "}\n" +
              "</script>\n" +
              "<script type=\"text/javascript\">\n" +
              "if ( needJQuery ) {\n" +
-             "       window.console && console.log('"+where+" loaded jQuery '+$.fn.jquery);\n" +
+             "       window.console && console.log('"+where+" PortalUtils.includeLatestJquery() loaded jQuery+migrate+Bootstrap+UI '+$.fn.jquery);\n" +
              "}\n" +
 	     "$PBJQ = jQuery;\n" +
              "</script>\n";

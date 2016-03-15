@@ -1,7 +1,6 @@
 <!-- $Id$ -->
 <!-- start:  chef_assignments_student_view_submission_confirmation.vm  -->
 ## showing the submission confirmation page
-<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <div class="portletBody">
 	<h3>
                 #if ($!assignment.isGroup())
@@ -193,11 +192,11 @@
 		#end	
 		#if ($!linkInvoked)
 		<p class="act">
-			<input type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")"  class="active" />
-		</p>		
-		#else	
+			<input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="active" />
+		</p>
+		#else
 		<p class="act">
-			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('gen.backtolist')"  class="active" />
+			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('gen.backtolist')" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

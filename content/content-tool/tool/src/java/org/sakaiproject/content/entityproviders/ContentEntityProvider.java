@@ -308,7 +308,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
 		item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
 		item.setUrl(entity.getUrl());
-		item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
+		String authorId = props.getProperty(ResourceProperties.PROP_CREATOR);
+		item.setAuthorId(authorId);
+		item.setAuthor(getDisplayName(authorId));
 		item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
 		item.setContainer(entity.getContainingCollection().getReference());
 		item.setVisible( !entity.isHidden() && entity.isAvailable() );
@@ -498,6 +500,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		@Getter @Setter
 		private String author;
 
+		@Getter @Setter
+		private String authorId;
+		
 		@Getter @Setter
 		private String modifiedDate;
 

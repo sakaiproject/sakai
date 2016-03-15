@@ -364,8 +364,8 @@ public class RequestFilter implements Filter
 			//    as well so folks can log in on this node.
 			// 2) any GET URL's from contentPaths (POST's any other methods not
 			//    allowed.
+			String requestURI = req.getRequestURI();
 			if (useContentHostingDomain) {
-				String requestURI = req.getRequestURI();
 				if(req.getQueryString() != null) requestURI += "?" + req.getQueryString();
 				if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod())) {
 					if  (!req.getServerName().equals(chsDomain) && !(startsWithAny(requestURI, contentExceptions))) {
@@ -381,6 +381,10 @@ public class RequestFilter implements Filter
 						return;
 					}
 				}
+			} else if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod()) && !(startsWithAny(requestURI, contentExceptions))) {
+			    // everything except same origin
+			    resp.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+			    resp.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
 			}
 
 			// check on file uploads and character encoding BEFORE checking if
@@ -1300,8 +1304,13 @@ public class RequestFilter implements Filter
 			res.setHeader("X-UA-Compatible",m_UACompatible);
 		}
 
-		if (!isLTIProviderAllowed) {
+		if (!isLTIProviderAllowed && (!useContentHostingDomain || !req.getServerName().equals(chsDomain))) {
 			res.setHeader("X-Frame-Options", "SAMEORIGIN");
+		}
+
+		UsageSession us = (UsageSession)s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
+		if (us != null) {
+			res.setHeader("X-Sakai-Session",us.getId());
 		}
 
 		return res;

@@ -740,15 +740,15 @@ public interface LTIService {
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
-		"services:header:fields=allowoutcomes,allowroster,allowsettings,allowlori",
+		"services:header:fields=allowoutcomes,allowroster,allowsettings",
 		"allowoutcomes:checkbox:label=bl_allowoutcomes",
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
-		"allowlori:checkbox:label=bl_allowlori",
 		// Hide these from end users until they are working in the various Sakai tools
-		"pl_header:header:fields=pl_launch,pl_linkselection,pl_fileitem,pl_contenteditor,pl_assessmentselection",
+		"pl_header:header:fields=pl_launch,pl_linkselection,pl_importitem,pl_fileitem,pl_contenteditor,pl_assessmentselection",
 		"pl_launch:checkbox:label=bl_pl_launch",
 		"pl_linkselection:checkbox:label=bl_pl_linkselection",
+		"pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
 		"pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
 		"pl_contenteditor:checkbox:label=bl_pl_contenteditor:role=admin",
 		"pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
@@ -782,11 +782,10 @@ public interface LTIService {
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
-		"services:header:fields=allowoutcomes,allowroster,allowsettings,allowlori",
+		"services:header:fields=allowoutcomes,allowroster,allowsettings",
 		"allowoutcomes:checkbox:label=bl_allowoutcomes",
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
-		"allowlori:checkbox:label=bl_allowlori",
 		"allowcontentitem:checkbox:label=bl_allowcontentitem",
 		"lti2_internal:header:fields=reg_launch,reg_key,reg_secret,reg_password,consumerkey,secret,reg_profile:hide=insert",
 		"reg_launch:url:label=bl_reg_launch:maxlength=1024:role=admin",
@@ -846,7 +845,6 @@ public interface LTIService {
 	static final String LTI_ALLOWOUTCOMES = "allowoutcomes";
 	static final String LTI_ALLOWROSTER = "allowroster";
 	static final String LTI_ALLOWSETTINGS = "allowsettings";
-	static final String LTI_ALLOWLORI = "allowlori";
 	static final String LTI_ALLOWCONTENTITEM = "allowcontentitem";
 	static final String LTI_SETTINGS = "settings";
 	static final String LTI_SETTINGS_EXT = "settings_ext";
@@ -883,6 +881,7 @@ public interface LTIService {
 	static final String LTI_PL_LAUNCH = "pl_launch";
 	static final String LTI_PL_LINKSELECTION = "pl_linkselection";
 	static final String LTI_PL_FILEITEM = "pl_fileitem";
+	static final String LTI_PL_IMPORTITEM = "pl_importitem";
 	static final String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
 	static final String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
 

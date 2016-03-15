@@ -2,14 +2,22 @@ package coza.opencollab.sakai.cloudcontent;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.util.Date;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Closeables;
 import com.google.inject.Module;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.blobstore.BlobStore;
@@ -17,15 +25,15 @@ import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.options.PutOptions;
+import org.jclouds.http.HttpRequest;
 import org.jclouds.io.Payload;
 import org.jclouds.io.Payloads;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
-
 import org.jclouds.aws.s3.AWSS3ProviderMetadata;
 import org.jclouds.openstack.swift.v1.SwiftApiMetadata;
 import org.jclouds.osgi.ApiRegistry;
 import org.jclouds.osgi.ProviderRegistry;
-
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FileSystemHandler;
 import org.springframework.util.FileCopyUtils;
 
@@ -43,6 +51,12 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * The BlobStore context (connection).
      */
     private BlobStoreContext context;
+
+    /**
+     * ServerConfigurationService injected via components.xml
+     */
+    private ServerConfigurationService serverConfigurationService;
+
     /**
      * The jclouds provider name to use.
      */
@@ -84,9 +98,28 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     private static final int MAX_UPLOAD_BYTES = 1024 * 1024 * 1024;
 
     /**
+     * This is how long we want the signed URL to be valid for.
+     */
+    private static final int SIGNED_URL_VALIDITY_SECONDS = 10 * 60;
+
+    /**
+     * The largest a blob can be before we write it to temp file to avoid OOMing Tomcat
+     */
+    private static long maxBlobStreamSize = 1024 * 1024 * 100;
+    
+    /** 
+     * A preferred directory to write temporary blobs. Maybe a large, temporary partition?
+     */
+    private static String temporaryBlobDirectory;
+
+    /**
      * Default constructor.
      */
     public BlobStoreFileSystemHandler() {
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     /**
@@ -167,6 +200,27 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                 .credentials(identity, credential)
                 .modules(modules)
                 .buildView(BlobStoreContext.class);
+
+        // There are some oddities with streaming larger files to the user,
+        // so download to a temp file first. For now, call 100MB the threshold.
+        maxBlobStreamSize = (long) serverConfigurationService.getInt("cloud.content.maxblobstream.size", 1024 * 1024 * 100);
+        temporaryBlobDirectory = serverConfigurationService.getString("cloud.content.temporary.directory", null);
+        
+        if (temporaryBlobDirectory != null) {
+            File baseDir = new File(temporaryBlobDirectory);
+            if (!baseDir.exists()) {
+                try {
+                    // Can't write into the preferred temp dir
+                    if (!baseDir.mkdirs()) {
+                        temporaryBlobDirectory = null;
+                    }
+                }
+                catch (SecurityException se) {
+                    // JVM security hasn't whitelisted this dir
+                    temporaryBlobDirectory = null;
+                }
+            }
+        }
     }
     
     /**
@@ -180,43 +234,111 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * {@inheritDoc}
      */
     @Override
-    public InputStream getInputStream(String id, String root, String filePath) throws IOException {
+    public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
-        Blob blob = getBlobStore().getBlob(can.container, can.name);
-        if (blob == null){
-            throw new IOException("No object found for " + id);
+        HttpRequest hr = context.getSigner().signGetBlob(can.container, can.name, SIGNED_URL_VALIDITY_SECONDS);
+        if (hr == null) {
+            throw new IOException("No object found to creat signed url " + id);
         }
-        //we copy this to a byte array first since Sakai does some funny stuff 
-        //and with the stream and then swift and sakai don't play nice.
-        return new ByteArrayInputStream(FileCopyUtils.copyToByteArray(blob.getPayload().openStream()));
+
+        return hr.getEndpoint();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException {
-        if(stream == null){
-            return 0L;
-        }
+    public InputStream getInputStream(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
-        createContainerIfNotExist(can.container);
+        Blob blob = getBlobStore().getBlob(can.container, can.name);
+        if (blob == null){
+            throw new IOException("No object found for " + id);
+        }
 
+        StorageMetadata metadata = blob.getMetadata();
+        Long size = metadata.getSize();
 
-        InputStream in = markableInputStream(stream);
-        long size = markableStreamLength(in);
-
-        Payload payload = Payloads.newInputStreamPayload(in);
-        BlobStore store = getBlobStore();
-        Blob blob = store.blobBuilder(can.name)
-            .payload(payload)
-            .contentLength(size)
-            .userMetadata(ImmutableMap.of("id", id, "path", filePath))
-            .build();
-        store.putBlob(can.container, blob);
-
-        return size;
+        if (size != null && size.longValue() > maxBlobStreamSize) {
+            return streamFromTempFile(blob, size);
+        } else {
+            // SAK-30325: why can't we just send the stream straight back: blob.getPayload().openStream() ?
+            // Good question, but it doesn't work properly unless the stream is fully copied and re-streamed....
+            return new ByteArrayInputStream(FileCopyUtils.copyToByteArray(blob.getPayload().openStream()));
+        }
     }
+
+    // Hacky implementation of downloading Blobs to temp files...
+    // This should probably happen in a specified location and use
+    // hashing to be sure of contents before reusing.
+    private InputStream streamFromTempFile(Blob blob, Long filesize) {
+        StorageMetadata metadata = blob.getMetadata();
+        String name = metadata.getName();
+        String filename = name + "-" + filesize;
+        filename = DigestUtils.md5Hex(filename);
+        FileInputStream stream = null;
+
+        // See if the temp file already exists
+        File check;
+        if (temporaryBlobDirectory != null) {
+            check = new File(temporaryBlobDirectory, filename);
+        }
+        else {
+            check = new File(System.getProperty("java.io.tmpdir"), filename);
+        }
+
+        if (check.exists()) {
+            try {
+                stream = new FileInputStream(check);
+            } catch (FileNotFoundException e) {
+                stream = null;
+            }
+        } else {
+            try {
+                FileOutputStream fos = new FileOutputStream(check);
+                FileCopyUtils.copy(blob.getPayload().openStream(), fos);
+                stream = new FileInputStream(check);
+            } catch (IOException e) {
+                stream = null;
+            }
+        }
+
+        return stream;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+        public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException {
+            if(stream == null){
+                return 0L;
+            }
+            ContainerAndName can = getContainerAndName(id, root, filePath);
+            createContainerIfNotExist(can.container);
+
+            InputStream in = markableInputStream(stream);
+            long size = markableStreamLength(in);
+
+            Payload payload = Payloads.newInputStreamPayload(in);
+
+            try {
+                BlobStore store = getBlobStore();
+                String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
+
+                Blob blob = store.blobBuilder(can.name)
+                    .payload(payload)
+                    .contentLength(size)
+                    .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
+                    .build();
+                store.putBlob(can.container, blob);
+            } finally {
+                payload.release();
+                Closeables.close(stream, true);
+                Closeables.close(in, true);
+            }
+
+            return size;
+        }
 
     /**
      * Get a markable version of an InputStream, wrapping it if necessary.

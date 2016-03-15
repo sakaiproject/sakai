@@ -4,14 +4,13 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>11-SNAPSHOT</version>
+    <version>12-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <groupId>org.sakaiproject.mailsender</groupId>
   <artifactId>mailsender</artifactId>
   <name>Sakai Mail Sender Project</name>
-  <version>11-SNAPSHOT</version><!-- ProjectVersion -->
   <description>Mail Sender base pom.</description>
   <organization>
     <name>Sakai Project</name>
@@ -93,31 +92,6 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>mailsender-impl</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <!-- RSF -->
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>sakairsf</artifactId>
-        <version>${sakairsf.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>SakaiRSFComponents-evolvers</artifactId>
-        <version>${sakairsf.components.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>SakaiRSFComponents-templates</artifactId>
-        <version>${sakairsf.components.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.rsfutil</groupId>
-        <artifactId>RSFComponents-templates</artifactId>
-        <version>${rsfutil.version}</version>
-        <type>war</type>
       </dependency>
       <!-- TESTING -->
       <dependency>

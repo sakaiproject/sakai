@@ -57,7 +57,10 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * TODO For the functionality being checked in (site-to-site migration), this class
  * is not strictly necessary. It's here on a speculative basis for upcoming 
  * import/archive/merge development. 
+ * 
+ * @deprecated This is part of the import/export for gradebook1 which will be removed at some point
  */
+@Deprecated
 public abstract class VersionedExternalizable implements Externalizable {
 	public static String VERSION_ATTRIBUTE = "externalizableVersion";
 	

@@ -52,6 +52,7 @@ public class TemplateBean implements Serializable
   private String itemAccessType = "2";
   private String displayChunking = "1";
   private String questionNumbering = "1";
+  private String displayScoreDuringAssessments = "1";
   private Boolean markForReview = Boolean.TRUE;
   private String submissionModel = "1";
   private String submissionNumber;
@@ -374,7 +375,29 @@ public class TemplateBean implements Serializable
       return "1";
     return checker(questionNumbering, "1");
   }
+  
+  /**
+   * displayScoreDuringAssessments
+   *
+   * @param displayScoreDuringAssessments
+   */
+  public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments)
+  {
+	  displayScoreDuringAssessments = displayScoreDuringAssessments;
+  }
 
+  /**
+   * displayScoreDuringAssessments
+   *
+   * @return
+   */
+  public String getDisplayScoreDuringAssessments()
+  {
+    if ("0".equals(displayScoreDuringAssessments))
+      return "1";
+    return checker(displayScoreDuringAssessments, "1");
+  }
+  
   /**
    * numbering
    *
@@ -963,11 +986,7 @@ public class TemplateBean implements Serializable
   }
   
   public boolean getShowAssessmentTypes() {
-	  String showAssessmentTypes = ServerConfigurationService.getString("samigo.showAssessmentTypes");
-	  if ("false".equalsIgnoreCase(showAssessmentTypes)) {
-		  return Boolean.FALSE;
-	  }
-	  return Boolean.TRUE;
+	  return ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
   }
 
   public boolean isSecureDeliveryAvailable() {

@@ -27,9 +27,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -55,6 +57,7 @@ import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareS
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
@@ -134,6 +137,8 @@ public class TotalScoresBean
   private boolean acceptLateSubmission = false;
 
   private Boolean releasedToGroups = null;
+  private HashMap agentResultsByAssessmentGradingId;
+  private boolean isAnyAssessmentGradingAttachmentListModified;
   private Map userIdMap;
   
   private boolean isAutoScored = false;
@@ -1155,5 +1160,39 @@ public class TotalScoresBean
 
 	public void setHasFileUpload(boolean hasFileUpload) {		
 		this.hasFileUpload = hasFileUpload;
+	}
+	
+	public void setAttachment(Long assessmentGradingId){
+		List assessmentGradingAttachmentList = new ArrayList();
+		AgentResults agentResults = (AgentResults) agentResultsByAssessmentGradingId.get(assessmentGradingId);
+		if (agentResults != null) {
+			AttachmentUtil attachmentUtil = new AttachmentUtil();
+			Set attachmentSet = new HashSet();
+			if (agentResults.getItemGradingAttachmentList() != null) {
+				attachmentSet = new HashSet(agentResults.getItemGradingAttachmentList());
+			}
+			assessmentGradingAttachmentList = attachmentUtil.prepareAssessmentAttachment(agentResults.getAssessmentGrading(), attachmentSet);
+		
+        	agentResults.setAssessmentGradingAttachmentList(assessmentGradingAttachmentList);
+		}
+	}
+	
+	public HashMap getAgentResultsByAssessmentGradingId()
+	{
+		return agentResultsByAssessmentGradingId;
+	}
+
+	public void setAgentResultsByAssessmentGradingId(HashMap agentResultsByAssessmentGradingId)
+	{
+		this.agentResultsByAssessmentGradingId = agentResultsByAssessmentGradingId;
+	}
+
+	public boolean getIsAnyAssessmentGradingAttachmentListModified() {
+		return isAnyAssessmentGradingAttachmentListModified;
+	}
+
+	public void setIsAnyAssessmentGradingAttachmentListModified(boolean isAnyAssessmentGradingAttachmentListModified)
+	{
+		this.isAnyAssessmentGradingAttachmentListModified = isAnyAssessmentGradingAttachmentListModified;
 	}
 }

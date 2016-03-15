@@ -19,7 +19,7 @@
 
 package org.sakaiproject.portlets;
 
-import org.imsglobal.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.BasicLTIUtil;
 
 import java.lang.Integer;
 
@@ -142,7 +142,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		// fieldList.add("maximize");
 		fieldList.add("allowsettings");
 		fieldList.add("allowroster");
-		fieldList.add("allowlori");
 		fieldList.add("contentlink");
 		fieldList.add("splash");
 		fieldList.add("fa_icon");
@@ -191,13 +190,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String allowOutcomes = getSakaiProperty(sakaiProperties,"imsti.allowoutcomes");
 			String allowSettings = getSakaiProperty(sakaiProperties,"imsti.allowsettings");
 			String allowRoster = getSakaiProperty(sakaiProperties,"imsti.allowroster");
-			String allowLORI = getSakaiProperty(sakaiProperties,"imsti.allowlori");
 			String assignment = getSakaiProperty(sakaiProperties,"imsti.assignent");
 			String launch = getSakaiProperty(sakaiProperties,"imsti.launch");
 
 			if ( placementSecret == null && 
 			   ( "on".equals(allowOutcomes) || "on".equals(allowSettings) || 
-				 "on".equals(allowRoster) || "on".equals(allowLORI) ) ) {
+				 "on".equals(allowRoster) ) ) {
 				String uuid = UUID.randomUUID().toString();
 				Date date = new Date();
 				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
@@ -214,7 +212,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				String frameHeight =  getCorrectProperty(request, "frameheight", null);
 				dPrint("fh="+frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
-				String serverUrl = ServerConfigurationService.getServerUrl();
+				String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 				boolean forcePopup = false;
 				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
 					if ( launch != null && launch.startsWith("http://") ) {
@@ -255,9 +253,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
 						text.append("try { portalMaximizeTool(); } catch (err) { }\n");
 						text.append("</script>\n");
 					}
-					text.append("<iframe ");
+			                String submit_uuid = UUID.randomUUID().toString().replace("-","_");
+					text.append("<iframe id=\"LtiLaunchFrame_");
+					text.append(submit_uuid);
+					text.append("\" height=\"");
 					if ( frameHeight == null ) frameHeight = "1200";
-					text.append("height=\""+frameHeight+"\" \n");
+					text.append(frameHeight);
+					text.append("\" \n");
 					text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
 					text.append("marginheight=\"0\" scrolling=\"auto\"\n");
 					text.append("src=\""+iframeUrl+"\">\n");
@@ -266,7 +268,27 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					text.append("<a href=\""+iframeUrl+"\">");
 					text.append(rb.getString("noiframe.press.here"));
 					text.append("</a>\n");
-					text.append("</iframe>");
+					text.append("</iframe>\n");
+
+					// Add support for lti resize messages
+					text.append("<script>\n");
+					text.append("window.addEventListener('message', function(e) {\n");
+					text.append("  try {\n");
+					text.append("    var message = JSON.parse(e.data);\n");
+					text.append("    var idval = 'LtiLaunchFrame_");
+					text.append(submit_uuid);
+					text.append("';\n");
+					text.append("    if ( message.subject == 'lti.frameResize' ) {\n");
+					text.append("      var height = message.height;\n");
+					text.append("      document.getElementById(idval).height = height;\n");
+					text.append("      console.log('Reveived lti.frameResize height='+height);\n");
+					text.append("    }\n");
+					text.append("  } catch (error) {\n");
+					text.append("   console.log('lti.frameResize of '+idval+' failed height='+height);\n");
+					text.append("   console.log(e.data);\n");
+					text.append("  }\n");
+					text.append("});\n");
+					text.append("</script>\n");
 				}
 				out.println(text);
 				dPrint("==== doView complete ====");
@@ -345,17 +367,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
 		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
 
-		// For outcomes and LORI we check for tools in the site before offering the options
+		// For outcomes we check for tools in the site before offering the options
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( "true".equals(allowOutcomes) ) {
 			String outcomeProp = getCorrectProperty(request, "allowoutcomes", "on");
 			allowOutcomes = "on".equals(outcomeProp) ? "true" : "false";
-		}
-
-		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-		if ( "true".equals(allowLori) ) {
-			String loriProp = getCorrectProperty(request, "allowlori", "on");
-			allowLori = "on".equals(loriProp) ? "true" : "false";
 		}
 
 		boolean foundLessons = false;
@@ -374,11 +390,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			M_log.warn("Could not load site.");
 		}
 
-		if ( ! foundLessons ) allowLori = "false";
 		if ( ! foundGradebook ) allowOutcomes = "false";
 
 		request.setAttribute("allowOutcomes", new Boolean("true".equals(allowOutcomes)));
-		request.setAttribute("allowLori", new Boolean("true".equals(allowLori)));
 		if ( "true".equals(allowOutcomes) ) {
 			List<String> assignments = getGradeBookAssignments();
 			if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
@@ -666,8 +680,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 			String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
 			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
-			String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
 					// System.out.println("Success!");
@@ -678,7 +690,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			// System.out.println("old placementsecret="+oldPlacementSecret);
 			if ( oldPlacementSecret == null && 
 					("true".equals(allowOutcomes) || "true".equals(allowSettings) || 
-                     "true".equals(allowRoster) || "true".equals(allowLori) ) ) {
+                     "true".equals(allowRoster) ) ) {
 				try {
 					String uuid = UUID.randomUUID().toString();
 					Date date = new Date();

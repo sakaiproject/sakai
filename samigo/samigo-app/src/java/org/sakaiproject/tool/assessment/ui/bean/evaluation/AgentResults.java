@@ -34,7 +34,10 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -78,6 +81,7 @@ public class AgentResults
   private String finalScore; // final total score
   private String answer; // The abbreviated text or link of the answer
   private String fullAnswer=""; // The full text or link of the answer
+  private String answerKey; // Answer Key for Calculated Questions
   private String comments;
   private Integer status;
   private String gradedBy;
@@ -89,7 +93,9 @@ public class AgentResults
   private boolean isAutoSubmitted;
   private boolean isAttemptDateAfterDueDate;
   private ItemGradingData itemGrading;
+  private AssessmentGradingData assessmentGrading;
   private List itemGradingAttachmentList;
+  private List<AssessmentGradingAttachment> assessmentGradingAttachmentList;
   private Integer timeElapsed;
   private int submissionCount=0;
   private Double scoreSummation=new Double("0");
@@ -315,6 +321,15 @@ public class AgentResults
   public void setAnswer(String answer) {
     this.answer = answer;
   }
+  
+  public String getAnswerKey() {
+	return answerKey;
+  }
+
+  public void setAnswerKey(String answerKey) {
+	this.answerKey = answerKey;
+  }
+
   public String getComments() {
     return Validator.check(comments, "");
   }
@@ -446,7 +461,51 @@ public class AgentResults
 		  catch(Exception e){
 			  log.error("fail to redirect to attachment page: " + e.getMessage());
 		  }
-		  return "studentScores";
+		  return "sakai.filepicker.helper";
+	  }
+	
+	public AssessmentGradingData getAssessmentGrading() {
+		return this.assessmentGrading;
+	}
+	public void setAssessmentGrading(AssessmentGradingData assessmentGrading) {
+		this.assessmentGrading = assessmentGrading;
+	}
+	
+	public List<AssessmentGradingAttachment> getAssessmentGradingAttachmentList() {
+		return assessmentGradingAttachmentList;
+	}
+
+	public void setAssessmentGradingAttachmentList(List<AssessmentGradingAttachment> attachmentList)
+	{
+		this.assessmentGradingAttachmentList = attachmentList;
+	}
+
+	private boolean hasAssessmentGradingAttachment = false;
+	public boolean getHasAssessmentGradingAttachment(){
+		if (assessmentGradingAttachmentList!=null && assessmentGradingAttachmentList.size() >0)
+			this.hasAssessmentGradingAttachment = true;
+		return this.hasAssessmentGradingAttachment;
+	}
+	
+	public String addAssessmentAttachmentsRedirect() {
+		  // 1. redirect to add attachment
+		  try	{
+			  List<Reference> filePickerList = new ArrayList<>();
+			  if (assessmentGradingAttachmentList != null){
+				  AttachmentUtil attachmentUtil = new AttachmentUtil();
+				  filePickerList = attachmentUtil.prepareReferenceList(assessmentGradingAttachmentList);
+			  }
+			  ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+			  currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
+			  
+			  currentToolSession.setAttribute("assessmentGradingId", assessmentGradingId);
+			  ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			  context.redirect("sakai.filepicker.helper/tool");
+		  }
+		  catch(Exception e){
+			  log.error("fail to redirect to attachment page: " + e.getMessage());
+		  }
+		  return "sakai.filepicker.helper";
 	  }
 	
 	public Integer getTimeElapsed() {

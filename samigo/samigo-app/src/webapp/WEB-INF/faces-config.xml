@@ -213,6 +213,19 @@
  		<value>org.sakaiproject.tool.assessment.bundle.EventLogMessages</value>
  	</managed-property>
   </managed-bean>
+   <managed-bean>
+	<description>
+		Dynamic Resource Bundle Loader
+	</description>
+	<managed-bean-name>sectionActivityMessages</managed-bean-name>
+	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+	<managed-bean-scope>session</managed-bean-scope>
+	 <managed-property>
+		<description>Bundle baseName</description>
+		<property-name>baseName</property-name>
+		<value>org.sakaiproject.tool.assessment.bundle.SectionActivityMessages</value>
+	</managed-property>
+	</managed-bean>
 
   <!-- Managed Beans -->
   <!-- *** TEST *** -->
@@ -350,6 +363,11 @@
       <property-name>showCalculatedQuestion</property-name>
       <value>true</value>
     </managed-property>
+	  <!-- // IMAGEMAP_QUESTION -->
+	  <managed-property>
+	    <property-name>showImageMapQuestion</property-name>
+	    <value>true</value>
+	  </managed-property>
   </managed-bean>
   <managed-bean>
     <description>For authorization</description>
@@ -375,6 +393,12 @@
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.EventLogBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+    <managed-bean>
+		<description>User Activity Report backing bean.</description>
+		<managed-bean-name>sectionActivity</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.SectionActivityBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
   <managed-bean>
     <description>For author: Delete Confirm backing bean.</description>
     <managed-bean-name>deleteconfirm</managed-bean-name>
@@ -1109,6 +1133,10 @@
       <from-outcome>matchingItem</from-outcome>
       <to-view-id>/jsf/author/item/matching.jsp</to-view-id>
     </navigation-case>
+   <navigation-case>
+      <from-outcome>imageMapItem</from-outcome>
+      <to-view-id>/jsf/author/item/imageMapQuestion.jsp</to-view-id>
+   </navigation-case>
     <navigation-case>
       <from-outcome>emiItem</from-outcome>
       <to-view-id>/jsf/author/item/extendedMatchingItems.jsp</to-view-id>
@@ -1261,6 +1289,12 @@
       <to-view-id>/jsf/event/eventLog.jsp</to-view-id>
       <redirect/>
     </navigation-case>
+    
+     <!-- USER ACTIVITY REPORT -->
+	<navigation-case>
+		<from-outcome>sectionActivity</from-outcome>
+		<to-view-id>/jsf/section-activity/sectionActivity.jsp</to-view-id>
+	</navigation-case>
 
   <!-- EVALUATION -->
     <navigation-case>
@@ -1268,6 +1302,10 @@
       <to-view-id>/jsf/evaluation/gradeStudentResult.jsp</to-view-id>
       <redirect/>
     </navigation-case>
+     <navigation-case>
+		<from-outcome>gradeStudentResultFromSectionActivity</from-outcome>
+		<to-view-id>/jsf/evaluation/gradeStudentResultFromSectionActivity.jsp</to-view-id>
+	 </navigation-case>
     <navigation-case>
       <from-outcome>totalScores</from-outcome>
       <to-view-id>/jsf/evaluation/totalScores.jsp</to-view-id>

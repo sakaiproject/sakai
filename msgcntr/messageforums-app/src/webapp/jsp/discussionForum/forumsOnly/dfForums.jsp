@@ -29,7 +29,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 	  <sakai:tool_bar_item value="#{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}" />
 	  <sakai:tool_bar_item value="#{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" rendered="#{ForumTool.instructor}" />
 	  <sakai:tool_bar_item value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}" />
- 	  <sakai:tool_bar_item value="#{msgs.ranks}" action="#{ForumTool.processActionViewRanks}" rendered="#{ForumTool.instructor}" />
+ 	  <sakai:tool_bar_item value="#{msgs.ranks}" action="#{ForumTool.processActionViewRanks}" rendered="#{ForumTool.instructor && ForumTool.ranksEnabled}" />
 	  <sakai:tool_bar_item value="#{msgs.watch}" action="#{ForumTool.processActionWatch}" />
 
   </sakai:tool_bar>

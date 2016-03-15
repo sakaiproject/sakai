@@ -1123,20 +1123,7 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/**
-	 * Execute the "write" sql - no response, using a set of fields from an array plus one more as params and connection.
-	 * 
-	 * @param sql
-	 *        The sql statement.
-	 * @param fields
-	 *        The array of fields for parameters.
-	 * @param lastField
-	 *        The value to bind to the last parameter in the sql statement.
-	 * @param callerConnection
-	 *        The connection to use.
-	 * @param failQuiet
-	 *        If true, don't log errors from statement failure
-	 * @return true if successful, false if not due to unique constraint violation or duplicate key (i.e. the record already exists) OR we are
-	 *         instructed to fail quiet.
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteCount(String, Object[], String, Connection, boolean)
 	 */
 	protected boolean dbWrite(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
 	{
@@ -1144,22 +1131,24 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/**
-	 * Execute the "write/update" sql - no response, using a set of fields from an array plus one more as params and connection.
-	 * 
-	 * @param sql
-	 *        The sql statement.
-	 * @param fields
-	 *        The array of fields for parameters.
-	 * @param lastField
-	 *        The value to bind to the last parameter in the sql statement.
-	 * @param callerConnection
-	 *        The connection to use.
-	 * @param failQuiet
-	 *        If true, don't log errors from statement failure
-	 * @return the number of records affected or -1 if something goes wrong if not due to unique constraint 
-	 * violation or duplicate key (i.e. the record already exists) OR we are instructed to fail quiet.
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteCount(String, Object[], String, Connection, int)
 	 */
-	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
+	protected boolean dbWrite(String sql, Object[] fields, String lastField, Connection callerConnection, int failQuiet)
+	{
+ 		return ( dbWriteCount(sql, fields, lastField, callerConnection, failQuiet) >= 0 ) ;
+	}
+
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteCount(String, Object[], String, Connection, boolean)
+	 */
+	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection,boolean failQuiet) {
+		return dbWriteCount(sql,fields,lastField,callerConnection,failQuiet ? 1 : 0);
+	}
+
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteCount(String, Object[], String, Connection, int)
+	 */
+	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, int failQuiet)
 	{
 		int retval = -1;
 		// check for a transaction connection
@@ -1266,9 +1255,12 @@ public abstract class BasicSqlService implements SqlService
 			}
 
 			// if asked to fail quietly, just return -1 if we find this error.
-			if (recordAlreadyExists || failQuiet) {
-				LOG.warn("Sql.dbWrite(): recordAlreadyExists: " +  recordAlreadyExists + ", failQuiet: " + failQuiet + ", : error code: " 
+			if (recordAlreadyExists || failQuiet!=0) {
+				//If failQuiet is 1 then print this, otherwise it's in ddl mode so just ignore
+				if (failQuiet == 1) {
+					LOG.warn("Sql.dbWrite(): recordAlreadyExists: " +  recordAlreadyExists + ", failQuiet: " + failQuiet + ", : error code: " 
 					+ e.getErrorCode() + ", " + "sql: " + sql + ", binds: " + debugFields(fields) + ", error: " + e.toString());
+				}
 				return -1;
 			}
 
@@ -2058,7 +2050,7 @@ public abstract class BasicSqlService implements SqlService
 					if (firstLine)
 					{
 						firstLine = false;
-						if (!dbWriteFailQuiet(null, buf.toString(), null))
+						if (!dbWrite(buf.toString(),null,null,null,2))
 						{
 							return;
 						}

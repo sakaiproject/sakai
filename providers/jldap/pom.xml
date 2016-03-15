@@ -4,7 +4,7 @@
   <parent>
     <artifactId>providers-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>11-SNAPSHOT</version>
+    <version>12-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-jldap-provider</name>
@@ -105,7 +105,11 @@
         </configuration>
       </plugin>
     </plugins>
-    <resources />
+    <resources>
+      <resource>
+        <directory>src/resources</directory>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
         <directory>src/test-resources</directory>

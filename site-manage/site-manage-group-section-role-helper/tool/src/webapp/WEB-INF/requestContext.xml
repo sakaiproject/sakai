@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
   <bean id="siteId" factory-bean="sakai-Placement"
     factory-method="getContext" />
    
@@ -52,6 +54,7 @@
     <property name="httpServletRequest" ref="httpServletRequest" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="cms" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+    <property name="messageLocator" ref="messageLocator"/>
   </bean>
   
     <bean id="GroupDelProdcuer" 
@@ -60,6 +63,7 @@
     <property name="messageLocator" ref="messageLocator"/>
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
   </bean>
   
   <bean id="GroupImportStep1Producer"

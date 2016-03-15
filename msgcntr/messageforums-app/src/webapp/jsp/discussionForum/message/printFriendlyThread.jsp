@@ -38,10 +38,11 @@
 			<h:column>
 				<h:panelGroup styleClass="heading">
 					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" 
-					alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo}"/>
+					alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title" />		          	
-			          	<h:outputText value=" - #{message.message.author}"/>
-                        <h:outputText value="#{message.message.created}">
+			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>
+			          	<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
+                        <h:outputText value=" #{message.message.created}">
   				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
             			</h:outputText>
 				</h:panelGroup>
@@ -55,10 +56,11 @@
 			<h:column id="_msg_subject">
 						<h:panelGroup styleClass="heading">
 						<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" 
-						    alt="#{message.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo}"/>
+						    alt="#{message.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title"/>		          	
-			          	<h:outputText value=" - #{message.message.author}"/>
-                        <h:outputText value="#{message.message.created}">
+			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>
+			          	<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
+                        <h:outputText value=" #{message.message.created}">
   				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
             			</h:outputText>
 						</h:panelGroup>

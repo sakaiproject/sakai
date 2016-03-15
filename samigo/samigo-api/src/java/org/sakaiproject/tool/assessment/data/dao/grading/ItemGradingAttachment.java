@@ -50,6 +50,14 @@ public class ItemGradingAttachment extends GradingAttachmentData implements
 				createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.itemGrading = itemGrading;
 	}
+	
+	public ItemGradingAttachment(GradingAttachmentData attach, ItemGradingData itemGrading) {
+		super(attach.getAttachmentId(), attach.getResourceId(),
+				AssessmentAttachmentIfc.ITEMGRADING_ATTACHMENT, attach.getFilename(),
+				attach.getMimeType(), attach.getFileSize(), attach.getDescription(), attach.getLocation(), attach.getIsLink(), attach.getStatus(),
+				attach.getCreatedBy(), attach.getCreatedDate(), attach.getLastModifiedBy(), attach.getLastModifiedDate());
+		this.itemGrading = itemGrading;
+	}
 
 	public ItemGradingData getItemGrading() {
 		return itemGrading;

@@ -3,13 +3,12 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>11-SNAPSHOT</version>
+    <version>12-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <name>Sakai Common Project</name>
   <groupId>org.sakaiproject.common</groupId>
-  <version>11-SNAPSHOT</version><!-- ProjectVersion -->
   <artifactId>common</artifactId>
   <packaging>pom</packaging>
 
@@ -24,7 +23,7 @@
     <module>privacy-comp-impl</module>
     <module>privacy-components</module>
     <module>privacy-hbm</module>
-    <module>privacy-integration-test</module>
+    <!-- module>privacy-integration-test</module -->
     <!-- archive and import -->
     <module>archive-api</module>
     <module>archive-impl/impl2</module>

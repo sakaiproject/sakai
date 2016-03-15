@@ -182,13 +182,17 @@
 				</th>
 				<td>
 					#if ($!published)
-					#if ("anonymous" == $!access)
-						$tlang.getString("newsc.anon")
-					#else #if ("authenticated" == $!access)
-						$tlang.getString("newsc.auth")
-					#else 
-						$tlang.getString("newsc.sitepart")
-					#end #end
+					 	#if ($additionalAccess.size() > 0)
+							<ul class="attachList" style="margin:0">
+								<li>$tlang.getString("newsc.sitepart")</li>
+							#foreach($role in $additionalAccess)
+								<li>$role</li>
+							#end
+							</ul>
+						#else
+							$tlang.getString("newsc.sitepart")
+						#end
+					
 					#else
 						## unpublished site
 						$tlang.getString("newsc.siteown")
@@ -348,7 +352,7 @@
 				id="addSite" 
 				accesskey="s"
 				value="$!name"
-				onclick="showNotif('submitnotif','addSite','addSiteForm'); document.addSiteForm.option.value='finish'; document.addSiteForm.submit(); return false;"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='finish'; document.addSiteForm.submit(); return false;"
 			/>
 			<input
 				class="disableme" 
@@ -357,7 +361,7 @@
 				id="back" 
 				accesskey="b"
 				value="$tlang.getString('gen.back')"
-				onclick="document.addSiteForm.option.value='back'; document.addSiteForm.submit(); return false;"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='back'; document.addSiteForm.submit(); return false;"
 			/>
 			<input
 				class="disableme" 
@@ -366,9 +370,8 @@
 				id="cancel" 
 				accesskey="x"
 				value="$tlang.getString('gen.cancel')"
-				onclick="document.addSiteForm.option.value='cancel'; document.addSiteForm.submit(); return false;"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='cancel'; document.addSiteForm.submit(); return false;"
 			/>
-			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

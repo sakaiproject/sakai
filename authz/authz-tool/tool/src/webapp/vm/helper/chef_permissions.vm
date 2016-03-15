@@ -1,9 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/helper/chef_permissions.vm,v 1.4 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
 <link href="/sakai-authz-tool/css/authz.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script>includeLatestJQuery('chef_permissions.vm');</script>
 <script type="text/javascript" src="/sakai-authz-tool/js/authz.js"></script>
-	
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 #if($menu)
 	#toolbar($menu)
 #end
@@ -17,28 +17,26 @@
 		$validator.escapeHtml($!description)
 	</div>
 	## no need to show the drop down menu if there is no group defined for the site
-	#if ($!groups && $groups.size()>0)
 	<div class="navPanel">
+		#if ($!groups && $groups.size()>0)
 		## if there are any groups at all
 		<div class="viewNav" id="groupSelector">
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm($action)">
 				<input type="hidden" name="eventSubmit_doView_permission_option" value="view" />
-				<div class="">
+				<div class="spinnerBesideContainer">
 					<label for="groupSelection">
 					$thelp.getString("per.lis.selectgrp")
 					</label>
-					<select id="authzGroupSelection" name="authzGroupSelection" onchange="AUTHZ.disableControls();AUTHZ.showSpinner( 'viewSpinner' );document.viewForm.submit();">
+					<select id="authzGroupSelection" name="authzGroupSelection" onchange="SPNR.insertSpinnerAfter( this, null, null );document.viewForm.submit();">
 						<option value ="$siteRef" #if ($!viewRealmId.equals($!siteId)) selected = "selected" #end>$thelp.getString("per.lis.site")</option>
-
 						## for each group
 						#set($groupCount=0)
 						 #foreach ($group in $!groups)
 							#set($groupCount=$groupCount + 1)
-							<option value ="$group.Reference" #if ($!viewRealmId.equals($group.Reference)) selected = "selected" #end>$validator.escapeHtml($group.Title)</option>
-						#end
+							<option value ="$group.Reference" #if ($!viewRealmIds.contains($group.Reference)) selected = "selected" #end>$validator.escapeHtml($group.Title)</option>
+				     	#end
 						## end 	for each group
 					</select>
-					<img id="viewSpinner" class="spinner" src="/library/image/indicator.gif" />
 					#if ($groupCount==0)
 					<script type="text/javascript"> $('#groupSelector').hide()</script>
 					#end
@@ -48,8 +46,7 @@
 		#end
 		## end if there are any groups at all			
 		<div class="actionItem itemAction" style="float:left;padding-top:.5em">
-			<input type="button" value="$thelp.getString("per.lis.restoredef")" onclick="AUTHZ.disableControls();AUTHZ.showSpinner( 'undoSpinner' );window.location.reload();" />
-			<img id="undoSpinner" class="spinner" src="/library/image/indicator.gif" />
+			<input type="button" value="$thelp.getString("per.lis.restoredef")" onclick="SPNR.disableControlsAndSpin( this, null );window.location.reload();" />
 		</div>
 	</div>
 	
@@ -104,15 +101,13 @@
 					#end
 				</table>
 				<div class="act">
-						<input type="submit" class="active"  name="eventSubmit_doSave" value="$thelp.getString("gen.sav")" accesskey="s" onclick="AUTHZ.disableControls();AUTHZ.showSpinner( 'permissionsSpinner' );" />
-						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" onclick="AUTHZ.disableControls();AUTHZ.showSpinner( 'permissionsSpinner' );" />
-						<img id="permissionsSpinner" class="spinner" src="/library/image/indicator.gif" />
+						<input type="submit" class="active"  name="eventSubmit_doSave" value="$thelp.getString("gen.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</div>
 			#else
 				<div class="alertMessage">$thelp.getString("per.alert")</div>
 				<div class="act">
-					<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.don")" accesskey="x" onclick="AUTHZ.disableControls();AUTHZ.showSpinner( 'permissionsSpinner' );" />
-					<img id="permissionsSpinner" class="spinner" src="/library/image/indicator.gif" />
+					<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.don")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</div>
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

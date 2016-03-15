@@ -50,7 +50,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 
 	private boolean isCommitted = false;
 
-	private int contentLength = -1;
+	private long contentLength = -1L;
 
 	private String redirect = null;
 
@@ -126,6 +126,11 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	@Override
 	public void setContentLength(int i)
 	{
+		contentLength = (long)i;
+	}
+
+	public void setContentLengthLong(long i)
+	{
 		contentLength = i;
 	}
 
@@ -152,7 +157,8 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	{
 		// System.out.println("Forwarding request CT="+contentType+" CL="+contentLength);
 		if ( contentType != null ) super.setContentType(contentType);
-		if ( contentLength > 0 ) super.setContentLength(contentLength);
+		// need to add header. Using setContentLength fails for lengths > 32 bits
+		if ( contentLength > 0L ) super.setHeader("Content-Length", Long.toString(contentLength));
 		ServletOutputStream output = super.getOutputStream();
 		if ( redirect != null ) super.sendRedirect(redirect);
 		outStream.getContent().writeTo(output);

@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -56,6 +57,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -83,6 +85,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 	private static final String TEMPLATE_KEY_NEW_USER = "validate.newUser";
 	private static final String TEMPLATE_KEY_LEGACYUSER = "validate.legacyuser";
 	private static final String TEMPLATE_KEY_PASSWORDRESET = "validate.passwordreset";
+	private static final String TEMPLATE_KEY_USERIDUPDATE = "validate.userId.update";
 	private static final String TEMPLATE_KEY_DELETED = "validate.deleted";
 	private static final String TEMPLATE_KEY_REQUEST_ACCOUNT = "validate.requestAccount";
 	private static final String TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET = "acknowledge.passwordReset";
@@ -99,6 +102,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		loadTemplate("validate_existingUser.xml", TEMPLATE_KEY_EXISTINGUSER);
 		loadTemplate("validate_legacyUser.xml", TEMPLATE_KEY_LEGACYUSER);
 		loadTemplate("validate_newPassword.xml", TEMPLATE_KEY_PASSWORDRESET);
+		loadTemplate("validate_userIdUpdate.xml", TEMPLATE_KEY_USERIDUPDATE);
 		loadTemplate("validate_deleted.xml", TEMPLATE_KEY_DELETED);
 		loadTemplate("validate_requestAccount.xml", TEMPLATE_KEY_REQUEST_ACCOUNT);
 		loadTemplate("acknowledge_passwordReset.xml", TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET);
@@ -371,9 +375,22 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		return createValidationAccount(UserId, status);
 	}
+	
+	public ValidationAccount createValidationAccount(String userRef, String newUserId) {
+		ValidationAccount account = new ValidationAccount();
+		account.setUserId(userRef);
+		account.setValidationToken(idManager.createUuid());
+		account.setValidationsSent(1);
+		account.setAccountStatus(ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE);
+		if(StringUtils.isNotBlank(newUserId)){
+			account.setEid(newUserId);
+		}
+		sendEmailTemplate(account, newUserId);
+		account = saveValidationAccount(account);
+		return account;
+	}
 
-	
-	
+
 	public ValidationAccount createValidationAccount(String userRef,
 			Integer accountStatus) {
 		log.debug("createValidationAccount(" + userRef + ", " + accountStatus);
@@ -387,96 +404,12 @@ public class ValidationLogicImpl implements ValidationLogic {
 		v.setValidationsSent(1);
 		
 		if (accountStatus == null) {
-			accountStatus = ValidationAccount.ACCOUNT_STATUS_NEW;
+			v.setAccountStatus(ValidationAccount.ACCOUNT_STATUS_NEW);
 		} else {
 			v.setAccountStatus(accountStatus);
 		}
+		sendEmailTemplate(v, null);
 		
-		
-		//new send the validation
-		List<String> userReferences = new ArrayList<String>();
-		userReferences.add(userRef);
-		Map<String, String> replacementValues = new HashMap<String, String>();
-		replacementValues.put("validationToken", v.getValidationToken());
-		
-		//get the url
-		Map<String, String> parameters = new  HashMap<String, String>();
-		parameters.put("tokenId", v.getValidationToken());
-		
-		///we want a direct tool url
-		String serverUrl = serverConfigurationService.getServerUrl();
-		String page = getPageForAccountStatus(accountStatus);
-		String url = serverUrl + "/accountvalidator/faces/" + page + "?tokenId=" + v.getValidationToken();
-		
-		
-		replacementValues.put("url", url);
-		//add some details about the user
-		String userId = EntityReference.getIdFromRef(userRef);
-		String userFirstName = "";
-		String userLastName = "";
-		String userDisplayName = "";
-		String userEid = "";
-			
-		try {
-			User u = userDirectoryService.getUser(userId);
-			if (u.getFirstName() != null)
-				userFirstName = u.getFirstName();
-			
-			if (u.getLastName() != null)
-				userLastName = u.getLastName();
-			
-			
-			userDisplayName = u.getDisplayName();
-			
-			userEid = u.getEid();
-			//information about the user that added them
-			User added = u.getCreatedBy();
-			replacementValues.put("addedBy", added.getDisplayName());
-			replacementValues.put("addedByEmail", added.getEmail());
-			
-		} catch (UserNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-		
-		//information about the site(s) they have been added to
-		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
-		log.info("got a list of: " + groups.size());
-		Iterator<String> itg = groups.iterator();
-		StringBuilder sb = new StringBuilder();
-		int siteCount = 0;
-		while (itg.hasNext()) {
-			String groupRef = itg.next();
-			String siteId = developerHelperService.getLocationIdFromRef(groupRef);
-			try {
-				Site s = siteService.getSite(siteId);
-				if (siteCount > 0) {
-					sb.append(", ");
-				}
-				log.info("adding site: " + s.getTitle());
-				sb.append(s.getTitle());
-				siteCount++;
-			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-		replacementValues.put("memberSites", sb.toString());
-		replacementValues.put("displayName", userDisplayName);
-		replacementValues.put("userEid", userEid);
-		replacementValues.put("support.email", serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
-		replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
-		String templateKey = getTemplateKey(accountStatus);
-
-		
-		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()), serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
-		v.setValidationSent(new Date());
-		v.setStatus(ValidationAccount.STATUS_SENT);
 		
 		/*if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue()) {
 			//A password reset doesn't invalidate confirmation
@@ -484,11 +417,28 @@ public class ValidationLogicImpl implements ValidationLogic {
 		} else { 
 			v.setStatus(ValidationAccount.STATUS_SENT);
 		}*/
-		v.setFirstName(userFirstName);
-		v.setSurname(userLastName);
-		
-		dao.save(v);
+		v = saveValidationAccount(v);
 		return v;
+	}
+	//Set other details for ValidationAccount and save
+	private ValidationAccount saveValidationAccount(ValidationAccount account){
+		account.setValidationSent(new Date());
+		account.setStatus(ValidationAccount.STATUS_SENT);
+		String userId = EntityReference.getIdFromRef(account.getUserId());
+		try{
+			User u = userDirectoryService.getUser(userId);
+			if (StringUtils.isNotBlank(u.getFirstName()))
+				account.setFirstName(u.getFirstName());
+
+			if (StringUtils.isNotBlank(u.getLastName()))
+				account.setSurname(u.getLastName());
+		}
+		catch(UserNotDefinedException e){
+			log.error("No User found for the id " + e.getMessage());
+
+		}
+		dao.save(account);
+		return account;
 	}
 
 	/**
@@ -534,7 +484,9 @@ public class ValidationLogicImpl implements ValidationLogic {
 			templateKey  = TEMPLATE_KEY_LEGACYUSER;
 		} else if ( (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue())) {
 			templateKey  = TEMPLATE_KEY_PASSWORDRESET;
-		} else if ( (ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus.intValue())) {
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE == accountStatus.intValue())) {
+			templateKey = TEMPLATE_KEY_USERIDUPDATE;
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus)) {
 			templateKey = TEMPLATE_KEY_REQUEST_ACCOUNT;
 		}
 		return templateKey;
@@ -680,15 +632,16 @@ public class ValidationLogicImpl implements ValidationLogic {
 		account.setValidationsSent(account.getValidationsSent() + 1);
 		account.setStatus(ValidationAccount.STATUS_RESENT);
 		save(account);
+		sendEmailTemplate(account,null);
+	}
+	private void sendEmailTemplate(ValidationAccount account, String newUserId){
 		
 		//new send the validation
-		List<String> userReferences = new ArrayList<String>();
-		
-		
-		userReferences.add(userDirectoryService.userReference(account.getUserId()));
+		String userReference = userDirectoryService.userReference(account.getUserId());
+		List<String> userIds = new ArrayList<String>();
+		List<String> emailAddresses = new ArrayList<String>();
 		Map<String, String> replacementValues = new HashMap<String, String>();
 		replacementValues.put("validationToken", account.getValidationToken());
-		
 		//get the url
 		Map<String, String> parameters = new  HashMap<String, String>();
 		parameters.put("tokenId", account.getValidationToken());
@@ -702,6 +655,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		replacementValues.put("url", url);
 		//add some details about the user
 		String userId = EntityReference.getIdFromRef(account.getUserId());
+		userIds.add(userId);
 		String userDisplayName = "";
 		String userEid = "";
 			
@@ -716,9 +670,13 @@ public class ValidationLogicImpl implements ValidationLogic {
 			User added = u.getCreatedBy();
 			replacementValues.put("addedBy", added.getDisplayName());
 			replacementValues.put("addedByEmail", added.getEmail());
+			if(StringUtils.isNotBlank(newUserId)&& ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE==account.getAccountStatus()) {
+				replacementValues.put("newUserId",newUserId);
+				emailAddresses.add(newUserId);
+			}
 			replacementValues.put("displayName", userDisplayName);
 			replacementValues.put("userEid", userEid);
-			replacementValues.put("support.email", serverConfigurationService.getString("support.email"));
+			replacementValues.put("supportemail", serverConfigurationService.getString("support.email"));
 			replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 			
 		} catch (UserNotDefinedException e) {
@@ -755,9 +713,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 		replacementValues.put("memberSites", sb.toString());
 		
 		String templateKey = getTemplateKey(account.getAccountStatus());
-		
-		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()), serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
+		RenderedTemplate renderedTemplate = emailTemplateService.getRenderedTemplateForUser(templateKey, userReference, replacementValues);
+		emailTemplateService.sendMessage(userIds,emailAddresses, renderedTemplate, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.name"));
 	}
 
 

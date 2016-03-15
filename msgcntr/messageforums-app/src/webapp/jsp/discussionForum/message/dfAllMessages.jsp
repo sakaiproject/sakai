@@ -8,7 +8,7 @@
 
 <f:view>
 	<sakai:view title="Forums">
-<link rel="stylesheet" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
 <link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
 <link rel="stylesheet" href="/messageforums-tool/css/msgcntr_move_thread.css" type="text/css" />
 
@@ -414,11 +414,11 @@
 				   </h:outputLink>
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
-                    <h:outputText value="#{message.message.author}" rendered="#{!ForumTool.instructor}"/>
-                    <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.message.author}" rendered="#{ForumTool.instructor}">
+                    <h:outputText value="#{message.anonAwareAuthor}" rendered="#{!ForumTool.instructor || message.useAnonymousId}" styleClass="#{message.useAnonymousId ? 'anonymousAuthor' : ''}" />
+                    <h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
+                    <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.anonAwareAuthor}" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="#{message.useAnonymousId ? 'anonymousAuthor' : ''}">
                         <f:param value="#{message.authorEid}" name="siteUserId"/>
-                        <f:param value="#{message.message.author}" name="siteUser"/>
-                        <h:outputText value="#{message.message.author}" />
+                        <h:outputText value="#{message.anonAwareAuthor}" />
                     </h:commandLink>
 				</h:panelGroup>
 			</h:column>

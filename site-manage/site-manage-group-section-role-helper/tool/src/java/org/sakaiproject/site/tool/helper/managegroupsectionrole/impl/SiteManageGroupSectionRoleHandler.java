@@ -38,6 +38,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteConstants;
+import org.sakaiproject.site.util.SiteGroupHelper;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.GroupHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -55,8 +56,9 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 import au.com.bytecode.opencsv.CSVReader;
 import java.util.Arrays;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * 
@@ -72,6 +74,8 @@ public class SiteManageGroupSectionRoleHandler {
 	
 	private List<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
+
+    public MessageLocator messageLocator;
 	
     public Site site = null;
     public SiteService siteService = null;
@@ -79,6 +83,7 @@ public class SiteManageGroupSectionRoleHandler {
     public ToolManager toolManager = null;
     public SessionManager sessionManager = null;
     public ServerConfigurationService serverConfigurationService;
+    public CourseManagementService cms = null;
     private List<Group> groups = null;
     public String memberList = "";
     public boolean update = false;
@@ -103,7 +108,6 @@ public class SiteManageGroupSectionRoleHandler {
     public String groupTitleUser = "";
     
     // SAK-29373
-    public CourseManagementService cms;
     public int rosterOptionAssign = OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
     public boolean rosterGroupSplit = true;
     public String rosterNumToSplitGroup = "";
@@ -205,6 +209,7 @@ public class SiteManageGroupSectionRoleHandler {
             selectedSiteMembers = new String[]{};
             selectedRosters = new HashMap<>();
             selectedRoles = new HashMap<>();
+            memberList = new String();
 
             optionAssign=OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
             groupSplit = true;
@@ -321,7 +326,32 @@ public class SiteManageGroupSectionRoleHandler {
         }
         return providerIds;
     }
-    
+
+    /**
+     * Get the user facing label text for a given roster ID (for auto groups UI).
+     * The label will be in the format of "<rosterTitle> (<rosterID>)"
+     * @param rosterID the internal ID of the roster
+     * @return the user facing label for the given roster
+     */
+    public String getRosterLabel( String rosterID )
+    {
+        String label = rosterID;
+        try
+        {
+            Section s = cms.getSection( rosterID );
+            if( s != null )
+            {
+                label = StringUtils.defaultIfBlank(s.getTitle(), rosterID);
+            }
+        }
+        catch( IdNotFoundException ex )
+        {
+            M_log.debug( this + ".getRosterLabel: no section found for " + rosterID, ex );
+        }
+
+        return label;
+    }
+
     /**
      * Gets the roles for the current site excluding the group
      * @param group the group to be excluded from the results
@@ -352,17 +382,11 @@ public class SiteManageGroupSectionRoleHandler {
             	if (group != null)
             	{
             		String roleProviderId = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
-            		if (roleProviderId != null)
-            		{
-            			if (groupProvider != null)
-            			{
-	            			String[] groupProvidedRoles = groupProvider.unpackId(roleProviderId);
-                            for( String groupProvidedRole : groupProvidedRoles )
-                            {
-                                roles.remove( group.getRole( groupProvidedRole ) );
-                            }
-            			}
-            		}
+	            	Collection<String> groupProvidedRoles = SiteGroupHelper.unpack(roleProviderId);
+	            	for(String role: groupProvidedRoles)
+	            	{
+	            		roles.remove(group.getRole(role));
+	            	}
             	}
             }
         }
@@ -1008,7 +1032,7 @@ public class SiteManageGroupSectionRoleHandler {
                         group.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
                         group.setProviderGroupId(roster);
 
-                        String groupTitle = truncateGroupTitle(roster);
+                        String groupTitle = truncateGroupTitle( getRosterLabel( roster ) + " " + messageLocator.getMessage( "group.autocreate.section.postfix" ) );
                         group.setTitle(groupTitle);
                     }
                 }
@@ -1084,26 +1108,17 @@ public class SiteManageGroupSectionRoleHandler {
         if( StringUtils.isNotBlank( groupTitle ) && StringUtils.isNotBlank( providerID ) )
         {
             Set<String> userSet = new HashSet<>();
-            try
+            List<AuthzGroup> realms = authzGroupService.getAuthzGroups( providerID, null );
+            for( AuthzGroup realm : realms )
             {
-                Set<Membership> sectionMembers = cms.getSectionMemberships( providerID );
-                for( Membership member : sectionMembers )
+                if( providerID.equals( realm.getProviderGroupId() ) )
                 {
-                    String userEID = member.getUserId();
-                    try
+                    Set<Member> members = realm.getMembers();
+                    for( Member member : members )
                     {
-                        String userID = userDirectoryService.getUserId( userEID );
-                        userSet.add( userID );
-                    }
-                    catch( UserNotDefinedException ex )
-                    {
-                        M_log.debug( this + ".createRandomGroupsForRoster: user not defined = " + userEID, ex );
+                        userSet.add( member.getUserId() );
                     }
                 }
-            }
-            catch( IdNotFoundException ex )
-            {
-                M_log.debug( this + ".createRandomGroupsForRoster: can't find section for provider ID = " + providerID, ex );
             }
 
             createRandomGroups( rosterGroupSplit, new ArrayList<>( userSet ), groupTitle, unit );
@@ -1237,30 +1252,16 @@ public class SiteManageGroupSectionRoleHandler {
 		}
 		return oTitle.trim();
 	}
-    
-    /**
-     * Return a single string representing the provider id list
-     * @param idsList
-     */
-    private String getProviderString(List<String> idsList)
-    {
-    	String[] sArray = new String[idsList.size()];
-		sArray = (String[]) idsList.toArray(sArray);
-		if (groupProvider != null)
-		{
-			return groupProvider.packId(sArray);
-		}
-		else
-		{
-			// simply concat strings
-			StringBuilder rv = new StringBuilder();
-			for(String sArrayString:sArray)
-			{
-				rv.append(" ").append(sArrayString);
-			}
-			return rv.toString();
-		}
-    }
+
+	/**
+	 * Return a single string representing the provider id list
+	 * @param idsList
+	 */
+	private String getProviderString(List<String> idsList)
+	{
+		return SiteGroupHelper.pack(idsList);
+	}
+
     /**
      * Removes a group from the site
      * 
@@ -1348,9 +1349,9 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     /**
-     * check whether there is already a group within the site containing the role id
-     * @param roleId
-     * @return
+     * Check whether there is already a group within the site containing the role id
+     * @param roleId This role to check the site groups against. eg: access.
+     * @return <code>true</code> if this a group for this role already exists.
      */
     public boolean existRoleGroup(String roleId)
     {
@@ -1375,7 +1376,61 @@ public class SiteManageGroupSectionRoleHandler {
 		
     	return rv;
     }
-    
+
+    /**
+     * Find all users in the current site who are not a member of any of a set's
+     * given groups
+     * @param setGroups all existing groups for the set
+     * @return a list of all users who are not in any of the set's groups
+     */
+    public List<User> getUsersNotInJoinableSet( List<Group> setGroups )
+    {
+        // Build a set of all user IDs in any of the set's groups
+        Set<String> usersInSet = new HashSet<>();
+        for( Group setGroup : setGroups )
+        {
+            usersInSet.addAll( setGroup.getUsers() );
+        }
+
+        // Find users of the site with specified role(s) who are not in any of the set's groups
+        List<User> usersNotInSet = new ArrayList<>();
+        for( String userID : site.getUsers() )
+        {
+            if( !usersInSet.contains( userID ) )
+            {
+                try
+                {
+                    usersNotInSet.add( userDirectoryService.getUser( userID ) );
+                }
+                catch( UserNotDefinedException ex )
+                {
+                    M_log.debug( this + ".getUsersNotInJoinableSet: can't find user for " + userID, ex );
+                }
+            }
+        }
+
+        // Return sorted list of users not in the set
+        Collections.sort( usersNotInSet, new UserComparator() );
+        return usersNotInSet;
+    }
+
+    /**
+    * Sorts users by last name, first name, display id
+    * 
+    * @author <a href="mailto:carl.hall@et.gatech.edu">Carl Hall</a>
+    */
+    private static class UserComparator implements Comparator<User>
+    {
+        public int compare(User user1, User user2)
+        {
+            String displayName1 = user1.getLastName() + ", " + user1.getFirstName() + " ("
+                    + user1.getDisplayId() + ")";
+            String displayName2 = user2.getLastName() + ", " + user2.getFirstName() + " ("
+                    + user2.getDisplayId() + ")";
+            return displayName1.compareTo( displayName2 );
+        }
+    }
+
     /** 
      ** Comparator for sorting Group objects
      **/
@@ -1651,6 +1706,7 @@ public class SiteManageGroupSectionRoleHandler {
 			return null;
 		}
     	int joinableSetNumOfGroupsInt;
+    	joinableSetNumOfGroups = StringUtils.trimToEmpty( joinableSetNumOfGroups );
     	if(joinableSetNumOfGroups == null || "".equals(joinableSetNumOfGroups)){
     		messages.addMessage(new TargettedMessage("numGroups.empty.alert","num-groups"));
 			return null;
@@ -1670,6 +1726,7 @@ public class SiteManageGroupSectionRoleHandler {
 			}
     	}
     	int joinableSetNumOfMembersInt;
+    	joinableSetNumOfMembers = StringUtils.trimToEmpty( joinableSetNumOfMembers );
     	if(joinableSetNumOfMembers == null || "".equals(joinableSetNumOfMembers)){
     		messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-groups"));
 			return null;

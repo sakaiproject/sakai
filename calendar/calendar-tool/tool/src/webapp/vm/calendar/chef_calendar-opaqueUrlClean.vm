@@ -6,6 +6,9 @@
 	<p class="instruction">
 		$tlang.getString('ical_opaqueurl_explanation')
 	</p>
+	<p class = "instruction">
+		$icalInfoStr
+	</p>
 	#if (!$isMyWorkspace)
 		<p class="instruction">
 			<em>$tlang.getString('ical_opaqueurl_myworkspace')</em>

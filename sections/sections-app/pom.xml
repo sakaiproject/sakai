@@ -4,7 +4,7 @@
   <parent>
     <artifactId>sections-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>11-SNAPSHOT</version>
+    <version>12-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-sections-tool</name>
@@ -53,31 +53,7 @@
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-impl-standalone</artifactId>
-      <scope>provided</scope>
-<!-- FIXME: is this required here ? -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-model</artifactId>
-      <scope>provided</scope>
-<!-- FIXME: is this required here ? -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-impl</artifactId>
-      <scope>provided</scope>
-<!-- FIXME: is this required here ? -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-integrationsupport</artifactId>
-      <scope>provided</scope>
-<!-- FIXME: is this required here ? -->
 <!--properties:	war.bundle: false -->
-    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-app-util</artifactId>

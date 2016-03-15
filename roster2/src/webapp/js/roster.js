@@ -21,50 +21,6 @@
 
 (function ($) {
 
-    // jquery.i18n
-	$.i18n.properties({
-	    name:'ui', 
-	    path:'/sakai-roster2-tool/i18n/',
-	    mode: 'both',
-	    language: roster.language
-	});
-    
-	roster.i18n = $.i18n.map;
-
-    roster.i18n.months = roster.i18n.months.split(',');
-	
-    roster.ADMIN = 'admin';
-
-    roster.STATE_OVERVIEW = 'overview';
-    roster.STATE_ENROLLMENT_STATUS = 'status';
-    roster.STATE_VIEW_PROFILE = 'profile';
-    roster.STATE_PERMISSIONS = 'permissions';
-
-    roster.DEFAULT_GROUP_ID = 'all';
-    roster.DEFAULT_ENROLLMENT_STATUS = 'All';
-    roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
-
-    /* Stuff that we always expect to be setup */
-    roster.language = null;
-    roster.currentUserPermissions = null;
-    roster.site = null;
-
-    // so we can return to the previous state after viewing permissions
-    roster.rosterLastStateNotPermissions = null;
-
-    // These are default behaviours, and are global so the tool remembers
-    // the user's choices.
-    roster.hideNames = false;
-    roster.viewSingleColumn = false;
-    roster.groupToView = null;
-    roster.groupToViewText = roster.i18n.roster_sections_all;
-    roster.enrollmentSetToView = null;
-    roster.enrollmentSetToViewText = null;
-    roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
-    roster.rosterOfficialPictureMode = false;
-    roster.nextPage = 0;
-    roster.currentState = null;
-
 	/**
 	*	Check if there is no scroll rendered and there are more pages
 	*/
@@ -484,6 +440,7 @@
         
         $('#roster_form_clear_button').click(function (e) {
 
+            roster.roleToView = null;
             roster.switchState(state);
         });
     };
@@ -533,7 +490,7 @@
                 'currentUserId': roster.userId,
                 'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
                 'viewSiteVisits': roster.currentUserPermissions.viewSiteVisits,
-                'viewConnections': (undefined != window.friendStatus)
+                'viewConnections': ((undefined != window.friendStatus) && roster.viewConnections)
             };
 
         var templateName = (enrollmentsMode) ? 'enrollments' : 'members';
@@ -635,128 +592,163 @@
         return roster.site.permissions[role].indexOf(perm) != -1;
     });
 
-	
-    $.ajax({
-        url: "/direct/roster-membership/" + roster.siteId + "/get-site.json",
-        dataType: "json",
-        async: false,
-        cache: false,
-        success: function (data) {
+    roster.init = function () {
 
-            roster.site = data || {};
+	    roster.i18n = $.i18n.map;
 
-            if (null == roster.site.siteGroups
-                    || typeof roster.site.siteGroups === 'undefined') {
-                roster.site.siteGroups = [];
-            }
+        roster.i18n.months = roster.i18n.months.split(',');
+
+        roster.ADMIN = 'admin';
+
+        roster.STATE_OVERVIEW = 'overview';
+        roster.STATE_ENROLLMENT_STATUS = 'status';
+        roster.STATE_VIEW_PROFILE = 'profile';
+        roster.STATE_PERMISSIONS = 'permissions';
+
+        roster.DEFAULT_GROUP_ID = 'all';
+        roster.DEFAULT_ENROLLMENT_STATUS = 'All';
+        roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
+
+        /* Stuff that we always expect to be setup */
+        roster.language = null;
+
+        // so we can return to the previous state after viewing permissions
+        roster.rosterLastStateNotPermissions = null;
+
+        // These are default behaviours, and are global so the tool remembers
+        // the user's choices.
+        roster.hideNames = false;
+        roster.viewSingleColumn = false;
+        roster.groupToView = null;
+        roster.groupToViewText = roster.i18n.roster_sections_all;
+        roster.enrollmentSetToView = null;
+        roster.enrollmentSetToViewText = null;
+        roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
+        roster.rosterOfficialPictureMode = false;
+        roster.nextPage = 0;
+        roster.currentState = null;
+
+        roster.rosterOfficialPictureMode = roster.officialPicturesByDefault;
+
+        // We need the toolbar in a template so we can swap in the translations
+        roster.render('navbar', {}, 'roster_navbar');
+        
+        $('#navbar_overview_link > span > a').click(function (e) {
+            return roster.switchState(roster.STATE_OVERVIEW);
+        });
+
+        $('#navbar_enrollment_status_link > span > a').click(function (e) {
+            return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
+        });
+
+        $('#navbar_export_link > span > a').click(function (e) {
+
+            e.preventDefault();
             
-            if (null == roster.site.userRoles
-                    || typeof roster.site.userRoles === 'undefined') {
-                roster.site.userRoles = [];
-            }
+            var baseUrl = "/direct/roster-export/" + roster.siteId +
+                "/export-to-excel?viewType=" + roster.currentState;
             
-            if (null == roster.site.siteEnrollmentSets
-                    || typeof roster.site.siteEnrollmentSets === 'undefined') {
-                roster.site.siteEnrollmentSets = [];
-            }
-        }
-    });
-
-    roster.rosterOfficialPictureMode = roster.officialPicturesByDefault;
-
-    // Setup the current user's permissions
-    if (roster.userId === roster.ADMIN) {
-        // Admin user. Give the full set.
-        var data = ['roster.export',
-                'roster.viewallmembers',
-                'roster.viewenrollmentstatus',
-                'roster.viewgroup',
-                'roster.viewhidden',
-                'roster.viewprofile',
-                'site.upd'];
-
-        roster.currentUserPermissions = new roster.RosterPermissions(data);
-    } else {
-        roster.currentUserPermissions = new roster.RosterPermissions(
-            roster.sakai.getCurrentUserPermissions(roster.siteId));
-    }
-	
-	// We need the toolbar in a template so we can swap in the translations
-    roster.render('navbar', {}, 'roster_navbar');
-	
-	$('#navbar_overview_link > span > a').click(function (e) {
-		return roster.switchState(roster.STATE_OVERVIEW);
-	});
-
-	$('#navbar_enrollment_status_link > span > a').click(function (e) {
-		return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
-	});
-
-    $('#navbar_export_link > span > a').click(function (e) {
-
-        e.preventDefault();
-        
-        var baseUrl = "/direct/roster-export/" + roster.siteId +
-            "/export-to-excel?viewType=" + roster.currentState;
-        
-        var facetParams = "&facetName=" + roster.i18n.facet_name +
-            "&facetUserId=" + roster.i18n.facet_userId +
-            "&facetEmail=" + roster.i18n.facet_email +
-            "&facetRole=" + roster.i18n.facet_role +
-            "&facetGroups=" + roster.i18n.facet_groups +
-            "&facetStatus=" + roster.i18n.facet_status +
-            "&facetCredits=" + roster.i18n.facet_credits;
-        
-        if (roster.STATE_OVERVIEW === roster.currentState) {
-            var groupId = null;
-            if (null != roster.groupToView) {
-                groupId = roster.groupToView;
-            } else {
-                groupId = roster.DEFAULT_GROUP_ID;
-            }
-        
-            if (null != roster.roleToView) {
-                baseUrl += "&roleId=" + roster.roleToView;
-            }
-    
-            window.location.href = baseUrl + "&groupId=" + groupId + facetParams;
-        } else if (roster.STATE_ENROLLMENT_STATUS === roster.currentState) {
-        
-            var enrollmentStatus = null;
-            if (roster.enrollmentStatusToViewText == roster_enrollment_status_all) {
-                enrollmentStatus = roster.DEFAULT_ENROLLMENT_STATUS;
-            } else {
-                enrollmentStatus = roster.enrollmentStatusToViewText;
-            }
+            var facetParams = "&facetName=" + roster.i18n.facet_name +
+                "&facetUserId=" + roster.i18n.facet_userId +
+                "&facetEmail=" + roster.i18n.facet_email +
+                "&facetRole=" + roster.i18n.facet_role +
+                "&facetGroups=" + roster.i18n.facet_groups +
+                "&facetStatus=" + roster.i18n.facet_status +
+                "&facetCredits=" + roster.i18n.facet_credits;
             
-            window.location.href = baseUrl + 
-                "&enrollmentSetId=" + roster.enrollmentSetToView +
-                "&enrollmentStatus=" + enrollmentStatus +
-                facetParams;
-        }
-    });
-	
-    $('#navbar_permissions_link > span > a').click(function (e) {
-        return roster.switchState(roster.STATE_PERMISSIONS);
-    });
-        	
-    try {
-        if (window.frameElement) {
-            window.frameElement.style.minHeight = '600px';
-        }
-    } catch (err) {}
+            if (roster.STATE_OVERVIEW === roster.currentState) {
+                var groupId = null;
+                if (null != roster.groupToView) {
+                    groupId = roster.groupToView;
+                } else {
+                    groupId = roster.DEFAULT_GROUP_ID;
+                }
+            
+                if (null != roster.roleToView) {
+                    baseUrl += "&roleId=" + roster.roleToView;
+                }
+        
+                window.location.href = baseUrl + "&groupId=" + groupId + facetParams;
+            } else if (roster.STATE_ENROLLMENT_STATUS === roster.currentState) {
+            
+                var enrollmentStatus = null;
+                if (roster.enrollmentStatusToViewText == roster_enrollment_status_all) {
+                    enrollmentStatus = roster.DEFAULT_ENROLLMENT_STATUS;
+                } else {
+                    enrollmentStatus = roster.enrollmentStatusToViewText;
+                }
+                
+                window.location.href = baseUrl + 
+                    "&enrollmentSetId=" + roster.enrollmentSetToView +
+                    "&enrollmentStatus=" + enrollmentStatus +
+                    facetParams;
+            }
+        });
+        
+        $('#navbar_permissions_link > span > a').click(function (e) {
+            return roster.switchState(roster.STATE_PERMISSIONS);
+        });
+                
+        $.ajax({
+            url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
+            dataType: "json",
+            success: function (data) {
+                roster.searchIndex = data.data;
+                roster.searchIndexKeys = Object.keys(data.data);
+                // Now switch into the requested state
+                roster.switchState(roster.state, roster);
+            },
+            error: function () {
+            }
+        });
+    };
 
-    $.ajax({
-        url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
-        dataType: "json",
-        success: function (data) {
-            roster.searchIndex = data.data;
-            roster.searchIndexKeys = Object.keys(data.data);
-            // Now switch into the requested state
-            roster.switchState(roster.state, roster);
-        },
-        error: function () {
+    roster.loadSiteDataAndInit = function () {
+
+        $.ajax({
+            url: "/direct/roster-membership/" + roster.siteId + "/get-site.json",
+            dataType: "json",
+            cache: false,
+            success: function (data) {
+
+                roster.site = data || {};
+
+                if (!roster.site.siteGroups) roster.site.siteGroups = [];
+
+                if (!roster.site.userRoles) roster.site.userRoles = [];
+
+                if (!roster.site.siteEnrollmentSets) roster.site.siteEnrollmentSets = [];
+
+                // Setup the current user's permissions
+                if (roster.userId === roster.ADMIN) {
+                    // Admin user. Give the full set.
+                    var data = ['roster.export',
+                            'roster.viewallmembers',
+                            'roster.viewenrollmentstatus',
+                            'roster.viewgroup',
+                            'roster.viewhidden',
+                            'roster.viewprofile',
+                            'site.upd'];
+
+                    roster.currentUserPermissions = new roster.RosterPermissions(data);
+                    roster.init();
+                } else {
+                    roster.sakai.setCurrentUserPermissions(roster.siteId, function () { roster.init(); });
+                }
+            }
+        });
+    };
+
+    // jquery.i18n
+    $.i18n.properties({
+        name:'ui',
+        path:'/sakai-roster2-tool/i18n/',
+        mode: 'both',
+        async: true,
+        checkAvailableLanguages: true,
+        language: roster.language,
+        callback: function () {
+            roster.loadSiteDataAndInit();
         }
     });
-    
 }) (jQuery);

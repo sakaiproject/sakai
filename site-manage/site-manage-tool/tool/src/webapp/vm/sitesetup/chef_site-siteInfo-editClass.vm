@@ -25,12 +25,12 @@
 				#set ($providerCourseListNum =$providerCourseListNum + 1)	
 					<tr>
 						<td headers="class">
-							<h4><label for="pcl$providerCourseListNum">
+							<h4><label for="pcl$providerCourseListNum" title="$id">
 								$!providerCourseTitles.get($id)
 							</label></h4>
 						</td>
 						<td headers="remove" class="screenOnly">
-							<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="providerClassDeletes" value="$id" id="pcl$providerCourseListNum" />
+							<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="providerClassDeletes" value="$id" id="pcl$providerCourseListNum" onclick="checkEnableRemove();" />
 						</td>
 					</tr>
 				#end
@@ -46,7 +46,7 @@
 							</h4>
 						</td>
 						<td headers="remove" class="screenOnly">
-							<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="cmRequestedClassDeletes" value="$id.eid" id="cmrcl$cmRequestedCourseListNum" />
+							<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="cmRequestedClassDeletes" value="$id.eid" id="cmrcl$cmRequestedCourseListNum" onclick="checkEnableRemove();" />
 						</td>
 					</tr>
 				#end
@@ -62,7 +62,7 @@
 							</h4>
 						</td>
 						<td headers="remove" class="screenOnly">
-							<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="manualClassDeletes" value="$id" id="mcl$manualCourseListNum" />
+							<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="manualClassDeletes" value="$id" id="mcl$manualCourseListNum" onclick="checkEnableRemove();" />
 						</td>
 					</tr>
 				#end
@@ -71,8 +71,8 @@
 				<input type="hidden" name="continue" value="$!templateIndex" />
 				<input type="hidden" name="back" value="12" />
 				<input type="hidden" name="templateIndex" value="$!templateIndex" />
-				<input type="submit" accesskey="s"  class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitedicla.upd")" />
-				<input type="submit" accesskey="x"  name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")" />
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" id="btnRemove" disabled="disabled" value="$tlang.getString("sitedicla.remsel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="x" name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		
 	#else
@@ -80,7 +80,7 @@
 		<p class="act">
 			<input type="hidden" name="back" value="12" />
 			<input type="hidden" name="templateIndex" value="$!templateIndex" />
-			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")"/>
+			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		
 	#end

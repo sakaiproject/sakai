@@ -2,6 +2,7 @@ package org.sakaiproject.site.tool.helper.order.rsf;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -113,7 +114,7 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                           new Object[] {oldTitle});
                     }
                 } 
-                catch (IdUnusedException | PermissionException e) {
+                catch (SakaiException e) {
                   ErrorUtil.renderError(tofill, e);
                }
             }

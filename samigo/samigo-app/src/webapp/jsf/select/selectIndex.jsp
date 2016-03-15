@@ -16,7 +16,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*      http://www.osedu.org/licenses/ECL-2.0
+*      http://www.opensource.org/licenses/ECL-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -81,34 +81,25 @@ function disableLinks(clickedLink){
 }
 </script>
 
+<!-- content... -->
+<div class="portletBody container-fluid">
+  <div class="page-header">
+    <h1>
+      <h:outputText value="#{selectIndexMessages.page_heading}"/>
+    </h1>
+  </div>
 
-  <!-- content... -->
-<div class="portletBody">
   <h:form id="selectIndexForm">
-  <h3>
-    <h:outputText value="#{selectIndexMessages.page_heading}"/>
-  </h3>
   <!-- SELECT -->
- <div class="tier1">
-  <h4><h:outputText value="#{selectIndexMessages.take_assessment}" /></h4>
-  <p class="tier2">
-    <h:outputText rendered="#{select.isThereAssessmentToTake eq 'true'}" value="#{selectIndexMessages.take_assessment_notes}" />
-<h:outputText rendered="#{select.isThereAssessmentToTake eq 'false'}" value="#{selectIndexMessages.take_assessment_notAvailable}" />
-  </p>
-<%-- pager controls NOT required by mockups, not implemented
-  <span class="rightNav">
-    <samigo:pagerButtons  formId="editTotalResults" dataTableId="myData"
-      prevText="Previous" nextText="Next"
-      firstItem="#{select.takePager.firstItem}"
-      lastItem="#{select.takePager.lastItem}"
-      totalItems="#{select.takePager.totalItems}"
-      numItems="#{select.takePager.numItems}" />
-  </span>
-  <br />
-  <br />
-  <br />
---%>
+  <div class="submission-container">
+    <h2>
+      <h:outputText value="#{selectIndexMessages.take_assessment}" />
+    </h2>
 
+    <div>
+      <h:outputText rendered="#{select.isThereAssessmentToTake eq 'true'}" value="#{selectIndexMessages.take_assessment_notes}" />
+      <h:outputText rendered="#{select.isThereAssessmentToTake eq 'false'}" value="#{selectIndexMessages.take_assessment_notAvailable}" />
+    </div>
 
 <%--
 sorting actions for table:
@@ -118,9 +109,8 @@ sorting actions for table:
 --%>
   <!-- SELECT TABLE -->
   <div class="tier2">
-  <h:dataTable cellpadding="0" cellspacing="0" id="selectTable" value="#{select.takeableAssessments}"
-    var="takeable" styleClass="listHier" summary="#{selectIndexMessages.sum_availableAssessment}">
-    <h:column>
+  <h:dataTable id="selectTable" value="#{select.takeableAssessments}" var="takeable" styleClass="table table-striped" summary="#{selectIndexMessages.sum_availableAssessment}">
+    <h:column headerClass="assessmentTitleHeader">
       <f:facet name="header">
           <h:outputText  value="#{selectIndexMessages.title} " />
       </f:facet>
@@ -135,9 +125,11 @@ sorting actions for table:
       <h:outputText value="#{selectIndexMessages.assessment_updated_need_resubmit}" rendered="#{takeable.assessmentUpdatedNeedResubmit}" styleClass="validate" />	
       <h:outputText value="#{selectIndexMessages.assessment_updated}" rendered="#{takeable.assessmentUpdated}" styleClass="validate" />		
     </h:column>
-    <h:column>
+    <h:column headerClass="assessmentTimeLimitHeader">
       <f:facet name="header">
-          <h:outputText value="#{selectIndexMessages.t_time_limit} " />
+        <h:panelGroup>
+          <h:outputText value="#{selectIndexMessages.t_time_limit} " styleClass="currentSort"  />
+        </h:panelGroup>
       </f:facet>
 	
 	<h:outputText value="#{takeable.timeLimit_hour} #{selectIndexMessages.hour} #{takeable.timeLimit_minute} #{selectIndexMessages.minutes}" styleClass="currentSort"  rendered="#{takeable.timeLimit_hour != 0 && takeable.timeLimit_minute != 0}"  escape="false"/>
@@ -146,7 +138,7 @@ sorting actions for table:
 	<h:outputText value="#{selectIndexMessages.na}" styleClass="currentSort"  rendered="#{takeable.timeLimit_hour == 0 && takeable.timeLimit_minute == 0}"  escape="false"/>
 	
    </h:column>
-    <h:column>
+    <h:column headerClass="assessmentDueDateHeader">
       <f:facet name="header">
           <h:outputText value="#{selectIndexMessages.date_due} " />
       </f:facet>
@@ -158,27 +150,26 @@ sorting actions for table:
     </h:column>
   </h:dataTable>
   </div></div>
-  <!-- SUBMITTED ASSESMENTS -->
-<div class="tier1">
-
-<h4> <h:outputText value="#{selectIndexMessages.submitted_assessments}" /></h4>
-  <p class="tier2">
-   
-	<h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
-		
-	  </p>
+  
+<!-- SUBMITTED ASSESMENTS -->
+  <h2> 
+    <h:outputText value="#{selectIndexMessages.submitted_assessments}" />
+  </h2>
+  <div class="info-text">
+	  <h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
+  </div>
 	  
-	  <p class="tier2">
+<div class="panel panel-default">
+  <div class="panel-heading">
 	   	<h:commandLink
 			id="all"
 			value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.isThereAssessmentToReview eq 'true' && select.displayAllAssessments == 1}" onmouseup="disableLinks(this);submit();">
 			<f:param name="selectSubmissions" value="2" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
+    <h:outputText value="&#160; | &#160;" escape="false" />
 		<h:outputText value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 2}" />
-		
-		<h:outputText value="|"  />
-		
+    <h:outputText value="&#160; | &#160;" escape="false" />
 		<h:commandLink 
 			id="some"
 			value="#{selectIndexMessages.review_assessment_recorded}"
@@ -188,22 +179,7 @@ sorting actions for table:
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
 		<h:outputText value="#{selectIndexMessages.review_assessment_recorded}" rendered="#{select.displayAllAssessments == 1}" />
-		
-      </p>
-
-<%-- pager controls NOT required by mockups, not implemented
-  <span class="rightNav">
-    <samigo:pagerButtons  formId="editTotalResults" dataTableId="myData"
-      prevText="Previous" nextText="Next"
-      firstItem="#{select.reviewPager.firstItem}"
-      lastItem="#{select.reviewPager.lastItem}"
-      totalItems="#{select.reviewPager.totalItems}"
-      numItems="#{select.reviewPager.numItems}" />
-  </span>
-  <br />
-  <br />
-  <br />
---%>
+  </div>
 
   <!-- REVIEW TABLE -->
 <%--
@@ -216,9 +192,8 @@ sorting actions for table:
 * Sort by: Time
 * Sort by: Title
 --%>
-  <div class="tier2">
-  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="reviewTable" value="#{select.reviewableAssessments}"
-       var="reviewable" summary="#{selectIndexMessages.sum_submittedAssessment}">
+  <div class="table-responsive">
+  <h:dataTable styleClass="table table-striped" id="reviewTable" value="#{select.reviewableAssessments}" var="reviewable" summary="#{selectIndexMessages.sum_submittedAssessment}">
 
 <%-- TITLE --%>
     <h:column>
@@ -229,7 +204,7 @@ sorting actions for table:
       </f:facet>
 	
 	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false"/>
-	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 
+	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/> 
 	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" styleClass="validate" />
 	
    </h:column>
@@ -277,7 +252,7 @@ sorting actions for table:
     <h:column>
       <f:facet name="header">
         <h:panelGroup>
-          <h:outputText value="#{selectIndexMessages.feedback_date}" />
+          <h:outputText value="#{selectIndexMessages.feedback_date}" styleClass="currentSort"  />
         </h:panelGroup>
       </f:facet>
 
@@ -340,10 +315,10 @@ sorting actions for table:
 	    
   </h:dataTable>
 
-  <f:verbatim><br/></f:verbatim>
+  <br/>
   
   <h:panelGrid>
-  <h:outputText value="#{selectIndexMessages.asterisk} #{selectIndexMessages.has_been_modified}" rendered="#{select.hasAnyAssessmentBeenModified}" styleClass="validate"/> 
+  <h:outputText value="#{selectIndexMessages.asterisk} #{selectIndexMessages.has_been_modified}" rendered="#{select.hasAnyAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/> 
   <h:outputText value="#{selectIndexMessages.asterisk_2} #{selectIndexMessages.currently_being_edited}" rendered="#{select.hasAnyAssessmentRetractForEdit}" styleClass="validate"/>
   </h:panelGrid>
 

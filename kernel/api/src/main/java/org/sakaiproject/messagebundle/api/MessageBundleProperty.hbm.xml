@@ -27,8 +27,8 @@
             <column name="PROP_NAME" index="SMB_SEARCH"/>
         </property>
 
-        <property name="defaultValue" column="DEFAULT_VALUE" type="text" not-null="false" />
-        <property name="value" column="PROP_VALUE" type="text" not-null="false" />
+        <property name="defaultValue" column="DEFAULT_VALUE" type="materialized_clob" not-null="false" />
+        <property name="value" column="PROP_VALUE" type="materialized_clob" not-null="false" />
 
     </class>
 </hibernate-mapping>

@@ -6,14 +6,13 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>11-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
 	<name>Delegated Access - Base</name>
 	<groupId>org.sakaiproject.delegatedaccess</groupId>
 	<artifactId>delegatedaccess</artifactId>
-    <version>11-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 	

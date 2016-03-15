@@ -498,7 +498,7 @@ a.hideDivision {
 
 .mcAnswerText {
 	display:inline-table;
-	width: 80%;
+	/*width: 80%;*/
 	float:unset;
 }
 /* Someone put a paragraph in a multiple choice answer */
@@ -1018,17 +1018,24 @@ label.inactive
     padding: 0;
 }
 
-div.expand, div.collapse {
+div.expanded, div.collapsed {
     cursor: pointer !important;
     padding-left: 1em !important;
 }
 
-div.expand {
+div.expanded {
     background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
 }
 
-div.collapse {
+div.collapsed {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
+}
+
+ul.groupList {
+    display: block;
+    list-style-type: disc;
+    margin: 1em 0 1em 0;
+    padding-left: 40px;
 }
 
 div.multiple_editor {
@@ -1058,5 +1065,169 @@ ul.no-list {
 
 td.feedbackColumn2 {
   vertical-align: bottom;
-  padding-bottom: 15px;
+  padding-bottom: 4px;
+}
+
+#questionProgressPanel {
+	min-height: 200px;
+	max-height:auto;
+	width: 295px;
+	background: #ddd;
+	right:0px;
+	display: none;
+	position: fixed;
+	border: 2px solid #004B8D;
+	padding-bottom: 1em;
+}
+
+div#questionProgressPanel div.tier1 {
+	margin-left: 12px;
+}
+
+#questionProgressClick {
+	height: 200px;
+	width: 40px;
+	background: #004B8D;
+	right:299px;
+	margin-top: 200px;
+	position: fixed;
+	display: none;
+	font-weight: bold;
+	-moz-border-radius-topleft: 15px;
+	border-top-left-radius: 15px;
+	-moz-border-radius-bottomleft: 15px;
+	border-bottom-left-radius: 15px;
+	cursor: pointer;
+}
+.currentQuestion {
+	border: 1px solid #004B8D;
+	padding: 2px;
+	background-color:#d6ebff;
+	border-radius: 2px;
+}
+.questionProgressTable {
+
+}
+.questionProgressTable td, .questionProgressTable_linear td {
+	border: 1px solid #ddd;
+	text-align: right;
+	background-color: #ddd;
+}
+.questionProgressTable td:hover {
+	background-color: #d6ebff;
+	border-color: #d6ebff;
+	cursor: pointer;
+}
+.questionProgressTable a {
+	text-decoration: none;
+	font-size:100%;
+	padding: 4px;
+}
+.questionProgressTable a img {
+	vertical-align: middle;
+}
+img.bublecenter {
+	vertical-align: middle;
+}
+p.progressItem {
+	padding:0 0 0 0;
+	margin:0 0 0 0;
+	line-height:1.5em;
+}
+p.progressItem img {
+	vertical-align: middle;
+}
+
+.rotateQP {
+	color:white;
+	white-space:nowrap;
+	margin-top:154px;
+
+	/* Safari */
+	-webkit-transform: rotate(-90deg);
+
+	/* Firefox */
+	-moz-transform: rotate(-90deg);
+
+	/* IE */
+	-ms-transform: rotate(-90deg);
+
+	/* Opera */
+	-o-transform: rotate(-90deg);
+
+	/* Internet Explorer */
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+
+}
+
+button.partLink {
+	margin: 0 !important;
+	border: none !important;
+	padding: 0 !important;
+	color: #069;
+	cursor: pointer;
+	background-color: transparent;
+	display: inline;
+	outline: none;
+	outline-offset: 0;
+
+	/* Below added to handle long part titles */
+	line-height: 1;
+	overflow: hidden;
+	text-align: left;
+	width: 160px;
+}
+
+button.partLink:hover {
+	color: #30a7fc;
+}
+
+button.partLink::-moz-focus-inner {
+	border: none;
+	padding: 0;
+}
+
+div[id^='partTable'] {
+	display: none;
+	padding-bottom: 5px;
+}
+
+.numberOfQuestionsInPart {
+	position: absolute;
+	right: 5px;
+}
+.partTitle {
+	border-bottom: solid grey 1px;
+	display: inline-block;
+	width: 295px;
+	margin-bottom: 3px;
+	padding-bottom: 5px;
+	line-height: 1;
+}
+
+input[type='reset'].linearButton {
+	background: none transparent;
+	margin: 2px !important;
+	border: none !important;
+	padding: 0 !important;
+	outline: none;
+	outline-offset: 0;
+	box-shadow: none !important;
+	height: 100% !important;
+}
+
+.linearPastQuestion {
+	opacity: 0.4;
+	filter: alpha(opacity=40); /* msie */
+	background-color: inherit;
+}
+
+.arrow {
+	vertical-align: middle;
+	position: absolute;
+	right: 280px;
+}
+
+.hiddenArrow {
+	display: none;
 }

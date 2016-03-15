@@ -23,115 +23,90 @@ package org.sakaiproject.test.section.integration;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.component.section.support.IntegrationSupport;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-public class IntegrationSupportTest extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations = { 
+		"classpath:org/sakaiproject/component/section/spring-beans.xml",
+		"classpath:org/sakaiproject/component/section/spring-db.xml",
+		"classpath:org/sakaiproject/component/section/support/spring-hib-test.xml",
+		"classpath:org/sakaiproject/component/section/support/spring-services-test.xml",
+		"classpath:org/sakaiproject/component/section/support/spring-integrationSupport.xml"
+	})
+public class IntegrationSupportTest extends AbstractJUnit4SpringContextTests {
 	private static final Log log = LogFactory.getLog(IntegrationSupportTest.class);
-	
-    protected String[] getConfigLocations() {
-        String[] configLocations = {
-        							"org/sakaiproject/component/section/spring-beans.xml",
-        							"org/sakaiproject/component/section/spring-db.xml",
-        							"org/sakaiproject/component/section/support/spring-hib-test.xml",
-        							"org/sakaiproject/component/section/support/spring-services-test.xml",
-        							"org/sakaiproject/component/section/support/spring-integrationSupport.xml"
-        							};
-        return configLocations;
-    }
+	private static String SITE_1 = "site_1";
+	private static String USER_1 = "integration_user_1";
+	private static String USER_2 = "integration_user_2";
 
+	@Autowired
     private IntegrationSupport integrationSupport;
+	
+	@Test
+    public void testIntegrationSupport() throws Exception {
+	
+		User user1 = integrationSupport.createUser(USER_1, "User One", "One, User", "user1");
+		Assert.assertNotNull(user1);
+		User user2 = integrationSupport.createUser(USER_2, "User Two", "Two, User", "user2");
+		Assert.assertNotNull(user2);
 
-    protected void onSetUpInTransaction() throws Exception {
-        integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
-    }
+		Course course1 = integrationSupport.createCourse(SITE_1, "Site 1", false, false, false);
+		Assert.assertNotNull(course1);
 
-    public void testUserIntegration() throws Exception {
-    	User user1 = integrationSupport.createUser("integrationUserId1", "Integration 1 User",
-    			"User, Integration 1", "intUser1");
-    	Assert.assertTrue(user1 != null);
-    	User foundUser = integrationSupport.findUser("integrationUserId1");
-    	Assert.assertEquals(user1, foundUser);
-    }
+		CourseSection section1 = integrationSupport.createSection(course1.getUuid(), "Lecture 1",
+				"category.lecture", Integer.valueOf(100), "noplace special", null, null, false,
+				false, false, false, false, false, false);
+		
+		ParticipationRecord membershipUser1 = integrationSupport.addSiteMembership(USER_1, SITE_1, Role.INSTRUCTOR);
+		Assert.assertNotNull(membershipUser1);
+		
+		ParticipationRecord membershipUser2 = integrationSupport.addSiteMembership(USER_2, SITE_1, Role.STUDENT);
+		Assert.assertNotNull(membershipUser2);
 
-    public void testSiteMembership() throws Exception {
-    	String SITE_CONTEXT_1 = "site_context_1";
-    	String INSTRUCTOR_UUID_1 = "integration_instructor1";
+    	ParticipationRecord sectionMembership1 = integrationSupport.addSectionMembership(USER_2, section1.getUuid(), Role.STUDENT);
+		
+		// user
+    	User foundUser1 = integrationSupport.findUser(USER_1);
+    	Assert.assertEquals(user1, foundUser1);
+
+    	User foundUser2 = integrationSupport.findUser(USER_2);
+    	Assert.assertEquals(user2, foundUser2);
     	
-    	log.info("Creating course...");
-    	integrationSupport.createCourse(SITE_CONTEXT_1, "Site 1",
-    			false, false, false);
-
-    	log.info("Creating user...");
-    	integrationSupport.createUser(INSTRUCTOR_UUID_1, "Instructor One",
-    			"One, Instructor", "inst1");
-
-    	log.info("Creating instructor membership...");
-    	ParticipationRecord instMembership1 = integrationSupport.addSiteMembership(
-    			INSTRUCTOR_UUID_1, SITE_CONTEXT_1, Role.INSTRUCTOR);
+    	// membership
+    	List siteMembershipUser1 = integrationSupport.getAllSiteMemberships(USER_1);
+    	Assert.assertTrue(siteMembershipUser1.contains(membershipUser1));
     	
-    	// Ensure that we can find the set of sites for this user
-    	List siteMemberships = integrationSupport.getAllSiteMemberships(INSTRUCTOR_UUID_1);
+    	List siteMembershipUser2 = integrationSupport.getAllSiteMemberships(USER_2);
+    	Assert.assertTrue(siteMembershipUser2.contains(membershipUser2));
     	
-    	Assert.assertEquals(siteMemberships.size(), 1);
-    	Assert.assertTrue(siteMemberships.contains(instMembership1));
-    	
-    	// Ensure that we can find the correct set of sites for this user after removing them from a site
-    	log.info("Removing instructor membership...");
-    	integrationSupport.removeSiteMembership(INSTRUCTOR_UUID_1, SITE_CONTEXT_1);
-    	siteMemberships = integrationSupport.getAllSiteMemberships(INSTRUCTOR_UUID_1);
-    	
-    	Assert.assertEquals(siteMemberships.size(), 0);
-    	
-    }
-
-    public void testSectionMembership() throws Exception {
-    	String SITE_CONTEXT_1 = "site_context_1";
-    	log.info("Creating course...");
-    	Course course = integrationSupport.createCourse(SITE_CONTEXT_1, "Site 1",
-    			false, false, false);
-
-    	log.info("Creating user...");
-    	User user1 = integrationSupport.createUser("integrationUserId1", "Integration 1 User",
-    			"User, Integration 1", "intUser1");
-
-    	log.info("Creating section...");
-
-    	CourseSection section1 = integrationSupport.createSection(course.getUuid(), "Lecture 1",
-			"category.lecture", Integer.valueOf(100), "noplace special", null, null, false,
-			false, false, false, false, false, false);
-    	
-    	log.info("Adding site membership");
-    	ParticipationRecord siteMembership = integrationSupport.addSiteMembership(
-    			user1.getUserUid(), SITE_CONTEXT_1, Role.STUDENT);
-
-    	log.info("Adding section membership");
-    	ParticipationRecord sectionMembership = integrationSupport.addSectionMembership(
-    			user1.getUserUid(), section1.getUuid(), Role.STUDENT);
-    	
-    	// Ensure that we can find the set of sections for this user
-    	Set foundSectionMemberhsips = integrationSupport.getAllSectionMemberships(user1.getUserUid(), SITE_CONTEXT_1);
-    	Assert.assertEquals(foundSectionMemberhsips.size(), 1);
-    	Assert.assertTrue(foundSectionMemberhsips.contains(sectionMembership));
+    	Set sectionMembershipUser2 = integrationSupport.getAllSectionMemberships(USER_2, SITE_1);
+    	Assert.assertTrue(sectionMembershipUser2.contains(sectionMembership1));
     	
     	// Remove the user from the section, and ensure that the query no longer returns the enrollment
-    	log.info("Remove section membership");
-    	integrationSupport.removeSectionMembership(user1.getUserUid(), section1.getUuid());
-    	foundSectionMemberhsips = integrationSupport.getAllSectionMemberships(user1.getUserUid(), SITE_CONTEXT_1);
-    	Assert.assertEquals(foundSectionMemberhsips.size(), 0);
+    	integrationSupport.removeSectionMembership(USER_2, section1.getUuid());
+    	sectionMembershipUser2 = integrationSupport.getAllSectionMemberships(USER_2, SITE_1);
+    	Assert.assertEquals(sectionMembershipUser2.size(), 0);
     	
-    	// Ensure that we know which site the user belongs to
-    	List siteMemberships = integrationSupport.getAllSiteMemberships(user1.getUserUid());
-    	Assert.assertTrue(siteMemberships.contains(siteMembership));
+    	integrationSupport.removeSiteMembership(USER_2, SITE_1);
+    	siteMembershipUser2 = integrationSupport.getAllSiteMemberships(USER_2);
+    	Assert.assertEquals(siteMembershipUser2.size(), 0);
     }
-
 }

@@ -21,14 +21,13 @@
   		}
 	%>
 
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+<script>includeLatestJQuery('main.jsp');</script>
 <script type="text/javascript" src="js/jqueryui-editable.js"></script>
-<script type="text/javascript" src="/library/js/moment/2.4.0/moment.min.js"></script>
+<script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
 <sakai:stylesheet path="/syllabus/css/jqueryui-editable.css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-<link rel="stylesheet" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
 <sakai:stylesheet path="/syllabus/css/syllabus.css" />
 
 <script type="text/javascript">
@@ -66,7 +65,9 @@
 				deleteItemTitle: $("#messages #deleteItemTitle").html(),
 				deleteAttachmentTitle: $("#messages #deleteAttachmentTitle").html(),
 				bar_new: $("#messages #bar_new").html(),
-				addItemTitle: $("#messages #addItemTitle").html()
+				bar_publish: $("#messages #bar_publish").html(),
+				addItemTitle: $("#messages #addItemTitle").html(),
+				draftTitlePrefix: $("#messages #draftTitlePrefix").html()
 			};
 		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs, 
 							'<h:outputText value="#{SyllabusTool.openDataId}"/>');
@@ -249,6 +250,7 @@
 								<f:verbatim>class="draft"</f:verbatim>
 							</f:subview>
 							<f:verbatim>></f:verbatim>
+							<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
 							<h:outputText styleClass="editItem editItemTitle" value="#{eachEntry.entry.title}" />
 							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
 								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
@@ -380,7 +382,9 @@
 				<span id="deleteItemTitle"></f:verbatim><h:outputText value="#{msgs.deleteItemTitle}"/><f:verbatim></span>
 				<span id="deleteAttachmentTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
 				<span id="bar_new"></f:verbatim><h:outputText value="#{msgs.bar_new}"/><f:verbatim></span>
+				<span id="bar_publish"></f:verbatim><h:outputText value="#{msgs.bar_publish}" /><f:verbatim></span>
 				<span id="addItemTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
+				<span id="draftTitlePrefix"></f:verbatim><h:outputText value="#{msgs.draftTitlePrefix}"/><f:verbatim></span>
 			</span>
 		</f:verbatim>
 	</sakai:view_content>

@@ -241,13 +241,49 @@ function clickOnEnter(event, element)
 	return true;
 }
 
+// SAK-30431 Adapted from Lumen Learning / Bracken Mosbacker
+function lti_frameResize(new_height) {
+    parent.postMessage(JSON.stringify({
+      subject: "lti.frameResize",
+      height: new_height
+    }), "*");
+}
+
+function lti_hideLMSNavigation() {
+    parent.postMessage(JSON.stringify({
+      subject: "lti.hideModuleNavigation",
+      show: false
+    }), "*");
+}
+
+function lti_showLMSNavigation() {
+    parent.postMessage(JSON.stringify({
+      subject: "lti.showModuleNavigation",
+      show: true
+    }), "*");
+}
+
+// tell the parent iframe to scroll to top
+function lti_scrollParentToTop() {
+    parent.postMessage(JSON.stringify({
+      subject: "lti.scrollToTop"
+    }), "*");
+}
+
+// De-bounce the resize activity
+var MainFrameHeightTimeOut = false;
+
 // set the parent iframe's height to hold our entire contents
 // pass -1 for no max
 function setMainFrameHeightWithMax(id, maxHeight)
 {
 	if ( ! inIframe() ) return;
 	// some browsers need a moment to finish rendering so the height and scroll are correct
-	setTimeout("setMainFrameHeightNow('"+id+"',"+maxHeight+")", 1);
+	if ( MainFrameHeightTimeOut ) {
+		clearTimeout(MainFrameHeightTimeOut);
+		MainFrameHeightTimeOut = false;
+	}
+	MainFrameHeightTimeOut = setTimeout("setMainFrameHeightNow('"+id+"',"+maxHeight+")", 1000);
 }
 
 function setMainFrameHeight(id)
@@ -260,9 +296,26 @@ function setMainFrameHeightNow(id, maxHeight)
 {
 	// If we have been inlined, do nothing
 	if ( ! inIframe() ) return;
-	// run the script only if this window's name matches the id parameter
-	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
-	if (typeof window.name !== "undefined" && id !== window.name) return;
+
+	// if this window's name matches the id parameter, we on same origin
+	// If they do not match we are in cross origin and so we need to use
+	// postMessage() to inform our parent frame
+	if (typeof window.name !== "undefined" && id !== window.name) {
+		var height = getDocumentHeight();
+		try {
+			parent.postMessage(JSON.stringify({
+				subject: "lti.frameResize",
+				height: height,
+				windowid: id
+			}), "*");
+			console.log("lti.frameResize postMessage sent height="+height);
+		}
+		catch (error)
+		{
+			console.log("lti.frameResize postMessage failed height="+height);
+		}
+		return;
+	}
 
 	//SAK-21209 check we can access the document, 
 	//ie this could be a Basic LTI request and therefore we are not allowed
@@ -342,6 +395,17 @@ function getFrameHeight (frame)
    var doc_height = document.height ? document.height : 0; // Safari uses document.height
 
 if (document.documentElement && document.documentElement.scrollHeight) /* Strict mode */
+      return Math.max (document.documentElement.scrollHeight, doc_height);
+   else /* quirks mode */
+      return Math.max (document.body.scrollHeight, doc_height);
+}
+
+/* get height of our window without looking "up" */
+function getDocumentHeight ()
+{
+   var doc_height = document.height ? document.height : 0; // Safari uses document.height
+
+   if (document.documentElement && document.documentElement.scrollHeight) /* Strict mode */
       return Math.max (document.documentElement.scrollHeight, doc_height);
    else /* quirks mode */
       return Math.max (document.body.scrollHeight, doc_height);
@@ -496,7 +560,7 @@ function showNotif(item, button,formName)
 }
 
 // stuff to do auto-update using the XMLHttpRequest object
-var updateReq;
+var updateReq = null;
 var updateTime = 0;
 var updateUrl = "";
 var updateWaiting = 0;
@@ -666,22 +730,37 @@ function disableBackButton() {
 	}
 }
 
-// Load the latest JQuery, compatibility library, and UI - mimic functionality in PortalUtils
+// Load the latest JQuery, compatibility library, BootStrap, and UI - mimic functionality in PortalUtils
 function includeLatestJQuery(where) {
 	var psp = "/library/js/";
+	var webjars = "/library/webjars/";
 	var ver = "";
 	if ( typeof portal !== 'undefined' ) {
 		if (portal.pageScriptPath) psp = portal.pageScriptPath;
+		if (portal.pageWebjarsPath) webjars = portal.pageWebjarsPath;
 		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
 	}
 
 	if ( window.jQuery ) {
-		window.console && console.log("jQuery already loaded "+jQuery.fn.jquery+" in "+where);
+		window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
+		if (typeof jQuery.migrateWarnings == 'undefined') { 
+			document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.2.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
+			window.console && console.log('Adding jQuery migrate');
+		}
+		if ( typeof jQuery.fn.popover == 'undefined') {
+			document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.6/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
+			window.console && console.log('Adding Bootstrap');
+		}
+		if (typeof jQuery.ui == 'undefined') {
+			document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-ui/1.11.3/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
+			window.console && console.log('Adding jQuery UI');
+		}
 	} else {
-		document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/jquery-1.9.1.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/jquery-migrate-1.2.1.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript type="text/javascript" src="'+psp+'jquery/ui/1.11.3/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
-		window.console && console.log("jQuery Loaded by "+where+" from "+psp);
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery/1.11.3/jquery.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.2.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.6/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-ui/1.11.3/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
+		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+webjars);
 	}
 }
 

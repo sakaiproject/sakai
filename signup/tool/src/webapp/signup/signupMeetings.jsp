@@ -310,7 +310,7 @@
 									<f:convertDateTime  pattern="EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{wrapper.meeting.startTime}">
-									<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							</h:panelGroup>
 						</t:column>

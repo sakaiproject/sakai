@@ -14,6 +14,10 @@ var dialogPosition = {
 
 function startTutorial(opts){
 	showTutorialPage(sakaiTutorialStartUrl, opts);
+	if (!$PBJQ(".Mrphs-userNav__subnav").hasClass("is-hidden")) {
+		// Hide the user dropdown menu so it doesn't obstruct the tutorial
+		$('.Mrphs-userNav__submenuitem--username').trigger('click');
+	}
 }
 
 function showTutorialPage(url, opts){
@@ -56,7 +60,7 @@ function showTutorialPage(url, opts){
 							{ 
 								content: {
 									title: response.data.title,
-									button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
+									button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><i class="fa fa-close tut-icon-close"></i><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
 									text: response.data.body
 								},
 								position: response.data.dialog == 'true' ? dialogPosition: {
@@ -65,7 +69,7 @@ function showTutorialPage(url, opts){
 									viewport: $(document.body)
 								},
 								style: {
-									classes: 'qtip-tipped qtip-shadow qtipBodyContent',
+									classes: 'sakai-tutorial qtip-shadow',
 									tip: {
 										corner: response.data.positionTooltip
 									}

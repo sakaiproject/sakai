@@ -1,0 +1,7 @@
+.anonymousAuthor {
+	font-family: Consolas,monaco,"Lucida Console","Lucida Sans Typewriter","Bitstream Vera Sans Mono","Andale Mono",AndaleMono,monospace;
+}
+.bogus .anonymousAuthor
+{
+	font-size: 1em !important;
+}

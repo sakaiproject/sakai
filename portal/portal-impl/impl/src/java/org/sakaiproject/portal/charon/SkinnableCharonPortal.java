@@ -70,6 +70,8 @@ import org.sakaiproject.portal.charon.handlers.AtomHandler;
 import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorDoneHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
+import org.sakaiproject.portal.charon.handlers.FavoritesHandler;
+import org.sakaiproject.portal.charon.handlers.GenerateBugReportHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
 import org.sakaiproject.portal.charon.handlers.JoinHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
@@ -650,11 +652,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
 		M_log.debug("includeTool resetActionUrl="+resetActionUrl);
 
-		String sakaiPanel = req.getParameter("panel");
-		if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
-		if ( sakaiPanel == null ) sakaiPanel="Main";
-		resetActionUrl = URLUtils.addParameter(resetActionUrl, "panel", sakaiPanel);
-
 		// SAK-20462 - Pass through the sakai_action parameter
 		String sakaiAction = req.getParameter("sakai_action");
 		if ( sakaiAction != null && sakaiAction.matches(".*[\"'<>].*" ) ) sakaiAction=null;
@@ -1001,6 +998,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageSkin", skin);
 		rcontext.put("pageTitle", Web.escapeHtml(title));
 		rcontext.put("pageScriptPath", PortalUtils.getScriptPath());
+		rcontext.put("pageWebjarsPath", PortalUtils.getWebjarsPath());
 		rcontext.put("portalCDNPath", PortalUtils.getCDNPath());
 		rcontext.put("portalCDNQuery", PortalUtils.getCDNQuery());
 		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
@@ -1260,32 +1258,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		Properties retval = new Properties();
 
-		// setup html information that the tool might need (skin, body on load,
-		// js includes, etc).
-
-		String headCssPortalSkin = "<link href=\"" 
-			+ PortalUtils.getCDNPath()
-			+ CSSUtils.getCssPortalSkin(skin)
-			+ PortalUtils.getCDNQuery()
-			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-
-		String headCssToolBase = "<link href=\""
-			+ PortalUtils.getCDNPath()
-			+ CSSUtils.getCssToolBase()
-			+ PortalUtils.getCDNQuery()
-			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-
-		if ( ! ToolUtils.isInlineRequest(req) ) {
-			headCssToolBase = headCssPortalSkin + headCssToolBase;
-		}
-
-		String headCssToolSkin = "<link href=\"" 
-			+ PortalUtils.getCDNPath()
-			+ CSSUtils.getCssToolSkin(skin)
-			+ PortalUtils.getCDNQuery()
-			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-
-		String headCss = headCssToolBase + headCssToolSkin;
+		String headCss = CSSUtils.getCssHead(skin,ToolUtils.isInlineRequest(req));
 		
 		Editor editor = portalService.getActiveEditor(placement);
 		String preloadScript = editor.getPreloadScript() == null ? ""
@@ -1348,12 +1321,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("/library/js/headscripts.js");
 		headJs.append(PortalUtils.getCDNQuery());
 		headJs.append("\"></script>\n");
-		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
+		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
+				"sakai.editor.editors = sakai.editor.editors || {}; " +
+				"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
+				"sakai.locale = sakai.locale || {};\n");
 		headJs.append("sakai.locale.userCountry = '" + rloader.getLocale().getCountry() + "';\n");
 		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
 		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
 		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';\n");
-		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";</script>\n");
+		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";\n");
+		headJs.append("sakai.editor.editors.ckeditor.browser = '"+ EditorConfiguration.getCKEditorFileBrowser()+ "';\n");
+		headJs.append("</script>\n");
 		headJs.append(preloadScript);
 		headJs.append(editorScript);
 		headJs.append(launchScript);
@@ -1373,8 +1351,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		retval.setProperty("sakai.html.head", head);
 		retval.setProperty("sakai.html.head.css", headCss);
 		retval.setProperty("sakai.html.head.lang", rloader.getLocale().getLanguage());
-		retval.setProperty("sakai.html.head.css.base", headCssToolBase);
-		retval.setProperty("sakai.html.head.css.skin", headCssToolSkin);
+		req.setAttribute("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(skin,ToolUtils.isInlineRequest(req)));
+		req.setAttribute("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(skin));
 		retval.setProperty("sakai.html.head.js", headJs.toString());
 
 		return retval;
@@ -1798,10 +1776,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String logInOutUrl2 = null;
 			String message2 = null;
 			String image2 = null;
+			String logoutWarningMessage = "";
 
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
 			String loginUserDispId = null;
+			String loginUserFirstName = null;
 			boolean displayUserloginInfo = ServerConfigurationService.
 			getBoolean("display.userlogin.info", true);
 
@@ -1864,6 +1844,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					User thisUser = UserDirectoryService.getCurrentUser();
 					loginUserDispId = Validator.escapeHtml(thisUser.getDisplayId());
 					loginUserDispName = Validator.escapeHtml(thisUser.getDisplayName());
+					loginUserFirstName = Validator.escapeHtml(thisUser.getFirstName());
 				}
 
 				// check for a logout text override
@@ -1877,8 +1858,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				// since we are doing logout, cancel top.login
 				topLogin = false;
+				
+				logoutWarningMessage = rloader.getString("sit_logout_warn");
 			}
+			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
+			rcontext.put("logoutWarningMessage", logoutWarningMessage);
 
 			// display portal links - SAK-22983
 			String portalLinks = portalService.getPortalLinks();
@@ -1908,9 +1893,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String pwWording = null;
 				eidWording = StringUtils.trimToNull(rloader.getString("log.userid"));
 				pwWording = StringUtils.trimToNull(rloader.getString("log.pass"));
+				String eidPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputuserplaceholder"));
+				String pwPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputpasswordplaceholder"));
 
 				if (eidWording == null) eidWording = "eid";
 				if (pwWording == null) pwWording = "pw";
+				if (eidPlaceholder == null ) eidPlaceholder = "";
+				if (pwPlaceholder == null ) pwPlaceholder = "";
 				String loginWording = rloader.getString("log.login");
 
 				rcontext.put("loginPortalPath", ServerConfigurationService
@@ -1918,6 +1907,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginEidWording", eidWording);
 				rcontext.put("loginPwWording", pwWording);
 				rcontext.put("loginWording", loginWording);
+				rcontext.put("eidPlaceholder", eidPlaceholder);
+				rcontext.put("pwPlaceholder", pwPlaceholder);
 
 				// setup for the redirect after login
 				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
@@ -1927,6 +1918,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (displayUserloginInfo)
 			{
 				rcontext.put("loginUserDispName", loginUserDispName);
+				rcontext.put("loginUserFirstName", loginUserFirstName);
 				rcontext.put("loginUserDispId", loginUserDispId);
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
@@ -2030,6 +2022,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new RoleSwitchOutHandler());
 		addHandler(new TimeoutDialogHandler());
 		addHandler(new JoinHandler());
+		addHandler(new FavoritesHandler());
+		addHandler(new GenerateBugReportHandler());
 	}
 
 	/**

@@ -29,14 +29,25 @@
  *
  **********************************************************************************/
 -->
+
+	<%
+	  	String thisId = request.getParameter("panel");
+  		if (thisId == null) 
+  		{
+    		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  		}
+	%>
+	
+	
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
+      <script type="text/javascript" src="../../js/extendedTime.js"/>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
       <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-      <samigo:script path="/js/authoring.js"/>
+      <samigo:script path="/js/authoring.js"/>        
 
       <script type="text/javascript">
         $(document).ready(function() {
@@ -54,6 +65,7 @@
               input: '#assessmentSettingsAction\\:startDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'startDateISO8601' }
           });
@@ -61,6 +73,7 @@
               input: '#assessmentSettingsAction\\:endDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.dueDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'endDateISO8601' }
           });
@@ -68,6 +81,7 @@
               input: '#assessmentSettingsAction\\:retractDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'retractDateISO8601' }
           });
@@ -75,6 +89,7 @@
               input: '#assessmentSettingsAction\\:feedbackDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
               val: '<h:outputText value="#{publishedSettings.feedbackDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
@@ -84,8 +99,24 @@
           lockdownQuestionLayout(navVal);
           lockdownMarkForReview(navVal);
           showHideReleaseGroups();
+          initTimedCheckBox();
+          extendedTimeInitialize();
           checkUncheckTimeBox();
+          checkLastHandling();
         });
+		function expandAccordion(iframId){
+			$('.ui-accordion-content').show();
+			mySetMainFrameHeight(iframId);
+			$("#collapseLink").show();
+			$("#expandLink").hide();
+		}
+
+		function collapseAccordion(iframId){
+			$('.ui-accordion-content').hide();
+			mySetMainFrameHeight(iframId);
+			$("#collapseLink").hide();
+			$("#expandLink").show();
+		}
       </script>
 
       </head>
@@ -102,13 +133,33 @@
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
-    <h3>
-     <h:outputText id="x1" value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}"/>
-    </h3>
+<p>
+  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  </p>
 <p>
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 </p>
 
+<span>
+    <h3>
+     <h:outputText id="x1" value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}"/>
+    </h3>
+    <f:verbatim>
+	<span style="float: right">
+		<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+			</f:verbatim>
+				<h:outputText value="#{assessmentSettingsMessages.expandAll}"/>
+			<f:verbatim>
+		</a>
+		<a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+			</f:verbatim>
+				<h:outputText value="#{assessmentSettingsMessages.collapseAll}"/>
+			<f:verbatim>
+		</a>
+	</span>
+	</f:verbatim>
+	<br/>
+</span>
 <div class="tier1" id="jqueryui-accordion">
 
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_about}" >
@@ -214,6 +265,9 @@
     <f:selectItems value="#{publishedSettings.groupsForSite}" />
   </h:selectManyCheckbox>
   <f:verbatim></div></f:verbatim>
+  
+  <!-- Extended Time -->
+  <%@ include file="inc/publishedExtendedTime.jspf"%>
 
     <!-- NUMBER OF SUBMISSIONS -->
   <h:panelGrid columns="2" columnClasses="alignTop" border="0" rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
@@ -234,15 +288,24 @@
   <!-- *** DELIVERY DATES *** -->
   <h:panelGrid columns="1" columnClasses="samigoCell" border="0">
     <h:panelGroup>
+      <h:panelGroup id="startDateGroup">
       <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
       <h:inputText value="#{publishedSettings.startDateString}" size="25" id="startDate" />
 	  <h:outputText value="" />
 	  <h:outputText value="" />
-	  
+      </h:panelGroup>
+        <f:verbatim>&nbsp;</f:verbatim>
+        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('startDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+        <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+      <h:panelGroup id="endDateGroup">
       <h:outputLabel for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
       <h:inputText value="#{publishedSettings.dueDateString}" size="25" id="endDate"/>
 	  <h:outputText value="" />
 	  <h:outputText value="" />
+      </h:panelGroup>
+        <f:verbatim>&nbsp;</f:verbatim>
+        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('endDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+        <f:verbatim>&nbsp;&nbsp;</f:verbatim>
   
   <!-- *** TIMED *** -->
       <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
@@ -264,15 +327,17 @@
   <!-- LATE HANDLING -->
   <h:panelGrid columns="1" rendered="#{publishedSettings.valueMap.lateHandling_isInstructorEditable==true}" border="0">
     <h:outputText value="#{assessmentSettingsMessages.late_accept}" />
-    <h:panelGrid columns="4" border="0" columnClasses="alignBottom">
+    <h:panelGrid columns="5" border="0" columnClasses="alignBottom">
       <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-      <h:selectOneRadio id="lateHandling" value="#{publishedSettings.lateHandling}"  layout="pageDirection">
+      <h:selectOneRadio id="lateHandling" onclick="checkLastHandling();" value="#{publishedSettings.lateHandling}"  layout="pageDirection">
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
       </h:selectOneRadio>
 
 	  <h:inputText value="#{publishedSettings.retractDateString}" size="25" id="retractDate"/>
-	  
+        <f:verbatim>&nbsp;</f:verbatim>
+        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('retractDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+        <f:verbatim>&nbsp;&nbsp;</f:verbatim>
 	  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_stop_accepting_now}" action="confirmAssessmentRetract"  styleClass="active" />
     </h:panelGrid>
   </h:panelGrid>
@@ -282,6 +347,30 @@
     <h:selectBooleanCheckbox id="automaticSubmission" value="#{publishedSettings.autoSubmit}"/>
     <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}"/>
   </h:panelGroup>
+
+    <!-- SUBMISSION EMAILS -->
+    <h:panelGroup rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.instructorNotification}" />
+        <f:verbatim><div class="tier1"></f:verbatim>
+        <h:selectOneRadio id="notificationEmailChoices" value="#{publishedSettings.instructorNotification}" layout="pageDirection">
+            <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.oneEmail}" />
+            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.digestEmail}" />
+            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.noEmail}" />
+        </h:selectOneRadio>
+        <f:verbatim></div></f:verbatim>
+    </h:panelGroup>
+
+    <!-- Display Scores -->
+    <h:panelGroup rendered="#{publishedSettings.valueMap.displayScores_isInstructorEditable==true}">
+      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> <f:verbatim> </div><div class="tier3"> </f:verbatim>
+        <h:panelGrid columns="2"  >
+          <h:selectOneRadio id="displayScores" value="#{publishedSettings.displayScoreDuringAssessments}"  layout="pageDirection">
+            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}"/>
+            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}"/>
+          </h:selectOneRadio>
+       </h:panelGrid>
+       <f:verbatim></div></f:verbatim>
+    </h:panelGroup>
 
 <f:verbatim><div id="jqueryui-accordion-security"></f:verbatim><!-- This is sub-accordion for high security and submission message -->
 
@@ -409,10 +498,17 @@
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
         </h:selectOneRadio>
     </h:panelGroup>
-    <h:panelGroup>
-        <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
-    </h:panelGroup>
-  </h:panelGrid>
+ </h:panelGrid>
+      <h:panelGrid columns="2" border="0" rendered="#{publishedSettings.valueMap.feedbackType_isInstructorEditable==true}" columnClasses="feedbackColumn1,feedbackColumn2">
+          <h:panelGroup>
+              <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
+          </h:panelGroup>
+          <h:panelGroup>
+              <f:verbatim>&nbsp;</f:verbatim>
+              <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('feedbackDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
+          </h:panelGroup>
+      </h:panelGrid>
+
 
     <!-- FEEDBACK COMPONENTS -->
     <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
@@ -553,7 +649,7 @@
 <p class="act">
 
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();updateItemNavigation(false);" >
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   

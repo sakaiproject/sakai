@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="help.DataSource"
 		class="org.apache.commons.dbcp.BasicDataSource"
@@ -34,8 +34,7 @@
 		</property>
 		<property name="target">
 			<bean
-				class="org.sakaiproject.component.app.help.HelpManagerImpl"
-				singleton="true">
+				class="org.sakaiproject.component.app.help.HelpManagerImpl">
 				<property name="contextSize">
 					<value>6</value>
 				</property>
@@ -69,7 +68,7 @@
 		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
 
 		<property name="dataSource">
-			<ref local="help.DataSource" />
+			<ref bean="help.DataSource" />
 		</property>
 
 		<property name="hibernateProperties">
@@ -132,5 +131,5 @@
 	</bean>
 	<bean id="org.sakaiproject.api.app.help.TutorialEntityProvider"
             class="org.sakaiproject.component.app.help.TutorialEntityProviderImpl">
-    </bean>
+        </bean>
 </beans>

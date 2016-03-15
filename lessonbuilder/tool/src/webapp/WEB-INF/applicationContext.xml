@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
    <!-- Use the Sakai session factory, pre-configured, instead of one local to TaskList
         we are adding our HBM files to the Sakai session factory instead of creating
@@ -17,6 +16,9 @@
     </property>
   </bean>
  
+
+  <!-- use our version of the usual resolver. It differs only in expecting
+       multiple occurrences of the same resolver -->
 
   <bean id="messageSource" 
       class="org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource"
@@ -71,6 +73,7 @@ simplePageBean.formattedComment,
 simplePageBean.graded,
 simplePageBean.gradebookTitle,
 simplePageBean.groupOwned,
+simplePageBean.groupOwnedIndividual,
 simplePageBean.addAnswerData,
 simplePageBean.questionType,
 simplePageBean.questionText,
@@ -113,12 +116,14 @@ simplePageBean.releaseDate,
 simplePageBean.removeId,
 simplePageBean.removePage,
 simplePageBean.reorder,
+simplePageBean.replacefile,
 simplePageBean.required,
 simplePageBean.rubricRow,
 simplePageBean.rubricPeerGrade,
 simplePageBean.rubricSubmissionStatus,
 simplePageBean.rubricTitle,
 simplePageBean.savePeerEvalResult,
+simplePageBean.seeOnlyOwn,
 simplePageBean.sGraded,
 simplePageBean.sMaxPoints,
 simplePageBean.selectedAssignment,
@@ -189,8 +194,8 @@ simplePageBean.peerEvalAllowSelfGrade
     <property name="sessionFactory">
       <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
-
-    <property name = "nextEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity" />
+    <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+    <property name="nextEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity" />
     <property name="messageLocator" ref="messageLocator"/>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
@@ -235,8 +240,7 @@ simplePageBean.peerEvalAllowSelfGrade
 	id="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"
         class="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"
         init-method="init"
-        destroy-method="destroy"
-        singleton="true">
+        destroy-method="destroy">
 
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
@@ -259,8 +263,7 @@ simplePageBean.peerEvalAllowSelfGrade
   <bean id="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
 	class="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
         init-method="init"
-        destroy-method="destroy"
-        singleton="true">
+        destroy-method="destroy">
 
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
@@ -269,6 +272,7 @@ simplePageBean.peerEvalAllowSelfGrade
     <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="contentFilterService"><ref bean="org.sakaiproject.content.api.ContentFilterService"/></property>
+    <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
 
     <property name="messageLocator" ref="messageLocator"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
@@ -380,7 +384,6 @@ simplePageBean.peerEvalAllowSelfGrade
 	</bean>
 	<bean id="lessonsSearchAdapter"
 	    class="org.sakaiproject.lessonbuildertool.service.LessonsEntityContentProducer"
-	    singleton="true"
 	    init-method="init" >
 	    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	    <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
@@ -416,10 +419,10 @@ simplePageBean.peerEvalAllowSelfGrade
     <bean id="org.sakaiproject.lessonbuildertool.service.AjaxServer"
         class="org.sakaiproject.lessonbuildertool.service.AjaxServer"
         init-method="init"
-        destroy-method="destroy"
-        singleton="true">
+        destroy-method="destroy">
       <property name="messageSource"><ref bean="messageSource"/></property>
       <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+      <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
       <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     </bean>
 

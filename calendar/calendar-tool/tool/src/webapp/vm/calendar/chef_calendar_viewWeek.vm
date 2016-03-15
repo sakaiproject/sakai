@@ -384,13 +384,11 @@
 #if ($hm.put($n, $tempCol)) #end
 #end
 
-
-<div class="viewLinkControl">
-	#if($page != "first")
-  		<a href="#" onclick="location='#toolLink("$action" "doPpagew")';return false;" title="$tlang.getString('vieww.gotoe')">$tlang.getString("vieww.gotoe")</a>
-  	#end
-</div>      
-
+#if($page != "first")
+	<div class="viewLinkControl">
+		<a href="#" onclick="location='#toolLink("$action" "doPpagew")';return false;" title="$tlang.getString('vieww.gotoe')">$tlang.getString("vieww.gotoe")</a>
+	</div>
+#end
 #set ($weekCopy = $week)
 #foreach($day_span in [0..6])
     #set ($colspan = 1)
@@ -923,12 +921,11 @@
         #end
 #end ## if the page is second, third or first
 </table>
-
-<div class="viewLinkControl">
 #if($page != "third")
+<div class="viewLinkControl">
 		<a href="#" onclick="location='#toolLink("$action" "doNpagew")';return false;" title="$tlang.getString('vieww.gotol')">$tlang.getString("vieww.gotol")</a>
-	#end
 </div>
+#end
 #eventLegend($tlang)
 
 </div>

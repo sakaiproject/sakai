@@ -23,45 +23,12 @@ package org.sakaiproject.content.impl.serialize.impl.test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Test;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 
-import junit.framework.TestCase;
-
-/**
- * @author ieb
- */
-public class ProfileSerializerTest extends TestCase
+public class ProfileSerializerTest
 {
-
 	private static final Log log = LogFactory.getLog(ProfileSerializerTest.class);
-
-	/**
-	 * @param name
-	 */
-	public ProfileSerializerTest(String name)
-	{
-		super(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception
-	{
-		super.setUp();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception
-	{
-		super.tearDown();
-	}
 
 	/**
 	 * Test method for
@@ -69,6 +36,7 @@ public class ProfileSerializerTest extends TestCase
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public final void testParse() throws Exception
 	{
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();

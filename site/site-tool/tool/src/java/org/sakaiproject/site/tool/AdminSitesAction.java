@@ -39,7 +39,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -111,10 +111,12 @@ public class AdminSitesAction extends PagedResourceActionII
 	private static final String STATE_SITE_INSTANCE_ID = "site.instance.id";
 
 	private AliasService aliasService;
+	private AuthzGroupService authzGroupService;
 
 	public AdminSitesAction() {
 		super();
 		aliasService = ComponentManager.get(AliasService.class);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
 	}
 
 	/**
@@ -469,7 +471,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put("sites", sites);
 
 		// we need the Realms, too!
-		context.put("realms", AuthzGroupService.getInstance());
+		context.put("realms", authzGroupService);
 
 		// build the menu
 		Menu bar = new MenuImpl();
@@ -962,7 +964,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				Site site = SiteService.getSite(id);
 				state.setAttribute("site", site);
 
-				// RealmEdit realm = AuthzGroupService.editRealm("/site/" + id); // %%% use a site service call -ggolden
+				// RealmEdit realm = authzGroupService.editRealm("/site/" + id); // %%% use a site service call -ggolden
 				// state.setAttribute("realm", realm);
 
 				state.setAttribute("mode", "edit");
@@ -1144,7 +1146,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 			// save the realm, too
 			// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
-			// AuthzGroupService.commitEdit(realm);
+			// authzGroupService.commitEdit(realm);
 		}
 
 		// cleanup
@@ -1254,7 +1256,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
 		// if (realm != null)
 		// {
-		// AuthzGroupService.cancelEdit(realm);
+		// authzGroupService.cancelEdit(realm);
 		// }
 
 		// get the site
@@ -1325,7 +1327,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// cancel the realm edit - the site remove will remove the realm
 		// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
-		// AuthzGroupService.cancelEdit(realm);
+		// authzGroupService.cancelEdit(realm);
 
 		// remove the site
 		try
@@ -1440,7 +1442,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				AuthzGroup realm = null;
 				try
 				{
-					realm = AuthzGroupService.getAuthzGroup(site.getReference());
+					realm = authzGroupService.getAuthzGroup(site.getReference());
 					roles.addAll(realm.getRoles());
 				}
 				catch (GroupNotDefinedException e)
@@ -1453,14 +1455,14 @@ public class AdminSitesAction extends PagedResourceActionII
 					}
 					try
 					{
-						AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
+						AuthzGroup r = authzGroupService.getAuthzGroup(realmTemplate);
 						roles.addAll(r.getRoles());
 					}
 					catch (GroupNotDefinedException err)
 					{
 						try
 						{
-							AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
+							AuthzGroup rr = authzGroupService.getAuthzGroup("!site.template");
 							roles.addAll(rr.getRoles());
 						}
 						catch (GroupNotDefinedException ee)

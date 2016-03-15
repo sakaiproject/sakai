@@ -275,8 +275,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       
     }    
     else{      
-       //getHibernateTemplate().initialize(pf.getTopicsSet());   
-    	 pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(userId, area);
+       getHibernateTemplate().initialize(pf.getTopicsSet());
     }
    
     return pf;
@@ -289,9 +288,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public PrivateForum initializationHelper(PrivateForum forum, String userId){
     
     /** reget to load topic foreign keys */
-  	//PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(getCurrentUser());
-    //getHibernateTemplate().initialize(pf.getTopicsSet());    
-  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNullWithAllTopics(userId);
+    PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(userId);
+    getHibernateTemplate().initialize(pf.getTopicsSet());
     return pf;
   }
 
@@ -302,9 +300,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public PrivateForum initializationHelper(PrivateForum forum, Area area, String userId){
     
     /** reget to load topic foreign keys */
-  	//PrivateForum pf = forumManager.getPrivateForumByOwnerArea(getCurrentUser(), area);
-    //getHibernateTemplate().initialize(pf.getTopicsSet());    
-  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(userId, area);
+    PrivateForum pf = forumManager.getPrivateForumByOwnerArea(userId, area);
+    getHibernateTemplate().initialize(pf.getTopicsSet());
     return pf;
   }
 

@@ -1,3 +1,4 @@
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 <div class="portletBody">
 #if ($alertMessage)
     <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both" ></div>
@@ -6,8 +7,8 @@
 <p>$tlang.getString('java.currentparent') $validator.escapeHtml($parentTitle) ($parentId) </p>
         <form action="#toolForm("")" method="post" name="customizeForm" >
                 <p class="act">
-                        <input type="submit" accesskey ="s" class="active" name="$doRemove" value="$tlang.getString('gen.remove')" />
-                        <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+                        <input type="submit" accesskey ="s" class="active" name="$doRemove" value="$tlang.getString('gen.remove')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                        <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
                 </p>
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
         </form>
@@ -34,9 +35,9 @@
 #end
 <p class="act">
 #if ( $sites ) 
-  <input type="submit" accesskey ="s" class="active" name="$doSave" value="$tlang.getString('gen.save')" />
+  <input type="submit" accesskey ="s" class="active" name="$doSave" value="$tlang.getString('gen.save')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 #end
-  <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+  <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 </p>
 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 </form>

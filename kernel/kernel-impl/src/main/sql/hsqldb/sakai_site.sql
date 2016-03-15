@@ -344,8 +344,8 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!user-150', '!user', 'Profile', '0', 2, '0' 
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-165', '!user-150', '!user', 'sakai.profile2', 1, 'Profile', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-200', '!user', 'Membership', '0', 3, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-210', '!user-200', '!user', 'sakai.membership', 1, 'Membership', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!user-300', '!user', 'Schedule', '0', 4, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!user-310', '!user-300', '!user', 'sakai.schedule', 1, 'Schedule', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!user-300', '!user', 'Calendar', '0', 4, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!user-310', '!user-300', '!user', 'sakai.schedule', 1, 'Calendar', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-400', '!user', 'Resources', '0', 5, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-410', '!user-400', '!user', 'sakai.resources', 1, 'Resources', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-450', '!user', 'Announcements', '0', 6, '0' );
@@ -371,8 +371,8 @@ INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-110', 'heigh
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-120', '!worksite-100', '!worksite', 'sakai.synoptic.announcement', 2, 'Recent Announcements', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-130', '!worksite-100', '!worksite', 'sakai.synoptic.messagecenter', 3, 'Recent Forums Items', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-140', '!worksite-100', '!worksite', 'sakai.synoptic.chat', 4, 'Recent Chat Messages', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-200', '!worksite', 'Schedule', '0', 2, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-210', '!worksite-200', '!worksite', 'sakai.schedule', 1, 'Schedule', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-200', '!worksite', 'Calendar', '0', 2, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-210', '!worksite-200', '!worksite', 'sakai.schedule', 1, 'Calendar', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-300', '!worksite', 'Announcements', '0', 3, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-310', '!worksite-300', '!worksite', 'sakai.announcements', 1, 'Announcements', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-400', '!worksite', 'Resources', '0', 4, '0' );
@@ -407,8 +407,8 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-130', 'mercury-100', 'mercury', 'sak
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-140', 'mercury-100', 'mercury', 'sakai.synoptic.chat', 4, 'Recent Chat Messages', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-150', 'mercury', 'Dashboard', '0', 2, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-160', 'mercury-150', 'mercury', 'sakai.dashboard', 1, 'Dashboard', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-200', 'mercury', 'Schedule', '0', 2, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-210', 'mercury-200', 'mercury', 'sakai.schedule', 1, 'Schedule', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-200', 'mercury', 'Calendar', '0', 2, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-210', 'mercury-200', 'mercury', 'sakai.schedule', 1, 'Calendar', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-300', 'mercury', 'Announcements', '0', 3, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-310', 'mercury-300', 'mercury', 'sakai.announcements', 1, 'Announcements', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-350', 'mercury', 'Lessons', '0', 3, '0' );

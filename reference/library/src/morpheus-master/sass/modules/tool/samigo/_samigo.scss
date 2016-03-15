@@ -1,0 +1,48 @@
+.#{$namespace}sakai-samigo{
+	.navIntraTool{
+		li {
+		    display: inline-block;
+		    margin: 0 0 0 0;
+		    span{
+		    	display: inline-block;
+		    	a{
+		    		display: block;
+		    		padding: 0.5em 0.5em 0.6em 0.2em;
+		    		margin: 0 0 0 0;
+		    	}
+		    }
+		}
+	}
+
+	#samigo-create-new-box, #samigo-create-import-box {
+		@extend .bs-callout-primary;
+		border-left-width: 1px;
+		margin-top: 0;
+	}
+
+	.samigo-question-callout {
+			@include bs-callout($toolBorderColor, $background-color);
+			input[type="checkbox"], input[type="radio"] {
+				margin-right: 0.25em;
+			}
+	}
+
+	.listNav {
+		.inlineForm {
+			@extend .panel;
+			@extend .panel-default;
+			.pager-instruction {
+				@extend .panel-heading;
+				@extend .small;
+				text-align: center;
+			}
+			display: inline-block;
+			fieldset {
+				display: inline-block;
+			}
+			legend {
+				display: none;
+			}
+		}
+	}
+}

@@ -387,6 +387,7 @@ create table SAM_ASSESSACCESSCONTROL_T (
    AUTOSUBMIT integer,
    ITEMNAVIGATION integer,
    ITEMNUMBERING integer,
+   DISPLAYSCORE integer,
    SUBMISSIONMESSAGE text,
    RELEASETO varchar(255),
    USERNAME varchar(255),

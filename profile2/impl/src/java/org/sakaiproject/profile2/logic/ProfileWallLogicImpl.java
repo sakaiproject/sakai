@@ -52,7 +52,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	}
 	
 	private boolean addNewItemToWall(int itemType, String itemText, final String userUuid) {
-		
+
 		final WallItem wallItem = new WallItem();
 
 		wallItem.setUserUuid(userUuid);
@@ -61,16 +61,22 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		wallItem.setDate(new Date());
 		// this string is mapped to a localized resource string in GUI
 		wallItem.setText(itemText);
-		
+
 		return dao.addNewWallItemForUser(userUuid, wallItem);
-		
+
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean addNewCommentToWallItem(WallItemComment wallItemComment) {
-		return dao.addNewCommentToWallItem(wallItemComment);
+		if (dao.addNewCommentToWallItem(wallItemComment)) {
+			String ref = "/profile/wall/item/comment/" + wallItemComment.getId();
+			sakaiProxy.postEvent(ProfileConstants.EVENT_WALL_ITEM_COMMENT_NEW, ref, false);
+			return true;
+		} else {
+		    return false;
+		}
 	}
 	
 	private void notifyConnections(int itemType, String itemText, final String userUuid) {
@@ -143,6 +149,9 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			return false;
 		}
 
+		String ref = "/profile/" + wallItem.getUserUuid() + "/wall/item/" + wallItem.getId();
+		sakaiProxy.postEvent(ProfileConstants.EVENT_WALL_ITEM_NEW, ref, false);
+
 		// don't email user if they've posted on their own wall
 		if (false == sakaiProxy.getCurrentUserId().equals(userUuid)) {
 			sendWallNotificationEmailToUser(userUuid, wallItem.getCreatorUuid(), EmailType.EMAIL_NOTIFICATION_WALL_POST_MY_NEW);
@@ -181,7 +190,28 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	 * {@inheritDoc}
 	 */
 	public boolean removeWallItemFromWall(WallItem wallItem) {
-		return dao.removeWallItemFromWall(wallItem);
+
+		if (dao.removeWallItemFromWall(wallItem)) {
+			String ref = "/profile/wall/item/remove/" + wallItem.getId();
+			sakaiProxy.postEvent(ProfileConstants.EVENT_WALL_ITEM_REMOVE, ref, false);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItem getWallItem(long wallItemId) {
+		return dao.getWallItem(wallItemId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItemComment getWallItemComment(final long wallItemCommentId) {
+		return dao.getWallItemComment(wallItemCommentId);
 	}
 	
 	/**

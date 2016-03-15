@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.taggable"
     class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
@@ -16,8 +16,7 @@
   
 	<bean id="org.sakaiproject.taggable.api.TaggingManager"
 	      class="org.sakaiproject.taggable.impl.TaggingManagerImpl"
-	      init-method="init"
-	      singleton="true">
+	      init-method="init">
 	      
 		<property name="linkManager">
 	      <ref bean="org.sakaiproject.taggable.api.LinkManager" />
@@ -30,8 +29,7 @@
       <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
     </property>
     <property name="target">
-      <bean class="org.sakaiproject.taggable.impl.LinkManagerImpl"
-            singleton="true">
+      <bean class="org.sakaiproject.taggable.impl.LinkManagerImpl">
         <property name="sessionFactory">
           <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
         </property>

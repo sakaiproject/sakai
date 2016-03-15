@@ -20,12 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.test;
 
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-public abstract class CourseManagementTestBase extends AbstractTransactionalSpringContextTests {
-
-	protected String[] getConfigLocations() {
-		return new String[] {"/spring-test.xml", "spring-config-test.xml"};
-	}
+@ContextConfiguration(locations={"/spring-test.xml", "/spring-config-test.xml"})
+public abstract class CourseManagementTestBase extends AbstractTransactionalJUnit4SpringContextTests {
 
 }

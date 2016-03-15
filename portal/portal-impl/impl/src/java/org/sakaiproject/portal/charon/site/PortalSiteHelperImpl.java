@@ -268,6 +268,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// We only compute the depths if there is no user chosen order
 		boolean computeDepth = true;
 		Session session = SessionManager.getCurrentSession();
+
+		List favorites = Collections.emptyList();
+
 		if ( session != null )
                 { 
                         Preferences prefs = PreferencesService.getPreferences(session.getUserId());
@@ -277,6 +280,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
                         if (propList != null)
                         {
                                 computeDepth = false; 
+                                favorites = propList;
                         }
                 }
 
@@ -314,6 +318,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// Add the Depth of the site
 			m.put("depth", cDepth);
 
+			// And indicate whether it's a favorite or not
+			m.put("favorite", favorites.contains(s.getId()));
+
 			if (includeSummary && m.get("rssDescription") == null)
 			{
 				if (!motdDone)
@@ -337,8 +344,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 */
 	public String getUserSpecificSiteTitle( Site site )
 	{
+		return getUserSpecificSiteTitle( site, true );
+	}
+
+	public String getUserSpecificSiteTitle( Site site, boolean truncated )
+	{
 		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
-		return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
+		if (truncated) {
+			return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
+		} else {
+			return Web.escapeHtml( retVal );
+		}
 	}
 
 	/**
@@ -369,9 +385,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						.equals(myWorkspaceSiteId))));
 		
 		// SAK-29138
-		String siteTitle = getUserSpecificSiteTitle( s );
-		m.put( "siteTitle", siteTitle );
-		m.put( "fullTitle", siteTitle );
+		String siteTitleTruncated = getUserSpecificSiteTitle( s, true );
+		String siteTitleNotTruncated = getUserSpecificSiteTitle( s, false );
+		m.put( "siteTitleNotTruncated", siteTitleNotTruncated );
+		m.put( "siteTitle", siteTitleTruncated );
+		m.put( "fullTitle", siteTitleNotTruncated );
 		
 		m.put("siteDescription", s.getHtmlDescription());
 
@@ -404,14 +422,22 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			if (pwd != null)
 			{
 				List<Map> l = new ArrayList<>();
-				for (int i = 0; i < pwd.size(); i++)
+				// SAK-30477
+				// Skip current site size - 1
+				for (int i = 0; i < pwd.size() - 1; i++)
 				{
 					Site site = pwd.get(i);
 					// System.out.println("PWD["+i+"]="+site.getId()+"
 					// "+site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
-					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
+					String siteTitleTruncatedBreadCrumb = getUserSpecificSiteTitle( site, true );
+					String siteTitleNotTruncatedBreadCrumb = getUserSpecificSiteTitle( site, false );
+					
+					pm.put("siteTitleNotTruncated", siteTitleNotTruncatedBreadCrumb );
+					pm.put("siteTitle", siteTitleTruncatedBreadCrumb );
+					pm.put("fullTitle", siteTitleNotTruncatedBreadCrumb );
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
+
 					l.add(pm);
 					isChild = true;
 				}

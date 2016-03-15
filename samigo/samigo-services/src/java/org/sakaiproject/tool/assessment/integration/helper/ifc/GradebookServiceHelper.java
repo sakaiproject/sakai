@@ -63,6 +63,9 @@ public interface GradebookServiceHelper extends Serializable
   public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
 		  GradebookExternalAssessmentService g) throws Exception;
   
+  public void updateExternalAssessmentComment(Long publishedAssessmentId, String studentUid, String comment, 
+		  GradebookExternalAssessmentService g) throws Exception;
+  
   public Long getExternalAssessmentCategoryId(String gradebookUId,
 		  String publishedAssessmentId, GradebookExternalAssessmentService g);
 }

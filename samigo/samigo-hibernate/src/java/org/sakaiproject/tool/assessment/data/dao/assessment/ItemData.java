@@ -43,6 +43,7 @@ public class ItemData
   private String grade;
   private Double score;
   private Double discount;
+  private Boolean scoreDisplayFlag = Boolean.TRUE;
   private String hint;
   private Boolean hasRationale;
   private Integer status;
@@ -55,7 +56,8 @@ public class ItemData
   private Set<ItemMetaDataIfc> itemMetaDataSet;
   private Set<ItemFeedbackIfc> itemFeedbackSet;
   private Set<ItemAttachmentIfc> itemAttachmentSet;
-
+  private Double minScore;
+ 
   // for EMI question
   private String themeText;
   private String leadInText;
@@ -67,7 +69,7 @@ public ItemData() {}
   // this constructor should be deprecated, it is missing triesAllowed
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Double score, Double discount, String hint,
+                  Long typeId, String grade, Double score, Boolean scoreDisplayFlag, Double discount, Double minScore, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -80,6 +82,7 @@ public ItemData() {}
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.scoreDisplayFlag = scoreDisplayFlag;
     this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
@@ -92,11 +95,12 @@ public ItemData() {}
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
     this.partialCreditFlag=partialCreditFlag;
+    this.minScore = minScore;
   }
 
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Double score, Double discount, String hint,
+                  Long typeId, String grade, Double score, Boolean scoreDisplayFlag, Double discount, Double minScore, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -110,6 +114,7 @@ public ItemData() {}
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.scoreDisplayFlag = scoreDisplayFlag;
     this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
@@ -123,6 +128,7 @@ public ItemData() {}
     this.itemFeedbackSet = itemFeedbackSet;
     this.triesAllowed = triesAllowed;
     this.partialCreditFlag=partialCreditFlag;
+    this.minScore = minScore;
   }
 
     /*
@@ -298,6 +304,17 @@ public ItemData() {}
     this.score = score;
   }
 
+  public Boolean getScoreDisplayFlag(){
+	  if (this.scoreDisplayFlag == null) {
+		  return Boolean.TRUE;
+	  }
+	  return this.scoreDisplayFlag;
+  }
+  
+  public void setScoreDisplayFlag(Boolean scoreDisplayFlag){
+	  this.scoreDisplayFlag = scoreDisplayFlag;
+  }
+  
   public Double getDiscount() {
 	  if (this.discount==null){
 		  this.discount=Double.valueOf(0);
@@ -556,6 +573,7 @@ public ItemData() {}
      String text = "";
      if (getTypeId().equals(TypeIfc.MATCHING) 
              || getTypeId().equals(TypeIfc.CALCULATED_QUESTION)
+             || getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION)
              || getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
        return instruction;
      Set<ItemTextIfc> set = this.getItemTextSet();
@@ -675,7 +693,7 @@ public ItemData() {}
 		   AnswerIfc a = answers.get(j);
 		   if (!this.getPartialCreditFlag() && (Boolean.TRUE).equals(a.getIsCorrect())){
 			   String pair = (String)h.get(a.getLabel());
-			   if(!this.getTypeId().equals(TypeD.MATCHING))
+			   if((!this.getTypeId().equals(TypeD.MATCHING))&&(!this.getTypeId().equals(TypeD.IMAGEMAP_QUESTION)))
 			   {
 				   if(this.getTypeId().equals(TypeD.TRUE_FALSE))
 				   {
@@ -693,7 +711,7 @@ public ItemData() {}
 					   }
 				   }
 			   }
-			   else{
+			   else if (this.getTypeId().equals(TypeD.MATCHING)){
 				   if (pair==null)
 				   {
 					   String s = a.getLabel() + ":" + text.getSequence();
@@ -1044,5 +1062,16 @@ public ItemData() {}
 		  return "width:" + width + "%";
 	  else
 		  return "";
+  }
+  public String getImageMapSrc() {
+	  return getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_SRC);	  
+  }
+
+  public Double getMinScore() {
+         return minScore;
+ }
+	  	 
+  public void setMinScore(Double minScore) {
+        this.minScore = minScore;
   }
 }

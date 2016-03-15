@@ -128,6 +128,15 @@
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
 -->
+
+  <filter-mapping>
+    <filter-name>Upload Filter</filter-name>
+    <url-pattern>/jsf/author/item/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
   <!-- *******************************************************************  -->
 
   <!-- Listeners are used to bootstrap application runtime configuration -->
@@ -146,7 +155,7 @@
   <!-- Spring Locator -->
   <!--  Don't use Spring's, use Sakai's!  This allows sharing of Spring across webapps -->
   <listener>
-    <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
   </listener>
 
   <!-- OKI OSID -->
@@ -250,7 +259,7 @@
   <servlet>
     <!-- servlet name must match tool.id in tools xml file -->
     <servlet-name>sakai.samhelper</servlet-name>
-    <servlet-class>uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet</servlet-class>
+    <servlet-class>org.sakaiproject.rsf.servlet.ReasonableSakaiServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>sakai.samhelper</servlet-name>

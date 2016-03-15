@@ -27,7 +27,7 @@
 <h:outputText escape="false" value="<a id=\"#{message.message.id}\" name=\"#{message.message.id}\"></a>" />
 	<f:verbatim><div class="hierItemBlock" ></f:verbatim>
 			<%-- author image --%>
-			<h:panelGroup rendered="#{!message.deleted && ForumTool.showProfileInfo}" styleClass="authorImage">
+			<h:panelGroup rendered="#{!message.deleted && ForumTool.showProfileInfo && !message.useAnonymousId}" styleClass="authorImage">
 				<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}" >
 					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" />
 				</h:outputLink>
@@ -58,22 +58,16 @@
 				<h:outputText value="<br /><div class=\"messageMetadata\">" escape="false" />
 				<%--author --%>
 				
-                <h:outputText value="#{message.message.author}" rendered="#{!ForumTool.instructor && message.read}" styleClass="textPanelFooter md"/>
-                <h:outputText value="#{message.message.author}" rendered="#{!ForumTool.instructor && !message.read}" styleClass="unreadMsg textPanelFooter md" />
+                <h:outputText value="#{message.anonAwareAuthor}" rendered="#{!ForumTool.instructor || message.useAnonymousId}" styleClass="textPanelFooter #{message.read ? '' : 'unreadMsg'} md #{message.useAnonymousId ? 'anonymousAuthor' : ''}"/>
                 
                 <f:verbatim><span class="md"></f:verbatim>
-                <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.message.author }" rendered="#{ForumTool.instructor && message.read}" styleClass="textPanelFooter md">
+                <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.anonAwareAuthor }" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="textPanelFooter md #{message.read ? '' : 'unreadMsg'} #{message.useAnonymousId ? 'anonymousAuthor' : ''}">
                     <f:param value="#{message.authorEid}" name="siteUserId"/>
-                    <f:param value="#{message.message.author}" name="siteUser"/>
-					<h:outputText value="  #{message.message.author}"/>
+                    <h:outputText value="  #{message.anonAwareAuthor}"/>
                 </h:commandLink>
 
-                <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.message.author }" rendered="#{ForumTool.instructor && !message.read}" styleClass="unreadMsg textPanelFooter md">
-                    <f:param value="#{message.authorEid}" name="siteUserId"/>
-                    <f:param value="#{message.message.author}" name="siteUser"/>
-					<h:outputText  value="  #{message.message.author}" rendered="#{!message.read }"/>
-                </h:commandLink>
                 <f:verbatim></span></f:verbatim>
+                <h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" styleClass="textPanelFooter md #{message.read ? '' : 'unreadMsg'}" />
 
 				<%--date --%>
 				<h:outputText value="#{message.message.created}" rendered="#{message.read}" styleClass="textPanelFooter md">
@@ -127,13 +121,14 @@
 
 
 					<%-- Email --%>
-                    <h:panelGroup rendered="#{message.userCanEmail}">
+                    <h:panelGroup>
+                        <%-- Always show separator, or else we see "Reply Grade" --%>
                         <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
-                    	<h:outputLink id="createEmail1" value="mailto:#{message.authorEmail}">
+                    	<h:outputLink id="createEmail1" value="mailto:#{message.authorEmail}" rendered="#{message.userCanEmail}">
                         	<f:param value="Feedback on #{message.message.title}" name="subject" />
                         	<h:outputText value="#{msgs.cdfm_button_bar_email}"/>
                         </h:outputLink>
-	                    <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
+	                    <h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{message.userCanEmail}"/>
                     </h:panelGroup>
 					<%-- link to grade --%>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">

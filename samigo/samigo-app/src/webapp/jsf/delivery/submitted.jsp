@@ -65,22 +65,22 @@ window.close();
       <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
 	  <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
 
-
-<!--div class="portletBody"-->
-<div class="portletBody">
+<div class="portletBody container-fluid">
  <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
  
- <!-- content... -->
-<h3><h:outputText value="#{deliveryMessages.submission}" /></h3>
-<h:outputText styleClass="messageSamigo3" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
-<div class="tier1">
-<h4>
-  <h:outputText value="#{delivery.assessmentTitle} " escape="false"/>
-  - 
-  <h:outputText value="#{deliveryMessages.submission_info}" />
-</h4>
+<!-- content... -->
+<div class="page-header">
+  <h1>
+    <h:outputText value="#{deliveryMessages.submission}" />
+    <small>
+      <h:outputText value="#{delivery.assessmentTitle} " escape="false"/>
+    </small>
+  </h1>
+</div>
 
-<f:verbatim><br /></f:verbatim>
+<h:outputText styleClass="messageSamigo3" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
+
+<div class="table-responsive">
 
 <h:form id="submittedForm">
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
@@ -89,9 +89,7 @@ window.close();
     <h:outputText value="#{deliveryMessages.submission_confirmation_message_4}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
     <h:outputText escape="false" value="<br /><br /> #{delivery.submissionMessage}" />
 
-  <f:verbatim><p/></f:verbatim>
-  <h:panelGrid columns="2" width="900px" columnClasses="submissionInfoCol1, submissionInfoCol2">
-
+  <h:panelGrid columns="2" styleClass="table table-striped" columnClasses="submissionInfoCol1, submissionInfoCol2">
     <h:outputLabel value="#{deliveryMessages.course_name}"/>
     <h:outputText value="#{delivery.courseName}" />
 
@@ -129,15 +127,10 @@ window.close();
 
 </div>
 
-<br /><br />
-
-
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}" action="select"
        rendered="#{delivery.actionString=='takeAssessment'}" />
-
-
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 

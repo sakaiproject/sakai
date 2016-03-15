@@ -2,7 +2,7 @@
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
 <script src="js/scoringAgent/integration.js" type="text/javascript"></script>
-
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 
 <f:view>
   <div class="portletBody">
@@ -26,20 +26,23 @@
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
 				value="#{msgs.assignment_details_previous_assignment}"
 				title="#{assignmentDetailsBean.previousAssignment.name}"
-				accesskey="p">
+				accesskey="p"
+				onclick="SPNR.disableControlsAndSpin( this, null );">
 					<f:param name="assignmentId" value="#{assignmentDetailsBean.previousAssignment.id}"/>
 			</h:commandButton>
 			<h:commandButton
 				action="#{assignmentDetailsBean.processCancel}"
 				immediate="true"
 				value="#{assignmentDetailsBean.returnString}"
-				accesskey="l"/>
+				accesskey="l"
+				onclick="SPNR.disableControlsAndSpin( this, null );"/>
 			<h:commandButton
 				disabled="#{assignmentDetailsBean.last}"
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
 				value="#{msgs.assignment_details_next_assignment}"
 				title="#{assignmentDetailsBean.nextAssignment.name}"
-				accesskey="n">
+				accesskey="n"
+				onclick="SPNR.disableControlsAndSpin( this, null );">
 					<f:param name="assignmentId" value="#{assignmentDetailsBean.nextAssignment.id}"/>
 			</h:commandButton>
 		</p>
@@ -139,7 +142,7 @@
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="s"
 				title="#{msgs.assignment_details_submit}"
-				onclick="disableButton('buttonDiv1', this)"/>
+				onclick="SPNR.disableControlsAndSpin( this, null );"/>
 			<h:commandButton
 				id="cancelButton1"
 				value="#{msgs.assignment_details_cancel}"
@@ -148,7 +151,7 @@
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="c"
 				immediate="true"
-				title="#{msgs.assignment_details_cancel}" onclick="disableButton('buttonDiv1', this)">
+				title="#{msgs.assignment_details_cancel}" onclick="SPNR.disableControlsAndSpin( this, null );">
 					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}"/>
 			</h:commandButton>
 		</div>
@@ -300,7 +303,7 @@
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				title="#{msgs.assignment_details_submit}"
-				onclick="disableButton('buttonDiv2', this)"/>
+				onclick="SPNR.disableControlsAndSpin( this, null );"/>
 			<h:commandButton
 				id="cancelButton2"
 				value="#{msgs.assignment_details_cancel}"
@@ -309,7 +312,7 @@
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				title="#{msgs.assignment_details_cancel}"
-				onclick="disableButton('buttonDiv2', this)">
+				onclick="SPNR.disableControlsAndSpin( this, null );">
 					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}"/>
 			</h:commandButton>
 		</div>
@@ -317,7 +320,7 @@
 		</div> <!-- END OF INDNT1 -->
 
 
-<script src="/library/js/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
+<script>includeLatestJQuery('assignmentDetails.jsp');</script>
 <script type="text/javascript">
 $(document).ready(function(){
 	org_vals = new Array($("table#gbForm\\:gradingTable :text").length);

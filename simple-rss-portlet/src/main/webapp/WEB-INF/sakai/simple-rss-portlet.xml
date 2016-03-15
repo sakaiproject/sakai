@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<registration>
+
+	<tool id="sakai.simple.rss" title="News" description="For viewing content from RSS News Feeds">
+
+		<category name="course" />
+		<category name="project" />
+		<category name="myworkspace" />
+
+		<configuration name="functions.require" /> 
+		<configuration name="reset.button" value="true"/>
+		<configuration name="allowMultipleInstances" value="true" />
+		<configuration name="feed_url" value="http://sakaiproject.org/feed" />
+
+	</tool>
+
+</registration>

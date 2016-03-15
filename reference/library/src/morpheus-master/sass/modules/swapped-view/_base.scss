@@ -1,13 +1,15 @@
 .#{$namespace}portalWrapper{
 	color: $swapped-view-text-color;
 	&.swapped-view{
-		.#{$namespace}headerLogo{
+		.#{$namespace}topHeader{
 			background: $swapped-view-primary;
 		}
-		#mastLogin{
-			#loginLinks{
-				background: $swapped-view-primary;
-			}
+		.#{$namespace}siteHierarchy{
+		  background: $background-color-secondary;
+		  color: $background-color;
+		  a {
+		  	color: $background-color;
+		  }
 		}
 	}
 }

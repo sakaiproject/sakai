@@ -1,40 +1,8 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfo.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
 ## Edit Site Information
-<script language="JavaScript" type="text/javascript">
-function LimitText(fieldObj,maxChars)
-{
-	var result = true;
-  	if (fieldObj.value.length >= maxChars)
-  	{
-  		fieldObj.value = fieldObj.value.substring(0,maxChars);
-		result = false;
-   	}
-  
-  	if (window.event)
-    	window.event.returnValue = result;
-    
-  	return result;
-}
-
-function submitRemoveSection(index){
-		id = "removeSection"+index;
-  removeSection = document.getElementById(id);
-		removeSection.value="true";
-		document.getElementById("option").value="removeSection";
-		document.classInformationForm.submit();
-		return false;
-}
-
-	function resetOption(action){
-		document.classInformationForm.option.value=action;
-		document.classInformationForm.submit();
-		return false;
-	}
-</script>
-  
 <div class="portletBody">
 	## definie form
-	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
+	<form name="classInformationForm" id="classInformationForm" method="post" action="#toolForm("SiteAction")">
 	#if(!$existingSite)
 		## adding new site
 		#if ($!isProjectSite)
@@ -161,7 +129,7 @@ function submitRemoveSection(index){
                 <span class="reqStar">*</span>
 				$tlang.getString("sitediinf.sittit")
 			</label>
-			#if (!$!existingSite || $!siteTitleEditable)
+			#if ($siteTitleEditable)
 				<input type="text" name="title" id="title" size="20" maxlength="$!titleMaxLength" value="$validator.escapeHtml($!title)" />
 			#else
 				$validator.escapeHtml($!title)
@@ -277,10 +245,12 @@ function submitRemoveSection(index){
 				</span>
 			</div>
 		#else
-			<div class="shorttext">
-				<label for="iconUrl">$tlang.getString("sitediinf.ico")</label>
-				<input type="text" name="iconUrl" id="iconUrl" size="40" maxlength="255" value="$!validator.escapeHtml($!iconUrl)" />
-			</div>
+			#if($allowSiteIcon)
+				<div class="shorttext">
+					<label for="iconUrl">$tlang.getString("sitediinf.ico")</label>
+					<input type="text" name="iconUrl" id="iconUrl" size="40" maxlength="255" value="$!validator.escapeHtml($!iconUrl)" />
+				</div>
+			#end
 		#end
 		<p class="shorttext required">
 			<label for="siteContactName">
@@ -310,12 +280,12 @@ function submitRemoveSection(index){
 		<input type="hidden" name="eventSubmit_doEdit_site_info" value="x" />
 	<div class="act">
 		<input type="submit" accesskey="s" class= "active" name="continue" value="$tlang.getString("sitediinf.con")" 
-				onclick="resetOption('continue');" />
+				onclick="resetOption('continue', 'classInformationForm'); SPNR.disableControlsAndSpin( this, null );" />
 		#if(!$existingSite)
 			## have the back button for creating site wizard
-			<input type="submit" accesskey="b" name="back" value="$tlang.getString('gen.back')" onclick="resetOption('back')" />
+			<input type="submit" accesskey="b" name="back" value="$tlang.getString('gen.back')" onclick="resetOption('back', 'classInformationForm'); SPNR.disableControlsAndSpin( this, null );" />
 		#end
-		<input type="submit" accesskey="x" name="cancel" value="$tlang.getString('sitediinf.can')" onclick="resetOption('cancel')" />
+		<input type="submit" accesskey="x" name="cancel" value="$tlang.getString('sitediinf.can')" onclick="resetOption('cancel', 'classInformationForm'); SPNR.disableControlsAndSpin( this, null );" />
 	</div>
 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 </form>

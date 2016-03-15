@@ -15,7 +15,7 @@
    <parent>
      <groupId>org.sakaiproject.reset-pass</groupId>
 	<artifactId>reset-pass</artifactId>
-	<version>11-SNAPSHOT</version>
+	<version>12-SNAPSHOT</version>
    </parent>
 
    <properties>
@@ -61,23 +61,23 @@
       </dependency>
       <!-- Sakai RSF dependency -->
       <dependency>
-         <groupId>uk.org.ponder.sakairsf</groupId>
-         <artifactId>sakairsf</artifactId>
-         <version>${sakairsf.version}</version>
+         <groupId>org.sakaiproject.rsf</groupId>
+         <artifactId>sakai-rsf-core</artifactId>
+         <version>${project.version}</version>
          <type>jar</type>
       </dependency>
 
       <dependency>
-         <groupId>uk.org.ponder.sakairsf</groupId>
-         <artifactId>SakaiRSFComponents-evolvers</artifactId>
-		 <version>${sakairsf.components.version}</version>
+         <groupId>org.sakaiproject.rsf</groupId>
+         <artifactId>sakai-rsf-web-evolvers</artifactId>
+		 <version>${project.version}</version>
          <type>jar</type>
       </dependency>
 
       <dependency>
-         <groupId>uk.org.ponder.sakairsf</groupId>
-         <artifactId>SakaiRSFComponents-templates</artifactId>
-         <version>${sakairsf.components.version}</version>
+         <groupId>org.sakaiproject.rsf</groupId>
+         <artifactId>sakai-rsf-web-templates</artifactId>
+         <version>${project.version}</version>
          <type>war</type>
       </dependency>
 	  

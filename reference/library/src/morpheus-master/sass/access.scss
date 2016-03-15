@@ -39,7 +39,7 @@
 	            font-weight: bold;
                 &.inactive {
                     color: Gray;
-                    @include opacity(0.5);
+                    opacity: 0.5;
                 }
             }
 

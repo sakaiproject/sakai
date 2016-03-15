@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+
+<wicket:extend>
+
+	<div class="row">
+		<div class="col-sm-12">
+			<h2><wicket:message key="settingspage.main.heading">Gradebook Setup</wicket:message></h2>
+			<div class="pull-right">
+				<a wicket:id="expandAll"><wicket:message key="button.settingsexpandall">Expand All</wicket:message></a>
+				<a wicket:id="collapseAll"><wicket:message key="button.settingscollapseall">Collapse All</wicket:message></a>
+			</div>
+		</div>
+	</div>
+
+	<form wicket:id="form" id="gradebookSettings">
+		<div class="panel-group" id="settingsAccordion" role="tablist" aria-multiselectable="true">
+			<wicket:container wicket:id="gradeEntryPanel" />
+			<wicket:container wicket:id="gradeReleasePanel" />
+			<wicket:container wicket:id="categoryPanel" />
+			<wicket:container wicket:id="gradingSchemaPanel" />
+		</div>
+
+		<div>
+			<input type="submit" class="active" wicket:message="value:button.savechanges" />
+			<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+		</div>
+	</form>
+
+</wicket:extend>
+
+</body>
+</html>

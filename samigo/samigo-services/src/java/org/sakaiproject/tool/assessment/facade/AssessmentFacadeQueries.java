@@ -77,6 +77,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachment
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -156,7 +157,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
 				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), new Date(),
 				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
-				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 		s.setAssessmentBase(assessmentTemplate);
 		assessmentTemplate
@@ -208,7 +209,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), new Date(),
 				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
-				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 
 		s.setAssessmentBase(assessment);
@@ -1812,8 +1813,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return attach;
 	}
 
-	public void saveOrUpdateAttachments(List list) {
-		getHibernateTemplate().saveOrUpdateAll(list);
+	public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
+	    for (AttachmentIfc attachment : list) {
+	        getHibernateTemplate().saveOrUpdate(attachment);
+	    }
 	}
 
 	public List getAllActiveAssessmentsByAgent(final String siteAgentId) {
@@ -1849,7 +1852,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			newList.add(new_a);
 			assessmentMap.put(new_a, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId());
 		}
-		getHibernateTemplate().saveOrUpdateAll(newList); // write
+		for (AssessmentData assessmentData : newList) {
+		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
+        }
+		
 		// authorization
 		for (int i = 0; i < newList.size(); i++) {
 			AssessmentData a = (AssessmentData) newList.get(i);
@@ -1884,7 +1890,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				}
 			}
 		}
-		getHibernateTemplate().saveOrUpdateAll(newList); // write
+		for (AssessmentData assessmentData : newList) {
+		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
+		}
 		for (AssessmentData data: newList) {
 		    String oldRef = assessmentMap.get(data);
 		    if (oldRef != null && data.getAssessmentBaseId() != null)
@@ -1933,6 +1941,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
     	StringBuffer sb = new StringBuffer(assessmentData.getTitle());
     	sb.append(" ");
     	sb.append(apepndCopyTitle);
+    	if(sb.length() >= assessmentData.TITLE_LENGTH){ //title max size
+    		String appendCopyText = "... "+apepndCopyTitle;
+    		String titleCut = sb.substring(0, assessmentData.TITLE_LENGTH-appendCopyText.length()-1); //cut until size needed to add ellipsis and copyTitle without exceed DB field size
+    		log.debug("titleCut = "+titleCut);
+    		sb = new StringBuffer(titleCut);
+    		sb.append(appendCopyText);
+    	}
     	String newTitle = getNewAssessmentTitleForCopy(sb.toString());
     	assessmentData.setTitle(newTitle);
 	  }
@@ -2100,7 +2115,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
 						.getFeedbackDate(), a.getRetractDate(), a
 						.getAutoSubmit(), a.getItemNavigation(), a
-						.getItemNumbering(), a.getSubmissionMessage(), a
+						.getItemNumbering(), a.getDisplayScoreDuringAssessments(), a.getSubmissionMessage(), a
 						.getReleaseTo());
 		newAccessControl.setUsername(a.getUsername());
 		newAccessControl.setPassword(a.getPassword());
@@ -2210,7 +2225,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			ItemData newItem = new ItemData(newSection, item.getSequence(),
 					item.getDuration(), item.getInstruction(), item
 							.getDescription(), item.getTypeId(), item
-							.getGrade(), item.getScore(), item.getDiscount(), item.getHint(), item
+							.getGrade(), item.getScore(), item.getScoreDisplayFlag(), item.getDiscount(), item.getMinScore(), item.getHint(), item
 							.getHasRationale(), item.getStatus(), item
 							.getCreatedBy(), item.getCreatedDate(), item
 							.getLastModifiedBy(), item.getLastModifiedDate(),
@@ -2218,7 +2233,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 					// itemFeedbackSet later
 					item.getTriesAllowed(), item.getPartialCreditFlag());
 			Set newItemTextSet = prepareItemTextSet(newItem, item
-					.getItemTextSet(), protocol);
+					.getItemTextSet(), protocol, toContext);
 			Set newItemMetaDataSet = prepareItemMetaDataSet(newItem, item
 					.getItemMetaDataSet());
 			Set newItemFeedbackSet = prepareItemFeedbackSet(newItem, item
@@ -2241,7 +2256,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return prepareItemSet(newSection, itemSet, protocol, null);
 	}
 	
-	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet, String protocol) {
+	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet, String protocol, String toContext) {
 		log.debug("new item text size = " + itemTextSet.size());
 		HashSet h = new HashSet();
 		Iterator k = itemTextSet.iterator();
@@ -2255,7 +2270,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			newItemText.setAnswerSet(newAnswerSet);
 			
 			Set itemTextAttachmentSet = this.prepareItemTextAttachmentSet(newItemText, 
-					itemText.getItemTextAttachmentSet(), protocol);
+					itemText.getItemTextAttachmentSet(), protocol, toContext);
 			newItemText.setItemTextAttachmentSet(itemTextAttachmentSet);
 			newItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
 
@@ -2324,7 +2339,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	
 	// EMI ItemText attachments
 	public Set prepareItemTextAttachmentSet(ItemText newItemText,
-			Set itemTextAttachmentSet, String protocol) {
+			Set itemTextAttachmentSet, String protocol, String toContext) {
 		HashSet h = new HashSet();
 		Iterator o = itemTextAttachmentSet.iterator();
 		while (o.hasNext()) {
@@ -2334,7 +2349,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				AssessmentService service = new AssessmentService();
 				ContentResource cr_copy = service.createCopyOfContentResource(
 						itemTextAttachment.getResourceId(), itemTextAttachment
-								.getFilename());
+								.getFilename(), toContext);
 				// get relative path
 				String url = getRelativePath(cr_copy.getUrl(), protocol);
 

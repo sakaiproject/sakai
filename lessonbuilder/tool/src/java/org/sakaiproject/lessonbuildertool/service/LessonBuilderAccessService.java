@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.BufferedInputStream;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -215,6 +216,12 @@ public class LessonBuilderAccessService {
 
 	public void setGradebookIfc(GradebookIfc g) {
 		gradebookIfc = g;
+	}
+
+	private AuthzGroupService authzGroupService;
+
+	public void setAuthzGroupService(AuthzGroupService a) {
+		authzGroupService = a;
 	}
 
 	protected static final long MAX_URL_LENGTH = 8192;
@@ -493,7 +500,7 @@ public class LessonBuilderAccessService {
 					    // The assumption is that only one of those people can put content in the
 					    // page, and then only if the can see it.
 
-					    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
+					    if (owner != null && usersite != null && authzGroupService.getUserRole(usersite, group) != null) {
 						// OK
 					    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
 						// OK
@@ -542,7 +549,6 @@ public class LessonBuilderAccessService {
 						simplePageBean.setAssignmentEntity(assignmentEntity);
 						simplePageBean.setBltiEntity(bltiEntity);
 						simplePageBean.setGradebookIfc(gradebookIfc);
-						simplePageBean.setMemoryService(memoryService);
 						simplePageBean.setCurrentSiteId(currentPage.getSiteId());
 						simplePageBean.setCurrentPage(currentPage);
 						simplePageBean.setCurrentPageId(currentPage.getPageId());
@@ -630,7 +636,18 @@ public class LessonBuilderAccessService {
 								URI uri = new URI(new String(content, "UTF-8"));
 								eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ,
 										resource.getReference(null), false));
-								res.sendRedirect(uri.toASCIIString());
+
+								String decodedUrl = null;
+								if (id.endsWith(".URL")) {
+								    // created by resources tool. Use new processing for it.
+									decodedUrl = URLDecoder.decode(uri.toString(), "UTF-8");
+									decodedUrl = contentHostingService.expandMacros(decodedUrl);
+								} else {
+								    // created by Lessons. Use it as is.
+								    decodedUrl = uri.toString();
+								}
+
+								res.sendRedirect(decodedUrl);
 							} else {
 								// 	we have a text/url mime type, but the body is too
 								// 	long to issue as a redirect

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- Contains bean overrides and new definitions for application-scope beans required for integration of RSF apps into Sakai with the 
+	"Entity Broker" system -->
+
+	<bean id="sakai-EntityReferenceProxy" parent="RSACStringBridge">
+		<property name="targetBeanName" value="sakai-EntityReference" />
+	</bean>
+
+	<bean id="accessRegistrar" class="org.sakaiproject.rsf.entitybroker.AccessRegistrar" init-method="init">
+		<property name="accessProviderManager" ref="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager" />
+		<property name="RSACBeanLocator" ref="RSACBeanLocator" />
+		<property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+	</bean>
+
+	<bean id="commonAccessProvider" factory-bean="accessRegistrar" factory-method="getCommonAccessHandler" />
+
+	<!-- use valueRef here to break load-time loop since EVPIManager is itself a TLAB of defaultViewInferrer as well as the target of 
+		the EVPI TLAB -->
+	<bean parent="defaultViewInferrerParent">
+		<property name="valueRef" value="EVPIManager" />
+	</bean>
+
+	<bean id="EVPIManager" class="org.sakaiproject.rsf.entitybroker.EVPIManager" init-method="init">
+		<property name="accessRegistrar" ref="accessRegistrar" />
+		<property name="sakaiReference" ref="sakai-EntityReferenceProxy" />
+	</bean>
+
+	<bean class="uk.org.ponder.springutil.ByClassTLAB">
+		<property name="targetPath" value="EVPIManager.entityViewParamsInferrers" />
+		<property name="targetClass" value="org.sakaiproject.rsf.entitybroker.EntityViewParamsInferrer" />
+	</bean>
+
+
+	<bean id="fatalErrorHandler" class="uk.org.ponder.rsf.processor.support.DefaultFatalErrorHandler">
+		<property name="propagatedExceptions" value="java.lang.SecurityException" />
+	</bean>
+
+	<bean parent="viewExceptionStrategyParent">
+		<property name="value">
+			<bean class="uk.org.ponder.rsf.flow.errors.PropagatingViewExceptionStrategy">
+				<property name="propagatedExceptions" value="java.lang.SecurityException" />
+			</bean>
+		</property>
+	</bean>
+
+</beans>

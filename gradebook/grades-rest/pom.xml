@@ -16,7 +16,7 @@
     <parent>
       <artifactId>gradebook-base</artifactId>
       <groupId>org.sakaiproject</groupId>
-      <version>11-SNAPSHOT</version>
+      <version>12-SNAPSHOT</version>
       <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -171,6 +171,7 @@
                         <exclude>m2-target/**</exclude>
                         <exclude>**/*.properties</exclude>
                         <exclude>**/*.txt</exclude>
+                        <exclude>**/*.xml</exclude>
                         <exclude>LICENSE*</exclude>
                         <exclude>**/README.txt</exclude>
                         <exclude>bin/**</exclude>

@@ -235,6 +235,8 @@
 			html += "</p>\n";
 		}
 		form_div.innerHTML = html;
+		//for electronic citation url is required
+		checkReqStarForElectronicCitation();
 		resizeFrame();
 	}
 	function getValue(type, t, index)
@@ -375,14 +377,12 @@
 	 */
 	function trackPreferredUrl( checkboxId )
 	{
-		// has this been clicked?
-		if( $( "#" + checkboxId ).attr( "checked" ) != null )
+		var checkBoxClicked = $( "#" + checkboxId );
+		// has this been checked?
+		if( checkBoxClicked.is(':checked') )
 		{
-			// clear all checkboxes
-			$( ".prefLink" ).attr( "checked", "" );
-			
-			// re-check this one
-			$( "#" + checkboxId ).attr( "checked", "checked" );
+			// clear all checkboxes except the clicked one
+			$(".prefLink").not(checkBoxClicked).removeAttr("checked");
 		}
 		
 		// if the checkbox has been unchecked, we do nothing

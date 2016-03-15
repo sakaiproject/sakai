@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.services;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -55,6 +56,7 @@ import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -100,6 +102,9 @@ public class GradingService
   final String CLOSE_BRACKET = "\\}";
   final String CALCULATION_OPEN = "[["; // not regex safe
   final String CALCULATION_CLOSE = "]]"; // not regex safe
+  final String FORMAT_MASK = "0E0";
+  final Double MAX_THRESHOLD = 10000.0;
+  final Double MIN_THRESHOLD = 0.0001;
   /**
    * regular expression for matching the contents of a variable or formula name 
    * in Calculated Questions
@@ -297,8 +302,22 @@ public class GradingService
       else{ // if new is different from old, include it for update
         AssessmentGradingData b = (AssessmentGradingData) o;
         if ((a.getFinalScore()!=null && b.getFinalScore()!=null) 
-            && !a.getFinalScore().equals(b.getFinalScore()))
-          l.add(a);
+            && !a.getFinalScore().equals(b.getFinalScore())) {
+            l.add(a);
+        }
+        // if scores are not modified but comments are added, include it for update
+        else if (a.getComments()!=null)
+        	{
+            	if (b.getComments()!=null)
+            	{
+                    if (!a.getComments().equals(b.getComments())) {
+                            l.add(a);
+                    }
+            	}
+            	else {
+                    l.add(a);
+            	}
+        	}
       }
     }
     return l;
@@ -800,6 +819,9 @@ public class GradingService
          throws GradebookServiceException, FinFormatException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
+    	boolean imageMapAllOk=true;
+    	boolean NeededAllOk = false;
+    	
       String agent = data.getAgentId();
       
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
@@ -869,9 +891,26 @@ public class GradingService
         	log.error("unable to retrive itemDataIfc for: " + publishedItemHash.get(itemId));
         	continue;
         }
+        Iterator i = item.getItemMetaDataSet().iterator();
+        while (i.hasNext())
+        {
+          ItemMetaDataIfc meta = (ItemMetaDataIfc) i.next();
+          if (meta.getLabel().equals(ItemMetaDataIfc.REQUIRE_ALL_OK))
+          {
+            if (meta.getEntry().equals("true"))
+            {
+          	  NeededAllOk = true;
+              break;
+            }
+            if (meta.getEntry().equals("false"))
+            {
+          	  NeededAllOk = false;
+              break;
+            }
+          }
+        }
         Long itemType = item.getTypeId();  
     	autoScore = (double) 0;
-
         itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
         //itemGrading.setSubmittedDate(new Date());
         itemGrading.setAgentId(agent);
@@ -905,6 +944,10 @@ public class GradingService
         		}
         	}
         }
+        if ((TypeIfc.IMAGEMAP_QUESTION.equals(itemType))&&(NeededAllOk)&&((autoScore==-123456789)||!imageMapAllOk)){
+        	autoScore=0;
+        	imageMapAllOk=false;
+        } 
         
         log.debug("**!regrade, autoScore="+autoScore);
         if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType) && !(TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType))
@@ -937,6 +980,11 @@ public class GradingService
       //since the itr goes through each answer (multiple answers for a signle mc question), keep track
       //of its total score by itemId -> autoScore[]{user's score, total possible}
       Map<Long, Double[]> mcmcAllOrNothingCheck = new HashMap<Long, Double[]>();
+      
+      //collect min score information to determine if the auto score will need to be adjusted
+      //since there can be multiple questions store in map: itemId -> {user's score, minScore, # of answers}
+      Map<Long, Double[]> minScoreCheck = new HashMap<Long, Double[]>();
+      double totalAutoScoreCheck = 0;
       Map<Long, Integer> countMcmcAllItemGradings = new HashMap<Long, Integer>();
       //get item information to check if it's MCMS and Not Partial Credit
       Long itemType2 = -1l;
@@ -952,6 +1000,7 @@ public class GradingService
         	log.error("unable to retrive itemDataIfc for: " + publishedItemHash.get(itemId));
         	continue;
         }
+
         itemType2 = item.getTypeId();
         //get item information to check if it's MCMS and Not Partial Credit
         mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
@@ -982,6 +1031,17 @@ public class GradingService
         	if(countMcmcAllItemGradings.containsKey(itemId))
         		count = ((Integer)countMcmcAllItemGradings.get(itemId)).intValue();
         	countMcmcAllItemGradings.put(itemId, new Integer(++count));
+        }
+        //min score check
+        if(item.getMinScore() != null){
+        	Double accumulatedScore = new Double(itemGrading.getAutoScore());
+        	Double itemParts = 1d;
+        	if(minScoreCheck.containsKey(itemId)){
+        		Double[] accumulatedScoreArr = minScoreCheck.get(itemId);
+        		accumulatedScore += accumulatedScoreArr[0];
+        		itemParts += accumulatedScoreArr[2];
+        	}
+        	minScoreCheck.put(itemId, new Double[]{accumulatedScore, item.getMinScore(), itemParts});
         }
       }
       
@@ -1033,6 +1093,7 @@ public class GradingService
     				  .get(itemGrading.getPublishedItemTextId())
     				  .get(itemGrading.getPublishedAnswerId()).effectiveScore);
     	  }
+    	  totalAutoScoreCheck = 0;
       }
       
       // if it's MCMS and Not Partial Credit and the score isn't 100% (totalAutoScoreCheck != itemScore),
@@ -1066,6 +1127,23 @@ public class GradingService
     	  }
       }
       
+      //if there is a minimum score value, then make sure the auto score is at least the minimum
+      //entry.getValue()[0] = total score for the question
+      //entry.getValue()[1] = min score
+      //entry.getValue()[2] = how many question answers to divide minScore across
+      for(Entry<Long, Double[]> entry : minScoreCheck.entrySet()){
+    	  if(entry.getValue()[0] < entry.getValue()[1]){
+    		  //reset all scores to 0 since the user didn't get all correct answers
+    		  iter = itemGradingSet.iterator();
+    		  while(iter.hasNext()){
+    			  ItemGradingData itemGrading = (ItemGradingData) iter.next();
+    			  if(itemGrading.getPublishedItemId().equals(entry.getKey())){
+    				  itemGrading.setAutoScore(new Double(entry.getValue()[1]/entry.getValue()[2]));
+    			  }
+    		  }
+    	  }
+      }
+      
       log.debug("****x4. "+(new Date()).getTime());
 
       // save#1: this itemGrading Set is a partial set of answers submitted. it contains new answers and
@@ -1078,11 +1156,14 @@ public class GradingService
       }
       log.debug("****x5. "+(new Date()).getTime());
 
+      
+
       // save#2: now, we need to get the full set so we can calculate the total score accumulate for the
       // whole assessment.
       Set fullItemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
       double totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore( Double.valueOf(totalAutoScore));
+     
       //log.debug("**#1 total AutoScore"+totalAutoScore);
       if (Double.compare((totalAutoScore + data.getTotalOverrideScore().doubleValue()),new Double("0").doubleValue())<0){
     	  data.setFinalScore( Double.valueOf("0"));
@@ -1301,7 +1382,48 @@ public class GradingService
                 totalItems.put(itemId, Double.valueOf(accumelateScore));
               }
               break;
+      case 16:    	  
+    	  initScore = getImageMapScore(itemGrading,item, (HashMap) publishedItemTextHash,publishedAnswerHash);
+    	  //if one answer is 0 or negative, and need all OK to be scored, then autoScore=-123456789
+    	  //and we break the case...
+    	  
+    	  boolean NeededAllOk = false;
+    	  Iterator i = item.getItemMetaDataSet().iterator();
+          while (i.hasNext())
+          {
+            ItemMetaDataIfc meta = (ItemMetaDataIfc) i.next();
+            if (meta.getLabel().equals(ItemMetaDataIfc.REQUIRE_ALL_OK))
+            {
+              if (meta.getEntry().equals("true"))
+              {
+            	  NeededAllOk = true;
+                break;
     }
+            }
+          }
+    	  if (NeededAllOk&&initScore<=0){
+    		  autoScore=-123456789;
+    		  break;
+    	  }
+          //if (initScore > 0) {
+      	         autoScore += initScore ;
+          //}
+    	  
+          //overridescore?
+          if (itemGrading.getOverrideScore() != null)
+            autoScore += itemGrading.getOverrideScore().doubleValue();
+          
+          if (!totalItems.containsKey(itemId)){
+            totalItems.put(itemId,  Double.valueOf(autoScore));
+          }else {
+            accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
+            accumelateScore += autoScore;
+            totalItems.put(itemId,  Double.valueOf(accumelateScore));
+          }
+          
+          break;
+    }
+    
     return autoScore;
   }
 
@@ -1395,6 +1517,16 @@ public class GradingService
     if(!(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
     	data.setFinalScore(originalFinalScore);
     }
+    
+    try {
+        	Long publishedAssessmentId = data.getPublishedAssessmentId();
+        	String agent = data.getAgentId();
+        	String comment = data.getComments();
+        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, g);
+    }
+    catch (Exception ex) {
+          log.warn("Error sending comments to gradebook: " + ex.getMessage());
+          }
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
@@ -1747,6 +1879,66 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  return matchresult;
   }  
+  
+  
+  public double getImageMapScore(ItemGradingData data, ItemDataIfc itemdata, HashMap publishedItemTextHash, HashMap publishedAnswerHash)
+  {
+	  // Final score must be... 
+	  // IF NOT PARTIALCREDIT THEN 0 or total
+	  // IF PARTIALCREDIT EACH PART ADDED. 
+	  
+	  
+	  data.setIsCorrect(Boolean.FALSE);
+	  double totalScore; 
+	 
+	 Iterator iter = publishedAnswerHash.keySet().iterator();
+	 int answerNumber = 0;
+	 while (iter.hasNext()){
+		 Long answerId = Long.valueOf(iter.next().toString());
+		 AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerId);
+		 
+		 if (answer.getItem().getItemId().equals(data.getPublishedItemId())) 
+			 answerNumber=answerNumber+1;
+		 	 
+	 }
+	 
+	 double answerScore=itemdata.getScore();
+	 	 
+	 if (answerNumber!=0){
+		 answerScore=answerScore/answerNumber;
+	 }
+	 
+	 ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
+	 
+	 ArrayList answerArray = (ArrayList) itemTextIfc.getAnswerArray();
+	 AnswerIfc answerIfc= (AnswerIfc) answerArray.get(0); 
+	 
+	 try{
+		 String area = answerIfc.getText();
+		 Integer areax1=Integer.valueOf(area.substring(area.indexOf("\"x1\":")+5,area.indexOf(",", area.indexOf("\"x1\":"))));
+		 Integer areay1=Integer.valueOf(area.substring(area.indexOf("\"y1\":")+5,area.indexOf(",", area.indexOf("\"y1\":"))));
+		 Integer areax2=Integer.valueOf(area.substring(area.indexOf("\"x2\":")+5,area.indexOf(",", area.indexOf("\"x2\":"))));
+		 Integer areay2=Integer.valueOf(area.substring(area.indexOf("\"y2\":")+5,area.indexOf("}", area.indexOf("\"y2\":"))));
+		 
+		 String point = data.getAnswerText();
+		 Integer pointx=Integer.valueOf(point.substring(point.indexOf("\"x\":")+4,point.indexOf(",", point.indexOf("\"x\":"))));
+		 Integer pointy=Integer.valueOf(point.substring(point.indexOf("\"y\":")+4,point.indexOf("}", point.indexOf("\"y\":"))));
+		
+				 
+		 if (((pointx>=areax1)&&(pointx<=areax2))&&((pointy>=areay1)&&(pointy<=areay2))) {
+			 totalScore=answerScore;
+			 data.setIsCorrect(Boolean.TRUE);
+		 }else{
+			 totalScore=0;
+		 }
+	}catch(Exception ex){
+		 totalScore=0;
+	 }
+	 	  
+    
+    return totalScore;
+  }
+  
 
   /**
    * Validate a students numeric answer 
@@ -2049,7 +2241,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
      }
   }
 
-  public void saveOrUpdateAll(Collection c)
+  public void saveOrUpdateAll(Collection<ItemGradingData> c)
   {
     try {
       PersistenceService.getInstance().
@@ -2510,6 +2702,39 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return segments;
   }
 
+  
+  /**
+   * CALCULATED_QUESTION
+   * toScientificNotation() Takes a string representation of a number and returns
+   * a string representation of that number, in scientific notation.
+   * Numbers like 100, 0.01 will not be formatted (see values of MAX_THRESHOLD and MIN_THRESHOLD)
+   * @param numberStr
+   * @param decimalPlaces
+   * @return processed number string
+   */
+  public String toScientificNotation(String numberStr,int decimalPlaces){
+	  
+	  BigDecimal x = new BigDecimal(numberStr);
+	  x.setScale(decimalPlaces,RoundingMode.HALF_UP);	
+	  
+	  NumberFormat formatter;
+	  
+	  if (((( Math.abs(x.doubleValue())) >= MAX_THRESHOLD) || ( Math.abs(x.doubleValue()) <= MIN_THRESHOLD) 
+        || (numberStr.contains("e")) || numberStr.contains("E") ) 
+	    && (x.doubleValue() != 0)) {
+		  formatter = new DecimalFormat(FORMAT_MASK);
+	  } else {
+		  formatter = new DecimalFormat("0");
+	  }	  
+	  
+	  formatter.setRoundingMode(RoundingMode.HALF_UP);	  
+	  formatter.setMaximumFractionDigits(decimalPlaces);
+	  
+	  String formattedNumber = formatter.format(x);
+
+	  return formattedNumber.replace(",",".");
+  }
+  
   /**
    * CALCULATED_QUESTION
    * applyPrecisionToNumberString() takes a string representation of a number and returns
@@ -2819,7 +3044,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
           String numericString = parser.parse(formula, decimalPlaces+1);
           if (this.isAnswerValid(numericString)) {
-              numericString = applyPrecisionToNumberString(numericString, decimalPlaces);
+              numericString = toScientificNotation(numericString, decimalPlaces);
               value = numericString;
           } else {
               throw new IllegalStateException("Invalid calculation formula ("+formula+") result ("+numericString+"), result could not be calculated");
@@ -2915,11 +3140,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  Double randomValue = minVal + (maxVal - minVal) * generator.nextDouble();
 		  
 		  // Trim off excess decimal points based on decimalPlaces value
-		  BigDecimal bd = new BigDecimal(randomValue);
+		  /*BigDecimal bd = new BigDecimal(randomValue);
 		  bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_UP);
 		  randomValue = bd.doubleValue();
+		  String displayNumber = randomValue.toString();*/
 		  
-		  String displayNumber = randomValue.toString();
+		  String displayNumber = toScientificNotation(randomValue.toString(), decimalPlaces);
+		  
 		  // Remove ".0" if decimalPlaces ==0
 		  if (decimalPlaces == 0) {
 			  displayNumber = displayNumber.replace(".0", "");
@@ -2986,7 +3213,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  ItemGradingData itemCheck = (ItemGradingData) iter.next();
 		  Long itemId = itemCheck.getPublishedItemId();
 		  ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
-		  if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+		  if (item != null && (TypeIfc.CALCULATED_QUESTION).equals(item.getTypeId())) {
 	    	  return true;
 	      }
 	  }
@@ -3060,10 +3287,29 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		}
 		return attachment;
 	}
+  
+  public AssessmentGradingAttachment createAssessmentGradingAttachment(
+		  AssessmentGradingData assessmentGrading, String resourceId, String filename,
+			String protocol) {
+	  AssessmentGradingAttachment attachment = null;
+		try {
+			attachment = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().createAssessmentGradingtAttachment(assessmentGrading,
+					resourceId, filename, protocol);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return attachment;
+	}
 
   public void removeItemGradingAttachment(String attachmentId) {
 	  PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
 	  .removeItemGradingAttachment(Long.valueOf(attachmentId));
+  }
+  
+  public void removeAssessmentGradingAttachment(String attachmentId) {
+	  PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+	  .removeAssessmentGradingAttachment(Long.valueOf(attachmentId));
   }
 
   public void saveOrUpdateAttachments(List list) {

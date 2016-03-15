@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
   <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
     <property name="name">
       <value>root</value>
@@ -4982,7 +4984,7 @@
       <value>/sakai_screensteps_jobSchedulerAdministratorGuide/What-is-the-Job-Scheduler-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.jobScheduler</value>
+      <value>sakai.scheduler</value>
     </property>
   </bean>
   <bean id="howdoIviewtheeventlog" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5381,9 +5383,6 @@
     <property name="location">
       <value>/sakai_screensteps_resourcesAdministratorGuide/What-Resources-are-specific-to-admin-users-.html</value>
     </property>
-    <property name="defaultForTool">
-      <value>sakai.resources</value>
-    </property>
   </bean>
   <bean id="siteArchiveAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
@@ -5408,7 +5407,7 @@
       <value>/sakai_screensteps_siteArchiveAdministratorGuide/What-is-the-Site-Archive-tool-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.siteArchive</value>
+      <value>sakai.archive</value>
     </property>
   </bean>
   <bean id="howdoIexportarchiveanindividualsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5541,7 +5540,7 @@
       <value>/sakai_screensteps_sitestatsAdminAdministratorGuide/What-is-Sitestats-Admin-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.sitestatsAdmin</value>
+      <value>sakai.sitestats.admin</value>
     </property>
   </bean>
   <bean id="howdoIviewreportsforaspecificsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5697,7 +5696,7 @@
       <value>/sakai_screensteps_userMembershipAdministratorGuide/What-is-User-Membership-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.userMembership</value>
+      <value>sakai.usermembership</value>
     </property>
   </bean>
   <bean id="howdoIsearchforanaccountinUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5759,7 +5758,7 @@
       <value>/sakai_screensteps_worksiteSetupAdministratorGuide/How-does-Worksite-Setup-differ-for-admin-users-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.worksiteSetup</value>
+      <value>sakai.sitesetup</value>
     </property>
   </bean>
   <bean id="howdoIdefinethedefaultsetoftoolsaddedtositeonsitecreation" class="org.sakaiproject.component.app.help.model.ResourceBean">

@@ -1,15 +1,33 @@
+.#{$namespace}multipleTools{
+	.#{$namespace}toolTitleNav{
+		.#{$namespace}toolTitleNav__title{
+			display: inline-block;
+			color: rgba(21,21,21,0.5);
+			font-size: 0.85em;
+			font-weight: 400;
+			letter-spacing: 1.2px;
+			margin: 0px;
+			position: relative;
+			text-transform: uppercase;
+			width: calc(100% - 90px);
+			z-index: 21;
+			a{
+				color: rgba(21,21,21,0.5);
+				font-weight: 400;
+				margin-right: 0.25em;
+			}
+		}
+	}
+
+}
 
 .#{$namespace}toolTitleNav{
-	background: $primary-color;
 	margin: 1em 0 0 0;
 	padding: 0.5em;
+	position: relative;
 	.#{$namespace}toolTitleNav__title{
-		color: lighten( $text-color, 70% );
-		display: inline-block;
-		font-size: 1.5em;
-		width: calc(100% - 90px);
-
-		& ~ .#{$namespace}directUrl__dropDown{
+		display: none;
+		& ~ .#{$namespace}toolTitleNav__button_container > .#{$namespace}directUrl__dropDown{
 			display: none;
 			&.active{
 				padding: 0.8em;
@@ -19,47 +37,100 @@
 				width: 250px;
   				margin: 10px 0 0 -250px;
   				z-index: 2;
-				@include box-shadow(0 0 5px 0 rgba(0,0,0,0.5));
+				box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+				label{
+					font-size: $default-font-size;
+					margin: 5px 0 0px 5px;
+					vertical-align: middle;
+				}
 				textarea{
 					display: block;
-					width: 98%;
 					height: 50px;
+					margin: 0.5em 0 0 0;
+					width: 98%;
+				}
+				@media #{$phone}{
+					margin: -1px 0 0px -214px;
 				}
 			}
 		}
-		a{
-			color: lighten( $text-color, 70% );
-			margin-right: 0.25em;
-
+	}
+	.#{$namespace}toolTitleNav__button_container{
+		float: right;
+		display: block;
+		position: relative;
+		margin: 0px 0 -20px 0;
+		top: 9px;
+		z-index: 1;
+		@media #{$tablet}{
+			left: 0.35em;
+			font-size: 1.5em;
+			margin: 0px 0 0px 0;
+			top: -4px;
+			z-index: 1;
 		}
 	}
-
 	.#{$namespace}toolTitleNav__link{
-		vertical-align: 0%;
-		color: lighten( $text-color, 70% );
-		text-decoration :none;
+		//color: lighten( $text-color, 70% );
+		border: 1px solid #e0e0e0;
+		background: $toolTabBGColor;
 		margin-right: 0.25em;
-		@include icon();
+		padding: 5px 8px;
+		text-decoration :none;
+		vertical-align: 0%;
+		&:hover{
+			background: $tool-background-color;
+			color: $primary-color;
+			box-shadow: 0 0 6px 0 rgba(0,0,0,.15);
+		}
+		@media #{$tablet}{
+			background: $tool-background-color;
+			border: 0px none;
+			color: $primary-color;
+			margin-right: 0em;
+		}
+		/*@media #{$tablet}{
+			background: transparent;
+		}*/
+		//@include icon();
 		&--directurl{
 			@extend .fa;
 			@extend .fa-link;
-			@extend .fa-lg;
+			//@extend .fa-lg;
+			/*position: absolute;
+			right: #{$icon-size * 1.5};*/
 		}
 		&--help-popup{
 			@extend .fa;
 			@extend .fa-question;
-			@extend .fa-lg;
+			//@extend .fa-lg;
+			/*position: absolute;
+			right: 0;*/
 		}
 		&--edit{
 			@extend .fa;
 			@extend .fa-pencil;
-			@extend .fa-lg;	
+			//@extend .fa-lg;	
+			/*position: absolute;
+			right: #{$icon-size * 3};*/
 		}
 		&--reset{
 			@extend .fa;
 			@extend .fa-share;
-			@extend .fa-lg;	
+			//@extend .fa-lg;	
+			display: none;
 			font-size: 0.9em;
+			float: left;
+		}
+		.#{$namespace}itemTitle{
+			font-family: $font-family;
+			/*font-size: $default-font-size;*/
+			text-transform: uppercase;
+			font-size: 0.8em;
+			letter-spacing: 1.2px;
+			@media #{$tablet}{
+				display: none;
+			}
 		}
 	}
 
@@ -67,14 +138,50 @@
 
 .#{$namespace}toolBody{
 	background: $tool-background-color;
+	border-bottom: 1px solid $toolBorderColor;
 	iframe{
-		margin: 1em 0 0 0;
-		width: 99%;
+		margin: 0 0 0 0;
+		width: 100%;
 	}
 }
 
 .portletBody{
 	background: $tool-background-color;
-	padding: #{$default-font-size / 2};
-	padding-bottom: 40px;
+	padding: $default-font-size $default-font-size 40px $default-font-size;
+	@media #{$phone}{
+		margin: 2.3em 0 0 0;
+	}
+	> * {
+		position: relative;
+		top: -2px;
+	}
+}
+
+.itemNav{
+	float: right;
+	vertical-align: bottom;
+	text-align: right;
+	line-height: 2em;
+	clear: both;
+	margin: 1em 0em 0.5em 0;
+	white-space: nowrap;
+	a{
+		white-space: nowrap;
+	}
+	@media #{$phone}{
+		text-align: center;
+		white-space: normal;
+		input[type="text"], input[type="button"], input[type="reset"], input[type="submit"],button {
+			margin: 0.25em 0.1em 0.25em 0;
+		}
+	}
+
+}
+
+.validationEmbedded,.validation{
+	@extend .bs-callout-primary;
+}
+
+.alertMessage{
+	@extend .bs-callout-danger;
 }

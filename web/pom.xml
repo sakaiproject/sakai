@@ -4,14 +4,13 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>11-SNAPSHOT</version>
+    <version>12-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <name>Sakai Web Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>web-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
 
@@ -32,10 +31,6 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
-        <module>news-api/api</module>
-        <module>news-impl/impl</module>
-        <module>news-impl/pack</module>
-        <module>news-tool/tool</module>
         <module>web-api/api</module>
         <module>web-impl/impl</module>
         <module>web-impl/pack</module>
@@ -46,11 +41,6 @@
   </profiles>
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-news-impl</artifactId>
-        <version>${project.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-web-impl</artifactId>

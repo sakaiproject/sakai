@@ -373,62 +373,71 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 	Iterator<Entry<EmailTemplateLocaleUsers, RenderedTemplate>> it = set.iterator();
 	
 	while (it.hasNext()) {
-	
-			
-				Entry<EmailTemplateLocaleUsers, RenderedTemplate> entry = it.next();
-				RenderedTemplate rt = entry.getValue();
-				EmailTemplateLocaleUsers etlu = entry.getKey();
-				List<User> toAddress = getUsersEmail(etlu.getUserIds());
-				log.info("sending template " + key + " for locale " + etlu.getLocale().toString() + " to " + toAddress.size() + " users");
-				StringBuilder message = new StringBuilder();
-				message.append(MIME_ADVISORY);
-				if (rt.getRenderedMessage() != null) {
-					message.append(BOUNDARY_LINE);
-					message.append("Content-Type: text/plain; charset=iso-8859-1\n");
-					message.append(rt.getRenderedMessage());
-				}
-				if (rt.getRenderedHtmlMessage() != null) {
-					//append the HMTL part
-					message.append(BOUNDARY_LINE);
-					message.append("Content-Type: text/html; charset=iso-8859-1\n");
-					message.append(rt.getRenderedHtmlMessage());
-				}
-			
-				message.append(TERMINATION_LINE);
-				
-				// we need to manually construct the headers
-				List<String> headers = new ArrayList<String>();
-				//the template may specify a from address
-				if (StringUtils.isNotBlank(rt.getFrom())) {
-					headers.add("From: \"" + rt.getFrom() );
-				} else {
-					headers.add("From: \"" + fromName + "\" <" + fromEmail + ">" );
-				}
-				// Add a To: header of either the recipient (if only 1), or the sender (if multiple)
-				String toName = fromName;
-				String toEmail = fromEmail;
-				
-				if (toAddress.size() == 1) {
-					User u = toAddress.get(0);
-					toName = u.getDisplayName();
-					toEmail = u.getEmail();
-				} 
-				
-				headers.add("To: \"" + toName + "\" <" + toEmail + ">" );
-				
-				//SAK-21742 we need the rendered subject
-				headers.add("Subject: " + rt.getRenderedSubject());
-				headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
-				headers.add("Mime-Version: 1.0");
-				headers.add("Precedence: bulk");
-				
-				String body = message.toString();
-				log.debug("message body " + body);
-				emailService.sendToUsers(toAddress, headers, body);
-				
+
+
+		Entry<EmailTemplateLocaleUsers, RenderedTemplate> entry = it.next();
+		RenderedTemplate rt = entry.getValue();
+		EmailTemplateLocaleUsers etlu = entry.getKey();
+		List<User> toAddress = getUsersEmail(etlu.getUserIds());
+		log.info("sending template " + key + " for locale " + etlu.getLocale().toString() + " to " + toAddress.size() + " users");
+		sendEmailToUsers(toAddress, rt, fromEmail, fromName);
 	}
 }
 
+	/**
+	 * method to send email to Users.
+	 * @param toAddress
+	 * @param rt
+	 * @param fromEmail
+	 * @param fromName
+	 */
+	private void sendEmailToUsers(List<User> toAddress, RenderedTemplate rt, String fromEmail, String fromName){
+		StringBuilder message = new StringBuilder();
+		message.append(MIME_ADVISORY);
+		if (rt.getRenderedMessage() != null) {
+			message.append(BOUNDARY_LINE);
+			message.append("Content-Type: text/plain; charset=iso-8859-1\n");
+			message.append(rt.getRenderedMessage());
+		}
+		if (rt.getRenderedHtmlMessage() != null) {
+			//append the HMTL part
+			message.append(BOUNDARY_LINE);
+			message.append("Content-Type: text/html; charset=iso-8859-1\n");
+			message.append(rt.getRenderedHtmlMessage());
+		}
+
+		message.append(TERMINATION_LINE);
+
+		// we need to manually construct the headers
+		List<String> headers = new ArrayList<String>();
+		//the template may specify a from address
+		if (StringUtils.isNotBlank(rt.getFrom())) {
+			headers.add("From: \"" + rt.getFrom() );
+		} else {
+			headers.add("From: \"" + fromName + "\" <" + fromEmail + ">" );
+		}
+		// Add a To: header of either the recipient (if only 1), or the sender (if multiple)
+		String toName = fromName;
+		String toEmail = fromEmail;
+
+		if (toAddress.size() == 1) {
+			User u = toAddress.get(0);
+			toName = u.getDisplayName();
+			toEmail = u.getEmail();
+		}
+
+		headers.add("To: \"" + toName + "\" <" + toEmail + ">" );
+
+		//SAK-21742 we need the rendered subject
+		headers.add("Subject: " + rt.getRenderedSubject());
+		headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
+		headers.add("Mime-Version: 1.0");
+		headers.add("Precedence: bulk");
+
+		String body = message.toString();
+		log.debug("message body " + body);
+		emailService.sendToUsers(toAddress, headers, body);
+}
 
 private List<User> getUsersEmail(List<String> userIds) {
 	//we have a group of references
@@ -566,5 +575,16 @@ private List<User> getUsersEmail(List<String> userIds) {
 			dao.delete(template);
 		}
 	}
-
+	public void sendMessage(List<String> userIds, List<String> emailAddresses, RenderedTemplate renderedTemplate, String from, String fromName) {
+		List<User> toAddress = getUsersEmail(userIds);
+		//if user has changed the email address
+		if(emailAddresses.size() == 1){
+			String toEmail = emailAddresses.get(0);
+			List<String> additionalHeaders = new ArrayList<String>();
+			additionalHeaders.add("Content-Type: text/html; charset=UTF-8");
+			emailService.send(from, toEmail, renderedTemplate.getRenderedSubject(), renderedTemplate.getRenderedHtmlMessage(), toEmail, from, additionalHeaders );
+			return;
+		}
+		sendEmailToUsers(toAddress, renderedTemplate, from, fromName);
+	}
 }

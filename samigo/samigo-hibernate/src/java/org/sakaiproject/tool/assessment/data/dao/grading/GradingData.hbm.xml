@@ -67,6 +67,12 @@
       <key column="ASSESSMENTGRADINGID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
     </set>
+    <set name="assessmentGradingAttachmentSet" table="SAM_GRADINGATTACHMENT_T" cascade="all" order-by="createdDate asc"
+        inverse="true" lazy="true">
+        <cache usage="read-write"/>
+        <key column="ASSESSMENTGRADINGID"/>
+        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment" not-found="ignore"/>
+    </set>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingSummaryData" table="SAM_GRADINGSUMMARY_T">
@@ -145,6 +151,12 @@
       discriminator-value="1" lazy="true" > 
       <many-to-one name="itemGrading" column="ITEMGRADINGID" not-null="false"
         class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
+    </subclass>
+    
+    <subclass name="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment"
+      discriminator-value="4" lazy="true" > 
+      <many-to-one name="assessmentGrading" column="ASSESSMENTGRADINGID" not-null="false"
+        class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"/>
     </subclass>
 
   </class>

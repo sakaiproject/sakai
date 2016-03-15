@@ -122,6 +122,7 @@ public class RosterTool extends HttpServlet {
         request.setAttribute("viewEmail", sakaiProxy.getViewEmail());
 		request.setAttribute("superUser", sakaiProxy.isSuperUser());
 		request.setAttribute("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
+        request.setAttribute("viewConnections", sakaiProxy.getViewConnections());
 
         response.setContentType("text/html");
         request.getRequestDispatcher("/WEB-INF/bootstrap.jsp").include(request, response);	

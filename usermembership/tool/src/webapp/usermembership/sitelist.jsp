@@ -18,7 +18,8 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
-	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+	<script>includeLatestJQuery('sitelist.jsp');</script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
 	<script type="text/javascript" src="/sakai-usermembership-tool/usermembership/js/usermembership.js"></script>
 	<link href="/sakai-usermembership-tool/usermembership/css/usermembership.css" rel="stylesheet" type="text/css" media="all"></link>
 
@@ -50,9 +51,9 @@
 			</t:div>
 			<t:div styleClass="column2">
 				<h:commandButton id="setToInactive1" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"
-								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+								 onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<h:commandButton id="setToActive1" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" 
-								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+								 onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</t:div>
 			<t:div styleClass="column3">
 				<h:commandButton id="exportCsv1" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" disabled="true" />
@@ -68,7 +69,7 @@
             sortAscending="#{SiteListBean.sitesSortAscending}"
             rendered="#{SiteListBean.renderTable}" >
 			<h:column id="statusToggle">
-				<h:selectBooleanCheckbox value="#{row1.selected}" styleClass="chkStatus" onclick="USR_MEMBRSHP.checkEnableButtons();" />
+				<h:selectBooleanCheckbox value="#{row1.selected}" styleClass="chkStatus" onclick="this.value = this.checked; USR_MEMBRSHP.checkEnableButtons();" />
 			</h:column>
 			<h:column id="siteName">
 				<f:facet name="header">
@@ -147,9 +148,9 @@
 			</t:div>
 			<t:div styleClass="column2">
 				<h:commandButton id="setToInactive2" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"
-								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+								 onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<h:commandButton id="setToActive2" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" 
-								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+								 onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</t:div>
 			<t:div styleClass="column3">
 				<h:commandButton id="exportCsv2" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" disabled="true" />
@@ -159,8 +160,7 @@
 
 		<t:div styleClass="act">
 			<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active"
-											 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( 'sitelistform\\:backSpinner' );" />
-			<h:graphicImage id="backSpinner" url="/../library/image/indicator.gif" styleClass="spinner" alt="Processing" />
+											 onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</t:div>
 	</h:form>
 </sakai:view>

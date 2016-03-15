@@ -4,12 +4,20 @@
 
     #if (!${loginTopLogin})
 
+        #if (${userIsLoggedIn})
+            <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
+                <a href="javascript:void(0);" title="${rloader.sit_allsites}" role="menuitem" aria-haspopup="true">
+                    <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
+                </a>
+            </div>
+        #end
+
         <ul id="loginLinks" class="Mrphs-userNav">
 
                 #foreach ( $site in $tabsSites.tabsSites )
 
                     #if (${site.isMyWorkspace})
-                        
+
                         <li class="Mrphs-userNav__popup js-toggle-user-nav" aria-haspopup="true">
 
                                 #if (${displayUserloginInfo})
@@ -17,26 +25,49 @@
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
                                         <div id="loginUser" role="menuitem" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <a href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></a>
-                                            <a href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</a> 
-                                            <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>                                    	
+                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></a>
+                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">${loginUserFirstName}</a>
                                         </div>
 
                                     #else
 
-                                        <a id="loginUser" role="menuitem" href="${site.siteUrl}" class="no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
+                                        <a id="loginUser" role="menuitem" href="javascript:void(0);" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                            <span class="Mrphs-userNav__submenuitem--username">${loginUserFirstName}</span>
                                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                                         </a>
 
                                     #end ## END of IF (${tabsSites.mrphs_profileToolUrl})
-                                    <span class="Mrphs-userNav__drop" tabindex="-1"></span>
 
                                 #end ## END of IF (${displayUserloginInfo})
 
                             <ul class="Mrphs-userNav__subnav is-hidden" role="menu">
 
-                                <li class="Mrphs-userNav__submenuitem">
+                                <li class="Mrphs-userNav__submenuitem Mrphs-userData">
+                                    <div class="Mrphs-userNav__submenuitem--profile-and-image">
+                                        #if (${tabsSites.mrphs_profileToolUrl})
+                                            <div class="has-avatar">
+                                                <a class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}">
+                                                    <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></span>
+                                                </a>
+                                            </div>
+                                            <div class="Mrphs-userNav__submenuitem--profile">
+                                                <a role="menuitem" href="${tabsSites.mrphs_profileToolUrl}">
+                                                    <span>${rloader.sit_profile}</span>
+                                                </a>
+                                            </div>
+                                        #end
+                                    </div>
+                                    <div class="Mrphs-userNav__submenuitem--fullname-and-id">
+                                        <div class="Mrphs-userNav__submenuitem--fullname">
+                                            ${loginUserDispName}
+                                        </div>
+                                        <div class="Mrphs-userNav__submenuitem--displayid">
+                                            ${loginUserDispId}
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
                                     <a role="menuitem" href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--dashboard">
                                         <span>${rloader.sit_dashboard}</span>
                                     </a>
@@ -44,7 +75,7 @@
 
                                     #if (${tabsSites.prefsToolUrl})
 
-                                        <li class="Mrphs-userNav__submenuitem">
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
                                             <a role="menuitem" href="${tabsSites.prefsToolUrl}" class="Mrphs-userNav__submenuitem--prefs">
                                                 <span>${rloader.sit_preferences}</span>
                                             </a>
@@ -56,7 +87,7 @@
 
                                         #if ($allowAddSite)
 
-                                            <li class="Mrphs-userNav__submenuitem">
+                                            <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
                                                 <a id="addNewSiteLink" role="menuitem" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site" class="Mrphs-userNav__submenuitem--newsite">
                                             <span>${rloader.sit_newsite}</span>
                                                 </a>
@@ -68,7 +99,7 @@
 
                                     #if (${tabsSites.tutorial})
 
-                                        <li class="Mrphs-userNav__submenuitem">
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
                                             <a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial">
                                                 <span>${rloader.sit_tutorial}</span>
                                             </a>
@@ -80,14 +111,17 @@
 
                         #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
 
+                            <li class="Mrphs-userNav__logout Mrphs-userNav__submenuitem-indented">
+                                #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+                            </li>
+
                         </ul>
 
             </li>
 
         </ul> <!-- end of nav#loginLinks-->
 
-        #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
-
+        ## parse("/vm/morpheus/snippets/loginImage-snippet.vm")
     #else ## ELSE of IF (!${loginTopLogin})
 
         #parse("/vm/morpheus/snippets/loginForm-snippet.vm")

@@ -2,75 +2,28 @@
 <!-- start: chef_assignments_instructor_reorder_assignment.vm  -->
 ##<!-- $Header: Exp $ -->
 ## Assignments - reorder view
-<script type="text/javascript"
-  src="/library/js/fluid/1.5/MyInfusion.js"></script>
+<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
+<script type="text/javascript" src="/library/js/reorderer.js"></script>
 
-	<script type="text/javascript" src="/library/js/reorderer.js"></script>
-
-<div class="portletBody">
+<div class="portletBody container">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
-	## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-	<ul class="navIntraTool actionToolBar">
-		#set($prevAction=false)
-		#if ($allowAddAssignment)
-			#set($prevAction=true)
-			<li  class="firstToolBarItem">			
-				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
-			</li>	
-		#end
-		#if (!$!view.equals('lisofass1'))
-			#set($prevAction=true)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>			
-				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
-			</li>	
-		#else
-			<li>
-				<span class="disabled">$!tlang.getString("lisofass1")</span>
-			</li>	
-		#end
-		#if ($withGrade && $!allowGradeSubmission)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
-			</li>	
-		#end
-		#if ($allowAddAssignment)
-			#if (!$!view.equals('stuvie'))
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
-				</li>	
-			#else
-				<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-					<span class="disabled">$!tlang.getString("gen.stuvie")</span>
-				</li>	
-			#end
-		#end
-		#if (($allowAllGroups) && ($assignmentscheck))
-			<li  #if($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span class="current">$tlang.getString('gen.reorder')</span>
-			</li>	
-		#end
-		#if ($allowUpdateSite)
-			<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true) #end>
-				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
-			</li>
-			#if ($enableViewOption)		
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
-				</li>
-			#end	
-		#end
-	</ul>
+		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
+		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "reorder" )
 	#end
 	#if ($alertMessage)<div class="alertMessage" style="width:80%  !important">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both"></div>#end
-	
+
+    <div class="page-header">
+        <h1>
+            $tlang.getString("gen.reordertitle")
+        </h1>
+    </div>
+
 	<form name="reorderForm" id="reorderForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input name="assignmentSize" id="assignmentSize" value="$assignmentsize" type="hidden" />
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
-		<h3>
-			$tlang.getString("gen.reordertitle")
-		</h3>
+
 		<div class="instruction">
 				$tlang.getString('reorder.instruction.general')
 				<span id="inputFieldMessage" style="display:none">$tlang.getString('reorder.instruction.input')</span>
@@ -79,53 +32,53 @@
 		<ul class="itemAction noPrint">
 			<li style="display:inline">
 				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$tlang.getString("reorder.undo.last.label")</span>
-				<a href="#" id="undo-last"  style="display:none">$tlang.getString("reorder.undo.last.label")</a>
+				<a href="javascript:void(0)" id="undo-last"  style="display:none">$tlang.getString("reorder.undo.last.label")</a>
 			</li>
 			<li style="display:inline;border-left:1px solid #ccc;padding-left:1em">
 				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$tlang.getString("reorder.undo.all.label")</span>
-					<a id="undo-all" href="#"  style="display:none">$tlang.getString("reorder.undo.all.label")</a>
+					<a id="undo-all" href="javascript:void(0)"  style="display:none">$tlang.getString("reorder.undo.all.label")</a>
 			</li>
 			<li style="display:inline;color:#000">
 				<span id="failedValidMessage" style="display:none">$tlang.getString('reorder.fail.valid.message')</span>
 				<span id="messageHolder" class="messageSuccess" style="display:none">$tlang.getString("reorder.fail.valid.message")</span>
 			</li>
-		</ul>	
+		</ul>
 		<span id="lastMoveArray" style="display:none"></span>
 		<span id="lastMoveArrayInit" style="display:none"></span>
 		<span id="lastItemMoved"  style="display:none"></span>
 
 		<div id="reorder-list-sortingToolBar" class="itemAction">
-			<a class="title" id="sortByTitle" href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
-					$tlang.getString("listassig.sorbytit") 
-					#if ($sortedBy.equals("title")) 
-						#if ($sortedAsc.equals("true")) 
-							<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-						#else 
-							<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-						#end 
-					#end 
+			<a class="title" id="sortByTitle" href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
+					$tlang.getString("listassig.sorbytit")
+					#if ($sortedBy.equals("title"))
+						#if ($sortedAsc.equals("true"))
+							<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+						#else
+							<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+						#end
+					#end
 				</a>
 				|
-				<a href="#" id="sortByOpenDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
+				<a href="javascript:void(0)" id="sortByOpenDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 					$tlang.getString("listassig.sorbyope")
-					#if ($sortedBy.equals("opendate")) 
-						#if ($sortedAsc.equals("true")) 
-							<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-						#else 
-							<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-						#end 
-					#end 
+					#if ($sortedBy.equals("opendate"))
+						#if ($sortedAsc.equals("true"))
+							<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+						#else
+							<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+						#end
+					#end
 				</a>
 				|
-				<a href="#" id="sortByDueDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
+				<a href="javascript:void(0)" id="sortByDueDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
 					$tlang.getString("gen.sorbydue") ##$tlang.getString("gen.due1")
-					#if ($sortedBy.equals("duedate")) 
-						#if ($sortedAsc.equals("true")) 
-							<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-						#else 
-							<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-						#end 
-					#end 
+					#if ($sortedBy.equals("duedate"))
+						#if ($sortedAsc.equals("true"))
+							<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+						#else
+							<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+						#end
+					#end
 				</a>
 			</div>
 
@@ -150,11 +103,11 @@
 				</span>
 				<span class="close">
 					$!assignment.dueTime.toStringLocalFull()
-				  <select name="position_$validator.escapeUrl("$assignment.id")" onchange="moveRow(this,this.value);" class="selectSet">
-					#foreach($i in [1..$assignmentsize])
-					<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
-					#end
-				  </select>
+					<select name="position_$validator.escapeUrl("$assignment.id")" class="selectSet">
+						#foreach($i in [1..$assignmentsize])
+						<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
+						#end
+					</select>
 				</span>
 			</li>
 			#set($count = $count + 1)
@@ -162,12 +115,11 @@
 		</ul>
 
 		<p class="act" style="margin:0;padding:.3em 0;">
-			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="ASN.doReorderAction( 'reorder' );" class="active" accesskey="s" />
-			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="ASN.doReorderAction( 'cancelreorder' );" accesskey="x" />
-			<img id="reorderSpinner" class="spinner" src="/library/image/indicator.gif" />
+			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'reorder', null, null ); return false;" class="active" accesskey="s" />
+			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'cancelreorder', null, null ); return false;" accesskey="x" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-	</form>						
+	</form>
 
 </div>
 <!-- end: chef_assignments_instructor_reorder_assignment.vm  -->

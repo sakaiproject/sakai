@@ -37,6 +37,17 @@ public interface DashboardUserLogic {
 	public List<NewsLink> getCurrentNewsLinks(String sakaiUserId, String contextId);
 	
 	/**
+	 * Returns a list of NewsLink objects which the specified person has permission to access and has not hidden. 
+	 * If the contextId is not null, the results will be limited to the site indicated by that value. 
+	 * variable 'includeInfoLinkUrl' is used for method overloading purpose
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param includeInfoLinkUrl
+	 * @return
+	 */
+	public List<NewsLink> getCurrentNewsLinks(String sakaiUserId, String contextId,boolean includeInfoLinkUrl);
+	
+	/**
 	 * Returns a list of CalendarLink objects linking a particular person to calendar items 
 	 * whose time attribute is in the current date or later (i.e. it will return items representing
 	 * events that occurred earlier in the current day) and whose "hidden" state matches the 
@@ -48,6 +59,20 @@ public interface DashboardUserLogic {
 	 * @return
 	 */
 	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden);
+	
+	/**
+	 * Returns a list of CalendarLink objects linking a particular person to calendar items 
+	 * whose time attribute is in the current date or later (i.e. it will return items representing
+	 * events that occurred earlier in the current day) and whose "hidden" state matches the 
+	 * specified value. Results will be limited to a particular site if the contextId parameter 
+	 * is not null. variable 'includeInfoLinkUrl' is used for method overloading purpose
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param hidden 
+	 * @param includeInfoLinkUrl
+	 * @return
+	 */
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden, boolean includeInfoLinkUrl);
 
 	/**
 	 * Returns a list of NewsLink objects which the specified person has permission to access and has hidden. 
@@ -57,6 +82,18 @@ public interface DashboardUserLogic {
 	 * @return
 	 */
 	public List<NewsLink> getHiddenNewsLinks(String sakaiUserId, String siteId);
+	
+	/**
+	 * Returns a list of NewsLink objects which the specified person has permission to access and has hidden. 
+	 * If the contextId is not null, the results will be limited to the site indicated by that value. 
+	 * variable 'includeInfoLinkUrl' is used for method overloading purpose
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param includeInfoLinkUrl
+	 * @return
+	 */
+	
+	public List<NewsLink> getHiddenNewsLinks(String userUuid, String siteId, boolean includeInfoLinkUrl);
 
 	/**
 	 * Returns a paged list of NewsLink objects representing items in a "group" that the specified person 
@@ -84,6 +121,19 @@ public interface DashboardUserLogic {
 	 * @return
 	 */
 	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden);
+	
+	/**
+	 * Returns a list of CalendarLink objects linking a particular person to calendar items 
+	 * whose time attribute is before the current instant and whose "hidden" state matches the 
+	 * specified value. Results will be limited to a particular site if the contextId parameter 
+	 * is not null. variable 'includeInfoLinkUrl' is used for method overloading purpose
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param hidden
+	 * @param includeInfoLinkUrl
+	 * @return
+	 */
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden, boolean includeInfoLinkUrl);
 
 	/**
 	 * Returns a list of CalendarLink objects linking a particular person to calendar items 
@@ -94,6 +144,16 @@ public interface DashboardUserLogic {
 	 * @return
 	 */
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId);
+	/**
+	 * Returns a list of CalendarLink objects linking a particular person to calendar items 
+	 * that the specified user has "starred". Results will be limited to a particular site if 
+	 * the contextId parameter is not null. variable 'includeInfoLinkUrl' is used for method overloading purpose
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param includeInfoLinkUrl
+	 * @return
+	 */
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId,boolean includeInfoLinkUrl);
 
 	/**
 	 * Returns a list of NewsLink objects which the specified person has permission to access and has "starred". 
@@ -103,6 +163,17 @@ public interface DashboardUserLogic {
 	 * @return
 	 */
 	public List<NewsLink> getStarredNewsLinks(String sakaiUserId, String siteId);
+	
+	/**
+	 * Returns a list of NewsLink objects which the specified person has permission to access and has "starred". 
+	 * If the contextId is not null, the results will be limited to the site indicated by that value. 
+	 * variable 'includeInfoLinkUrl' is used for method overloading purpose
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param includeInfoLinkUrl
+	 * @return
+	 */
+	public List<NewsLink> getStarredNewsLinks(String sakaiUserId, String siteId,boolean includeInfoLinkUrl);
 
 	/**
 	 * Hide a calendar item from views of calendar items for a particular user.

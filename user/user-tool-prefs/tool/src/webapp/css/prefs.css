@@ -222,3 +222,102 @@
     outline: 1px solid #ccc;
     overflow: auto
 }
+
+.term-section {
+    margin-top: 3em;
+    width: 300px;
+}
+
+.manage-hidden-entry h2 {
+    margin: 0;
+}
+
+.manage-hidden-entry {
+    width: 300px;
+    padding: 0.1em 0.5em 0.1em 0;
+    vertical-align: middle;
+}
+
+.manage-hidden-entry.term-entry.entry-hidden .title {
+    color: #aaa;
+}
+
+.manage-hidden-entry.site-entry.entry-hidden {
+    background-color: #aaa;
+    border-color: #888;
+    color: #e7e7e7;
+}
+
+.manage-hidden-entry .title {
+    display: inline-block;
+    width: 230px;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.site-entry {
+    border: 1px solid #dfdfdf;
+    background-color: #fff;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 0.5em;
+}
+
+.site-entry-star {
+    margin-right: 5px;
+    visibility: hidden;
+}
+
+.site-entry-star:before {
+    font-style: normal;
+    font-family: FontAwesome;
+    content: '\f005';
+    color: #ababab;
+}
+
+.site-entry.favorite-site .site-entry-star {
+    visibility: visible;
+}
+
+.manage-hidden-entry .hidden-checkbox {
+    float: right;
+    margin-right: 5px;
+}
+
+#sitesByTerm {
+    overflow: hidden;
+}
+
+@media screen and (max-width: 1200px) {
+    #sitesByTerm .leftPane {
+        display: block;
+        width: 100%;
+    }
+
+    #sitesByTerm .rightPane {
+        display: block;
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    #sitesByTerm .leftPane {
+        display: inline-block;
+        width: 49%;
+        float: left;
+        margin-right: 1%;
+    }
+
+    #sitesByTerm .rightPane {
+        display: inline-block;
+        width: 49%;
+        float: left;
+    }
+}
+
+.submit-buttons {
+    margin-top: 1em;
+    width: 100%;
+    clear: both;
+}

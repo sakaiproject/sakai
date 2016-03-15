@@ -30,7 +30,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.GroupProvider;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
@@ -61,9 +61,15 @@ public class SectionCmMetadataSynchronizer implements Job {
 	protected SiteService siteService;
 	protected CourseManagementService cmService;
 	protected GroupProvider groupProvider;
+	protected AuthzGroupService authzGroupService;
 	public void setCmService(CourseManagementService cmService) {
 		this.cmService = cmService;
 	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
@@ -147,7 +153,7 @@ public class SectionCmMetadataSynchronizer implements Job {
 		UsageSessionService.startSession("admin", "127.0.0.1", "CMSync");
 		
 		// update the user's externally provided realm definitions
-		AuthzGroupService.refreshUser("admin");
+		authzGroupService.refreshUser("admin");
 
 		// post the login event
 		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN, null, true));

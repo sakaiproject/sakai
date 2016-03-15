@@ -7,12 +7,10 @@
                 setupRecentSite();
 		$('.siteSelectCheckbox, #toggleAllSelected').click(function(){
 			if($('.siteSelectCheckbox:checked').length >= 1){
-				$('#actionToolBar .realToolBarLink').show();
-				$('#actionToolBar .dummyToolBarLink').hide();
+				$('.actionsContainer .actionButton').prop( 'disabled', false );
 			}
 			else{
-				$('#actionToolBar .realToolBarLink').hide();
-				$('#actionToolBar .dummyToolBarLink').show();
+				$('.actionsContainer .actionButton').prop( 'disabled', true );
 			}
 		})
     });
@@ -21,22 +19,6 @@
 	<ul id="actionToolBar" class="navIntraTool actionToolBar">
 		#if($allowAddSite)
 			<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doNew_site")" title="$tlang.getString('java.new')">$tlang.getString("java.new")</a></span></li>
-		#end
-		<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.revise")</span></li>
-		<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.delete")</span></li>
-		
-		#if($superUser)
-			<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.delete.hard")</span></li>
-		#end
-		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.revise')">$tlang.getString("java.revise")</a></span></li>
-		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete')">$tlang.getString("java.delete")</a></span></li>
-		
-		#if($superUser)
-			<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_hard_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete.hard')">$tlang.getString("java.delete.hard")</a></span></li>
-		#end
-		#if($showRestore)
-			<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.restore")</span></li>
-			<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_restore';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.restore')">$tlang.getString("java.restore")</a></span></li>
 		#end
 	</ul>
 
@@ -61,23 +43,24 @@
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
 				<input type="hidden" name="eventSubmit_doView_sites" value="view" />
 				<label for="view">$tlang.getString("list.view")</label>
-				<select id="view" name="view" size="1" onchange="document.viewForm.submit();">
+				<select id="view" name="view" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'viewFilterSpinner' );document.viewForm.submit();">
 					#foreach($view in $viewKeys)
 						<option value ="$view"
 						#if($view == $viewSelected) selected="selected" #end
 						> $views.get($view) </option>
 					#end
 				</select>
+				<div id="viewFilterSpinner" class="allocatedSpinPlaceholder"></div>
 				#if(!$hideTermFilter)
-					<br/>
 					<label for="termview">$tlang.getString("list.selectTerm")</label>
-					<select id="termview" name="termview" size="1" onchange="document.viewForm.submit();">
+					<select id="termview" name="termview" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'termFilterSpinner' );document.viewForm.submit();">
 						#foreach($view in $termViewKeys)
 							<option value ="$view"
 							#if($view == $viewTermSelected) selected="selected" #end
 							> $termViews.get($view) </option>
 						#end
 					</select>
+					<div id="termFilterSpinner" class="allocatedSpinPlaceholder"></div>
 				#end
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
@@ -89,10 +72,10 @@
 					<input type="hidden" name="eventSubmit_doSite_search" value="null" />
 					<label for="$form_search" class="skip">$tlang.getString('list.search')</label>
 					<input size="20"  value="$validator.escapeHtml($!searchString)" name="$form_search" id="$form_search" type="text" class="searchField"  />
-					<input type="button" value="$tlang.getString('list.search')" onclick="location = '#toolLink($action "doSite_search")'+buildQueryString('searchForm');return false;" />
+					<input type="button" value="$tlang.getString('list.search')" onclick="SPNR.disableControlsAndSpin( this, null );location='#toolLink($action "doSite_search")'+buildQueryString('searchForm');return false;" />
 					
 					#if (($!searchString) && (!$searchString.equals("")))
-						<input type="button" class="button" value="$tlang.getString("list.cls")" onclick="location = '#toolLink($action "doSite_search_clear")'+buildQueryString('searchForm');return false;" />
+						<input type="button" class="button" value="$tlang.getString("list.cls")" onclick="SPNR.disableControlsAndSpin( this, null );location='#toolLink($action "doSite_search_clear")'+buildQueryString('searchForm');return false;" />
 					#end
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
@@ -102,10 +85,23 @@
 	<div class="navPanel">
 		#if ($sites.size() > 0)
 			#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
-##				<div class="listNav">
-##				</div>
 				#if ($sites.size() > 0)
 					<div class ="viewNav">
+						<div class="actionsContainer">
+							<input type="button" id="btnEdit1" name="btnEdit1" class="actionButton" value="$tlang.getString("java.revise")" disabled="disabled" 
+								onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" />
+							<input type="button" id="btnSoftDelete1" name="btnSoftDelete1" class="actionButton" value="$tlang.getString("java.delete")" disabled="disabled" 
+								onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" />
+							#if( $superUser )
+								<input type="button" id="btnHardDelete1" name="btnHardDelete1" class="actionButton" value="$tlang.getString("java.delete.hard")" disabled="disabled"
+									onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_hard_delete';document.getElementById('sitesForm').submit();return false;" />
+							#end
+							#if( $showRestore )
+								<input type="button" id="btnRestore1" name="btnRestore1" class="actionButton" value="$tlang.getString("java.restore")" disabled="disabled"
+									onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_restore';document.getElementById('sitesForm').submit();return false;" />
+							#end
+						</div>
+
 						#if (($!searchString) && (!$searchString.equals("")))
 						<span class="instruction highlight">#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") $validator.escapeHtml($!searchString) $tlang.getString("list.inthe") "$!viewSelected".</span>
 						#end
@@ -114,25 +110,30 @@
 					</div>
 				#end
 				<div class="listNav">
-					<div class="instruction">$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("import.of") $allMsgNumber $tlang.getString("list.items")</div>
+					<div class="instruction">
+						$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("import.of") $allMsgNumber $tlang.getString("list.items")
+						<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
+					</div>
 					#if ($pagesize != 0)
 						#if ($goPPButton == "true")
-							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            <fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
-							<input type="submit" name="eventSubmit_doList_prev" title="$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')" value="&lt;"  accesskey="p" />
-                            </fieldset>
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								<fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
+									<input type="submit" name="eventSubmit_doList_prev" title="$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')" value="&lt;" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" />
+								</fieldset>
 							</form>
 						#else
-							<fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
-                            <input type="submit" disabled="disabled" name="eventSubmit_doList_prev" value="&lt;" />
-                            </fieldset>
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
+									<input type="submit" disabled="disabled" name="eventSubmit_doList_prev" value="&lt;" />
+								</fieldset>
+							</form>
 						#end
 					#end
 					<form name="pagesizeForm"  class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<label for="selectPageSize" class="skip">$tlang.getString("list.select.label")</label>
-						<select name="selectPageSize" id="selectPageSize" onchange="document.pagesizeForm.submit();">
+						<select name="selectPageSize" id="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.pagesizeForm.submit();">
 							#foreach ($i in $!pagesizes)
 								<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
 							#end
@@ -142,15 +143,17 @@
 					#if ($pagesize != 0)
 						#if ($goNPButton == "true")
 							<form name="nextpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
-							    <fieldset><legend>$tlang.getString('list.next') $pagesize $tlang.getString('list.items')</legend>
-								<input type="submit" name="eventSubmit_doList_next" title="$tlang.getString('list.next') $pagesize $tlang.getString('list.items')" value="&gt;"  accesskey="n" />
-                                </fieldset>
+								<fieldset><legend>$tlang.getString('list.next') $pagesize $tlang.getString('list.items')</legend>
+								<input type="submit" name="eventSubmit_doList_next" title="$tlang.getString('list.next') $pagesize $tlang.getString('list.items')" value="&gt;" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" />
+								</fieldset>
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
-                            <fieldset><legend>$tlang.getString('list.next') $pagesize $tlang.getString('list.items')</legend>
-							<input type="submit" disabled="disabled" name="eventSubmit_doList_next" value="&gt;" />
-                            </fieldset>
+							<form name="nextpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
+								<fieldset><legend>$tlang.getString('list.next') $pagesize $tlang.getString('list.items')</legend>
+								<input type="submit" disabled="disabled" name="eventSubmit_doList_next" value="&gt;" />
+								</fieldset>
+							</form>
 						#end
 					#end
 				</div>
@@ -216,16 +219,7 @@
 						</a>
 					</th>
 					<th id="term" scope="col">
-						##<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=term")" title ="$tlang.getString('list.sortbyterm')"> 
 							$tlang.getString("list.term")
-							#*if ($currentSortedBy.equals("term")) 
-								#if ($currentSortAsc.equals("true")) 
-									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.steasc')" alt ="$tlang.getString('list.steasc')" /> 
-								#else 
-									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stedesc')" alt ="$tlang.getString('list.stedesc')" /> 
-								#end 
-							#end 
-						</a>*#
 					</th>
 					<th id="published" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_publish)")" title ="$tlang.getString('list.sortbystatus')"> 
@@ -270,12 +264,16 @@
 								#end
 							</td>
 							<td headers="title">
+								#if (!$service.allowAccessSite($site.Id))
+                            		<label class="unpublishedLabel">$validator.escapeHtml($site.getTitle())</label>
+								#else
 									<a href="$site.Url" target="_top">
 									$validator.escapeHtml($site.getTitle())
 									</a>
-                                    <a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
-                                        <img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
-                                    </a>
+								#end
+								<a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
+                                	<img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
+								</a>
 							</td>
 							#if($show_id_column)
 								<td headers="id">
@@ -319,6 +317,20 @@
 					#end
 				#end
 			</table>
+			<div class="actionsContainer">
+				<input type="button" id="btnEdit2" name="btnEdit2" class="actionButton" value="$tlang.getString("java.revise")" disabled="disabled" 
+					onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" />
+				<input type="button" id="btnSoftDelete2" name="btnSoftDelete2" class="actionButton" value="$tlang.getString("java.delete")" disabled="disabled" 
+					onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" />
+				#if( $superUser )
+					<input type="button" id="btnHardDelete2" name="btnHardDelete2" class="actionButton" value="$tlang.getString("java.delete.hard")" disabled="disabled"
+						onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_hard_delete';document.getElementById('sitesForm').submit();return false;" />
+				#end
+				#if( $showRestore )
+					<input type="button" id="btnRestore2" name="btnRestore2" class="actionButton" value="$tlang.getString("java.restore")" disabled="disabled"
+						onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_restore';document.getElementById('sitesForm').submit();return false;" />
+				#end
+			</div>
 	#else
 		<div class="instruction">
 		<br />
@@ -330,19 +342,7 @@
 		</div>	
 	#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-    #if($newSiteStatusTitle)
-        <div id="newSiteAlert" class="$newSiteStatusID">
-            <span class="newSiteAlertMessage"><a title="$validator.escapeHtml($newSiteStatusTitle)" href="/portal/site/$newSiteStatusID" target="_top">$validator.escapeHtml($newSiteStatusTitle)</a> $tlang.getString("sitdup.hasbeedup") </span>
-            #if ($newSiteStatusIsPublished == false)
-                <div id="newSiteAlertActions" class="newSiteAlertActions">
-                    <a href="#" id="newSiteAlertPublish" class="$newSiteStatusID">$tlang.getString("sitetype.publishSite")</a>
-                    <span id="newSiteAlertPublishMess" class="messageSuccess" style="display:none">$tlang.getString("list.publi")</span>
-                </div>
-            #end
-            
-            <a href="#" class="newSiteAlertClose" title="$tlang.getString("sitetype.template.close.info")">&times;<span class="skip">$tlang.getString("sitetype.template.close.info")</span></a>    
-        </div>
-    #end    
+		#chef_flashnotif()
 	</form>
 </div>
 		

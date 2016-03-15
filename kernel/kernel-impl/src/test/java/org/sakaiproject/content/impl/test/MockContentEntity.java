@@ -21,11 +21,7 @@
 
 package org.sakaiproject.content.impl.test;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,6 +67,7 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	protected boolean inheritsPubview;
 	protected Map<String, MockContentEntity> memberMap = new HashMap<String, MockContentEntity>();
 	protected boolean isActiveEdit;
+	protected Set<String> roleIds = new LinkedHashSet<String>();
 
 	public MockContentEntity() {
 		this.resourceProperties = new BaseResourcePropertiesEdit();
@@ -258,6 +255,14 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 		return this.inheritedGroupMap.keySet();
 	}
 
+	public Set<String> getRoleAccessIds() {
+		return roleIds;
+	}
+
+	public Set<String> getInheritedRoleAccessIds() {
+		return new LinkedHashSet<String>();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEntity#getReleaseDate()
 	 */
@@ -348,20 +353,28 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEdit#clearPublicAccess()
 	 */
-	public void clearPublicAccess() throws InconsistentException, PermissionException
+	public void clearPublicAccess() throws PermissionException
 	{
-		if(false)
-		{
-			throw new PermissionException("userId", "content.revise", this.entityId);
-		}
 		if(! this.isPublic)
 		{
-			throw new InconsistentException(entityId);
+			throw new PermissionException(null, null, entityId);
 		}
 		this.isPublic = false;
 		this.accessMode = AccessMode.INHERITED;
 		this.groupMap.clear();
 		
+	}
+
+	public void addRoleAccess(String roleId) throws InconsistentException, PermissionException {
+		roleIds.add(roleId);
+	}
+
+	public void removeRoleAccess(String roleId) throws InconsistentException, PermissionException {
+		roleIds.remove(roleId);
+	}
+
+	public void clearRoleAccess() throws PermissionException {
+		roleIds.clear();
 	}
 
 	/* (non-Javadoc)

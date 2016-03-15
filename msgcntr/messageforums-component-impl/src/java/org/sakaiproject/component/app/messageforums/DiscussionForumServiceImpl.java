@@ -50,7 +50,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entity.api.Entity;
@@ -119,9 +119,14 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private DiscussionForumManager dfManager;
 	private PermissionLevelManager permissionManager;
 	private ContentHostingService contentHostingService;
+	private AuthzGroupService authzGroupService;
 	
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	private static final Log LOG = LogFactory.getLog(DiscussionForumService.class);
@@ -1159,7 +1164,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		List rolesAndGroups = new ArrayList();
 		try
 		{      
-			realm = AuthzGroupService.getAuthzGroup("/site/" + contextId);
+			realm = authzGroupService.getAuthzGroup("/site/" + contextId);
 			Set roleSet = realm.getRoles();
 
 			if (roleSet != null && roleSet.size() > 0)

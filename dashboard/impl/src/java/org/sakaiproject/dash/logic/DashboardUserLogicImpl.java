@@ -3,8 +3,10 @@
  */
 package org.sakaiproject.dash.logic;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.Cache;
 
@@ -14,12 +16,14 @@ import org.sakaiproject.dash.app.DashboardUserLogic;
 import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.entity.DashboardEntityInfo;
+import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 
@@ -90,8 +94,16 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId) {
+		 return getCurrentNewsLinks(sakaiId, siteId, false);
+	}
+	/*
+	 * This method is used for getting CurrentNewsLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId, boolean includeInfoLinkUrl) {
 		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, siteId);
-		
+
 		if(links != null) {
 			for(NewsLink link : links) {
 				NewsItem item = link.getNewsItem();
@@ -107,12 +119,80 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 						} else {
 							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
 						}
+					}else{
+						logger.debug("The source type is null");
+					}
+				}else{
+					//When getItemCount() > 1 the infoLinkUrl is null and hence we don't get the InfoLinkUrl and we are running this call only for entity broker feed.
+					if(item!=null && includeInfoLinkUrl){
+						setItemInfoLinkUrl(item);
 					}
 				}
 			}
 		}
-		
+
 		return links;
+	}
+
+	private void setItemInfoLinkUrl(NewsItem item) {
+		if(item!=null){
+			SourceType sourceType = item.getSourceType();
+			if(sourceType != null) {
+				DashboardEntityInfo typeObj = dashboardLogic.getDashboardEntityInfo(sourceType.getIdentifier());
+				if(typeObj != null) {
+					//getValues() take one of the parameter as Locale code and this used for logging warn messages
+					//so sending null should be fine here.
+					Map<String, Object> values = typeObj.getValues(item.getEntityReference(), null);
+					List<Map<String,String>> moreInfo=(ArrayList<Map<String, String>>) values.get(DashboardEntityInfo.VALUE_MORE_INFO);
+					if(moreInfo!=null){
+						for (Map<String, String> map : moreInfo) {
+							item.setInfoLinkURL(map.get(DashboardEntityInfo.VALUE_INFO_LINK_URL));
+
+						}
+					}else{
+						logger.debug("more.Info is null");
+					}
+				}else{
+					logger.debug("DashboardEntityInfo is null");
+				}
+			}else{
+				logger.debug("SourceType like is null");
+			}
+
+		}else{
+			logger.debug("NewsItem is null");
+		}
+		
+	}
+	private void setItemInfoLinkUrl(CalendarItem item) {
+		if(item!=null){
+			SourceType sourceType = item.getSourceType();
+			if(sourceType != null) {
+				DashboardEntityInfo typeObj = dashboardLogic.getDashboardEntityInfo(sourceType.getIdentifier());
+				if(typeObj != null) {
+					//getValues() take one of the parameter as Locale code and this used for logging warn messages
+					//so sending null should be fine here.
+					Map<String, Object> values = typeObj.getValues(item.getEntityReference(), null);
+					List<Map<String,String>> moreInfo=(ArrayList<Map<String, String>>) values.get(DashboardEntityInfo.VALUE_MORE_INFO);
+					if(moreInfo!=null){
+						for (Map<String, String> map : moreInfo) {
+							item.setInfoLinkURL(map.get(DashboardEntityInfo.VALUE_INFO_LINK_URL));
+
+						}
+					}else{
+						logger.debug("more.Info is null");
+					}
+				}else{
+					logger.debug("DashboardEntityInfo is null");
+				}
+			}else{
+				logger.debug("SourceType like is null");
+			}
+
+		}else{
+			logger.debug("NewsItem is null");
+		}
+		
 	}
 
 	/* (non-Javadoc)
@@ -120,7 +200,24 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
-		return dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
+		 return getFutureCalendarLinks(sakaiUserId, contextId, hidden,false);
+	}
+	
+	/*
+	 * This method is used for getting FutureCalendarLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden, boolean includeInfoLinkUrl) {
+		List<CalendarLink> futureCalendarLinks = dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
+		if(!includeInfoLinkUrl){
+			return futureCalendarLinks;
+		}
+		for (CalendarLink calendarLink : futureCalendarLinks) {
+			CalendarItem calendarItem = calendarLink.getCalendarItem();		
+			setItemInfoLinkUrl(calendarItem);
+		}
+		return futureCalendarLinks;
 	}
 
 	/* (non-Javadoc)
@@ -128,7 +225,23 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId) {
-		return dao.getHiddenNewsLinks(sakaiId, siteId);
+		 return getHiddenNewsLinks(sakaiId,siteId,false);
+	}
+	/*
+	 * This method is used for getting HiddenNewsLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId, boolean includeInfoLinkUrl) {
+		List<NewsLink> hiddenNewsLinks = dao.getHiddenNewsLinks(sakaiId, siteId);
+		if(!includeInfoLinkUrl){
+			return hiddenNewsLinks;
+		}
+		for (NewsLink newsLink : hiddenNewsLinks) {
+			NewsItem item = newsLink.getNewsItem();
+			setItemInfoLinkUrl(item);
+		}
+		return hiddenNewsLinks;
 	}
 
 	/* (non-Javadoc)
@@ -145,7 +258,23 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
-		return dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
+		 return getPastCalendarLinks(sakaiUserId, contextId, hidden,false);
+	}
+	/*
+	 * This method is used for getting PastCalendarLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden, boolean includeInfoLinkUrl) {
+		List<CalendarLink> pastCalendarLinks = dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
+		if(!includeInfoLinkUrl){
+			return pastCalendarLinks;
+		}
+		for (CalendarLink calendarLink : pastCalendarLinks) {
+            		CalendarItem calendarItem = calendarLink.getCalendarItem();		
+            		setItemInfoLinkUrl(calendarItem);
+		}
+		return pastCalendarLinks;
 	}
 
 	/* (non-Javadoc)
@@ -153,7 +282,24 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
-		return dao.getStarredCalendarLinks(sakaiUserId, contextId);
+		 return getStarredCalendarLinks(sakaiUserId, contextId,false);
+	}
+	
+	/*
+	 * This method is used for getting StarredCalendarLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId, boolean includeInfoLinkUrl) {
+		List<CalendarLink> starredCalendarLinks = dao.getStarredCalendarLinks(sakaiUserId, contextId);
+		if(!includeInfoLinkUrl){
+			return starredCalendarLinks;
+		}
+		for (CalendarLink calendarLink : starredCalendarLinks) {
+            		CalendarItem calendarItem = calendarLink.getCalendarItem();		
+            		setItemInfoLinkUrl(calendarItem);
+		}
+		return starredCalendarLinks;
 	}
 
 	/* (non-Javadoc)
@@ -161,13 +307,32 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId) {
-		return dao.getStarredNewsLinks(sakaiId, siteId);
+		return getStarredNewsLinks(sakaiId, siteId, false);
+	}
+	
+	/*
+	 * This method is used for getting StarredNewsLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	
+	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId, boolean includeInfoLinkUrl) {
+		List<NewsLink> starredNewsLinks = dao.getStarredNewsLinks(sakaiId, siteId);
+		if(!includeInfoLinkUrl){
+			return starredNewsLinks;
+		}
+		for (NewsLink newsLink : starredNewsLinks) {
+			NewsItem item = newsLink.getNewsItem();
+			setItemInfoLinkUrl(item);
+		}
+		return starredNewsLinks;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#hideCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -179,6 +344,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#hideNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean hideNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
@@ -190,6 +356,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#keepCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -201,6 +368,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#keepNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean keepNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
@@ -212,6 +380,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unhideCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -223,6 +392,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unhideNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
@@ -234,6 +404,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unkeepCalendarItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
@@ -245,6 +416,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unkeepNewsItem(java.lang.String, long)
 	 */
 	@Override
+	@Transactional
 	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());

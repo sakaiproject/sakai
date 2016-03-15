@@ -1,10 +1,10 @@
 ## Moved from the tool nav to the top of the content so that it'll appear on the default mobile view 
 
-#if (${sitePages.softlyDeleted})
+#if (${sitePages} && ${sitePages.softlyDeleted})
 
     <span id="siteStatusSoftlyDeleted" class="Mrphs-siteStatus Mrphs-messagePanel__error--warning is-softly-deleted">${rloader.site_softly_deleted}</p>
 
-#elseif (!${sitePages.pageNavPublished})
+#elseif (${sitePages} && !${sitePages.pageNavPublished})
 
     <span id="siteStatus" class="Mrphs-siteStatus Mrphs-messagePanel__information is-unpublished">
     <h4>${rloader.sit_unpublished}</h4>

@@ -14,8 +14,6 @@ import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.section.api.facade.manager.Context;
 import org.sakaiproject.section.api.SectionManager;
-import org.sakaiproject.component.section.sakai.SectionManagerImpl;
-import org.sakaiproject.tool.section.jsf.backingbean.StudentViewBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 

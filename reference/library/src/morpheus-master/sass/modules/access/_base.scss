@@ -6,8 +6,8 @@
 	width: 29em;
 	min-height: 14em;
 
-	background: $background-color-secondary;
-	@include box-shadow( 0 0 5px rgba( $text-color , 0.25 ) );
+	background: $background-color;
+	box-shadow: 0 0 5px rgba( $text-color , 0.25 );
 	.logo{
 		background: $primary-color url($logo) no-repeat center center;
 		width: 100%;
@@ -32,8 +32,6 @@
 	fieldset{
 		padding: 1em;
 		label{
-			font-family: $header-font-family;
-			font-weight: $header-font-weight;
 			font-size: 1.2em;
 			display: inline-block;
 			min-width: 38%;
@@ -74,7 +72,7 @@
 
 	&.loadedByAjax{
 		z-index: 1010;
-		@include box-shadow( 0 0 15px rgba( $text-color , 0.25 ) );
+		box-shadow: 0 0 15px rgba( $text-color , 0.25 );
 	}
 
 	@media #{$phone}{
@@ -89,7 +87,7 @@
 
 #Mrphs-xlogin-container{
 	opacity: 0;
-	@include transition(opacity 0.25s linear);
+	@include transition(opacity 0.25s linear 0s);
 	&.loaded{
 		opacity: 1;
 	}

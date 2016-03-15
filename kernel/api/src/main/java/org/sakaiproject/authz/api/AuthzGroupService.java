@@ -320,6 +320,27 @@ public interface AuthzGroupService extends EntityProducer
 	 * @return true if this user is allowed to perform the function in the named AuthzGroups, false if not.
 	 */
 	boolean isAllowed(String userId, String function, Collection<String> azGroups);
+	
+	/**
+	 * Encode the role id to form the dummy user id that will be used to perform role checks.
+	 * We check role access by performing an authz check against a dummy so that we don't have to load
+	 * all of the roles and iterate through them and also to take advantage of caching.
+	 * 
+	 * @param roleId the string id of the role to encode
+	 * @return a dummy user id which will pass authz checks for this role
+	 * @throws IllegalArgumentException if no roleId is provided
+	 */
+	String encodeDummyUserForRole(String roleId) throws IllegalArgumentException;
+	
+	/**
+	 * Decodes the dummy user id to provide the original roleId as encoded by encodeDummyUserForRole(String)
+	 * @see AuthzGroupService#encodeDummyUserForRole(String)
+	 * 
+	 * @param dummyUserId the string id of the dummy user to decode
+	 * @return the decoded role, will return <code>null</code> if it could not be decoded.
+	 * @throws IllegalArgumentException if no dummy user id is provided.
+	 */
+	String decodeRoleFromDummyUser(String dummyUserId) throws IllegalArgumentException;
 
 	/**
 	 * Get the set of user ids of users who are allowed to perform the function in the named AuthzGroups.
@@ -487,6 +508,13 @@ public interface AuthzGroupService extends EntityProducer
      * @return List containing the currently registered AuthzGroupAdvisors
      */
     public List<AuthzGroupAdvisor> getAuthzGroupAdvisors();
+    
+    /**
+     * Gets a set of additional roles that can be added to an authz group. These roles shouldn't be assigned to members but
+     * users are part of the role through some other means (eg being a member of staff).
+     * @return The set of role IDs that can be used, if no additional roles can be granted it should return an empty set.
+     */
+    public Set<String> getAdditionalRoles();
 
     /**
      * Check if the supplied role can be assigned to a user.
@@ -501,6 +529,13 @@ public interface AuthzGroupService extends EntityProducer
 	 * @return A display name for the role, if there is no better name the original roleId should be returned.
 	 */
 	public String getRoleName(String roleId);
+	
+	/**
+	 * Get a nice display name for role group. 
+	 * @param roleGroupId The role group ID to check. Empty for generic name.
+	 * @return A display name for the role group, if there is no better name the original roleGroupId should be returned.
+	 */
+	public String getRoleGroupName(String roleGroupId);
 
     /**
      * Set of all maintain roles

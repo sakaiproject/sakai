@@ -34,7 +34,10 @@ import org.sakaiproject.importer.api.Importable;
  * TODO This would subclass AbstractImportable if AbstractImportable was bumped up to
  * the importer.api package for looser coupling. Currently, the AbstractImportable JAR
  * brings in unrelated dependencies such as the QTI class.
+ * 
+ * @deprecated This is part of the import/export for gradebook1 which will be removed at some point
  */
+@Deprecated
 public class XmlImportable implements Importable {
 	private String typeName;
 	private String xmlData;

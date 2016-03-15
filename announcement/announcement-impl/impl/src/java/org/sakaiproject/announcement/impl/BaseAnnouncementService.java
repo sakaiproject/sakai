@@ -59,8 +59,6 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ContextObserver;
@@ -94,8 +92,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
@@ -129,6 +125,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	private Transformer docTransformer = null;
 	
 	private ContentHostingService contentHostingService;
+	private SiteEmailNotificationAnnc siteEmailNotificationAnnc;
+
 	/**
 	 * Dependency: contentHostingService.
 	 * 
@@ -139,7 +137,11 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	{
 		contentHostingService = service;
 	}
-	
+
+	public void setSiteEmailNotificationAnnc(SiteEmailNotificationAnnc siteEmailNotificationAnnc) {
+		this.siteEmailNotificationAnnc = siteEmailNotificationAnnc;
+	}
+
 	private FunctionManager functionManager;
 	public void setFunctionManager(FunctionManager functionManager) {
 		this.functionManager = functionManager;
@@ -150,30 +152,11 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		this.aliasService = aliasService;
 	}
 
-	private TimeService timeService;
-	public void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
-		super.setTimeService(timeService);
-	}
-
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-		super.setSessionManager(sessionManager);
-	}
-	
 	private ToolManager toolManager;
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
 		
 	}
-
-	private SecurityService securityService;
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-		super.setSecurityService(securityService);
-	}
-	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -220,7 +203,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			edit.setResourceFilter(getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_MESSAGE);
 
 			// set the action
-			edit.setAction(new SiteEmailNotificationAnnc());
+			edit.setAction(siteEmailNotificationAnnc);
 
 			// register functions
 			functionManager.registerFunction(eventId(SECURE_READ));
@@ -749,7 +732,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	{
 		final ResourceProperties messageProps = message.getProperties();
 
-		final Time now = timeService.newTime();
+		final Time now = m_timeService.newTime();
 		try 
 		{
 			final Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
@@ -1106,7 +1089,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		String initMergeList = null;
 	
 		try{
-			site = org.sakaiproject.site.cover.SiteService.getSite(getAnnouncementChannel(channelReference).getContext());
+			site = m_siteService.getSite(getAnnouncementChannel(channelReference).getContext());
 
 			ToolConfiguration tc=site.getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
 			if (tc!=null){
@@ -1313,12 +1296,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 											{
 												// add the new resource into attachment collection area
 												ContentResource attachment = contentHostingService.addAttachmentResource(
-														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
+														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
 														//toolManager.getCurrentPlacement().getContext(), 
-														toContext, 	//don't use toolManager.getCurrentPlacement()!
-														toolManager.getTool("sakai.announcements").getTitle(), 
+														toContext,    //don't use toolManager.getCurrentPlacement()!
+														toolManager.getTool("sakai.announcements").getTitle(),
 														oAttachment.getContentType(),
-														oAttachment.getContent(), 
+														oAttachment.getContent(),
 														oAttachment.getProperties());
 												// add to attachment list
 												nAttachments.add(m_entityManager.newReference(attachment.getReference()));
@@ -1399,7 +1382,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			{
 				Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
 				
-				String channelId = ServerConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
+				String channelId = m_serverConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 
 				String toSiteId = toContext;
 
@@ -1506,11 +1489,11 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			AnnouncementMessage msg = (AnnouncementMessage) getMessage(messageId);
 
 			// filter out drafts not by this user (unless this user is a super user or has access_draft ability)
-			if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
-					&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
+			if ((msg.getAnnouncementHeader()).getDraft() && (!m_securityService.isSuperUser())
+					&& (!msg.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
 					&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
 			{
-				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
 			}
 
 			return msg;
@@ -1634,7 +1617,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 *        The value of the current max
 		 */
 		private void setMessageUnreleasedMax(int currentMax) {
-			boolean releaseDateFirst = ServerConfigurationService.getBoolean("sakai.announcement.release_date_first", true);
+			boolean releaseDateFirst = m_serverConfigurationService.getBoolean("sakai.announcement.release_date_first", true);
 			//Don't run this if the property is not set
 			if (releaseDateFirst == false) {
 				return;
@@ -1919,8 +1902,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			{
 				AnnouncementMessage msg = (AnnouncementMessage) o;
 
-				if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
-						&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
+				if ((msg.getAnnouncementHeader()).getDraft() && (!m_securityService.isSuperUser())
+						&& (!msg.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
 						&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
 				{
 					return false;
@@ -1967,7 +1950,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		{
 			if(cleanup == true)
 			{
-				String channelId = ServerConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
+				String channelId = m_serverConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 				
 				String toSiteId = toContext;
 				

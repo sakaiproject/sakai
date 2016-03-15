@@ -97,8 +97,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String URL_FRAGMENT = "site";
 
-	private int configuredTabsToDisplay = 5;
-
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -131,8 +129,6 @@ public class SiteHandler extends WorksiteHandler
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
-		configuredTabsToDisplay = ServerConfigurationService.getInt(
-				Portal.CONFIG_DEFAULT_TABS, 5);
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
@@ -547,9 +543,11 @@ public class SiteHandler extends WorksiteHandler
 		}
 		
 		if (SiteService.isUserSite(siteId)){
-			rcontext.put("siteTitle", rb.getString("sit_mywor"));
+			rcontext.put("siteTitle", rb.getString("sit_mywor") );
+			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
 		}else{
 			rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
+			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site ) );
 		}
 		
 		addLocale(rcontext, site, session.getUserId());
@@ -854,36 +852,24 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
-			int tabsToDisplay = configuredTabsToDisplay;
 			int tabDisplayLabel = 1;
-
-			if (!loggedIn)
+			
+			if (loggedIn) 
 			{
-				tabsToDisplay = ServerConfigurationService.getInt(
-						"gatewaySiteListDisplayCount", tabsToDisplay);
-			}
-			else
-			{
-				Preferences prefs = PreferencesService
-						.getPreferences(session.getUserId());
+				Preferences prefs = PreferencesService.getPreferences(session.getUserId());
 				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-				try
-				{
-					tabsToDisplay = (int) props.getLongProperty("tabs");					 
-				}
-				catch (Exception any)
-				{
-				}
-				try
+				try 
 				{
 					tabDisplayLabel = (int) props.getLongProperty("tab:label");
-				}
-				catch (Exception any)
+				} 
+				catch (Exception any) 
 				{
+					tabDisplayLabel = 1;
 				}
 			}
-
+			
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
+			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
 			siteView.setPrefix(prefix);
@@ -1096,6 +1082,18 @@ public class SiteHandler extends WorksiteHandler
 		{
 			Map m = new HashMap<String,String> ();
 			String headString = responseStr.substring(headStart + 1, headEnd);
+			
+			// SAK-29908 
+			// Titles come twice to view and tool title overwrites main title because
+			// it is printed before.
+
+			int titleStart = headString.indexOf("<title");
+			int titleEnd = headString.indexOf("</title");
+			titleEnd = findEndOfTag(headString, titleEnd);
+			
+			headString = (titleStart != -1 && titleEnd != -1)?headString.substring(0, titleStart) + headString.substring(titleEnd + 1):headString;
+			// End SAK-29908
+			
 			String bodyString = responseStr.substring(bodyStart + 1, bodyEnd);
 			if (tidAllow.indexOf(":debug:") >= 0)
 			{

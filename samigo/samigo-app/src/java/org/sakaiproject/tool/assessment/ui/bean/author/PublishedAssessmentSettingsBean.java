@@ -51,6 +51,9 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -126,6 +129,7 @@ public class PublishedAssessmentSettingsBean
   private String assessmentFormat; // question (1)/part(2)/assessment(3) on separate page
   private String itemNavigation; // linear (1)or random (2)
   private String itemNumbering; // continuous between parts(1), restart between parts(2)
+  private String displayScoreDuringAssessments;
   private String unlimitedSubmissions;
   private String submissionsAllowed;
   private String submissionsSaved; // bad name, this is autoSaved
@@ -193,6 +197,9 @@ public class PublishedAssessmentSettingsBean
   private String bgColorSelect;
   private String bgImageSelect;
   
+  private String extendedTimes;
+  private SelectItem[] extendedTimeTargets;
+  
   // SAM-2323 jQuery-UI datepicker
   private TimeUtil tu = new TimeUtil();
   private final String HIDDEN_START_DATE_FIELD = "startDateISO8601";
@@ -241,8 +248,21 @@ public class PublishedAssessmentSettingsBean
       else{
     	  this.bgImageSelect=null;
     	  this.bgColorSelect="1";
-      }
-      
+	   }
+			// Get the extended time information for this assessment
+			short extendedTimeCount = 1;
+			String extendedTimeLabel = "extendedTime" + extendedTimeCount;
+			this.extendedTimes = "";
+			while ((assessment.getAssessmentMetaDataByLabel(extendedTimeLabel) != null)
+					&& (!assessment.getAssessmentMetaDataByLabel(extendedTimeLabel).equals(""))) {
+				String extendedTimeValue = assessment.getAssessmentMetaDataByLabel(extendedTimeLabel);
+				// this.extendedTimes.add(extendedTimeValue);
+				// TODO: switch this back to being a list or hashmap
+				this.extendedTimes = this.extendedTimes.concat(extendedTimeValue + "^");
+				extendedTimeCount++;
+				extendedTimeLabel = "extendedTime" + extendedTimeCount;
+			}
+
       setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
       resetIsValidDate();
       resetOriginalDateString();
@@ -281,6 +301,8 @@ public class PublishedAssessmentSettingsBean
           this.itemNavigation = accessControl.getItemNavigation().toString(); // linear or random
         if (accessControl.getItemNumbering()!=null)
           this.itemNumbering = accessControl.getItemNumbering().toString();
+        if(accessControl.getDisplayScoreDuringAssessments()!=null)
+        	this.displayScoreDuringAssessments=accessControl.getDisplayScoreDuringAssessments().toString();
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
@@ -380,6 +402,9 @@ public class PublishedAssessmentSettingsBean
         
         String currentSiteId = AgentFacade.getCurrentSiteId();
         this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
+        
+        this.extendedTimeTargets = initExtendedTimeTargets();
+        
         /*
         GradebookService g = null;
         if (integrated)
@@ -669,6 +694,15 @@ public class PublishedAssessmentSettingsBean
 		  this.unlimitedSubmissions = unlimitedSubmissions;
 	  }
   }
+
+  public String getInstructorNotification(){
+    return this.assessment.getInstructorNotification().toString();
+  }
+
+  public void setInstructorNotification(String notiEmail){
+    this.assessment.setInstructorNotification(Integer.valueOf(notiEmail));
+  }
+
 
   public String getSubmissionsAllowed() {
     return submissionsAllowed;
@@ -1059,20 +1093,27 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return getDisplayFormatFromDate(startDate);
 	}
   }
-   
+
   public void setStartDateString(String startDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+    if (startDateString == null || startDateString.trim().equals("")) {
+      this.isValidStartDate = true;
+      this.startDate = null;
+    }
+    else {
 
-	if (tempDate != null) {
-		this.isValidStartDate = true;
-		this.startDate = tempDate;
-	}
-	else {
-		log.error("setStartDateString could not parse hidden start date: " + ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
-		this.isValidStartDate = false;
-		this.originalStartDateString = startDateString;
-	}
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidStartDate = true;
+        this.startDate = tempDate;
+      }
+      else {
+        log.error("setStartDateString could not parse hidden start date: " + ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+        this.isValidStartDate = false;
+        this.originalStartDateString = startDateString;
+      }
+    }
   }
 
   public String getDueDateString()
@@ -1087,17 +1128,24 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   public void setDueDateString(String dueDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
-	
-	if (tempDate != null) {
-		this.isValidDueDate = true;
-		this.dueDate = tempDate;
-	}
-	else {
-		log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
-		this.isValidDueDate = false;
-		this.originalDueDateString = dueDateString;
-	}
+    if (dueDateString == null || dueDateString.trim().equals("")) {
+      this.isValidDueDate = true;
+      this.dueDate = null;
+    }
+    else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidDueDate = true;
+        this.dueDate = tempDate;
+      }
+      else {
+        log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+        this.isValidDueDate = false;
+        this.originalDueDateString = dueDateString;
+      }
+    }
   }
 
   public String getRetractDateString()
@@ -1112,17 +1160,24 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   public void setRetractDateString(String retractDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+    if (retractDateString == null || retractDateString.trim().equals("")) {
+      this.isValidRetractDate = true;
+      this.retractDate = null;
+    }
+    else {
 
-	if (tempDate != null) {
-		this.isValidRetractDate = true;
-		this.retractDate = tempDate;
-	}
-	else {
-		log.error("setRetractDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
-		this.isValidRetractDate = false;
-		this.originalRetractDateString = retractDateString;
-	}
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidRetractDate = true;
+        this.retractDate = tempDate;
+      } else {
+
+        log.error("setRetractDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+        this.isValidRetractDate = false;
+        this.originalRetractDateString = retractDateString;
+      }
+    }
   }
 
   public String getFeedbackDateString()
@@ -1135,19 +1190,25 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	}	  	  	  
   }
 
-  public void setFeedbackDateString(String feedbackDateString)
-  {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
-	
-	if (tempDate != null) {
-		this.isValidFeedbackDate = true;
-		this.feedbackDate = tempDate;
-	}
-	else {
-		log.error("setFeedbackDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
-		this.isValidFeedbackDate = false;
-		this.originalFeedbackDateString = feedbackDateString;
-	} 
+  public void setFeedbackDateString(String feedbackDateString) {
+    if (feedbackDateString == null || feedbackDateString.trim().equals("")) {
+      this.isValidFeedbackDate = true;
+      this.feedbackDate = null;
+    }
+    else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidFeedbackDate = true;
+        this.feedbackDate = tempDate;
+      }
+      else {
+        log.error("setFeedbackDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+        this.isValidFeedbackDate = false;
+        this.originalFeedbackDateString = feedbackDateString;
+      }
+    }
   }
   
   public String getPublishedUrl() {
@@ -1532,6 +1593,107 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
  		  
 		return selections;
 	}
+
+	public void setExtendedTimes(String extendedTimes) {
+		this.extendedTimes = extendedTimes;
+	}
+
+	public String getExtendedTimes() {
+		return extendedTimes;
+	}
+
+	/**
+	 * Popluate the select item list of extended time targets
+	 * 
+	 * @return
+	 */
+	public SelectItem[] initExtendedTimeTargets() {
+		SelectItem[] extTimeSelectItems = null;
+		Site site = null;
+
+		try {
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			Collection groups = site.getGroups();
+			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
+			// List sections = sectionAwareness.getSections(site.getId());
+			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
+
+			// Treemaps are used here because they auto-sort
+			TreeMap SectionTargets = new TreeMap<String, String>();
+			TreeMap groupTargets = new TreeMap<String, String>();
+			TreeMap studentTargets = new TreeMap<String, String>();
+
+			// Add groups to target set
+			if (groups != null && groups.size() > 0) {
+				Iterator groupIter = groups.iterator();
+				while (groupIter.hasNext()) {
+					Group group = (Group) groupIter.next();
+					if (!group.getTitle().startsWith("Access: ")) // do not
+																	// include
+																	// Lessons
+																	// groups
+						groupTargets.put("Group: " + group.getTitle(), group.getId());
+				}
+			}
+
+			// Add students to target set
+			if (enrollments != null && enrollments.size() > 0) {
+				for (Iterator iter = enrollments.iterator(); iter.hasNext();) {
+					EnrollmentRecord enrollmentRecord = (EnrollmentRecord) iter.next();
+					String userId = enrollmentRecord.getUser().getUserUid();
+					String userDisplayName = enrollmentRecord.getUser().getSortName();
+					studentTargets.put(userDisplayName, userId);
+				}
+			}
+
+			// Add targets to selectItem array. We put the alpha name in as the
+			// key so it would
+			// be alphabetized. Now we pull it out and build the select item
+			// list.
+			int listSize = 1 + groupTargets.size() + studentTargets.size();
+			extTimeSelectItems = new SelectItem[listSize];
+			extTimeSelectItems[0] = new SelectItem("1", "Select User/Group");
+			int selectCount = 1;
+
+			// Add in groups to select item list
+			Set keySet = groupTargets.keySet();
+			Iterator iter = keySet.iterator();
+			while (iter.hasNext()) {
+				String alphaName = (String) iter.next();
+				String sakaiId = (String) groupTargets.get(alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
+			}
+
+			// Add in students to select item list
+			keySet = studentTargets.keySet();
+			iter = keySet.iterator();
+			while (iter.hasNext()) {
+				String alphaName = (String) iter.next();
+				String sakaiId = (String) studentTargets.get(alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
+			}
+
+		} catch (IdUnusedException ex) {
+			// No site available
+		}
+		return extTimeSelectItems;
+	}
+
+	public SelectItem[] getExtendedTimeTargets() {
+		return extendedTimeTargets;
+	}
+
+	public void setExtendedTimeTargets(SelectItem[] targets) {
+		this.extendedTimeTargets = targets;
+	}
+
+        public String getDisplayScoreDuringAssessments(){
+ 		return displayScoreDuringAssessments;
+ 	}
+  
+ 	public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
+ 		this.displayScoreDuringAssessments = displayScoreDuringAssessments;
+ 	}
 }
 
 

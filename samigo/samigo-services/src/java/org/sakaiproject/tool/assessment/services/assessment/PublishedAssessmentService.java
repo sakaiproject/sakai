@@ -198,8 +198,22 @@ public class PublishedAssessmentService extends AssessmentService{
       log.error(e);
       throw new RuntimeException(e);
     }
-  }
-  
+	}
+
+	public PublishedAssessmentFacade getPublishedAssessmentQuick(String assessmentId) {
+		// SAM-1995 if an empty or null id is passed throw and exception
+		if (assessmentId == null || "".equals(assessmentId)) {
+			throw new IllegalArgumentException("AssesmentId must be specified");
+		}
+		try {
+			return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+					.getPublishedAssessmentQuick(Long.valueOf(assessmentId));
+		} catch (Exception e) {
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
   public PublishedAssessmentFacade getPublishedAssessment(String assessmentId, boolean withGroupsInfo) {
 	    try {
 	      return PersistenceService.getInstance().
@@ -548,6 +562,29 @@ public class PublishedAssessmentService extends AssessmentService{
       return map;
   }
   
+  /**
+   * IMAGEMAP_QUESTION
+   * @param publishedAssessment
+   * @return the map of item id -> item for image map questions in this map
+   */
+  public Map<Long, ItemDataIfc> prepareImagQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
+      // CALCULATED_QUESTION
+      Map<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+      List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
+      for (int i=0;i<sectionArray.size(); i++) {
+          SectionDataIfc section = sectionArray.get(i);
+          List<ItemDataIfc> itemArray = section.getItemArray();
+          for (int j=0;j<itemArray.size(); j++) {
+              ItemDataIfc item = itemArray.get(j);
+              if (item.getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION)) { // IMAGEMAP_QUESTION
+                  map.put(item.getItemId(), item);
+              }
+          }
+      }
+      return map;
+  }
+  
+  
   public HashMap<Long, ItemDataIfc> prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){
     HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
@@ -739,4 +776,9 @@ public class PublishedAssessmentService extends AssessmentService{
 	   getPublishedAssessmentFacadeQueries().
 	   getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
    }
+
+	public List getAllAssessmentsGradingDataByAgentAndSiteId(String agentId, String siteId) {
+		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.getAllAssessmentsGradingDataByAgentAndSiteId(agentId, siteId);
+	}
 }

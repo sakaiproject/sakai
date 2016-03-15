@@ -1,8 +1,10 @@
 package org.sakaiproject.site.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -22,19 +24,18 @@ import java.util.UUID;
  *
  */
 public class SiteSearchTest extends SakaiKernelTestBase {
-
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(SiteSearchTest.class)) {
-			protected void setUp() throws Exception {
-				oneTimeSetup("sitesearch");
-			}
-			protected void tearDown() throws Exception {
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	private static Log log = LogFactory.getLog(SiteSearchTest.class);
+	
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+			oneTimeSetup("sitesearch");
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
-
+				
+	@Test
 	public void testSearch() throws Exception {
 		SiteService siteService = getService(SiteService.class);
 		siteService.countSites(SelectionType.ACCESS, null, null, null);
@@ -48,6 +49,7 @@ public class SiteSearchTest extends SakaiKernelTestBase {
 		siteService.countSites(SelectionType.ANY_DELETED, null, null, null);
 	}
 
+	@Test
 	public void testJoinableSiteSQL() throws Exception {
 		// This test came about through KNL-1294 and was written to test that joinable sites search worked
 		// when also supplying a map of properties to search for.
@@ -76,10 +78,10 @@ public class SiteSearchTest extends SakaiKernelTestBase {
 		// First test search for any.
 		List<Site> sites;
 		sites = siteService.getSites(SelectionType.ANY, type, null, stringMap, SiteService.SortType.TITLE_ASC, null);
-		assertEquals(1, sites.size());
+		Assert.assertEquals(1, sites.size());
 		// Then test that it's joinable
 		sites = siteService.getSites(SelectionType.JOINABLE, type, null, stringMap, SiteService.SortType.TITLE_ASC, null);
-		assertEquals(1, sites.size());
+		Assert.assertEquals(1, sites.size());
 
 	}
 }

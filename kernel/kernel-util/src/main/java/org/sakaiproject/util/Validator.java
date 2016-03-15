@@ -27,7 +27,6 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -113,20 +112,6 @@ public class Validator
 	}
 
 	/**
-	 * Escape a plaintext string so that it can be output as part of an HTML document, except that newlines are NOT escaped and therefore are treated as whitespace instead of displaying as line-breaks. Amperstand, greater-than, less-than, etc, will be
-	 * escaped so that they display (instead of being interpreted as formatting).
-	 * 
-	 * @param value
-	 *        The string to escape.
-	 * @return value fully escaped for HTML.
-     * @deprecated this is a passthrough for {@link FormattedText#escapeHtml(String, boolean)} so use that instead
-	 */
-	public static String escapeHtmlSupressNewlines(String value)
-	{
-		return FormattedText.escapeHtml(value, false);
-	}
-
-	/**
 	 * Escape plaintext for display inside a plain textarea.
      * @deprecated this is a passthrough for {@link FormattedText#escapeHtml(String, boolean)} so use that instead
 	 */
@@ -145,15 +130,6 @@ public class Validator
 	}
 
 	/**
-	 * Escape HTML-formatted text in preparation to include it in an HTML document, except that HTML line breaks ("&lt;br /&gt;") will be supressed (removed).
-     * @deprecated this is a passthrough for {@link FormattedText#escapeHtmlFormattedTextSupressNewlines(String)} so use that instead
-	 */
-	public static String escapeHtmlFormattedTextSupressNewlines(String value)
-	{
-		return FormattedText.escapeHtmlFormattedTextSupressNewlines(value);
-	}
-
-	/**
 	 * Escapes the given HTML-formatted text for editing within the WYSIWYG editor. All HTML meta-characters in the string (such as amperstand, less-than, etc), will be escaped.
 	 * 
 	 * @param value
@@ -165,58 +141,6 @@ public class Validator
 	{
 		return FormattedText.escapeHtmlFormattedTextarea(value);
 	}
-
-	/**
-	 * escapeHtml(), but also fix the case where we start with &#169; and treat it as copyright (c) 
-	 * Note: ResourcesAction used to (before 1.1.05) place this as the copyright symbol. -ggolden
-	 * 
-	 * @deprecated this is a non-i18n compliant method, DO NOT USE, it will be removed after 2.9 - Dec 2011
-	 */
-	public static String escapeHtmlFixCopyright(String value) {
-		if (value.startsWith("&#169;")) {
-			value = "copyright (c)" + value.substring(6);
-		}
-		return FormattedText.escapeHtml(value, true);
-
-	} // escapeHtmlFixCopyright
-
-    /**
-     * Return a string based on value that is safe to place into a sql statement: sql statements use the single quote, and this must be doubled as an escape.
-     * 
-     * @param value
-     *        The string to escape.
-     * @return value escaped.
-     * @deprecated use commons-lang StringEscapeUtils
-     */
-    public static String escapeSql(String value)
-    {
-        if (value == null) return "";
-        try
-        {
-            StringBuilder buf = new StringBuilder();
-            for (int i = 0; i < value.length(); i++)
-            {
-                char c = value.charAt(i);
-                if (c == '\'')
-                {
-                    buf.append("''");
-                }
-                else
-                {
-                    buf.append(c);
-                }
-            }
-
-            String rv = buf.toString();
-            return rv;
-        }
-        catch (Exception e)
-        {
-            M_log.warn("Validator.escapeSql: ", e);
-            return "";
-        }
-
-    } // escapeSql
 
     /**
      * Return a string based on value that is safe to place into a javascript / html identifier: anything not alphanumeric change to 'x'. If the first character is not alphabetic, a letter 'i' is prepended.
@@ -340,26 +264,6 @@ public class Validator
 
     } // checkEmailLocal
 
-    /**
-     * Limit the formatted to a certain number of DISPLAYED characters, adding "..." if it was truncated. For example, <xmp>trim("Hello \n<b>World</b>!", 7)</xmp> returns <xmp>"Hello \n<b>W</b>..."</xmp>
-     * 
-     * @param value
-     *        The formatted text to limit.
-     * @param the
-     *        length to limit to (as an int).
-     * @return The limited string.
-     * @deprecated use {@link org.sakaiproject.util.api.FormattedText#trimFormattedText(String, int, StringBuilder)} instead
-     */
-    public static String limitFormattedText(String value, int length)
-    {
-        StringBuilder ret = new StringBuilder();
-        value = FormattedText.escapeHtmlFormattedTextSupressNewlines(value);
-        boolean didTrim = FormattedText.trimFormattedText(value, length, ret);
-        if (didTrim) ret.append("...");
-        return ret.toString();
-    }
-
- 
 	/**
 	 * Return a string based on id that is valid according to Resource name validity rules.
 	 * 

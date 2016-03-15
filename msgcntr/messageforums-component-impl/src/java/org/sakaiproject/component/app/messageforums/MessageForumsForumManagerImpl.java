@@ -92,13 +92,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
     
     private static final String QUERY_BY_FORUM_OWNER_AREA = "findPrivateForumByOwnerArea";
-    
-    private static final String QUERY_BY_FORUM_OWNER_AREA_WITH_TOPICS = "findPrivateForumByOwnerAreaWithTopics";
 
     private static final String QUERY_BY_FORUM_OWNER_AREA_NULL = "findPrivateForumByOwnerAreaNull";
 
-    private static final String QUERY_BY_FORUM_OWNER_AREA_NULL_WITH_ALL_TOPICS = "findPrivateForumByOwnerAreaNullWithAllTopics";
-    
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     
     private static final String QUERY_BY_FORUM_ID_WITH_ATTACHMENTS = "findForumByIdWithAttachments";    
@@ -948,6 +944,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setDraft(forum.getDraft());
         topic.setModerated(Boolean.FALSE);
         topic.setPostFirst(Boolean.FALSE);
+        topic.setPostAnonymous(Boolean.FALSE);
+        topic.setRevealIDsToRoles(Boolean.FALSE);
         topic.setAutoMarkThreadsRead(forum.getAutoMarkThreadsRead());
         LOG.debug("createDiscussionForumTopic executed");
         return topic;
@@ -986,6 +984,15 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         if (topic.getPostFirst() == null) {
         	topic.setPostFirst(Boolean.FALSE);
         }
+
+        if (topic.getPostAnonymous() == null) {
+        	topic.setPostAnonymous(Boolean.FALSE);
+        }
+
+        if (topic.getRevealIDsToRoles() == null) {
+        	topic.setRevealIDsToRoles(Boolean.FALSE);
+        }
+
         //make sure availability is set properly
         topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
         
@@ -1033,6 +1040,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setLocked(Boolean.FALSE);
         topic.setModerated(Boolean.FALSE);
         topic.setPostFirst(Boolean.FALSE);
+        topic.setPostAnonymous(Boolean.FALSE);
+        topic.setRevealIDsToRoles(Boolean.FALSE);
         topic.setDraft(forum.getDraft());
         LOG.debug("createOpenForumTopic executed");
         return topic;
@@ -1059,6 +1068,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
         topic.setModerated(Boolean.FALSE);
         topic.setPostFirst(Boolean.FALSE);
+        topic.setPostAnonymous(Boolean.FALSE);
+        topic.setRevealIDsToRoles(Boolean.FALSE);
         topic.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
         LOG.debug("createPrivateForumTopic executed");
         return topic;
@@ -1445,47 +1456,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			return resultList;      
 		}
-
-
-		public PrivateForum getPrivateForumByOwnerAreaWithAllTopics(final String owner, final Area area)
-		{
-
-      if (owner == null || area == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }
-
-      LOG.debug("getPrivateForumByOwnerAreaWithAllTopics executing with owner: " + owner + " and area:" + area);
-
-      HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_WITH_TOPICS);
-              q.setParameter("owner", owner, Hibernate.STRING);
-              q.setParameter("area", area);
-              return q.uniqueResult();
-          }
-      };
-
-      return (PrivateForum) getHibernateTemplate().execute(hcb);
-		}
-
-		public PrivateForum getPrivateForumByOwnerAreaNullWithAllTopics(final String owner)
-		{
-			if (owner == null) {
-				throw new IllegalArgumentException("Null Argument");
-			}
-
-			LOG.debug("getPrivateForumByOwnerAreaNullWithAllTopics executing with owner: " + owner);
-
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_NULL_WITH_ALL_TOPICS);
-					q.setParameter("owner", owner, Hibernate.STRING);
-					return q.uniqueResult();
-				}
-			};
-
-			return (PrivateForum) getHibernateTemplate().execute(hcb);
-		}
 	
 		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List membershipList)
 		{
@@ -1591,6 +1561,57 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			};
 
 			return (Topic) getHibernateTemplate().execute(hcb);
+		}
+
+		public List<Topic> getTopicsInSite(final String contextId)
+		{
+			return getTopicsInSite(contextId, false);
+		}
+
+		public List<Topic> getTopicsInSite(final String contextId, boolean anonymousOnly)
+		{
+			if (contextId == null)
+			{
+				throw new IllegalArgumentException("Null Argument");
+			}
+
+			final String query = anonymousOnly ? "findAnonymousTopicsInSite" : "findTopicsInSite";
+
+			HibernateCallback<List<Topic>> hcb = new HibernateCallback<List<Topic>>()
+			{
+				public List<Topic> doInHibernate(Session session) throws HibernateException, SQLException
+				{
+					Query q = session.getNamedQuery(query);
+					q.setParameter("contextId", contextId, Hibernate.STRING);
+					return q.list();
+				}
+			};
+
+			List<Topic> topicList = new ArrayList<>();
+			List resultSet = (List) getHibernateTemplate().execute(hcb);
+			for (Object objResultArray : resultSet)
+			{
+				Object[] resultArray = (Object[]) objResultArray;
+				for (Object result : resultArray)
+				{
+					if (result instanceof Topic)
+					{
+						topicList.add((Topic) result);
+						break;
+					}
+				}
+			}
+			return topicList;
+		}
+
+		public List<Topic> getAnonymousTopicsInSite(final String contextId)
+		{
+			return getTopicsInSite(contextId, true);
+		}
+
+		public boolean isSiteHasAnonymousTopics(String contextId)
+		{
+			return !getAnonymousTopicsInSite(contextId).isEmpty();
 		}
 		
 		public boolean doesRoleHavePermissionInTopic(final Long topicId, final String roleName, final String permissionName) {

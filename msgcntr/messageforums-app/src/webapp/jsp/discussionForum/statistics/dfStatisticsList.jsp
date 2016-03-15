@@ -11,6 +11,7 @@
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
   		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>
@@ -34,16 +35,16 @@
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header">
-  					<h:commandLink action="#{mfStatisticsBean.toggleNameSort}" title="#{msgs.stat_name}">
-					   	<h:outputText value="#{msgs.stat_name}" />
+					<h:commandLink action="#{mfStatisticsBean.toggleNameSort}" title="#{mfStatisticsBean.pureAnon ? msgs.stat_anon_user : msgs.stat_name}">
+					   	<h:outputText value="#{mfStatisticsBean.pureAnon ? msgs.stat_anon_user : msgs.stat_name}" />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.nameSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_name}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.nameSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_name}"/>
 					</h:commandLink>
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true">
   				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
-  				    <f:param value="#{stat.escapedSiteUser}" name="siteUser"/>
-				   	<h:outputText value="#{stat.siteUser}" />
+  				    <h:outputText rendered="#{!stat.useAnonId}" value="#{stat.siteUser}" />
+  				    <h:outputText rendered="#{stat.useAnonId}" value="#{stat.siteAnonId}" styleClass="anonymousAuthor"/>
 	          	</h:commandLink>
 			</h:column>
   			<h:column>

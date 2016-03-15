@@ -210,9 +210,9 @@
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="12" />
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_siteInfo" value="$tlang.getString("sitediconf.fin")" />
-			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("sitediconf.bac")" />
-			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediconf.can")" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_siteInfo" value="$tlang.getString("sitediconf.fin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("sitediconf.bac")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediconf.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

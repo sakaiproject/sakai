@@ -5,14 +5,13 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>11-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
     <name>Sakai base pom</name>
     <groupId>org.sakaiproject</groupId>
     <artifactId>base</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -54,6 +53,7 @@
                 <module>calendar</module>
                 <module>chat</module>
                 <module>citations</module>
+                <module>cmprovider</module>
                 <module>common</module>
                 <module>config</module>
                 <module>cloud-content</module>
@@ -70,6 +70,7 @@
                 <module>external-calendaring-service</module>
                 <module>feedback</module>
                 <module>gradebook</module>
+                <module>gradebookng</module>
                 <module>help</module>
                 <module>hierarchy</module>
                 <module>jobscheduler</module>
@@ -95,12 +96,14 @@
                 <module>reset-pass</module>
                 <module>rights</module>
                 <module>roster2</module>
+                <module>rsf</module>
                 <module>rwiki</module>
                 <module>samigo</module>
                 <module>search</module>
                 <module>sections</module>
                 <module>shortenedurl</module>
                 <module>signup</module>
+                <module>simple-rss-portlet</module>
                 <module>site</module>
                 <module>site-manage</module>
                 <module>sitestats</module>

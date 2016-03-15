@@ -22,6 +22,7 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -354,7 +355,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
           return crit.list();
         }
       };
-      return new HashSet<SyllabusData>(getHibernateTemplate().executeFind(hcb));
+      return new HashSet<SyllabusData>((List<SyllabusData>) getHibernateTemplate().executeFind(hcb));
   }
   
   @SuppressWarnings("unchecked")
@@ -372,7 +373,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
           return crit.list();
         }
       };
-      return new HashSet<SyllabusData>(getHibernateTemplate().executeFind(hcb));
+      return new HashSet<SyllabusData>((List<SyllabusData>) getHibernateTemplate().executeFind(hcb));
   }
   
   /**

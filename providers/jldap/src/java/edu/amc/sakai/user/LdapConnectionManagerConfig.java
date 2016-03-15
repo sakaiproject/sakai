@@ -83,6 +83,20 @@ public interface LdapConnectionManagerConfig {
 	 * @param the current secureSocketFactory. Should not return <code>null</code>.
 	 */
 	public void setSecureSocketFactory(LDAPSocketFactory secureSocketFactory);
+
+	/**
+	 * The socket factory to be used when creating insecure connections.
+	 * This factory will only be used if {@link #isSecureConnection()} returns
+	 * <code>false</code>. Can return <code>null</code> if no socket factory
+	 * needs to be used.
+     */
+	public LDAPSocketFactory getSocketFactory();
+
+	/**
+	 * @param socketFactory the socketFactory to use.
+     */
+	public void setSocketFactory(LDAPSocketFactory socketFactory);
+
 	
 	/**
 	 * @return the directory operation timeout

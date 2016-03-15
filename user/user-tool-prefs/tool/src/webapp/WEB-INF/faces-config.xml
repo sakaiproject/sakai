@@ -61,6 +61,11 @@
             <to-view-id>/prefs/noti_addSiteOverride.jsp</to-view-id>
             <redirect/>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>hidden</from-outcome>
+            <to-view-id>/prefs/hidden.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
  	
 	<managed-bean>

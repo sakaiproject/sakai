@@ -212,20 +212,20 @@ public class SakaiIFrame extends GenericPortlet {
 			}
 			try {
 				content = m_ltiService.getContent(key);
+				Long tool_id = getLongNull(content.get("tool_id"));
 				// If we are supposed to popup (per the content), do so and optionally
 				// copy the calue into the placement to communicate with the portal
-				popup = getLongNull(content.get("newpage")) == 1;
+				if (tool_id != null) {
+					tool = m_ltiService.getTool(tool_id);
+					m_ltiService.filterContent(content, tool);
+				}
+				Object popupValue = content.get("newpage");
+				popup = getLongNull(popupValue) == 1;
 				if ( oldPopup != popup ) {
 					placement.getPlacementConfig().setProperty(POPUP, popup ? "true" : "false");
 					placement.save();
 				}
 				String launch = (String) content.get("launch");
-				Long tool_id = getLongNull(content.get("tool_id"));
-				if ( launch == null && tool_id != null ) {
-					tool = m_ltiService.getTool(tool_id);
-					launch = (String) tool.get("launch");
-				}
-
 				// Force http:// to pop-up if we are https://
 				String serverUrl = ServerConfigurationService.getServerUrl();
 				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {

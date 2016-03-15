@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.content</groupId>
     <artifactId>cloud-content</artifactId>
-    <version>11-SNAPSHOT</version>
+    <version>12-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
 
   <properties>
-    <jclouds.version>1.9.0</jclouds.version>
+    <jclouds.version>1.9.1</jclouds.version>
   </properties>
 
   <dependencies>
@@ -24,8 +24,16 @@
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -38,7 +46,14 @@
       <groupId>org.apache.jclouds.driver</groupId>
       <artifactId>jclouds-slf4j</artifactId>
       <version>${jclouds.version}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>aopalliance</groupId>
+                  <artifactId>aopalliance</artifactId>
+              </exclusion>
+          </exclusions>
     </dependency>
+    <!-- jclouds-sl4j needs jclouds-core which needs guice which needs aopalliance which is already provided in lib -->
     <dependency>
       <groupId>org.apache.jclouds.api</groupId>
       <artifactId>openstack-swift</artifactId>

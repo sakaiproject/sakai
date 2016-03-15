@@ -10,9 +10,8 @@
 	<sakai:view_container title="#{msgs.title_list}">
 	<sakai:view_content>
 
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" />
+<script>includeLatestJQuery('main_edit.jsp');</script>
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
 <link type="text/css" href="syllabus/css/syllabus.css" rel="stylesheet" media="screen" />
@@ -326,7 +325,7 @@
 									</f:verbatim>
 								</h:panelGroup>
 							</f:facet>
-							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPost}" onchange="toggleCalendarCheckbox(this);"/>
+							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPublish}" onchange="toggleCalendarCheckbox(this);" />
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">

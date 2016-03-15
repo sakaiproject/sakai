@@ -4,7 +4,7 @@
     <parent>
         <artifactId>kernel</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>11-SNAPSHOT</version><!-- KernelVersion -->
+        <version>12-SNAPSHOT</version><!-- KernelVersion -->
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -261,13 +261,6 @@
           <artifactId>HikariCP</artifactId>
           <scope>compile</scope>
         </dependency>
-        <!--
-        <dependency>
-          <groupId>com.zaxxer</groupId>
-          <artifactId>HikariCP-java6</artifactId>
-          <scope>compile</scope>
-        </dependency> 
-        -->
         <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>

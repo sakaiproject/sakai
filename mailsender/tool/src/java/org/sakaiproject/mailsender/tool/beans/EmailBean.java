@@ -40,6 +40,7 @@ import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailEntry;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Web;
 import org.springframework.web.multipart.MultipartFile;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -320,7 +321,7 @@ public class EmailBean
 				}
 			}
 			String emailarchive = "/mailarchive/channel/" + siteId + "/main";
-			String content = emailEntry.getContent() + attachment_info.toString();
+			String content = Web.cleanHtml(emailEntry.getContent()) + attachment_info.toString();
 			externalLogic.addToArchive(config, emailarchive, fromString, subject, content);
 		}
 	}

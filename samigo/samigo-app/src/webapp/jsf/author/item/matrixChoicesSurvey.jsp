@@ -91,6 +91,16 @@
 		<f:validateDoubleRange /></h:inputText>
 		<h:message for="answerptr" styleClass="validate" />
    </div>
+   <div class="longtext">
+       <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
+   <div class="tier3">
+       <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+       <f:selectItem itemValue="true"
+                     itemLabel="#{authorMessages.yes}" />
+       <f:selectItem itemValue="false"
+                     itemLabel="#{authorMessages.no}" />
+       </h:selectOneRadio>
+   </div>
 	<br/>
 	
  <!-- 2 TEXT -->
@@ -178,7 +188,7 @@
 </div>
 <div class="tier2">
 <%-- 3 PART --%>
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
+<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
   <h:outputLabel value="#{authorMessages.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />

@@ -2,6 +2,7 @@
 <html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
     <head>
         <meta charset="utf-8">
+        <title>${loginRequired} - ${uiService}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">        
 		<link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
 		<script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
@@ -50,8 +51,8 @@
     	        }
     	    }
     	    if ( needJQuery ) {
-    	        document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-    	        document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.11.3/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.2.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     	    }
     	</script>
     	<script>

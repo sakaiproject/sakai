@@ -5,21 +5,20 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>11-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>Sakai Mail Archive Project</name>
     <groupId>org.sakaiproject.mailarchive</groupId>
     <artifactId>mailarchive</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>mailarchive-api/api</module>
         <module>mailarchive-impl/impl</module>
         <module>mailarchive-impl/pack</module>
-        <module>mailarchive-james/james</module>
+        <module>mailarchive-subetha</module>
         <module>mailarchive-tool/tool</module>
     </modules>
     

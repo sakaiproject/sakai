@@ -57,6 +57,7 @@ public class ActionSelectListener implements ValueChangeListener {
 		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 		PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
 		String newValue = ae.getNewValue().toString();
+		String publishedID = ContextUtil.lookupParam( "publishedId" );
 		log.debug("**** ae.getNewValue : " + newValue);
 
 		
@@ -142,11 +143,12 @@ public class ActionSelectListener implements ValueChangeListener {
 			totalScoreListener.processAction(null);
 			author.setJustPublishedAnAssessment(true);
 		}
-		if ("edit_published".equals(newValue)) {
+		else if ("edit_published".equals(newValue)) {
 			ConfirmEditPublishedAssessmentListener confirmEditPublishedAssessmentListener = new ConfirmEditPublishedAssessmentListener();
 			confirmEditPublishedAssessmentListener.processAction(null);
 			author.setOutcome("confirmEditPublishedAssessment");
 			author.setFromPage("author");
+			author.setEditPublishedAssessmentID( publishedID );
 			author.setJustPublishedAnAssessment(true);
 		}
 		else if ("preview_published".equals(newValue)) {

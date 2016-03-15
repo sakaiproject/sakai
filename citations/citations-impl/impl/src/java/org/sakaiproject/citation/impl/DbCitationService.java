@@ -24,21 +24,13 @@ package org.sakaiproject.citation.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.citation.api.Schema;
+import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -210,9 +202,49 @@ public class DbCitationService extends BaseCitationService
 			this.commitCitation(edit);
 		}
 
+		public void saveCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			this.commitCitationCollectionOrder(citationCollectionOrder);
+		}
+
 		public void saveCollection(CitationCollection collection)
 		{
 			this.commitCollection(collection);
+		}
+
+		@Override
+		public void saveSection(CitationCollectionOrder citationCollectionOrder) {
+			this.commitSection(citationCollectionOrder);
+		}
+
+		@Override
+		public void saveSubsection(CitationCollectionOrder citationCollectionOrder) {
+			this.commitSubsection(citationCollectionOrder);
+		}
+
+		@Override
+		public void saveCitationCollectionOrders(List<CitationCollectionOrder> citationCollectionOrders, String citationCollectionId) {
+			this.commitCitationCollectionOrders(citationCollectionOrders, citationCollectionId);
+		}
+
+		@Override
+		public void updateCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder) {
+			this.updateCitCollectionOrder(citationCollectionOrder);
+		}
+
+		@Override
+		public CitationCollectionOrder getNestedSections(String citationCollectionId) {
+			return this.getNestedCollection(citationCollectionId);
+		}
+
+		@Override
+		public CitationCollection getUnnestedCitationCollection(String citationCollectionId) {
+			return this.getUnnestedCitationColl(citationCollectionId);
+		}
+
+		@Override
+		public void removeLocation(String collectionId, int locationId) {
+			this.removeNestedLocation(collectionId, locationId);
 		}
 
 		public void updateSchema(Schema schema)
@@ -323,6 +355,342 @@ public class DbCitationService extends BaseCitationService
         }
 
 		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#commitCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		protected void commitCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
+
+			Object[] orderFields = new Object[5];
+			orderFields [0] = citationCollectionOrder.getCollectionId();
+			orderFields [1] = citationCollectionOrder.getCitationid();
+			orderFields [2] = citationCollectionOrder.getLocation();
+			orderFields [3] = citationCollectionOrder.getSectiontype();
+			orderFields [4] = citationCollectionOrder.getValue();
+
+			m_sqlService.dbWrite(orderStatement, orderFields);
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#commitCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		protected void commitSection(CitationCollectionOrder citationCollectionOrder)
+		{
+			String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
+
+			Object[] orderFields = new Object[5];
+			orderFields [0] = citationCollectionOrder.getCollectionId();
+			orderFields [1] = null;
+			orderFields [2] = citationCollectionOrder.getLocation();
+			orderFields [3] = citationCollectionOrder.getSectiontype();
+			orderFields [4] = citationCollectionOrder.getValue();
+
+			m_sqlService.dbWrite(orderStatement, orderFields);
+
+			updateCitationCollectionUpdateDate(citationCollectionOrder.getCollectionId());
+		}
+
+		private void updateCitationCollectionUpdateDate(String citationCollectionId) {
+			String updateStatement = "UPDATE " + m_collectionTableName + " SET PROPERTY_VALUE = ? WHERE COLLECTION_ID= ? AND PROPERTY_NAME = ? ";
+			long mostRecentUpdate = TimeService.newTime().getTime();
+			Object[] updateFields = new Object[3];
+			updateFields[0] = Long.toString(mostRecentUpdate);
+			updateFields[1] = citationCollectionId;
+			updateFields[2] = PROP_MOST_RECENT_UPDATE;
+
+			m_sqlService.dbWrite(updateStatement, updateFields);
+		}
+
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#commitSubsection(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		protected void commitSubsection(final CitationCollectionOrder citationCollectionOrder)
+		{
+			List<CitationCollectionOrder> citationCollectionOrderList = getNestedCollectionAsList(citationCollectionOrder.getCollectionId());
+
+			// insert subsection into the right position in the tree
+			int subSectionLocation = 1;
+			final List<CitationCollectionOrder> citationCollectionOrderToSave = new ArrayList<CitationCollectionOrder>();
+			for (CitationCollectionOrder collectionOrder : citationCollectionOrderList) {
+				if (citationCollectionOrder.getLocation() == subSectionLocation){
+					citationCollectionOrderToSave.add(citationCollectionOrder);
+				}
+				citationCollectionOrderToSave.add(collectionOrder);
+				subSectionLocation++;
+			}
+			if (citationCollectionOrderToSave.size()==citationCollectionOrderList.size()){
+				citationCollectionOrderToSave.add(citationCollectionOrder);
+			}
+
+			m_sqlService.transact(new Runnable()
+			{
+				public void run()
+				{
+					// delete all citation orders
+					String statement = "delete from " + m_collectionOrderTableName + " where COLLECTION_ID = ? and SECTION_TYPE is not null";
+					Object fields[] = new Object[1];
+					fields[0] = citationCollectionOrder.getCollectionId();
+					m_sqlService.dbWrite(statement, fields);
+
+					// insert the updated tree
+					int location = 1;
+					for (CitationCollectionOrder citationCollectionOrder1 : citationCollectionOrderToSave) {
+						String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
+
+						Object[] orderFields = new Object[5];
+						orderFields [0] = citationCollectionOrder1.getCollectionId();
+						orderFields [1] = citationCollectionOrder1.getCitationid();
+						orderFields [2] = location;
+						orderFields [3] = citationCollectionOrder1.getSectiontype();
+						orderFields [4] = citationCollectionOrder1.getValue();
+
+						m_sqlService.dbWrite(orderStatement, orderFields);
+						location++;
+					}
+
+					updateCitationCollectionUpdateDate(citationCollectionOrder.getCollectionId());
+				}
+			}, "commitSubsection: " + citationCollectionOrder.getCollectionId());
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#commitCitationCollectionOrders(java.util.ArrayList)
+		*/
+		protected void commitCitationCollectionOrders(final List<CitationCollectionOrder> citationCollectionOrders, final String citationCollectionId)
+		{
+
+
+			m_sqlService.transact(new Runnable()
+			{
+				public void run()
+				{
+					// delete CITATION_COLLECTION_ORDERS by COLLECTION_ID
+					String statement = "delete from " + m_collectionOrderTableName + " where COLLECTION_ID = ?";
+					Object fields[] = new Object[1];
+					fields[0] = citationCollectionId;
+					m_sqlService.dbWrite(statement, fields);
+
+					// insert new CITATION_COLLECTION_ORDERS
+					int nestedCitationCount = 1;
+					int count = 1;
+					for (CitationCollectionOrder citationCollectionOrder : citationCollectionOrders) {
+						// top level h1 section
+						if (citationCollectionOrder.getSectiontype()!=null && citationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING1)){
+							List<CitationCollectionOrder> flattenedCitationCollectionOrders = citationCollectionOrder.flatten();
+							for (CitationCollectionOrder flattenedCitationCollectionOrder : flattenedCitationCollectionOrders) {
+								String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
+
+								Object[] orderFields = new Object[5];
+								orderFields[0] = citationCollectionId;
+								orderFields[1] = flattenedCitationCollectionOrder.isCitation() ? flattenedCitationCollectionOrder.getCitationid() : null;
+								orderFields[2] = count;
+								orderFields[3] = flattenedCitationCollectionOrder.getSectiontype();
+								orderFields[4] = flattenedCitationCollectionOrder.getValue();
+								m_sqlService.dbWrite(orderStatement, orderFields);
+
+								count++;
+							}
+						}
+						// unnested citations
+						else if (citationCollectionOrder.getSectiontype()==null){
+							for (CitationCollectionOrder unnestedCitation : citationCollectionOrder.getChildren()) {
+								String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
+
+								Object[] orderFields = new Object[5];
+								orderFields[0] = citationCollectionId;
+								orderFields[1] = unnestedCitation.getCitationid();
+								orderFields[2] = nestedCitationCount;
+								orderFields[3] = null;
+								orderFields[4] = null;
+								m_sqlService.dbWrite(orderStatement, orderFields);
+
+								nestedCitationCount++;
+							}
+						}
+					}
+					updateCitationCollectionUpdateDate(citationCollectionId);
+
+				}
+			}, "commitCitationCollectionOrders: " + citationCollectionId);
+
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#editCitationCollectionOrder(org.sakaiproject.citation.api.CitationCollectionOrder)
+		*/
+		protected void updateCitCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			String updateStatement = "update " + m_collectionOrderTableName + " set VALUE = ? where (COLLECTION_ID = ? and LOCATION = ? and CITATION_ID is NULL and SECTION_TYPE = ?)";
+
+			Object[] orderFields = new Object[4];
+			orderFields [0] = citationCollectionOrder.getValue();
+			orderFields [1] = citationCollectionOrder.getCollectionId();
+			orderFields [2] = citationCollectionOrder.getLocation();
+			orderFields [3] = citationCollectionOrder.getSectiontype();
+
+			m_sqlService.dbWrite(updateStatement, orderFields);
+
+			updateCitationCollectionUpdateDate(citationCollectionOrder.getCollectionId());
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getUnnestedCitationColl(java.lang.String)
+		*/
+		protected CitationCollection getUnnestedCitationColl(String collectionId)
+		{
+			BasicCitationCollection edit = getBasicCitationCollection(collectionId);
+			getCitationCollectionOrders(collectionId, edit, " and SECTION_TYPE is NULL ");
+
+			return edit;
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getNestedCollection(java.lang.String)
+		*/
+		protected CitationCollectionOrder getNestedCollection(String citationCollectionId)
+		{
+			String statement = "select COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE from " + m_collectionOrderTableName
+					+ " where (COLLECTION_ID = ? and SECTION_TYPE is not NULL) ORDER BY LOCATION ASC";
+
+			Object fields[] = new Object[1];
+			fields[0] = citationCollectionId;
+
+			List<CitationCollectionOrder> citationCollectionOrders = m_sqlService.dbRead(statement, fields, new CitationCollectionOrderReader());
+
+			CitationCollectionOrder root = new CitationCollectionOrder();
+			CitationCollectionOrder currentH1Node = null;
+			CitationCollectionOrder currentH2Node = null;
+			CitationCollectionOrder currentH3Node = null;
+			CitationCollectionOrder lastNode = null;
+			for (CitationCollectionOrder citationCollectionOrder : citationCollectionOrders) {
+				if (citationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING1)){
+					root.addChild(citationCollectionOrder);
+					currentH1Node = citationCollectionOrder;
+					currentH2Node = null;
+					currentH3Node = null;
+					lastNode = currentH1Node;
+				}
+				else if (citationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2)){
+					currentH1Node.addChild(citationCollectionOrder);
+					currentH2Node = citationCollectionOrder;
+					currentH3Node = null;
+					lastNode = currentH2Node;
+				}
+				else if (citationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING3)){
+					currentH2Node.addChild(citationCollectionOrder);
+					currentH3Node = citationCollectionOrder;
+					lastNode = currentH3Node;
+				}
+				else if (citationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.CITATION)){
+					String title = (String) getCitation(citationCollectionOrder.getCitationid()).getCitationProperty(Schema.TITLE);
+					citationCollectionOrder.setValue(title);
+					if (currentH3Node!=null){
+						currentH3Node.addChild(citationCollectionOrder);
+					}
+					else if (currentH2Node!=null){
+						currentH2Node.addChild(citationCollectionOrder);
+					}
+					else if (currentH1Node!=null){
+						currentH1Node.addChild(citationCollectionOrder);
+					}
+				}
+				else if (citationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)){
+					lastNode.addChild(citationCollectionOrder);
+				}
+			}
+			return root;
+		}
+
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getNestedCollectionAsList(java.lang.String)
+		*/
+		protected List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId)
+		{
+			String statement = "select COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE from " + m_collectionOrderTableName
+					+ " where (COLLECTION_ID = ? and SECTION_TYPE is not NULL) ORDER BY LOCATION ASC";
+
+			Object fields[] = new Object[1];
+			fields[0] = citationCollectionId;
+
+			List<CitationCollectionOrder> citationCollectionOrders = m_sqlService.dbRead(statement, fields, new CitationCollectionOrderReader());
+			return citationCollectionOrders;
+
+		}
+
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#removeNestedLocation(java.lang.String, int)
+		*/
+		protected void removeNestedLocation(final String collectionId, int locationId)
+		{
+			// get all the sections from the db
+			final CitationCollectionOrder citationCollectionOrder = this.getNestedCollection(collectionId);
+
+			final List<CitationCollectionOrder> toSave = new ArrayList<CitationCollectionOrder>();
+
+			// keep the ones to save
+			for (CitationCollectionOrder collectionOrder : citationCollectionOrder.getChildren()) {
+				if (collectionOrder.getLocation() != locationId){
+					toSave.add(collectionOrder);
+					for (CitationCollectionOrder order : collectionOrder.getChildren()) {
+						if (order.getLocation() != locationId) {
+							toSave.add(order);
+							for (CitationCollectionOrder citationCollectionOrder1 : order.getChildren()) {
+								if (citationCollectionOrder1.getLocation() != locationId) {
+									toSave.add(citationCollectionOrder1);
+									for (CitationCollectionOrder citationCollectionOrder2 : citationCollectionOrder1.getChildren()) {
+										if (citationCollectionOrder2.getLocation() != locationId) {
+											toSave.add(citationCollectionOrder2);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// set the location on the rest
+			int count = 1;
+			for (CitationCollectionOrder collectionOrder : toSave) {
+				collectionOrder.setLocation(count);
+				count++;
+			}
+
+			m_sqlService.transact(new Runnable()
+			{
+				public void run()
+				{
+					// delete nested sections
+					String statement = "delete from " + m_collectionOrderTableName + " where (COLLECTION_ID = ? and SECTION_TYPE is not null)";
+
+					Object fields[] = new Object[1];
+					fields[0] = collectionId;
+
+					m_sqlService.dbWrite(statement, fields);
+
+					// insert new nested sections
+					for (CitationCollectionOrder collectionOrder : toSave) {
+						String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
+
+						Object[] orderFields = new Object[5];
+						orderFields[0] = collectionId;
+						orderFields[1] = collectionOrder.getCitationid();
+						orderFields[2] = collectionOrder.getLocation();
+						orderFields[3] = collectionOrder.getSectiontype();
+						orderFields[4] = collectionOrder.getValue();
+						m_sqlService.dbWrite(orderStatement, orderFields);
+					}
+
+					updateCitationCollectionUpdateDate(citationCollectionOrder.getCollectionId());
+
+				}
+			}, "removeNestedSection: " + collectionId);
+		}
+
+         /* (non-Javadoc)
          * @see org.sakaiproject.citation.impl.BaseCitationService.Storage#saveCollection(java.util.Collection)
          */
         protected void commitCollection(CitationCollection collection)
@@ -330,7 +698,7 @@ public class DbCitationService extends BaseCitationService
         	deleteCollection(collection);
 
 			String statement = "insert into " + m_collectionTableName + " (" + m_collectionTableId + ",PROPERTY_NAME,PROPERTY_VALUE) values ( ?, ?, ? )";
-			String orderStatement = "insert into " + m_collectionOrderTableName + " VALUES(?,?,?)";
+			String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
 
 			boolean ok = true;
 
@@ -338,7 +706,7 @@ public class DbCitationService extends BaseCitationService
 			Object[] fields = new Object[3];
 			fields[0] = collectionId;
 			
-			Object[] orderFields = new Object[3];
+			Object[] orderFields = new Object[5];
 			orderFields[0] = collectionId;
 
 			List members = collection.getCitations();
@@ -352,10 +720,12 @@ public class DbCitationService extends BaseCitationService
 				// Insert the ordering table data.
 				orderFields[1] = citation.getId();
 				orderFields[2] = citation.getPosition();
+				orderFields[3] = null;
+				orderFields[4] = null;
 				ok = m_sqlService.dbWrite(orderStatement, orderFields);
 			}
 			
-			long mostRecentUpdate = TimeService.newTime().getTime();			
+			long mostRecentUpdate = TimeService.newTime().getTime();
 			fields[1] = PROP_MOST_RECENT_UPDATE;
 			fields[2] = Long.toString(mostRecentUpdate);
 			ok = m_sqlService.dbWrite(statement, fields);
@@ -462,7 +832,7 @@ public class DbCitationService extends BaseCitationService
 				commitCitation(citation);
 			}
 
-			edit.m_mostRecentUpdate = TimeService.newTime().getTime();			
+			edit.m_mostRecentUpdate = TimeService.newTime().getTime();
 			fields[1] = PROP_MOST_RECENT_UPDATE;
 			fields[2] = Long.toString(edit.m_mostRecentUpdate);
 			ok = m_sqlService.dbWrite(statement, fields);
@@ -553,8 +923,8 @@ public class DbCitationService extends BaseCitationService
 			fields[0] = edit.getId();
 
 			boolean ok = m_sqlService.dbWrite(statement, fields);
-			
-          	statement = "delete from " + m_collectionOrderTableName + " where (" + m_collectionTableId + " = ?)";
+
+			statement = "delete from " + m_collectionOrderTableName + " where (" + m_collectionTableId + " = ? and SECTION_TYPE is NULL)";
 
 			ok = m_sqlService.dbWrite(statement, new Object[] {edit.getId()});
         }
@@ -852,6 +1222,30 @@ public class DbCitationService extends BaseCitationService
 		 */
 		protected CitationCollection retrieveCollection(String collectionId)
 		{
+			BasicCitationCollection edit = getBasicCitationCollection(collectionId);
+			getCitationCollectionOrders(collectionId, edit, "  and ((SECTION_TYPE is NULL AND CITATION_ID is not null) or (SECTION_TYPE = 'CITATION'))  ");
+			return edit;
+		}
+
+		private void getCitationCollectionOrders(String collectionId, BasicCitationCollection edit, String whereClauseForSection) {
+			// Now add the citations into the ordering table. This has replaced the sakai:hasCitation linking mechanism.
+			String orderStatement = "select COLLECTION_ID, CITATION_ID, LOCATION from " + m_collectionOrderTableName + " where COLLECTION_ID = ?  " +
+					whereClauseForSection + " ORDER BY LOCATION ";
+
+			List<Triple> orderTriples = m_sqlService.dbRead(orderStatement, new Object[] {collectionId}, new TripleReader());
+
+			for(Triple orderTriple : orderTriples)
+			{
+				Citation citation = retrieveCitation((String) orderTriple.getName());
+				citation.setPosition(Integer.parseInt((String) orderTriple.getValue()));
+				edit.add(citation);
+			}
+
+			List<CitationCollectionOrder> citationCollectionOrders = getNestedCollectionAsList(collectionId);
+			edit.setNestedCitationCollectionOrders(citationCollectionOrders);
+		}
+
+		private BasicCitationCollection getBasicCitationCollection(String collectionId) {
 			String statement = "select COLLECTION_ID, PROPERTY_NAME, PROPERTY_VALUE from " + m_collectionTableName + " where (COLLECTION_ID = ?)";
 
 			BasicCitationCollection edit = new BasicCitationCollection(collectionId);
@@ -860,7 +1254,7 @@ public class DbCitationService extends BaseCitationService
 			fields[0] = collectionId;
 
 			List triples = m_sqlService.dbRead(statement, fields, new TripleReader());
-			
+
 			int position = 1;
 
 			Iterator it = triples.iterator();
@@ -872,7 +1266,7 @@ public class DbCitationService extends BaseCitationService
 					if(triple.getName().startsWith(PROPERTY_HAS_CITATION))
 					{
 						// SAK-22296. Cunningly move the citation links into the new ordering table
-						m_sqlService.dbWrite("INSERT INTO " + m_collectionOrderTableName + " VALUES(?,?,?)", new Object[] {collectionId,(String)triple.getValue(),position});
+						m_sqlService.dbWrite("INSERT INTO " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)", new Object[] {collectionId,(String)triple.getValue(),position, null, null});
 						position += 1;
 						m_sqlService.dbWrite("DELETE FROM " + m_collectionTableName + " WHERE " + m_collectionTableId + " = ? AND PROPERTY_NAME = '" + PROPERTY_HAS_CITATION + "' AND PROPERTY_VALUE LIKE ?", new Object[] {collectionId,(String)triple.getValue()});
 					}
@@ -903,18 +1297,6 @@ public class DbCitationService extends BaseCitationService
 					 */
 				}
 			}
-			
-			// Now add the citations into the ordering table. This has replaced the sakai:hasCitation linking mechanism.
-			String orderStatement = "select * from " + m_collectionOrderTableName + " where (COLLECTION_ID = ?) ORDER BY LOCATION";
-			List<Triple> orderTriples = m_sqlService.dbRead(orderStatement, new Object[] {collectionId}, new TripleReader());
-			
-			for(Triple orderTriple : orderTriples)
-			{
-				Citation citation = retrieveCitation((String) orderTriple.getName());
-				citation.setPosition(Integer.parseInt((String) orderTriple.getValue()));
-				edit.add(citation);
-			}
-
 			return edit;
 		}
 
@@ -1374,6 +1756,42 @@ public class DbCitationService extends BaseCitationService
             }
 	        return triple;
         }
+
+	}
+
+	public class CitationCollectionOrderReader implements SqlReader
+	{
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.db.api.SqlReader#readSqlResultRecord(java.sql.ResultSet)
+		*/
+		public Object readSqlResultRecord(ResultSet result)
+		{
+			CitationCollectionOrder citationCollectionOrder = null;
+
+			String collectionId = null;
+			String citationId = null;
+			int location = 0;
+			CitationCollectionOrder.SectionType sectionType = null;
+			String value = null;
+			try
+			{
+				collectionId = result.getString(1);
+				citationId = result.getString(2);
+				location = result.getInt(3);
+				sectionType = result.getString(4)==null ? null : CitationCollectionOrder.SectionType.valueOf(result.getString(4));
+				value = result.getString(5);
+
+				citationCollectionOrder = new CitationCollectionOrder(collectionId, citationId, location, sectionType, value);
+			}
+			catch (SQLException e)
+			{
+				M_log.warn("CitationCollectionOrderReader: problem reading CitationCollectionOrder from result: collectionId(" + collectionId + ") location(" + location
+						+ ") sectionType(" + sectionType + ") value(" + value + ")");
+				return null;
+			}
+			return citationCollectionOrder;
+		}
 
 	}
 

@@ -9,12 +9,15 @@
 		</h4>
 	</div>
 	<div class="listNav">
-		<div class="instruction">$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")</div>
+		<div class="instruction">
+			$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")
+			<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
+		</div>
 			#if ($pagesize != 0)
 				#if ($goFPButton == "true")
 					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<fieldset><legend>$tlang.getString("gen.first")</legend>
-							<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
+							<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 						</fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
@@ -29,7 +32,7 @@
 				#if ($goPPButton == "true")
 					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
-							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" />
+							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" onclick="SPNR.disableControlsAndSpin( this, null );" />
 						</fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
@@ -45,7 +48,7 @@
 			<form id="$pagesizeFormName" name="$pagesizeFormName" class="inlineForm" method="post" action="#toolForm("$action")">
 				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 				<label for="size_$pagesizeFormName" class="skip">$tlang.getString("sitegen.siteinfolist.view.pagesize")</label>
-				<select id="size_$pagesizeFormName" name="selectPageSize" onchange="document.getElementById('$pagesizeFormName').submit()">
+				<select id="size_$pagesizeFormName" name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.getElementById('$pagesizeFormName').submit()">
 					#foreach ($i in $!pagesizes)
 						<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("sitegen.siteinfolist.show") $i $tlang.getString("sitegen.siteinfolist.itemspage")</option>
 					#end
@@ -56,7 +59,7 @@
 			#if($goNPButton == "true")
 				<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 					<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend>
-						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" />
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
@@ -71,7 +74,7 @@
 			#if ($goLPButton == "true")
 				<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 					<fieldset><legend>$tlang.getString('gen.last')</legend>
-						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</fieldset>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
@@ -95,7 +98,6 @@
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
 		sakai.getGroupInfo('moreInfoGroups','dialog','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','&nbsp;');
 		sakai.setupSelectList('siteMembers','selunselallid','selectedSelected');
-//    	sakai.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
 		utils.setupUtils();
 		$("#accordion").accordion({
 			header: 'h4',
@@ -110,38 +112,7 @@
 		});
 	  });
 	  
-	function toggleSelectAll(caller, elementName)
-    {
-		var newValue = caller.checked;
-		var elements = document.getElementsByName(elementName);
-			
-		if(elements)
-		{
-			for(var i = 0; i < elements.length; i++)
-			{
-				elements[i].checked = newValue;
-			}
-		}
-   	}
-</script>
-<script type="text/javascript">
-function printPreview(target){
-    var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
-	var content=  "";
-	var content=  document.getElementById('groupListContent').innerHTML;
-	w.document.writeln(
-	'<html><head>'
-	+ '<style type=\"text/css\">.listHier td, .listHier th {text-align:left}</style>'
-	+ '</head>'
-	+ '<body> '
-	+ content
-	+ '</body>'
-	+ '</html>'
-	);
-    w.focus();
-	w.print();
-    return false;
-}
+	
 </script>
 
 <div class ="portletBody specialLink">
@@ -170,7 +141,7 @@ function printPreview(target){
 						<input type="button" 
 							name="previous" 
 							value="&lt; $tlang.getString("sitegen.siteinfolist.previous1")" 
-							onclick="document.siteForm.option.value='$prevSite.Id';javascript:document.siteForm.submit();" accesskey="p" />
+							onclick="SPNR.disableControlsAndSpin( this, null );document.siteForm.option.value='$prevSite.Id';document.siteForm.submit();" accesskey="p" />
 					#else
 						<input type="submit" 
 								name="previous" 
@@ -180,12 +151,12 @@ function printPreview(target){
 					<input type="button" 
 							name="back" 
 							value="$tlang.getString("sitegen.siteinfolist.return")" 
-							onclick="document.siteForm.option.value='';javascript:document.siteForm.submit();" accesskey="l" />
+							onclick="SPNR.disableControlsAndSpin( this, null );document.siteForm.option.value='';document.siteForm.submit();" accesskey="l" />
 					#if ($!nextSite)
 						<input type="button" 
 							name="next" 
 							value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" 
-							onclick="document.siteForm.option.value='$nextSite.Id';javascript:document.siteForm.submit();" accesskey="n" />
+							onclick="SPNR.disableControlsAndSpin( this, null );document.siteForm.option.value='$nextSite.Id';document.siteForm.submit();" accesskey="n" />
 					#else
 						<input type="button" 
 							name="next" 
@@ -275,25 +246,24 @@ function printPreview(target){
 				</th>
 				<td>
 					#if ($!published)
-						#if ("anonymous" == $!access)
-							#if ($siteJoinable)
-								$tlang.getString("sitegen.siteinfolist.anonjoin")
-							#else
-								$tlang.getString("sitegen.siteinfolist.anon")
+						#if ($additionalAccess.size() > 0)
+							<ul class="attachList" style="margin:0">
+								#if ($!siteJoinable)
+									<li>$tlang.getString("sitegen.siteinfolist.sitecan")</li>
+								#else
+									<li>$tlang.getString("sitegen.siteinfolist.sitepar")</li>
+								#end
+							#foreach($role in $additionalAccess)
+								<li>$role</li>
 							#end
-						#else #if ("authenticated" == $!access)
-							#if ($siteJoinable)
-								$tlang.getString("sitegen.siteinfolist.authjoin")
-							#else
-								$tlang.getString("sitegen.siteinfolist.auth")
-							#end
-						#else 
+							</ul>
+						#else
 							#if ($!siteJoinable)
 								$tlang.getString("sitegen.siteinfolist.sitecan")
 							#else
 								$tlang.getString("sitegen.siteinfolist.sitepar")
 							#end
-						#end #end
+						#end
 					#else
 						## unpublished site
 							<span class="highlight">$tlang.getString("sitegen.siteinfolist.siteown")</span>
@@ -323,14 +293,14 @@ function printPreview(target){
 					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						<input type="hidden" name="itemReference" value="$siteId"/>
-						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
+						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</form>
                     
 			#else
                     
             		<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
 						<input type="hidden" name="itemReference" value="$siteId"/>
-						<input type="submit" disabled="disabled" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
+						<input type="submit" disabled="disabled" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</form>
                     
 			#end
@@ -453,7 +423,7 @@ function printPreview(target){
 								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
 									<input type="hidden" name="group-ref" value="$g.reference" />
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" />
+									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
 								</form>
 							</span>
 						#end
@@ -489,7 +459,7 @@ function printPreview(target){
 								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
 									<input type="hidden" name="group-ref" value="$g.reference" />
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" />
+									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
 								</form>
 							</span>
 						#end
@@ -545,7 +515,7 @@ function printPreview(target){
 									<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
 										<input type="hidden" name="joinable-group-ref" value="$g.reference" />
 										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										<input #if ($$disabled) DISABLED #end type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" />
+										<input #if ($$disabled) DISABLED #end type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 									</form>
 								</td>
 							</tr>
@@ -761,23 +731,24 @@ function printPreview(target){
 					</tr>
 				#end
 			</table>
-			#if ($participantList.size() > 10)
-				#set($pagesizeFormName="pagesizeFormBottom")
-					#pagingPanel($pagesizeFormName)
-			#end
-			<div class="act">
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" />
+			<hr />
+			<div class="act" style="padding: 0 0">
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				#if ($fromWSetup)
-					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" />
+					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				#end
-                                <div class="instruction" style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span>
-			</div>
-			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            </div>
 		</form>
+		#if ($participantList.size() > 10)
+			#set($pagesizeFormName="pagesizeFormBottom")
+			#pagingPanel($pagesizeFormName)
+		#end
+		<div class="instruction" style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span></div>
+		#chef_flashnotif()
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
 			<dl>
 				#foreach( $role in $allowedRoles )
-					##		#set ($description = false)
 					<dt>
 						$role.Id
 					</dt>

@@ -73,7 +73,6 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of ProjectDao 
@@ -128,6 +127,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	        log.warn("addAvailabilityCheck: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return false;
 		}
+	}
+	
+	@Override
+	public boolean updateAvailabilityCheck(AvailabilityCheck availabilityCheck) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateAvailabilityCheck( " + availabilityCheck.toString() + ")");
+		}
+		try {
+			getJdbcTemplate().update(getStatement("update.AvailabilityCheck"),
+					new Object[]{availabilityCheck.getScheduledTime(),availabilityCheck.getEntityReference()}
+					);
+			return true;
+		} catch (DataAccessException ex) {
+			log.warn("updateAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}	
 	}
 
 	/* (non-Javadoc)
@@ -846,6 +861,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.warn("getAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<AvailabilityCheck>();
 		}
+	}
+	public boolean isScheduleAvailabilityCheckMade(String entityReference){
+		if (log.isDebugEnabled()) {
+			log.debug("isScheduleAvailabilityCheckMade");
+		}
+		String sql = getStatement("select.AvailabilityChecks.entry");
+		Object[] params = new Object[] { entityReference };
+		try {
+			List<AvailabilityCheck> ac = (List<AvailabilityCheck>) getJdbcTemplate().query(sql, params,
+					new AvailabilityCheckMapper());
+			return !ac.isEmpty();
+		} catch (DataAccessException ex) {
+			log.warn("isScheduleAvailabilityCheckMade: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}
+		
 	}
 	
 	/* (non-Javadoc)
@@ -2392,4 +2423,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		return dashboardUserMap;
 	}
+
+	
 }

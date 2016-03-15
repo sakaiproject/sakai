@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.imsglobal.basiclti.BasicLTIConstants;
+import org.tsugi.basiclti.BasicLTIConstants;
 
 import net.oauth.*;
 import net.oauth.signature.OAuthSignatureMethod;

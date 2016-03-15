@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--
 		Decide on a Course Management service implementation based on the runtime
@@ -148,6 +148,9 @@
    		<property name="classPathToXml">
    			<value>org/sakaiproject/coursemanagement/impl/job/sampleCMData.xml</value>
    		</property>
+   		<property name="authzGroupService">
+   			<ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+   		</property>
    	</bean>
 -->
 
@@ -155,7 +158,7 @@
 <!--
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SampleCMSyncJob"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      singleton="true" init-method="init">
+      init-method="init">
       <property name="beanId">
          <value>sampleCMSyncJob</value>
       </property>
@@ -171,8 +174,7 @@
     <!-- SAK-29138 - SiteTitleAdvisor default impl registration -->
     <bean id="org.sakaiproject.site.api.SiteTitleAdvisor"
         class="org.sakaiproject.coursemanagement.impl.SiteTitleAdvisorCMS"
-        init-method="init"
-        singleton="true">
+        init-method="init">
         <property name="uds" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="ss" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="cms" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
@@ -180,5 +182,53 @@
         <property name="azgs" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     </bean>
 
+
+	<!-- course site publishing service bean -->
+	<bean id="org.sakaiproject.coursemanagement.api.CourseSitePublishService.target"
+		  class="org.sakaiproject.coursemanagement.impl.CourseSitePublishServiceImpl"
+		  destroy-method="destroy"
+		  init-method="init">
+		<property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"      /></property>   <!-- used to get the start and end date of terms -->
+		<property name="functionManager"        ><ref bean="org.sakaiproject.authz.api.FunctionManager"                         /></property>   <!-- used to register api permissions            -->
+		<property name="securityService"        ><ref bean="org.sakaiproject.authz.api.SecurityService"                         /></property>   <!-- used to check for super user                -->
+		<property name="sessionFactory"         ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>   <!-- global hibernate transaction manager        -->
+		<property name="siteService"            ><ref bean="org.sakaiproject.site.api.SiteService"                              /></property>   <!-- needed to retrieve course sites to publish  -->
+	</bean>
+
+	<!-- global hibernate transaction proxy bean -->
+	<bean id="org.sakaiproject.coursemanagement.api.CourseSitePublishService"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+		<property name="target"            ><ref bean="org.sakaiproject.coursemanagement.api.CourseSitePublishService.target"    /></property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- course site removal service bean -->
+	<bean id="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService.target"
+		  class="org.sakaiproject.coursemanagement.impl.CourseSiteRemovalServiceImpl"
+		  destroy-method="destroy"
+		  init-method="init">
+		<property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"      /></property>   <!-- used to get the start and end date of terms       -->
+		<property name="functionManager"        ><ref bean="org.sakaiproject.authz.api.FunctionManager"                         /></property>   <!-- used to register api permissions                  -->
+		<property name="securityService"        ><ref bean="org.sakaiproject.authz.api.SecurityService"                         /></property>   <!-- used to check for super user                      -->
+		<property name="sessionFactory"         ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>   <!-- global hibernate transaction manager              -->
+		<property name="siteService"            ><ref bean="org.sakaiproject.site.api.SiteService"                              /></property>   <!-- needed to retrieve course sites that have expired -->
+	</bean>
+
+	<!-- global hibernate transaction proxy bean -->
+	<bean id="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+		<property name="target"            ><ref bean="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService.target"    /></property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
  </beans>
 

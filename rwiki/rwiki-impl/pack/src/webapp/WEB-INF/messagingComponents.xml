@@ -1,28 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<!--
-/**********************************************************************************
- * $URL:  $
- * $Id:  $
- ***********************************************************************************
- *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
- *
- * Licensed under the Educational Community License, Version 1.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.opensource.org/licenses/ecl1.php
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- **********************************************************************************/
--->
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <!-- components context -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService"
@@ -69,8 +48,7 @@
 
   <!-- Message DAO  -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.MessageDaoImpl"
-    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.MessageDaoImpl"
-    singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.MessageDaoImpl">
     <property name="sessionFactory"><ref
 	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
@@ -94,8 +72,7 @@
 
   <!-- PagePresence DAO  -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PagePresenceDaoImpl"
-    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PagePresenceDaoImpl"
-    singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PagePresenceDaoImpl">
     <property name="sessionFactory"><ref
 	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
@@ -119,8 +96,7 @@
 
   <!-- Prefernce DAO  -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PreferenceDaoImpl"
-    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PreferenceDaoImpl"
-    singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PreferenceDaoImpl">
     <property name="sessionFactory"><ref
 	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
@@ -144,8 +120,7 @@
 
   <!-- Trigger DAO  -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.TriggerDaoImpl"
-    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.TriggerDaoImpl"
-    singleton="true">
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.TriggerDaoImpl">
     <property name="sessionFactory"><ref
 	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>

@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.user.api.User;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -78,6 +79,7 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 			// Current groups
 			UIOutput.make(groupForm, "current-groups-title", messageLocator.getMessage("group.joinable.currentgroups"));
 			List<String> setGroupNames = new ArrayList<>();
+			List<Group> setGroups = new ArrayList<>();
 			for(Group group : handler.site.getGroups()){
 				String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
 				if(joinableSet != null){
@@ -86,10 +88,13 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 						if( !handler.pendingGroupTitles.contains( group.getTitle() ) )
 						{
 							setGroupNames.add(group.getTitle());
+							setGroups.add( group );
 						}
 					}
 				}
 			}
+
+			// Sort the groups before adding them to the UI
 			Collections.sort(setGroupNames);
 			int i = 0;
 			for(String name : setGroupNames){
@@ -112,11 +117,8 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 					i++;
 				}
 			}
-		}
 
-		//unjoin (edit page)
-		if(edit){
-			//first set the option:
+			// Unjoin, first set the option:
 			for(Group group : handler.site.getGroups()){
 				String joinableSetName = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
 				if(joinableSetName != null && joinableSetName.equals(handler.joinableSetName)){
@@ -131,57 +133,71 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 			allowUnjoinEdit.decorate( new UIStyleDecorator( "edit" ) );
 			UIBoundBoolean allowUnjoinCheckboxEdit = UIBoundBoolean.make(allowUnjoinEdit, "allowUnjoinEdit", "#{SiteManageGroupSectionRoleHandler.unjoinable}");
 			UILabelTargetDecorator.targetLabel(UIMessage.make(allowUnjoinEdit, "allowUnjoinEdit-label", "group.allow.unjoinable"), allowUnjoinCheckboxEdit);
-		}
 
-		//Additional Row
-		if(edit){
+			// Additional row
 			UIBranchContainer additionalRow = UIBranchContainer.make(groupForm,"additional-title-row:");
 			additionalRow.decorate( new UIStyleDecorator( "edit collapsed" ) );
 			UIOutput.make(additionalRow, "additional-title", messageLocator.getMessage("group.joinable.additionalGroups"));
-		}
 
-		//Num of Groups Row
-		UIBranchContainer groupsRow = UIBranchContainer.make(groupForm,"num-groups-row:");
-		UILabelTargetDecorator.targetLabel(UIMessage.make(groupsRow, "group-unit", "group.joinable.numOfGroups"), UIInput.make(groupsRow, "num-groups", "SiteManageGroupSectionRoleHandler.joinableSetNumOfGroups"));
-		if(edit){
-			groupsRow.decorate( new UIStyleDecorator( "edit" ) );
-		}
+			// Generate button
+			UIBranchContainer generateRow = UIBranchContainer.make(groupForm,"generate-row:");
+			generateRow.decorate( new UIStyleDecorator( "edit" ) );
+			UICommand.make(generateRow, "generate", messageLocator.getMessage("group.joinable.generate"), "#{SiteManageGroupSectionRoleHandler.processGenerateJoinableSet}");
 
-		//Max members Row:
-		UIBranchContainer maxRow = UIBranchContainer.make(groupForm,"max-members-row:");
-		UILabelTargetDecorator.targetLabel(UIMessage.make(maxRow, "group-max-members", "group.joinable.maxMembers"), UIInput.make(maxRow, "num-max-members", "SiteManageGroupSectionRoleHandler.joinableSetNumOfMembers"));
-		if(edit){
-			maxRow.decorate( new UIStyleDecorator( "edit" ) );
-		}
+			// Delete set button
+			UICommand.make(groupForm, "delete", messageLocator.getMessage("group.joinable.delete"), "#{SiteManageGroupSectionRoleHandler.processDeleteJoinableSet}");
 
-		//allow preview row:
-		UIBranchContainer allowPreviewRow = UIBranchContainer.make(groupForm,"allowpreview-row:");
-		UIBoundBoolean checkbox = UIBoundBoolean.make(allowPreviewRow, "allowPreviewMembership", "#{SiteManageGroupSectionRoleHandler.allowPreviewMembership}");
-		UILabelTargetDecorator.targetLabel(UIMessage.make(allowPreviewRow, "allowPreviewMembership-label", "group.joinable.allowPreview"), checkbox);
-		if(edit){
-			allowPreviewRow.decorate( new UIStyleDecorator( "edit" ) );
+			// Users not in the set
+			i = 0;
+			List<User> usersNotInSet = handler.getUsersNotInJoinableSet( setGroups );
+			if( !usersNotInSet.isEmpty() )
+			{
+				UIBranchContainer usersNotInSetRow = UIBranchContainer.make( groupForm,"usersNotInSet-title-row:" );
+				usersNotInSetRow.decorate( new UIStyleDecorator( "edit collapsed" ) );
+				UIOutput.make( usersNotInSetRow, "usersNotInSet-title", messageLocator.getMessage( "group.joinable.usersNotInSet" ) );
+				for( User user : usersNotInSet )
+				{
+					UIBranchContainer userRow = UIBranchContainer.make( groupForm, "user-row:", Integer.toString( i ) );
+					String userRowString = user.getLastName() + ", " + user.getFirstName() + " (" + user.getDisplayId() + ")";
+					UIOutput.make( userRow, "user", userRowString );
+					userRow.decorate( new UIStyleDecorator( "edit" ) );
+					i++;
+				}
+			}
 		}
-
-		//allow view members row:
-		UIBranchContainer allowViewRow = UIBranchContainer.make(groupForm,"allowview-row:");
-		UIBoundBoolean viewMembersCheckbox = UIBoundBoolean.make(allowViewRow, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
-		UILabelTargetDecorator.targetLabel(UIMessage.make(allowViewRow, "allowViewMembership-label", "group.allow.view.membership2"), viewMembersCheckbox);
-		if(edit){
-			allowViewRow.decorate( new UIStyleDecorator( "edit" ) );
-		}
-
-		//allow unjoin
-		if(!edit){
+		else
+		{
+			// Allow unjoin
 			UIBranchContainer allowUnjoin = UIBranchContainer.make(groupForm,"allowunjoin-row:");
 			UIBoundBoolean allowUnjoinCheckbox = UIBoundBoolean.make(allowUnjoin, "allowUnjoin", "#{SiteManageGroupSectionRoleHandler.unjoinable}");
 			UILabelTargetDecorator.targetLabel(UIMessage.make(allowUnjoin, "allowUnjoin-label", "group.allow.unjoinable"), allowUnjoinCheckbox);
 		}
 
-		// Generate button
-		if(edit){
-			UIBranchContainer generateRow = UIBranchContainer.make(groupForm,"generate-row:");
-			generateRow.decorate( new UIStyleDecorator( "edit" ) );
-			UICommand.make(generateRow, "generate", messageLocator.getMessage("group.joinable.generate"), "#{SiteManageGroupSectionRoleHandler.processGenerateJoinableSet}");
+		//Num of Groups Row
+		UIBranchContainer groupsRow = UIBranchContainer.make(groupForm,"num-groups-row:");
+		UILabelTargetDecorator.targetLabel(UIMessage.make(groupsRow, "group-unit", "group.joinable.numOfGroups"), UIInput.make(groupsRow, "num-groups", "SiteManageGroupSectionRoleHandler.joinableSetNumOfGroups"));
+
+		//Max members Row:
+		UIBranchContainer maxRow = UIBranchContainer.make(groupForm,"max-members-row:");
+		UILabelTargetDecorator.targetLabel(UIMessage.make(maxRow, "group-max-members", "group.joinable.maxMembers"), UIInput.make(maxRow, "num-max-members", "SiteManageGroupSectionRoleHandler.joinableSetNumOfMembers"));
+
+		//allow preview row:
+		UIBranchContainer allowPreviewRow = UIBranchContainer.make(groupForm,"allowpreview-row:");
+		UIBoundBoolean checkbox = UIBoundBoolean.make(allowPreviewRow, "allowPreviewMembership", "#{SiteManageGroupSectionRoleHandler.allowPreviewMembership}");
+		UILabelTargetDecorator.targetLabel(UIMessage.make(allowPreviewRow, "allowPreviewMembership-label", "group.joinable.allowPreview"), checkbox);
+
+		//allow view members row:
+		UIBranchContainer allowViewRow = UIBranchContainer.make(groupForm,"allowview-row:");
+		UIBoundBoolean viewMembersCheckbox = UIBoundBoolean.make(allowViewRow, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
+		UILabelTargetDecorator.targetLabel(UIMessage.make(allowViewRow, "allowViewMembership-label", "group.allow.view.membership2"), viewMembersCheckbox);
+
+		// Edit UI specific styles
+		if( edit )
+		{
+			groupsRow.decorate( new UIStyleDecorator( "edit" ) );
+			maxRow.decorate( new UIStyleDecorator( "edit" ) );
+			allowPreviewRow.decorate( new UIStyleDecorator( "edit" ) );
+			allowViewRow.decorate( new UIStyleDecorator( "edit" ) );
 		}
 
 		//Save/Cancel
@@ -191,17 +207,12 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 		UICommand cancel = UICommand.make(groupForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
 		cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
 
-		// Delete Set button:
-		if(edit){
-			UICommand.make(groupForm, "delete", messageLocator.getMessage("group.joinable.delete"), "#{SiteManageGroupSectionRoleHandler.processDeleteJoinableSet}");
-		}
-
 		//process any messages
 		tml = handler.messages;
 		if (tml.size() > 0) {
 			for (int i = 0; i < tml.size(); i ++ ) {
 				UIBranchContainer errorRow = UIBranchContainer.make(groupForm,"error-row:", Integer.toString(i));
-				String outString = "";
+				String outString;
 				if (tml.messageAt(i).args != null ) {
 					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
 				} else {

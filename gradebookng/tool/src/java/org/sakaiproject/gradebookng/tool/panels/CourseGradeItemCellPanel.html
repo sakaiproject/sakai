@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+	<span wicket:id="courseGrade" class="gb-readonly-grade">A+++</span>
+	 
+    <!-- dropdown -->
+	<div class="btn-group" wicket:id="menu">
+		<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:coursegrade.cell.menulabel">
+			<span class="caret"></span>
+		</a>
+		<ul class="dropdown-menu dropdown-menu-right" role="menu">
+			<li><a wicket:id="courseGradeOverride" href="#" role="menuitem"><wicket:message key="coursegrade.option.override" /></a></li>
+			<li><a wicket:id="courseGradeOverrideLog" href="#" role="menuitem"><wicket:message key="coursegrade.option.overridelog" /></a></li>
+		</ul>
+	</div>   
+    
+</wicket:panel>
+</body>
+</html>

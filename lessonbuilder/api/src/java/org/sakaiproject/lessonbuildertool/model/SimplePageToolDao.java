@@ -174,6 +174,9 @@ public interface SimplePageToolDao {
     // so normally this should be done using appropriate functions from SimplePageBean.
 	public boolean deleteItem(Object o);
 
+    // just delete, no permissions checking and no logging
+	public boolean quickDelete(Object o);
+
     // see saveItem for details and caveats, same function except update instead of save
 	public boolean update(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
 
@@ -263,11 +266,11 @@ public interface SimplePageToolDao {
     
     //public List<SimplePageItem> getPeerEvalItems (SimplePageItem item);
     
-    public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee, String grader, String rowText, int columnValue);
+    public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee, String gradeeGroup, String grader, String rowText, long rowId, int columnValue);
     
-    public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId, String userId, String gradee);
+    public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId, String userId, String gradee, String gradeeGroup);
     
-    public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String grader);
+    public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String gradee,String gradeeGroup);
     
     public List<SimplePageItem>findGradebookItems(String gradebookUid);
 

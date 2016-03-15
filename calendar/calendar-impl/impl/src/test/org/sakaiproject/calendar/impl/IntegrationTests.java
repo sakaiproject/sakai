@@ -1,24 +1,30 @@
 package org.sakaiproject.calendar.impl;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.calendar.api.ExternalSubscription;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.sakaiproject.calendar.impl.BaseExternalSubscription;
+import org.sakaiproject.calendar.impl.SubscriptionCache;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-public class IntegrationTests extends AbstractDependencyInjectionSpringContextTests {
+@ContextConfiguration(locations={"/calendar-caches.xml", "/test-resources.xml"})
+public class IntegrationTests extends AbstractJUnit4SpringContextTests {
 
 	private SubscriptionCache cache;
 
-	protected String[] getConfigPaths() {
-		return new String[]{"/calendar-caches.xml", "/test-resources.xml"};
+	@Before
+	public void onSetUp() {
+		cache = (SubscriptionCache) applicationContext.getBean("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache");
 	}
 
-	protected void onSetUp() {
-		cache = (SubscriptionCache) getApplicationContext().getBean("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache");
-	}
-
+	@Test
 	public void testNothing() {
-		assertNull(cache.get("not-in-cache"));
+		Assert.assertNull(cache.get("not-in-cache"));
 	}
 
+	@Test
 	public void testCacheRoundtrip() throws InterruptedException {
 		ExternalSubscription subscription = new BaseExternalSubscription();
 		subscription.setSubscriptionUrl("http://example.com");
@@ -26,7 +32,7 @@ public class IntegrationTests extends AbstractDependencyInjectionSpringContextTe
 		subscription.setContext("context");
 		subscription.setInstitutional(false);
 		cache.put(subscription);
-		assertEquals(subscription, cache.get("http://example.com"));
+		Assert.assertEquals(subscription, cache.get("http://example.com"));
 	}
 
 }

@@ -1,5 +1,6 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
@@ -214,25 +215,26 @@
 				actionListener="#{courseGradeDetailsBean.processUpdateGrades}"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				disabled="#{courseGradeDetailsBean.allStudentsViewOnly}"
-                                onclick="disableButton('', this)"
-				/>
+				onclick="SPNR.disableControlsAndSpin( this, null );"
+			/>
 			<h:commandButton
 				value="#{msgs.assignment_details_cancel}"
 				action="overview"
 				immediate="true"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				disabled="#{courseGradeDetailsBean.allStudentsViewOnly}"
-                                onclick="disableButton('', this)"
-				/>
+				onclick="SPNR.disableControlsAndSpin( this, null );"
+			/>
 
 			<h:commandButton
 				value="#{msgs.course_grade_details_calculate_course_grade}"
 				action="calculateCourseGrades"
 				rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"
 				style="margin-left: 5em;"
+				onclick="SPNR.disableControlsAndSpin( this, null );"
 			/>
 		</div>
-    <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+    <script>includeLatestJQuery('courseGradeDetails.jsp');</script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('#exportPrefsLink').click(function(e){

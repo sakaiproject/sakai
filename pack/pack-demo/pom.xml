@@ -5,14 +5,13 @@
     <parent>
         <groupId>org.sakaiproject.pack</groupId>
         <artifactId>pack</artifactId>
-        <version>11-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>Sakai Pack Demo</name>
     <groupId>org.sakaiproject.pack</groupId>
     <artifactId>pack-demo</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>

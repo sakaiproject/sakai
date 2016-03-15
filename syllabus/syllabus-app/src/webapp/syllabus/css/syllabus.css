@@ -445,7 +445,7 @@ a.draft{
 .actionIcon{
 	padding-right: .5em;
 }
-.editItemTitle{
+.editItemTitle, .draftTitlePrefix {
 	padding-left: .5em;
 }
 

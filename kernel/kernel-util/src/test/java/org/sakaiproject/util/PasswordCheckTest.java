@@ -21,13 +21,13 @@
 
 package org.sakaiproject.util;
 
-import junit.framework.TestCase;
-
+import org.junit.Assert;
+import org.junit.Test;
 
 /** 
  ** JUnit PasswordCheck test cases
  **/
-public class PasswordCheckTest extends TestCase {
+public class PasswordCheckTest {
 
 	/* for checking strength */
 	private String passwordVeryWeak = "a";
@@ -46,63 +46,59 @@ public class PasswordCheckTest extends TestCase {
 	
 	/* general empty string */
 	private String passwordEmpty = "";
-	
-	
-	
-	
-	protected void setUp() throws Exception {
-		super.setUp();
+
+	@Test
+	public void testLengthPasswordZeroToThirty() {
+		Assert.assertTrue(PasswordCheck.isAcceptableLength(passwordShort, zero, thirty));
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-	
-	public void testLengthPasswordZeroToThirty() {
-		assertTrue(PasswordCheck.isAcceptableLength(passwordShort, zero, thirty));
-	}
-	
+	@Test
 	public void testLengthLongPasswordZeroToEight() {
-		assertFalse(PasswordCheck.isAcceptableLength(passwordLong, zero, eight));
+		Assert.assertFalse(PasswordCheck.isAcceptableLength(passwordLong, zero, eight));
 	}
-	
+
+	@Test
 	public void testLengthShortPasswordSixToEight() {
-		assertFalse(PasswordCheck.isAcceptableLength(passwordShort, six, eight));
+		Assert.assertFalse(PasswordCheck.isAcceptableLength(passwordShort, six, eight));
 	}
-	
+
+	@Test
 	public void testLengthLongPasswordSixToEight() {
-		assertFalse(PasswordCheck.isAcceptableLength(passwordLong, six, eight));
+		Assert.assertFalse(PasswordCheck.isAcceptableLength(passwordLong, six, eight));
 	}
-	
+
+	@Test
 	public void testLengthEmptyPassword() {
-		assertFalse(PasswordCheck.isAcceptableLength(passwordEmpty, zero, eight));
+		Assert.assertFalse(PasswordCheck.isAcceptableLength(passwordEmpty, zero, eight));
 	}
-	
-	
+
+	@Test
 	public void testStrengthVeryWeak() {
-		assertEquals(PasswordCheck.getPasswordStrength(passwordVeryWeak), PasswordCheck.VERY_WEAK);
+		Assert.assertEquals(PasswordCheck.getPasswordStrength(passwordVeryWeak), PasswordCheck.VERY_WEAK);
 	}
-	
+
+	@Test
 	public void testStrengthWeak() {
-		assertEquals(PasswordCheck.getPasswordStrength(passwordWeak), PasswordCheck.VERY_WEAK);
+		Assert.assertEquals(PasswordCheck.getPasswordStrength(passwordWeak), PasswordCheck.VERY_WEAK);
 	}
-	
+
+	@Test
 	public void testStrengthMediocre() {
-		assertEquals(PasswordCheck.getPasswordStrength(passwordMediocre), PasswordCheck.MEDIOCRE);
-	}
-		
-	
+		Assert.assertEquals(PasswordCheck.getPasswordStrength(passwordMediocre), PasswordCheck.MEDIOCRE);
+	}		
+
+	@Test
 	public void testStrengthStrong() {
-		assertEquals(PasswordCheck.getPasswordStrength(passwordStrong), PasswordCheck.STRONG);
+		Assert.assertEquals(PasswordCheck.getPasswordStrength(passwordStrong), PasswordCheck.STRONG);
 	}
-	
+
+	@Test
 	public void testStrengthVeryStrong() {
-		assertEquals(PasswordCheck.getPasswordStrength(passwordVeryStrong), PasswordCheck.VERY_STRONG);
+		Assert.assertEquals(PasswordCheck.getPasswordStrength(passwordVeryStrong), PasswordCheck.VERY_STRONG);
 	}
-	
+
+	@Test
 	public void testStrengthNone() {
-		assertEquals(PasswordCheck.getPasswordStrength(passwordEmpty), PasswordCheck.NONE);
-	}
-	
-	
+		Assert.assertEquals(PasswordCheck.getPasswordStrength(passwordEmpty), PasswordCheck.NONE);
+	}	
 }

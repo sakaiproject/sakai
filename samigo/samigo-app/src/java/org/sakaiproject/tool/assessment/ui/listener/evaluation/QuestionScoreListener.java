@@ -22,6 +22,8 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +52,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
@@ -195,6 +198,7 @@ public class QuestionScoreListener implements ActionListener,
 		log.debug("questionScores()");
 		try {
 			PublishedAssessmentService pubService = new PublishedAssessmentService();
+			PublishedItemService pubItemService = new PublishedItemService();
 			// get the PublishedAssessment based on publishedId
 			QuestionScoresBean questionBean = (QuestionScoresBean) ContextUtil
 					.lookupBean("questionScores");
@@ -217,6 +221,17 @@ public class QuestionScoreListener implements ActionListener,
 					+ publishedItemTextHash.size());
 			HashMap publishedAnswerHash = pubService
 					.preparePublishedAnswerHash(publishedAssessment);
+			// re-attach session and load all lazy loaded parent/child stuff
+
+//			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
+//
+//			for (Long key : publishedAnswerHashKeySet) {
+//				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
+//
+//				if (!Hibernate.isInitialized(answer.getChildAnswerSet())) {
+//					pubItemService.eagerFetchAnswer(answer);
+//				}
+//			}
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
 			HashMap agentResultsByItemGradingIdMap = new HashMap();
@@ -515,13 +530,24 @@ public class QuestionScoreListener implements ActionListener,
 				// row
 				ArrayList answerList = (ArrayList) iter.next();
 				results.setItemGradingArrayList(answerList);
-
+				// The list is sorted by answer id so that it will come back from the student in a 
+				// predictable order. This is also required by the getCalcQResult method.
+				Collections.sort(answerList, new Comparator<ItemGradingData>() {
+					public int compare(ItemGradingData i1, ItemGradingData i2) {
+						return i1.getPublishedAnswerId().compareTo(
+								i2.getPublishedAnswerId());
+					}
+				});
 				Iterator iter2 = answerList.iterator();
 				ArrayList itemGradingAttachmentList = new ArrayList();
 				HashMap<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
+				int i = 1;
+				HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
 				while (iter2.hasNext()) {
 					ItemGradingData gdata = (ItemGradingData) iter2.next();
 					results.setItemGrading(gdata);
+					delegate.extractCalcQAnswersArray(answersMap, item, 
+								gdata.getAssessmentGradingId(), gdata.getAgentId());
 					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentList());
 					agentResultsByItemGradingIdMap.put(gdata.getItemGradingId(), results);
 										
@@ -534,6 +560,10 @@ public class QuestionScoreListener implements ActionListener,
 					String answerText = noAnswer;
 					String rationale = "";
 					String fullAnswerText = noAnswer;
+					
+					// Answer Key and Decimal Places for Calculated Questions
+					String answerKey = noAnswer;
+					int decimalPlaces;
 
 					// if question type = MC, MR, Survey, TF, Matching, if user
 					// has not submit an answer
@@ -624,7 +654,15 @@ public class QuestionScoreListener implements ActionListener,
 						setDurationIsOver(item, mediaList);
 						gdata.setMediaArray(mediaList);
 					}
-
+					if (bean.getTypeId().equals("16")) {
+						if (gdataPubItemText == null) {
+							// the matching pair is deleted
+							answerText = "";
+						}
+						else {
+							answerText = gdataPubItemText.getSequence() + ":"+ answerText;
+						}
+					}
 					if (answerText == null)
 						answerText = noAnswer;
 					else {
@@ -674,7 +712,7 @@ public class QuestionScoreListener implements ActionListener,
 					if (gdataAnswer != null) {
 						String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
 						String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
-						
+						answerText = FormattedText.escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
 							if (gdata.getIsCorrect() == null) {
 								boolean result = false;
@@ -701,16 +739,18 @@ public class QuestionScoreListener implements ActionListener,
 							}
 						}
 						else if (bean.getTypeId().equals("15")) {  // CALCULATED_QUESTION
-							//need to do something here for fill in the blanks
-							if(gdataAnswer.getScore() > 0){
-								//if score is 0, there is no way to tell if user got the correct answer
-								//by using "autoscore"... wish there was a better way to tell if its correct or not
-								Double autoscore = gdata.getAutoScore();
-								if (!(Double.valueOf(0)).equals(autoscore)) {
-									answerText = checkmarkGif + answerText;
-								}else if(Double.valueOf(0).equals(autoscore)){
-									answerText = crossmarkGif + answerText;
-								}
+							// Answers Keys
+							answerKey = (String)answersMap.get(i);
+							decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
+							answerKey = answerKey.substring(0, answerKey.indexOf("|")); // cut off extra data e.g. "|2,3"
+							// We need the key formatted in scientificNotation
+							answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);							
+							
+							// Answers
+							if (delegate.getCalcQResult(gdata, item, answersMap, i++)) {
+								answerText = checkmarkGif + answerText;
+							} else {
+								answerText = crossmarkGif + answerText;
 							}
 						}
 						else if(!bean.getTypeId().equals("3")){
@@ -739,6 +779,9 @@ public class QuestionScoreListener implements ActionListener,
 									results.getExactTotalAutoScore())).doubleValue()));
 						}
 						results.setItemGradingAttachmentList(itemGradingAttachmentList);
+						if (bean.getTypeId().equals("15")){ // CALCULATED_QUESTION Answer Key
+							results.setAnswerKey(results.getAnswerKey()+ " <br/>" + answerKey);
+						}
 					} else {
 						results.setItemGradingId(gdata.getItemGradingId());
 						results.setAssessmentGradingId(gdata
@@ -753,6 +796,9 @@ public class QuestionScoreListener implements ActionListener,
 						}
 						results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
 						results.setAnswer(answerText);
+						if (bean.getTypeId().equals("15")){ // CALCULATED_QUESTION Answer Key
+							results.setAnswerKey(answerKey);
+						}
 						results.setFullAnswer(fullAnswerText);
 						results.setRationale(rationale);
 						results.setSubmittedDate(gdata.getSubmittedDate());

@@ -39,7 +39,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
@@ -142,6 +142,12 @@ public class SampleDataLoader implements BeanFactoryAware {
 		this.beanFactory = beanFactory;
 	}
 
+	protected AuthzGroupService authzGroupService;
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
 	/** A flag for disabling the sample data load */
 	protected boolean loadSampleData;
 	public void setLoadSampleData(boolean loadSampleData) {
@@ -189,7 +195,7 @@ public class SampleDataLoader implements BeanFactoryAware {
 		UsageSessionService.startSession("admin", "127.0.0.1", "CMSync");
 
 		// update the user's externally provided realm definitions
-		AuthzGroupService.refreshUser("admin");
+		authzGroupService.refreshUser("admin");
 
 		// post the login event
 		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN, null, true));

@@ -23,10 +23,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
+import org.hibernate.FetchMode;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileFriend;
@@ -1159,7 +1161,48 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return false;
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItem getWallItem(final long wallItemId) {
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+				Query q = session.getNamedQuery(QUERY_GET_WALL_ITEM);
+				q.setParameter(ID, wallItemId, Hibernate.LONG);
+				return q.list();
+			}
+		};
+
+		return ((List<WallItem>) getHibernateTemplate().executeFind(hcb)).get(0);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public WallItemComment getWallItemComment(final long wallItemCommentId) {
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+				return session.createCriteria(WallItemComment.class)
+						.add(Restrictions.eq(ID, wallItemCommentId))
+						.setFetchMode("wallItem", FetchMode.JOIN)
+						.list();
+			}
+		};
+
+		List<WallItemComment> comments = (List<WallItemComment>) getHibernateTemplate().executeFind(hcb);
+
+		if (comments.size() > 0) {
+		    return comments.get(0);
+		} else {
+			return null;
+		}
+	}
+
 	/**
  	 * {@inheritDoc}
  	 */

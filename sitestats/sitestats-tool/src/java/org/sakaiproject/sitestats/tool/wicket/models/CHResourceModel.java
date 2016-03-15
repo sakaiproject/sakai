@@ -59,7 +59,7 @@ public class CHResourceModel implements IModel {
 	}
 	
 	public String getResourceNameEscaped() {
-		return Web.encodeUrlsAsHtml(getResourceName());
+		return Web.escapeHtml(getResourceName());
 	}
 	
 	public boolean isCollection() {

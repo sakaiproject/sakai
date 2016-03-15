@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -155,6 +156,22 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
     }
 
+    private Long getMaxSequenceValue(Map<String, CalculatedQuestionVariableBean> variables, Map<String, CalculatedQuestionFormulaBean> formulas){
+    	Long maxValue = 0L;
+
+    	for(CalculatedQuestionVariableBean variable:variables.values()){
+    		Long currentSequence = variable.getSequence(); 
+    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    			maxValue = currentSequence;
+    	}
+    	for(CalculatedQuestionFormulaBean formula:formulas.values()){
+    		Long currentSequence = formula.getSequence(); 
+    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    			maxValue = currentSequence;
+    	}
+    	return maxValue;
+    }
+
     /**
      * createFormulasFromInstructions adds any formulas that exist in the list of formulaNames
      * but do not already exist in the question
@@ -165,13 +182,14 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        
         // add any missing formulas
         for (String formulaName : formulaNames) {
             if (!formulas.containsKey(formulaName)) {
                 CalculatedQuestionFormulaBean bean = new CalculatedQuestionFormulaBean();
                 bean.setName(formulaName);
-                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
+                bean.setSequence(++maxSequenceValue);
                 item.getCalculatedQuestion().addFormula(bean);
             } else {
                 CalculatedQuestionFormulaBean bean = formulas.get(formulaName);
@@ -194,13 +212,14 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        
         // add any missing variables
         for (String variableName : variableNames) {
             if (!variables.containsKey(variableName)) {
                 CalculatedQuestionVariableBean bean = new CalculatedQuestionVariableBean();
                 bean.setName(variableName);
-                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
+                bean.setSequence(++maxSequenceValue);
                 item.getCalculatedQuestion().addVariable(bean);
             } else {
                 CalculatedQuestionVariableBean bean = variables.get(variableName);
@@ -296,8 +315,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
             // no non-number characters (although percentage is allowed
             // allow a negative here, we'll catch negative tolerances in another place
+            // we add scientific notation numbers            
             if (formula.getValidTolerance()) {
-                if (!toleranceStr.matches("[0-9\\.\\-\\%]+")) {
+                if ( (!toleranceStr.matches("[0-9\\.\\-\\%]+") ) &&
+                   	 (!toleranceStr.matches("\\-?[0-9]+\\.?[0-9]*([eE][\\-]?[0-9]+)?") ) ) {
                     errors.add(getErrorMessage("invalid_tolerance"));
                     formula.setValidTolerance(false);
                 }
@@ -337,6 +358,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     private List<String> validateMinMax(ItemBean item) {
         List<String> errors = new ArrayList<String>();
         CalculatedQuestionBean question = item.getCalculatedQuestion();
+        GradingService gradingService = new GradingService();
 
         for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
 
@@ -358,11 +380,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMin()) {
                 try {
-                    BigDecimal bd = new BigDecimal(minStr);
-                    bd = bd.setScale(decimals);
-                    bd = bd.stripTrailingZeros();
-                    min = bd.doubleValue();
-                    String value = bd.toPlainString();
+                    BigDecimal bd = new BigDecimal(minStr);                    
+                    bd.setScale(decimals,RoundingMode.HALF_UP);
+                    min = bd.doubleValue();                                 
+                    String value = gradingService.toScientificNotation(bd.toPlainString(),decimals);
                     variable.setMin(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_min"));
@@ -379,11 +400,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMax()) {
                 try {
-                    BigDecimal bd = new BigDecimal(maxStr);
-                    bd = bd.setScale(decimals);
-                    bd = bd.stripTrailingZeros();
+                    BigDecimal bd = new BigDecimal(maxStr);                   
+                    bd.setScale(decimals,RoundingMode.HALF_UP);
                     max = bd.doubleValue();
-                    String value = bd.toPlainString();
+                    String value = gradingService.toScientificNotation(bd.toPlainString(),decimals);
                     variable.setMax(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_max"));

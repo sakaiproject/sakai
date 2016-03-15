@@ -1,13 +1,16 @@
 @import "defaults";
 
+@import "base/bootstrap-defaults";
 @import "base/extendables";
 @import "base/defaults";
 @import "base/responsive";
 @import "base/icons";
 
+
 @import "modules/main";
 @import "modules/navigation/base";
 @import "modules/navigation/skipnav";
+@import "modules/navigation/breadCrumbs";
 @import "modules/toolmenu";
 @import "modules/tool/base";
 @import "modules/tool/menu";
@@ -16,6 +19,14 @@
 @import "modules/tool/calendar/calendar";
 @import "modules/tool/chat/chat";
 @import "modules/tool/lessons/lessons";
+@import "modules/tool/sitemanage/sitemanage";
+@import "modules/tool/announcements/announcements";
+@import "modules/tool/messages/messages";
+@import "modules/tool/polls/polls";
+@import "modules/tool/lessonbuilder/lessonbuilder";
+@import "modules/tool/samigo/samigo";
+@import "modules/tool/resources/resources";
+@import "modules/tool/synoptic/synoptic";
 
 @import "base/rtl";
 
@@ -24,3 +35,4 @@
 @import "modules/timeout-alert/base";
 @import "modules/swapped-view/base";
 @import "modules/cookies/base";
+@import "modules/tutorial/base";

@@ -36,7 +36,7 @@
 <div class="rwiki_comments" >	
 <form action="?#" method="post" onsubmit="ajaxRefPopupPost(this,'?#',2,this); return false;" >
 	    <c:out value="${rlb.jsp_edit_comment}"/><br/>
-		<textarea cols="40" rows="5" name="content" id="content" >
+		<textarea cols="40" rows="5" name="content" id="wiki-textarea-content" >
 		</textarea>
 		<input type="hidden" name="action" value="chateditsave"/>
 		<input type="hidden" name="panel" value="Main"/>

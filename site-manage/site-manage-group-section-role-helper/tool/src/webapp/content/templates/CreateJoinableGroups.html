@@ -8,6 +8,7 @@
         <script type="text/javascript" src="/library/js/headscripts.js"></script>
         <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
         <script type="text/javascript">includeLatestJQuery('site-manage');</script>
+        <script type="text/javascript" src="/library/js/spinner.js"></script>
     </head>
     <body>
         <div class="portletBody">
@@ -46,23 +47,23 @@
                     </div>
                     <div id="genPanel">
                         <div rsf:id="additional-title-row:">
-                            <h4 rsf:id="additional-title" onclick="toggleGenPanel( this );"></h4>
+                            <h4 rsf:id="additional-title" onclick="togglePanel( this, false ); adjustDivHeights();"></h4>
                         </div>
                         <div rsf:id="num-groups-row:">
                             <p class="shorttext">
                                 <span class="reqStar">*</span>
                                 <label rsf:id="group-unit" id="group-unit">Number of groups:</label>
-                                <input rsf:id="num-groups" id="num-groups" type="text" size="3" />
-                                <span class="validFMess" rsf:id="msg=numGroups.empty.alert">Need a number here</span>
                             </p>
+                            <input rsf:id="num-groups" id="num-groups" type="text" size="3" />
+                            <span class="validFMess" rsf:id="msg=numGroups.empty.alert">Need a number here</span>
                         </div>
                         <div rsf:id="max-members-row:">
                             <p class="shorttext">
                                 <span class="reqStar">*</span>
                                 <label rsf:id="group-max-members" id="group-max-members">Max members per group:</label>
-                                <input rsf:id="num-max-members" id="num-max-members" type="text" size="3" />
-                                <span class="validFMess" rsf:id="msg=maxMembers.empty.alert">Need a number here</span>
                             </p>
+                            <input rsf:id="num-max-members" id="num-max-members" type="text" size="3" />
+                            <span class="validFMess" rsf:id="msg=maxMembers.empty.alert">Need a number here</span>
                         </div>
                         <div rsf:id="allowpreview-row:">
                             <input rsf:id="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" />
@@ -73,8 +74,7 @@
                             <label rsf:id="allowViewMembership-label">Allow members to see the other members of this group after joining</label>
                         </div>
                         <div rsf:id="generate-row:">
-                            <input accesskey="g" rsf:id="generate" class="active" value="Generate" type="submit" id="generate" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'generateAdditionalSpinner');" />
-                            <img id="generateAdditionalSpinner" class="spinner" src="/library/image/indicator.gif" />
+                            <input accesskey="g" rsf:id="generate" class="active" value="Generate" type="submit" id="generate" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>
                     </div>
                     <div rsf:id="allowunjoin-row:" id="allowunjoin-row:">
@@ -96,15 +96,25 @@
                     </div>
                     <div class="act">
                         <div class="left">
-                            <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
-                            <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                            <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                            <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>
                         <div class="right">
-                            <input accesskey ="d" rsf:id="delete" value="Delete Set" type="submit" id="delete" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                            <input accesskey ="d" rsf:id="delete" value="Delete Set" type="submit" id="delete" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>
-                        <img id="editJoinableGroupSpinner" class="spinner" src="/library/image/indicator.gif" />
                     </div>
                 <input type="hidden" rsf:id="groupTitle-group-orig"/>
+                </div>
+                <div id="userPanel">
+                    <div rsf:id="usersNotInSet-title-row:" id="userPanelHeader">
+                        <h4 rsf:id="usersNotInSet-title" onclick="togglePanel( this, true ); adjustDivHeights();"></h4>
+                    </div>
+                    <div id="userRowsContainer">
+                        <div rsf:id="user-row:">
+                            <div rsf:id="user">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
          </div>

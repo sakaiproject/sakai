@@ -1,7 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMtrlCopy.vm,v 1.2 2005/06/06 20:06:02 htripath.indiana.edu Exp $ -->
 ## Might want to get these dynamically 
 <div class="portletBody">
-	##if($menu)#toolbar($menu)#end<br/><br/>
 	<h3>
 	$tlang.getString("sitedicla.copy_materials")
 	</h3>
@@ -35,9 +34,9 @@
 				<td width="15%" align="left">		
 				<strong>$tlang.getString("sitedicla.move")</strong>
 				<br>
-				<input type="submit" class= "active" name="eventSubmit_doAdd_MtrlSite" value=">" />	
+				<input type="submit" class= "active" name="eventSubmit_doAdd_MtrlSite" value=">" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<br><br>
-				<input type="submit" class= "active" name="eventSubmit_doRemove_MtrlSite" value="<" />
+				<input type="submit" class= "active" name="eventSubmit_doRemove_MtrlSite" value="<" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</td>
 				
 				<td width="30%">
@@ -56,8 +55,8 @@
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doCopyMtrlSite" value="$tlang.getString("sitedicla.copybtn")" accesskey="s" />
-			<input type="submit" class="active" name="eventSubmit_doCancel" value="$tlang.getString("sitedicla.cancel")" accesskey="x" />
+			<input type="submit" class="active" name="eventSubmit_doCopyMtrlSite" value="$tlang.getString("sitedicla.copybtn")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" class="active" name="eventSubmit_doCancel" value="$tlang.getString("sitedicla.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		
 					

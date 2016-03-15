@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>11-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
         <!-- <version>2.8.1</version> --> <!-- purepom deployed with sakai-2.8.0 -->
     </parent>
@@ -13,7 +13,6 @@
     <name>sakai-lessonbuildertool base pom</name>
     <groupId>org.sakaiproject.lessonbuilder</groupId>
     <artifactId>lessonbuilder</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

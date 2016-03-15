@@ -22,6 +22,7 @@ package org.sakaiproject.content.impl;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Set;
 import java.util.Stack;
 
 import org.sakaiproject.content.api.ContentCollection;
@@ -43,7 +44,8 @@ import org.w3c.dom.Element;
  */
 public class AbstractContentResource implements ContentResource{
 	
-	private ContentResource wrapped;
+	// Use package visibility to allow things in impl to get the raw resource
+	ContentResource wrapped;
 	
 	public AbstractContentResource(ContentResource wrapped) {
 		this.wrapped = wrapped;
@@ -103,6 +105,14 @@ public class AbstractContentResource implements ContentResource{
 
 	public Collection getInheritedGroups() {
 		return wrapped.getInheritedGroups();
+	}
+
+	public Set<String> getRoleAccessIds() {
+		return wrapped.getRoleAccessIds();
+	}
+
+	public Set<String> getInheritedRoleAccessIds() {
+		return wrapped.getInheritedRoleAccessIds();
 	}
 
 	public Collection getInheritedGroupObjects() {

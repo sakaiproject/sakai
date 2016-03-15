@@ -26,6 +26,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+
 //import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 
@@ -70,6 +71,9 @@ public class AssessmentAccessControl
   // itemNumbering
   public static final Integer CONTINUOUS_NUMBERING = Integer.valueOf(1);
   public static final Integer RESTART_NUMBERING_BY_PART = Integer.valueOf(2);
+  //itemScoreDisplay
+  public static Integer DISPLAY_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(1);
+  public static Integer HIDE_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(2);
   // markForReview
   public static final Integer MARK_FOR_REVIEW = Integer.valueOf(1);
   public static final Integer NOT_MARK_FOR_REVIEW = Integer.valueOf(0);
@@ -99,6 +103,7 @@ public class AssessmentAccessControl
   private Integer autoSubmit;  // auto submit when time expires
   private Integer itemNavigation; // linear (1)or random (0)
   private Integer itemNumbering;  // continuous between parts(1), restart between parts(0)
+  private Integer displayScoreDuringAssessments;
   private String submissionMessage;
   private String finalPageUrl;
   private String releaseTo;
@@ -122,7 +127,7 @@ public class AssessmentAccessControl
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate,
                                  Date retractDate, Integer autoSubmit,
-                                 Integer itemNavigation, Integer itemNumbering,
+                                 Integer itemNavigation, Integer itemNumbering, Integer displayScoreDuringAssessments,
                                  String submissionMessage, String releaseTo)
   {
     this.submissionsAllowed = submissionsAllowed; // =  no limit
@@ -141,6 +146,7 @@ public class AssessmentAccessControl
     this.autoSubmit = autoSubmit;  // cannot edit (0) auto submit(1) when time expires (2)
     this.itemNavigation = itemNavigation; // cannot edit (0) linear(1) or random (2)
     this.itemNumbering = itemNumbering;  // cannot edit(0) continuous between parts (1), restart between parts (2)
+    this.displayScoreDuringAssessments = displayScoreDuringAssessments;
     this.submissionMessage = submissionMessage;
     this.releaseTo = releaseTo;
   }
@@ -154,12 +160,13 @@ public class AssessmentAccessControl
         this.getStartDate(), this.getDueDate(),
         this.getScoreDate(), this.getFeedbackDate(),
         this.getRetractDate(), this.getAutoSubmit(),
-        this.getItemNavigation(), this.getItemNumbering(),
+        this.getItemNavigation(), this.getItemNumbering(), this.getDisplayScoreDuringAssessments(),
         this.getSubmissionMessage(), this.getReleaseTo());
     ((AssessmentAccessControl)cloned).setRetractDate(this.retractDate);
     ((AssessmentAccessControl)cloned).setAutoSubmit(this.autoSubmit);
     ((AssessmentAccessControl)cloned).setItemNavigation(this.itemNavigation);
     ((AssessmentAccessControl)cloned).setItemNumbering(this.itemNumbering);
+    ((AssessmentAccessControl)cloned).setDisplayScoreDuringAssessments(this.displayScoreDuringAssessments);
     ((AssessmentAccessControl)cloned).setSubmissionMessage(this.submissionMessage);
     ((AssessmentAccessControl)cloned).setUsername(this.username);
     ((AssessmentAccessControl)cloned).setPassword(this.password);
@@ -341,7 +348,17 @@ public class AssessmentAccessControl
   {
     return itemNumbering;
   }
+  
+  public void setDisplayScoreDuringAssessments(Integer displayScoreDuringAssessments)
+  {
+    this.displayScoreDuringAssessments = displayScoreDuringAssessments;
+  }
 
+  public Integer getDisplayScoreDuringAssessments()
+  {
+    return displayScoreDuringAssessments;
+  }
+  
   public void setSubmissionMessage(String submissionMessage)
   {
     this.submissionMessage = submissionMessage;

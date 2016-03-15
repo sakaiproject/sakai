@@ -852,6 +852,9 @@ public class CCExport {
 		case SimplePageItem.PEEREVAL:
 		    itemString = messageLocator.getMessage("simplepage.peerEval-secotion");
 		    break;
+		case SimplePageItem.BREAK:
+		    itemString = messageLocator.getMessage("simplepage.break");
+		    break;
 		}
 		errStream.println(messageLocator.getMessage("simplepage.exportcc-bad-type").replace("{1}", title).replace("{2}", item.getName()).replace("{3}", itemString));
 		break;

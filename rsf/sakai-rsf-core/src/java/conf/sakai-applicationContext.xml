@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- Contains bean overrides and new definitions for application-scope beans required for integration of RSF apps into Sakai -->
+
+	<!-- In the two main Sakai environments (portal tools, and entity handlers) we are more concerned with rapid and unambiguous response 
+		than we are with URL consistency -->
+	<bean id="implicitNullRedirect" class="uk.org.ponder.springutil.BooleanFactory">
+		<property name="value" value="true" />
+	</bean>
+
+	<bean id="flowTokenStateHolder" class="org.sakaiproject.rsf.state.InSakaiSessionTSH">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="expirySeconds">
+			<!-- deliberately short time for testing - all flows will expire after 30 seconds of disuse -->
+			<value>30</value>
+		</property>
+	</bean>
+
+	<bean id="bandgapStateHolder" class="org.sakaiproject.rsf.state.InSakaiSessionTSH">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="expirySeconds">
+			<!-- deliberately short time for testing - all errors will expire after 10 seconds of disuse -->
+			<value>10</value>
+		</property>
+	</bean>
+	<!-- Declaring Resolvers here. Decision must be made in Request Scope -->
+	<bean name="commonsMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	<bean name="blankMultipartResolver" class="uk.org.ponder.springutil.BlankMultipartResolver" />
+
+	<bean id="sakai-ContextProxy" parent="RSACStringBridge">
+		<property name="targetBeanName" value="sakai-Context" />
+	</bean>
+
+	<bean id="sakaiServletContextLocatorLocator" class="org.sakaiproject.rsf.servlet.SakaiServletContextLocatorLocator"></bean>
+
+	<bean id="resourceLoader" class="uk.org.ponder.springutil.ExtraContextResourceLoader">
+		<property name="servletContextLocator">
+			<bean factory-bean="sakaiServletContextLocatorLocator" factory-method="getServletContextLocator" />
+		</property>
+	</bean>
+
+	<bean parent="templateParseInterceptorParent">
+		<property name="value">
+			<bean class="org.sakaiproject.rsf.template.SakaiBodyTPI" />
+		</property>
+	</bean>
+
+	<bean id="sakai-PermissionChecker" class="org.sakaiproject.rsf.util.PermissionChecker">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+	</bean>
+
+	<bean id="sakai-MimeIconFetcher" class="org.sakaiproject.rsf.util.MimeIconFetcher">
+		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService" />
+	</bean>
+
+	<bean id="sakai-LocaleSetter" class="org.sakaiproject.rsf.locale.SakaiLocaleSetter">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
+	<bean id="frameAdjustingProducer" class="org.sakaiproject.rsf.producers.FrameAdjustingProducer">
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+	</bean>
+
+	<bean parent="handlerHookParent">
+		<property name="value">
+			<bean class="org.sakaiproject.rsf.helper.HelperHandlerHook">
+				<property name="viewParametersProxy" ref="viewParametersProxy" />
+				<property name="helperHandlerHookBean" ref="helperHandlerHookBeanProxy" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="helperHandlerHookBeanProxy" parent="RSACBridgeProxy">
+		<property name="targetBeanName" value="helperHandlerHookBean" />
+	</bean>
+
+</beans>

@@ -5,11 +5,16 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
+import org.quartz.impl.JobDetailImpl;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
@@ -74,7 +79,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 			m_sqlService.ddl(getClass().getClassLoader(), "delayed");
 			// Create the additional indexes as hibernate currently fails todo this.
 			// Once hibernate is updated to 3.6 it should be able to manage in it's own.
-			m_sqlService.ddl(getClass().getClassLoader(), "indexes");
+			m_sqlService.ddl(getClass().getClassLoader(), "indexes2");
 		}
 	      try {
 	          registerScheduledInvocationRunner();
@@ -92,24 +97,26 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	   //trigger will not start immediately, wait until interval has passed before 1st run
 	   long startTime = System.currentTimeMillis() + getScheduledInvocationRunnerInterval();
 	   
-       JobDetail detail = new JobDetail("org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner",
-          "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl", ScheduledInvocationRunner.class);
-
-       Trigger trigger = new SimpleTrigger("org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner",
-          "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl", new Date(startTime), null, SimpleTrigger.REPEAT_INDEFINITELY,
-          getScheduledInvocationRunnerInterval());
-
+       JobDetail detail = JobBuilder.newJob(ScheduledInvocationRunner.class)
+               .withIdentity("org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner", "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl")
+               .build();
+               
+       Trigger trigger = TriggerBuilder.newTrigger()
+               .withIdentity("org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner", "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl")
+               .startAt(new Date(startTime))
+               .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                       .repeatForever()
+                       .withIntervalInSeconds(getScheduledInvocationRunnerInterval()))
+               .build();
+               
        Scheduler scheduler = m_schedulerManager.getScheduler();
        // This removes the jobs if there are no trigger left on it.
-       scheduler.unscheduleJob(trigger.getName(), trigger.getGroup());
+       scheduler.unscheduleJob(trigger.getKey());
        scheduler.scheduleJob(detail, trigger);
     }
    
    protected int getScheduledInvocationRunnerInterval() {
-	   
-	   // convert seconds to millis
-	   return 1000 * m_serverConfigurationService.getInt(SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL_PROPERTY, SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL);
-	   
+	   return m_serverConfigurationService.getInt(SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL_PROPERTY, SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL);
    }
    
 	/* (non-Javadoc)

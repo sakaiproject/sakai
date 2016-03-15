@@ -350,8 +350,12 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 				for (Enumeration e = props.propertyNames(); e.hasMoreElements();)
 				{
 					String propertyName = (String) e.nextElement();
-					// System.out.println("Property name = "+propertyName);
-					if (propertyName != null && propertyName.startsWith("javax.portlet:")
+					if (M_log.isDebugEnabled())
+					{
+						M_log.debug("Property name = "+propertyName);
+					}
+;
+					if (propertyName != null && propertyName.startsWith("javax.portlet") 
 							&& propertyName.length() > 14)
 					{
 						String propertyValue = props.getProperty(propertyName);
@@ -455,7 +459,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 				{
 					String propertyName = (String) e.nextElement();
 					// System.out.println("Checking Sakai property name = "+propertyName);
-					if (propertyName != null && propertyName.startsWith("javax.portlet:")
+					if (propertyName != null && (propertyName.startsWith("javax.portlet"))
 							&& propertyName.length() > 14)
 					{
 						String internalName = propertyName.substring(14);
@@ -519,7 +523,8 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 					if ( propName == null || propName.length() < 1 ) continue;
 					// System.out.println("Property Name="+propName);
 
-					String propKey = "javax.portlet:" + propName;
+					//New property prefix SAK-30354 
+					String propKey = "javax.portlet-" + propName;
 					String storeString = serializeStringArray(preferences[i].getValues());
 
 					// Write directly to the Sakai properties

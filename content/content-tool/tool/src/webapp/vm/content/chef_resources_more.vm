@@ -74,7 +74,7 @@
 							#if($pubview) 
 								$tlang.getString("more.yes") 
 							#else
-								$item.effectiveGroupsLabel
+								$item.getLongAccessLabel()
 							#end
 						</span>
 					</td>
@@ -156,37 +156,7 @@
 			</tr>
 		</table>
 	#end
-	#if($item && $item.metadataGroups)
-		#foreach($group in $item.metadataGroups)	
-			<p class="discTria" id="metadataShown_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
-				<a id="hideMetadata_$validator.escapeJavascript($group.name)" href="#" title="$group.hideLabel" onclick="javascript:hideOptionalProperties('$validator.escapeJavascript($group.name)')">
-					<img id="hideMetadataImage_0_$validator.escapeJavascript($group.name)" src="#imageLink("sakai/collapse.gif")" alt="$group.hideLabel" border="0" width="13" height="13" align="top" />
-					$validator.escapeHtml($group.name)
-				</a>
-			</p>
-			<p class="discTria" id="metadataHidden_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:none;"#else style="display:block;"#end>
-				<a id="showMetadata_$validator.escapeJavascript($group.name)" href="#" title="$group.showLabel" onclick="javascript:showOptionalProperties('$validator.escapeJavascript($group.name)')">
-					<img id="showMetadataImage_$validator.escapeJavascript($group.name)" src="#imageLink("sakai/expand.gif")" alt="$group.showLabel" border="0" width="13" height="13" align="top" />
-					$validator.escapeHtml($group.name)
-				</a>
-			</p>
-			<div id="metadataDiv_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
-				<table class="itemSummary" cellspacing="0">
-					#foreach($tag in $group)
-						<tr>
-							<td>
-								$tag.label
-							</td>
-							<td>
-								 $validator.escapeHtml($!tag.value) 
-							</td>
-						</tr>
-					#end
-				</table>
-			</div>			  
-		#end
-	#end
-	
+  	#parse("/vm/resources/sakai_metadata-display.vm")
 	<form name="moreForm" action="#toolForm("ResourcesAction")" method="post" >
 		<p class="act">
 			<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />

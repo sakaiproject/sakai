@@ -1,0 +1,40 @@
+<div id='link$num' style='background: #eeeeee none repeat scroll 0 0; color:#0088cc; padding: 5px;'>
+	#if( $citation.hasPreferredUrl() )
+		#set( $urlHref = $citation.getCustomUrl( "$citation.getPreferredUrlId()" ).toString() )
+	#else
+		#set( $urlHref = $citation.openurl )
+	#end
+
+    <a href="$!{xilator.escapeHtml($urlHref)}" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
+
+    <br />
+	$!{xilator.escapeHtml( $!{citation.creator} )}
+	$!{xilator.escapeHtml( $!{citation.source} )}
+    <div class="itemAction">
+
+		#if($citation.hasCustomUrls())
+			#foreach($urlid in $citation.customUrlIds)
+
+				#if(!$citation.hasPreferredUrl() || ($citation.hasPreferredUrl() && ($citation.getPreferredUrlId() != $urlid)))
+
+                    <a href="$!{xilator.escapeHtml($citation.getCustomUrl("$urlid").toString())}" target="_blank">
+						#if( ! $citation.getCustomUrlLabel("$urlid") || $citation.getCustomUrlLabel("$urlid") == "" )
+	                                                    $tlang.getString( "nullUrlLabel.view" )#else$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )#end</a> |
+				#end
+
+			#end
+		#end
+		#if( ! $citation.hasPreferredUrl() )
+            <a href="$citation.openurl" target="_blank">${openUrlLabel}</a>
+            |
+		#end
+
+        <a href="#toolLink("CitationHelperAction" "doView")&citationId=${citation.id}&citationCollectionId=$citationCollectionId&location=$location">$tlang.getString( "action.view" )</a>
+        |
+        <a href="#toolLink("CitationHelperAction" "doEdit")&citationId=$citation.id&citationCollectionId=$citationCollectionId&location=$location">$tlang.getString("action.edit")</a>
+        |
+        <a href="#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&citationId=$citation.id&citationCollectionId=$citationCollectionId&location=$location">$tlang.getString("action.remove")</a>
+        |
+        <a href="$exportUrlSel&citationId=$citation.id">$tlang.getString("export.citation")</a>
+    </div>
+</div>

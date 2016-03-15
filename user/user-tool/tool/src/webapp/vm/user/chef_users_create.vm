@@ -6,6 +6,7 @@ ${includeLatestJQuery}
 <script type="text/javascript" src="/sakai-user-tool/js/userValidationCommon.js"></script>
 <script type="text/javascript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
 <script type="text/javascript" src="/sakai-user-tool/js/userCreateValidation.js"></script>
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 
 <div class="portletBody">
 #if($menu)
@@ -93,8 +94,8 @@ ${includeLatestJQuery}
 			#end
 			$!recaptchaScript
 			<div class="act">
-				<input type="submit" id="eventSubmit_doSave" class="active"  name="eventSubmit_doSave" #if ($isValidatedWithAccountValidator) value="$tlang.getString("usecre.reqaco")" #else value="$tlang.getString("usecre.creaco")" #end  accesskey="s" />
-				<input type="submit" id="eventSubmit_doCancel" name="eventSubmit_doCancel" value="$tlang.getString("useconrem.can")"  accesskey="x" />
+				<input type="submit" id="eventSubmit_doSave" class="active"  name="eventSubmit_doSave" #if ($isValidatedWithAccountValidator) value="$tlang.getString("usecre.reqaco")" #else value="$tlang.getString("usecre.creaco")" #end accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" id="eventSubmit_doCancel" name="eventSubmit_doCancel" value="$tlang.getString("useconrem.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</fieldset>
 	</form>

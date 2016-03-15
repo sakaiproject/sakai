@@ -42,6 +42,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	private Boolean reviseAny;
 	private Boolean reviseOwn;
 	private Boolean moderatePostings;
+	private Boolean identifyAnonAuthors;
 	
 	
 	public String getName() {
@@ -98,6 +99,16 @@ public class PermissionLevelImpl extends MutableEntityImpl
 
 	public void setModeratePostings(Boolean moderatePostings) {
 		this.moderatePostings = moderatePostings;
+	}
+
+	public Boolean getIdentifyAnonAuthors()
+	{
+		return identifyAnonAuthors;
+	}
+
+	public void setIdentifyAnonAuthors(Boolean identifyAnonAuthors)
+	{
+		this.identifyAnonAuthors = identifyAnonAuthors;
 	}
 
 	public Boolean getMovePosting() {
@@ -184,19 +195,20 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	public String toString() {		
 		StringBuilder buffer = new StringBuilder("[");
 		buffer.append(changeSettings);		
-		buffer.append("," + markAsRead);
-		//buffer.append("," + movePosting);
-		buffer.append("," + newForum);
-		buffer.append("," + newResponse);
-		buffer.append("," + newResponseToResponse);
-		buffer.append("," + newTopic);
-		buffer.append("," + postToGradebook);
-		buffer.append("," + read);
-		buffer.append("," + reviseAny);
-		buffer.append("," + reviseOwn);
-		buffer.append("," + moderatePostings);
-		buffer.append("," + deleteAny);
-		buffer.append("," + deleteOwn);
+		buffer.append(",").append(markAsRead);
+		//buffer.append(",").append(movePosting);
+		buffer.append(",").append(newForum);
+		buffer.append(",").append(newResponse);
+		buffer.append(",").append(newResponseToResponse);
+		buffer.append(",").append(newTopic);
+		buffer.append(",").append(postToGradebook);
+		buffer.append(",").append(read);
+		buffer.append(",").append(reviseAny);
+		buffer.append(",").append(reviseOwn);
+		buffer.append(",").append(moderatePostings);
+		buffer.append(",").append(identifyAnonAuthors);
+		buffer.append(",").append(deleteAny);
+		buffer.append(",").append(deleteOwn);
 		buffer.append("]");
 		
 		return buffer.toString();
@@ -218,6 +230,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
         
     boolean returnValue = true;
 
+    // Check the equality of each permission; if any permission is not equal, return false immediately; otherwise continue to the next permission
     Boolean bThis = this.getChangeSettings();         
     returnValue = (bThis == null) ? obj.getChangeSettings() == null : bThis.equals(obj.getChangeSettings()); 
     if(!returnValue)
@@ -274,6 +287,12 @@ public class PermissionLevelImpl extends MutableEntityImpl
     returnValue = (bThis == null) ? obj.getModeratePostings() == null : bThis.equals(obj.getModeratePostings());
     if(!returnValue)
     	return returnValue;
+	bThis = this.getIdentifyAnonAuthors();         
+    returnValue = (bThis == null) ? obj.getIdentifyAnonAuthors() == null : bThis.equals(obj.getIdentifyAnonAuthors());
+    if(!returnValue)
+    {
+        return returnValue;
+    }
 	
     return returnValue;   
   }
@@ -329,6 +348,9 @@ public class PermissionLevelImpl extends MutableEntityImpl
     		bThis = this.getModeratePostings();         
     		temp = (bThis == null) ? 0 : bThis.hashCode();
     		result = result + temp;
+    		bThis = this.getIdentifyAnonAuthors();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
     }
     catch(Exception e){
     	throw new RuntimeException(e);
@@ -348,6 +370,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		pli.setId(this.getId());
 		pli.setMarkAsRead(this.getMarkAsRead());
 		pli.setModeratePostings(this.getModeratePostings());
+		pli.setIdentifyAnonAuthors(this.getIdentifyAnonAuthors());
 		pli.setModified(this.getModified());
 		pli.setModifiedBy(this.getModifiedBy());
 		pli.setMovePosting(this.getMovePosting());

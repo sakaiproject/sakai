@@ -80,7 +80,11 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
   void setScore(Double score);
   
   Double getDiscount();
+  
+  Double getMinScore();
 
+  void setMinScore(Double minScore);
+  
   void setDiscount(Double discount);
 
   String getHint();
@@ -195,4 +199,7 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
   public String getEmiAnswerOptionsRichText();
   public boolean getIsAnswerOptionsSimple();
   public boolean getIsAnswerOptionsRich();
+  String getImageMapSrc();
+  Boolean getScoreDisplayFlag();
+  void setScoreDisplayFlag(Boolean scoreDisplayFlag);
 }
