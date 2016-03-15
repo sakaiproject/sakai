@@ -77,7 +77,7 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
 
 import org.sakaiproject.util.cover.LinkMigrationHelper;
-
+import org.sakaiproject.authz.api.FunctionManager;
 //permission convert
 import org.sakaiproject.authz.cover.SecurityService;
 
@@ -115,6 +115,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
   private static final String PAGE_ID = "pageId";
   /** Dependency: a SyllabusManager. */
   private SyllabusManager syllabusManager;
+  private FunctionManager functionManager;
   private ContentHostingService contentHostingService;
   private EntityManager entityManager;
  
@@ -144,6 +145,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 	  edit.setAction(new SiteEmailNotificationSyllabus());
 
 	  entityManager.registerEntityProducer(this, REFERENCE_ROOT);	
+	  functionManager.registerFunction(SECURE_ADD_ITEM);
+	  functionManager.registerFunction(SECURE_BULK_ADD_ITEM);
+	  functionManager.registerFunction(SECURE_BULK_EDIT_ITEM);
+	  functionManager.registerFunction(SECURE_REDIRECT);
 	}
 
 	public void destroy()
@@ -167,6 +172,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
   {
     this.syllabusManager = syllabusManager;
   }
+  
+  public void setFunctionManager(FunctionManager functionManager) {
+	this.functionManager = functionManager;
+  }
+
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
