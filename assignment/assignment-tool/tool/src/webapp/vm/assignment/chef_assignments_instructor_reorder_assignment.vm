@@ -5,7 +5,7 @@
 <script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
 <script type="text/javascript" src="/library/js/reorderer.js"></script>
 
-<div class="portletBody container">
+<div class="portletBody container-fluid">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
 		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "reorder" )

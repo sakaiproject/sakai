@@ -103,7 +103,7 @@
 </script>
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
-<div class="portletBody container">
+<div class="portletBody container-fluid">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
 	<div class="page-header">
@@ -884,10 +884,7 @@
 
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
 		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
-			#if ($withGrade && $withGradebook)
-				<br />
-			#end
-			<div class="radio">
+			<div class="checkbox">
 				<label for="$name_CheckAnonymousGrading" #if( !$enableAnonGrading ) class="disabled" #end>
 					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
 					#if ($value_CheckAnonymousGrading.equals("true"))
@@ -896,26 +893,26 @@
 					#if( !$enableAnonGrading )
 						disabled="disabled"
 					#end
-				/>
+					/>
 					$tlang.getString("grading.anonymous")
 				</label>
-			</p>
+			</div>
 		#end
 		## end anonymous check
-			<h4>
-				$tlang.getString("additionalOptionsName")
-			</h4>
+		<h4>
+			$tlang.getString("additionalOptionsName")
+		</h4>
 
-			<div class="radio">
-				<label for="$name_noAdditionalOptionsName" class="$class">
-					<input id="$name_noAdditionalOptionsName" name="$name_additionalOptions" type="radio" value="1"
+		<div class="radio">
+			<label for="$name_noAdditionalOptionsName" class="$class">
+				<input id="$name_noAdditionalOptionsName" name="$name_additionalOptions" type="radio" value="1"
 					#if ($!value_additionalOptions.equals("none"))
 						checked="checked"
 					#end
 					onclick="ASN.toggleAddOptions('none');" />
 					$tlang.getString("noAdditionalOptionsName")
-				</label>
-			</div>
+			</label>
+		</div>
 
 		## Peer Assessment
 		#if ($allowPeerAssessment)

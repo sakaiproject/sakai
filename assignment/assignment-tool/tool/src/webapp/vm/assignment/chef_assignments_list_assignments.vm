@@ -27,7 +27,7 @@
 	}
 </script>
 
-<div class="portletBody container">
+<div class="portletBody container-fluid">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
 		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
@@ -234,8 +234,8 @@
 										</h4>
 										<div class="itemAction">
 											#set($prevAction=false)
-											#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi") <span class="skip">$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end
-											#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) |#else#set($prevAction=true)#end<a name="asnActionLink" onclick="duplicateLink(this);SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );return false;" href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli") <span class="skip">$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end
+											#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end
+											#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) |#else#set($prevAction=true)#end<a name="asnActionLink" onclick="duplicateLink(this);SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );return false;" href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")<span class="skip"> $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end
 											#if ($taggable && $allowAddAssignment)
 												#foreach ($provider in $providers)
 													#set ($helperInfo = false)
@@ -254,7 +254,7 @@
 											#if (!$assignment.draft && $!service.allowGradeSubmission($assignment.getReference()))#if($prevAction) |#end
 											#set ($gradeScale = $assignmentContent.getTypeOfGrade())
 											## show "view submissions" link for ungraded type of assignment
-												<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end <span class="skip">: $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>
+												<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>
 											#end
 											<div id="linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 										</div>
