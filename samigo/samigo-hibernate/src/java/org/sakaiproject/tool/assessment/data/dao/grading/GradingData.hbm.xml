@@ -20,7 +20,7 @@
     <property name="answerText" type="materialized_clob" column="ANSWERTEXT" not-null="false" />
     <property name="autoScore" type="double" column="AUTOSCORE" not-null="false" />
     <property name="overrideScore" type="double" column="OVERRIDESCORE" not-null="false" />
-    <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
+    <property name="comments" type="materialized_clob" column="COMMENTS" not-null="false" />
     <property name="gradedBy" type="string" length="255" column="GRADEDBY" not-null="false" />
     <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
     <property name="review" type="boolean" column="REVIEW" not-null="false" />
@@ -50,7 +50,7 @@
     <property name="totalAutoScore" type="double" column="TOTALAUTOSCORE" not-null="false" />
     <property name="totalOverrideScore" type="double" column="TOTALOVERRIDESCORE" not-null="false" />
     <property name="finalScore" type="double" column="FINALSCORE" not-null="false" />
-    <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
+    <property name="comments" type="materialized_clob" column="COMMENTS" not-null="false" />
     <property name="gradedBy" type="string" length="255" column="GRADEDBY" not-null="false" />
     <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
