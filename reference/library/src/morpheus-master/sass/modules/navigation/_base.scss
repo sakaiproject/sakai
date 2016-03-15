@@ -505,7 +505,10 @@ body.is-logged-out{
 }
 
 .all-sites-icon{
-	font-size: 16pt;
+	/* Using !important here because CKEditor pulls in its own
+           fontawesome.css which adjusts the size of our icon unless
+           we override it. */
+	font-size: 16pt !important;
 	padding-right: 2px;
 }
 
