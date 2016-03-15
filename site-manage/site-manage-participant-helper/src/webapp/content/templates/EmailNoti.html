@@ -4,6 +4,7 @@
 	<title>Same Role for participant</title>
 	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/AddParticipant.css" rel="stylesheet" type="text/css" />	
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript" src="/library/js/spinner.js"></script>
@@ -19,13 +20,13 @@
 	</div>
 	<div rsf:id="content:">
 		<h3 rsf:id="add.addpart">Add participant to </h3>
-		<h4 class="instruction" rsf:id="msg=addnoti.anemail"></h4>
+		<h4 rsf:id="msg=addnoti.anemail"></h4>
 		<!-- form for adding participant -->
 		<form rsf:id="emailNoti-form" >
 			<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
 			<!--  choose notification method -->
 			<span rsf:id="select-noti"></span>
-			<table class="listHier lines nolines" style="width:auto" summary="">
+			<table style="width:auto" summary="">
 				<tr rsf:id="noti-row:">
 					<td>
 						<input rsf:id="noti-select" title="Select noti type" type="radio" id="radio" name="notiChoice" value=""/>
