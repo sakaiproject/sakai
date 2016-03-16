@@ -36,6 +36,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.TimeZone;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.IOUtils;
@@ -228,6 +230,9 @@ public class LessonBuilderAccessService {
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
         protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
+        protected HashSet<String> noCSPtypes = null;
+	protected static final String NOCSPTYPES = "resource.nocsptypes";
+	protected static final String DEFAULT_NOCSPTYPES = "application/pdf";
 
         // uuid is the private key for sharing the session id
         private SecretKey sessionKey = null;
@@ -290,6 +295,11 @@ public class LessonBuilderAccessService {
 		    byte[] keyBytes = DatatypeConverter.parseHexBinary(keyString);
 		    sessionKey = new SecretKeySpec(keyBytes, "Blowfish");
 		}
+
+		String noCSPstring = ServerConfigurationService.getString(NOCSPTYPES, DEFAULT_NOCSPTYPES);
+		if (noCSPstring == null)
+		    noCSPstring = "";
+		noCSPtypes = new HashSet<String>(Arrays.asList(noCSPstring.split(",")));
 
 	}
 
@@ -648,7 +658,13 @@ public class LessonBuilderAccessService {
 							String fileName = Web.encodeFileName(req, Validator.getFileName(ref.getId()));
 							
 							String disposition = null;
-							
+
+							if (!noCSPtypes.contains(contentType.toLowerCase())) {
+
+							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+							    res.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+							}
+
 							boolean inline = false;
 							if (Validator.letBrowserInline(contentType)) {
 							    // type can be inline, but if HTML we have more checks to do
