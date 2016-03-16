@@ -75,7 +75,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final Map<String, String> categoryAverages = new HashMap<>();
 
 		// if gradebook release setting disabled, no work to do
-		if (!gradebook.isAssignmentsDisplayed()) {
+		if (gradebook.isAssignmentsDisplayed()) {
 
 			// iterate over assignments and build map of categoryname to list of assignments as well as category averages
 			for (final Assignment assignment : assignments) {
