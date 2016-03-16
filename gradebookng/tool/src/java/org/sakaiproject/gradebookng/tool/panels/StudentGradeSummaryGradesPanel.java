@@ -66,8 +66,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final Gradebook gradebook = this.businessService.getGradebook();
 
 		// get configured category type
-		// TODO this can come from the Gradebook object above rather than a separate lookup
-		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
+		this.configuredCategoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 
 		// setup
 		final List<String> categoryNames = new ArrayList<String>();
