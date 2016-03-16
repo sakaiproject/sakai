@@ -4,14 +4,14 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-scorm-base</artifactId>
+        <artifactId>scorm-base</artifactId>
         <version>12-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <name>sakai-scorm-client-impl</name>
+    <name>SCORM Client Impl</name>
     <groupId>org.sakaiproject.scorm</groupId>
-    <artifactId>sakai-scorm-client-impl</artifactId>
+    <artifactId>scorm-client-impl</artifactId>
     <packaging>jar</packaging>
     <description>This project creates the client implementation used by the Sakai Scorm Tool</description>
     <organization>
@@ -21,34 +21,39 @@
     <inceptionYear>2007</inceptionYear>
 
     <dependencies>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
+        <!-- SCORM Player Dependencies -->
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-api</artifactId>
+            <artifactId>scorm-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-adl-impl</artifactId>
+            <artifactId>scorm-adl-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-content-impl</artifactId>
+            <artifactId>scorm-content-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-model-impl</artifactId>
+            <artifactId>scorm-model-impl</artifactId>
+        </dependency>
+
+        <!-- Sakai API Dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+
+        <!-- External Dependencies -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

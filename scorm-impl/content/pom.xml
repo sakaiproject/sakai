@@ -4,14 +4,14 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-scorm-base</artifactId>
+        <artifactId>scorm-base</artifactId>
         <version>12-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <name>sakai-scorm-content-impl</name>
+    <name>SCORM Content Impl</name>
     <groupId>org.sakaiproject.scorm</groupId>
-    <artifactId>sakai-scorm-content-impl</artifactId>
+    <artifactId>scorm-content-impl</artifactId>
     <packaging>jar</packaging>
     <description>This project creates the content implementation used by the Sakai Scorm Tool</description>
     <organization>
@@ -21,33 +21,18 @@
     <inceptionYear>2007</inceptionYear>
 
     <dependencies>
+        <!-- SCORM Player Dependencies -->
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-api</artifactId>
+            <artifactId>scorm-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
-            <artifactId>sakai-scorm-adl-impl</artifactId>
+            <artifactId>scorm-adl-impl</artifactId>
         </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-            <version>1.1.3.3</version>
-        </dependency>
+
+        <!-- Sakai API Dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -60,15 +45,35 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-storage-util</artifactId>
         </dependency>
+
+        <!-- External Dependencies -->
+        
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>${sakai.ehcache.version}</version>
-            <type>pom</type>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>1.1.3.3</version>
+        </dependency>
     </dependencies>
-
+    
     <build>
         <plugins>
             <plugin>

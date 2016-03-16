@@ -6,17 +6,20 @@ import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.DMRequest;
 import org.adl.datamodels.SCODataManager;
 import org.adl.datamodels.ieee.ValidatorFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 
 public class DataManagerDaoImplTest extends AbstractServiceTest {
 	DataManagerDao dataManagerDao;
 
-	@Override
-	protected void onSetUpBeforeTransaction() throws Exception {
-		super.onSetUpBeforeTransaction();
-		dataManagerDao = (DataManagerDao) getApplicationContext().getBean("org.sakaiproject.scorm.dao.api.DataManagerDao");
+	@Before
+	public void onSetUpBeforeTransaction() throws Exception {
+		dataManagerDao = (DataManagerDao) applicationContext.getBean("org.sakaiproject.scorm.dao.api.DataManagerDao");
 	}
 
+	@Test
 	public void testSimple() {
 
 		SCODataManager dataManager = new SCODataManager();
@@ -30,8 +33,8 @@ public class DataManagerDaoImplTest extends AbstractServiceTest {
 
 		dataManagerDao.update(dataManager);
 		
-		assertEquals(0, dataManager.getValue(new DMRequest("cmi.interactions.0.id"), new DMProcessingInfo()));
-		assertEquals(DMErrorCodes.OUT_OF_RANGE, dataManager.getValue(new DMRequest("cmi.interactions.1.id"), new DMProcessingInfo()));
+		Assert.assertEquals(0, dataManager.getValue(new DMRequest("cmi.interactions.0.id"), new DMProcessingInfo()));
+		Assert.assertEquals(DMErrorCodes.OUT_OF_RANGE, dataManager.getValue(new DMRequest("cmi.interactions.1.id"), new DMProcessingInfo()));
 	}
 
 }
