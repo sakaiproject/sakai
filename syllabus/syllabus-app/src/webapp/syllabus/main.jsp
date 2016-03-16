@@ -201,8 +201,7 @@
 			</ul></f:verbatim>			
 		
 
-		<syllabus:syllabus_if test="#{SyllabusTool.editAble}" >
-
+			<c:if test="${SyllabusTool.addOrEdit}">
 			<f:verbatim>
 				<ul class="navIntraTool actionToolbar">
 					<li class="firstToolBarItem">
@@ -233,7 +232,7 @@
 				</ul>
 			</f:verbatim>			
 				
-			</syllabus:syllabus_if>
+			</c:if>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 					<f:verbatim>
 						<div>

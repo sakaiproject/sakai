@@ -41,6 +41,7 @@ import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -64,7 +65,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 /*
 import org.sakaiproject.site.tool.SiteAction;
 */
@@ -79,7 +80,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
 import org.sakaiproject.authz.api.FunctionManager;
 //permission convert
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -117,6 +118,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
   private SyllabusManager syllabusManager;
   private FunctionManager functionManager;
   private ContentHostingService contentHostingService;
+  private SiteService siteService;
   private EntityManager entityManager;
  
   /** Dependency: a logger component. */
@@ -124,6 +126,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
    
   protected NotificationService notificationService = null;
   protected String m_relativeAccessPoint = null;
+  private SecurityService securityService;
   
 //sakai2 -- add init and destroy methods  
 	public void init()
@@ -182,6 +185,13 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 		this.contentHostingService = contentHostingService;
 	}
 	
+	public void setSiteService(SiteService siteService) {
+		this.siteService= siteService;
+	}
+	
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
 	public EntityManager getEntityManager() {
 		return entityManager;
 	}
@@ -326,10 +336,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 		try
 		{
 //for 2.3
-//			Site site = SiteService.getSite(ref.getContext());
+//			Site site = siteService.getSite(ref.getContext());
 //			Collection groups = site.getGroups();
 //
-//			if ((SecurityService.isSuperUser()))
+//			if ((securityService.isSuperUser()))
 //			{
 //				return groups;
 //			}
@@ -391,7 +401,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
       int syDataCount = 0;
       results.append("archiving " + getLabel() + " context "
           + Entity.SEPARATOR + siteId + Entity.SEPARATOR
-          + SiteService.MAIN_CONTAINER + ".\n");
+          + siteService.MAIN_CONTAINER + ".\n");
       // start with an element with our very own (service) name
       Element element = doc.createElement(SyllabusService.class.getName());
       ((Element) stack.peek()).appendChild(element);
@@ -399,8 +409,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
       if (siteId != null && siteId.trim().length() > 0)
       {
         Element siteElement = doc.createElement(SITE_ARCHIVE);
-        siteElement.setAttribute(SITE_NAME, SiteService.getSite(siteId).getId());
-        siteElement.setAttribute(SITE_ID, SiteService.getSite(siteId).getTitle());
+        siteElement.setAttribute(SITE_NAME, siteService.getSite(siteId).getId());
+        siteElement.setAttribute(SITE_ID, siteService.getSite(siteId).getTitle());
         SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
         if (syllabusItem != null)
         {
@@ -757,7 +767,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
             {
                 fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
 
-                String toPage=addSyllabusToolToPage(toSiteId, SiteService.getSite(toSiteId).getTitle());
+                String toPage=addSyllabusToolToPage(toSiteId, siteService.getSite(toSiteId).getTitle());
                 SyllabusItem toSyItem = syllabusManager.getSyllabusItemByContextId(toPage);
                 
                 if (toSyItem == null)
@@ -1181,7 +1191,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 						.getSyllabiForSyllabusItem(fromSyllabusItem);
 				if ((fromSyDataSet != null && fromSyDataSet.size() > 0) || fromSyllabusItem.getRedirectURL() != null) 
 				{
-					String toPage = addSyllabusToolToPage(toContext, SiteService
+					String toPage = addSyllabusToolToPage(toContext, siteService
 							.getSite(toContext).getTitle());
 					SyllabusItem toSyItem = syllabusManager
 							.getSyllabusItemByContextId(toPage);
@@ -1332,10 +1342,32 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 		return bre.getReference();
 	}
 
+	private String getCurrentSiteReference() {
+		//sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
+		Placement placement = ToolManager.getCurrentPlacement();
+		String currentSiteId = placement.getContext(); 
+		return siteService.siteReference(currentSiteId);
+
+	}
+	
+	public boolean checkPermission(String lock) {
+			return checkPermission(lock,getCurrentSiteReference());
+	}
+
 	//permission convert
 	public boolean checkPermission(String lock, String reference)
 	{
-		return SecurityService.unlock(lock, reference);
+		return securityService.unlock(lock, reference);
+	}
+	
+	public boolean checkAddOrEdit() {
+		return checkAddOrEdit(getCurrentSiteReference());
+	}
+
+	public boolean checkAddOrEdit(String reference) {
+		return (checkPermission(SyllabusService.SECURE_ADD_ITEM,reference) ||
+				checkPermission(SyllabusService.SECURE_BULK_ADD_ITEM,reference) ||
+				checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM,reference));
 	}
 	
 	public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup){
@@ -1467,4 +1499,5 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 			}
 		}		  		  		
 	}
+	
 }

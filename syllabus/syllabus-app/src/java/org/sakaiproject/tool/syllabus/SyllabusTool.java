@@ -455,7 +455,7 @@ public class SyllabusTool
                 while (iter.hasNext())
                 {
                     SyllabusData en = (SyllabusData) iter.next();
-                    if (this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+                    if (syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
                     {
                         DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                         entries.add(den);
@@ -520,7 +520,7 @@ public class SyllabusTool
             while (iter.hasNext())
             {
               SyllabusData en = (SyllabusData) iter.next();
-              if (this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+              if (syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
               {
                 DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                 entries.add(den);
@@ -660,7 +660,7 @@ public class SyllabusTool
 
     if (syllabusItem == null)
     {
-        if (this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+        if (syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
         {
             syllabusItem = syllabusManager.createSyllabusItem(currentUserId,
                     currentSiteId, null);
@@ -753,26 +753,32 @@ public class SyllabusTool
   
   //Convenience methods for JSF
   public boolean isAddItem() {
-	  return checkAccess(SyllabusService.SECURE_ADD_ITEM);
+	  return syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM);
   }
   
   public boolean isBulkAddItem() {
-	  return checkAccess(SyllabusService.SECURE_BULK_ADD_ITEM);
+	  return syllabusService.checkPermission(SyllabusService.SECURE_BULK_ADD_ITEM);
   }
   
   public boolean isBulkEdit() {
-	  return checkAccess(SyllabusService.SECURE_BULK_EDIT_ITEM);
+	  return syllabusService.checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM);
   }
   
   public boolean isRedirect() {
-	  return checkAccess(SyllabusService.SECURE_REDIRECT);
+	  return syllabusService.checkPermission(SyllabusService.SECURE_REDIRECT);
   }
+
+  public boolean isAddOrEdit() {
+	  return syllabusService.checkAddOrEdit();
+			  
+  }
+
  
   //testing the access to control the "create/edit"
   //button showing up or not on main page.
   public String getEditAble()
   {
-    if (checkAccess(SyllabusService.SECURE_ADD_ITEM))
+    if (isAddItem() || isBulkAddItem() || isBulkEdit())
     {
       editAble = "true";
     }
@@ -847,7 +853,7 @@ public class SyllabusTool
     ArrayList selected = getSelectedEntries();
     try
     {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -975,7 +981,7 @@ public class SyllabusTool
       displayCalendarError = false;
       alertMessage = null;
       
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!(isAddItem() || isBulkAddItem() || isBulkEdit()))
       {
         return "permission_error";
       }
@@ -1206,7 +1212,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -1304,7 +1310,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -1361,7 +1367,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -1409,7 +1415,7 @@ public class SyllabusTool
   {
     try
     {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -1436,7 +1442,7 @@ public class SyllabusTool
   {
 	  try
 	    {
-	      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+	      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
 	      {
 	        return "permission_error";
 	      }
@@ -1503,7 +1509,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -1601,7 +1607,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -1914,7 +1920,7 @@ public class SyllabusTool
   {
     try
     {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_REDIRECT))
       {
         return "permission_error";
       }
@@ -1952,7 +1958,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_REDIRECT))
       {
         return "permission_error";
       }
@@ -2017,7 +2023,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!(isAddItem() || isBulkAddItem() || isBulkEdit()))
       {
         return "permission_error";
       }
@@ -2047,15 +2053,6 @@ public class SyllabusTool
   public String processStudentView()
   {
     return "main";
-  }
-
-  public boolean checkAccess(String function) {
-	  //sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
-	  Placement placement = ToolManager.getCurrentPlacement();
-	  String currentSiteId = placement.getContext(); 
-	  String currentSiteRef = SiteService.siteReference(currentSiteId);
-	  SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class.getName());
-	  return securityService.unlock(function,currentSiteRef);
   }
 
   public String getTitle()
@@ -2302,7 +2299,7 @@ public class SyllabusTool
   
   public String processRemoveAttach()
   {
-      if (!this.checkAccess(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
