@@ -1,11 +1,9 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
-import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -51,20 +49,12 @@ public class BasePage extends WebPage {
 	/**
 	 * The current user
 	 */
-	@Getter
 	protected String currentUserUuid;
 
 	/**
 	 * The user's role in the site
 	 */
-	@Getter
 	protected GbRole role;
-
-	/**
-	 * The user's permissions in the site
-	 */
-	@Getter
-	protected List<PermissionDefinition> permissions;
 
 	public BasePage() {
 		log.debug("BasePage()");
@@ -72,9 +62,6 @@ public class BasePage extends WebPage {
 		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
 		this.role = this.businessService.getUserRole();
-
-		// user's Gradebook permissions
-		this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
 
 		// set locale
 		setUserPreferredLocale();
