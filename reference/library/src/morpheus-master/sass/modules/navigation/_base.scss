@@ -29,8 +29,8 @@ body.is-logged-out{
 		@include transition( width 0.5s linear 0s );
 		.#{$namespace}headerLogo--institution{
 			background: url($logo) no-repeat center center;
-			width: 		50px;
-			height: 	30px;
+			width: 		$logo-width;
+			height: 	$logo-height;
 			display:	inline-block;
 			@media #{$phone}{
 				margin: 0.2em 0 0 0.2em;
