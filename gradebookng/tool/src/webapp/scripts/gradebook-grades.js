@@ -306,7 +306,7 @@ GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
     var $header = self.getHeader();
     var headerBottomPosition = $header[0].offsetTop + $header[0].offsetHeight;
     if ($cell[0].offsetTop < headerBottomPosition) {
-      $(document).scrollTop($(document).scrollTop() - (headerBottomPosition - ($cell[0].offsetTop - $cell.height())));
+      $(window).scrollTop($(window).scrollTop() - (headerBottomPosition - ($cell[0].offsetTop - $cell.height())));
     }
   }
 };
@@ -454,7 +454,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   self.$fixedHeader.find("th").on("mousedown", function(event) {
     event.preventDefault();
 
-    $(document).scrollTop(self.$table.offset().top - 10);
+    $(window).scrollTop(self.$table.offset().top - 10);
     // find the header row (last in the thead) and get the corresponding th element
     var $target = $(self.$table.find("> thead > tr.gb-headers > *").get($(this).index()));
 
@@ -533,7 +533,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   // Clicks on the fixed header return you to the real header cell
   self.$fixedColumnsHeader.find("> thead > tr > *").on("mousedown", function(event) {
     event.preventDefault();
-    $(document).scrollTop(self.$table.offset().top - 10);
+    $(window).scrollTop(self.$table.offset().top - 10);
     self.$spreadsheet.scrollLeft(0);
     var $targetCell = $(self.$table.find("> thead > tr.gb-headers > *").get($(this).index()));
 
@@ -586,7 +586,7 @@ GradebookSpreadsheet.prototype.handleScrollEvent = function() {
       self.$fixedColumns.
           show().
           css("left", self.$horizontalOverflow.offset().left).
-          css("top", self.$table.find("tbody").offset().top - document.body.scrollTop);
+          css("top", self.$table.find("tbody").offset().top - $(window).scrollTop());
     } else {
       self.$fixedColumns.hide();
     }
@@ -595,21 +595,21 @@ GradebookSpreadsheet.prototype.handleScrollEvent = function() {
   function positionFixedColumnHeader() {
     var showFixedHeader = false;
     var leftOffset = self.$horizontalOverflow.offset().left;
-    var topOffset = Math.max(0, self.$table.offset().top - document.body.scrollTop);
+    var topOffset = Math.max(0, self.$table.offset().top - $(window).scrollTop());
 
-    if (self.$horizontalOverflow[0].scrollLeft > 0 || self.$table.offset().top < $(document).scrollTop()) {
+    if (self.$horizontalOverflow[0].scrollLeft > 0 || self.$table.offset().top < $(window).scrollTop()) {
       if (self.$horizontalOverflow[0].scrollLeft > 0) {
         showFixedHeader = true;
       }
 
-      if ($(document).scrollTop() + self.$fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
+      if ($(window).scrollTop() + self.$fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
         // don't change anything as we don't want the fixed header to scroll to below the table
         topOffset = self.$fixedColumnsHeader.position().top;
         // except check for the horizontal scroll
         if (self.$horizontalOverflow[0].scrollLeft == 0) {
           showFixedHeader = true;
         }
-      } else if (self.$table.offset().top < $(document).scrollTop()) {
+      } else if (self.$table.offset().top < $(window).scrollTop()) {
         showFixedHeader = true
       }
     }
@@ -622,14 +622,14 @@ GradebookSpreadsheet.prototype.handleScrollEvent = function() {
   }
 
   function positionFixedHeader() {
-    if ($(document).scrollTop() + self.$fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
+    if ($(window).scrollTop() + self.$fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
       // don't change anything as we don't want the fixed header to scroll to below the table
-    } else if (self.$table.offset().top < $(document).scrollTop()) {
+    } else if (self.$table.offset().top < $(window).scrollTop()) {
       var forceCategoryLabelRefresh = self.$fixedHeader.is(":not(:visible)");
 
       self.$fixedHeader.
           show().
-          css("top", $(document).scrollTop() - self.$spreadsheet.offset().top + "px").
+          css("top", $(window).scrollTop() - self.$spreadsheet.offset().top + "px").
           css("left", -self.$horizontalOverflow.scrollLeft() + "px");
 
       if (forceCategoryLabelRefresh) {
@@ -1559,7 +1559,7 @@ GradebookSpreadsheet.prototype.editAssignmentFromFlag = function(assignmentId) {
 GradebookSpreadsheet.prototype.positionModalAtTop = function($modal) {
   // position the modal at the top of the viewport
   // taking into account the current scroll offset
-  $modal.css('top', 30 + $(document).scrollTop() + "px");
+  $modal.css('top', 30 + $(window).scrollTop() + "px");
 };
 
 /*************************************************************************************
