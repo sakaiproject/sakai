@@ -83,5 +83,11 @@ public interface SyllabusService extends EntityProducer
 	public String getSyllabusApplicationSiteReference(String thisSiteId);
 	
 	public boolean checkPermission(String lock, String reference);
-
+	
+	public boolean checkPermission (String lock);
+	
+	//Checks if a user can add or edit on a reference
+	public boolean checkAddOrEdit (String reference);
+	//Checks if a user can add or edit the current site
+	public boolean checkAddOrEdit ();
 }
