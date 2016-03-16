@@ -11,6 +11,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -42,6 +43,8 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
 
+		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
+
 		// get setting
 		final Boolean showPoints = this.model.getObject();
 
@@ -55,6 +58,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		// menu
 		final WebMarkupContainer menu = new WebMarkupContainer("menu");
+
 		menu.add(new AjaxLink<Void>("setUngraded") {
 			private static final long serialVersionUID = 1L;
 
@@ -90,6 +94,11 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 				// refresh
 				setResponsePage(new GradebookPage());
+			}
+
+			@Override
+			public boolean isVisible() {
+				return categoryType != GbCategoryType.WEIGHTED_CATEGORY;
 			}
 		};
 
