@@ -66,8 +66,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final Gradebook gradebook = this.businessService.getGradebook();
 
 		// get configured category type
-		// TODO this can come from the Gradebook object above rather than a separate lookup
-		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
+		this.configuredCategoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 
 		// setup
 		final List<String> categoryNames = new ArrayList<String>();
@@ -75,7 +74,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final Map<String, String> categoryAverages = new HashMap<>();
 
 		// if gradebook release setting disabled, no work to do
-		if (!gradebook.isAssignmentsDisplayed()) {
+		if (gradebook.isAssignmentsDisplayed()) {
 
 			// iterate over assignments and build map of categoryname to list of assignments as well as category averages
 			for (final Assignment assignment : assignments) {
