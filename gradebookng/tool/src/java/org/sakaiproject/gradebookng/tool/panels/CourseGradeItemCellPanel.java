@@ -43,12 +43,9 @@ public class CourseGradeItemCellPanel extends Panel {
 		// unpack model
 		final Map<String, Object> modelData = this.model.getObject();
 		final String studentUuid = (String) modelData.get("studentUuid");
-
+		final GbRole role = this.businessService.getUserRole();
 
 		// the model map contains a lot of additional info we need for the course grade label, this is passed through
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
-		final GbRole role = gradebookPage.getRole();
-
 
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
 

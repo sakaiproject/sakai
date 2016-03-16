@@ -26,7 +26,6 @@ import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
@@ -62,7 +61,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		final Assignment assignment = this.modelData.getObject();
 
 		// get user's role
-		final GbRole role = ((BasePage)getPage()).getRole();
+		final GbRole role = this.businessService.getUserRole();
 
 		// do they have permission to edit this assignment?
 		final boolean canEditAssignment = canUserEditAssignment(role, assignment);
@@ -400,7 +399,8 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		if (role == GbRole.INSTRUCTOR) {
 			canEdit = true;
 		} else {
-			final List<PermissionDefinition> permissions = ((BasePage)getPage()).getPermissions();
+			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
+					this.businessService.getCurrentUser().getId());
 			for (PermissionDefinition permission : permissions) {
 				if (assignment.getCategoryId() != null &&
 						assignment.getCategoryId().equals(permission.getCategoryId())) {

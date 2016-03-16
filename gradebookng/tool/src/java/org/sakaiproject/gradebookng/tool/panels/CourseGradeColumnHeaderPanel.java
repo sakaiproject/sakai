@@ -46,7 +46,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
-		final GbRole role = gradebookPage.getRole();
+		final GbRole role = this.businessService.getUserRole();
 
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 
