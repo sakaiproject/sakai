@@ -12,6 +12,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -91,7 +92,7 @@ public class GbHeadersToolbar extends HeadersToolbar {
 							setVisible(category.isExtraCredit()));
 
 					if (GbCategoryType.WEIGHTED_CATEGORY.equals(categoryType) && category.getWeight() != null) {
-						String weight = String.format("%s%%", Math.round(category.getWeight() * 100));
+						String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
 						categoryItem.add(new Label("weight", weight));
 					} else {
 						categoryItem.add(new WebMarkupContainer("weight").setVisible(false));
