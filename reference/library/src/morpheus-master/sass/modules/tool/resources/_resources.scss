@@ -202,6 +202,10 @@
  		display: block;
  		margin-top: 1.4rem;
  	}
+
+ 	button.btn-default.btn{
+ 		@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
+ 	}
 	
 	
 }
