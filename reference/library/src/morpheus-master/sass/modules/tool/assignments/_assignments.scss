@@ -1,4 +1,9 @@
 .#{$namespace}sakai-assignment-grades {
+	#req-new_assignment_grade_points{
+		color: darken($errorcolor, 30%);
+	    margin: 9px 0 0 -13px;
+		position: absolute;
+	}
 	.assignment-pager {
 		margin-top: 1em;
 		max-width: 350px;

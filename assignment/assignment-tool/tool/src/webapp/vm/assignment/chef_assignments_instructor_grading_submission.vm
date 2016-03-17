@@ -2,7 +2,6 @@
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
 #set( $H = '-' )
 <!-- jQuery already loaded in assignment_chef_header -->
-<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
 <script type="text/javascript">
