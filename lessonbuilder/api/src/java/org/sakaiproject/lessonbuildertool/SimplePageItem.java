@@ -47,12 +47,16 @@ public interface SimplePageItem {
     public static final int BLTI = 12;
     public static final int PEEREVAL = 13;
     public static final int BREAK = 14;
+    public static final int CHECKLIST = 15;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
 
 
-    /* WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. 
+    // name of nameHidden JSON attribute
+    public static final String NAMEHIDDEN = "namehidden";
+
+    /* WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING.
        If you change this, make very sure you change the archive and restore code in LessonBuilderEntityProducer
        and the copy code here.  Also copyItem in SimplePageBean.
        WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. */
