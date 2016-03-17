@@ -174,7 +174,7 @@
 	}
 }
 
-.button{
+.button, button.ui-state-default{
 	@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
 }
 
