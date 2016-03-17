@@ -49,31 +49,30 @@ public class InteractionResultsPage extends BaseResultsPage {
 
 	private static final long serialVersionUID = 1L;
 
-	private static ResourceReference PAGE_ICON = new ResourceReference(InteractionResultsPage.class, "res/report_magnify.png");
-	
+	private static final ResourceReference PAGE_ICON = new ResourceReference(InteractionResultsPage.class, "res/report_magnify.png");
+
 	public InteractionResultsPage(PageParameters pageParams) {
 		super(pageParams);
 	}
-	
+
 	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}
-	
+
 	@Override
-	protected void initializePage(ContentPackage contentPackage,
-			Learner learner, long attemptNumber, PageParameters pageParams) {
+	protected void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams) {
 		String scoId = pageParams.getString("scoId");
-		
+
 		PageParameters uberuberparentParams = new PageParameters();
 		uberuberparentParams.put("contentPackageId", contentPackage.getContentPackageId());
-		
+
 		PageParameters parentParams = new PageParameters();
 		parentParams.put("contentPackageId", contentPackage.getContentPackageId());
 		parentParams.put("learnerId", learner.getId());
 		parentParams.put("attemptNumber", attemptNumber);
-		
-		// bjones86 - SCO-94 - deny users who do not have scorm.view.results permission
+
+		// SCO-94 - deny users who do not have scorm.view.results permission
 		String context = lms.currentContext();
 		boolean canViewResults = lms.canViewResults( context );
 		Label heading = new Label( "heading3", new ResourceModel( "page.heading.notAllowed" ) );
@@ -86,27 +85,27 @@ public class InteractionResultsPage extends BaseResultsPage {
 		}
 		else
 		{
-			// bjones86 - SCO-94
+			// SCO-94
 			heading.setVisibilityAllowed( false );
-		
+
 			String interactionId = pageParams.getString("interactionId");
-			
+
 			Interaction interaction = resultService.getInteraction(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId, interactionId);
-			
+
 			add(new InteractionPanel("interactionPanel", interaction));
-			
+
 			IModel breadcrumbModel = new StringResourceModel("uberuberparent.breadcrumb", this, new Model(contentPackage));
 			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberuberparentParams, true);	
 			addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
 			addBreadcrumb(new Model(interaction.getActivityTitle()), ScoResultsPage.class, pageParams, true);
 			addBreadcrumb(new Model(interaction.getInteractionId()), InteractionResultsPage.class, pageParams, false);
-			
+
 			List<Objective> objectives = interaction.getObjectives();
 			ObjectiveProvider dataProvider = new ObjectiveProvider(objectives);
 			dataProvider.setTableTitle("Objectives");
 			EnhancedDataPresenter presenter = new EnhancedDataPresenter("objectivePresenter", getColumns(), dataProvider);
-			add(presenter);	
-			
+			add(presenter);
+
 			presenter.setVisible(objectives != null && objectives.size() > 0);
 		}
 	}
@@ -114,45 +113,44 @@ public class InteractionResultsPage extends BaseResultsPage {
 	@Override
 	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
 		PageParameters prevParams = new PageParameters();
-		
+
 		long contentPackageId = pageParams.getLong("contentPackageId");
 		String learnerId = pageParams.getString("learnerId");
 		long attemptNumber = pageParams.getLong("attemptNumber");
 		String scoId = pageParams.getString("scoId");
-		
+
 		prevParams.put("contentPackageId", contentPackageId);
 		prevParams.put("learnerId", learnerId);
 		prevParams.put("attemptNumber", attemptNumber);
 		prevParams.put("scoId", scoId);
 		prevParams.put("interactionId", previousId);
-		
+
 		Link link = new BookmarkablePageLabeledLink("previousLink", new ResourceModel("previous.link.label"), InteractionResultsPage.class, prevParams);
 		link.setVisible(StringUtils.isNotBlank(previousId));
 		return link;
 	}
-	
+
 	@Override
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
 		PageParameters nextParams = new PageParameters();
-		
+
 		long contentPackageId = pageParams.getLong("contentPackageId");
 		String learnerId = pageParams.getString("learnerId");
 		long attemptNumber = pageParams.getLong("attemptNumber");
 		String scoId = pageParams.getString("scoId");
-		
+
 		nextParams.put("contentPackageId", contentPackageId);
 		nextParams.put("learnerId", learnerId);
 		nextParams.put("attemptNumber", attemptNumber);
 		nextParams.put("scoId", scoId);
 		nextParams.put("interactionId", nextId);
-		
+
 		Link link = new BookmarkablePageLabeledLink("nextLink", new ResourceModel("next.link.label"), InteractionResultsPage.class, nextParams);
 
 		link.setVisible(StringUtils.isNotBlank(nextId));
 		return link;
 	}
-	
-	
+
 	@Override
 	protected BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params) {
 		return new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), InteractionResultsPage.class, params);
@@ -163,15 +161,14 @@ public class InteractionResultsPage extends BaseResultsPage {
 		IModel descriptionHeader = new ResourceModel("column.header.description");
 		IModel completionStatusHeader = new ResourceModel("column.header.completion.status");
 		IModel successStatusHeader = new ResourceModel("column.header.success.status");
-		
+
 		List<IColumn> columns = new LinkedList<IColumn>();
 
 		columns.add(new PropertyColumn(idHeader, "id", "id"));
 		columns.add(new PropertyColumn(descriptionHeader, "description", "description"));
 		columns.add(new PropertyColumn(completionStatusHeader, "completionStatus", "completionStatus"));
 		columns.add(new PropertyColumn(successStatusHeader, "successStatus", "successStatus"));
-		
+
 		return columns;
 	}
-	
 }

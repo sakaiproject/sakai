@@ -20,15 +20,18 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.reporting.pages;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
@@ -37,6 +40,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
+import org.sakaiproject.scorm.model.api.comparator.LearnerExperienceComparator;
+import org.sakaiproject.scorm.model.api.comparator.LearnerExperienceComparator.CompType;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
@@ -55,24 +60,24 @@ public class ResultsListPage extends ConsoleBasePage {
 
 	private static final long serialVersionUID = 1L;
 
-	private static ResourceReference PAGE_ICON = new ResourceReference(LearnerResultsPage.class, "res/report.png");
+	private static final ResourceReference PAGE_ICON = new ResourceReference(LearnerResultsPage.class, "res/report.png");
 	
 	@SuppressWarnings("unused")
-	private static Log log = LogFactory.getLog(ResultsListPage.class);
-	
+	private static final Log LOG = LogFactory.getLog(ResultsListPage.class);
+
 	@SpringBean
 	LearningManagementSystem lms;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
-	
+
 	public ResultsListPage(PageParameters pageParams) {
 		super(pageParams);
-		
+
 		final long contentPackageId = pageParams.getLong("contentPackageId");
-		
-		// bjones86 - SCO-94 - deny users who do not have scorm.view.results permission
+
+		// SCO-94 - deny users who do not have scorm.view.results permission
 		String context = lms.currentContext();
 		boolean canViewResults = lms.canViewResults( context );
 		Label heading = new Label( "heading", new ResourceModel( "page.heading.notAllowed" ) );
@@ -87,89 +92,116 @@ public class ResultsListPage extends ConsoleBasePage {
 		{
 			// bjones86 - SCO-94
 			heading.setVisibilityAllowed( false );
-		
+
 			ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
-				
+
 			addBreadcrumb(new Model(contentPackage.getTitle()), ResultsListPage.class, new PageParameters(), false);	
-			
+
 			AttemptDataProvider dataProvider = new AttemptDataProvider(contentPackageId);
 			dataProvider.setFilterConfigurerVisible(true);
 			dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
-	
+
 			EnhancedDataPresenter presenter = new EnhancedDataPresenter("attemptPresenter", getColumns(), dataProvider);
-			
+
 			add(presenter);
-			
+
 			add(new ContentPackageDetailPanel("details", contentPackage));
 		}
 	}
 
-	
 	private List<IColumn> getColumns() {
 		IModel learnerNameHeader = new ResourceModel("column.header.learner.name");
 		IModel attemptedHeader = new ResourceModel("column.header.attempted");
 		IModel statusHeader = new ResourceModel("column.header.status");
 		IModel numberOfAttemptsHeader = new ResourceModel("column.header.attempt.number");
-		@SuppressWarnings("unused")
-		IModel scoreHeader = new ResourceModel("column.header.score");
-	
+
 		List<IColumn> columns = new LinkedList<IColumn>();
-		
+
 		ActionColumn actionColumn = new ActionColumn(learnerNameHeader, "learnerName", "learnerName");
-		
+
 		String[] paramPropertyExpressions = {"contentPackageId", "learnerId"};
-		
+
 		Action summaryAction = new Action("learnerName", LearnerResultsPage.class, paramPropertyExpressions);
 		actionColumn.addAction(summaryAction);
 		columns.add(actionColumn);
-		
+
 		columns.add(new DecoratedDatePropertyColumn(attemptedHeader, "lastAttemptDate", "lastAttemptDate"));
-		
+
 		columns.add(new AccessStatusColumn(statusHeader, "status"));
-		
-		
+
 		ActionColumn attemptNumberActionColumn = new ActionColumn(numberOfAttemptsHeader, "numberOfAttempts", "numberOfAttempts");
 		attemptNumberActionColumn.addAction(new AttemptNumberAction("numberOfAttempts", LearnerResultsPage.class, paramPropertyExpressions));
 		columns.add(attemptNumberActionColumn);
-		
 
 		return columns;
 	}
-	
+
 	public class AttemptDataProvider extends EnhancedDataProvider {
 
 		private static final long serialVersionUID = 1L;
-
 		private final List<LearnerExperience> learnerExperiences;
-		
+		private final LearnerExperienceComparator comp = new LearnerExperienceComparator();
+
 		public AttemptDataProvider(long contentPackageId) {
 			this.learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
+			setSort( "learnerName", true );
 		}
-		
+
 		public Iterator<LearnerExperience> iterator(int first, int count) {
+
+			// Get the sort type
+			SortParam sort = getSort();
+			String sortProp = sort.getProperty();
+			boolean sortAsc = sort.isAscending();
+
+			// Set the sort type in the comparator
+			if( StringUtils.equals( sortProp, "lastAttemptDate" ) )
+			{
+				comp.setCompType( CompType.AttemptDate );
+			}
+			else if( StringUtils.equals( sortProp, "status" ) )
+			{
+				comp.setCompType( CompType.Status );
+			}
+			else if( StringUtils.equals( sortProp, "numberOfAttempts" ) )
+			{
+				comp.setCompType( CompType.NumberOfAttempts );
+			}
+			else
+			{
+				comp.setCompType( CompType.Learner );
+			}
+
+			// Sort using the comparator in the direction requested
+			if( sortAsc )
+			{
+				Collections.sort( learnerExperiences, comp );
+			}
+			else
+			{
+				Collections.sort( learnerExperiences, Collections.reverseOrder( comp ) );
+			}
+
+			// Return sub list of sorted collection
 			return learnerExperiences.subList(first, first + count).iterator();
 		}
 
 		public int size() {
 			return learnerExperiences.size();
 		}
-		
+
 		@Override
 		public List<NameValuePair> getFilterList() {
 			List<NameValuePair> list = new LinkedList<NameValuePair>();
-					
+
 			list.add(new NameValuePair("All Groups / Sections", "ALL_GROUPS"));
-			
+
 			return list;
 		}
 	}
-	
+
 	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}
-	
-	
-	
-	
 }

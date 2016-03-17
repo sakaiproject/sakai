@@ -61,45 +61,44 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
-	private static Log log = LogFactory.getLog(PackageListPage.class);
-	
-	private static ResourceReference PAGE_ICON = new ResourceReference(PackageListPage.class, "res/table.png");
-	private static final ResourceReference deleteIconReference = new ResourceReference(PackageListPage.class, "res/delete.png");
-	
+	private static final Log LOG = LogFactory.getLog(PackageListPage.class);
+
+	private static final ResourceReference PAGE_ICON = new ResourceReference(PackageListPage.class, "res/table.png");
+	private static final ResourceReference DELETE_ICON = new ResourceReference(PackageListPage.class, "res/delete.png");
+
 	@SpringBean
 	LearningManagementSystem lms;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	
+
 	public PackageListPage(PageParameters params) {
-		
+
 		List<ContentPackage> contentPackages = contentService.getContentPackages();
-		
+
 		final String context = lms.currentContext();
 		final boolean canConfigure = lms.canConfigure(context);
 		final boolean canGrade = lms.canGrade(context);
-        final boolean canViewResults = lms.canViewResults(context);
-//		final boolean canLaunch = lms.canLaunch(context);
+		final boolean canViewResults = lms.canViewResults(context);
 		final boolean canDelete = lms.canDelete(context);
-		
+
 		List<IColumn<ContentPackage>> columns = new LinkedList<IColumn<ContentPackage>>();
 
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.content.package.name", this, null), "title", "title");
-			
+
 		String[] paramPropertyExpressions = {"contentPackageId", "resourceId", "title"};
-		
+
 		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public Component newLink(String id, Object bean) {
-				IModel<String> labelModel = null;
+				IModel<String> labelModel;
 				if (displayModel != null) {
 					labelModel = displayModel;
-		 		} else {
-		 			String labelValue = String.valueOf(PropertyResolver.getValue(labelPropertyExpression, bean));
-		 			labelModel = new Model<String>(labelValue);
-		 		}
-				
+				} else {
+					String labelValue = String.valueOf(PropertyResolver.getValue(labelPropertyExpression, bean));
+					labelModel = new Model<String>(labelValue);
+				}
+
 				PageParameters params = buildPageParameters(paramPropertyExpressions, bean);
 				Link link = new BookmarkablePageLabeledLink(id, labelModel, pageClass, params);
 
@@ -107,52 +106,54 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 					PopupSettings popupSettings = new PopupSettings(PageMap.forName(popupWindowName), PopupSettings.RESIZABLE);
 					popupSettings.setWidth(1020);
 					popupSettings.setHeight(740);
-					
+
 					popupSettings.setWindowName(popupWindowName);
-					
-		 			link.setPopupSettings(popupSettings);
+
+					link.setPopupSettings(popupSettings);
 				}
-				
+
 				link.setEnabled(isEnabled(bean) && lms.canLaunch((ContentPackage)bean));
 				link.setVisible(isVisible(bean));
-					
-		 		return link;
+
+				return link;
 			}
-			
 		};
+
 		actionColumn.addAction(launchAction);
-		
+
 		if (lms.canLaunchNewWindow()) {
 			launchAction.setPopupWindowName("ScormPlayer");
 		}
 
 		if (canConfigure)
+		{
 			actionColumn.addAction(new Action(new ResourceModel("column.action.edit.label"), PackageConfigurationPage.class, paramPropertyExpressions));
-			
+		}
 		if (canGrade) {
 			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), ResultsListPage.class, paramPropertyExpressions));
 		}
 		else if (canViewResults) {
-            actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), LearnerResultsPage.class, paramPropertyExpressions));
-        }
-		
+			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), LearnerResultsPage.class, paramPropertyExpressions));
+		}
+
 		columns.add(actionColumn);
 
 		columns.add(new StatusColumn(new StringResourceModel("column.header.status", this, null), "status"));
-		
+
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.releaseOn", this, null), "releaseOn", "releaseOn"));
 
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.dueOn", this, null), "dueOn", "dueOn"));
-		
+
 		if (canDelete)
-			columns.add(new ImageLinkColumn(new Model("Remove"), PackageRemovePage.class, paramPropertyExpressions, deleteIconReference));
+		{
+			columns.add(new ImageLinkColumn(new Model("Remove"), PackageRemovePage.class, paramPropertyExpressions, DELETE_ICON, "delete"));
+		}
 
 		BasicDataTable table = new BasicDataTable("cpTable", columns, contentPackages);
-		
+
 		add(table);
-	}	
-	
-	
+	}
+
 	public class StatusColumn extends AbstractColumn<ContentPackage> {
 
 		private static final long serialVersionUID = 1L;
@@ -164,17 +165,17 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		public void populateItem(Item<ICellPopulator<ContentPackage>> item, String componentId, IModel<ContentPackage> model) {
 			item.add(new Label(componentId, createLabelModel(model)));
 		}
-		
+
 		protected IModel<String> createLabelModel(IModel<ContentPackage> embeddedModel)
 		{
 			String resourceId = "status.unknown";
 			Object target = embeddedModel.getObject();
-			
+
 			if (target instanceof ContentPackage) {
 				ContentPackage contentPackage = (ContentPackage)target;
-				
+
 				int status = contentService.getContentPackageStatus(contentPackage);
-				
+
 				switch (status) {
 				case CONTENT_PACKAGE_STATUS_OPEN:
 					resourceId = "status.open";
@@ -190,17 +191,14 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 					break;
 				}
 			}
-			
+
 			return new ResourceModel(resourceId);
 		}
-
-
 	}
-	
+
 	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}
-	
-	
+
 }
