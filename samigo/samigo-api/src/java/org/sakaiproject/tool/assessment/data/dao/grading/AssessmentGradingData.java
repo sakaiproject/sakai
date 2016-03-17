@@ -452,7 +452,14 @@ public class AssessmentGradingData implements java.io.Serializable
 
 	public void setAssessmentGradingAttachmentList(
 			List<AssessmentGradingAttachment> assessmentGradingAttachmentList) {
-		Set<AssessmentGradingAttachment> assessmentGradingAttachmentSet = new HashSet<AssessmentGradingAttachment>(assessmentGradingAttachmentList);
+		Set<AssessmentGradingAttachment> assessmentGradingAttachmentSet = null;
+
+		if (assessmentGradingAttachmentList != null) {
+			assessmentGradingAttachmentSet = new HashSet<AssessmentGradingAttachment>(assessmentGradingAttachmentList);
+		} else {
+			assessmentGradingAttachmentSet = new HashSet<AssessmentGradingAttachment>();
+		}
+
 		this.assessmentGradingAttachmentSet = assessmentGradingAttachmentSet;
 	}
 
