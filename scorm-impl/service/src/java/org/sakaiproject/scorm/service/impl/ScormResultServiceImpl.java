@@ -787,9 +787,22 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 
 		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber, false);
 
-		//Map<String, Objective> objectives = report.getObjectives();
-		//mapObjectives(objectives, dataManager, contentPackageId, learnerId, attemptNumber);
+		// Map objectives
+		for( Interaction interaction : interactions )
+		{
+			Map<String, Objective> objectivesMap = new HashMap<>();
+			mapObjectives( objectivesMap, dataManager, contentPackageId, learnerId, attemptNumber );
 
+			List<Objective> objectivesList = interaction.getObjectives();
+			for( String objectiveID : interaction.getObjectiveIds() )
+			{
+				Objective objective = objectivesMap.get( objectiveID );
+				if( objective != null )
+				{
+					objectivesList.add( objective );
+				}
+			}
+		}
 	}
 
 	private void mapValues(ActivitySummary summary, IDataManager dataManager) {

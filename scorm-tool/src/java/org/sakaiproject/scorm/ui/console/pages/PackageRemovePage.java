@@ -63,7 +63,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 	
 	public PackageRemovePage( final PageParameters params )
 	{
-		// bjones86 - SCO-98 - disable buttons and add spinner on submit
+		// SCO-98 - disable buttons and add spinner on submit
 		add( new FileRemoveForm( "removeForm", params ) );
 	}
 	
