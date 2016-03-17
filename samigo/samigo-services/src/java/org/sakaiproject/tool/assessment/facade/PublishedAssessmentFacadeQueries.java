@@ -2204,7 +2204,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
 				+ " a.submittedDate, a.isLate,"
 				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
+				+ " '', a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
