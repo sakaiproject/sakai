@@ -50,6 +50,7 @@ body.active-more-sites{
 	&.outscreen{
 		left: 110%;
 		max-width: 100%;
+		display: none;
 		@media #{$phone}{
 			display: none;
 		}
