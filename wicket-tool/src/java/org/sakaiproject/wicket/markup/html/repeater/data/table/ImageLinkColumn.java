@@ -37,21 +37,21 @@ public class ImageLinkColumn extends AbstractColumn {
 	private ResourceReference iconReference;
 	private String popupWindowName;
 	private String iconProperty = null;
-	
+
 	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions,
-				ResourceReference iconReference) {
-		this(displayModel, pageClass, paramPropertyExpressions, iconReference, null);
+				ResourceReference iconReference, String sortProperty) {
+		this(displayModel, pageClass, paramPropertyExpressions, iconReference, null, sortProperty);
 	}
-	
+
 	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions,
-			String iconProperty) {
-		this(displayModel, pageClass, paramPropertyExpressions, null, null);
+			String iconProperty, String sortProperty) {
+		this(displayModel, pageClass, paramPropertyExpressions, null, null, sortProperty);
 		this.iconProperty = iconProperty;
 	}
 
 	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, 
-			ResourceReference iconReference, String popupWindowName) {
-		super(displayModel);
+			ResourceReference iconReference, String popupWindowName, String sortProperty) {
+		super(displayModel, sortProperty);
 		this.pageClass = pageClass;
 		this.paramPropertyExpressions = paramPropertyExpressions;
 		this.iconReference = iconReference;
@@ -60,33 +60,32 @@ public class ImageLinkColumn extends AbstractColumn {
 
 	public void populateItem(Item cellItem, String componentId, IModel model) {
 		Object bean = model.getObject();
-		
+
 		final PageParameters params = buildPageParameters(paramPropertyExpressions, bean);
- 		
+
 		if (iconProperty != null) {
 			String iconPropertyValue = String.valueOf(PropertyResolver.getValue(iconProperty, bean));
-		
 			iconReference = getIconPropertyReference(iconPropertyValue);
 		}
-		
+
 		cellItem.add(new IconLink("cell", pageClass, params, iconReference, popupWindowName));
-	}	
+	}
 
 	protected ResourceReference getIconPropertyReference(String iconPropertyValue) {
 		return iconReference;
 	}
-	
+
 	private PageParameters buildPageParameters(String[] propertyExpressions, Object object) {
 		PageParameters params = new PageParameters();
-		
+
 		if (propertyExpressions != null) {
-			for (int i=0;i<propertyExpressions.length;i++) {
-				String paramValue = String.valueOf(PropertyResolver.getValue(propertyExpressions[i], object));	
-				params.add(propertyExpressions[i], paramValue);
+			for( String propertyExpression : propertyExpressions )
+			{
+				String paramValue = String.valueOf( PropertyResolver.getValue( propertyExpression, object ) );
+				params.add( propertyExpression, paramValue );
 			}
 		}
-		
+
 		return params;
 	}
-	
 }

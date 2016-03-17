@@ -47,11 +47,11 @@ import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedProperty
 public abstract class BaseResultsPage extends ConsoleBasePage {
 
 	private static final long serialVersionUID = 1L;
-	private static Log log = LogFactory.getLog(BaseResultsPage.class);
-	
-	private static ResourceReference NEXT_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_right.png");
-	private static ResourceReference PREV_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_left.png");
-	
+	private static final Log LOG = LogFactory.getLog(BaseResultsPage.class);
+
+	private static final ResourceReference NEXT_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_right.png");
+	private static final ResourceReference PREV_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_left.png");
+
 	@SpringBean
 	LearningManagementSystem lms;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
@@ -60,35 +60,31 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	ScormResultService resultService;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
-	
+
 	private final RepeatingView attemptNumberLinks;
-	
+
 	public BaseResultsPage(PageParameters pageParams) {
-        super(pageParams);
-        
+		super(pageParams);
+
 		long contentPackageId = pageParams.getLong("contentPackageId");
 		String learnerId = pageParams.getString("learnerId");
-		
+
 		if (learnerId == null) { // this is a student coming directly from the package list.
 			learnerId = lms.currentLearnerId();
 		}
-		
+
 		String learnerName = "[name unavailable]";
-		
-		Learner learner = null;
+
+		Learner learner;
 		boolean learnerFound = false;
 		try {
 			learner = lms.getLearner(learnerId);
 			learnerFound = true;
-			learnerName = new StringBuilder(learner.getDisplayName()).append(" (")
-				.append(learner.getDisplayId()).append(")").toString();
-			
 		} catch (LearnerNotDefinedException lnde) {
-			log.error("Could not find learner for this id: " + learnerId);
-			
+			LOG.error("Could not find learner for this id: " + learnerId, lnde);
 			learner = new Learner(learnerId, learnerName, "[id unavailable]");
 		}
-		
+
 		LearnerDetailsPanel learnerDetailsPanel = new LearnerDetailsPanel("learnerDetails", new Model<Learner>(learner));
 		add(learnerDetailsPanel);
 		learnerDetailsPanel.setVisible(learnerFound);
@@ -96,36 +92,38 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 		String scoId = pageParams.getString("scoId");
 		String interactionId = pageParams.getString("interactionId");
-						
+
 		int numberOfAttempts = resultService.getNumberOfAttempts(contentPackageId, learnerId);
-		
 		long attemptNumber = 0;
 
 		/** @NOTE hide unnecessary bits */
 		if (pageParams.containsKey("attemptNumber")) 
+		{
 			attemptNumber = pageParams.getLong("attemptNumber");
-		
+		}
+
 		if (attemptNumber == 0)
+		{
 			attemptNumber = numberOfAttempts;
-		
+		}
+
 		this.attemptNumberLinks = new RepeatingView("attemptNumberLinks");
 		add(attemptNumberLinks);
-		
+
 		for (long i=1;i<=numberOfAttempts;i++) {
 			addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber, contentPackage, scoId, learner);
 		}
-		
+
 		initializePage(contentPackage, learner, attemptNumber, pageParams);
-		
-		
+
 		String[] siblingIds = resultService.getSiblingIds(contentPackageId, learnerId, attemptNumber, scoId, interactionId);
-		
+
 		Link previousLink = newPreviousLink(siblingIds[0], pageParams);
 		Link nextLink = newNextLink(siblingIds[1], pageParams);
-		
+
 		Icon previousIcon = new Icon("previousIcon", PREV_ICON);
 		Icon nextIcon = new Icon("nextIcon", NEXT_ICON);
-		
+
 		previousLink.setVisible(isPreviousLinkVisible(siblingIds));
 		nextLink.setVisible(isNextLinkVisible(siblingIds));
 
@@ -134,38 +132,37 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 
 		add(previousLink);
 		add(previousIcon);
-		
+
 		add(nextLink);
 		add(nextIcon);
 	}
-	
+
 	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
 		Link link = new PageLink("previousLink", BaseResultsPage.class);
 		link.setVisible(false);
 		return link;
 	}
-	
+
 	protected boolean isPreviousLinkVisible(String[] siblingIds) {
 		boolean canGrade = lms.canGrade(lms.currentContext());
 		return canGrade && siblingIds[0] != null && !siblingIds[0].equals("");
 	}
-	
+
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
 		Link link = new PageLink("nextLink", BaseResultsPage.class);
 		link.setVisible(false);
 		return link;
 	}
-	
+
 	protected boolean isNextLinkVisible(String[] siblingIds) {
 		boolean canGrade = lms.canGrade(lms.currentContext());
 		return canGrade && siblingIds[1] != null && !siblingIds[1].equals("");
 	}
-	
+
 	protected abstract void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams);
-	
-	
+
 	protected abstract BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params);
-	
+
 	/*
 	 * Copied the basic organization of this method from an Apache Wicket class
 	 * 	org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable
@@ -175,7 +172,7 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	{
 		PageParameters newParams = new PageParameters(params);
 		newParams.put("attemptNumber", i);
-		
+
 		BookmarkablePageLabeledLink link = newAttemptNumberLink(i, newParams);
 
 		if (i == current) {
@@ -183,18 +180,18 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		} else {
 			link.setVisible(attemptExists(i, scoId, learner.getId(), contentPackage.getContentPackageId()));
 		}
-			
+
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId());
 		item.setRenderBodyOnly(true);
 		item.add(link);
 
 		container.add(item);
 	}
-	
+
 	protected boolean attemptExists(long attemptId, String scoId, String learnerId, long contentPackageId) {
 		return true;
 	}
-	
+
 	public class PercentageColumn extends DecoratedPropertyColumn {
 
 		private static final long serialVersionUID = 1L;
@@ -209,17 +206,19 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 			
 			return getPercentageString(d);
 		}
-		
+
 		private String getPercentageString(double d) {
-			
+
 			double p = d * 100.0;
-			
+
 			String percentage = "" + p + " %";
-			
+
 			if (d < 0.0)
+			{
 				percentage = "Not available";
-			
+			}
+
 			return percentage;
 		}
-	}	
+	}
 }
