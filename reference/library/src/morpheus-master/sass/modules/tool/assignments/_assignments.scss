@@ -15,4 +15,15 @@
 			margin: 0;
 		}
 	}
+
+	.form-required{
+		label{
+			&:after{
+				content: "*";
+				color: darken($errorcolor, 30%);
+				position: relative;
+				top: 3px;
+			}
+		}
+	}
 }
