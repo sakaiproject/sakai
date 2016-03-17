@@ -1,6 +1,6 @@
 .#{$namespace}siteHierarchy{
 	$svg-gradient-shim-threshold: 1 !global;
-	background: linear-gradient( to right, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df );
+	background: linear-gradient( to right, $header-gradient-a, $header-gradient-b, $header-gradient-c, $header-gradient-d);
 	box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);
 	min-height: $hierarchy-size;
 	padding: 1em;
