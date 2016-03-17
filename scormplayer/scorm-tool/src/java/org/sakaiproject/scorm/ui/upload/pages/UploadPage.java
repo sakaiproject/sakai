@@ -43,7 +43,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 	private static final ResourceReference PAGE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_add.png");
 	private static final Log LOG = LogFactory.getLog(FileUploadForm.class);
 
-	// bjones86 - SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
+	// SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
 	private static final String SAK_PROP_SCORM_ENABLE_EMAIL = "scorm.enable.email";
 	@SpringBean( name = "org.sakaiproject.component.api.ServerConfigurationService" )
 	ServerConfigurationService serverConfigurationService;
@@ -110,7 +110,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			add( fileUploadField );
 			add(new CheckBox("fileValidated"));
 
-			// bjones86 - SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
+			// SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
 			@SuppressWarnings( { "unchecked", "rawtypes" } )
 			DropDownChoice emailNotificationDropDown = new DropDownChoice( "priority", 
 					Arrays.asList( new Integer[] { NotificationService.NOTI_NONE, NotificationService.NOTI_OPTIONAL, 
@@ -151,7 +151,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 					}
 			);
 
-			// bjones86 - SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
+			// SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
 			boolean enableEmail = serverConfigurationService.getBoolean( SAK_PROP_SCORM_ENABLE_EMAIL, true );
 			Label priorityLabel = new Label( "lblPriority", new ResourceModel( "upload.priority.label" ) );
 			if( !enableEmail )
@@ -164,7 +164,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			add( priorityLabel );
 			add( emailNotificationDropDown );
 
-			// bjones86 - SCO-98 - disable buttons on submit, add spinner
+			// SCO-98 - disable buttons on submit, add spinner
 			final CancelButton btnCancel = new CancelButton( "btnCancel", PackageListPage.class );
 			IndicatingAjaxButton btnSubmit = new IndicatingAjaxButton( "btnSubmit", this )
 			{
