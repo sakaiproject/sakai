@@ -217,7 +217,10 @@ public class GradeItemCellPanel extends Panel {
 								break;
 							case ERROR:
 								markError(getComponent());
-								error(getString("message.edititem.error"));
+								// show the error message
+								error(getString("grade.notifications.haserror"));
+								// and the invalid score message, just to be helpful
+								GradeItemCellPanel.this.notifications.add(GradeCellNotification.INVALID);
 								break;
 							case OVER_LIMIT:
 								markOverLimit(GradeItemCellPanel.this.gradeCell);
