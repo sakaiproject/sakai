@@ -4,7 +4,6 @@
 ## Assignments - Instructor new Assignment view
 #set( $H = '-' )
 <!-- jQuery already loaded in assignment_chef_header -->
-<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -446,6 +445,7 @@
 					$tlang.getString("gen.forpoi")
 				</label>
 				<div class="col-sm-2">
+					<span class="reqStar" style="display:none" id="req-new_assignment_grade_points">*</span>
 				#if ($value_GradeType == 3)
 					<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" class="form-control"/>
 				#else
