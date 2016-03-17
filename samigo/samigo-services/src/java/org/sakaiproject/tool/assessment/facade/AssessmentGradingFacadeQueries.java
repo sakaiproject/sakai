@@ -1532,7 +1532,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public List getLastSubmittedAssessmentGradingList(final Long publishedAssessmentId){
-	    final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId asc, a.submittedDate desc";
+	    final String query = "select a from AssessmentGradingData a left join fetch a.assessmentGradingAttachmentSet where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId asc, a.submittedDate desc";
 
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
