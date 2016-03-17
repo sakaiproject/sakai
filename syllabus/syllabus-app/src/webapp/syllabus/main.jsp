@@ -199,41 +199,7 @@
 					<f:verbatim>
 					</span>
 				</li>
-			</ul></f:verbatim>			
-		
-
-			<c:if test="${SyllabusTool.addOrEdit}">
-			<f:verbatim>
-				<ul class="navIntraTool actionToolbar">
-					<li class="firstToolBarItem">
-						<span>
-								<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-									<img src="/library/image/silk/arrow_out.png"/>&nbsp;&nbsp;
-									</f:verbatim>
-										<h:outputText value="#{msgs.expandAll}"/>
-									<f:verbatim>
-								</a>
-								<a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-									<img src="/library/image/silk/arrow_in.png"/>&nbsp;&nbsp;
-									</f:verbatim>
-										<h:outputText value="#{msgs.collapseAll}"/>
-									<f:verbatim>
-								</a>
-						</span>
-					</li>
-					<li>
-						<span>
-							</f:verbatim>
-								<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
-									<h:outputText value="#{msgs.printView}"/>
-								</h:outputLink>
-							<f:verbatim>
-						</span>
-					</li>
-				</ul>
-			</f:verbatim>			
-				
-			</c:if>
+				</ul></f:verbatim>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 					<f:verbatim>
 						<div>

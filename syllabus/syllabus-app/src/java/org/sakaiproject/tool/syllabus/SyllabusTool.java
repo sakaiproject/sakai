@@ -455,7 +455,7 @@ public class SyllabusTool
                 while (iter.hasNext())
                 {
                     SyllabusData en = (SyllabusData) iter.next();
-                    if (syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+                    if (isAddOrEdit())
                     {
                         DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                         entries.add(den);
@@ -520,7 +520,7 @@ public class SyllabusTool
             while (iter.hasNext())
             {
               SyllabusData en = (SyllabusData) iter.next();
-              if (syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+              if (isAddOrEdit())
               {
                 DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                 entries.add(den);
@@ -660,7 +660,7 @@ public class SyllabusTool
 
     if (syllabusItem == null)
     {
-        if (syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+        if (isAddOrEdit())
         {
             syllabusItem = syllabusManager.createSyllabusItem(currentUserId,
                     currentSiteId, null);
@@ -853,7 +853,7 @@ public class SyllabusTool
     ArrayList selected = getSelectedEntries();
     try
     {
-      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -1212,7 +1212,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+      if (!(isAddItem() || isBulkEdit()))
       {
         return "permission_error";
       }
@@ -1310,7 +1310,7 @@ public class SyllabusTool
 
     try
     {
-      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -1415,7 +1415,7 @@ public class SyllabusTool
   {
     try
     {
-      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM))
       {
         return "permission_error";
       }
@@ -1442,7 +1442,7 @@ public class SyllabusTool
   {
 	  try
 	    {
-	      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+	      if (!syllabusService.checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM))
 	      {
 	        return "permission_error";
 	      }
@@ -1509,7 +1509,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -1607,7 +1607,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -2299,7 +2299,7 @@ public class SyllabusTool
   
   public String processRemoveAttach()
   {
-      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
