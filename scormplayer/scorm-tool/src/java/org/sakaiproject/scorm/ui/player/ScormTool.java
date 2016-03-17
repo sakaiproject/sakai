@@ -25,9 +25,16 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Page;
+import org.apache.wicket.Request;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.protocol.http.SecondLevelCacheSessionStore;
+import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.WebRequestCycle;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.pagestore.DiskPageStore;
 import org.apache.wicket.session.ISessionStore;
+import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.util.file.Folder;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceMountStrategy;
@@ -35,18 +42,32 @@ import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 public class ScormTool extends SakaiWebApplication {
-	
-	private static Log log = LogFactory.getLog(ScormTool.class);
-	
+
+	private static final Log LOG = LogFactory.getLog(ScormTool.class);
+
 	private ScormResourceService resourceService;
-	
+
 	@Override
 	public void init() {
 		super.init();
-
+		getExceptionSettings().setUnexpectedExceptionDisplay( IExceptionSettings.SHOW_INTERNAL_ERROR_PAGE );
 		mount(new ContentPackageResourceMountStrategy("contentpackages"));
 	}
-	
+
+	@Override
+	public RequestCycle newRequestCycle( Request request, Response response )
+	{
+		return new WebRequestCycle( this, (WebRequest) request, (WebResponse) response )
+		{
+			@Override
+			public Page onRuntimeException( Page page, RuntimeException e )
+			{
+				// Let Sakai ErrorReportHandler (BugReport) handle errors
+				throw e;
+			}
+		};
+	}
+
 	@Override
 	public Class getHomePage() {
 		return PackageListPage.class;
@@ -54,21 +75,21 @@ public class ScormTool extends SakaiWebApplication {
 
 	public Folder getUploadFolder() {
 		Folder folder = new Folder(System.getProperty("java.io.tmpdir"), "scorm-uploads");
-	
+
 		// Make sure that this directory exists.
 		if (!folder.exists()) {
 			if (!folder.mkdirs()) {
-				log.error("Cannot create temp dir: " + folder);
+				LOG.error("Cannot create temp dir: " + folder);
 			}
 		}
-		
+
 		return folder;
 	}
-	
+
 	@Override
 	protected ISessionStore newSessionStore() {
 		return new SecondLevelCacheSessionStore(this, new DiskPageStore() {
-			
+
 			@Override
 			public Page getPage(String sessionId, String pagemap, int id, int versionNumber,
 					int ajaxVersionNumber)
@@ -100,8 +121,8 @@ public class ScormTool extends SakaiWebApplication {
 							try {
 								 page = deserializePage(data, versionNumber);
 							} catch (Exception e) {
-								log.error("Exception deserializing page ", e);
-								
+								LOG.error("Exception deserializing page ", e);
+
 								//page = new PlayerPage();
 							}
 							
@@ -111,13 +132,13 @@ public class ScormTool extends SakaiWebApplication {
 
 					return null;
 				}
-			
+
 			@Override
 			public void storePage(String sessionId, Page page)
 			{
 				super.storePage(sessionId, page);
 			}
-			
+
 			@Override
 			protected boolean isSynchronous()
 			{
@@ -125,7 +146,7 @@ public class ScormTool extends SakaiWebApplication {
 			}
 		});
 	}
-	
+
 	public ScormResourceService getResourceService() {
 		return resourceService;
 	}
@@ -133,6 +154,4 @@ public class ScormTool extends SakaiWebApplication {
 	public void setResourceService(ScormResourceService resourceService) {
 		this.resourceService = resourceService;
 	}
-
-		
 }
