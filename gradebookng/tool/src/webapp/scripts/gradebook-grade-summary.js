@@ -43,7 +43,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
 
 GradebookGradeSummary.prototype.updateTitle = function() {
   if (this.modalTitle) {
-    this.$modal.find("h3.w_captionText").html(this.modalTitle);
+    this.$modal.find("h3[class='w_captionText']").html(this.modalTitle);
   }
 };
 
