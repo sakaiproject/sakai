@@ -53,20 +53,19 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.wicket.markup.html.form.CancelButton;
 
 public class PackageRemovePage extends ConsoleBasePage {
-	
+
 	private static final long serialVersionUID = 1L;
-	
-	private static final Log log = LogFactory.getLog(PackageRemovePage.class);
-	
+	private static final Log LOG = LogFactory.getLog(PackageRemovePage.class);
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	
+
 	public PackageRemovePage( final PageParameters params )
 	{
 		// SCO-98 - disable buttons and add spinner on submit
 		add( new FileRemoveForm( "removeForm", params ) );
 	}
-	
+
 	/**
 	 * SCO-98 - disable buttons and add spinner on submit
 	 * 
@@ -75,33 +74,33 @@ public class PackageRemovePage extends ConsoleBasePage {
 	public class FileRemoveForm extends Form
 	{
 		private static final long serialVersionUID = 1L;
-		
+
 		@SpringBean(name = "org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
 		GradebookExternalAssessmentService gradebookExternalAssessmentService;
 
 		@SpringBean(name = "org.sakaiproject.scorm.dao.api.ContentPackageManifestDao")
 		ContentPackageManifestDao contentPackageManifestDao;
-		
+
 		public FileRemoveForm( String id, final PageParameters params )
 		{
 			super( id );
 			IModel model = new CompoundPropertyModel( this );
 			this.setModel( model );
-			
+
 			String title = params.getString( "title" );
 			final long contentPackageId = params.getLong( "contentPackageId" );
-			
+
 			ContentPackage contentPackage = new ContentPackage( title, contentPackageId );
-			
+
 			List<ContentPackage> list = new LinkedList<ContentPackage>();
 			list.add( contentPackage );
-			
+
 			List<IColumn> columns = new LinkedList<IColumn>();
 			columns.add( new PropertyColumn( new Model( "Content Package" ), "title", "title" ) );
-			
+
 			DataTable removeTable = new DataTable( "removeTable", columns.toArray( new IColumn[columns.size()] ), 
 					new ListDataProvider( list ), 3 );
-			
+
 			final Label alertLabel = new Label( "alert", new ResourceModel( "verify.remove" ) );
 			final CancelButton btnCancel = new CancelButton( "btnCancel", PackageListPage.class );
 			IndicatingAjaxButton btnSubmit = new IndicatingAjaxButton( "btnSubmit", this )
@@ -138,7 +137,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 						{
 							for( AssessmentSetup assessmentSetup : gradebookSetup.getAssessments() )
 							{
-								String assessmentExternalID = PackageConfigurationPage.getAssessmentExternalId( gradebookSetup, assessmentSetup );
+								String assessmentExternalID = getAssessmentExternalId( gradebookSetup, assessmentSetup );
 								boolean on = assessmentSetup.issynchronizeSCOWithGradebook();
 								boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined( context, assessmentExternalID );
 								if( has && on )
@@ -152,14 +151,14 @@ public class PackageRemovePage extends ConsoleBasePage {
 					}
 					catch( ResourceNotDeletedException rnde )
 					{
-						log.warn( "Failed to delete all underlying resources ", rnde );
+						LOG.warn( "Failed to delete all underlying resources ", rnde );
 						alertLabel.setDefaultModel( new ResourceModel( "exception.remove" ) );
 						target.addComponent( alertLabel );
 						setResponsePage( PackageRemovePage.class, params );
 					}
 				}
 			};
-			
+
 			add( alertLabel );
 			add( removeTable );
 			add( btnCancel );
@@ -180,10 +179,10 @@ public class PackageRemovePage extends ConsoleBasePage {
 				List<AssessmentSetup> assessments = gradebookSetup.getAssessments();
 				for( AssessmentSetup as : assessments )
 				{
-					String assessmentExternalId = PackageConfigurationPage.getAssessmentExternalId( gradebookSetup, as );
+					String assessmentExternalId = getAssessmentExternalId( gradebookSetup, as );
 					boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined( context, assessmentExternalId );
 					as.setsynchronizeSCOWithGradebook( has );
-	}
+				}
 			}
 
 			return gradebookSetup;
@@ -193,6 +192,11 @@ public class PackageRemovePage extends ConsoleBasePage {
 		{
 			Placement placement = toolManager.getCurrentPlacement();
 			return placement.getContext();
+		}
+
+		private String getAssessmentExternalId(final GradebookSetup gradebook, AssessmentSetup assessment) {
+			String assessmentExternalId = "" + gradebook.getContentPackageId() + ":" + assessment.getLaunchData().getItemIdentifier();
+			return assessmentExternalId;
 		}
 	}
 }
