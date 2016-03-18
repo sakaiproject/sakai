@@ -137,6 +137,7 @@ confirmation dialog
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2}" /></li>
 			<ul>
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2a}" /></li>
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2b}" /></li>
 			</ul>
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3}" /></li>
 			<ol type="a">
@@ -182,11 +183,22 @@ confirmation dialog
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
 			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example2}" /></p>
 			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example2_formula}" /></p>
+
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_calculation_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_define_calculations}" />
+			</div>			
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_example3}" />
+			</div>
+
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_additional_label}" /></div>
 			<div class="tier2">
 				<ul>
 					<li><h:outputText value="#{authorMessages.calc_question_answer_variance}" /></li>
 					<li><h:outputText value="#{authorMessages.calc_question_answer_decimal}" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_scientific_notation}" /></li>
 					<li><h:outputText value="#{authorMessages.calc_question_operators}" /></li>
 					<li><h:outputText value="#{authorMessages.calc_question_functions}" /></li>
 					<li><h:outputText value="#{authorMessages.calc_question_constants}" /></li>
@@ -333,7 +345,12 @@ confirmation dialog
 	</div>
 
     <!-- display calculations -->
-    <div class="longtext"> <h:outputLabel value="#{authorMessages.calc_question_calculation_label} " /></div>
+    <div class="longtext"> 
+        <h:outputLabel value="#{authorMessages.calc_question_calculation_label} " />
+        <ul>
+            <li><h:outputText value="#{authorMessages.calc_question_define_calculations}" /></li>
+        </ul>
+     </div>
     <div class="tier2">
         <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="calculations" 
                 value="#{itemauthor.currentItem.calculatedQuestion.calculationsList}" var="calculation"
