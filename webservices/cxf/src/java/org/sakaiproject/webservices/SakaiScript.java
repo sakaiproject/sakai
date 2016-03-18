@@ -1204,6 +1204,50 @@ public class SakaiScript extends AbstractWebService {
     }
 
     /**
+     * Add a user to a site with a given role
+     *
+     * @param 	sessionid 	the id of a valid session
+     * @param 	siteid 		the id of the site to add the user to
+     * @param 	eids		the login usernames (ie jsmith26) separated by commas of the user you want to add to the site
+     * @param 	roleid		the id of the role to to give the user in the site
+     * @return				success or exception message
+     *
+     * TODO: fix for if the role doesn't exist in the site, it is still returning success - SAK-15334
+     */
+    @WebMethod
+    @Path("/addMemberToSiteWithRoleBatch")
+    @Produces("text/plain")
+    @GET
+    public String addMemberToSiteWithRoleBatch(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eids", partName = "eids") @QueryParam("eids") String eids,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
+
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("NonSuperUser trying to addMemberToSiteWithRoleBatch: " + session.getUserId());
+            throw new RuntimeException("NonSuperUser trying to addMemberToSiteWithRoleBatch: " + session.getUserId());
+        }
+
+        try {
+            Site site = siteService.getSite(siteid);
+            List<String> eidsList = Arrays.asList(eids.split(","));
+            for (String eid : eidsList) {
+                String userid = userDirectoryService.getUserByEid(eid).getId();
+                site.addMember(userid,roleid,true,false);
+            }
+            siteService.save(site);
+        }
+        catch (Exception e) {
+            LOG.error("WS addMemberToSiteWithRoleBatch(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+    /**
      * Create a new site
      *
      * @param sessionid   the id of a valid session
@@ -2575,6 +2619,47 @@ public class SakaiScript extends AbstractWebService {
             siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+    /**
+     * Removes a member from a given site, similar to removeMembeForAuthzGroup but acts on Site directly and uses a
+     * list of users
+     *
+     * @param	sessionid	the id of a valid session
+     * @param	siteid		the id of the site you want to remove the users from
+     * @param   eids         comma separated list of users eid
+     * @return				success or string containing error
+     * @throws	AxisFault
+     *
+     */
+    @Path("/removeMemberFromSiteBatch")
+    @Produces("text/plain")
+    @GET
+    public String removeMemberFromSiteBatch(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eids", partName = "eid") @QueryParam("eids") String eids) {
+
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("NonSuperUser trying to removeMemberFromSiteBatch: " + session.getUserId());
+            throw new RuntimeException("NonSuperUser trying to removeMemberFromSiteBatch: " + session.getUserId());
+        }
+
+        try {
+            Site site = siteService.getSite(siteid);
+            List<String> eidsList = Arrays.asList(eids.split(","));
+            for (String eid : eidsList) {
+                String userid = userDirectoryService.getUserByEid(eid).getId();
+                site.removeMember(userid);
+            }
+            siteService.save(site);
+        } catch (Exception e) {
+            LOG.error("WS removeMemberFromSiteBatch(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
