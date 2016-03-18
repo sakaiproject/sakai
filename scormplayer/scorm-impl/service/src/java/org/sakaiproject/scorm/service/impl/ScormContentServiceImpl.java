@@ -35,6 +35,7 @@ import org.adl.sequencer.ISeqActivityTree;
 import org.adl.validator.IValidator;
 import org.adl.validator.IValidatorOutcome;
 import org.adl.validator.contentpackage.CPValidator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.api.ScormConstants;
@@ -158,18 +159,42 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.scorm.service.api.ScormContentService#getContentPackages()
 	 */
-	public List<ContentPackage> getContentPackages() {
-		String context = lms().currentContext();
+	public List<ContentPackage> getContentPackages()
+	{
+		return getAllContentPackages( null );
+	}
 
-		List<ContentPackage> allPackages = contentPackageDao().find(context);
+		/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.scorm.service.api.ScormContentService#getContentPackages( java.lang.String )
+	 */
+	public List<ContentPackage> getContentPackages( String siteID )
+	{
+		return getAllContentPackages( siteID );
+	}
+
+	/**
+	 * Private method to do the work; if site ID is not supplied, the current site is implied.
+	 * 
+	 * @param siteID
+	 * @return 
+	 */
+	private List<ContentPackage> getAllContentPackages( String siteID )
+	{
+		String context = StringUtils.isNotBlank( siteID ) ? siteID : lms().currentContext();
+		List<ContentPackage> allPackages = contentPackageDao().find( context );
 		List<ContentPackage> releasedPackages = new LinkedList<ContentPackage>();
 
-		if (lms().canModify(context))
+		if( lms().canModify( siteID ) )
+		{
 			return allPackages;
+		}
 
-		for (ContentPackage cp : allPackages) {
-			if (cp.isReleased()) {
-				releasedPackages.add(cp);
+		for( ContentPackage contentPackage : allPackages )
+		{
+			if( contentPackage.isReleased() )
+			{
+				releasedPackages.add( contentPackage );
 			}
 		}
 

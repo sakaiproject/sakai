@@ -19,4 +19,13 @@
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
 	</bean>
+
+	<bean id="org.sakaiproject.scorm.entity.ScormEntityProvider" class="org.sakaiproject.scorm.entity.ScormEntityProviderImpl">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="contentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
+	</bean>
 </beans>

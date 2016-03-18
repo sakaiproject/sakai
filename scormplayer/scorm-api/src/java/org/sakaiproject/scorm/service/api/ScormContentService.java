@@ -54,6 +54,14 @@ public interface ScormContentService extends ScormConstants {
 	public List<ContentPackage> getContentPackages() throws ResourceStorageException;
 
 	/**
+	 * Get all content packages for the given site
+	 * @param siteID the ID of the site for which all content packages are being requested
+	 * @return
+	 * @throws ResourceStorageException
+	 */
+	public List<ContentPackage> getContentPackages( String siteID ) throws ResourceStorageException;
+
+	/**
 	 * Gets the status of a package, one of ScormConstants#CONTENT_PACKAGE_STATUS_*
 	 * @param contentPackage
 	 * @return one of ScormConstants#CONTENT_PACKAGE_STATUS_*
