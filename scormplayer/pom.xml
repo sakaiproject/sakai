@@ -97,6 +97,24 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.8</version>
+                <configuration>
+                    <licenseName>ecl_v2</licenseName>
+                    <licenseResolver>classpath://org/sakaiproject</licenseResolver>
+                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.sakaiproject.license</groupId>
+                        <artifactId>ecl-license</artifactId>
+                        <version>1.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 </project>
