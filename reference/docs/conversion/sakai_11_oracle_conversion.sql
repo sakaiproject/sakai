@@ -539,16 +539,16 @@ alter table qrtz_fired_triggers drop column is_stateful;
 --
 -- add new 'sched_name' column to all tables
 --
-alter table qrtz_blob_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_calendars add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_cron_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_fired_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_job_details add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_locks add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_paused_trigger_grps add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_scheduler_state add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_simple_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
+alter table qrtz_blob_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_calendars add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_cron_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_fired_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_job_details add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_locks add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_paused_trigger_grps add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_scheduler_state add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_simple_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
 -- 
 -- add new 'sched_time' column to all tables
 --
