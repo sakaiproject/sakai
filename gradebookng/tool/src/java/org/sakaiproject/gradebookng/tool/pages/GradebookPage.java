@@ -454,6 +454,7 @@ public class GradebookPage extends BasePage {
 		modelData.put("assignments", assignments);
 		modelData.put("categories", categories);
 		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
+		modelData.put("categoriesEnabled", categoriesEnabled);
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));

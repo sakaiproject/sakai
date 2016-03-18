@@ -41,8 +41,9 @@ public class GbHeadersToolbar extends HeadersToolbar {
 		final GradebookUiSettings settings = page.getUiSettings();
 
 		final Map<String, Object> modelData = model.getObject();
+		final boolean categoriesEnabled = (boolean) modelData.get("categoriesEnabled");
 
-		if (settings.isCategoriesEnabled()) {
+		if (categoriesEnabled && settings.isCategoriesEnabled()) {
 			WebMarkupContainer categoriesRow = new WebMarkupContainer("categoriesRow");
 
 			List<Assignment> assignments = (List<Assignment>) modelData.get("assignments");
