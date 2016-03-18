@@ -28,9 +28,11 @@ import java.util.List;
 import org.adl.validator.contentpackage.LaunchData;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -56,11 +58,8 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 	static class AssessmentSetup implements Serializable{
 
 		private static final long serialVersionUID = 1L;
-
 		LaunchData launchData;
-
 		Double numberOffPoints = 100d;
-
 		boolean synchronizeSCOWithGradebook;
 
 		public AssessmentSetup() {
@@ -102,7 +101,6 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		public void setsynchronizeSCOWithGradebook(boolean synchronizeSCOWithGradebook) {
 			this.synchronizeSCOWithGradebook = synchronizeSCOWithGradebook;
 		}
-
 	}
 
 	public class DisplayNamePropertyModel extends DecoratedPropertyModel implements Serializable{
@@ -119,30 +117,28 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 
 			return lms.getLearnerName(userId);
 		}
-
 	}
 
 	static class GradebookSetup implements Serializable{
 		private static final long serialVersionUID = 1L;
-		
 		boolean isGradebookDefined;
-		
 		ContentPackage contentPackage;
-		
+
 		public ContentPackage getContentPackage() {
 			return contentPackage;
 		}
+
 		public void setContentPackage(ContentPackage contentPackage) {
 			this.contentPackage = contentPackage;
 		}
 
 		ContentPackageManifest contentPackageManifest;
-
 		List<AssessmentSetup> assessments = new ArrayList<PackageConfigurationPage.AssessmentSetup>();
 
 		public List<AssessmentSetup> getAssessments() {
 			return assessments;
 		}
+
 		public String getContentPackageId() {
 			return "" + contentPackage.getContentPackageId();
 		}
@@ -168,6 +164,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 				}
 			}
 		}
+
 		protected AssessmentSetup buildAssessmentSetup(LaunchData launchData) {
 			AssessmentSetup assessment = new AssessmentSetup(launchData);
 			return assessment;
@@ -189,12 +186,13 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		public Object getDisplayValue(Object object) {
 			Integer n = (Integer) object;
 
-			if (n.intValue() == -1)
+			if (n == -1)
+			{
 				return unlimitedMessage;
+			}
 
 			return object;
 		}
-
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -204,7 +202,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	
+
 	@SpringBean(name = "org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
 	GradebookExternalAssessmentService gradebookExternalAssessmentService;
 
@@ -214,26 +212,26 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 	private String unlimitedMessage;
 
 	public PackageConfigurationPage(PageParameters params) {
-	    super(params);
+		super(params);
 		long contentPackageId = params.getLong("contentPackageId");
 
 		final ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 		final GradebookSetup gradebookSetup = getAssessmentSetup(contentPackage);
 
 		final Class pageSubmit;
-        final Class pageCancel;
+		final Class pageCancel;
 
-        // @NOTE this is a hack that allows us to change the destination we
-        // are redirected to after form submission depending on where we come from
-        // I'm sure there's a more reliable way to do this is Wicket but it's not trivial to figure it out.
-        if((null != params) && (params.getBoolean("no-toolbar"))) {
-            pageSubmit = DisplayDesignatedPackage.class;
-            pageCancel = DisplayDesignatedPackage.class;
-        } else {
-            pageSubmit = PackageListPage.class;
-            pageCancel = PackageListPage.class;
-        }
-		
+		// @NOTE this is a hack that allows us to change the destination we
+		// are redirected to after form submission depending on where we come from
+		// I'm sure there's a more reliable way to do this is Wicket but it's not trivial to figure it out.
+		if(params.getBoolean("no-toolbar")) {
+			pageSubmit = DisplayDesignatedPackage.class;
+			pageCancel = DisplayDesignatedPackage.class;
+		} else {
+			pageSubmit = PackageListPage.class;
+			pageCancel = PackageListPage.class;
+		}
+
 		Form form = new Form("configurationForm") {
 			private static final long serialVersionUID = 1L;
 
@@ -273,9 +271,9 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 
 		List<Integer> tryList = new LinkedList<Integer>();
 
-		tryList.add(Integer.valueOf(-1));
+		tryList.add(-1);
 		for (int i = 1; i <= 10; i++) {
-			tryList.add(Integer.valueOf(i));
+			tryList.add(i);
 		}
 
 		this.unlimitedMessage = getLocalizer().getString("unlimited", this);
@@ -298,20 +296,34 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		ListView scos;
 		form.add(scos = new ListView("scos", gradebookSetup.getAssessments()) {
 
-			/**
-			 * serialVersionUID
-			 */
 			private static final long serialVersionUID = 965550162166385688L;
 
 			@Override
-			protected void populateItem(ListItem item) {
+			protected void populateItem(final ListItem item) {
 				Label label = new Label("itemTitle", new PropertyModel(item.getModelObject(), "itemTitle"));
 				item.add(label);
-//				TextField numberOffPoints = new TextField("numberOffPoints", new PropertyModel(item.getModelObject(), "numberOffPoints"));
-//				item.add(numberOffPoints);
-				CheckBox synchronizeSCOWithGradebook = new CheckBox("synchronizeSCOWithGradebook", new PropertyModel(item.getModelObject(), "synchronizeSCOWithGradebook"));
-				item.add(synchronizeSCOWithGradebook);
+				final WebMarkupContainer verifySyncWithGradebook = new WebMarkupContainer( "verifySyncWithGradebook" );
+				verifySyncWithGradebook.setOutputMarkupId( true );
+				verifySyncWithGradebook.setOutputMarkupPlaceholderTag( true );
+				verifySyncWithGradebook.setVisible( false );
+				item.add( verifySyncWithGradebook );
 
+				AjaxCheckBox synchronizeSCOWithGradebook = new AjaxCheckBox("synchronizeSCOWithGradebook", new PropertyModel(item.getModelObject(), 
+						"synchronizeSCOWithGradebook") )
+				{
+					@Override
+					protected void onUpdate( AjaxRequestTarget target )
+					{
+						AssessmentSetup as = (AssessmentSetup) item.getModelObject();
+						String assessmentExternalId = getAssessmentExternalId( gradebookSetup, as );
+						boolean hasGradebookSync = gradebookExternalAssessmentService.isExternalAssignmentDefined( getContext(), assessmentExternalId );
+						boolean isChecked = this.getModelObject();
+						verifySyncWithGradebook.setVisible( hasGradebookSync && !isChecked );
+						target.addComponent( verifySyncWithGradebook );
+					}
+				};
+
+				item.add(synchronizeSCOWithGradebook);
 			}
 		});
 		scos.setVisible(gradebookSetup.isGradebookDefined() && !gradebookSetup.getAssessments().isEmpty());
@@ -320,7 +332,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		add(form);
 	}
 
-	protected GradebookSetup getAssessmentSetup(ContentPackage contentPackage) {
+	private GradebookSetup getAssessmentSetup(ContentPackage contentPackage) {
 		final GradebookSetup gradebookSetup = new GradebookSetup();
 		String context = getContext();
 		boolean isGradebookDefined = gradebookExternalAssessmentService.isGradebookDefined(context);
@@ -334,16 +346,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 				String assessmentExternalId = getAssessmentExternalId(gradebookSetup, as);
 				boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(getContext(), assessmentExternalId);
 				as.setsynchronizeSCOWithGradebook(has);
-				if (has) {
-//					Assignment assignment = gradebookService.getAssignment(context, as.getItemTitle());
-//					as.setNumberOffPoints(assignment.getPoints());
-				}
 			}
-			// SeqActivityTree actTreePrototype = (SeqActivityTree)
-			// contentPackageManifest.getActTreePrototype();
-			// SeqActivity root = actTreePrototype.getRoot();
-			// List children = root.getChildren(false);
-
 		}
 		return gradebookSetup;
 	}
@@ -359,9 +362,8 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		return PAGE_ICON;
 	}
 
-	public static String getAssessmentExternalId(final GradebookSetup gradebook, AssessmentSetup assessment) {
+	private static String getAssessmentExternalId(final GradebookSetup gradebook, AssessmentSetup assessment) {
 		String assessmentExternalId = "" + gradebook.getContentPackageId() + ":" + assessment.getLaunchData().getItemIdentifier();
 		return assessmentExternalId;
 	}
-
 }
