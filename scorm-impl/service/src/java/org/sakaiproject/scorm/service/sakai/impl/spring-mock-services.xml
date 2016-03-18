@@ -7,4 +7,9 @@
 	<bean id="org.sakaiproject.scorm.service.api.LearningManagementSystem"
 		class="org.sakaiproject.scorm.service.sakai.impl.MockLearningManagementSystem">
 	</bean>
+
+	<!-- Mock entity provider to enable tests to run -->
+	<bean id="org.sakaiproject.scorm.entity.ScormEntityProvider" 
+		class="org.sakaiproject.scorm.entity.MockScormEntityProviderImpl">
+	</bean>
 </beans>
