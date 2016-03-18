@@ -1019,6 +1019,16 @@ ul.feedbackPanel li span {
 .gb-grade-summary-close-confirmation .modal-dialog {
   z-index: 50001 !important;
 }
+.gb-summary-print {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+}
+.gb-summary-print:before {
+  font-family: 'gradebook-icons';
+  content: '\f02f';
+  padding-right: 4px;
+}
 /* Hidden column visual cue */
 .gb-hidden-column-visual-cue {
   position: absolute;
