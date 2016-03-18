@@ -24,7 +24,11 @@ function GradebookGradeSummary($content, blockout, modalTitle) {
   } else {
     setTimeout($.proxy(function() {
       this.$modal = this.$content.closest(".wicket-modal");
-      this.setupWicketModal();
+      if (this.$modal.length > 0 && this.$modal.is(":visible")) {
+        this.setupWicketModal();
+      } else {
+        this.setupStudentView();
+      }
     }, this));
   }
 };
@@ -36,7 +40,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
     this.setupStudentNavigation();
     this.setupFixedFooter();
     this.setupMask();
-    this.setupPrint();
+    this.setupModalPrint();
     this.bindModalClose();
 };
 
@@ -209,20 +213,35 @@ GradebookGradeSummary.prototype.setupPopovers = function() {
 };
 
 
-GradebookGradeSummary.prototype.setupPrint = function() {
+GradebookGradeSummary.prototype.setupModalPrint = function() {
+  this._setupPrint(
+    this.$content.find(".gb-summary-print"),
+    this.$modal.find("h3[class*='w_captionText']"),
+    this.$content.find(".gb-summary-grade-panel"),
+    this.$content);
+};
+
+
+GradebookGradeSummary.prototype.setupStudentView = function() {
+  this._setupPrint(
+    $("body").find(".portletBody .gb-summary-print"),
+    $("body").find(".portletBody h2:first"),
+    $("body").find("#studentGradeSummary"),
+    $("body"));
+};
+
+
+GradebookGradeSummary.prototype._setupPrint = function($button, $header, $content, $container) {
   var self = this;
+  $button.off("click").on("click", function() {
+    function updateIframeContentAndPrint() {
+        self.$iframe.contents().find("body").empty();
+        self.$iframe.contents().find("body").append($header.clone());
+        self.$iframe.contents().find("body").append($content.clone());
 
-  function updateIframeContentAndPrint() {
-      self.$iframe.contents().find("body").empty();
-      self.$iframe.contents().find("body").append(self.$modal.find("h3[class='w_captionText']").clone());
-      self.$iframe.contents().find("body").append(self.$content.find(".gb-summary-grade-panel").clone());
+        self.$iframe[0].contentWindow.print();
+    }
 
-      self.$iframe[0].contentWindow.print();
-  }
-
-
-  self.$print = self.$content.find(".gb-summary-print");
-  self.$print.off("click").on("click", function() {
     if (!self.$iframe) {
       self.$iframe = $("<iframe id='summaryForPrint'>").hide();
       self.$iframe.one("load", function() {
@@ -236,7 +255,7 @@ GradebookGradeSummary.prototype.setupPrint = function() {
           updateIframeContentAndPrint();
         }, 500);
       });
-      self.$content.append(self.$iframe);
+      $container.append(self.$iframe);
     } else {
       updateIframeContentAndPrint();
     }
