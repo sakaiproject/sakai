@@ -7,6 +7,16 @@
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
+	<ol class="breadcrumb">
+		<li><span>
+		$tlang.getString("gen.location")
+		</span></li>
+		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
+		#foreach ($folder in $model.collectionPath)
+			<li><span>$validator.escapeHtml($folder.name)</span></li>
+		#end
+	</ol>
+
 	<p class="instruction">
 		$tlang.getString("instr.urls")
 	</p>
@@ -15,22 +25,14 @@
 	    $tlang.getString("instr.ezproxy")
 	  </p>
 	#end
-	<div class="breadCrumb">
-		<h4>
-		$tlang.getString("gen.location")
-		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
-		#foreach ($folder in $model.collectionPath)
-			$validator.escapeHtml($folder.name) /
-		#end
-		</h4>
-	</div>
+
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
 		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
 		#set($lastIndex = $pipes.size() - 1)
 		<input type="hidden" name="lastIndex" id="lastIndex" value="$lastIndex" />
-		<div id="fileInputDiv">
+		<div id="fileInputDiv" style="outline 1px solid red;">
 			#set($i = -1)
 			#foreach($pipe in $pipes)
 				
@@ -38,37 +40,37 @@
 				#set($i = $i + 1)
 				#set($next = $i + 1)
 				
-				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
+				<div id="contentDiv${DOT}$i" class="well">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<input type="hidden" name="extension${DOT}$i" id="extension${DOT}$i" value=".URL" />
-					<p class="shorttext" style="border:none">
+					<div class="form-group">
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
 						## TODO add onchange event handler to seed file-name into displayName field
-						<input type="text" name="content${DOT}$i" id="content${DOT}$i" size="60" maxlength="512"/>
+						<input type="text" name="content${DOT}$i" id="content${DOT}$i" class="form-control" maxlength="512"/>
 						#if($ezproxyPrefix)
 						  <a class="indnt2" href="#" id="ezproxyTrigger${DOT}$i" title="$tlang.getString("label.ezproxy")">$tlang.getString("label.ezproxy")</a>
 						#end
-					</p>
-					<p class="shorttext" style="border:none"> 
+					</div>
+					<div class="form-group">
 						<label for="displayName${DOT}$i">$tlang.getString("label.website")</label> 
-						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" maxlength="512"/> 
-						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
-						<a class="indnt2 remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
+						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" class="form-control" maxlength="512"/> 
+						<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
+						<a class="remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
 							<img src="#imageLink("sakai/cross.png")" alt="x" />
 						</a>
 						<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($prev >= 0)${prev}#end" />
 						<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />
-					</p>
-				</div>
-				<div id="propertiesDiv${DOT}$i" style="display:none;">
-					#parse("/vm/resources/sakai_properties.vm")
-					<hr class="itemSeparator" />
+					</div>
+					<div id="propertiesDiv${DOT}$i" style="display:none;">
+						#parse("/vm/resources/sakai_properties.vm")
+						<hr class="itemSeparator" />
+					</div>
+
 				</div>
 			#end
 		</div>
-		<p class="act">
-			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addurl")</a>
-		</p>
+		<p><a href="#" onclick="addFileInput();return false">$tlang.getString("label.addurl")</a><br></p>
+
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			#if($model.isDropbox())
 			    ## SAK-18932 show email checkbox only when possible to use it
@@ -94,11 +96,11 @@
 				#end
 			#elseif($model.isUserSite())
 			#else
-				<p class="shorttext">
+				<div class="form-group">
 					<label for="notify">
 						$tlang.getString("gen.email1")
 					</label>	
-					<select name="notify" id="notify">
+					<select name="notify" id="notify" class="form-control">
 						<option value="r">$tlang.getString("gen.email2")</option>
 						<option value="o">$tlang.getString("gen.email3")</option>
 						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>

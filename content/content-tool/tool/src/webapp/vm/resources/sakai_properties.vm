@@ -139,11 +139,11 @@
 
 
 ##
-	<p class="shorttext">
+	<p class="form-group">
 		<label for="description${DOT}$i">
 			$tlang.getString("edit.descr") 
 		</label>
-		<textarea id="description${DOT}$i" name="description${DOT}$i" rows="5" cols="80" wrap="virtual">$!{model.description}</textarea>
+		<textarea id="description${DOT}$i" name="description${DOT}$i" class="form-control" rows="5" wrap="virtual">$!{model.description}</textarea>
 	</p>
 	
 	#if($model.canSetQuota())
@@ -160,7 +160,7 @@
 	#end
 	
 	#if ($model.isAdmin())
-		<p class="shorttext">
+		<div class="form-group">
 			<label for="allowHtmlInline${DOT}$i">
 				$tlang.getString("edit.renderHtml")
 			</label>
@@ -187,17 +187,17 @@
 				#end
 				<span class="textPanelFooter">$tlang.getString("edit.renderHtml.explanation")</span>
 			</span>
-		</p>
+		</div>
 	#end
 	
 	#if($model.resourceTypeDef.hasRightsDialog()) 
 		#if ($!copyrightTypes.size() > 0)
-			<p class="shorttext">
+			<p class="form-group">
 				<span class="reqStar">*</span>
 				<label for="copyright${DOT}$i">
-					$tlang.getString("cright.status")
+					$tlang.getString("cright.status") (<a href="#" onclick="openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 				</label>	
-				<select name="copyright${DOT}$i" id ="copyright${DOT}$i">
+				<select name="copyright${DOT}$i" id ="copyright${DOT}$i" class="form-control">
 					#set ($noOneSelected=true)
 					#foreach ($copyright in $copyrightTypes)
 						<option value="$copyright.getType()"#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText()) selected="selected"#end #if ($!copyright.getLicenseUrl()) title="${copyright.getLicenseUrl()}"#end>$copyright.getText()</option>
@@ -209,31 +209,24 @@
 						<option value="$model.copyrightStatus" selected="selected">${model.copyrightStatus}</option>
 					#end
 				</select>
-				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</p>
-			<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) style="display:block;"#else style="display:none;"#end>
+			<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group" style="display:block;"#else style="display:none;"#end>
 				<p class="shorttext">
 					<span class="reqStar">*</span>
 					<label for="newcopyright${DOT}$i">
 						$tlang.getString("cright.info")
 					</label>	
-					<textarea name="newcopyright${DOT}$i" id="newcopyright${DOT}$i" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
+					<textarea class="form-control" name="newcopyright${DOT}$i" id="newcopyright${DOT}$i" rows="2" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
 				</p>	
 			</div>
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td style="padding:.25em 0;padding-left:1em;vertical-align:top">
-						<label for="copyrightAlert${DOT}$i" style="width:15.5em;display:block">
-							$tlang.getString("cright.alert")
-						</label>
-					</td>
-					<td style="vertical-align:top;padding:.25em 0;">
-						<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
-						$tlang.getString("cright.display") 
-						(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
-					</td>
-				</tr>
-			</table>
+			<div class="form-group">
+				<label for="copyrightAlert${DOT}$i" style="width:15.5em;display:block">
+					$tlang.getString("cright.alert")
+				</label>
+				<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
+				$tlang.getString("cright.display") 
+				(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
+			</div>
 		#end
 	#end
 
@@ -246,7 +239,7 @@
 	######### begin access section ##########
 	#if(!$model.isDropbox() && ! $model.isSiteCollection())
 		<p class="instruction">$model.getAccessInstruction()</p>
-		<div  class="labelindnt">
+		<div  class="form-group">
 			#set ($listDisplay="none")
 			#if($model.isSiteOnly())
 				##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)
@@ -282,7 +275,7 @@
 					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end</label>
 				</p>
 				#if($model.rolesAreAvailable())
-				<h4 style="margin-left: 40px;">$tlang.getString("access.additional")</h4>
+				<h4>$tlang.getString("access.additional")</h4>
 				<ul style="list-style: none;">
 					#foreach ($roleId in $model.availableRoleIds())
 						<li>
@@ -312,7 +305,7 @@
 			#end
 		</div>
 
-		#if($model.groupsAreMissing())
+		#if($model.groupsAreMissing())2
 			<div class="labelindnt">
 				<p class="alertMessageInline">
 					$tlang.getString("access.groups.missing")
@@ -321,7 +314,7 @@
 		#end
 
 		#if($model.isGroupPossible())
-			<table id="groupTable${DOT}$i" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
+			<table id="groupTable${DOT}$i" class="table table-condensed table-hover" border="0" style="display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
 				<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 				<tr>
 					<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
@@ -377,196 +370,136 @@
 				$tlang.getString("instr.access")
 			#end
 		</p>
-		<div  class="labelindnt">
-			<table>
-				<tr>
-					<td>
-						<input type="radio" name="hidden${DOT}$i" id="hidden_false${DOT}$i" value="false" #if(!$model.isHidden())checked="checked" #end/>
-					</td>
-					<td colspan="4">
+		<div class="panel panel-default">
+  		<div class="panel-heading container-fluid">
+				<div class="row">
+					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
 						<label for="hidden_false${DOT}$i">
+							<input type="radio" name="hidden${DOT}$i" id="hidden_false${DOT}$i" value="false" #if(!$model.isHidden())checked="checked" #end/>
 							#if($model.isCollection())
 								$tlang.getString("avail.show2")
 							#else
 								$tlang.getString("avail.show1")
 							#end
 						</label>
+					</div>
+					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
 						#if($model.isCollection())
-						<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked="checked" #end/>
-						<label for="hidden_with_accessible_content_true${DOT}$i">
-							$tlang.getString("avail.hide30")
-						</label>
+							<label for="hidden_with_accessible_content_true${DOT}$i">
+								<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked="checked" #end/>
+								$tlang.getString("avail.hide30")
+							</label>
 						#end
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-						<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
-					</td>
-					<td colspan="3">
-						<label for="use_start_date${DOT}$i">
-							$tlang.getString("avail.start1")
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						<label for="release_year${DOT}$i">$tlang.getString("label.date")</label>
-					</td>
-					<td>
-						<label for="release_hour${DOT}$i">$tlang.getString("label.time")</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						#resources_dateselectionwidget("release" "$i" $model.releaseDate.breakdownLocal() $dateFormat )
-					</td>
-					<td>
-						#resources_timeSelectionWidget("release" "$i" $model.releaseDate)
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-						<input type="checkbox" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
-					</td>
-					<td colspan="4">
-						<label for="use_end_date${DOT}$i">
-							$tlang.getString("avail.end1")
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						<label for="retract_year${DOT}$i">$tlang.getString("label.date")</label>
-					</td>
-					<td>
-						<label for="retract_time${DOT}$i">$tlang.getString("label.time")</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						#resources_dateselectionwidget("retract" "$i" $model.retractDate.breakdownLocal() $dateFormat)
-					</td>
-					<td>
-						#resources_timeSelectionWidget("retract" "$i" $model.retractDate)
-					</td>
-				</tr>
-				#if($conditions_enabled)
-				<tr>
-					<td>
-					</td>
-					<td>
-					#if($resourceSelections.size() == 0)
-						<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" disabled>
-					#else
-						#if($item.isUseConditionalRelease())
-							<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" checked="checked">
-						#else
-							<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox">
-						#end
-					#end	
-					</td>
-					<td colspan="3">
-						<label for="cbCondition${DOT}$i">
-							$tlang.getString("conditional.only_if_condition_is_met")
-						</label>
-					</td>
-				</tr>
-				#end
-			</table>
-			#if($conditions_enabled)					
-			<table>
-				<tr>
-					<td>
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</td>
-					<td>
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</td>
-					<td colspan="3">
-						#if($resourceSelections.size() == 0)
-							$tlang.getString("no.gradebook.assignments")
-						#else						
-							$tlang.getString("conditional.gradebook_tool_name") 
-							<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
-							#foreach ($key in $resourceSelections.keySet())
-							    #if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease()) 
-									<option value="${key.replaceAll("\"","&quot;")}" selected="selected">${resourceSelections.get(${key})}</option>
-								#else
-									<option value="${key.replaceAll("\"","&quot;")}">${resourceSelections.get(${key})}</option>
-								#end
-							
-							#end
-							</select>
-							<select name="selectCondition${DOT}$i"
-							  id="selectCondition${DOT}$i"
-							  onchange="changeCondition(this.options[this.selectedIndex].value, '${DOT}$i');">
-							#foreach ($key in $conditionSelections.keySet())							
-								#if($key.equals($item.getSelectedConditionKey()) && $item.isUseConditionalRelease())
-									<option value="${key}" selected="selected">${conditionSelections.get(${key})}</option>							
-								#else
-									<option value="${key}">${conditionSelections.get(${key})}</option>							
-								#end
-							#end
-							</select>
-							#if($item.getSelectedConditionKey().startsWith("9") || $item.getSelectedConditionKey().startsWith("10"))
-							<span id="grade_argument_span${DOT}$i" style="display:inline;">
-								<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" value="$item.getConditionArgument()" />
-							#else
-							<span id="grade_argument_span${DOT}$i" style="display:none;">
-								<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" />
-							#end
-							</span>
-						#end
-					</td>
-				</tr>
-			</table>
-			#end
-			<table>
-				<tr>
-					<td>
-						<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked="checked" #end/>
-					</td>
-					<td colspan="4">
+					</div>
+					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
 						<label for="hidden_true${DOT}$i">
+							<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked="checked" #end/>
 							#if($model.isCollection())
 								$tlang.getString("avail.hide20")
 							#else
-								$tlang.getString("avail.hide10")
+									$tlang.getString("avail.hide10")
 							#end
 						</label>
-					</td>
-				</tr>
-			</table>
+					</div>
+				</div>
+  		</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
+					<label for="use_start_date${DOT}$i">
+						$tlang.getString("avail.start1")
+					</label>
+				</div>
+				<div class="form-group container-fluid">
+					<div class="row">
+						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
+							<label for="release_year${DOT}$i">$tlang.getString("label.date")</label>
+							#resources_dateselectionwidget("release" "$i" $model.releaseDate.breakdownLocal() $dateFormat )
+						</div>
+						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
+							<label for="release_hour${DOT}$i">$tlang.getString("label.time")</label>
+							#resources_timeSelectionWidget("release" "$i" $model.releaseDate)
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<input type="checkbox" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
+					<label for="use_end_date${DOT}$i">
+						$tlang.getString("avail.end1")
+					</label>
+				</div>
+				<div class="form-group container-fluid">
+					<div class="row">
+						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
+							<label for="retract_year${DOT}$i">$tlang.getString("label.date")</label>
+							#resources_dateselectionwidget("retract" "$i" $model.retractDate.breakdownLocal() $dateFormat)
+						</div>
+						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
+							<label for="retract_time${DOT}$i">$tlang.getString("label.time")</label>
+							#resources_timeSelectionWidget("retract" "$i" $model.retractDate)
+						</div>
+					</div>
+				</div>
+				#if($conditions_enabled)
+					<div class="form-group">
+						#if($resourceSelections.size() == 0)
+							<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" disabled>
+						#else
+							#if($item.isUseConditionalRelease())
+								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" checked="checked">
+							#else
+								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox">
+							#end
+						#end	
+						<label for="cbCondition${DOT}$i">
+							$tlang.getString("conditional.only_if_condition_is_met")
+						</label>
+					</div>
+				#end
+				#if($conditions_enabled)
+	  			<div class="form-group">
+						#if($resourceSelections.size() == 0)
+							$tlang.getString("no.gradebook.assignments")
+						#else
+							$tlang.getString("conditional.gradebook_tool_name") 
+							<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
+								#foreach ($key in $resourceSelections.keySet())
+						    	#if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease()) 
+										<option value="${key.replaceAll("\"","&quot;")}" selected="selected">${resourceSelections.get(${key})}</option>
+									#else
+										<option value="${key.replaceAll("\"","&quot;")}">${resourceSelections.get(${key})}</option>
+									#end
+								#end
+							</select>
+							<select name="selectCondition${DOT}$i"
+						  	id="selectCondition${DOT}$i"
+						  	onchange="changeCondition(this.options[this.selectedIndex].value, '${DOT}$i');">
+									#foreach ($key in $conditionSelections.keySet())							
+										#if($key.equals($item.getSelectedConditionKey()) && $item.isUseConditionalRelease())
+											<option value="${key}" selected="selected">${conditionSelections.get(${key})}</option>							
+										#else
+											<option value="${key}">${conditionSelections.get(${key})}</option>							
+										#end
+									#end
+							</select>
+							#if($item.getSelectedConditionKey().startsWith("9") || $item.getSelectedConditionKey().startsWith("10"))
+								<span id="grade_argument_span${DOT}$i" style="display:inline;">
+									<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" value="$item.getConditionArgument()" />
+								</span>
+							#else
+								<span id="grade_argument_span${DOT}$i" style="display:none;">
+									<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" />
+								</span>
+							#end
+	  			</div>
+				#end
+			</div>
 		</div>
+	</div>
+	#end
+</div>
+</div>
+
 	#end
 	######### end availability section ##########	
 	
@@ -578,7 +511,7 @@
 				$tlang.getString("props.file")
 			#end
 		</h4>
-	
+
 		<table class="itemSummary" border="0" style="clear:both;">
 			#if (!($dropboxMode && $collectionId==$homeCollectionId))
 				<tr> 
@@ -619,7 +552,7 @@
 					$tlang.getString("props.url")
 				</th>
 				<td>
-					<div>
+					<div class="form-group">
 						<a class="textPanelFooter" href="#" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
 						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
 						|
@@ -632,8 +565,7 @@
 						</span>
 						#end
 					</div>
-					<textarea id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>						
-
+					<textarea class="form-control" id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>						
 				</td>
 			</tr>
 			#if(! $item.isCollection())
