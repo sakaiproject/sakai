@@ -480,7 +480,7 @@
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
                             <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
-                                <span class="sr-only">$validator.escapeHtml($item.name) </span>
+                                <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
                             </button>

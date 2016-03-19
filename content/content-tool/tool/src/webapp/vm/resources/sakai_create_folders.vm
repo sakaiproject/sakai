@@ -7,41 +7,49 @@
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
-	<p class="instruction">
-		$tlang.getString("instr.folders")
-	</p>
-	<div class="breadCrumb">
-		<h4>
+	<ol class="breadcrumb">
+		<li><span>
 		$tlang.getString("gen.location")
+		</span></li>
 		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
 		#foreach ($item in $model.collectionPath)
-			$validator.escapeHtml($item.name) /
+			<li><span>$validator.escapeHtml($item.name)</span></li>
 		#end
-		</h4>
-	</div>
+	</ol>
+		<p class="instruction">
+			$tlang.getString("instr.folders")
+		</p>
+
 	<form name="addFolderForm" id="addFolderForm" method="post" action="#toolForm("ResourcesHelperAction")">
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
 		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
 		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 		#set($lastIndex = $pipes.size() - 1)
 		<input type="hidden" name="lastIndex" id="lastIndex" value="$lastIndex" />
-		<div id="fileInputDiv">
+		<div id="fileInputDiv" class="well">
 			#set($i = -1)
 			#foreach($pipe in $pipes)
 				#set($prev = $i)
 				#set($i = $i + 1)
 				#set($next = $i + 1)
-				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
+				<div id="contentDiv${DOT}$i" class="container-fluid">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
-					<p class="shorttext" style="border:none">
-						<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
-						<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
+					<div class="row">
+						<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12"
+							<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
+						</div>
+						<div class="col-lg-6 col-md-6 col-sm-4 col-xs-12">
+							<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
 						##  onkeypress="return handleEnterKey(this, event)"
-						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
-						<a class="indnt2 remove" style="display:none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")">
-							<img src="#imageLink("sakai/cross.png")"  alt="x" />
-						</a>
-					</p>
+						</div>
+						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+							<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
+							<a class="remove" style="display:none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")">
+								<img src="#imageLink("sakai/cross.png")"  alt="x" />
+							</a>
+						</div>
+						<br><br>
+					</div>
 					<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($prev >= 0)${prev}#end" />
 					<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />
 				</div>

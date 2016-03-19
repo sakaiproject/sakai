@@ -11,7 +11,7 @@
 
 <label for="${metadataType.uniqueName}${suffix}">#printMetadataName($metadataType)</label>
 
-<select data-placeholder="#printMetadataDescription($metadataType)" style="width: 350px"
+<select class="form-control" data-placeholder="#printMetadataDescription($metadataType)" style="width: 350px"
         name="$!{metadataType.uniqueName}${suffix}"
         id="$!{metadataType.uniqueName}${suffix}" #if($multipleMetadataType.contains($metadataType.uniqueName))
         multiple #end class="chzn-select">

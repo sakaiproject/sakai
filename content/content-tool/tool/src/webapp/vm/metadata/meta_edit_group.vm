@@ -12,7 +12,6 @@
 
 $groupMetadataType.add($groupMetadataLevel, $metadataType)
 $groupMetadataValue.add($groupMetadataLevel, $metadataValue)
-
 <p class="discTria" id="metadataShown_${metadataType.uniqueName}${suffix}"
    style="#if($metadataType.expanded)display:block;#else display:none;#end">
   <a id="hideMetadata_${metadataType.uniqueName}${suffix}" href="#showMetadata_${metadataType.uniqueName}${suffix}"
@@ -42,7 +41,7 @@ $groupMetadataValue.add($groupMetadataLevel, $metadataValue)
     #set($metadataValue = $groupMetadataValue.get($groupMetadataLevel).get($metadataType.uniqueName))
     #set($groupMetadataLevel = $groupMetadataLevel + 1)
 
-    <p class="shorttext">
+    <p class="form-group">
       #editMetadata($metadataType)
     </p>
 
