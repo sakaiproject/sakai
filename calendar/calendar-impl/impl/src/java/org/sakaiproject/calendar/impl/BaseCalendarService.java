@@ -251,7 +251,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
       else
    		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_ICAL + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
 	}
-
    
 	/**
 	 * @inheritDoc
