@@ -117,3 +117,6 @@ alter table SAM_ASSESSMENTGRADING_T add tempcol clob;
 update SAM_ASSESSMENTGRADING_T set tempcol=comments;
 alter table SAM_ASSESSMENTGRADING_T drop column comments;
 alter table SAM_ASSESSMENTGRADING_T rename column tempcol to comments;
+
+-- KNL-1423 index the sakai_event table
+CREATE INDEX SAKAI_EVENT_IDX1 ON SAKAI_EVENT (CONTEXT, EVENT_DATE, SESSION_ID);

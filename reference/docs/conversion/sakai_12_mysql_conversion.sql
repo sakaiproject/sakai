@@ -98,4 +98,7 @@ alter table SAM_PUBLISHEDSECTION_T change description description mediumtext nul
 alter table SAM_ASSESSMENTBASE_T change description description mediumtext null;
 alter table SAM_SECTION_T change description description mediumtext null;
 alter table SAM_ITEMGRADING_T change comments comments mediumtext null;
-alter table SAM_ASSESSMENTGRADING_T change comments comments mediumtext null
+alter table SAM_ASSESSMENTGRADING_T change comments comments mediumtext null;
+
+-- KNL-1423 index the sakai_event table
+CREATE INDEX SAKAI_EVENT_IDX1 ON SAKAI_EVENT (CONTEXT, EVENT_DATE, SESSION_ID);
