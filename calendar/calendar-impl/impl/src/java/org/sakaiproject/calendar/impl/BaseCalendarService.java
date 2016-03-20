@@ -402,6 +402,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	/**
+	Event comparator that sorts allEvents by miliseconds since midnight January 1, 1970 UTC		
+	Only works with CalendarEvent objects
+
+	private class TimeComparator implements Comparator{
+	  public int compare(TimeRange o1, TimeRange o2) {
+		return o1.getRange().firstTime().getTime().compareTo(o2.getRange().firstTime().getTime());
+						   }
+	}
+	*/
+
+	/**
 	* Form a tracking event string based on a security function string.
 	* @param secure The security function string.
 	* @return The event tracking string.
@@ -7490,4 +7501,3 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 	
 } // BaseCalendarService
-
