@@ -442,9 +442,20 @@ implements ActionListener
 		// set startDate, dueDate, retractDate 
 		control.setStartDate(assessmentSettings.getStartDate());
 		control.setDueDate(assessmentSettings.getDueDate());
+
+		if (assessmentSettings.getLateHandling() != null) {
+			control.setLateHandling(new Integer(assessmentSettings.getLateHandling()));
+		}
+
 		if (retractNow)
 		{
 			control.setRetractDate(new Date());
+		}
+		else if (assessmentSettings.getRetractDate() == null
+				 || "".equals(assessmentSettings.getRetractDateString()))
+		{
+			control.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION);
+			control.setRetractDate(null);
 		}
 		else {
 			control.setRetractDate(assessmentSettings.getRetractDate());
@@ -501,10 +512,7 @@ implements ActionListener
 			}
 		}
 
-		if (assessmentSettings.getLateHandling()!=null){
-			control.setLateHandling(new Integer(assessmentSettings.
-					getLateHandling()));
-		}
+
 		if (assessmentSettings.getSubmissionsSaved()!=null){
 			control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));
 		}
