@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -270,6 +271,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** Optional set of folders just within the m_bodyPath to distribute files among. */
 	protected String[] m_bodyVolumes = null;
+
+        protected HashSet<String> noCSPtypes = null;
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -841,6 +845,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			String resourceClass = m_serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 			String resourceBundle = m_serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 			rb = new Resource().getLoader(resourceClass, resourceBundle);
+			String noCSPstring = m_serverConfigurationService.getString(NOCSPTYPES, DEFAULT_NOCSPTYPES);
+			if (noCSPstring == null)
+			    noCSPstring = "";
+			noCSPtypes = new HashSet<String>(Arrays.asList(noCSPstring.split(",")));
 
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
@@ -6968,6 +6976,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				String fileName = Validator.getFileName(ref.getId());
 				String disposition = null;
 
+				if (!noCSPtypes.contains(contentType.toLowerCase())) {
+				    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+				    res.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+				}
+
 				if (Validator.letBrowserInline(contentType))
 				{
 					// if this is an html file we have more checks
@@ -9891,6 +9904,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	protected static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
 	protected static final String RESOURCECLASS = "resource.class.content";
 	protected static final String RESOURCEBUNDLE = "resource.bundle.content";
+	protected static final String NOCSPTYPES = "resource.nocsptypes";
+	protected static final String DEFAULT_NOCSPTYPES = "application/pdf";
 	private ResourceLoader rb = null;
 
 	protected static final String DROPBOX_ID = " Drop Box";

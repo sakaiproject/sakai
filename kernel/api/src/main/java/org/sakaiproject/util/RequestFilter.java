@@ -248,6 +248,7 @@ public class RequestFilter implements Filter
 	private String [] contentPaths;
 	private String [] loginPaths;
 	private String [] contentExceptions;
+        private String [] cspExceptions;
 
 	/**
 	 * Compute the URL that would return to this server based on the current request.
@@ -381,7 +382,7 @@ public class RequestFilter implements Filter
 						return;
 					}
 				}
-			} else if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod()) && !(startsWithAny(requestURI, contentExceptions))) {
+			} else if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod()) && !(startsWithAny(requestURI, contentExceptions)) && !(startsWithAny(requestURI, cspExceptions))) {
 			    // everything except same origin
 			    resp.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
 			    resp.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
@@ -674,6 +675,16 @@ public class RequestFilter implements Filter
 		if (contentExceptions == null) {
 			// add in default exceptions here, if desired
 			contentExceptions = new String[] { "/access/calendar/", "/access/citation/export_ris_sel/", "/access/citation/export_ris_all/" };
+		}
+		// these are tools that handle content-security-policy themselves.
+		// That header breaks PDF. But we don't know the content type here until postprocess,
+		// and that's too late to add a header. So we have to do it in the tool.
+		// users shouldn't generlaly change this configuration unless they implement their
+		// own tool.
+		cspExceptions = configService.getStrings("content.chsCspException.urlprefixes");
+		if (cspExceptions == null) {
+			// add in default exceptions here, if desired
+		    cspExceptions = new String[] { "/access/content/", "/access/lessonbuilder/" };
 		}
 
 		// capture the servlet context for later user
