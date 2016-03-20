@@ -41,6 +41,7 @@ public class Day implements Serializable {
 	boolean						hasEvents						= false;
 
 	int							dayOfMonth						= -1;
+	
 	boolean						isToday							= false;
 	boolean						occursInOtherMonth				= false;
 	boolean						isSelected						= false;
@@ -48,6 +49,8 @@ public class Day implements Serializable {
 	List						dayEvents						= null;
 	
 	String 						backgroundCSSProperty			= "";
+	int dayOfYear = -1;
+	int Year = -1;
 
 	public Day() {
 	}
@@ -56,6 +59,12 @@ public class Day implements Serializable {
 		this.hasEvents = hasEvents;
 		this.date = c.getTime();
 		this.dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
+		this.dayOfYear = c.get(Calendar.DAY_OF_YEAR);
+		this.Year = c.get(Calendar.YEAR);
+	}
+	
+	public int getYear() {
+		return Year;
 	}
 
 	public void setDate(Date date) {
@@ -66,6 +75,10 @@ public class Day implements Serializable {
 		if(date == null) return "";
 		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("date_link_format"), msgs.getLocale());
 		return formatter.format(date);
+	}
+
+	public int getDayOfYear() {
+		return dayOfYear;
 	}
 
 	public int getDayOfMonth() {
