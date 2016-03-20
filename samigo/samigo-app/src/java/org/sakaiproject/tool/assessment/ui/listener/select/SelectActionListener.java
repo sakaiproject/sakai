@@ -619,7 +619,9 @@ public class SelectActionListener
     	return false;
     }
     
-    if (retractDate != null && retractDate.before(currentDate) && acceptLateSubmission) {
+    if (acceptLateSubmission
+            && (dueDate != null && dueDate.before(currentDate))
+            && (retractDate == null || retractDate.before(currentDate))) {
     	return false;
     }
     
