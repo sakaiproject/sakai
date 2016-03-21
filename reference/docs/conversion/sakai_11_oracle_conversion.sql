@@ -908,3 +908,8 @@ CREATE SEQUENCE SAKAI_CFG_ITEM_S;
 --END;
 --/
 
+-- KNL-1424 Add Message Bundle Manager to admin workspace
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Manager', '0', 21, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
+-- END KNL-1424

@@ -301,6 +301,9 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1400', 'sitePage.c
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1500', '!admin', 'PA System', '0', 20, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1550', '!admin-1500', '!admin', 'sakai.pasystem', 1, 'PA System', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1500', 'sitePage.customTitle', 'true');
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Manager', '0', 21, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
 
 INSERT INTO SAKAI_SITE_USER VALUES('!admin', 'admin', -1);
 
