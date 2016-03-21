@@ -20,10 +20,10 @@
 		    z-index: 2;
 		}
 		&__portalChat{
-		    width: 205px;
+		    width: 226px;
 		}
 		&--toggle{
-		    display: inline-block;
+		    display: block;
 		    padding: 2px 0px 0px 0px;
 		    color: $footerApp__chat__background !important;
 		    text-decoration: none;
@@ -118,10 +118,10 @@
 		    width: 225px;
 		    background-color: $footerApp__chat__background;
 		    position: fixed;
-		    bottom: 35px;
+		    bottom: 30px;
 		   
 		    /* Needs to be to the right of the expanded presence block. See presenceArea. */
-		    right: 20px;
+		    right: 21px;
 		    z-index: 2001;
 		    margin: 0px;
 		    padding: 0px;
@@ -164,7 +164,7 @@
     			 h2{
     			 	background: none;
     			 	color: $footerApp__chat__color;
-    			 	padding: 2px 0px;
+    			 	padding: 6px 0px 6px 0;
     			 	font-size: 1em;
     			 	margin: 0px 3px;
     			 }
