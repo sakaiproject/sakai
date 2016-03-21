@@ -1018,6 +1018,12 @@ public class ItemModifyListener implements ActionListener
     	   bean.setMutuallyExclusiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
        }
 
+       // get settings for ignore spaces for fib
+       // If metadata doesn't exist, by default it is false.
+       if (meta.getLabel().equals(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB)){
+           bean.setIgnoreSpacesForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
+       }
+
        // get settings for add_to_favorites for matrix 
        // If metadata doesn't exist, by default it is false. 
        if (meta.getLabel().equals(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX)){

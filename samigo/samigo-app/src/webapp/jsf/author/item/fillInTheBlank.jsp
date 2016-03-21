@@ -164,6 +164,22 @@
 <h:outputText value="#{authorMessages.mutually_exclusive_example}" escape="false"/>
 </h:panelGroup>
 </h:panelGrid>
+
+    <h:panelGrid columns="1">
+        <h:panelGroup>
+            <h:selectBooleanCheckbox value="#{itemauthor.currentItem.ignoreSpacesForFib}">
+            </h:selectBooleanCheckbox>
+            <h:outputText value="#{authorMessages.ignore_spaces}" escape="false"/>
+        </h:panelGroup>
+        <h:panelGroup>
+            <h:outputText value="&nbsp;&nbsp;" escape="false"/>
+            <h:outputText value="#{authorMessages.ignore_spaces_note}" escape="false"/>
+        </h:panelGroup>
+        <h:panelGroup>
+            <h:outputText value="&nbsp;&nbsp;" escape="false"/>
+            <h:outputText value="#{authorMessages.ignore_spaces_example}" escape="false"/>
+        </h:panelGroup>
+    </h:panelGrid>
 </div>
 
   <!-- 2a ATTACHMENTS -->

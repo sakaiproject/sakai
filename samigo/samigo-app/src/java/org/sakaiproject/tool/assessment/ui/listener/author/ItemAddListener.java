@@ -2476,6 +2476,12 @@ public class ItemAddListener
 		set.add(new ItemMetaData(item.getData(),
 				ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, Boolean
 						.toString(wellformatted)));
+
+	    // save settings for ignore spaces for FIB. Default=false
+		set.add(new ItemMetaData(item.getData(),
+				ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB, Boolean
+						.toString(bean.getIgnoreSpacesForFib())));
+
 		// sam-939
 		set.add(new ItemMetaData(item.getData(),
 				ItemMetaDataIfc.FORCE_RANKING, Boolean
@@ -2575,6 +2581,10 @@ public class ItemAddListener
 			  }
 			  itemMetaData.setEntry(Boolean
 						.toString(wellformatted));
+		  }
+
+		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB)){
+			  itemMetaData.setEntry(Boolean.toString(bean.getIgnoreSpacesForFib()));
 		  }
 		  
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)){
