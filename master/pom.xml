@@ -76,7 +76,7 @@
     <sakai.version>11-SNAPSHOT</sakai.version>
     <!-- Retain this for backward compatibility -->
     <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
-    <kernel.spring.version>4.1.8.RELEASE</kernel.spring.version>
+    <kernel.spring.version>${sakai.spring.version}</kernel.spring.version>
     <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
     <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
     <kernel.hibernate.jpa.version>1.0.1.Final</kernel.hibernate.jpa.version>
@@ -96,11 +96,11 @@
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
     <sakai.jts.version>1.13</sakai.jts.version>
-    <sakai.lombok.version>1.12.4</sakai.lombok.version>
-    <sakai.jackson.version>2.3.4</sakai.jackson.version>
+    <sakai.lombok.version>1.12.6</sakai.lombok.version>
+    <sakai.jackson.version>2.3.5</sakai.jackson.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
-    <sakai.quartz.version>2.2.1</sakai.quartz.version>
+    <sakai.quartz.version>2.2.2</sakai.quartz.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.sigar.version>1.6.4</sakai.sigar.version>
     <sakai.spatial4j.version>0.4.1</sakai.spatial4j.version>
@@ -110,11 +110,11 @@
     <sakai.asm.version>4.1</sakai.asm.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>4.1.8.RELEASE</sakai.spring.version>
-    <sakai.spring.security.version>3.2.8.RELEASE</sakai.spring.security.version>
+    <sakai.spring.version>4.1.9.RELEASE</sakai.spring.version>
+    <sakai.spring.security.version>3.2.9.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-    <sakai.spring.test.version>4.1.8.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.11</sakai.tika.version>
+    <sakai.spring.test.version>4.1.9.RELEASE</sakai.spring.test.version>
+    <sakai.tika.version>1.12</sakai.tika.version>
     <sakai.tomcat.version>8.0.20</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
@@ -528,7 +528,7 @@
       <dependency>
         <groupId>commons-pool</groupId>
         <artifactId>commons-pool</artifactId>
-        <version>1.5.6</version>
+        <version>1.5.7</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -613,7 +613,7 @@
       <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
-        <version>3.18.0-GA</version>
+        <version>3.18.2-GA</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -625,7 +625,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>1.0.5.2</version>
+        <version>1.0.7</version>
         <scope>provided</scope>
       </dependency>
       <!-- ical4j is dependent on backport -->
@@ -638,7 +638,7 @@
       <dependency>
         <groupId>jaxen</groupId>
         <artifactId>jaxen</artifactId>
-        <version>1.1-beta-10</version>
+        <version>1.1.6</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
