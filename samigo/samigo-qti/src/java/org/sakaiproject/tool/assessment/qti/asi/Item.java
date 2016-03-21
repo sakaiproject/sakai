@@ -204,6 +204,7 @@ public class Item extends ASIBaseClass
     if(item !=null &&(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK))) {
     	setFieldentry("MUTUALLY_EXCLUSIVE", item.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB ));
        	setFieldentry("CASE_SENSITIVE", item.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB ));
+        setFieldentry("IGNORE_SPACES", item.getItemMetaDataByLabel(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB ));
     }
     
     if(item !=null && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) || item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION))) {

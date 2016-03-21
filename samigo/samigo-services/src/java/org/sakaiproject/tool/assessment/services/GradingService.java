@@ -1635,6 +1635,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
     String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
+    String ignorespaces = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB);
     //Set answerSet = new HashSet();
 
     if (answertext != null)
@@ -1643,10 +1644,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       while (st.hasMoreTokens())
       {
         String answer = st.nextToken().trim();
+        boolean ignoreSpaces = "true".equalsIgnoreCase(ignorespaces);
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-            matchresult = fibmatch(answer, studentanswer, true);
+            matchresult = fibmatch(answer, studentanswer, true, ignoreSpaces);
              
           }
         }  // if case sensitive 
@@ -1654,7 +1656,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-    	    matchresult = fibmatch(answer, studentanswer, false);
+    	    matchresult = fibmatch(answer, studentanswer, false, ignoreSpaces);
            }
         }  // else , case insensitive
  
@@ -1715,6 +1717,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
     String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
+    String ignorespaces = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB);
     //Set answerSet = new HashSet();
 
 
@@ -1724,17 +1727,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       while (st.hasMoreTokens())
       {
         String answer = st.nextToken().trim();
+        boolean ignoreSpaces = "true".equalsIgnoreCase(ignorespaces);
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-            matchresult = fibmatch(answer, studentanswer, true);
+            matchresult = fibmatch(answer, studentanswer, true, ignoreSpaces);
            }
         }  // if case sensitive 
         else {
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-    	    matchresult = fibmatch(answer, studentanswer, false);
+    	    matchresult = fibmatch(answer, studentanswer, false, ignoreSpaces);
            }
         }  // else , case insensitive
  
@@ -2317,10 +2321,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return typeId;
   }
   
-  public boolean fibmatch(String answer, String input, boolean casesensitive) {
+  public boolean fibmatch(String answer, String input, boolean casesensitive, boolean ignorespaces) {
 
 	  
 		try {
+		 if (ignorespaces) {
+			 answer = answer.replaceAll(" ", "");
+			 input = input.replaceAll(" ", "");
+		 }
  		 StringBuilder regex_quotebuf = new StringBuilder();
 		 
 		 String REGEX = answer.replaceAll("\\*", "|*|");
