@@ -1124,11 +1124,11 @@ div[role="dialog"] {
     background: url(../images/reload_h.gif) center left no-repeat
 }
 
-/*
- alternate treatment for list - can go in tool.css
-*/
 .right-col {
  display: inline-block;
+}
+.multimediaType .right-col {
+ width:100%;  /* for embedded video */
 }
 .right-col2 {
  left:5px;
@@ -1449,5 +1449,3 @@ body > .portletBody > .action {
 }
 /* end lessons in iframe */
 /* narrow screen */
-
-
