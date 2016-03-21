@@ -75,4 +75,52 @@
             <property name="jobName"><value>Synchronise LTI Site Memberships</value></property>
             <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" /></property>
         </bean>
+
+        <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.LTIReportingJob"
+              class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+              init-method="init">
+            <property name="beanId">
+                <value>org.sakaiproject.lti.impl.LTIReportingJob</value>
+            </property>
+            <property name="jobName">
+                <value>LTI Addition Reporting</value>
+            </property>
+            <property name="resourceBundleBase" value="org.sakaiproject.lti.impl.LTIReportingJob"/>
+            <property name="configurableJobProperties">
+                <set>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="to"/>
+                        <property name="descriptionResourceKey" value="to.description"/>
+                        <property name="defaultValue" value="user@example.com"/>
+                    </bean>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="from"/>
+                        <property name="descriptionResourceKey" value="from.description"/>
+                        <property name="defaultValue" value="sender@example.com"/>
+                    </bean>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="period"/>
+                        <property name="descriptionResourceKey" value="period.description"/>
+                        <property name="defaultValue" value="86400000"/>
+                    </bean>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="toolId"/>
+                        <property name="descriptionResourceKey" value="toolId.description"/>
+                        <property name="defaultValue" value=""/>
+                    </bean>
+                </set>
+            </property>
+            <property name="schedulerManager">
+                <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+            </property>
+        </bean>
+        <bean id="org.sakaiproject.lti.impl.LTIReportingJob" class="org.sakaiproject.lti.impl.LTIReportingJob">
+            <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+            <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+            <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        </bean>
 </beans>

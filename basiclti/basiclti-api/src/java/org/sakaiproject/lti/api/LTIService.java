@@ -470,6 +470,17 @@ public interface LTIService {
 	 */
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last);
 
+
+	/**
+	 * This finds a set of LTI Contents objects.
+	 * @param search The SQL search string to limit the results
+	 * @param order The SQL order by string.
+	 * @param first The first item that should be returned.
+	 * @param last The last item that should be returned.
+	 * @param siteId The site ID or null to search as admin.
+	 * @return A List of LTI Contents objects.
+	 */
+	public List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId);
 	/**
 	 * 
 	 * @param search
