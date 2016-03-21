@@ -99,7 +99,7 @@ public interface AssignmentSubmission extends Entity
 	 * 
 	 * @return List of user ids
 	 */
-	public List getSubmitterIds();
+	public List<String> getSubmitterIds();
 	
 	/**
 	 * Access the concat the submitter id together and form a String
