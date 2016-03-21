@@ -660,14 +660,18 @@ body.is-logged-out{
 
 .#{$namespace}siteStatus{
 	&.is-unpublished{
-		margin-left:1em;
-		width: calc( 100% - 2em);
+		margin-left:0em;
+		width: 100%;
 		padding: 3px;
 		color :$background-color-secondary;
 		display:block;
 		text-align:center;
+		background-color: $warncolor;
+		border-bottom: 1px solid darken($warncolor, 10%);
 		h4{
 			padding: 3px;
+			display: inline-block;
+			vertical-align: top;
 		}
 		button{
 			@extend .button;
