@@ -2997,7 +2997,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		//Get the actual person that submitted, for a group submission just get the first person from that group (This is why the array is used)
 		String userId = null;
 		if (s.getSubmitterIds() != null && s.getSubmitterIds().size() > 0) {
-		    userId = (String) s.getSubmitterIds().get(0);
+		    userId = s.getSubmitterIds().get(0);
 		}
 
 		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
@@ -3533,14 +3533,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			AssignmentSubmission sub = (AssignmentSubmission) submissions.get(z);
 			if (sub != null)
 			{
-				List submitters = sub.getSubmitterIds();
-				for (int a = 0; a < submitters.size(); a++)
+				for (String userId : sub.getSubmitterIds())
 				{
-					String aUserId = (String) submitters.get(a);
-					
-						M_log.debug(this + " getSubmission(List, User) comparing aUser id : " + aUserId + " and chosen user id : "
+						M_log.debug(this + " getSubmission(List, User) comparing aUser id : " + userId + " and chosen user id : "
 								+ person.getId());
-					if (aUserId.equals(person.getId()))
+					if (userId.equals(person.getId()))
 					{
 						
 							M_log.debug(this + " getSubmission(List, User) found a match : return value is " + sub.getId());
@@ -3621,7 +3618,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String assignmentRef = assignmentReference(submission.getContext(), submission.getAssignmentId());
 		if (!allowGradeSubmission(assignmentRef))
 		{
-			List submitterIds = submission.getSubmitterIds();
+			List<String> submitterIds = submission.getSubmitterIds();
 			String userId = SessionManager.getCurrentSessionUserId();
 			if (!userId.equals(submission.getSubmitterId()) && submitterIds != null && !submitterIds.contains(userId))
 			{
@@ -10195,7 +10192,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		protected String m_context;
 
-		protected List m_submitters;
+		protected List<String> m_submitters;
 
                 protected String m_submitterId;
 
@@ -10764,7 +10761,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_assignment = assignId;
 			m_properties = new BaseResourcePropertiesEdit();
 			addLiveProperties(m_properties);
-			m_submitters = new ArrayList();
+			m_submitters = new ArrayList<String>();
 			m_submissionLog = new ArrayList();
 			m_grades = new ArrayList();
                         m_feedbackAttachments = m_entityManager.newReferenceList();
@@ -10882,7 +10879,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			m_submissionLog = new ArrayList();
 			m_grades = new ArrayList();
-			m_submitters = new ArrayList();
+			m_submitters = new ArrayList<String>();
 			m_submittedAttachments = m_entityManager.newReferenceList();
 			m_feedbackAttachments = m_entityManager.newReferenceList();
 
@@ -11477,7 +11474,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public User[] getSubmitters() {
 			List<User> retVal = new ArrayList();
-			for (String userId:(List<String>) getSubmitterIds()) {
+			for (String userId : getSubmitterIds()) {
 				try {
 					retVal.add(UserDirectoryService.getUser(userId));
 				} catch (Exception e) {
@@ -11503,7 +11500,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 * 
 		 * @return FlexStringArray of user ids.
 		 */
-		public List getSubmitterIds()
+		public List<String> getSubmitterIds()
 		{
 		    Assignment a = getAssignment();
 		    if (a.isGroup()) {
