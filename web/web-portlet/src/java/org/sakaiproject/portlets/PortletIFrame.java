@@ -176,8 +176,6 @@ public class PortletIFrame extends GenericPortlet {
     protected static final String MACRO_USER_LAST_NAME      = "${USER_LAST_NAME}";
     /** Macro name: Role */
     protected static final String MACRO_USER_ROLE           = "${USER_ROLE}";
-    /** Macro name: Session */
-    protected static final String MACRO_SESSION_ID          = "${SESSION_ID}";
 
     private static final String MACRO_CLASS_SITE_PROP = "SITE_PROP:";
    
@@ -1235,10 +1233,6 @@ public class PortletIFrame extends GenericPortlet {
 			if (macroName.equals(MACRO_USER_ROLE))
 			{
 				return this.getUserRole();
-			}
-			if (macroName.equals(MACRO_SESSION_ID))
-			{
-				return this.getSessionId();
 			}
 
 			if (macroName.startsWith("${"+MACRO_CLASS_SITE_PROP)) 
