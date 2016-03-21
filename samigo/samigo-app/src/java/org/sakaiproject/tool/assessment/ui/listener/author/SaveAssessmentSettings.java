@@ -123,7 +123,18 @@ public class SaveAssessmentSettings
     	control.setStartDate(assessmentSettings.getStartDate());
     }
     control.setDueDate(assessmentSettings.getDueDate());
-    control.setRetractDate(assessmentSettings.getRetractDate());
+
+    if (assessmentSettings.getLateHandling() != null) {
+        control.setLateHandling(new Integer(assessmentSettings.getLateHandling()));
+    }
+
+    if (assessmentSettings.getRetractDate() == null
+            || "".equals(assessmentSettings.getRetractDateString())) {
+        control.setRetractDate(null);
+        control.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION);
+    } else {
+        control.setRetractDate(assessmentSettings.getRetractDate());
+    }
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
     control.setReleaseTo(assessmentSettings.getReleaseTo());
     //log.info("control RELEASETO ="+control.getReleaseTo());
@@ -179,10 +190,6 @@ public class SaveAssessmentSettings
     //log.info("**unlimited submission="+assessmentSettings.getUnlimitedSubmissions());
     //log.info("**allowed="+control.getSubmissionsAllowed());
 
-    if (assessmentSettings.getLateHandling()!=null){
-      control.setLateHandling(new Integer(assessmentSettings.
-                                                getLateHandling()));
-    }
     if (assessmentSettings.getSubmissionsSaved()!=null){
       control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));
     }

@@ -424,7 +424,9 @@ public class AuthorActionListener
 			  returnValue = false;
 		  }
 
-		  if (acceptLateSubmission && retractDate != null && retractDate.before(currentDate)) {
+		  if (acceptLateSubmission
+				  && (dueDate != null && dueDate.before(currentDate))
+				  && (retractDate == null || retractDate.before(currentDate))) {
 			  returnValue = false;
 		  }
 
