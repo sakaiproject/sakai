@@ -10,7 +10,9 @@
     display: inline-block;
     float: none;
     text-align: right;
-    width: 12em;
+    width: 14em;
+    margin: 0 1em 0 0;
+    vertical-align: middle;
 }
 
 #useredit .shorttext label
@@ -36,9 +38,9 @@
 {
     display: block;
     position: absolute;
-    left: 32em;
+    left: 31em;
     width: 50%;
-    margin-top: -5em;
+    margin-top: -8.9em;
     padding: 1em;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -53,7 +55,7 @@
     position: absolute;
     width: 0;
     height: 0;
-    top: 3px;
+    top: 52px;
     left: -15px;
     border-top: 15px solid transparent;
     border-right: 15px solid #ccc;
@@ -66,7 +68,7 @@
 #useredit #failMsg, #useredit #moderateMsg
 {
     display: block;
-    margin: 0.5em 0 0 13.5em;
+    margin: 1em 0 0 13.5em;
     padding-left: 1.5em;
     vertical-align: top;
     line-height: 1.4em;
@@ -133,6 +135,10 @@
     position: relative;
 }
 
+#user-create_edit fieldset > div.shorttext{
+    margin: 0 0 0.8em 0;
+}
+
 #userViewForm fieldset
 {
     width: 25em;
@@ -141,6 +147,7 @@
 #user-create_edit fieldset
 {
     display:inline-block;
+    width: 100%;
 }
 
 .createBlurb
