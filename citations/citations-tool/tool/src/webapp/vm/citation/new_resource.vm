@@ -30,7 +30,6 @@
 <link media="all" rel="stylesheet" type="text/css" href="#libraryLink('webjars/jquery-ui/1.11.3/jquery-ui.min.css')">
 <link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">
 <style type="text/css">
-span.searchTargetLink { margin-right:50px; }
 </style>
 
 <div id="citationsPortletBody" class="portletBody">
@@ -88,19 +87,17 @@ span.searchTargetLink { margin-right:50px; }
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>	
 	<br />
+	<div class="addCitationsText">
+		<span class="current">
+			$tlang.getString("resource.search.target")
+	    </span>
+    </div>
 	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItem">
-			<span class="current">
-				$tlang.getString("resource.search.target")
-			</span>
-		</li>
 		#if( $saveciteClients )
 			#foreach($client in $saveciteClients)
 				<li>
 					<span class="saveciteClient searchTargetLink">
-						<a name="$client.id" id="$client.id" title="$client.searchurl_label" href="#">
-							$client.searchurl_label
-						</a>
+						<input type="button" name="$client.id" id="$client.id"  title="$client.searchurl_label" value="$client.searchurl_label" class="active">
 						<span class="saveciteClientUrl" style="display:none;">${client.searchurl_base}?linkurl_base=${client.saveciteUrl}#if(${client.linkurl_id})&linkurl_id=${client.linkurl_id}#end&</span>
 						<span class="popupTitle" style="display:none;">$client.searchurl_label</span>
 						<span class="windowHeight" style="display:none;">${client.window_height}</span>
@@ -113,9 +110,7 @@ span.searchTargetLink { margin-right:50px; }
 		#if( $searchLibrary )
 		  <li>
 			  <span class="searchTargetLink">
-			    <a name="Search" id="Search"  title="$tlang.getString("resource.library.search")" href="#">
-			    	$tlang.getString("resource.library")
-			    </a>
+				<input type="button" name="Search" id="Search"  title="$tlang.getString("resource.library.search")" value="$tlang.getString("resource.library")" class="active">
 				<span class="searchUrl" style="display:none;">#toolLink("CitationHelperAction" "doSearch")</span>
 				<span class="popupTitle" style="display:none;">$tlang.getString("resource.library.search")"</span>
 			  </span>
@@ -125,9 +120,7 @@ span.searchTargetLink { margin-right:50px; }
 		#if( $googleUrl )
 		  <li>
 			  <span class="searchTargetLink">
-			    <a name="SearchGoogle" id="SearchGoogle" title="$tlang.getString("resource.google.search")"  href="#">
-			    	$tlang.getString("resource.google")
-			    </a>
+				<input type="button" name="SearchGoogle" id="SearchGoogle"  title="$tlang.getString("resource.google.search")" value="$tlang.getString("resource.google")" class="active">
 			    <span class="googleUrl" style="display:none;">$googleUrl</span>
 			    <span class="popupTitle" style="display:none;">$tlang.getString("popup.title.google")</span>
 			  </span>
@@ -136,41 +129,26 @@ span.searchTargetLink { margin-right:50px; }
 
           <li>
 			  <span class="searchTargetLink">
-			    <a name="PickResource" id="PickResource" title="$tlang.getString("resource.pick.resource")"  href="#" onclick="javascript:document.getElementById('sakai_action').value='doPickResource'">
-                    $tlang.getString("resource.resourcepicker")</td>
-			    </a>
+				<input type="button" name="PickResource" id="PickResource"  title="$tlang.getString("resource.pick.resource")"
+                       onclick="javascript:document.getElementById('sakai_action').value='doPickResource'" value="$tlang.getString("resource.resourcepicker")" class="active"></td>
 			  </span>
           </li>
 		
 	    #if(! $fromListPage)
 		  <li>
 			  <span class="searchTargetLink">
-			    <a name="CreateCitation" id="CreateCitation" title="$tlang.getString("addAction.create")"  href="#">
-				  $tlang.getString("resource.editor")
-				</a>
+				<input type="button" name="CreateCitation" id="CreateCitation"  title="$tlang.getString("addAction.create")" value="$tlang.getString("resource.editor")" class="active">
 			  </span>
 		  </li>
 		#end
 	  <!-- Markup for Import/RIS -->
 	  <li>
 		  <span class="searchTargetLink">
-		    <a name="ImportCitation" id="ImportCitation" title="$tlang.getString("resource.import.file")"  href="#">
-			   $tlang.getString("resource.import")
-		    </a>
+			<input type="button" name="ImportCitation" id="ImportCitation"  title="$tlang.getString("resource.import.file")" value="$tlang.getString("resource.import")" class="active">
 			<span class="importUrl" style="display:none;">#toolLink("CitationHelperAction" "doGet")</span>
 			<span class="popupTitle" style="display:none;">$tlang.getString("resource.import.file")</span>
 		  </span>
 	  </li>
-	  <!-- Markup for Export/RIS -->
-	  #if( $!exportUrlAll )
-		  <li>
-			  <span class="searchTargetLink">
-			    <a name="ExportCitation" id="ExportCitation" title="$tlang.getString("resource.export.file")"
-				   href="$exportUrlAll"> $tlang.getString("resource.export")
-			    </a>
-			  </span>
-		  </li>
-	  #end
 	</ul>
 	<div class="act">
 		<div class="citationsDisplay"#if(! ($collectionSize || $collectionSize < 1) && ! ($nestedSectionsSize || $nestedSectionsSize < 1)) style="display:none;"#end>
@@ -181,7 +159,7 @@ span.searchTargetLink { margin-right:50px; }
 				#parse( "vm/citation/_listCitations.vm" )
 			</div>
 		</div>
-		<p class="noCitationsDisplay"#if($collectionSize && $collectionSize > 0 && $unnestedCitationCollectionSize && $unnestedCitationCollectionSize > 0) style="display:none;"#end>
+		<p class="noCitationsDisplay" #if(($nestedCollection && $nestedCollection.getCountCitations() > 0) || ($unnestedCitationCollectionSize && $unnestedCitationCollectionSize > 0)) style="display:none;"#end>
 			$tlang.getString("resource.nocitations")
 		</p>	
 	</div>

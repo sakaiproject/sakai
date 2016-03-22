@@ -397,6 +397,11 @@
 
         function toggleEditor() {
             if ( isEditingEnabled ) {  // clicked 'Finish Editing'
+
+                // re-enable editing of 'Search Library' and nested list
+                $('#Search').closest('li').show();
+                $(".act *").removeAttr("disabled");
+
                 disableEditing(this.id.replace(TOGGLE, SECTION_INLINE_EDITOR));
                 $('#' + this.id.replace(TOGGLE, SECTION_INLINE_EDITOR)).attr( 'contenteditable', false );
                 this.value = $('#startEditingText').val();
@@ -421,6 +426,11 @@
                 $("ol.serialization").sortable("enable"); //call widget-function enable
             }
             else { // clicked 'Edit'
+
+                // disable editing of 'Search Library' and nested list functionality (except 'Finish 'Editing' button)
+                $('#Search').closest('li').hide();
+                $(".act *").not("#" + this.id).attr("disabled", "disabled");
+
                 $('#' + this.id.replace(TOGGLE, SECTION_INLINE_EDITOR)).attr( 'contenteditable', true );
                 var container = $(this).parent().parent();
                 var showBasicEditor = !container.hasClass('serialization') && container.data('sectiontype')!='DESCRIPTION';
@@ -571,7 +581,7 @@
 
             $('.h1NestedLevel li[data-sectiontype="HEADING1"] > div > div[id^=sectionInlineEditor]').click(function() {
                 $(this).parent().parent().find('ol').slideToggle();
-                var image =  $('#' + this.id.replace('linkClick', 'toggleImg')).get(0);
+                var image =  $('#' + this.id.replace('linkClick', 'toggleImg').replace('sectionInlineEditor', 'toggleImg')).get(0);
 
                 if( image.src.indexOf("/library/image/sakai/white-arrow-right.gif")!=-1 ) {
                     image.src = "/library/image/sakai/white-arrow-down.gif";

@@ -4161,13 +4161,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		else
 		{
 			String citationId = (String) state.getAttribute(CitationHelper.CITATION_EDIT_ID);
-			int location = params.getInt("location");
+			Integer location = (Integer) state.getAttribute("location");
 			Citation citation;
 			if(citationId != null)
 			{
 				try {
 					// if it's a unnested citation
-					if (location == 0) {
+					if (location==null || location == 0) {
 						String citationCollectionId = (String) state.getAttribute("citation.citation_collection_id");
 						collection = getCitationService().getUnnestedCitationCollection(citationCollectionId);
 					}
@@ -4175,17 +4175,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 				catch (IdUnusedException e){
 					citation = (Citation)state.getAttribute(CitationHelper.CITATION_EDIT_ITEM);
+					collection.add(citation);
 				}
 				String schemaId = params.getString("type");
 				Schema schema = getCitationService().getSchema(schemaId);
 				citation.setSchema(schema);
 				updateCitationFromParams(citation, params);
-				if(!collection.contains(citation)){
-					collection.add(citation);
-				}
+				collection.saveCitation(citation);
 			}
 			// add citation to current collection
-			if (location==0){
+			if (location==null || location==0){
 				getCitationService().save(collection);
 			}
  		}
