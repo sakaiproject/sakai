@@ -134,6 +134,8 @@
     <sakai.jdk.version>1.8</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+    <!-- Default empty unless profile activation -->
+    <random-source></random-source>
   </properties>
   <distributionManagement>
     <snapshotRepository>
@@ -237,6 +239,19 @@
       <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+      </properties>
+    </profile>
+    <profile>
+      <id>unix-profile</id>
+      <activation>
+        <os>
+          <family>unix</family>
+          <name>!mac os x</name>
+        </os>
+      </activation>
+      <properties>
+        <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
+        <random-source>-Djava.security.egd=file:/dev/./urandom</random-source>
       </properties>
     </profile>
   </profiles>
@@ -2040,9 +2055,10 @@
             <!--suppress MavenModelInspection -->
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
-          <!-- headless is to stop it stealing focus on developer machines (OSX) -->
+          <!-- This is to stop it stealing focus on developer machines (OSX) -->
           <!-- file.encoding is for windows which was failing tests under maven without this -->
-          <argLine>-Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding}</argLine>
+          <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
+          <argLine>-Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
         </configuration>
       </plugin>
       <plugin>
