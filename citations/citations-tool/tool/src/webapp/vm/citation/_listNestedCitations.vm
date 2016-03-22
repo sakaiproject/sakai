@@ -1,7 +1,5 @@
 <input type="hidden" id="sectionTitleText" value="$tlang.getString("nested.section.title")"/>
 <input type="hidden" id="sectionDescriptionText" value="$tlang.getString("nested.section.description.text")"/>
-<input type="hidden" id="startEditingDescriptionText" value="$tlang.getString("nested.edit.description.section.button")"/>
-<input type="hidden" id="finishEditingDescriptionText" value="$tlang.getString("nested.finish.editing.description.button")"/>
 <input type="hidden" id="startEditingText" value="$tlang.getString("nested.start.editing.button")"/>
 <input type="hidden" id="finishEditingText" value="$tlang.getString("nested.finish.editing.button")"/>
 <input type="hidden" id="deleteSectionText" value="$tlang.getString("nested.delete.section.button")"/>
@@ -9,6 +7,15 @@
 <input type="hidden" id="deleteButtonConfirmText" value="$tlang.getString("nested.delete.section.confirm")"/>
 
 #if(!$resourceAdd)
+<!-- Markup for Export/RIS -->
+	#if( $!exportUrlAll )
+    <div style="float:right;"><span class="searchTargetLink" style="float:right;">
+				    <a name="ExportCitation" id="ExportCitation" title="$tlang.getString("resource.export.file")"
+                       href="$exportUrlAll"> $tlang.getString("resource.export")
+                    </a>
+				  </span>
+    </div>
+	#end
 	##Banner
 	<div class="listTitle sectionButtons" style="background-color:$officialInstBackColour">
 	    <h1 style="color:$officialInstTextColour">$resourceTitle</h1>
@@ -19,12 +26,12 @@
 	#else
 		#set( $introduction = 'Reading List Introduction' )
 	#end
-	<div id='sectionInlineEditorDescription' class='editor sectionEditorsectionInlineEditorDescription sectionButtons buttonsDescription'>
+	<div id='sectionInlineEditorDescription' class='editor sectionEditorsectionInlineEditorDescription buttonsDescription'>
 		$introduction
 	</div>
-	<div id="buttonsDescription" class="sectionButtons buttonsDescription">
-		<input type="button" id="toggleDescription" class="active" value='$tlang.getString("nested.start.editing.button")'/>
-	</div>
+    <div id="buttonsDescription" class="buttonsDescription">
+        <input type="button" id="toggleDescription" class="active" value='$tlang.getString("nested.start.editing.button")'/>
+    </div>
 #end
 
 #set( $num = 1 )
@@ -51,7 +58,7 @@
 			<div id="$linkClickId" class="h1TopBar">
 				#if ($nestedSection.getChildren().size() > 0)
 					<div id="$toggleImgDiv"><img border="0" width="16" height="16" align="top" id="$toggleImg"
-							class="toggleIcon accordionArrow" style="padding-top: 11px;" src="/library/image/sakai/white-arrow-right.gif" alt="$tlang.getString("link.show.readonly")">
+							class="toggleIcon accordionArrow" style="padding: 0px;" src="/library/image/sakai/white-arrow-right.gif" alt="$tlang.getString("link.show.readonly")">
 					</div>
 				#end
 				<div id='$editorDivId' class='editor h1Editor #if($nestedSection.getChildren().size() > 0)sectionEditor#end'>
@@ -76,8 +83,7 @@
 
 			## h2 sections and citations
 			#if($nestedSection.getChildren().size() > 0)
-				<ol class="h2NestedLevel holdCitations"></ol>
-				<ol id="$addSubsectionId" class="h2NestedLevel">
+				<ol id="$addSubsectionId" class="h2NestedLevel holdCitations">
 					#foreach($h2Section in $nestedSection.getChildren())
 						#set( $num = $num + 1)
 						#set( $editorDivId = 'sectionInlineEditor' + $h2Section.getLocation() )
@@ -118,8 +124,7 @@
 
 							## h3 sections and citations
 							#if($h2Section.getChildren().size() > 0)
-								<ol class="h3NestedLevel holdCitations"></ol>
-								<ol id="$addSubsectionId" class="h3NestedLevel ">
+								<ol id="$addSubsectionId" class="h3NestedLevel holdCitations">
 									#foreach($h3Section in $h2Section.getChildren())
 										#set( $num = $num + 1)
 										#set( $editorDivId = 'sectionInlineEditor' + $h3Section.getLocation() )
@@ -195,7 +200,8 @@
 														</li>
 													#end
 												</ol>
-											#else
+											## this stops dragging inside a description at this level
+											#elseif ($h3Section.getSectiontype()!='DESCRIPTION')
 												<ol class="h4NestedLevel holdCitations"></ol>
 											#end ##  end of nested citations
 										</li>

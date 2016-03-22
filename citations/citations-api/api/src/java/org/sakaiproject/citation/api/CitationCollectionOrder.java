@@ -124,6 +124,13 @@ public class CitationCollectionOrder {
 							if (order.isCitation()){
 								citationNo++;
 							}
+							else {
+								for (CitationCollectionOrder o : order.getChildren()) {
+									if (o.isCitation()){
+										citationNo++;
+									}
+								}
+							}
 						}
 					}
 				}
