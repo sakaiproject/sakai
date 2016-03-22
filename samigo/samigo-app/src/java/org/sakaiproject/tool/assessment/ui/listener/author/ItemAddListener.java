@@ -250,7 +250,7 @@ public class ItemAddListener
         // make sure any last minute updates to instructions are handles
         // this also does the standard validations
         CalculatedQuestionExtractListener extractListener = new CalculatedQuestionExtractListener();
-        List<String> errors = extractListener.validate(item);
+        List<String> errors = extractListener.validate(item,false);
         if (errors.size() > 0) {
             for (String curError : errors) {
                 context.addMessage(null, new FacesMessage(curError));
