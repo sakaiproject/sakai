@@ -3,5 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!-- We have not been able to get a SAML config working in TOMCAT_HOME/sakai/xlogin-context.xml. -->
+    <!-- import resource="xlogin-context.saml.xml" / -->
 </beans>
 
