@@ -39,6 +39,8 @@ body.#{$namespace}toolMenu-collapsed{
 						    background: $primary-color;
 						    padding: 0.71em;
 						    border-left: 1px solid $primary-color;
+						    max-width: 7.5em;
+						    z-index: 10;
 						}
 					}
 				}
