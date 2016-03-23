@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Content Review VeriCite Implementation</name>
+	<groupId>org.sakaiproject.contentreview.vericite</groupId>
+	<artifactId>content-review-vericite-impl</artifactId>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.sakaiproject.contentreview</groupId>
+		<artifactId>content-review-impl</artifactId>
+		<version>12-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview</groupId>
+			<artifactId>content-review-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<classifier>jdk15</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.assignment</groupId>
+			<artifactId>sakai-assignment-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+		</dependency>
+	</dependencies>
+</project>

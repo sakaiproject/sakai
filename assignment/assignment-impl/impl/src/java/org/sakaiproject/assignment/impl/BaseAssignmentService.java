@@ -45,10 +45,11 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.util.ZipContentUtil;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
+import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
-import org.sakaiproject.contentreview.model.ContentReviewItem;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.cover.DigestService;
 import org.sakaiproject.email.cover.EmailService;
@@ -10329,7 +10330,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					M_log.debug(this + " getReviewScore checking for score for content: " + contentId);
 
                     Long status = contentReviewService.getReviewStatus(contentId);
-                    if (status != null && (status.equals(ContentReviewItem.NOT_SUBMITTED_CODE) || status.equals(ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE)))  {
+                    if (status != null && (status.equals(ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE) || status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE)))  {
                         M_log.debug(this + " getReviewStatus returned a status of: " + status);
                         return -2;
                     }
@@ -10398,7 +10399,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				M_log.debug(this + " getReviewScore(ContentResource) checking for score for content: " + contentId);
 
 				Long status = contentReviewService.getReviewStatus(contentId);
-				if (status != null && (status.equals(ContentReviewItem.NOT_SUBMITTED_CODE) || status.equals(ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE)))
+				if (status != null && (status.equals(ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE) || status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE)))
 				{
 					M_log.debug(this + " getReviewStatus returned a state of: " + status);
 					return -2;
@@ -10587,20 +10588,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
                     String errorMessage = null; 
                     
                     if (status != null) {
-                        if (status.equals(ContentReviewItem.REPORT_ERROR_NO_RETRY_CODE)) {
+                        if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_NO_RETRY_CODE)) {
                             errorMessage = rb.getString("content_review.error.REPORT_ERROR_NO_RETRY_CODE");
-                        } else if (status.equals(ContentReviewItem.REPORT_ERROR_RETRY_CODE)) {
+                        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE)) {
                             errorMessage = rb.getString("content_review.error.REPORT_ERROR_RETRY_CODE");
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_NO_RETRY_CODE)) {
+                        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE)) {
                             errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_NO_RETRY_CODE");
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_RETRY_CODE)) {
+                        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE)) {
                             errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_RETRY_CODE");
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_RETRY_EXCEEDED)) {
+                        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE)) {
                             errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_RETRY_EXCEEDED_CODE");
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_USER_DETAILS_CODE)) {
+                        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_USER_DETAILS_CODE)) {
                             errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_USER_DETAILS_CODE");
-                        } else if (ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals(status)
-                                || ContentReviewItem.NOT_SUBMITTED_CODE.equals(status)) {
+                        } else if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status)
+                                || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
                         	errorMessage = rb.getString("content_review.pending.info");
                         }
                     }
@@ -10640,31 +10641,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// TODO: we can remove this null check if we use yoda statements below
 				if (status != null)
 				{
-					if (status.equals(ContentReviewItem.REPORT_ERROR_NO_RETRY_CODE))
+					if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_NO_RETRY_CODE))
 					{
 						errorMessage = rb.getString("content_review.error.REPORT_ERROR_NO_RETRY_CODE");
 					}
-					else if (status.equals(ContentReviewItem.REPORT_ERROR_RETRY_CODE))
+					else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE))
 					{
 						errorMessage = rb.getString("content_review.error.REPORT_ERROR_RETRY_CODE");
 					}
-					else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_NO_RETRY_CODE))
+					else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE))
 					{
 						errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_NO_RETRY_CODE");
 					}
-					else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_RETRY_CODE))
+					else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE))
 					{
 						errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_RETRY_CODE");
 					}
-					else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_RETRY_EXCEEDED))
+					else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE))
 					{
 						errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_RETRY_EXCEEDED_CODE");
 					}
-					else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_USER_DETAILS_CODE))
+					else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_USER_DETAILS_CODE))
 					{
 						errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_USER_DETAILS_CODE");
 					}
-					else if (ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewItem.NOT_SUBMITTED_CODE.equals(status))
+					else if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status))
 					{
 						errorMessage = rb.getString("content_review.pending.info");
 					}

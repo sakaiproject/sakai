@@ -1167,13 +1167,7 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.contentreview</groupId>
-        <artifactId>contentreview-model-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.contentreview</groupId>
-        <artifactId>contentreview-service-api</artifactId>
+        <artifactId>content-review-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>

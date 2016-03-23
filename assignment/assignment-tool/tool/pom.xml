@@ -51,7 +51,7 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.contentreview</groupId>
-            <artifactId>contentreview-service-api</artifactId>
+            <artifactId>content-review-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.announcement</groupId>

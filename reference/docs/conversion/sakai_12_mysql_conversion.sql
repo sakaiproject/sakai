@@ -98,4 +98,28 @@ alter table SAM_PUBLISHEDSECTION_T change description description mediumtext nul
 alter table SAM_ASSESSMENTBASE_T change description description mediumtext null;
 alter table SAM_SECTION_T change description description mediumtext null;
 alter table SAM_ITEMGRADING_T change comments comments mediumtext null;
-alter table SAM_ASSESSMENTGRADING_T change comments comments mediumtext null
+alter table SAM_ASSESSMENTGRADING_T change comments comments mediumtext null;
+
+-- SAK-30207
+CREATE TABLE IF NOT EXISTS CONTENTREVIEW_ITEM (
+    ID                  BIGINT NOT NULL AUTO_INCREMENT,
+    VERSION             INT NOT NULL,
+    PROVIDERID          INT NOT NULL,
+    CONTENTID           VARCHAR(255) NOT NULL,
+    USERID              VARCHAR(255),
+    SITEID              VARCHAR(255),
+    TASKID              VARCHAR(255),
+    EXTERNALID          VARCHAR(255),
+    DATEQUEUED          DATETIME NOT NULL,
+    DATESUBMITTED       DATETIME,
+    DATEREPORTRECEIVED  DATETIME,
+    STATUS              BIGINT,
+    REVIEWSCORE         INT,
+    LASTERROR           LONGTEXT,
+    RETRYCOUNT          BIGINT,
+    NEXTRETRYTIME       DATETIME NOT NULL,
+    ERRORCODE           INT,
+    PRIMARY KEY (ID),
+    CONSTRAINT PROVIDERID UNIQUE (PROVIDERID, CONTENTID)
+);
+-- END SAK-30207
