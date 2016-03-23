@@ -280,7 +280,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		publishedAccessControl.setDisplayScoreDuringAssessments(a.getDisplayScoreDuringAssessments());
 		publishedAccessControl.setSubmissionMessage(a.getSubmissionMessage());
 		publishedAccessControl.setReleaseTo(a.getReleaseTo());
-		publishedAccessControl.setUsername(a.getUsername());
 		publishedAccessControl.setPassword(a.getPassword());
 		publishedAccessControl.setFinalPageUrl(a.getFinalPageUrl());
 		publishedAccessControl.setUnlimitedSubmissions(a

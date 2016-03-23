@@ -332,7 +332,6 @@ public abstract class AssessmentHelperBase
     String finalPageUrl = accessControl.getFinalPageUrl();
     String password = accessControl.getPassword();
     String releaseTo = accessControl.getReleaseTo();
-    String userName = accessControl.getUsername();
 
     assessmentXml.setFieldentry("AUTO_SUBMIT", qtiBooleanString(autoSubmit));
 
@@ -415,10 +414,6 @@ public abstract class AssessmentHelperBase
     if (releaseTo != null)
     {
       assessmentXml.setFieldentry("ASSESSMENT_RELEASED_TO", releaseTo);
-    }
-    if (userName != null)
-    {
-      assessmentXml.setFieldentry("USERID", userName);
     }
   }
 

@@ -123,7 +123,6 @@ public class FakeBeginDeliveryActionListener implements ActionListener
       control.setSubmissionsAllowed(control.UNLIMITED_SUBMISSIONS_ALLOWED);
       control.setFeedbackDate(new Date());
       control.setAssessmentFormat(control.BY_PART);
-      control.setUsername("Groucho");
       control.setPassword("swordfish");
       pub.setAssessmentAccessControl(new PublishedAccessControl());
 //    }
@@ -256,7 +255,6 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     settings.setFormatByAssessment(AssessmentAccessControlIfc.BY_ASSESSMENT.equals(format));
     settings.setFormatByPart(AssessmentAccessControlIfc.BY_PART.equals(format));
     settings.setFormatByQuestion(AssessmentAccessControlIfc.BY_QUESTION.equals(format));
-    settings.setUsername(control.getUsername());
     settings.setPassword(control.getPassword());
   }
 

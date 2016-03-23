@@ -43,9 +43,9 @@
    <h:panelGroup>
        <f:verbatim><div class="messageSamigo"></f:verbatim>
        <h:outputText value="#{deliveryMessages.password_denied}" escape="false"
-         rendered="#{delivery.settings.username ne ''}" />
+         rendered="#{delivery.settings.password ne ''}" />
        <h:outputText value="#{deliveryMessages.ip_denied}" escape="false"
-         rendered="#{delivery.settings.username eq ''}" />
+         rendered="#{delivery.settings.password eq ''}" />
        <f:verbatim></div></f:verbatim>
    </h:panelGroup>
 

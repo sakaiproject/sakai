@@ -312,7 +312,7 @@ public class DeliveryActionListener
 
               if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
             	  // #1. check password
-            	  if (!delivery.getSettings().getUsername().equals(""))
+            	  if (!delivery.getSettings().getPassword().equals(""))
             	  {
             		  if ("passwordAccessError".equals(delivery.validatePassword())) {
             			  return;

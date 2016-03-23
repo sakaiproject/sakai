@@ -1028,14 +1028,12 @@ public class ExtractionHelper
     // Username, password, finalPageUrl
 //    String considerUserId = assessment.getAssessmentMetaDataByLabel(
 //        "CONSIDER_USERID"); //
-    String userId = assessment.getAssessmentMetaDataByLabel("USERID");
     String password = assessment.getAssessmentMetaDataByLabel("PASSWORD");
     String finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessment.getAssessmentMetaDataByLabel("FINISH_URL"));
 
     if (//"TRUE".equalsIgnoreCase(considerUserId) &&
-        notNullOrEmpty(userId) && notNullOrEmpty(password))
+        notNullOrEmpty(password))
     {
-      control.setUsername(userId);
       control.setPassword(password);
       assessment.getData().addAssessmentMetaData("hasUsernamePassword", "true");
     }

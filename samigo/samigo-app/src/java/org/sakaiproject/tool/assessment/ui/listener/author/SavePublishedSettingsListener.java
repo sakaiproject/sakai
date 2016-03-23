@@ -529,8 +529,6 @@ implements ActionListener
 
 		// e. set Submission Messages
 	    control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
-	    // f. set username
-	    control.setUsername(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, StringUtils.trim(assessmentSettings.getUsername())));
 	    // g. set password
 	    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, StringUtils.trim(assessmentSettings.getPassword())));
 	    // h. set finalPageUrl

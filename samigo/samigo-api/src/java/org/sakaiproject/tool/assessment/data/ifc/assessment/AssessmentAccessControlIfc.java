@@ -158,10 +158,6 @@ public interface AssessmentAccessControlIfc
 
   void setReleaseTo(String releaseTo);
 
-  String getUsername();
-
-  void setUsername(String username);
-
   String getPassword();
 
   void setPassword(String password);

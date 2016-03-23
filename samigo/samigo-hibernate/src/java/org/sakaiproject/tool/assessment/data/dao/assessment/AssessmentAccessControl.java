@@ -106,7 +106,6 @@ public class AssessmentAccessControl
   private String submissionMessage;
   private String finalPageUrl;
   private String releaseTo;
-  private String username;
   private String password;
   private Integer markForReview;
 
@@ -168,7 +167,6 @@ public class AssessmentAccessControl
     ((AssessmentAccessControl)cloned).setItemNumbering(this.itemNumbering);
     ((AssessmentAccessControl)cloned).setDisplayScoreDuringAssessments(this.displayScoreDuringAssessments);
     ((AssessmentAccessControl)cloned).setSubmissionMessage(this.submissionMessage);
-    ((AssessmentAccessControl)cloned).setUsername(this.username);
     ((AssessmentAccessControl)cloned).setPassword(this.password);
     ((AssessmentAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((AssessmentAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
@@ -395,13 +393,6 @@ public class AssessmentAccessControl
     this.releaseTo = releaseTo;
   }
 
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
   public String getPassword() {
     return this.password;
   }

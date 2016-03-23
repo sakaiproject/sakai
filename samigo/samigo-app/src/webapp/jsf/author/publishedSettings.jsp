@@ -387,8 +387,6 @@
       </h:panelGroup>
       <h:outputText value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
       <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel for="username" value="#{assessmentSettingsMessages.high_security_username}"/>
-        <h:inputText id="username" size="20" value="#{publishedSettings.username}"/>
         <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
         <h:inputText id="password" size="20" value="#{publishedSettings.password}"/>
       </h:panelGrid>

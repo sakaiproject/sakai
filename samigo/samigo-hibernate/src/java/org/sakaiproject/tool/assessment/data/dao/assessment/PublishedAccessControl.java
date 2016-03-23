@@ -67,7 +67,6 @@ public class PublishedAccessControl
   private String submissionMessage;
   private String finalPageUrl;
   private String releaseTo;
-  private String username;
   private String password;
   private Boolean unlimitedSubmissions;
   private Integer markForReview;
@@ -142,7 +141,6 @@ public class PublishedAccessControl
     ((PublishedAccessControl)cloned).setItemNumbering(this.itemNumbering);
     ((PublishedAccessControl)cloned).setDisplayScoreDuringAssessments(this.displayScoreDuringAssessments);
     ((PublishedAccessControl)cloned).setSubmissionMessage(this.submissionMessage);
-    ((PublishedAccessControl)cloned).setUsername(this.username);
     ((PublishedAccessControl)cloned).setPassword(this.password);
     ((PublishedAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((PublishedAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
@@ -374,13 +372,7 @@ public class PublishedAccessControl
   public void setReleaseTo(String releaseTo) {
     this.releaseTo = releaseTo;
   }
-  public String getUsername() {
-    return this.username;
-  }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
   public String getPassword() {
     return this.password;
   }

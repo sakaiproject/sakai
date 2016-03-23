@@ -141,7 +141,6 @@ public class PublishedAssessmentSettingsBean
   private String[] targetSelected;
   private String firstTargetSelected;
   private String releaseTo;
-  private String username;
   private String password;
   private String finalPageUrl;
   private String ipAddresses;
@@ -324,7 +323,6 @@ public class PublishedAssessmentSettingsBean
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
         this.submissionMessage = accessControl.getSubmissionMessage();
-        this.username = accessControl.getUsername();
         this.password = accessControl.getPassword();
         this.finalPageUrl = accessControl.getFinalPageUrl();
       }
@@ -710,13 +708,6 @@ public class PublishedAssessmentSettingsBean
     return submissionMessage;
   }
 
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
   public String getPassword() {
     return this.password;
   }

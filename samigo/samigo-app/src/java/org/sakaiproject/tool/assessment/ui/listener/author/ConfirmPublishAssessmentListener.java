@@ -338,7 +338,6 @@ public class ConfirmPublishAssessmentListener
     	assessmentSettings.setKeywords(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getKeywords()));
     	assessmentSettings.setObjectives(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
     	assessmentSettings.setRubrics(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
-    	assessmentSettings.setUsername(FormattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getUsername())));
     	assessmentSettings.setPassword(FormattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
     }
     
