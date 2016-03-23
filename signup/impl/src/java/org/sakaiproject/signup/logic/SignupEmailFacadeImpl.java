@@ -727,7 +727,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		if(StringUtils.isNotBlank(emailAddress) && EmailValidator.getInstance().isValid(emailAddress)) {
 			message.addRecipient(EmailAddress.RecipientType.TO, recipient.getDisplayName(), emailAddress);
 		} else {
-			logger.error("Invalid email for user:" + recipient.getDisplayId() + ". No email will be sent to this user");
+			logger.debug("Invalid email for user: " + recipient.getDisplayId() + ". No email will be sent to this user");
 			return null;
 		}
 		
