@@ -15,12 +15,12 @@
 	</ul>
 			
 	<div class="navPanel">
-		<div class="viewNav">
+		<div class="floatLeft">
 			<h3 style="margin:0;padding:0">
 				$tlang.getString("mb.joinable")
 			</h3>
 		</div>
-		<div class="searchNav">
+		<div class="floatRight">
 	#if ($openSites.size() > 0 || $search.length() > 0)
 			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
 			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
@@ -36,20 +36,17 @@
 
 	#if ($openSites.size() > 0)
 		<div class="navPanel">
-			<div class="viewNav">
-				<div class="instruction">
-					<br />
-				#if ($search.length() > 0)
-					$tlang.getString("mb.listsearchjoin")${search}$tlang.getString("mb.listsearchjoin2")
-				#else
-					$tlang.getString("mb.listjoin")
-				#end
-				</div>
+			<div class="instruction">
+			#if ($search.length() > 0)
+				$tlang.getString("mb.listsearchjoin")${search}$tlang.getString("mb.listsearchjoin2")
+			#else
+				$tlang.getString("mb.listjoin")
+			#end
 			</div>
 			
 			## join/unjoin action info normally is the only value of "alertMessage"
 			#if ($alertMessage)
-				<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+				<p class="information messageInformation" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
 					$validator.escapeHtml($alertMessage)
 				</p>
 			#end
@@ -167,7 +164,7 @@
 		<br>
 		## join/unjoin action info normally is the only value of "alertMessage"
 		#if ($alertMessage)
-			<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+			<p class="information messageInformation" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
 				$validator.escapeHtml($alertMessage)
 			</p>
 		#end
@@ -177,7 +174,7 @@
 		<br>
 		## join/unjoin action info normally is the only value of "alertMessage"
 		#if ($alertMessage)
-			<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+			<p class="information messageInformation" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
 				$validator.escapeHtml($alertMessage)
 			</p>
 		#end
