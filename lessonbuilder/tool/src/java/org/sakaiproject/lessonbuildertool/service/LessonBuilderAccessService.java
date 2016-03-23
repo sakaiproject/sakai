@@ -228,6 +228,11 @@ public class LessonBuilderAccessService {
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
+	public static final String USECSP = "lessonbuilder.use-csp-headers";
+	// if using separate content domain we don't need this protection
+	private boolean useCsp = ServerConfigurationService.getBoolean(USECSP, 
+				   !ServerConfigurationService.getBoolean("content.separateDomains", false));
+        
         protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
         // uuid is the private key for sharing the session id
@@ -255,7 +260,6 @@ public class LessonBuilderAccessService {
 
 	public void init() {
 		lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
-
 		accessCache = memoryService.createCache(
 				"org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache",
 				new SimpleConfiguration<Object, Object>(CACHE_MAX_ENTRIES, CACHE_TIME_TO_LIVE_SECONDS, CACHE_TIME_TO_IDLE_SECONDS)
@@ -662,10 +666,20 @@ public class LessonBuilderAccessService {
 							String disposition = null;
 							
 							boolean inline = false;
+							boolean dangerous = false;
+
 							if (Validator.letBrowserInline(contentType)) {
 							    // type can be inline, but if HTML we have more checks to do
-							    if (inlineHtml || 
-								(! "text/html".equalsIgnoreCase(contentType) && ! "application/xhtml+xml".equals(contentType)))
+							    // because browsers upgrade some types to HTML the check isn't just for HTML
+
+							    String lcct = contentType.toLowerCase();
+							    if ( lcct.startsWith("text/") || lcct.startsWith("image/") 
+								 || lcct.contains("html") || lcct.contains("script"))
+								dangerous = true;
+
+							    // inlineHtml is true by default. This logic is for sites
+							    // that want to be super-careful
+							    if (inlineHtml || !dangerous)
 								// easy cases: not HTML or HTML always OK
 								inline = true;
 							    else {
@@ -703,6 +717,12 @@ public class LessonBuilderAccessService {
 								disposition = "attachment; filename=\"" + fileName + "\"";
 							}
 							
+							// note that by default inline is always set. If we have inline and dangerous (i.e. HTML or
+							// potentially HTML, we set security headers to provide some protection.
+							if (inline && dangerous && useCsp) {
+							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+							    res.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+							}
 
 							// NOTE: Only set the encoding on the content we have
 							// to.
