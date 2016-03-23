@@ -59,7 +59,7 @@
             completely clean to avoid noise from leftover static
             variables.
           -->
-          <forkMode>pertest</forkMode>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
     </plugins>
