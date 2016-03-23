@@ -13,3 +13,4 @@ sakai-demo.zip
 .sass-cache
 .metadata
 .DS_Store
+*nb-configuration.xml
