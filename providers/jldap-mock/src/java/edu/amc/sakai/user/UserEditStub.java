@@ -41,7 +41,7 @@ import org.w3c.dom.Element;
  * @author Dan McCallum, Unicon
  * @author John A. Lewis, Unicon
  */
-class UserEditStub implements UserEdit {
+public class UserEditStub implements UserEdit {
 
 	private String eid;
 	private String email;

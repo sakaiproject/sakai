@@ -38,24 +38,19 @@ import org.sakaiproject.unboundid.LdapUserData;
 import org.sakaiproject.unboundid.UnboundidDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 
+import edu.amc.sakai.user.UserEditStub;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPConnection;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPException;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPSearchResults;
 
-/**
- * 
- * @author dmccallum@unicon.net
- *
- */
-public class UnboundidDirectoryProviderTest extends MockObjectTestCase {
+public class UnboundidProviderTest extends MockObjectTestCase {
 
 	private UnboundidDirectoryProvider provider;
 	private EidValidator eidValidator;
 	private Mock mockEidValidator;
 	private LdapAttributeMapper attributeMapper;
 	private Mock mockAttributeMapper;
-	private Mock mockConnManager;
 	private LDAPConnection conn;
 	private Mock mockConn;
 	private LDAPSearchResults searchResults;
@@ -87,8 +82,8 @@ public class UnboundidDirectoryProviderTest extends MockObjectTestCase {
 		mockEntry = mock(LDAPEntry.class);
 		entry = (LDAPEntry)mockEntry.proxy();
 		
-		mockConnManager.expects(once()).method("setConfig").with(same(provider));
-		mockConnManager.expects(once()).method("init");
+		provider.setLdapHost(new String[]{"127.0.0.1"});
+
 		provider.init();
 	}
 	
@@ -116,18 +111,14 @@ public class UnboundidDirectoryProviderTest extends MockObjectTestCase {
 		final String filter = "(cn=" + eid + ")";
 		mockAttributeMapper.expects(once()).method("getFindUserByEidFilter").
 			with(eq(eid)).will(returnValue(filter));
-		mockConnManager.expects(once()).method("getConnection").will(returnValue(conn));
 		mockAttributeMapper.expects(once()).method("getSearchResultAttributes").will(returnValue(null));
 		mockConn.expects(once()).method("search").
 			// we're not interested in actually testing argument marshaling, so no with()
 			will(returnValue(searchResults));
-		mockSearchResults.expects(exactly(2)).method("hasMore").
-			will(onConsecutiveCalls(returnValue(true), returnValue(false)));
 		mockSearchResults.expects(once()).method("next").will(returnValue(entry));
 		userData.setEid(eid); // otherwise caching operation will blow up
 		mockAttributeMapper.expects(once()).method("mapLdapEntryOntoUserData").
 			with(same(entry), same(userData));
-		mockConnManager.expects(once()).method("returnConnection").with(same(conn));
 	}
 
 	public void testGetUserDispatch() {
@@ -189,7 +180,7 @@ public class UnboundidDirectoryProviderTest extends MockObjectTestCase {
 		mockDoMapUserDataOntoUserEdit.expects(once()).method("call")
 			.with(eq(new Object[] {userData, userEdit}))
 			.after(mockDoGetUserByEid, "call");
-		assertTrue(provider.getUserByEid(userEdit, userEdit.getEid(), conn));
+		assertTrue(provider.getUserByEid(userEdit, userEdit.getEid()));
 		mockDoGetUserByEid.verify();
 		mockDoMapUserDataOntoUserEdit.verify();
 	}
@@ -235,89 +226,12 @@ public class UnboundidDirectoryProviderTest extends MockObjectTestCase {
 			after(mockAttributeMapper, "getFindUserByEidFilter").
 			will(returnValue(userData));
 		
-		assertSame(userData, provider.getUserByEid(eid, conn));
+		assertSame(userData, provider.getUserByEid(eid));
 		
 		mockDoIsSearchableEid.verify();
 		mockDoSearchDirectoryForSingleEntry.verify();
 	}
-	
-	/** Removed this test
-	 * 
-	 * It was previously testing how many time getUsers would call over to the single ldap fetch methods
-	 * However, at this point, with the changes, it is actually testing our ability to create a mock object
-	 * which represents an ldap connection and an ldap search and ldap entry, which I do not think is actually
-	 * testing anything useful. Sure, we can make a bunch of mocks, but this only proves we can make a test
-	 * which tests some mocks. Basically, pointless waste of effort. I left the code in here in case someone does
-	 * eventually want to complete these mocks. -AZ
-	 * 
-	public void testGetUsersDispatch() {
-		final Mock mockDoGetUserByEid = mock(VarargsMethod.class);
-        final VarargsMethod doGetUserByEid = (VarargsMethod)mockDoGetUserByEid.proxy();
 		
-		provider = new UnboundidDirectoryProvider() {
-			protected boolean getUserByEid(UserEdit userToUpdate, String eid, LDAPConnection conn) 
-			throws LDAPException {
-				return (Boolean) doGetUserByEid.call(userToUpdate, eid, conn);
-			}
-		};
-		provider.setLdapConnectionManager(connManager);
-		provider.setMemoryService( new TestMemoryService() );
-		mockConnManager.expects(atLeastOnce()).method("returnConnection");
-		mockConnManager.expects(atLeastOnce()).method("getConnection").will(returnValue(conn));
-		mockConnManager.expects(atLeastOnce()).method("setConfig").with(same(provider));
-		mockConnManager.expects(atLeastOnce()).method("init");
-		provider.init();
-		
-		String eid1 = "some-eid-1";
-		String eid2 = "some-eid-2";
-		UserEdit userEdit1 = new UserEditStub();
-		userEdit1.setEid(eid1);
-		UserEdit userEdit2 = new UserEditStub();
-		userEdit2.setEid(eid2);
-		
-		Collection<UserEdit> actualUserEdits = new ArrayList<UserEdit>(2);
-		actualUserEdits.add(userEdit1);
-		actualUserEdits.add(userEdit2);
-		Collection<UserEdit> expectedUserEdits = new ArrayList<UserEdit>(actualUserEdits);
-		
-		LDAPEntry lde = new LDAPEntry();
-		// need to mock the ldap entry to make this work
-		final Stack<LDAPEntry> stack = new Stack<LDAPEntry>();
-		stack.add(lde);
-		LDAPSearchResults lsr = new LDAPSearchResults() {
-		    @Override
-		    public boolean hasMore() {
-		        return stack.empty();
-	        }
-		    @Override
-		    public LDAPEntry next() throws LDAPException {
-		        return stack.pop();
-	        }
-		};
-
-		mockConn.expects(once()).method("search").will(returnValue(lsr));
-		provider.getUsers(actualUserEdits);
-		assertEquals(expectedUserEdits, actualUserEdits);
-	}
-*******/
-		/* OLD tests for above method
-		mockConnManager.expects(once()).method("getConnection").will(returnValue(conn));
-		mockDoGetUserByEid.expects(once()).method("call").
-			with(eq(new Object[] {userEdit1, userEdit1.getEid(), conn})).
-			after(mockConnManager, "getConnection").
-			will(returnValue(true)).id("call_1");
-		mockDoGetUserByEid.expects(once()).method("call").
-			with(eq(new Object[] {userEdit2, userEdit2.getEid(), conn})).
-			after(mockDoGetUserByEid, "call_1").
-			will(returnValue(true)).id("call_2");
-		mockConnManager.expects(once()).method("returnConnection").
-			with(same(conn)).after(mockDoGetUserByEid, "call_2");
-		
-		provider.getUsers(actualUserEdits);
-		assertEquals(expectedUserEdits, actualUserEdits);
-		mockDoGetUserByEid.verify();
-		*/
-	
 	public void testFindUserByEmailDispatch() {
 		final Mock mockDoSearchDirectoryForSingleEntry = mock(VarargsMethod.class);
 		final VarargsMethod doSearchDirectoryForSingleEntry = (VarargsMethod)mockDoSearchDirectoryForSingleEntry.proxy();
@@ -577,25 +491,14 @@ public class UnboundidDirectoryProviderTest extends MockObjectTestCase {
 			}
 		};
 		
-		provider.setLdapConnectionManager(connManager);
-		
 		final String eid = "some-eid";
 		final String dn = "cn=some-cn, ou=some-ou";
 		final String password = "some-password";
 		final UserEdit userEdit = new UserEditStub();
 		userEdit.setEid(eid);
-		mockConnManager.expects(once()).method("getConnection").will(returnValue(conn));
 		mockLookupUserBindDn.expects(once()).method("call").
 			with(eq(new Object[] {eid, conn})).
-			after(mockConnManager, "getConnection").
 			will(returnValue(dn));
-		mockConnManager.expects(once()).method("returnConnection").with(same(conn)).
-			after(mockLookupUserBindDn, "call");
-		mockConnManager.expects(once()).method("getBoundConnection").
-			with(eq(dn), eq(password)).after(mockConnManager, "returnConnection").
-			will(returnValue(conn));
-		mockConnManager.expects(once()).method("returnConnection").with(same(conn)).
-			after(mockConnManager, "getBoundConnection");
 		
 		// implicitly tests that allowAuthentication defaults to true
 		assertTrue(provider.authenticateUser(eid, userEdit, password));
