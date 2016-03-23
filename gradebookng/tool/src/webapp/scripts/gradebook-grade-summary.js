@@ -24,7 +24,11 @@ function GradebookGradeSummary($content, blockout, modalTitle) {
   } else {
     setTimeout($.proxy(function() {
       this.$modal = this.$content.closest(".wicket-modal");
-      this.setupWicketModal();
+      if (this.$modal.length > 0 && this.$modal.is(":visible")) {
+        this.setupWicketModal();
+      } else {
+        this.setupStudentView();
+      }
     }, this));
   }
 };
@@ -36,13 +40,14 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
     this.setupStudentNavigation();
     this.setupFixedFooter();
     this.setupMask();
+    this.setupModalPrint();
     this.bindModalClose();
 };
 
 
 GradebookGradeSummary.prototype.updateTitle = function() {
   if (this.modalTitle) {
-    this.$modal.find("h3.w_captionText").html(this.modalTitle);
+    this.$modal.find("h3[class='w_captionText']").html(this.modalTitle);
   }
 };
 
@@ -206,6 +211,56 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
 GradebookGradeSummary.prototype.setupPopovers = function() {
   this.$content.find('[data-toggle="popover"]').popover();
 };
+
+
+GradebookGradeSummary.prototype.setupModalPrint = function() {
+  this._setupPrint(
+    this.$content.find(".gb-summary-print"),
+    this.$modal.find("h3[class*='w_captionText']"),
+    this.$content.find(".gb-summary-grade-panel"),
+    this.$content);
+};
+
+
+GradebookGradeSummary.prototype.setupStudentView = function() {
+  this._setupPrint(
+    $("body").find(".portletBody .gb-summary-print"),
+    $("body").find(".portletBody h2:first"),
+    $("body").find("#studentGradeSummary"),
+    $("body"));
+};
+
+
+GradebookGradeSummary.prototype._setupPrint = function($button, $header, $content, $container) {
+  var self = this;
+  $button.off("click").on("click", function() {
+    function updateIframeContentAndPrint() {
+        self.$iframe.contents().find("body").empty();
+        self.$iframe.contents().find("body").append($header.clone());
+        self.$iframe.contents().find("body").append($content.clone());
+
+        self.$iframe[0].contentWindow.print();
+    }
+
+    if (!self.$iframe) {
+      self.$iframe = $("<iframe id='summaryForPrint'>").hide();
+      self.$iframe.one("load", function() {
+        var $head = self.$iframe.contents().find("head");
+        $(document.head).find("link").each(function() {
+          if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
+            $head.append($(this).clone().attr("media", "all")[0].outerHTML);
+          }
+        });
+        setTimeout(function() {
+          updateIframeContentAndPrint();
+        }, 500);
+      });
+      $container.append(self.$iframe);
+    } else {
+      updateIframeContentAndPrint();
+    }
+  });
+}
 
 
 var GradebookGradeSummaryUtils = {
