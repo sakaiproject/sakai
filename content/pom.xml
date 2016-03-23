@@ -47,6 +47,7 @@
         <module>content-bundles</module>
         <module>content-types</module>
         <module>content-types-pack</module>
+        <module>content-cleanup</module>
       </modules>
     </profile>
   </profiles>
