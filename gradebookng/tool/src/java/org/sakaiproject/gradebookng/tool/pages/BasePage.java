@@ -22,6 +22,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 /**
  * Base page for our app
@@ -61,8 +62,6 @@ public class BasePage extends WebPage {
 		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
 		this.role = this.businessService.getUserRole();
-
-		//
 
 		// set locale
 		setUserPreferredLocale();

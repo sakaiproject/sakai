@@ -12,11 +12,15 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CourseGradeColumnHeaderPanel extends Panel {
 
@@ -42,6 +46,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final GbRole role = this.businessService.getUserRole();
 
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 
@@ -49,16 +54,26 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		final Boolean showPoints = this.model.getObject();
 
 		// icons
+		Map<String, Object> popoverModel = new HashMap<>();
+		popoverModel.put("role", role);
+		popoverModel.put("flag", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_RELEASED);
 		add(gradebookPage.buildFlagWithPopover("isReleasedFlag",
-				new HeaderFlagPopoverPanel("popover", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_RELEASED).toPopoverString())
+				new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString())
 				.setVisible(gradebook.isCourseGradeDisplayed()));
+		popoverModel.put("flag", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_NOT_RELEASED);
 		add(gradebookPage.buildFlagWithPopover("notReleasedFlag",
-				new HeaderFlagPopoverPanel("popover", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_NOT_RELEASED).toPopoverString())
-				.setVisible(!gradebook.isCourseGradeDisplayed()));
+				new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString())
+			.setVisible(!gradebook.isCourseGradeDisplayed()));
 
 		// menu
-		final WebMarkupContainer menu = new WebMarkupContainer("menu");
+		final WebMarkupContainer menu = new WebMarkupContainer("menu") {
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public boolean isVisible() {
+				return role == GbRole.INSTRUCTOR;
+			}
+		};
 		menu.add(new AjaxLink<Void>("setUngraded") {
 			private static final long serialVersionUID = 1L;
 
