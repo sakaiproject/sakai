@@ -2234,7 +2234,7 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 					setHiddenFields($(this).datepicker("getDate"), options, input);
 				}
 				var mh = moment(getHiddenFields());
-				if (!mh.isValid() && options.allowEmptyDate){
+				if (!mc.isValid() && options.allowEmptyDate){
 					$(input).val("");
 				}else{
 					var stringDay = $.datepicker.formatDate($(this).datepicker("option","dateFormat"),mh.toDate());
