@@ -217,7 +217,7 @@ public class SamigoSupport {
 				String localeCode) {
 			Map<String, Object> values = new HashMap<String, Object>();
 
-
+			ResourceLoader rl = new ResourceLoader("dash_entity");
 			PublishedAssessmentFacade pub = getPublishedAssessment(entityReference);
 			if(pub != null) {
 				AssessmentAccessControlIfc accessControl = null;
@@ -229,18 +229,18 @@ public class SamigoSupport {
 
 				DateFormat df = DateFormat.getDateTimeInstance();
 
-				values.put(VALUE_NEWS_TIME, df.format(pub.getCreatedDate()));
-				values.put(VALUE_OPEN_TIME, df.format(accessControl.getStartDate()));
-				values.put(VALUE_DUE_TIME, df.format(accessControl.getDueDate()));
-				values.put(VALUE_CLOSE_TIME, df.format(accessControl.getRetractDate()));
-
+				values.put(VALUE_NEWS_TIME, pub.getCreatedDate() == null ? rl.getString("dash.notset") : df.format(pub.getCreatedDate()));
+				values.put(VALUE_OPEN_TIME, accessControl.getStartDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getStartDate()));
+				values.put(VALUE_DUE_TIME, accessControl.getDueDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getDueDate()));
+				values.put(VALUE_CLOSE_TIME, accessControl.getRetractDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getRetractDate()));
+				
 				// "entity-type": "assignment"
 				values.put(DashboardEntityInfo.VALUE_ENTITY_TYPE, IDENTIFIER);
 
 				values.put(VALUE_MAX_GRADE, pub.getTotalScore().toString());
 
 				// "calendar-time": 1234567890
-				values.put(VALUE_CALENDAR_TIME, df.format(accessControl.getDueDate()));
+				values.put(VALUE_CALENDAR_TIME, accessControl.getDueDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getDueDate()));
 				// "description": "Long thing, markup, escaped",
 				values.put(VALUE_DESCRIPTION, pub.getDescription());
 				// "title": "Assignment hoedown"
