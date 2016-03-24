@@ -654,14 +654,6 @@ function mySetMainFrameHeight(id, minHeight)
 	}
 }
 
-//To allow reset the datepickers in the settings
-function resetDatePicker(name){
-    var datePicker = document.getElementById("assessmentSettingsAction:"+name);
-    datePicker.value="";
-    var hiddenDate = document.getElementById(name+"ISO8601");
-    hiddenDate.value="";
-}
-
 function toggleNegativePointVal(val){
 	var negPointField = document.getElementById('itemForm:answerdsc');
 	if(negPointField){

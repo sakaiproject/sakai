@@ -64,7 +64,7 @@
               input: '#assessmentSettingsAction\\:startDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
-              allowEmptyDate: true,
+              allowEmptyDate: false,
               val: '<h:outputText value="#{assessmentSettings.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'startDateISO8601' }
           });
@@ -80,7 +80,7 @@
               input: '#assessmentSettingsAction\\:retractDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
-              allowEmptyDate: true,
+              allowEmptyDate: false,
               val: '<h:outputText value="#{assessmentSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'retractDateISO8601' }
           });
@@ -310,8 +310,6 @@
           <div class="col-md-10">
               <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
               <h:outputText value="&#160;" escape="false" />
-              <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('endDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
-              <h:outputText value="&#160;" escape="false" />
 
     <!-- *** TIMED *** -->
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
@@ -347,8 +345,6 @@
             <t:radio for="lateHandling" index="1" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('retractDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
           </li>
         </ul>
         <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" />
@@ -543,8 +539,6 @@
 	    <t:radio for="feedbackDelivery" index="3" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" />
-            <h:outputText value="&#160;" escape="false" />
-            <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('feedbackDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
 	  </li>
         </ul>
       </div>
