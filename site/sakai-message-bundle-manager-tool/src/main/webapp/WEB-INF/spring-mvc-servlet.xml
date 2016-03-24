@@ -4,11 +4,11 @@
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/mvc
-                           http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
                            http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+                           http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- **************************************************************** -->
 	<!-- RESOURCE FOLDERS CONFIGURATION -->
@@ -71,7 +71,7 @@
 		<property name="templateMode" value="HTML5" />
 	</bean>
 
-	<bean id="templateEngine" class="org.thymeleaf.spring3.SpringTemplateEngine">
+	<bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
 		<property name="templateResolver" ref="templateResolver" />
 		<property name="additionalDialects">
 			<set>
@@ -81,7 +81,7 @@
 		<property name="templateEngineMessageSource" ref="org.sakaiproject.mbm.tool.MessageSource" />
 	</bean>
 
-	<bean class="org.thymeleaf.spring3.view.ThymeleafViewResolver">
+	<bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
 		<property name="templateEngine" ref="templateEngine" />
 	</bean>    
 </beans>
