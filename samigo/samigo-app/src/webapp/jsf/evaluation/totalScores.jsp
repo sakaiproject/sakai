@@ -38,11 +38,6 @@
 				background-color: #f1f1f1;
 			}
 		</style> 
-      </head>
-      <body onload="disableIt();<%= request.getAttribute("html.body.onload") %>">
- <div class="portletBody container-fluid">
-
- <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/javascript">
@@ -84,6 +79,9 @@ function disableIt()
   }
 }
 </script>
+</head>
+<body onload="disableIt();<%= request.getAttribute("html.body.onload") %>">
+ <div class="portletBody container-fluid">
 
 <!-- content... -->
 <h:form id="editTotalResults">
@@ -93,12 +91,12 @@ function disableIt()
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <h:panelGroup layout="block" styleClass="page-header">
+  <div class="page-header">
     <h1>
   	  <h:outputText value="#{commonMessages.total_scores}#{evaluationMessages.column} " escape="false"/>
   	  <h:outputText value="#{totalScores.assessmentName} " escape="false"/>
     </h1>
-  </h:panelGroup>
+  </div>
 
   <div class="hide">
     <h:outputText value="#{evaluationMessages.auto_scored_tip}" rendered="#{totalScores.isAutoScored}" />
@@ -173,14 +171,14 @@ function disableIt()
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
 <sakai:flowState bean="#{totalScores}" />
-<h:panelGroup styleClass="total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
-  <h:panelGroup>
-    <h:panelGroup styleClass="max-score-possible" layout="block" rendered="#{!totalScores.hasRandomDrawPart}">
-        <h:outputText value="<h2>#{evaluationMessages.max_score_poss}<small>: #{totalScores.maxScore}</small></h2>" escape="false"/>
-    </h:panelGroup>
-    
-      <h:panelGroup styleClass="apply-grades" layout="block" rendered="#{totalScores.allSubmissions!='4'}">
-	    <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit">
+  <h:panelGroup styleClass="max-score-possible" layout="block" rendered="#{!totalScores.hasRandomDrawPart}">
+    <h:outputText value="<h2>#{evaluationMessages.max_score_poss}<small>: #{totalScores.maxScore}</small></h2>" escape="false"/>
+  </h:panelGroup>
+
+<h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+  <h:panelGroup styleClass="col-md-6" layout="block">
+    <h:panelGroup styleClass="apply-grades" layout="block" rendered="#{totalScores.allSubmissions!='4'}">
+	  <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
       </h:commandButton>
       <h:outputText value="&#160;" escape="false" />
@@ -189,9 +187,8 @@ function disableIt()
     </h:panelGroup>
 
 
-    <h:panelGroup styleClass="all-submissions">
-      <h:outputText value="#{evaluationMessages.view}"/>
-      <h:outputText value="&#160;" escape="false" />
+    <h:panelGroup styleClass="all-submissions form-group row" layout="block">
+      <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}"/>
       <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
@@ -229,10 +226,8 @@ function disableIt()
         </h:selectOneMenu>
       </h:panelGroup>
 
-	  <h:panelGroup styleClass="search-student">
-      <h:outputText value="&#160;" escape="false" />
-      <h:outputText value="#{evaluationMessages.search}"/>
-      <h:outputText value="&#160;" escape="false" />
+	  <h:panelGroup styleClass="search-student form-group row" layout="block">
+      <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
  	        <h:inputText
 				id="searchString"
 				value="#{totalScores.searchString}"
@@ -244,11 +239,11 @@ function disableIt()
 			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
 	  </h:panelGroup>
   </h:panelGroup>
-</h:panelGroup>
    
-  <h:panelGroup layout="block" styleClass="samigo-pager">
+  <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
     <sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
   </h:panelGroup>
+</h:panelGroup>
 
 <h:panelGroup styleClass="total-scores-anon" layout="block" rendered="#{totalScores.anonymous eq 'true'}">
   <h:panelGroup>
