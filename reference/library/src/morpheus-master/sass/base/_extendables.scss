@@ -182,6 +182,10 @@ a.noPointers, input.noPointers {
 	pointer-events: none;
 }
 
+.act {
+	padding: 1em 0;
+}
+
 /*** Begin button spinner overlay ***/
 @-moz-keyframes rotate {
 	from {-moz-transform: rotate(0deg);}
