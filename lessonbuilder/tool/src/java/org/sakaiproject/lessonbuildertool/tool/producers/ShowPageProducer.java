@@ -1759,16 +1759,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 
 						    // if width is blank or 100% scale the height
-						    if (width != null && height != null && !height.number.equals("")) {
-							    if (width.number.equals("") && width.unit.equals("") || width.number.equals("100") && width.unit.equals("%")) {
-
-								    int h = Integer.parseInt(height.number);
-								    if (h > 0) {
-									    width.number = Integer.toString((int) Math.round(h * 1.641025641));
-									    width.unit = height.unit;
-								    }
-							    }
-						    }
 
 						    // <object style="height: 390px; width: 640px"><param
 						    // name="movie"
