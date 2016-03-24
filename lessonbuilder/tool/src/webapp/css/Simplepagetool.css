@@ -265,6 +265,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 
 .newItem {
    border-left: 5px solid black !important;
+   margin-left: -5px;
 }
 
 .mainList {
@@ -367,6 +368,10 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     -moz-column-count: 2;
     column-count: 2;
 }
+.split .edit-col {
+    right:0px;
+}
+
 
 .coltrans {
    border-color: transparent;
@@ -937,11 +942,20 @@ img {
  font-size:85%;
 }
 input[type="submit"].question-submit,.addStudentContent {
+   margin: inherit;
    margin-top:15px;
-   border-color:#aaa;
+   border:1px solid #999;
+   color: black !important;
+   font-family: inherit;
+   cursor: pointer;
    padding:6px 20px !important;
-   background:none;
+   background:#f0f0f0;
    font-weight: normal;
+   font-size: inherit;
+   letter-spacing: inherit;   
+   line-height: inherit;
+   border-radius: 3px;
+   position: static;
 }
 
 .questionDiv .contentCol {
@@ -1393,6 +1407,7 @@ font-size: 90%;
 /* this section is to make things work when lessons is in an iframe */
 .contentButton span a {
   display:inline-block !important;
+  border:1px solid #e0e0e0;
 }
 body > .portletBody {
   margin-top:-15px;
@@ -1447,5 +1462,16 @@ body > .portletBody > .action {
      margin-top:20px;
    }
 }
+.oldPortal + .navIntraTool {
+   margin-top: -10px;
+}
 /* end lessons in iframe */
 /* narrow screen */
+
+/* high z-index for items in morpheus. We use large z-index to make sure we go on top
+   of any video players or other embedded content. That requires larger values for some
+   elements of Morpheus. */
+
+#Mrphs-footerApp__chat, .Mrphs-userNav__subnav {
+        z-index: 100002 !important;
+}
