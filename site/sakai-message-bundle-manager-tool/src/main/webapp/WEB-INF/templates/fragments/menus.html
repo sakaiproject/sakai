@@ -3,10 +3,10 @@
 <body>
   <div th:fragment="main (active)">
     <ul class="navIntraTool">
-      <li role="presentation" th:class="${active}=='index'? 'active'"><a href="#" th:href="@{/index}" th:text="#{index.status}">Status</a></li>
-      <li role="presentation" th:class="${active}=='modified'? 'active'"><a href="#" th:href="@{/modified}" th:text="#{modified.modified}">Modified Messages</a></li>
-      <li role="presentation" th:class="${active}=='modules'? 'active'"><a href="#" th:href="@{/modules}" th:text="#{modules.modules}">Messages by Module</a></li>
-      <li role="presentation" th:class="${active}=='search'? 'active'"><a href="#" th:href="@{/search}" th:text="#{search.searchMessages}">Search Messages</a></li>
+      <li role="presentation" th:class="${active}=='index'? 'active'"><span><a href="#" th:href="@{/index}" th:text="#{index.status}">Status</a></span></li>
+      <li role="presentation" th:class="${active}=='modified'? 'active'"><span><a href="#" th:href="@{/modified}" th:text="#{modified.modified}">Modified Messages</a></span></li>
+      <li role="presentation" th:class="${active}=='modules'? 'active'"><span><a href="#" th:href="@{/modules}" th:text="#{modules.modules}">Messages by Module</a></span></li>
+      <li role="presentation" th:class="${active}=='search'? 'active'"><span><a href="#" th:href="@{/search}" th:text="#{search.searchMessages}">Search Messages</a></span></li>
     </ul>
   </div>
 </body>
