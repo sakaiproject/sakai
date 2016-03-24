@@ -347,7 +347,14 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		simplePageBean.addNextLink(tofill, item);
 	    }
 
-	    UIComponent iframe = UILink.make(tofill, "iframe1", params.getSource());
+	    // future: we have the item. Why not get source from there?
+	    // this isn't a security issue, since source is /access/lessonbuilder, and
+	    // that will be checked. THat's not the case when the URL is directly present.
+	    // in that case we have to get it from the item.
+	    String source = params.getSource();
+	    if (item.getAttribute("multimediaUrl") != null)
+		source = item.getAttribute("multimediaUrl");
+	    UIComponent iframe = UILink.make(tofill, "iframe1", source);
 	    if (item != null && item.getType() == SimplePageItem.BLTI) {
 		String height = item.getHeight();
 		if (height == null || height.equals(""))

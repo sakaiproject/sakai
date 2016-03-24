@@ -81,6 +81,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URI;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.DateFormat;
@@ -3264,6 +3265,8 @@ public class SimplePageBean {
 		   else
 		       return getResourceGroups(i, nocache);  // responsible for caching the result
 	       case SimplePageItem.RESOURCE:
+		   if (i.getAttribute("multimediaUrl") != null)
+		       return getLBItemGroups(i); // for all native LB objects
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
 		   // throws IdUnusedException if necessary
 	       case SimplePageItem.BLTI:
@@ -3453,6 +3456,8 @@ public class SimplePageBean {
 	       else
 		   return setResourceGroups (i, groups);
 	   case SimplePageItem.RESOURCE:
+	       if (i.getAttribute("multimediaUrl") != null)
+		   return setLBItemGroups(i, groups);
 	       return setResourceGroups (i, groups);
 	   case SimplePageItem.TEXT:
 	   case SimplePageItem.PAGE:
@@ -4599,6 +4604,9 @@ public class SimplePageBean {
 			if ("1".equals(displayType) || "3".equals(displayType))
 			    return true;
 		    }
+		    // resource stored as a direct URL
+		    if (item.getType() == SimplePageItem.RESOURCE && item.getAttribute("multimediaUrl") != null)
+			return true;
 
 		    // This code is taken from LessonBuilderAccessService, mostly
 
@@ -5723,7 +5731,10 @@ public class SimplePageBean {
 			String name = null;
 			String sakaiId = null;
 			String mimeType = null;
-
+			// urlResource is for an item that's going to be type RESOURCE
+			// but is a URL. We used to create URL resource objects, but we
+			// no longer do. Now it's an attribute.
+			String urlResource = null;
 			
 			if (file != null) {
 				if (!uploadSizeOk(file))
@@ -5816,52 +5827,28 @@ public class SimplePageBean {
 				    }
 				}
 				
-				name = url;
-				String basename = url;
-				// SAK-11816 method for creating resource ID
-				String extension = ".url";
-				if (basename != null && basename.length() > 32) {
-				    // lose the http first                              
-				    if (basename.startsWith("http:")) {
-					basename = basename.substring(7);
-				    } else if (basename.startsWith("https:")) {
-					basename = basename.substring(8);
-				    }
-				    if (basename.length() > 32) {
-					// max of 18 chars from the URL itself                      
-					basename = basename.substring(0, 18);
-					// add a timestamp to differentiate it (+14 chars)          
-					Format f= new SimpleDateFormat("yyyyMMddHHmmss");
-					basename += f.format(new Date());
-					// total new length of 32 chars                             
-				    }
+				URI uri = new URI(url);
+				String host = uri.getHost();
+				if (host != null && !host.equals(""))
+				    name = host;
+				String path = uri.getPath();
+				if (path != null && !path.equals("")) {
+				    if (name == null)
+					name = path;
+				    else
+					name = name + path;
 				}
+				// default name should be "web page". But this is late enough that I don't
+				// want to add strings, so it's going to be "Web ". Hopefully this will never
+				// happen. It's hard to see how there could be a URL with no hostname or path
+				if (name == null)
+				    name = messageLocator.getMessage("simplepage.web_content").replace("{}","");
 
-				String collectionId;
-				SimplePage page = getCurrentPage();
-				
-				collectionId = getCollectionId(true);
-				
-				try {
-					// 	urls aren't something people normally think of as resources. Let's hide them
-					ContentResourceEdit res = contentHostingService.addResource(collectionId, 
-						        fixFileName(collectionId, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension)),
-						        "",
-							MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-					res.setContentType("text/url");
-					res.setResourceType("org.sakaiproject.content.types.urlResource");
-					res.setContent(url.getBytes());
-					contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
-					sakaiId = res.getId();
-				} catch (org.sakaiproject.exception.OverQuotaException ignore) {
-					setErrMessage(messageLocator.getMessage("simplepage.overquota"));
-					return;
-				} catch (Exception e) {
-					setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
-					log.error("addMultimedia error 2 " + e);
-					return;
-				}
-				// 	connect to url and get mime type
+				// don't let names get too long
+				if (name.length() > 80)
+				    name = name.substring(0,39) + "..." + name.substring(name.length()-39);
+
+				urlResource = url;
 				// new dialog passes the mime type
 				if (multimediaMimeType != null && ! "".equals(multimediaMimeType))
 				    mimeType = multimediaMimeType;
@@ -5930,7 +5917,10 @@ public class SimplePageBean {
 				item.setHtml(null);
 			}
 			
+			if (urlResource != null) // link to item, where item is a URL
+			    item.setAttribute("multimediaUrl", mmUrl.trim());
 			if (mmUrl != null && !mmUrl.trim().equals("") && isMultimedia) {
+			    // embed item, where item is a URL or embed code
 			    if (multimediaDisplayType == 1)
 				// the code is filtered by the UI, so the user can see the effect.
 				// This protects against someone handcrafting a post.
