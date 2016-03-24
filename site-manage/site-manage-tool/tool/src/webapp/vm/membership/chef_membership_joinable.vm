@@ -25,7 +25,7 @@
 			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
 			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
 			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
-			<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input id="btnSearch" type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form> 
