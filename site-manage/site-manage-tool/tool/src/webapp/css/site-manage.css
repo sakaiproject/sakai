@@ -901,3 +901,7 @@ dl.defList dd{
 .actionsContainer {
     margin-top: 1em;
 }
+
+input#btnSearch {
+	margin-left: 0.7em;
+}
