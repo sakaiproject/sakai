@@ -156,15 +156,19 @@ public class SaveAssessmentSettings
     	}
     	control.setItemNavigation(Integer.valueOf(nav));
     }
-    if (assessmentSettings.getItemNumbering()!=null)
+    if (StringUtils.isNotBlank(assessmentSettings.getItemNumbering())) {
       control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
-    if(assessmentSettings.getDisplayScoreDuringAssessments() != null)
-    	control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
-    if (assessmentSettings.getAssessmentFormat()!=null )
-     control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
+    }
+    if (StringUtils.isNotBlank(assessmentSettings.getDisplayScoreDuringAssessments())) {
+      control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
+    }
+    if (StringUtils.isNotBlank(assessmentSettings.getAssessmentFormat())) {
+      control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
+    }
 
-    if (assessmentSettings.getIsMarkForReview())
+    if (assessmentSettings.getIsMarkForReview()) {
         control.setMarkForReview(AssessmentAccessControl.MARK_FOR_REVIEW);
+    }
     else {
     	control.setMarkForReview(AssessmentAccessControl.NOT_MARK_FOR_REVIEW);
     }

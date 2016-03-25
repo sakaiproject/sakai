@@ -282,15 +282,12 @@
       <h:outputLabel styleClass="col-md-2" for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
       <div class="col-md-10">
         <h:inputText value="#{publishedSettings.startDateString}" size="25" id="startDate" />
-        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('startDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
       </div>
     </div>
     <div class="form-group row">
       <h:outputLabel styleClass="col-md-2" for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
       <div class="col-md-10">
         <h:inputText value="#{publishedSettings.dueDateString}" size="25" id="endDate"/>
-        <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('endDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
-        <h:outputText value="&#160;" escape="false" />
   
   <!-- *** TIMED *** -->
       <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
@@ -324,8 +321,6 @@
             <t:radio for="lateHandling" index="1" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{publishedSettings.retractDateString}" size="25" id="retractDate"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('retractDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
           </li>
         </ul>
         <div>
@@ -523,8 +518,6 @@
 	    <t:radio for="feedbackDelivery" index="3" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
-            <h:outputText value="&#160;" escape="false" />
-            <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('feedbackDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
 	  </li>
         </ul>
       </div>
