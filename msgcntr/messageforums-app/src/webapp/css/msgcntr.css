@@ -1,10 +1,11 @@
 /*PART 1 - FORUM AND TOPIC LISTINGS*/
 .forumHeader{
 	/*panel holding all forum metadata in forum list view*/
-	width: 99%;
-	background: #ffe;
-	border: 1px solid #fc6;
-	margin-bottom: 1em;
+	width: 100%;
+    background: #F8F8F3;
+    border: 1px solid #D9C9A7;
+    margin-bottom: 0;
+    margin-top: 1em;
 }
 .forumHeader td{
 	/*inner container forum metadata in forum list view*/
@@ -45,20 +46,19 @@
 }
 .topicBloc{
 	/*inner container topic metadata in forum list view, or single topic view*/
-	margin: .5em 0 1em 1em;
+	margin: 0 0 0 1em;
 	border-left: 2px solid #fc6;
-	width: 95%;
+	width: calc(100% - 1em);
 }
 .topicBloc td{
 	padding-left: .5em;
+	padding-top: .5em;
+
 }
 .topicBloc td td{
 	padding-left: 0;
 }
-.topicBlocLone{
-	/*inner container topic metadata adjutments in single topic view*/
-	margin: .5em 0 1em 0;
-}
+
 .singleMessage .title, .singleMessageReply .title, .topicBloc .title,.pendingApproval .title{
 	/*	title for all the above cases*/
 	font-weight: bold;
@@ -218,10 +218,7 @@
 	padding-left: .5em;
 	font-size: .9em;
 }
-.itemToolBar a{
-	/*	all links associated with an item in thread + body view*/
-	text-decoration: none !important;
-}
+
 .otherActions{
 	/*parent of all links in the "other actions" link list*/
 	padding: 0 !important;
@@ -235,13 +232,9 @@
 	}
 .allMessages .messageTitle .firstChild{
 	/*first post in a thread in topic listing (no body)*/
-	border-left: 1px solid #cd5;
-	padding-left: 5px;
 }
 .allMessages .hierItemBlock .messageTitle .firstChild{
 	/*first post in a thread in topic listing ( + body) */
-	border-left: 1px solid #69d;
-	padding-left: 5px;
 }
 
 .allMessages td.attach{
@@ -393,11 +386,7 @@ td div.title{
 	display:inline-block;
 	width:14em;
 }
-.permissionRow {
-	padding: .25em;
-	border: 1px solid #C0C0C0;
-	display:block;
-}
+
 .permissionPanel > table {
 	padding-top: .3em;
 }
@@ -493,24 +482,11 @@ table.discTria:hover{
 	padding: 3px;
 	margin-right: 5px;
 }
-.itemNav{
-	border: 1px solid #fff;
-	white-space: nowrap;
-	padding: 0 .3em;
-	background: #fff;
-}
-.itemNav:hover{
-	border: 1px solid #eee;
-	white-space: nowrap;
-	padding: 0 .3em;
-	background: #ffe;
-}
+
 .messageMetadata{
 	padding:1px 0;
 }
-.messageMetadata span.md{
-	border-bottom:1px solid #ccc;
-}
+
 a .textPanelFooter{
 	color: inherit;
 }

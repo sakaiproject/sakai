@@ -1,13 +1,13 @@
 <f:verbatim>
     <h:outputText escape="false" value='<div class="topic-picker" id="topic-picker" title="#{msgs.move_thread}">'/>
         <div class="selected-threads-to-move">
-            <div style="padding-left: .3em; margin-top: .5em">
+            <div>
                 <h:outputText value="#{msgs.move_thread_info1}"  />
                 <h:outputText styleClass="sourcetitle" escape="true" value="#{ForumTool.selectedTopic.topic.title}"  /> 
                  <h:outputText value="#{msgs.move_thread_info2}"  />
             </div>
             <div class="threads-to-move" escape="true"></div>
-            <input class="checkbox-reminder" id="checkbox-reminder" type="checkbox" name="checkbox-reminder"  /><h:outputText value="#{msgs.leave_reminder}"  />
+            <input class="checkbox-reminder" id="checkbox-reminder" type="checkbox" name="checkbox-reminder"  /> <h:outputText value="#{msgs.leave_reminder}"  />
         </div>
                        
         <div class="topic-filter">
@@ -18,11 +18,11 @@
                 <label><h:outputText value="#{msgs.by_name}"  /></label>
                 <input class="topic-search-field" type="text" value="" id="searchTopic" /><br />
                 <label><h:outputText value="#{msgs.in_forum}"  /></label>
-                <select style="margin-left: 0.5em;" name="forumDropdown" class="forumDropdown">
+                <select name="forumDropdown" class="forumDropdown">
                     <option value="select-forum" id="select-forum"><h:outputText value="#{msgs.select_forum}"/></option>
                 </select>
             </div>
-            <div style="padding-left: .3em; margin-top: 1em">
+            <div class="messageWarning">
                 <img src="../../images/exclamation.gif" alt="warning"/>
                 <h:outputText value="#{msgs.locked_topics_hidden}"  />
             </div>

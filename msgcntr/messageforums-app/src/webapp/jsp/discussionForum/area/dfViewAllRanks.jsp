@@ -37,7 +37,7 @@
         <%-- ranks --%>
 		<h:outputText value="#{msgs.no_ranks_defined}" rendered="#{empty ForumTool.rankBeanList}" />
             <h:dataTable value="#{ForumTool.rankBeanList}" var="eachrank" rendered="#{!empty ForumTool.rankBeanList}" summary="layout"
-                         styleClass="listHier" border="0" cellpadding="3" cellspacing="0"
+                         styleClass="table table-hover table-striped table-bordered" border="0" cellpadding="3" cellspacing="0"
                          columnClasses="ranktable-name,ranktable-image,ranktable-assignto,ranktable-minpost,ranktable-delete">
                 <h:column id="_checkbox">
                     <f:facet name="header">

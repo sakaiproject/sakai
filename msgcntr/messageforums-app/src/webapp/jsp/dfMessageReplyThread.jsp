@@ -126,7 +126,7 @@
 		    <h:inputHidden id="titleHidden" value="#{ForumTool.selectedMessage.message.title}" />
 		<h:outputText value="&nbsp;&nbsp;&nbsp; " escape="false" />
 		<img src="/library/image/silk/paste_plain.png" />
-		<a  href="#"  onclick="InsertHTML('<b><i><h:outputText value="#{msgs.cdfm_insert_original_text_comment}"/></i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedTopic.topic.postAnonymous ? ForumTool.selectedMessage.anonId : ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format_static}" locale="#{ForumTool.userLocale}" timeZone="#{ForumTool.userTimeZone}"/></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
+		<a  href="javascript:void(0)"  onclick="InsertHTML('<b><i><h:outputText value="#{msgs.cdfm_insert_original_text_comment}"/></i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedTopic.topic.postAnonymous ? ForumTool.selectedMessage.anonId : ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format_static}" locale="#{ForumTool.userLocale}" timeZone="#{ForumTool.userTimeZone}"/></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
 		<h:outputText value="#{msgs.cdfm_message_insert}" /></a>
 			<span style="margin-left:3em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>		
 			
@@ -139,7 +139,7 @@
 			</script --%>
 		<script language="javascript" type="text/javascript">
 			var textareas = document.getElementsByTagName("textarea");
-			var rteId = textareas.item(0).id;
+			var rteId = textareas.item(1).id;
 			
 //	        function FCKeditor_OnComplete( editorInstance )
 //	        {

@@ -40,7 +40,7 @@
 			       <h:outputText value="#{mfStatisticsBean.selectedMsgSubject}" />
 			    <f:verbatim></h3></div></f:verbatim>
   
-  		<h:dataTable id="subjectBody" value="#{mfStatisticsBean.userSubjectMsgBody}" var="stat" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
+  		<h:dataTable id="subjectBody" value="#{mfStatisticsBean.userSubjectMsgBody}" var="stat" styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column rendered="#{!stat.msgDeleted}">
 				<f:verbatim><div  class="printBlock"></f:verbatim>
 					<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;margin:0;font-size:110%;color:#000;font-weight:bold"></f:verbatim>
