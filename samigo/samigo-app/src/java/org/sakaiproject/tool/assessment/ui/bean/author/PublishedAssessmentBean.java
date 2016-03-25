@@ -49,7 +49,6 @@ public class PublishedAssessmentBean implements Serializable
   private int minutes;
   private int weeks;
   private int days;
-  private String username;
   private String publishedID;
   private String publish_start_day;
   private int publish_start_hours;
@@ -307,14 +306,6 @@ public class PublishedAssessmentBean implements Serializable
   /**
    * @return
    */
-  public String getUsername()
-  {
-    return username;
-  }
-
-  /**
-   * @return
-   */
   public int getWeeks()
   {
     return weeks;
@@ -534,14 +525,6 @@ public class PublishedAssessmentBean implements Serializable
   public void setPublish_start_minutes(int i)
   {
     publish_start_minutes = i;
-  }
-
-  /**
-   * @param string
-   */
-  public void setUsername(String string)
-  {
-    username = string;
   }
 
   /**
