@@ -381,8 +381,11 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public String getURL() {
 		// Will Update to take type into account when adding more than just resources
 		if (type == RESOURCE || type == MULTIMEDIA) {
+			if (getAttribute("multimediaUrl") != null)
+			    return getAttribute("multimediaUrl");
 			return "/access/content" + getSakaiId();
 		} else if (type == URL) {
+		    // not used, apparently
 			return getSakaiId();
 		} else {
 			return "";
@@ -402,8 +405,11 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	        // no one else should do anything with sakai id's other than
 	        // hand them to Content
 		if (type == RESOURCE || type == MULTIMEDIA) {
+		    if (getAttribute("multimediaUrl") != null)
+			return getAttribute("multimediaUrl");
 		    return "/access/lessonbuilder/item/" + getId() + getSakaiId();
 		} else if (type == URL) {
+		    // not used, I'm pretty sure
 			return getSakaiId();
 		} else {
 			return "";

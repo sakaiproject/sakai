@@ -3260,7 +3260,7 @@ public class SimplePageBean {
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.MULTIMEDIA:
 		   String displayType = i.getAttribute("multimediaDisplayType");
-		   if ("1".equals(displayType) || "3".equals(displayType))
+		   if ("1".equals(displayType) || "3".equals(displayType) || i.getAttribute("multimediaUrl") != null)
 		       return getLBItemGroups(i); // for all native LB objects
 		   else
 		       return getResourceGroups(i, nocache);  // responsible for caching the result
@@ -3451,7 +3451,7 @@ public class SimplePageBean {
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.MULTIMEDIA:
 	       String displayType = i.getAttribute("multimediaDisplayType");
-	       if ("1".equals(displayType) || "3".equals(displayType))
+	       if ("1".equals(displayType) || "3".equals(displayType) || i.getAttribute("multimediaUrl") != null)
 		   return setLBItemGroups(i, groups);
 	       else
 		   return setResourceGroups (i, groups);
@@ -3706,14 +3706,13 @@ public class SimplePageBean {
 		linkUrl = url;
 	}
 
-    // doesn't seem to be used at the moment
-	public String createLink() {
-		if (linkUrl == null || linkUrl.equals("")) {
-			return "cancel";
-		}
-
-		String url = linkUrl;
+	public String normUrl (String url) {
+		// these should never happen, but I like making methods robust
+		if (url == null)
+		    return null;
 		url = url.trim();
+		if (url.equals(""))
+		    return url;
 
 		// the intent is to handle something like www.cnn.com or www.cnn.com/foo
 		// Note that the result has no protocol. That means it will use the protocol
@@ -3732,6 +3731,18 @@ public class SimplePageBean {
 			    url = "http://" + url;
 		    }
 		}
+
+		return url;
+	}
+
+    // doesn't seem to be used at the moment
+	public String createLink() {
+		if (linkUrl == null || linkUrl.equals("")) {
+			return "cancel";
+		}
+
+		String url = linkUrl;
+		url = normUrl(url);
 
 		appendItem(url, url, SimplePageItem.URL);
 
@@ -4601,7 +4612,7 @@ public class SimplePageBean {
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either
 		    if (item.getType() == SimplePageItem.MULTIMEDIA) {
 			String displayType = item.getAttribute("multimediaDisplayType");
-			if ("1".equals(displayType) || "3".equals(displayType))
+			if ("1".equals(displayType) || "3".equals(displayType) || item.getAttribute("multimediaUrl") != null)
 			    return true;
 		    }
 		    // resource stored as a direct URL
@@ -5711,10 +5722,12 @@ public class SimplePageBean {
 
 			if (multipartMap.size() > 0) {
 				// 	user specified a file, create it
+				boolean first = true;
 				for(MultipartFile file : multipartMap.values()){
 					if (file.isEmpty())
 						file = null;
-					addMultimediaFile(file);
+					addMultimediaFile(file, first);
+					first = false;
 				}
 			}
 		} catch (Exception exception) {
@@ -5725,10 +5738,9 @@ public class SimplePageBean {
 		
 	}
 
-	public void addMultimediaFile(MultipartFile file){
+	public void addMultimediaFile(MultipartFile file, boolean first){
 		try{
 			
-			String name = null;
 			String sakaiId = null;
 			String mimeType = null;
 			// urlResource is for an item that's going to be type RESOURCE
@@ -5742,18 +5754,18 @@ public class SimplePageBean {
 
 				String collectionId = getCollectionId(false);
 				// 	user specified a file, create it
-				name = file.getOriginalFilename();
-				if (name == null || name.length() == 0)
-					name = file.getName();
-				int i = name.lastIndexOf("/");
+				String fname = file.getOriginalFilename();
+				if (fname == null || fname.length() == 0)
+					fname = file.getName();
+				int i = fname.lastIndexOf("/");
 				if (i >= 0)
-					name = name.substring(i+1);
-				String base = name;
+					fname = fname.substring(i+1);
+				String base = fname;
 				String extension = "";
-				i = name.lastIndexOf(".");
+				i = fname.lastIndexOf(".");
 				if (i > 0) {
-					base = name.substring(0, i);
-					extension = name.substring(i+1);
+					base = fname.substring(0, i);
+					extension = fname.substring(i+1);
 				}
 				
 				mimeType = file.getContentType();
@@ -5806,38 +5818,31 @@ public class SimplePageBean {
 					log.error("addMultimedia error 1 " + e);
 					return;
 				};
+				// if user supplied name use it, else the filename
+				// if multiple files, the user supplied name is for first only, or we'd
+				// have several links with the same name
+				if (!first || name == null || name.trim().equals(""))
+				    name = fname;
 			} else if (mmUrl != null && !mmUrl.trim().equals("") && multimediaDisplayType != 1 && multimediaDisplayType != 3) {
 				// 	user specified a URL, create the item
-				String url = mmUrl.trim();
-				// if user gives a plain hostname, make it a URL.
-				// ui add https if page is displayed with https. I'm reluctant to use protocol-relative
-				// urls, because I don't know whether all the players understand it.
-				if (!url.startsWith("http:") && !url.startsWith("https:") && !url.startsWith("/")) {
-				    String atom = url;
-				    int i = atom.indexOf("/");
-				    if (i >= 0)
-					atom = atom.substring(0, i);
-				    // first atom is hostname
-				    if (atom.indexOf(".") >= 0) {
-					String server= ServerConfigurationService.getServerUrl();
-					if (server.startsWith("https:"))
-					    url = "https://" + url;
+				String url = normUrl(mmUrl);
+				
+				// generate name if user didn't supply one
+				if (!first || name == null || name.trim().equals("")) {
+				    URI uri = new URI(url);
+				    String host = uri.getHost();
+
+				    if (host != null && !host.equals(""))
+					name = host;
+				    String path = uri.getPath();
+				    if (path != null && !path.equals("")) {
+					if (name == null)
+					    name = path;
 					else
-					    url = "http://" + url;
+					    name = name + path;
 				    }
 				}
-				
-				URI uri = new URI(url);
-				String host = uri.getHost();
-				if (host != null && !host.equals(""))
-				    name = host;
-				String path = uri.getPath();
-				if (path != null && !path.equals("")) {
-				    if (name == null)
-					name = path;
-				    else
-					name = name + path;
-				}
+
 				// default name should be "web page". But this is late enough that I don't
 				// want to add strings, so it's going to be "Web ". Hopefully this will never
 				// happen. It's hard to see how there could be a URL with no hostname or path
@@ -5847,6 +5852,8 @@ public class SimplePageBean {
 				// don't let names get too long
 				if (name.length() > 80)
 				    name = name.substring(0,39) + "..." + name.substring(name.length()-39);
+				// as far as I can see, this is used only to find the extension, so this is OK
+				sakaiId = "/url/" + name;
 
 				urlResource = url;
 				// new dialog passes the mime type
@@ -5891,14 +5898,10 @@ public class SimplePageBean {
 				if (item == null)
 					return;
 				
-				// editing an existing item which might have customized properties
-				// retrieve original resource and check for customizations
-				ResourceHelper resHelp = new ResourceHelper(getContentResource(item.getSakaiId()));
-				// if replacing file, keep existing name
-				boolean hasCustomName = resHelp.isNameCustom(item.getName()) || replacefile;
-				
 				item.setSakaiId(sakaiId);
-				if (!hasCustomName)
+				// the UI shows the existing name and lets the user change it, so we
+				// can always use the name from the UI
+				if (name != null && !name.trim().equals(""))
 				{
 					item.setName(name);
 				}
@@ -5917,8 +5920,11 @@ public class SimplePageBean {
 				item.setHtml(null);
 			}
 			
-			if (urlResource != null) // link to item, where item is a URL
-			    item.setAttribute("multimediaUrl", mmUrl.trim());
+			if (urlResource != null) { // link to item, where item is a URL
+			    String nurl = urlResource;
+			    item.setAttribute("multimediaUrl", nurl);
+			    item.setSakaiId(sakaiIdFromUrl(nurl, item));
+			}
 			if (mmUrl != null && !mmUrl.trim().equals("") && isMultimedia) {
 			    // embed item, where item is a URL or embed code
 			    if (multimediaDisplayType == 1)
@@ -5927,8 +5933,11 @@ public class SimplePageBean {
 				// The code is similar to that in submit, but currently doesn't
 				// have folder-specific override (because there are no folders involved)
 				item.setAttribute("multimediaEmbedCode", AjaxServer.filterHtml(mmUrl.trim()));
-			    else if (multimediaDisplayType == 3)
-				item.setAttribute("multimediaUrl", mmUrl.trim());
+			    else if (multimediaDisplayType == 3) {
+				String nurl = normUrl(mmUrl);
+				item.setAttribute("multimediaUrl", nurl);
+				item.setSakaiId(sakaiIdFromUrl(nurl, item));
+			    }
 			    item.setAttribute("multimediaDisplayType", Integer.toString(multimediaDisplayType));
 			}
 			// 	if this is an existing item and a resource, leave it alone
@@ -5950,6 +5959,17 @@ public class SimplePageBean {
 			ex.printStackTrace();
 		}
 	}
+
+	// for types where we save the URL directly we need a unique Sakai id. It
+	// has to be unique, not too long, and it has to end in the right extension.
+	// has to be unique because this is sometimes used as a key for caching
+	// The item ID is to make it unique
+	public String sakaiIdFromUrl(String url, SimplePageItem item) {
+	    if (url.length() > 80)
+		url = url.substring(url.length()-80);
+	    return "/url/" + item.getId() + "/" + url;
+	}
+
 	public boolean deleteRecursive(File path) throws FileNotFoundException{
 		if (!path.exists()) throw new FileNotFoundException(path.getAbsolutePath());
 		boolean ret = true;
