@@ -1230,6 +1230,8 @@ $(document).ready(function() {
 		$('.change-resource-movie').click(function(){
 			closeMovieDialog();
 			mm_test_reset();
+			$("#mm-name-section").hide();
+			$("#mm-prerequisite").prop('checked',$("#movie-prerequisites").prop('checked'));
 			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
 			$("#mm-file-replace-group").show();
 			$("#mm-item-id").val($("#movieEditId").val());
@@ -1565,6 +1567,9 @@ $(document).ready(function() {
 		$('#change-resource').click(function(){
 			closeEditItemDialog();
 			mm_test_reset();
+			$("#mm-name-section").show();
+			$("#mm-name").val($("#name").val());
+			$("#mm-prerequisite").prop('checked',$("#item-prerequisites").prop('checked'));
 			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
 			$("#mm-file-replace-group").show();
 			$("#mm-item-id").val($("#item-id").val());
@@ -1595,6 +1600,9 @@ $(document).ready(function() {
 			closeDropdowns();
 
 			mm_test_reset();
+			$("#mm-name-section").hide();
+			$("#mm-name").val('');
+			$("#mm-prerequisite").prop('checked',false);
 			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
 
 			$("#mm-item-id").val(-1);
@@ -1625,6 +1633,9 @@ $(document).ready(function() {
 		$(".add-resource").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
+			$("#mm-name-section").show();
+			$("#mm-name").val('');
+			$("#mm-prerequisite").prop('checked',false);
 			if ($(this).hasClass("add-at-end"))
 			    addAboveItem = '';
 			mm_test_reset();
@@ -1658,6 +1669,9 @@ $(document).ready(function() {
 			oldloc = $(".dropdown a");
 			closeDropdowns();
 			mm_test_reset();
+			$("#mm-name-section").show();
+			$("#mm-name").val('');
+			$("#mm-prerequisite").prop('checked',false);
 			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
 
 			$("#mm-item-id").val(-1);
@@ -1783,6 +1797,8 @@ $(document).ready(function() {
 		$('#change-resource-mm').click(function(){
 			closeMultimediaEditDialog();
 			mm_test_reset();
+			$("#mm-name-section").hide();
+			$("#mm-prerequisite").prop('checked',$("#multi-prerequisite").prop('checked'));
 			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
 			$("#mm-file-replace-group").show();
 			$("#mm-item-id").val($("#multimedia-item-id").val());
