@@ -8,14 +8,14 @@
     <div class="portletBody">
       <div id="menu" th:include="fragments/menus :: main (search)" />
       <h3 th:text="#{search.searchMessages}">Search Messages</h3>
-      <form id="searchForm" class="form-inline" action="#" th:action="@{/search}" th:object="${searchEntity}" method="post">
-        <label for="searchValue" class="control-label" th:text="#{search.text}">Enter text</label>
-        <input type="text" class="form-control" id="searchValue" th:placeholder="${value}" th:field="*{value}" />
-        <label for="localeSelect" class="control-label" th:text="#{search.locale.select}">Select a Locale</label>
-        <select id="localeSelect" class="form-control" th:field="*{locale}">
+      <form id="searchForm" action="#" th:action="@{/search}" th:object="${searchEntity}" method="post">
+        <label for="searchValue" th:text="#{search.text}">Enter text</label>
+        <input type="text" id="searchValue" th:placeholder="${value}" th:field="*{value}" />
+        <label for="localeSelect" th:text="#{search.locale.select}">Select a Locale</label>
+        <select id="localeSelect" th:field="*{locale}">
           <option th:each="locale : ${listMessagePropertyLocales}" th:value="${locale}" th:text="${locale}">locale</option>
         </select>
-        <button type="submit" class="btn btn-primary" name="search" th:text="#{search.search}">Search</button>
+        <button type="submit" name="search" th:text="#{search.search}">Search</button>
       </form>
       <div th:switch="${ #lists.isEmpty(properties) }">
         <div th:case="true">
