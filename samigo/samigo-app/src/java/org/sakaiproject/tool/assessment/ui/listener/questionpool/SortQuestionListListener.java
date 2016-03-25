@@ -31,6 +31,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -56,12 +57,12 @@ public class SortQuestionListListener
     String orderBy = ContextUtil.lookupParam("orderBy");
     String ascending =ContextUtil.lookupParam("ascending");
     String getItems =ContextUtil.lookupParam("getItems");
-    if (orderBy != null &&!orderBy.trim().equals("")){
+    if (StringUtils.isNotBlank(orderBy)) {
     	questionpoolbean.setSortQuestionProperty(orderBy);
     	log.debug("orderBy = " + ContextUtil.lookupParam("orderBy"));
     }
     
-    if (ascending != null && ascending.trim().equals("")){
+    if (StringUtils.isNotBlank(ascending)) {
     	questionpoolbean.setSortAscending(Boolean.valueOf(ascending).booleanValue());
     	log.debug("ascending = " + ascending);
     }
@@ -77,18 +78,19 @@ public class SortQuestionListListener
     String userId = person.getId();
 
     List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(userId);
-    if (!poolsWithAccess.contains(Long.valueOf(qpid))) {
+    if (StringUtils.isNotBlank(qpid) && !poolsWithAccess.contains(Long.valueOf(qpid))) {
         throw new IllegalArgumentException("userId " + userId + " does not have access to question pool id " + qpid);
     }
 
     ArrayList list= null;
-    if (getItems != null && getItems.trim().equals("false")){
-    	log.debug("Do not getItems: getItems = " + getItems);
-    } else {
-		if (qpid == null || ("").equals(qpid.trim())){
-			list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
-    	}
-    	else{
+    if (StringUtils.isNotBlank(getItems) && getItems.trim().equals("false")) {
+        log.debug("Do not getItems: getItems = " + getItems);
+    }
+    else {
+        if (StringUtils.isBlank(qpid)) {
+            list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
+        }
+        else {
     		list = delegate.getAllItemsSorted(Long.valueOf(qpid),orderBy, ascending);
     	}
     	log.debug("AFTER CALLING DELEGATE");

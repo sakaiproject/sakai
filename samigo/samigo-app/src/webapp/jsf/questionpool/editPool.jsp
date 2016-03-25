@@ -78,6 +78,7 @@ function textCounter(field, maxlimit) {
 </div>
 
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
  <div class="table-responsive">
 <h:panelGrid styleClass="table table-striped" columns="2" columnClasses="shorttext" rowClasses="poolName, creator, dept, description, objectives, keywords, hidden" id="samPool">
@@ -188,11 +189,9 @@ function textCounter(field, maxlimit) {
  
  </div>
 
-<h:panelGrid rendered="#{questionpool.currentPool.numberOfQuestions > 0 }" width="100%">
-<h:panelGroup>
+<h:panelGroup layout="block" rendered="#{questionpool.currentPool.numberOfQuestions > 0 }">
 <%@ include file="/jsf/questionpool/questionTreeTable.jsp" %>
 </h:panelGroup>
-</h:panelGrid>
  </div>
 </div>
 <!-- END -->
