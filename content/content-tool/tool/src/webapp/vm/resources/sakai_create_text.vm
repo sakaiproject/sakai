@@ -18,7 +18,7 @@
 		#else
 			<p class="longtext">
 		#end
-			<textarea name="content" id="content" rows="10" cols="80" wrap="virtual">$!validator.escapeHtmlTextarea($!{pipe.contentstring})</textarea>
+			<textarea class="form-control" name="content" id="content" rows="10" wrap="virtual">$!validator.escapeHtmlTextarea($!{pipe.contentstring})</textarea>
 		</p>
 		<p class="act">
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />

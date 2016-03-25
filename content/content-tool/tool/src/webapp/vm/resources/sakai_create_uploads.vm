@@ -2,15 +2,13 @@
 <link rel="stylesheet" type="text/css" href="/library/webjars/dropzone/4.2.0/min/dropzone.min.css">
 <div class="portletBody specialLink">
     <h3>$tlang.getString("create.uploads")</h3>
-    <div class="breadCrumb">
-    <h4>
-        $tlang.getString("gen.location")
+    <ol class="breadcrumb">
+        <li><span>$tlang.getString("gen.location")</span></li>
         ##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
         #foreach ($folder in $model.collectionPath)
-            $validator.escapeHtml($folder.name) /
+            <li><span>$validator.escapeHtml($folder.name)</span></li>
         #end
-    </h4>
-    </div>
+    </ol>
     #if ($itemAlertMessage)
         <div class="messageValidation">$itemAlertMessage</div>
         <div style="display:block;clear:both" ></div>
@@ -21,8 +19,7 @@
         <div class="dz-default dz-message">$tlang.getString("label.dragZoneMessage")</div>
     </form>
     <div id="fileUploaderDesc" class="instruction">
-        <p>$tlang.getString("label.dragDescription")</p
-        <br />
+        <p>$tlang.getString("label.dragDescription")</p>
         <p>$instr_dnd_uploads</p>
     </div>
     <form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
@@ -51,30 +48,26 @@
                 #end
             #elseif($model.isUserSite())
             #else
-                <table>
+                <div class="form">
+                ##<table>
                     #if($availability_is_enabled)
-                        <tr>
-                            <td><strong>$tlang.getString("avail.title")</strong></td>
-                            <td style="padding-left: 20px;">
-                                $tlang.getString("avail.uploaded") &nbsp; &nbsp;
-                                <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
-                                <label for="hidden_false">$tlang.getString("avail.show40")</label>
-                                <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
-                                <label for="hidden_true">$tlang.getString("avail.hide40")</label>
-                            </td>
-                        </tr>
+                        <h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4>
+                        <div class="form-group">
+                            <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
+                            <label for="hidden_false">$tlang.getString("avail.show40")</label>
+                            <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
+                            <label for="hidden_true">$tlang.getString("avail.hide40")</label>
+                        </div>
                     #end
-                    <tr>
-                        <td><label for="notify">$tlang.getString("gen.email1")</label></td>
-                        <td style="padding-left: 20px;">
-                            <select name="notify" id="notify">
-                                <option value="r">$tlang.getString("gen.email2")</option>
-                                <option value="o">$tlang.getString("gen.email3")</option>
-                                <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-                            </select>
-                        </td>
-                    </tr>
-                </table>
+                    <div class="form-group">
+                        <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>
+                        <select name="notify" id="notify">
+                            <option value="r">$tlang.getString("gen.email2")</option>
+                            <option value="o">$tlang.getString("gen.email3")</option>
+                            <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+                        </select>
+                    </div>
+                </div>
             #end
         #end
         <p class="act">
