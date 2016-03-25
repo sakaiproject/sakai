@@ -340,3 +340,43 @@ ol.nav ol.dropdown-menu li.placeholder::before {
 	margin-top: -5px;
 	top: 0;
 }
+.instruction {
+	display: none;
+}
+.shorttext label {
+	float: left;
+	font-weight: normal;
+	margin-right: 1em;
+	width: 14.5em;
+}
+.shorttext .reqStar {
+	color: #009dce;
+	font-size: 1em;
+	font-weight: bold;
+	margin: 0 0 0 -1em;
+	padding: 0;
+	width: auto;
+}
+.shorttext {
+	border: 1px solid #fff;
+	margin: 0.4em 1em;
+}
+.reqStar {
+	border-top: 3px solid #fff;
+	color: #009dce;
+	float: left;
+	font-size: 1em;
+	font-weight: bold;
+	margin-left: -1em;
+	padding: 0;
+	width: auto;
+}
+.navIntraTool {
+	border-bottom: 0;
+}
+.navIntraTool li span a {
+	border-bottom: 1px solid #e0e0e0;
+}
+.addCitationsText {
+	padding-bottom: 10px;
+}
