@@ -46,4 +46,12 @@ $( document ).ready(function() {
       0: function(node, table, cellIndex) { return $(node).find("a").text(); }
     }
   });
+  $("#editform\\:questionpool-questions").tablesorter({
+    theme: 'default',
+    headers: {
+      0: {
+        sorter: false
+      }
+    }
+  });
 });

@@ -19,19 +19,14 @@
 **********************************************************************************/
 --%>
 -->
-<STYLE type="text/css">
-<!-- 
-table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px}
--->
-</STYLE>
 
- <t:dataTable cellpadding="0" cellspacing="0" value="#{questionpool.allItems}" var="question" styleClass="listHier"
- 				rowIndexVar="row">
+<div class="table-responsive">
+  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped tablesorter" id="questionpool-questions" rowIndexVar="row">
 
 <h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >
   <f:facet name="header">
     <h:selectManyCheckbox immediate="true" id="selectall" onclick="toggleRemove();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall">
-      <f:selectItem itemValue="1"/>
+      <f:selectItem itemValue="1" itemLabel="<span class=\"hidden\">Select All</span>" escape="false" />
     </h:selectManyCheckbox>
   </f:facet>
   <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value="#{questionpool.destItems}">
@@ -42,28 +37,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
     <h:column>
       <f:facet name="header">      
 		<h:panelGroup>
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionText}" id="sortByTitleAction" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty ne 'text'}">
           <h:outputText value="#{questionPoolMessages.q_text}" />
-          <f:param name="orderBy" value="text"/>
-          <f:param name="ascending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionText}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='text' && questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_text}" />
-          <f:param name="orderBy" value="text"/>
-          <f:param name="ascending" value="false"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTextDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionText}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='text' && !questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_text}" />
-          <f:param name="orderBy" value="text"/>
-          <f:param name="ascending" value="true"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTextAscending}" rendered="#{author.publishedAscending}" url="/images/sortdescending.gif"/>          
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
         </h:panelGroup>
       </f:facet>
 
@@ -101,28 +75,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
     <h:column>
       <f:facet name="header">
         <h:panelGroup>
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionType}" id="sortByTypeAction" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty ne 'keyword'}">
           <h:outputText value="#{questionPoolMessages.q_type}" />
-          <f:param name="orderBy" value="keyword"/>
-          <f:param name="ascending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionType}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='keyword' && questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_type}" />
-          <f:param name="orderBy" value="keyword"/>
-          <f:param name="ascending" value="false"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTypeDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionType}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='keyword' && !questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_type}" />
-          <f:param name="orderBy" value="keyword"/>
-          <f:param name="ascending" value="true"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTypeAscending}" rendered="#{author.publishedAscending}" url="/images/sortdescending.gif"/>          
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
         </h:panelGroup>
       </f:facet>
      <h:outputText rendered="#{question.typeId== 1}" value="#{authorMessages.multiple_choice_type}"/>
@@ -158,3 +111,4 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 
 
   </t:dataTable>
+</div>
