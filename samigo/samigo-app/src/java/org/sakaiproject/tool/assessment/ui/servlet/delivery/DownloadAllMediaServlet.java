@@ -90,7 +90,8 @@ public class DownloadAllMediaServlet extends HttpServlet
       throws ServletException, IOException
   {
     String publishedItemId = req.getParameter("publishedItemId");
-    log.debug("publishedItemId = " + publishedItemId);
+    String publishedId  = req.getParameter("publishedId");
+    log.debug("publishedItemId = " + publishedItemId + " publishedId = " + publishedId);
     
     // who can access the zip file? You can,
     // if you have a assessment.grade.any or assessment.grade.own permission
@@ -110,7 +111,7 @@ public class DownloadAllMediaServlet extends HttpServlet
     String assessmentCreatedBy = req.getParameter("createdBy");
     
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
-    if (authzBean.isUserAllowedToGradeAssessment(publishedItemId, assessmentCreatedBy, true)) {
+    if (authzBean.isUserAllowedToGradeAssessment(publishedId, assessmentCreatedBy, true, currentSiteId)) {
     	accessDenied = false;
     }
     
