@@ -788,30 +788,28 @@ public class SchedulerTool
       LOG.error("Scheduler is down!");
       return "error";
     }
-    try
-    {
-    	JobDetail
-    		jd = selectedJobDetailWrapper.getJobDetail();
+    try {
+        JobDetail jobDetail = selectedJobDetailWrapper.getJobDetail();
 
-    	Trigger trigger = TriggerBuilder.newTrigger()
-    	        .withIdentity(jd.getKey().getName(), Scheduler.DEFAULT_GROUP)
-    	        .withSchedule(CronScheduleBuilder.cronSchedule(triggerExpression))
-    	        .build();
-    	        
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerName, Scheduler.DEFAULT_GROUP)
+                .withSchedule(CronScheduleBuilder.cronSchedule(triggerExpression))
+                .forJob(jobDetail.getKey())
+                .build();
+
     	TriggerWrapper tempTriggerWrapper = new TriggerWrapperImpl();
     	tempTriggerWrapper.setTrigger(trigger);
-      
-      	JobBeanWrapper
-      		job = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
 
-      	if (job != null)
+        JobBeanWrapper jobWrapper = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
+
+        if (jobWrapper != null)
       	{
-		    if (ConfigurableJobBeanWrapper.class.isAssignableFrom(job.getClass()))
+		    if (ConfigurableJobBeanWrapper.class.isAssignableFrom(jobWrapper.getClass()))
 		    {
 		        final ConfigurableJobBeanWrapper
-		            configurableJob = (ConfigurableJobBeanWrapper)job;
+		            configurableJob = (ConfigurableJobBeanWrapper)jobWrapper;
 		
-                setJobDetail (jd);
+                setJobDetail (jobDetail);
 		        setConfigurableJobBeanWrapper (configurableJob);
 		        setTriggerWrapper (tempTriggerWrapper);
 		        
