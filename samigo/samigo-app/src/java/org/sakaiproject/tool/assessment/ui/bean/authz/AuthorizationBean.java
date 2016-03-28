@@ -340,15 +340,14 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   } 
 
   public boolean getPrivilege(String functionName){
-    String siteId  = AgentFacade.getCurrentSiteId();
-    boolean privilege = false;
-    Object o = map.get(functionName+"_"+siteId);
-    if (o!=null)
-      privilege = ((Boolean)o).booleanValue();
-    return privilege;
+    return getPrivilege(functionName,null);
   }
  
-  public boolean getPrivilege(HttpServletRequest req, String functionName, String siteId){
+  public boolean getPrivilege(final String functionName, String siteId){
+	if (siteId == null) {
+		siteId  = AgentFacade.getCurrentSiteId();
+	}
+	
     boolean privilege = false;
     Object o = map.get(functionName+"_"+siteId);
     if (o != null) privilege = ((Boolean)o).booleanValue();
@@ -356,12 +355,12 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   }
 
   // added the follwoing for ShowMediaServlet
-  public boolean getGradeAnyAssessment(HttpServletRequest req, String siteId) {
-    return getPrivilege(req, "assessment.gradeAssessment.any", siteId);
+  public boolean getGradeAnyAssessment(String siteId) {
+    return getPrivilege("assessment.gradeAssessment.any", siteId);
   } 
 
-  public boolean getGradeOwnAssessment(HttpServletRequest req, String siteId) {
-    return getPrivilege(req, "assessment.gradeAssessment.own", siteId);
+  public boolean getGradeOwnAssessment(String siteId) {
+    return getPrivilege("assessment.gradeAssessment.own", siteId);
   }
 
   public boolean isUserAllowedToPublishAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
@@ -380,15 +379,19 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   }
 
   public boolean isUserAllowedToGradeAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
-    if (!isAssessmentInSite(assessmentId, published)) {
+	 return isUserAllowedToGradeAssessment(assessmentId,assessmentOwnerId,published,null); 
+  }
+
+  public boolean isUserAllowedToGradeAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published, String currentSiteId) {
+    if (!isAssessmentInSite(assessmentId,currentSiteId,published)) {
       return false;
     }
 
     // Second check on the realm permissions
-    if (getGradeAnyAssessment()) {
+    if (getGradeAnyAssessment(currentSiteId)) {
       return true;
     }
-    else if (getGradeOwnAssessment()) {
+    else if (getGradeOwnAssessment(currentSiteId)) {
       final String loggedInUser = AgentFacade.getAgentString();
       return StringUtils.equals(loggedInUser, assessmentOwnerId);
     }
@@ -441,7 +444,11 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   }
 
   // Check whether the assessment belongs to the given site
-  public static boolean isAssessmentInSite(final String assessmentId, final String siteId, final boolean published) {
+  public static boolean isAssessmentInSite(final String assessmentId, String siteId, final boolean published) {
+	//Try to get the site Id
+	if (siteId == null) {
+		siteId = AgentFacade.getCurrentSiteId();
+	}
     // get list of site that this published assessment has been released to
     List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().getAuthorizationByFunctionAndQualifier(published ? "OWN_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
 
