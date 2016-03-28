@@ -170,21 +170,22 @@
 				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
 			</p>
 			<p class="checkbox indnt1">
-				<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end
-				aria-describedby="site_vis_inst" 
-				/>
+				<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end aria-describedby="site_vis_inst" />
 				<label for="access_public">
 					$tlang.getString("ediacc.dismysit")
 				</label>
 			</p>
 			<p class="checkbox indnt1">
+				<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end aria-describedby="site_vis_inst" />
+				<label for="access_private">
+					$tlang.getString("ediacc.pri")
+				</label>
 			</p>
 		</div>
 		<div id="publicChangeableNoDiv" $publicChangeableNoDivDisplay>
 			<p class="instruction">
 				## the site should be public
 				$tlang.getString("ediacc.dismysit")
-
 			</p>
 			<p />
 		</div>
