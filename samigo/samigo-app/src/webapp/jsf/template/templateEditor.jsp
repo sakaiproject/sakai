@@ -302,6 +302,7 @@
     </h:selectOneRadio>
     </h:panelGroup>
     </h:panelGrid>
+          </div>
 
 <!-- Display Scores -->
       <div class="longtext"><h:outputLabel value="#{templateMessages.displayScores}"/></div>
