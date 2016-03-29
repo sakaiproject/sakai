@@ -21,7 +21,7 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
-import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
@@ -31,8 +31,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * This keeps track of the submission scheme, and the number allowed.
@@ -95,6 +93,7 @@ public class AssessmentAccessControl
   private Integer timedAssessment;
   private Integer retryAllowed;
   private Integer lateHandling;
+  private Integer instructorNotification;
   private Date startDate;
   private Date dueDate;
   private Date scoreDate;
@@ -123,7 +122,7 @@ public class AssessmentAccessControl
   public AssessmentAccessControl(Integer submissionsAllowed, Integer submissionsSaved,
                                  Integer assessmentFormat, Integer bookMarkingItem,
                                  Integer timeLimit, Integer timedAssessment,
-                                 Integer retryAllowed, Integer lateHandling,
+                                 Integer retryAllowed, Integer lateHandling, Integer instructorNotification,
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate,
                                  Date retractDate, Integer autoSubmit,
@@ -138,6 +137,7 @@ public class AssessmentAccessControl
     this.timedAssessment = timedAssessment;
     this.retryAllowed = retryAllowed; // cannot edit(0)
     this.lateHandling = lateHandling; // cannot edit(0)
+    this.instructorNotification = instructorNotification;
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
@@ -156,7 +156,7 @@ public class AssessmentAccessControl
         this.getSubmissionsAllowed(), this.getSubmissionsSaved(),
         this.getAssessmentFormat(), this.getBookMarkingItem(),
         this.getTimeLimit(), this.getTimedAssessment(),
-        this.getRetryAllowed(), this.getLateHandling(),
+        this.getRetryAllowed(), this.getLateHandling(), this.getInstructorNotification(),
         this.getStartDate(), this.getDueDate(),
         this.getScoreDate(), this.getFeedbackDate(),
         this.getRetractDate(), this.getAutoSubmit(),
@@ -277,6 +277,16 @@ public class AssessmentAccessControl
   public Integer getLateHandling()
   {
     return lateHandling;
+  }
+
+  public void setInstructorNotification(Integer instructorNotification)
+  {
+    this.instructorNotification = instructorNotification;
+  }
+
+  public Integer getInstructorNotification()
+  {
+    return instructorNotification;
   }
 
   public Date getStartDate() {

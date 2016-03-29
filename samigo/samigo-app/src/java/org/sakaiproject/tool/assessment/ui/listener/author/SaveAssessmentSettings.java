@@ -55,18 +55,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
-import org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -193,6 +188,10 @@ public class SaveAssessmentSettings
 
     //log.info("**unlimited submission="+assessmentSettings.getUnlimitedSubmissions());
     //log.info("**allowed="+control.getSubmissionsAllowed());
+
+    if (assessmentSettings.getInstructorNotification() != null) {
+        control.setInstructorNotification(new Integer(assessmentSettings.getInstructorNotification()));
+    }
 
     if (assessmentSettings.getSubmissionsSaved()!=null){
       control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));

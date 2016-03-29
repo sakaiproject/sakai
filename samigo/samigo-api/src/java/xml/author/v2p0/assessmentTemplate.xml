@@ -683,6 +683,12 @@
       <!--Possible Values -->
       <!--True, False -->
       <qtimetadatafield>
+        <fieldlabel>instructorNotification_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
         <fieldlabel>autoSave_isInstructorEditable</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>

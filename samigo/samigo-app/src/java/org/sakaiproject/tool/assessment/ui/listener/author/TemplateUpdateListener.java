@@ -240,6 +240,7 @@ public class TemplateUpdateListener
 		  aac.setUnlimitedSubmissions(Boolean.TRUE);
       }
       aac.setLateHandling(Integer.valueOf(templateBean.getLateHandling()));
+      aac.setInstructorNotification(Integer.valueOf(templateBean.getInstructorNotification()));
       
       if (templateBean.getValueMap().get("automaticSubmission_isInstructorEditable") == null) {
     	  templateBean.setValue("automaticSubmission_isInstructorEditable", "false");

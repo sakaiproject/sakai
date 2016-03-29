@@ -391,6 +391,24 @@
     </h:panelGrid>
 </div>
 
+     <!-- SUBMISSION EMAILS / INSTRUCTOR NOTIFICATION -->
+     <div class="longtext"><h:outputLabel value="#{templateMessages.submission_emails}" /></div>
+     <div class="tier3">
+         <h:panelGrid columns="2" summary="#{templateMessages.submission_emails_sub}" >
+             <h:selectBooleanCheckbox id="submission_emails" value="#{template.valueMap.instructorNotification_isInstructorEditable}" />
+             <h:outputLabel for="submission_emails" value="#{templateMessages.template_canbedefault}" />
+
+             <h:outputText value=" " />
+             <h:panelGroup>
+                 <h:selectOneRadio layout="pageDirection" value="#{template.instructorNotification}" required="true">
+                     <f:selectItem itemValue="3" itemLabel="#{templateMessages.submission_emails_one_email}" />
+                     <f:selectItem itemValue="2" itemLabel="#{templateMessages.submission_emails_digest_email}" />
+                     <f:selectItem itemValue="1" itemLabel="#{templateMessages.submission_emails_no_email}" />
+                 </h:selectOneRadio>
+             </h:panelGroup>
+         </h:panelGrid>
+     </div>
+
     <!-- AUTOMATIC SUBMISSION -->
     <div class="longtext"><h:outputLabel value="#{templateMessages.automatic_submission}" rendered="#{templateIndex.automaticSubmissionEnabled}"/></div>
         <div class="tier3">

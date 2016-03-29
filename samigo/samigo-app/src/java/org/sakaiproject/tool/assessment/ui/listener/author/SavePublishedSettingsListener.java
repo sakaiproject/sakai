@@ -512,6 +512,9 @@ implements ActionListener
 			}
 		}
 
+		if (assessmentSettings.getInstructorNotification() != null){
+			control.setInstructorNotification(new Integer(assessmentSettings.getInstructorNotification()));
+		}
 
 		if (assessmentSettings.getSubmissionsSaved()!=null){
 			control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));

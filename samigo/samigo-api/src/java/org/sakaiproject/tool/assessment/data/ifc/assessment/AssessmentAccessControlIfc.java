@@ -108,6 +108,10 @@ public interface AssessmentAccessControlIfc
 
   Integer getLateHandling();
 
+  void setInstructorNotification(Integer instructorNotification);
+
+  Integer getInstructorNotification();
+
   void setTimedAssessment(Integer timedAssessment);
 
   Date getStartDate();

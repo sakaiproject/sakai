@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,7 +69,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeli
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -145,6 +143,7 @@ public class AssessmentSettingsBean
   private String submissionsAllowed;
   private String submissionsSaved; // bad name, this is autoSaved
   private String lateHandling;
+  private String instructorNotification;
   private String submissionMessage;
   private String releaseTo;
   private SelectItem[] publishingTargets;
@@ -358,6 +357,10 @@ public class AssessmentSettingsBean
         }
         if (accessControl.getLateHandling() !=null)
           this.lateHandling = accessControl.getLateHandling().toString();
+        if (accessControl.getInstructorNotification() != null) {
+          this.instructorNotification = accessControl.getInstructorNotification().toString();
+          this.assessment.setInstructorNotification(Integer.valueOf(this.instructorNotification));
+        }
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
         this.submissionMessage = accessControl.getSubmissionMessage();
@@ -783,14 +786,6 @@ public class AssessmentSettingsBean
 	  }
   }
 
-  public String getInstructorNotification(){
-    return this.assessment.getInstructorNotification().toString();
-  }
-
-  public void setInstructorNotification(String notiEmail){
-    this.assessment.setInstructorNotification(Integer.valueOf(notiEmail));
-  }
-
   public String getSubmissionsAllowed() {
     return submissionsAllowed;
   }
@@ -816,6 +811,15 @@ public class AssessmentSettingsBean
 
   public String getLateHandling() {
     return lateHandling;
+  }
+
+  public void setInstructorNotification(String instructorNotification) {
+    this.instructorNotification = instructorNotification;
+    this.assessment.setInstructorNotification(Integer.valueOf(this.instructorNotification));
+  }
+
+  public String getInstructorNotification() {
+    return instructorNotification;
   }
 
   // bad name - this is autoSaved

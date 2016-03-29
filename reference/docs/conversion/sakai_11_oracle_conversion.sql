@@ -913,3 +913,41 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Mana
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
 -- END KNL-1424
+
+--SAM-2709 Submission Email Notifications Hidden Inappropriately--
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD INSTRUCTORNOTIFICATION integer;
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD INSTRUCTORNOTIFICATION integer;
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'instructorNotification_isInstructorEditable', 'true') ;
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'displayScores_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Quiz'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Problem Set'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Survey'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+--END SAM-2709

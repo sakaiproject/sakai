@@ -54,4 +54,5 @@ public class SamigoConstants {
     public static final     int         NOTI_PREF_DEFAULT                                   = NotificationService.PREF_IMMEDIATE;
     public static final     int         NOTI_EVENT_ASSESSMENT_SUBMITTED                     = NotificationService.NOTI_OPTIONAL;
     public static final     int         NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED               = NotificationService.NOTI_OPTIONAL;
+    public static final     int         NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT                  = NotificationService.PREF_IGNORE;
 }
