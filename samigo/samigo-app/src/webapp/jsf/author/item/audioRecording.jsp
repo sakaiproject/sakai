@@ -76,7 +76,7 @@
   <!-- 1 POINTS -->
    <div class="shorttext">
     <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
+    <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
 <f:validateDoubleRange minimum="0.00"/>
 </h:inputText><br/>
     <h:message for="answerptr" styleClass="validate"/>

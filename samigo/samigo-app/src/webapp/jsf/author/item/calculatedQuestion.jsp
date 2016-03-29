@@ -104,7 +104,7 @@ confirmation dialog
 	<!-- 1 POINTS -->
 	<div class="tier2">
 		<div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-	    	<h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
+			<h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true">
 				<f:validateDoubleRange/>
 			</h:inputText>
 			<br/>
