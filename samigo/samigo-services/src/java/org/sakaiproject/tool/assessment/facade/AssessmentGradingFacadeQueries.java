@@ -971,7 +971,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    List list = getHibernateTemplate().executeFind(hcb);
 
 	    for (int i=0;i<list.size();i++){
-	      a.add((MediaData)list.get(i));
+	      MediaData mediaData = (MediaData)list.get(i);
+	      mediaData.setContentResource(getMediaContentResource(mediaData));
+	      a.add(mediaData);
 	    }
 	    log.debug("*** no. of media ="+a.size());
 	    return a;
@@ -1055,7 +1057,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     			//return criteria.setMaxResults(10000).list();
     		}
     	};
-    	return (List) getHibernateTemplate().execute(hcb);
+
+       ArrayList a = new ArrayList();
+       List hbmList = (List) getHibernateTemplate().execute(hcb);
+       for (int i=0;i<hbmList.size();i++){
+               MediaData mediaData = (MediaData)hbmList.get(i);
+               mediaData.setContentResource(getMediaContentResource(mediaData));
+               a.add(mediaData);
+       }
+       return a;
+
     	} catch (Exception e) {
     		e.printStackTrace();
     		return new ArrayList();
