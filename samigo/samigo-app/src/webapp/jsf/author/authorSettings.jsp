@@ -362,7 +362,7 @@
   </h:panelGroup>
 
   <!-- SUBMISSION EMAILS -->
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.instructorNotification_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.instructorNotificationLabel}" />
     <div class="col-md-10">
       <t:selectOneRadio id="notificationEmailChoices" value="#{assessmentSettings.instructorNotification}" layout="spread">

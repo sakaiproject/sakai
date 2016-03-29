@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
@@ -57,6 +58,7 @@ public class TemplateBean implements Serializable
   private String submissionModel = "1";
   private String submissionNumber;
   private String lateHandling = "2";
+  private String instructorNotification = String.valueOf(SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT);
   private Boolean automaticSubmission = Boolean.FALSE;
   private String autoSave = "1";
   private String feedbackType = "1";
@@ -100,7 +102,8 @@ public class TemplateBean implements Serializable
     values.put("feedbackAuthoring_isInstructorEditable", Boolean.TRUE);
     values.put("feedbackComponents_isInstructorEditable", Boolean.TRUE);
     values.put("anonymousRelease_isInstructorEditable", Boolean.TRUE);
-    values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);     
+    values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);
+    values.put("instructorNotification_isInstructorEditable", Boolean.TRUE);
   }
 
     public void setOutcome(String outcome){
@@ -545,6 +548,30 @@ public class TemplateBean implements Serializable
       return "2";
     }
     return checker(lateHandling, "2");
+  }
+
+  /**
+   * Submission Emails
+   *
+   * @param newInstructorNotification submission emails
+     */
+  public void setInstructorNotification(String newInstructorNotification)
+  {
+    instructorNotification = newInstructorNotification;
+  }
+
+  /**
+   * submission emails
+   *
+   * @return submission emails
+     */
+  public String getInstructorNotification()
+  {
+    if ("0".equals(instructorNotification))
+    {
+      return String.valueOf(SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT);
+    }
+    return checker(instructorNotification, String.valueOf(SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT));
   }
 
   // Feedback
