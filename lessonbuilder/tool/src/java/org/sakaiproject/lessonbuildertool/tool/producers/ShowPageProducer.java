@@ -1887,10 +1887,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 boolean isAudio = mimeType.startsWith("audio/");
                                 UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
                                 UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
-                                if (lengthOk(height) && height.getOld().indexOf("%") < 0)
-                                h5video.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
-                                if (lengthOk(width) && width.getOld().indexOf("%") < 0)
-                                h5video.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+				// HTML5 spec says % isn't legal in width, so have to use style
+                                if (lengthOk(height))
+                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + height.getNew()));
+                                if (lengthOk(width))
+                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + width.getNew()));
                                 h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
                                 decorate(new UIFreeAttributeDecorator("type", mimeType));
 				String caption = i.getAttribute("captionfile");
