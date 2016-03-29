@@ -51,7 +51,7 @@
 }
 .colTitle h4{
      padding:5px 0;
-     color:#000
+     color:#000;
      background:#fff
  }
 .colTitle {
@@ -320,4 +320,8 @@
     margin-top: 1em;
     width: 100%;
     clear: both;
+}
+
+select.multiLine {
+    background: none;
 }
