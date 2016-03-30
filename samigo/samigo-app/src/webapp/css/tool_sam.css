@@ -607,7 +607,6 @@ divRight input {
 }
 #audio-visual-container {
     width: 778px;
-    height: 300px;
     padding: 2px;
     border: 1px solid black;
     background-color: #ccc;
@@ -697,7 +696,7 @@ divRight input {
     background: transparent url(/library/image/play.png) no-repeat center 2px;
 }
 #audio-visual-container #audio-upload {
-    margin-left: 300px;
+    float: right;
     width: 140px;
     border-radius: 5px;
     height: 40px;
