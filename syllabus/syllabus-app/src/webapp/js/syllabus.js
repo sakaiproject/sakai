@@ -229,6 +229,7 @@ function setupEditable(msgs, iframId){
 	$(".bodyInput").editable({
 		name: "body",
 		type: 'textarea',
+		title: msgs.syllabus_content,
 		emptytext: msgs.clickToAddBody,
 		onblur: "ignore",
 		display: function(value, sourceData) {
