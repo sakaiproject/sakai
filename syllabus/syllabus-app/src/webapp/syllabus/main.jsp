@@ -50,6 +50,7 @@
 				syllabus_content: $("#messages #syllabus_content").html(),
 				clickToAddTitle: $("#messages #clickToAddTitle").html(),
 				startdatetitle: $("#messages #startdatetitle").html(),
+				enddatetitle: $("#messages #enddatetitle").html(),
 				clickToAddStartDate: $("#messages #clickToAddStartDate").html(),
 				clickToAddEndDate: $("#messages #clickToAddEndDate").html(),
 				clickToAddBody: $("#messages #clickToAddBody").html(),
@@ -367,6 +368,7 @@
                 <span id="syllabus_content"></f:verbatim><h:outputText value="#{msgs.syllabus_content}"/><f:verbatim></span>
 				<span id="clickToAddTitle"></f:verbatim><h:outputText value="#{msgs.clickToAddTitle}"/><f:verbatim></span>
 				<span id="startdatetitle"></f:verbatim><h:outputText value="#{msgs.startdatetitle}"/><f:verbatim></span>
+				<span id="enddatetitle"></f:verbatim><h:outputText value="#{msgs.enddatetitle}"/><f:verbatim></span>
 				<span id="clickToAddStartDate"></f:verbatim><h:outputText value="#{msgs.clickToAddStartDate}"/><f:verbatim></span>
 				<span id="clickToAddEndDate"></f:verbatim><h:outputText value="#{msgs.clickToAddEndDate}"/><f:verbatim></span>
 				<span id="clickToAddBody"></f:verbatim><h:outputText value="#{msgs.clickToAddBody}"/><f:verbatim></span>
