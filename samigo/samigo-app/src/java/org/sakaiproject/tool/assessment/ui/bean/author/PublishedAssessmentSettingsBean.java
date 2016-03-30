@@ -134,6 +134,7 @@ public class PublishedAssessmentSettingsBean
   private String submissionsAllowed;
   private String submissionsSaved; // bad name, this is autoSaved
   private String lateHandling;
+  private String instructorNotification;
   private String submissionMessage;
   private SelectItem[] publishingTargets;
   private String[] targetSelected;
@@ -324,6 +325,10 @@ public class PublishedAssessmentSettingsBean
 
         if (accessControl.getLateHandling() !=null)
           this.lateHandling = accessControl.getLateHandling().toString();
+        if (accessControl.getInstructorNotification() != null) {
+          this.instructorNotification = accessControl.getInstructorNotification().toString();
+          this.assessment.setInstructorNotification(Integer.valueOf(this.instructorNotification));
+        }
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
         this.submissionMessage = accessControl.getSubmissionMessage();
@@ -693,14 +698,6 @@ public class PublishedAssessmentSettingsBean
 	  }
   }
 
-  public String getInstructorNotification(){
-    return this.assessment.getInstructorNotification().toString();
-  }
-
-  public void setInstructorNotification(String notiEmail){
-    this.assessment.setInstructorNotification(Integer.valueOf(notiEmail));
-  }
-
 
   public String getSubmissionsAllowed() {
     return submissionsAllowed;
@@ -727,6 +724,15 @@ public class PublishedAssessmentSettingsBean
 
   public String getLateHandling() {
     return lateHandling;
+  }
+
+  public void setInstructorNotification(String instructorNotification) {
+    this.instructorNotification = instructorNotification;
+    this.assessment.setInstructorNotification(Integer.valueOf(this.instructorNotification));
+  }
+
+  public String getInstructorNotification() {
+    return instructorNotification;
   }
 
   // bad name - this is autoSaved

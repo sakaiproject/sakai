@@ -42,8 +42,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -155,8 +155,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				Integer.valueOf(1), "1", new Date(), "1", new Date());
 		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(0),
 				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
-				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), new Date(),
-				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
+				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT,
+				new Date(),	new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 		s.setAssessmentBase(assessmentTemplate);
@@ -207,9 +207,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				"1", new Date(), "1", new Date());
 		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
-				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), new Date(),
-				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
-				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT,
+				new Date(), new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),"Thanks for submitting",
 				"anonymous");
 
 		s.setAssessmentBase(assessment);
@@ -2111,7 +2111,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				a.getSubmissionsAllowed(), a.getSubmissionsSaved(), a
 						.getAssessmentFormat(), a.getBookMarkingItem(), a
 						.getTimeLimit(), a.getTimedAssessment(), a
-						.getRetryAllowed(), a.getLateHandling(), a
+						.getRetryAllowed(), a.getLateHandling(), a.getInstructorNotification(),a
 						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
 						.getFeedbackDate(), a.getRetractDate(), a
 						.getAutoSubmit(), a.getItemNavigation(), a
