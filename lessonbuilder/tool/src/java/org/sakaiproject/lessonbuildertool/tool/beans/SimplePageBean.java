@@ -4437,6 +4437,31 @@ public class SimplePageBean {
 	}
 	
 	public void track(long itemId, String path, Long studentPageId) {
+		if (path != null) {
+		    List<String> pathItems = new ArrayList<String>(Arrays.asList(path.split(",")));
+		    int last = pathItems.size();
+		    path = "";
+		    for (int i = 0; i < last; i ++) {
+			String item = pathItems.get(i);
+			int lastIndex = pathItems.lastIndexOf(item);
+			if (lastIndex > i) {
+			    // item occurs more than once. kill intermediates
+			    for (int j = i; j < lastIndex; j++)
+				pathItems.remove(i); // as we remove, the index stays the same
+			    last -= (lastIndex - i); // number of items removed
+			}
+			// reconstruct string; will have extra , at the beginning
+			path += "," + item;
+		    }
+		    // now make sure it's not too long for database field
+		    while (path.length() > 255) {
+			int i = path.indexOf(",", 1);
+			if (i > 0)
+			    path = path.substring(i);  // kill first item
+		    }
+		    path = path.substring(1); // kill initial comma
+		}
+
 		String userId = getCurrentUserId();
 		if (userId == null)
 		    userId = ".anon";
