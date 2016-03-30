@@ -67,6 +67,7 @@ import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
+import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -601,23 +602,23 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		}		
 	}
 
-    private UIFreeAttributeDecorator getImageSourceDecorator(SimplePageItem pageItem) {
+    private UIStyleDecorator getImageSourceDecorator(SimplePageItem pageItem) {
 
         switch (pageItem.getType()) {
             case SimplePageItem.FORUM:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/comments.png");
+                return new UIStyleDecorator("fa-comments");
             case SimplePageItem.ASSIGNMENT:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/page_edit.png");
+                return new UIStyleDecorator("fa-tasks");
             case SimplePageItem.ASSESSMENT:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/pencil.png");
+                return new UIStyleDecorator("fa-puzzle-piece");
             case SimplePageItem.QUESTION:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/pencil.png");
+                return new UIStyleDecorator("fa-question");
             case SimplePageItem.COMMENTS:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/comments.png");
+                return new UIStyleDecorator("fa-commenting");
             case SimplePageItem.BLTI:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/application_go.png");
+                return new UIStyleDecorator("fa-globe");
             case SimplePageItem.PAGE:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/book_open.png");
+                return new UIStyleDecorator("fa-folder-open-o");
             case SimplePageItem.RESOURCE:
                 return getImageSourceDecoratorFromMimeType(pageItem);
             case SimplePageItem.MULTIMEDIA:
@@ -625,11 +626,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             case SimplePageItem.TEXT:
                 return getImageSourceDecoratorFromMimeType(pageItem);
             default:
-                return new UIFreeAttributeDecorator("src", "");
+                return new UIStyleDecorator("");
         } 
     }
 
-    private UIFreeAttributeDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
+    private UIStyleDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
 
         String mimeType = pageItem.getHtml();
 
@@ -651,22 +652,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         String src = null;
 
-        if (!useSakaiIcons) {
-            src = imageToMimeMap.get(mimeType);
-        }
+	src = imageToMimeMap.get(mimeType);
 
         if (src == null) {
-            String image = ContentTypeImageService.getContentTypeImage(mimeType);
-            if (image != null) {
-                src = "/library/image/" + image;
-            }
+	    src = "fa-file-o";
         }
         
-        if(src != null) {
-            return new UIFreeAttributeDecorator("src", src);
-        } else {
-            return new UIFreeAttributeDecorator("src", "");
-        }
+	return new UIStyleDecorator(src);
     }
 
 	public ViewParameters getViewParameters() {
