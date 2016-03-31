@@ -1097,7 +1097,9 @@ GradebookSpreadsheet.prototype.getHeaderModelForAssignment = function(assignment
 GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
   var headerModel = this.getHeaderModelForAssignment(assignmentId);
   headerModel.show();
-  this.$table.find("> tbody > tr > *:eq("+headerModel.$cell.index()+")").show();
+  this.$table.find("> tbody > tr").each(function(i, row) {
+    $(row).find("> *:eq("+headerModel.$cell.index()+")").show();
+  });
   this.refreshWidth();
 };
 
@@ -1105,7 +1107,9 @@ GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
 GradebookSpreadsheet.prototype.hideGradeItemColumn = function(assignmentId) {
   var headerModel = this.getHeaderModelForAssignment(assignmentId);
   headerModel.hide();
-  this.$table.find("> tbody > tr > *:eq("+headerModel.$cell.index()+")").hide();
+  this.$table.find("> tbody > tr").each(function(i, row) {
+    $(row).find("> *:eq("+headerModel.$cell.index()+")").hide();
+  });
   this.refreshWidth();
 };
 

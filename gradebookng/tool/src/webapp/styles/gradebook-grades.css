@@ -585,6 +585,9 @@
 #gradeItemsTogglePanel .gradebook-item-category-score-filter {
   margin-left: 20px;
 }
+#gradeItemsTogglePanel .gb-no-categories .gradebook-item-filter {
+  margin-left: 10px;
+}
 #gradeItemsTogglePanel .gradebook-item-category-score-filter label {
   font-style: italic;
 }
@@ -945,6 +948,9 @@ ul.feedbackPanel li span {
 }
 .gb-summary-grade-panel .gb-summary-grade-row td:first-child {
   padding-left: 34px;
+}
+.gb-summary-grade-panel .gb-no-categories .gb-summary-grade-row td:first-child {
+  padding-left: 0;
 }
 .gb-summary-grade-duedate,
 .gb-summary-grade-score,
