@@ -585,6 +585,9 @@
 #gradeItemsTogglePanel .gradebook-item-category-score-filter {
   margin-left: 20px;
 }
+#gradeItemsTogglePanel .gb-no-categories .gradebook-item-filter {
+  margin-left: 10px;
+}
 #gradeItemsTogglePanel .gradebook-item-category-score-filter label {
   font-style: italic;
 }

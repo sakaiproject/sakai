@@ -146,7 +146,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 						final Assignment assignment = assignmentItem.getModelObject();
 
 						if (InstructorGradeSummaryGradesPanel.this.configuredCategoryType == GbCategoryType.NO_CATEGORY) {
-							assignmentItem.add(new AttributeAppender("class", "gb-no-categories"));
+							assignmentItem.add(new AttributeAppender("class", " gb-no-categories"));
 						}
 
 						final GbGradeInfo gradeInfo = InstructorGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());

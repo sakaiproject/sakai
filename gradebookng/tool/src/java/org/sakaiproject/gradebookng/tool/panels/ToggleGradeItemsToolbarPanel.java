@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -76,6 +77,13 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 			protected void populateItem(final ListItem<String> categoryItem) {
 				final String categoryName = categoryItem.getModelObject();
 
+				WebMarkupContainer categoryFilter = new WebMarkupContainer("categoryFilter");
+				if (!ToggleGradeItemsToolbarPanel.this.categoriesEnabled) {
+					categoryFilter.add(new AttributeAppender("class", " hide"));
+					categoryItem.add(new AttributeAppender("class", " gb-no-categories"));
+				}
+				categoryItem.add(categoryFilter);
+
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -91,12 +99,12 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 				final Label categoryLabel = new Label("category", categoryName);
 				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName)));
-				categoryItem.add(categoryLabel);
+				categoryFilter.add(categoryLabel);
 
 				final CheckBox categoryCheckbox = new CheckBox("categoryCheckbox");
 				categoryCheckbox.add(new AttributeModifier("value", categoryName));
 				categoryCheckbox.add(new AttributeModifier("checked", "checked"));
-				categoryItem.add(categoryCheckbox);
+				categoryFilter.add(categoryCheckbox);
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryNamesToAssignments.get(categoryName)) {
 					private static final long serialVersionUID = 1L;
