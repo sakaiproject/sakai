@@ -117,7 +117,7 @@ public class PortalUtils
                  getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.css" + getCDNQuery() + 
                  "\"/>')\n" +
              "} else { \n" +
-             "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);\n" +
+             "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+'" + where + "');\n" +
              "   if (typeof jQuery.migrateWarnings == 'undefined') {\n" +
              "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding jQuery migrate');\n" +
