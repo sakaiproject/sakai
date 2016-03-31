@@ -380,3 +380,6 @@ ol.nav ol.dropdown-menu li.placeholder::before {
 .addCitationsText {
 	padding-bottom: 10px;
 }
+.messageSuccess {
+	height: 3em;
+}
