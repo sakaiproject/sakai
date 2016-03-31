@@ -13,7 +13,7 @@
 				</div>
 			</div>
 
-			<div class="col-md-12">
+			<div wicket:id="toggleActions" class="col-md-12">
 				<div class="pull-right">
 					<a href="javascript:void(0);" class="gb-summary-expand-all"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
 					<a href="javascript:void(0);" class="gb-summary-collapse-all"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
@@ -31,7 +31,7 @@
 				</tr>
 				</thead>
 				<tbody wicket:id="categoriesList">
-				<tr class="gb-summary-category-row">
+				<tr wicket:id="categoryRow" class="gb-summary-category-row">
 					<td>
 						<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
 						<span wicket:id="category" class="gb-summary-category-name"></span>
