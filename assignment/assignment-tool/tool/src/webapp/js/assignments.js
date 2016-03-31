@@ -940,3 +940,22 @@ ASN.submitPeerReviewAttachment = function(id, action)
         theForm.submit();
     }
 };
+
+
+ASN.handleReportsTriangleDisclosure = function (header, content)
+{
+    var headerSrc = header.src;
+    var expand = "/library/image/sakai/expand.gif";
+    var collapse = "/library/image/sakai/collapse.gif";
+    if (headerSrc.indexOf(expand) !== -1)
+    {
+        header.src = collapse;
+        content.removeAttribute("style");
+        ASN.resizeFrame();
+    }
+    else if (headerSrc.indexOf(collapse) !== -1)
+    {
+        header.src = expand;
+        content.style.display = "none";
+    }
+}

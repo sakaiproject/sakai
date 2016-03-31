@@ -29,25 +29,6 @@
 
 		ASN.enableLinks();
 	});
-
-	function handleReportsTriangleDisclosure(header, content)
-	{
-		var headerSrc = header.src;
-		var expand = "#imageLink("sakai/expand.gif")";
-		var collapse = "#imageLink("sakai/collapse.gif")";
-		if (headerSrc.indexOf(expand, headerSrc.length - expand.length) !== -1)
-		{
-			header.src = collapse;
-			content.removeAttribute("style");
-			ASN.resizeFrame();
-		}
-		else if (headerSrc.indexOf(collapse, headerSrc.length - collapse.length) !== -1)
-		{
-			header.src = expand;
-			content.style.display = "none";
-		}
-	}
-
 	var escapeList = [ 'toggleModel' ];
 </script>
 
@@ -719,7 +700,7 @@
 									#set($reviewResults = $submission.ContentReviewResults)
 									#if ($reviewResults.size() >= 3)
 										<div>
-											<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this, this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+											<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this, this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
 											## TODO: reconsider for i18n:
 											$reviewResults.size() $tlang.getString("review.reports")
 										</div>

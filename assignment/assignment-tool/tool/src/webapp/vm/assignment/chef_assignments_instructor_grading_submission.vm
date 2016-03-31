@@ -15,26 +15,6 @@
 		});
 		disableBackButton();
 	});
-
-	var reportsExpanded = false;
-	function handleReportsTriangleDisclosure(btn)
-	{
-		var reportsDiv = document.getElementById("reportsDiv");
-		if (reportsExpanded)
-		{
-			btn.src = "#imageLink("sakai/expand.gif")";
-			btn.alt = "$tlang.getString('review.report.expand')";
-			reportsDiv.style.display="none";
-		}
-		else
-		{
-			btn.src = "#imageLink("sakai/collapse.gif")";
-			btn.alt = "$tlang.getString('review.report.collapse')";
-			reportsDiv.removeAttribute("style");
-			ASN.resizeFrame();
-		}
-		reportsExpanded = !reportsExpanded;
-	}
 </script>
 <div class="portletBody">
 
@@ -223,7 +203,7 @@
 								#set($reviewResults=$submission.ContentReviewResults)
 								#if ($reviewResults.size() >= 3)
 									<div class="discTria">
-										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+										<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
 										## TODO: reconsider for i18n:
 										$reviewResults.size() $tlang.getString("review.reports")
 									</div>
