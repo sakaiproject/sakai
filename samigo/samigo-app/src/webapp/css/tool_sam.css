@@ -518,10 +518,6 @@ a.hideDivision {
     border-top-right-radius: 4px;
     border: 1px solid #ddd;
 }
-table.listHierEventLog {
-    margin-top: 0em !important;
-}
-
 .divContainer {
     width: 100%;
     background-color: #EEEEEE;
