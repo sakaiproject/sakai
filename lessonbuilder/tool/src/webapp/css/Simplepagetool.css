@@ -1274,6 +1274,20 @@ font-size: 90%;
   margin-bottom:-30px !important;
 }
 
+/* for ShowItem */
+.itemHeader {
+  margin-bottom:20px; 
+  border-bottom:solid black 1px
+}
+.itemTitle {
+  line-height:10px;
+  margin-top:35px;
+  margin-bottom:5px;
+}
+/* without this it sticks up 1px into the top bar */
+.portletBody {
+  margin-top:2px;
+}
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
 .Mrphs-container--toolTitleNav {
@@ -1288,6 +1302,11 @@ font-size: 90%;
 }
 .itemclass {
   margin-top: 0.5em !important;
+}
+.itemTitle {
+  width: calc(100% - 100px);
+  padding-top:0px;
+  margin-top:10px;
 }
 .removeNarrow {
  display:none !important;
@@ -1390,14 +1409,6 @@ font-size: 90%;
   padding-top: 1px;
   padding-left: 10px;
   padding-right: 10px;
-}
-/* for ShowItem */
-.itemHeader {
-  margin-bottom:20px; 
-  border-bottom:solid black 1px
-}
-.itemTitle {
-  margin-top:10px
 }
 .startupHelp {
   margin-top: 20px;
