@@ -9,6 +9,11 @@
         <noscript>
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
+        
+        #if ( ${bufferedResponse} && ${responseHead} )
+        #else 
+            ${sakai_html_head_js}
+        #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
         <div #if( ${roleSwitchState} ) class="Mrphs-portalWrapper swapped-view" #else class="Mrphs-portalWrapper"#end>
 
@@ -36,11 +41,6 @@
 
         </div> <!-- end Mrphs-portalWrapper -->
         <!-- END VM site.vm -->
-        
-        #if ( ${bufferedResponse} && ${responseHead} )
-        #else 
-            ${sakai_html_head_js}
-        #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
         ## Make sure we at least have a jQuery 1.11 or higher, log messages
     #set ( $d = "$")
