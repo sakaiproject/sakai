@@ -271,18 +271,17 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .mainList {
 }
 
+/* padding-top 35 for one col, 25 for multiple, 20 in narrow screen */
 .column {
     margin: 7px 15px;
     padding: 15px 7px;
+    padding-top: 25px;
     list-style:none;
-    background-color: #f6f6f6;
     background-color: white;
-    border-left: solid #c8c8c8 1px;
-    border-right: solid #c8c8c8 1px;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;
     border-radius: 7px;
-    border: 1px solid #ccc;
+    border: 1px solid #222;
     display:inline-block;
     vertical-align: top;
 }
@@ -345,6 +344,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     width: calc(200% / 2 - 17px) !important;
 }
 .cols1 {
+    padding-top:35px;
     width: calc(100% - 17px) !important;
 }
 /* this is to prevent the last column from going to a new
@@ -1051,9 +1051,6 @@ div[role="dialog"] {
 .action {
   margin-top:5px;
 }			      
-.Mrphs-toolTitleNav .Mrphs-toolTitleNav__button_container {
-  top:-10px !important;
-}
 .Mrphs-siteHierarchy {
     height: auto !important;
 }
@@ -1298,6 +1295,7 @@ font-size: 90%;
 .column {
   margin-left: 2px;
   margin-right: 2px;
+  padding-top: 20px;
 }
 .right-col {
   padding-left: 7px;
