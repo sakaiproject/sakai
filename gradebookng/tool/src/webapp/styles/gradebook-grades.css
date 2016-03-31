@@ -946,6 +946,9 @@ ul.feedbackPanel li span {
 .gb-summary-grade-panel .gb-summary-grade-row td:first-child {
   padding-left: 34px;
 }
+.gb-summary-grade-panel .gb-no-categories .gb-summary-grade-row td:first-child {
+  padding-left: 0;
+}
 .gb-summary-grade-duedate,
 .gb-summary-grade-score,
 .gb-summary-grade-weight,

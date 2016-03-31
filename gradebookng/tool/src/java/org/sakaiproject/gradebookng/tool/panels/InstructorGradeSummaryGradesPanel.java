@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -90,6 +91,10 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 		final boolean[] categoryScoreHidden = { false };
 
+		WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
+		toggleActions.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+		add(toggleActions);
+
 		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;
 
@@ -99,7 +104,10 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 				final List<Assignment> categoryAssignments = categoryNamesToAssignments.get(categoryName);
 
-				categoryItem.add(new Label("category", categoryName));
+				WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
+				categoryRow.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+				categoryItem.add(categoryRow);
+				categoryRow.add(new Label("category", categoryName));
 
 				CategoryDefinition categoryDefinition = null;
 				for (final CategoryDefinition aCategoryDefinition : InstructorGradeSummaryGradesPanel.this.categories) {
@@ -116,18 +124,18 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 					if (score != null) {
 						grade = FormatHelper.formatDoubleAsPercentage(score);
 					}
-					categoryItem.add(new Label("categoryGrade", grade));
+					categoryRow.add(new Label("categoryGrade", grade));
 
 					String weight = "";
 					if (categoryDefinition.getWeight() == null) {
-						categoryItem.add(new Label("categoryWeight", ""));
+						categoryRow.add(new Label("categoryWeight", ""));
 					} else {
 						weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight() * 100);
-						categoryItem.add(new Label("categoryWeight", weight));
+						categoryRow.add(new Label("categoryWeight", weight));
 					}
 				} else {
-					categoryItem.add(new Label("categoryGrade", ""));
-					categoryItem.add(new Label("categoryWeight", ""));
+					categoryRow.add(new Label("categoryGrade", ""));
+					categoryRow.add(new Label("categoryWeight", ""));
 				}
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
@@ -136,6 +144,10 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
+
+						if (InstructorGradeSummaryGradesPanel.this.configuredCategoryType == GbCategoryType.NO_CATEGORY) {
+							assignmentItem.add(new AttributeAppender("class", "gb-no-categories"));
+						}
 
 						final GbGradeInfo gradeInfo = InstructorGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());
 
