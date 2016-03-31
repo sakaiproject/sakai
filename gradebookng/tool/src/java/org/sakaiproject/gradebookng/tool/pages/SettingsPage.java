@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.head.CssHeaderItem;
@@ -20,6 +21,7 @@ import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 /**
@@ -135,11 +137,21 @@ public class SettingsPage extends BasePage {
 
 				final GbSettings model = getModelObject();
 
-				// update settings
-				SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
+				Page responsePage = new SettingsPage(gradeEntryPanel.isExpanded(), gradeReleasePanel.isExpanded(), categoryPanel.isExpanded(), gradingSchemaPanel.isExpanded());
 
-				getSession().info(getString("settingspage.update.success"));
-				setResponsePage(new SettingsPage(gradeEntryPanel.isExpanded(), gradeReleasePanel.isExpanded(), categoryPanel.isExpanded(), gradingSchemaPanel.isExpanded()));
+				// update settings
+				try {
+					SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
+					getSession().info(getString("settingspage.update.success"));
+				} catch (ConflictingCategoryNameException e) {
+					getSession().error(getString("settingspage.update.failure.categorynameconflict"));
+					responsePage = this.getPage();
+				} catch (IllegalArgumentException e) {
+					getSession().error(e.getMessage());
+					responsePage = this.getPage();
+				}
+
+				setResponsePage(responsePage);
 			}
 		};
 
