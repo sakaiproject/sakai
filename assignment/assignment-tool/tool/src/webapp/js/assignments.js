@@ -890,10 +890,10 @@ ASN.toggleAutoAnnounceOptions = function(checked){
     var section = document.getElementById("selectAutoAnnounceOptions");
     if(checked){
         section.style.display="block";
-        resizeFrame('grow');
+        ASN.resizeFrame('grow');
     }else{
         section.style.display="none";
-        resizeFrame('shrink');
+        ASN.resizeFrame('shrink');
     }
 };
 
@@ -915,7 +915,7 @@ ASN.setupPeerReviewAttachment = function(){
             }
         }
         $('.cloned a').show();
-        resizeFrame('grow');
+        ASN.resizeFrame('grow');
     });
     var notifyDeleteControl = function(){
         $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
