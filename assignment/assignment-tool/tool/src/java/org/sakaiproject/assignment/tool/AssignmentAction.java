@@ -9547,7 +9547,8 @@ public class AssignmentAction extends PagedResourceActionII
         dform.applyPattern("yyyy-MM-dd HH:mm:ss");
         opts.put("dtstart", dform.format(openTime.getTime()));
         opts.put("dtdue", dform.format(dueTime.getTime()));
-        //opts.put("dtpost", dform.format(closeTime.getTime()));       
+        //opts.put("dtpost", dform.format(closeTime.getTime()));
+        opts.put("points", assign.getMaxGradePoint());
         opts.put("title", assign.getTitle());
         opts.put("instructions", assign.getInstructions());
         if(assign.getAttachments() != null && assign.getAttachments().size() > 0){
