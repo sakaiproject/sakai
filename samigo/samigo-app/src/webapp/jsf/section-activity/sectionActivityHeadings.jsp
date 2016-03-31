@@ -8,9 +8,9 @@
        <h:outputText value="#{generalMessages.assessment}" />
        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
     </h:commandLink>
-<f:verbatim></span></li>
+<f:verbatim rendered="#{authorization.adminTemplate and template.showAssessmentTypes}"></span></li>
 <li role="menuitem" ><span></f:verbatim>
-    <h:commandLink accesskey="#{generalMessages.a_template}" title="#{generalMessages.t_template}" action="template" immediate="true" rendered="#{authorization.adminTemplate}">
+    <h:commandLink accesskey="#{generalMessages.a_template}" title="#{generalMessages.t_template}" action="template" immediate="true" rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
       <h:outputText value="#{generalMessages.template}" />
     </h:commandLink>
@@ -27,7 +27,7 @@
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
     </h:commandLink>
 <f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
+<li role="menuitem" ><span class="current"></f:verbatim>
       <h:outputText value="#{generalMessages.section_activity}" />
 <f:verbatim></span></li>
 </ul></f:verbatim>
