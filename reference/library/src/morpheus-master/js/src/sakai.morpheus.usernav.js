@@ -1,4 +1,14 @@
 /**
+ * ESC handler to dismiss user nav
+ */
+
+function userNavEscHandler(e){
+  if (e.keyCode === 27) { // esc keycode
+    toggleUserNav(e);
+  }
+}
+
+/**
  * Toggle user nav in header: 
  */
 
@@ -10,11 +20,16 @@ function toggleUserNav(event){
     // Add an invisible overlay to allow clicks to close the dropdown
 
     var overlay = $('<div class="user-dropdown-overlay" />');
-    overlay.on('click', function () { $(event.target).trigger('click'); });
+    overlay.on('click', function (e) {toggleUserNav(e)});
 
     $('body').prepend(overlay);
+
+    // ESC key also closes it
+    $(document).on('keyup',userNavEscHandler);
+
   } else {
     $('.user-dropdown-overlay').remove();
+    $(document).off('keyup',userNavEscHandler);    
   }
 }
 
