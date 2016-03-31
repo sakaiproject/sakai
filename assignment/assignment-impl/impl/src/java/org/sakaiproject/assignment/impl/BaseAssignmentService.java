@@ -11790,11 +11790,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				userId = m_submitterId;
 			}
 			Assignment m = getAssignment();
-			String gAssignmentName = StringUtils.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-			if (gAssignmentName != null)
+			String gAssignmentName = StringUtils.trimToEmpty(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			String gradebookUid = m.getContext();
+			org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = m_gradebookService.getAssignment(gradebookUid, gAssignmentName);
+			if( gradebookAssignment != null )
 			{
-				String gradebookUid = m.getContext();
-				final GradeDefinition def = m_gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, m_gradebookService.getAssignment(gradebookUid, gAssignmentName).getId() , userId);
+				final GradeDefinition def = m_gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, gradebookAssignment.getId() , userId);
 				String gString=def.getGrade();
 				try
 				{
