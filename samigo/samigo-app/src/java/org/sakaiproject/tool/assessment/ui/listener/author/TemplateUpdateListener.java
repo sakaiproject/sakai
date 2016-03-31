@@ -53,9 +53,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
@@ -70,7 +68,7 @@ public class TemplateUpdateListener
     extends TemplateBaseListener
     implements ActionListener
 {
-    private static Log log = LogFactory.getLog(TemplateUpdateListener.class);
+    private static final Log LOG = LogFactory.getLog(TemplateUpdateListener.class);
 
   /**
    * Normal listener method.
@@ -90,7 +88,7 @@ public class TemplateUpdateListener
 
 
     
-    String tempName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, templateBean.getTemplateName());
+    String tempName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, templateBean.getTemplateName());
     AssessmentService assessmentService = new AssessmentService();
 
     boolean isUnique = assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
@@ -108,7 +106,7 @@ public class TemplateUpdateListener
       return;
     }
     
-    if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable")).booleanValue()) {
+    if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable"))) {
     	if (templateBean.getSubmissionModel().equals(AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString())) {
     		try {
    	   			String submissionsAllowed = templateBean.getSubmissionNumber().trim();
@@ -147,9 +145,7 @@ public class TemplateUpdateListener
    */
   /**
    * @param templateBean
-   * @param templateId template id or "0" if create new
    * @return true on success
-   * @throws java.lang.Exception
    */
   public boolean updateAssessment(TemplateBean templateBean)
   {
@@ -157,7 +153,7 @@ public class TemplateUpdateListener
     {
       String templateIdString =  templateBean.getIdString();
       AssessmentService delegate = new AssessmentService();
-      AssessmentBaseIfc template = null;
+      AssessmentBaseIfc template;
       if ("0".equals(templateIdString))
       {
         template = new AssessmentTemplateData();
@@ -177,15 +173,15 @@ public class TemplateUpdateListener
         template.setStatus(AssessmentTemplateIfc.ACTIVE_STATUS);
         template.setParentId(Long.valueOf(0));
         template.setComments("comments");
-        template.setInstructorNotification(Integer.valueOf(1));
-        template.setTesteeNotification(Integer.valueOf(1));
-        template.setMultipartAllowed(Integer.valueOf(1));
+        template.setInstructorNotification(1);
+        template.setTesteeNotification(1);
+        template.setMultipartAllowed(1);
       }
       else
       {
         template = (delegate.getAssessmentTemplate(templateIdString)).getData();
         if (template == null) {
-          log.info("Can't find template " + templateIdString);
+          LOG.info("Can't find template " + templateIdString);
           throw new AbortProcessingException("Can't find template ");
          }
       }
@@ -196,7 +192,7 @@ public class TemplateUpdateListener
       if (!"0".equals(templateIdString)) {
         String author =  (String)template.getCreatedBy();
         if (author == null || !author.equals(UserDirectoryService.getCurrentUser().getId())) {
-          log.info("trying to update template not your own " + author + " " + UserDirectoryService.getCurrentUser().getId());
+          LOG.info("trying to update template not your own " + author + " " + UserDirectoryService.getCurrentUser().getId());
           throw new AbortProcessingException("Attempted to update template owned by another author " + author + " " + UserDirectoryService.getCurrentUser().getId());
         }
       }
@@ -217,14 +213,14 @@ public class TemplateUpdateListener
       aac.setDisplayScoreDuringAssessments(Integer.valueOf(templateBean.getDisplayScoreDuringAssessments()));
       
       if (templateBean.getMarkForReview() != null && templateBean.getMarkForReview().equals(Boolean.TRUE)) {
-    	  aac.setMarkForReview(Integer.valueOf(1));
+    	  aac.setMarkForReview(1);
       }
       else {
-    	  aac.setMarkForReview(Integer.valueOf(0));
+    	  aac.setMarkForReview(0);
       }
       aac.setSubmissionsSaved(Integer.valueOf(templateBean.getSubmissionModel()));
       
-      if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable")).booleanValue()) {
+      if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable"))) {
     	  if (templateBean.getSubmissionModel().equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString()))
     	  {
     		  aac.setSubmissionsAllowed(null);
@@ -240,7 +236,14 @@ public class TemplateUpdateListener
 		  aac.setUnlimitedSubmissions(Boolean.TRUE);
       }
       aac.setLateHandling(Integer.valueOf(templateBean.getLateHandling()));
-      aac.setInstructorNotification(Integer.valueOf(templateBean.getInstructorNotification()));
+      try
+      {
+          aac.setInstructorNotification(Integer.valueOf(templateBean.getInstructorNotification()));
+      }
+      catch( NullPointerException | NumberFormatException ex )
+      {
+          LOG.warn( ex );
+      }
       
       if (templateBean.getValueMap().get("automaticSubmission_isInstructorEditable") == null) {
     	  templateBean.setValue("automaticSubmission_isInstructorEditable", "false");
@@ -284,7 +287,7 @@ public class TemplateUpdateListener
       // 1) the changes was not done all the way (see TemplateBean, line 99 is missing) and 
       // 2) "EditComponent" was always set to 1 instead of being updated
       // correctly to provide backward compatibility to old data. -daisyf
-      if (canEditFeedbackComponent.booleanValue())
+      if (canEditFeedbackComponent)
 	  feedback.setEditComponents(Integer.valueOf("1"));
       else
 	  feedback.setEditComponents(Integer.valueOf("0"));
@@ -345,7 +348,7 @@ public class TemplateUpdateListener
 
       delegate.deleteAllMetaData((AssessmentTemplateData)template);
 
-      log.debug("**** after deletion of meta data");
+      LOG.debug("**** after deletion of meta data");
       HashSet set = new HashSet();
       Iterator iter = templateBean.getValueMap().keySet().iterator();
       while (iter.hasNext())
@@ -364,11 +367,11 @@ public class TemplateUpdateListener
     }
     catch (RuntimeException ex)
     {
-      log.error(ex.getMessage(), ex);
+      LOG.error(ex.getMessage(), ex);
       return false;
     } 
     catch (ParseException e) {
-    	log.error(e.getMessage(), e);
+    	LOG.error(e.getMessage(), e);
         return false;
 	}
 

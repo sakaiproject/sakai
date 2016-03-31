@@ -39,7 +39,7 @@ Control what email notifications you receive at My Workspace -&gt; Preferences -
         <version>1</version>
         <owner>admin</owner>
         <key>sam.assessmentTimedSubmitted</key>
-        <locale>en_US</locale>
-        <localeLangTag>en-US</localeLangTag>
+        <locale></locale>
+        <localeLangTag></localeLangTag>
     </emailTemplate>
 </emailTemplates>
