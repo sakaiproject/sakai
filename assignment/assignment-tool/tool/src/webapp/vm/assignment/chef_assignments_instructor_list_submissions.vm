@@ -39,7 +39,7 @@
 		{
 			header.src = collapse;
 			content.removeAttribute("style");
-			resizeFrame();
+			ASN.resizeFrame();
 		}
 		else if (headerSrc.indexOf(collapse, headerSrc.length - collapse.length) !== -1)
 		{

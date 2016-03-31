@@ -39,7 +39,7 @@ function handleReportsTriangleDisclosure(btn)
 		btn.src = "#imageLink("sakai/collapse.gif")";
 		btn.alt = "$tlang.getString('review.report.collapse')";
 		reportsDiv.style.display="block";
-		resizeFrame();
+		ASN.resizeFrame();
 	}
 	reportsExpanded = !reportsExpanded;
 }
