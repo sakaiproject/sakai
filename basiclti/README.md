@@ -21,3 +21,36 @@ Aditional Documentation
 * [Using Sakai with CASA](docs/CASA.md)
 * [Using LTI Provider ContentItem](docs/CONTENTITEM.md)
 
+# ######################################################
+# SAK-30601 - Upgraded BasicLTI dashboard
+# ######################################################
+New Sakai properties added:
+--------------------------------------------------------------------------------
+* basiclti.tool.site.attribution.key and basiclti.tool.site.attribution.name : Used by the new dynamic column in the "site tools" table.
+  - basiclti.tool.site.attribution.key : Defines which site property we will show
+  - basiclti.tool.site.attribution.name : Title for the column header. This property can be a text or a translation key.
+  - If basiclti.tool.site.attribution.name is not defined or is blank, the column will not be displayed.
+  - Example :
+    > basiclti.tool.site.attribution.key=Department
+    > basiclti.tool.site.attribution.name=content.attribution
+  
+* basiclti.export.csv.separator (default ','): Separator to split fields in the CSV export file.
+
+
+New actions supported :
+--------------------------------------------------------------------------------
+BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSort&criteria=COLUMN_ID
+BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePageSize&pagesize=[10,50,100,200]
+BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePage&page_event=[next,prev,last,first]
+#doChangePage also supports the 'pagesize' parameter
+BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePage&page_event=[next,prev,last,first]&pagesize=[10,50,100,200]
+BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSearch&field=COLUMN_ID&search=SEARCH_VALUE
+
+New URLs used in export service :
+--------------------------------------------------------------------------------
+- CSV : BASE_URL/access/basiclti/site/SITE_ID/export:0
+- Excel : BASE_URL/access/basiclti/site/SITE_ID/export:1
+
+You can also specify a filter with a TOOL_ID
+- CSV : BASE_URL/access/basiclti/site/SITE_ID/export:0:TOOL_ID
+- Excel : BASE_URL/access/basiclti/site/SITE_ID/export:1:TOOL_ID

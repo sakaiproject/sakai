@@ -19,88 +19,71 @@ ${includeLatestJQuery}
 	<script src="/basiclti-admin-tool/js/jquery.tablesorter.widgets.js"></script>
 	
 	<script id="js">$(function(){
+		
+		$("thead tr th", "#tools_site").each(function(){
+			var elem = $(this);
+			var elemId = elem.attr('id');
+			var link = elem.children('a').first();
 
-	// **********************************
-	//  Description of ALL pager options
-	// **********************************
-	var pagerOptions_site = {
-
-		// target the pager markup - see the HTML block below
-		container: $("#tools_site_pager"),
-
-		// output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-		output: '{startRow} to {endRow} ({totalRows})',
-
-		// apply disabled classname to the pager arrows when the rows at either extreme is visible - default is true
-		updateArrows: true,
-
-		// starting page of the pager (zero based index)
-		page: 0,
-
-		// Number of visible rows - default is 10
-		size: 10,
-
-		// if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
-		// table row set to a height to compensate; default is false
-		fixedHeight: true,
-
-		// remove rows from the table to speed up the sort of large tables.
-		// setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
-		removeRows: false,
-
-		// css class names of pager arrows
-		cssNext: '.next', // next page arrow
-		cssPrev: '.prev', // previous page arrow
-		cssFirst: '.first', // go to first page arrow
-		cssLast: '.last', // go to last page arrow
-		cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
-		cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
-
-		// class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
-		cssDisabled: 'disabled' // Note there is no period "." in front of this class name
-
-	};
-	// Initialize tablesorter for the site external tool table
-	$("#tools_site")
-		.tablesorter({
-			widthFixed: true,
-			widgets: ['zebra', "filter"],
-			widgetOptions : { 
-		      // css class applied to the table row containing the filters & the inputs within that row 
-		      filter_cssFilter : 'tablesorter-filter', 
-		 
-		      // If there are child rows in the table (rows with class name from "cssChildRow" option) 
-		      // and this option is true and a match is found anywhere in the child row, then it will make that row 
-		      // visible; default is false 
-		      filter_childRows : false, 
-		 
-		      // Set this option to true to use the filter to find text from the start of the column 
-		      // So typing in "a" will find "albert" but not "frank", both have a's; default is false 
-		      filter_startsWith : false, 
-		 
-		      // Set this option to false to make the searches case sensitive 
-		      filter_ignoreCase : true, 
-		 
-		      // Delay in milliseconds before the filter widget starts searching; This option prevents searching for 
-		      // every character while typing and should make searching large tables faster. 
-		      filter_searchDelay : 300, 
-		 
-		      // See the filter widget advanced demo on how to use these special functions 
-		      filter_functions : {} 
-		 
-		    },
-			headers: { 
-	            // assign the third column (we start counting zero) 
-	            3: { 
-	                // disable it by setting the property sorter to false 
-	                sorter: false
-	            }
-        	}
-		})
-
-		// initialize the pager plugin
-		// ****************************
-		.tablesorterPager(pagerOptions_site);
+			if(link.size() > 0) {
+				elem.addClass('tablesorter-header');
+				elem.click(function() {
+					$(location).attr("href", '#toolLinkParam("ToolSite" "doSort" "criteria='+elemId+'")'.replace(/&amp;/g, '&'));
+				});
+				//link.attr("href", '#toolLinkParam("ToolSite" "doSort" "criteria='+elemId+'")'.replace(/&amp;/g, '&'));								
+				
+				#if($!LAST_SORTED_FIELD)
+				if(elemId == "$!LAST_SORTED_FIELD") {
+					elem.addClass(($!ASCENDING_ORDER) ? 'tablesorter-headerSortDown' : 'tablesorter-headerSortUp');
+				}
+				#end
+			}
+			
+		});
+		
+		//prepare searching fields
+		var changeTimeout = null;
+		$("thead tr td input", "#tools_site").keyup(function(){
+			if(changeTimeout != null) {
+				clearTimeout(changeTimeout);
+			}
+			var id = $(this).attr('id').replace('input_', '');
+			var value = $(this).val();
+			changeTimeout = setTimeout(function() { doChange(id, value); }, 1000);
+		}).each(function(){
+			var id = $(this).attr('id');
+			if(id) {
+				$(this).attr('placeholder', $('#'+id.replace('input_', '')).attr('data-placeholder'));
+			}
+		}).focus(function() {
+			this.value = this.value;
+		});
+		
+		var doChange = function(id, val) {
+			$(location).attr("href", '#toolLinkParam("ToolSite" "doSearch" "field='+id+'&search='+val+'")'.replace(/&amp;/g, '&'));
+		};
+		
+		$(".pagesize").change(function(){
+			$(location).attr("href", '#toolLinkParam("ToolSite" "doChangePageSize" "pagesize='+$(this).find('option:selected').val()+'")'.replace(/&amp;/g, '&'));
+		});
+		
+		$(".pager_button").click(function(){
+			var elem = $(this);
+			if(!elem.hasClass("disabled")) {
+				var ev = null;
+				if(elem.hasClass('first')) ev = 'first';
+				if(elem.hasClass('prev')) ev = 'prev';
+				if(elem.hasClass('next')) ev = 'next';
+				if(elem.hasClass('last')) ev = 'last';
+				if(ev != null) {
+					$(location).attr("href", '#toolLinkParam("ToolSite" "doChangePage" "page_event='+ev+'")'.replace(/&amp;/g, '&'));
+				}
+			}
+		});
+		
+		#if($!SEARCH_LAST_FIELD)
+			$("#input_$!SEARCH_LAST_FIELD").focus();
+		#end
 
 	});
 </script>
@@ -121,51 +104,99 @@ ${includeLatestJQuery}
 	<br/>
 	$tlang.getString("tool.description.sites.helper")
 	#end
-	<br/>
-	#if ($contents && $contents.size() > 0)
+	#if ($hasContents)	
+		#if ($contents && $contents.size() > 0)
+		<div class="navPanel">
+			<div class="listNav">
+				<a style="float:right" href="$export_url_excel"><input type="submit" value="$tlang.getString("content.export.excel")" /></a>
+				<a style="float:right" href="$export_url_csv"><input type="submit" value="$tlang.getString("content.export.csv")" /></a>
+			</div>
+		</div>
 		<div id="tools_site_pager" class="pager">
-			<img src="/basiclti-admin-tool/addons/pager/icons/first.png" class="first" alt="First" />
-			<img src="/basiclti-admin-tool/addons/pager/icons/prev.png" class="prev" alt="Prev" />
-			<span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-			<img src="/basiclti-admin-tool/addons/pager/icons/next.png" class="next" alt="Next" />
-			<img src="/basiclti-admin-tool/addons/pager/icons/last.png" class="last" alt="Last" />
+			<img src="/basiclti-admin-tool/addons/pager/icons/first.png" class="pager_button first #if ($sortIndex == 1) disabled #end" alt="First" />
+			<img src="/basiclti-admin-tool/addons/pager/icons/prev.png" class="pager_button prev #if ($sortIndex == 1) disabled #end" alt="Prev" />
+			<span class="pagedisplay">$sortIndex - $sortLastIndex ($count_contents)</span> <!-- this can be any element, including an input -->
+			<img src="/basiclti-admin-tool/addons/pager/icons/next.png" class="pager_button next #if ($sortLastIndex == $count_contents) disabled #end" alt="Next" />
+			<img src="/basiclti-admin-tool/addons/pager/icons/last.png" class="pager_button last #if ($sortLastIndex == $count_contents) disabled #end" alt="Last" />
 			<select class="pagesize">
-				<option selected="selected" value="10">10</option>
-				<option value="20">20</option>
-				<option value="30">30</option>
-				<option value="40">40</option>
+				<option #if ($sortPageSize == 10) selected="selected" #end value="10">10</option>
+				<option #if ($sortPageSize == 50) selected="selected" #end value="50">50</option>
+				<option #if ($sortPageSize == 100) selected="selected" #end value="100">100</option>
+				<option #if ($sortPageSize == 200) selected="selected" #end value="200">200</option>
 			</select>
 		</div>
+		#end
 		<table id="tools_site" class="tablesorter" cellspacing="0" summary ="$tlang.getString("content.table")">
 			<thead>
 			<tr>
-				<th id="title" data-placeholder="$tlang.getString('search.title')">$tlang.getString("bl_title")</th>
+				<th id="title" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_title'))"><a>$tlang.getString("bl_title")</a></th>
 				<th id="url" data-placeholder="$tlang.getString('search.url')" >$tlang.getString("bl_url")</th>
-				#if ($isAdmin) <th id="site" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th> #end
+				#if ($isAdmin) 
+					<th id="SITE_TITLE" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitetitle'))"><a>$tlang.getString("bl_sitetitle")</a></th>
+				#end
+					<th id="created_at" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_created_at'))"><a>$tlang.getString("bl_created_at")</a></th>
+				#if ($isAdmin)
+					<th id="SITE_CONTACT_NAME" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactname'))"><a>$tlang.getString("bl_sitecontactname")</a></th>
+					<th id="SITE_CONTACT_EMAIL" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactemail'))"><a>$tlang.getString("bl_sitecontactemail")</a></th>
+					#if ($attribution_name)
+					<th id="ATTRIBUTION" data-placeholder="$tlang.getFormattedMessage('searchby', $attribution_name)"><a>$attribution_name</a></th>
+					#end
+				#end
 				<th id="action" width="25%" class="filter-false">$tlang.getString("bl_action")</th>
+			</tr>
+			<tr class="tablesorter-filter">
+				<td><input class="tablesorter-filter" id="input_title" #if($SEARCH_MAP && $SEARCH_MAP.get('title')) value="$SEARCH_MAP.get('title')" #end /></td>
+				<td></td>
+				#if ($isAdmin) 
+					<td><input class="tablesorter-filter" id="input_SITE_TITLE" #if($SEARCH_MAP && $SEARCH_MAP.get('SITE_TITLE')) value="$SEARCH_MAP.get('SITE_TITLE')" #end /></td>
+				#end
+					<td></td>
+				#if ($isAdmin)
+					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($SEARCH_MAP && $SEARCH_MAP.get('SITE_CONTACT_NAME')) value="$SEARCH_MAP.get('SITE_CONTACT_NAME')" #end /></td>
+					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($SEARCH_MAP && $SEARCH_MAP.get('SITE_CONTACT_EMAIL')) value="$SEARCH_MAP.get('SITE_CONTACT_EMAIL')" #end /></td>
+					#if ($attribution_name)
+					<td><input class="tablesorter-filter" id="input_ATTRIBUTION" #if($SEARCH_MAP && $SEARCH_MAP.get('ATTRIBUTION')) value="$SEARCH_MAP.get('ATTRIBUTION')" #end /></td>
+					#end
+				#end
+				<td></td>
 			</tr>
 			</thead>
 			<tbody>
+			#if ($contents && $contents.size() > 0)
 			#foreach ($content in $contents)
-			<tr>
-			<td headers="matchpattern"> $validator.escapeHtml($content.get("title"))</td>
+			<tr class="#if($velocityCount%2 == 0)even#{else}odd#end">
+			<td headers="matchpattern">$validator.escapeHtml($content.get("title"))</td>
 			<td headers="url">
-				#set($launch = $content.get("launch"))
-				#if ($launch)
-					 $validator.escapeHtml($launch)
+				#set($launch = "-")
+				#if ($content.get("launch"))
+					 #set($launch = $validator.escapeHtml($content.get("launch")))
 				#else
 					#set($tool=false)
 					#set($tool=$ltiService.getTool($content.get("tool_id_long")))
 					#if ($!tool)
-						 $validator.escapeHtml($tool.get("launch"))
+						#set($launch = $validator.escapeHtml($tool.get("launch")))
 					#end
 				#end
+				<a href="$launch">$launch</a>
 			</td>
-			#if ($isAdmin) <td headers="site"> $validator.escapeHtml($!content.get("SITE_ID"))</a></td> #end
+			#if ($isAdmin) 
+				<td headers="site"><a href="/portal/site/$validator.escapeHtml($!content.get("SITE_ID"))">$validator.escapeHtml($!content.get("SITE_TITLE"))</a></td>
+			#end
+				<td headers="createdat">$!dateTool.format($!dateToolFormat, $!content.get("created_at"))</td>
+			#if ($isAdmin)
+				<td headers="contactname"> $validator.escapeHtml($!content.get("SITE_CONTACT_NAME"))</td>
+				<td headers="contactemail"> $validator.escapeHtml($!content.get("SITE_CONTACT_EMAIL"))</td>
+				#if ($attribution_name)
+				<td headers="attribution"> $validator.escapeHtml($!content.get("ATTRIBUTION"))</td>
+				#end
+			#end
 			<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 
 			<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
 			</td>
 			</tr>
+			#end
+			#else
+			<tr><td colspan='9'>$tlang.getString("content.none")</td></tr>
 			#end
 			</tbody>
 		</table>

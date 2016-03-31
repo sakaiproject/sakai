@@ -75,4 +75,12 @@
             <property name="jobName"><value>Synchronise LTI Site Memberships</value></property>
             <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" /></property>
         </bean>
+        
+        <bean id="org.sakaiproject.lti.api.LTIExportService"
+                class="org.sakaiproject.lti.impl.LTIExportServiceImpl"
+                init-method="init">
+            <property name="ltiService"><ref bean="org.sakaiproject.lti.api.LTIService"/></property>
+            <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        </bean>
 </beans>

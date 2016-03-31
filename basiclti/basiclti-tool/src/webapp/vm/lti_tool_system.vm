@@ -38,7 +38,7 @@ ${includeLatestJQuery}
 		page: 0,
 
 		// Number of visible rows - default is 10
-		size: 10,
+		size: 50,
 
 		// if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
 		// table row set to a height to compensate; default is false
@@ -125,10 +125,11 @@ ${includeLatestJQuery}
 			<img src="/basiclti-admin-tool/addons/pager/icons/next.png" class="next" alt="Next" />
 			<img src="/basiclti-admin-tool/addons/pager/icons/last.png" class="last" alt="Last" />
 			<select class="pagesize">
-				<option selected="selected" value="10">10</option>
+				<option value="10">10</option>
 				<option value="20">20</option>
 				<option value="30">30</option>
 				<option value="40">40</option>
+				<option selected="selected" value="50">50</option>
 			</select>
 		</div>
 		<table id="tools_system" class="tablesorter" cellspacing="0" summary ="$tlang.getString("tool.table")">
@@ -156,7 +157,7 @@ ${includeLatestJQuery}
 	                	#set($siteId=$tool.get("site_id"))
 	                	$!siteId
 	                </td>
-	                #if ($isAdmin) <td headers="use">$tool.get("lti_content_count")</td> #end
+	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$tool.get('id')")">$tool.get("lti_content_count")</a></td> #end
 	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
 		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
