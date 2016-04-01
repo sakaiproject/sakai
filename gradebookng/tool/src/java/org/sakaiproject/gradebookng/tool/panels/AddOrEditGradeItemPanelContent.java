@@ -43,6 +43,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 	private AjaxCheckBox counted;
 	private AjaxCheckBox released;
 
+	private boolean categoriesEnabled;
+
 	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel) {
 		super(id, assignmentModel);
 
@@ -50,13 +52,14 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 		final Assignment assignment = assignmentModel.getObject();
 
-		boolean categoriesEnabled = true;
+		this.categoriesEnabled = true;
 		if (gradebook.getCategory_type() == GbCategoryType.NO_CATEGORY.getValue()) {
-			categoriesEnabled = false;
+			this.categoriesEnabled = false;
 		}
 
 		// title
-		final TextField<String> title = new TextField<String>("title", new PropertyModel<String>(assignmentModel, "name")) {
+		final TextField<String> title = new TextField<String>("title",
+				new PropertyModel<String>(assignmentModel, "name")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -67,7 +70,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		add(title);
 
 		// points
-		final TextField<Double> points = new TextField<Double>("points", new PropertyModel<Double>(assignmentModel, "points")) {
+		final TextField<Double> points = new TextField<Double>("points",
+				new PropertyModel<Double>(assignmentModel, "points")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -79,7 +83,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 		// due date
 		// TODO date format needs to come from i18n
-		final DateTextField dueDate = new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"), "MM/dd/yyyy") {
+		final DateTextField dueDate = new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"),
+				"MM/dd/yyyy") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -93,13 +98,18 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		final List<CategoryDefinition> categories = new ArrayList<>();
 		final Map<Long, CategoryDefinition> categoryMap = new LinkedHashMap<>();
 
-		if (categoriesEnabled) {
+		if (this.categoriesEnabled) {
 			categories.addAll(this.businessService.getGradebookCategories());
 
 			for (final CategoryDefinition category : categories) {
 				categoryMap.put(category.getId(), category);
 			}
 		}
+
+		// wrapper for category section. It doesnt get shown at all if
+		// categories are not enabled.
+		final WebMarkupContainer categoryWrap = new WebMarkupContainer("categoryWrap");
+		categoryWrap.setVisible(this.categoriesEnabled);
 
 		final DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category",
 				new PropertyModel<Long>(assignmentModel, "categoryId"), new ArrayList<Long>(categoryMap.keySet()),
@@ -111,7 +121,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 						final CategoryDefinition category = categoryMap.get(value);
 						if (GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type()) {
 							final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
-							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"), category.getName(), weight);
+							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"),
+									category.getName(), weight);
 						} else {
 							return category.getName();
 						}
@@ -124,16 +135,18 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 				});
 
-		// if we don't have a category assigned we want the 'Choose One' message. setNullValid = false
-		// if we have a category we want to be able to clear it. setNullValid = true
+		// if we don't have a category assigned we want the 'Choose One'
+		// message. setNullValid = false
+		// if we have a category we want to be able to clear it. setNullValid =
+		// true
 		categoryDropDown.setNullValid(false);
 		if (assignment.getCategoryId() != null) {
 			categoryDropDown.setNullValid(true);
 		}
 		categoryDropDown.setVisible(!categories.isEmpty());
-		add(categoryDropDown);
+		categoryWrap.add(categoryDropDown);
 
-		add(new WebMarkupContainer("noCategoriesMessage") {
+		categoryWrap.add(new WebMarkupContainer("noCategoriesMessage") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -142,9 +155,13 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 		});
 
+		add(categoryWrap);
+
 		// extra credit
-		// if an extra credit category is selected, this will be unchecked and disabled
-		final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit", new PropertyModel<Boolean>(assignmentModel, "extraCredit")) {
+		// if an extra credit category is selected, this will be unchecked and
+		// disabled
+		final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit",
+				new PropertyModel<Boolean>(assignmentModel, "extraCredit")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -191,7 +208,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 		add(this.counted);
 
-		// behaviour for when a category is chosen. If the category is extra credit, deselect and disable extra credit checkbox
+		// behaviour for when a category is chosen. If the category is extra
+		// credit, deselect and disable extra credit checkbox
 		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
 
@@ -200,7 +218,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 				final Long selected = categoryDropDown.getModelObject();
 
-				// if extra credit, deselect and disable the 'extraCredit' checkbox
+				// if extra credit, deselect and disable the 'extraCredit'
+				// checkbox
 				final CategoryDefinition category = categoryMap.get(selected);
 
 				if (category != null && category.isExtraCredit()) {
