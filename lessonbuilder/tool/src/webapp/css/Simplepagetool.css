@@ -818,6 +818,12 @@ ul#toolbar li em {
     padding-left: 7px !important;
     display:block;
 }
+.addContentMessage {
+    margin-top:10px;
+    margin-bottom:20px;
+    padding: 10px !important;
+    display:block;
+}
 .dropDownDiv li:first-child {
     border-top:none !important;
 }
