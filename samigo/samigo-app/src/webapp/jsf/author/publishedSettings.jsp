@@ -50,6 +50,12 @@
       <samigo:script path="/js/authoring.js"/>        
 
       <script type="text/javascript">
+      if (needJQuery) {
+         document.write('\x3Clink href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css?version=" rel="stylesheet">');
+      }
+      </script>
+
+      <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
           $("#jqueryui-accordion").accordion({ heightStyle: "content", collapsible: true, active: 1 });
