@@ -1,1 +1,86 @@
 // Need to be done when morpheus skin will be done.
+
+html[dir="rtl"]{
+
+	.#{$namespace}siteHierarchy{
+		&:after{
+			content: " ";
+			clear: both;
+			display: block;
+		}
+		> * {
+			float: right;
+		}
+	}
+
+	.#{$namespace}toolTitleNav {
+		.#{$namespace}toolTitleNav__button_container {
+	    	float: left;
+		} 
+	}
+
+	.#{$namespace}footerApp__presence, .#{$namespace}footerApp__portalChat {
+	    left: 20px;
+	    right: auto;
+	}
+
+	.#{$namespace}portalChat {
+	    left: 21px;
+	    right: auto;
+	}
+
+	.#{$namespace}toolTitleNav .#{$namespace}toolTitleNav__title ~ .#{$namespace}toolTitleNav__button_container>.#{$namespace}directUrl__dropDown.active {
+	    margin: 10px 0 0 0px;
+	}
+
+	#toolMenu ul li.#{$namespace}collapseTools, #subSites ul li.#{$namespace}collapseTools {
+	    @include transform( rotate(180deg) );
+	}
+
+	#selectSiteModal.dhtml_more_tabs{
+		margin: 0 0 0 -6.3em;
+		@media #{$phone}{
+			margin: 0 0 0 0;
+		}
+		&:after {
+		    left: 3%;
+			@media #{$phone}{
+				left: 26%;
+			}
+		}
+	}
+
+	ul#otherSitesMenu li.otherSitesMenuClose {
+	    display: inline-block;
+	    font-size: 1.5em;
+	    float: left;
+	}
+
+	#mastLogin #loginLinks ul, #linkNav ul li.#{$namespace}sitesNav__menuitem ul {
+	    left: 0;
+	    right: auto;
+	    text-align: right;
+		@media #{$phone}{
+			left: 9.8em;
+			> * {
+				position: relative;
+			}
+		}
+	}
+
+	#mastLogin #loginLinks ul:after {
+	    left: 8%;
+	}
+
+	@media #{$phone}{
+		body.toolsNav--displayed #toolMenuWrap>h1.skip:after {
+		    left: 75%;
+		}
+		.#{$namespace}userNav__popup.js-toggle-user-nav{
+			position: absolute;
+			left: 0.7em;
+			top: 0.3em;
+		}
+	}
+
+}
