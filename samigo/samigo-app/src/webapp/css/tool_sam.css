@@ -609,11 +609,11 @@ divRight input {
 }
 #audio-analyzer {
     height: 180px;
-    width: 778px;
+    width: 100%;
     background-color: black;
 }
 #audio-timer-wrapper {
-    width: 776px;
+    width: auto;
     height: 60px;
     background-color: #333;
     margin: 0 auto;
@@ -632,10 +632,10 @@ divRight input {
 }
 #audio-timer {
     position: absolute;
-    top: 14px;
+    top: 10px;
     left: 12px;
-    width: 26px;
-    height: 14px;
+    width: 30px;
+    height: 20px;
     background-color: #858585;
     border: 1px solid #333;
     border-radius: 3px;
@@ -651,6 +651,7 @@ divRight input {
 	width: 0;
 	position: absolute;
 	pointer-events: none;
+	margin-top: 1px
 }
 
 #audio-timer:after {
