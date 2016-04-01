@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -197,6 +198,7 @@ public class SaveAssessmentSettings
         catch( NumberFormatException ex )
         {
             LOG.warn( ex );
+            control.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
         }
     }
 
@@ -368,6 +370,7 @@ public class SaveAssessmentSettings
     catch( NullPointerException | NumberFormatException ex )
     {
         LOG.warn( ex );
+        control.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
     }
 
     // l. FINALLY: save the assessment
