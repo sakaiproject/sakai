@@ -48,7 +48,7 @@
 	<div class="navPanel">
 		#if ($allowAddAssignment)
 			#if (!$!view.equals('stuvie'))
-			<div class="viewNav">
+			<div class="col-md-8">
 				<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<div class="spinnerBesideContainer">
@@ -65,16 +65,18 @@
 				</form>
 			</div>
 			#else
-				<div class="viewNav" style="width:50%">
+				<div class="col-md-8">
 				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div>
 			</div>
 			#end
 		#else
-			<div class="viewNav">
+			<div class="col-md-8">
 				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
 			</div>
 		#end
-		#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+		<div class="col-md-4">
+			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+		</div>
 	</div>
 
 	<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">

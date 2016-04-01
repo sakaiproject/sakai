@@ -53,16 +53,21 @@
 
 #set ($submissionType = $assignmentContent.getTypeOfSubmission())
 
-<div class="portletBody">
+<div class="portletBody container-fluid">
     #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
-	<h3>
+	<div class="page-header>
+		<h1>
 		$validator.escapeHtml($assignment.getTitle()) 
+		<small>
 		#if ($!assignment.isGroup() )
 			<span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
 		#else
 			<span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
 		#end <span class="highlight">  - $!tlang.getString('gen.subm2') </span>
-	</h3>
+		</small>
+		</h1>
+	</div>
+
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 	## reminder of submission download url
 	#if ($download_url_reminder) 
@@ -73,6 +78,10 @@
 			</p>
 		</div>
 	#end
+
+	<div class="row">
+		<div class="col-md-8">
+
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$validator.escapeUrl($!assignment.Reference) />
 			<input type="hidden" name="option" id="option" value="x" />
@@ -80,11 +89,11 @@
 			## show the view by group choice when there is at least one group defined
 			#if (!$assignment.isGroup())
 				#if (!$value_CheckAnonymousGrading.equals("true") && $!groups.hasNext())
-					<div class="navPanel">
-						<div class="viewNav spinnerBesideContainer">
-							<label for="view">
-								$tlang.getString("gen.view2")
-							</label>
+					<div class="form-group spinnerBesideContainer">
+						<label class="col-md-2" for="view">
+							$tlang.getString("gen.view2")
+						</label>
+						<div class="col-md-10">
 							<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 							<select id="view" name="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
 								#if (!$showSubmissionByFilterSearchOnly)
@@ -102,16 +111,18 @@
 
 			## SAK-17606
 			#if (!$value_CheckAnonymousGrading.equals("true"))
-				<p>
-					<label for="$form_search" class="skip">$tlang.getString("search_students")</label>
-					<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" 
-						name="search" id="search" type="text" class="searchField" size="20" />
-					<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
+				<div class="form-group">
+					<label class="col-md-2" for="$form_search">$tlang.getString("search_students")</label>
+					<div class="col-md-10">
+						<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" name="search" id="search" type="text" class="searchField" size="20" />
+						<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
 						#if (($!searchString) && (!$searchString.equals("")))
 							<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'clearSearch', null, null ); return false;" />
 						#end
-				</p>
+					</div>
+				</div>
 			#end
+
 			#end
 		#set($disableGrade=false)
 		#if($assignment.getAllowPeerAssessment() == true && $assignment.isPeerAssessmentClosed() == false)
@@ -152,6 +163,7 @@
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
+
 		#set ($submissionType = $assignmentContent.getTypeOfSubmission())
 		#set ($showMsg = false)
 		#set ($showMsg = $!allMsgNumber)
@@ -191,8 +203,13 @@
 				</form>
 			#end
 			</div>
+		</div>
+		</div>
+		<div class="col-md-4">
 			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		</div>
+	</div>
+
 		<form name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post">
 			<input type="hidden" name="assignmentId" value="$assignment.Reference" />
 			
@@ -317,15 +334,17 @@
 					</div>
 				#end
 				<div id="sendFeedbackPanelContent" style="display:none;">
-					<p class="instruction">
+					<p class="text-info">
 						$tlang.getString("sendFeedback.instruction"):
 					</p>
 					<textarea cols=40 rows=5 name="commentFeedback"></textarea>
-					<p class="instruction">
-						$tlang.getString("sendFeedback.options"):<br/>
-						<input type="checkbox" name="overWrite"/> $tlang.getString("sendFeedback.overwrite")<br/>
-						<input type="checkbox" name="returnToStudents"/> $tlang.getString("sendFeedback.returnToStudents")<br/>
-					</p>
+					<div class="form-group">
+						<label>$tlang.getString("sendFeedback.options"):</label>
+						<div>
+							<input type="checkbox" name="overWrite"/> $tlang.getString("sendFeedback.overwrite")<br/>
+							<input type="checkbox" name="returnToStudents"/> $tlang.getString("sendFeedback.returnToStudents")<br/>
+						</div>
+					</div>
 					<div class="act">
 						<input type="submit" class="active" name="eventSubmit_doSave_send_feedback" value="$tlang.getString("update")" accesskey="s" />
 					</div>
@@ -345,7 +364,7 @@
 					</a>
 				</p>
 				<div id="allowResubmissionPanelContent" style="display:none; overflow: hidden;">
-				<p class="instruction">
+				<p class="text-info">
 				#if ($assignment.isGroup())
 					$tlang.getString("allowResubmission.groups.instruction")
 				#else

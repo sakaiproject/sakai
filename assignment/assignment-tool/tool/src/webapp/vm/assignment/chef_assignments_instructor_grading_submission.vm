@@ -95,7 +95,7 @@
 							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded' '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						#end
 
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 					<div class="centreColumn">
 						<input type="button" name="cancelgradesubmission1" class="cancelgradesubmission" value="$tlang.getString( "nav.list" )"
@@ -117,7 +117,7 @@
 						<input type="button" name="nextsubmission1" class="nextsubmission" value="$tlang.getString( "nav.next" )"
 							#if( !$!goNTButton ) disabled="disabled" #end 
 							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 				</fieldset>
 			</div>
@@ -432,17 +432,17 @@
 				#end
 				#if ($submissionType == 4 && !$hasInline && $size == 0)
 					## if this is non-electronic submission
-					<p class="instruction">$tlang.getString("nonelec_instruction2")</p>
+					<p class="text-warning">$tlang.getString("nonelec_instruction2")</p>
 				#else
 					#if(($submission.submitted || !$alertGradeDraft) && $!value_feedback_text.length() >0 )
-						<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
-						<table border="0"><tr><td>
+						<p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
+						<div class="textarea-holder">
 						<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$validator.escapeHtmlFormattedTextarea($!value_feedback_text)</textarea>		
 						#chef_setupformattedtextarea($name_feedback_text)
-						</td></tr></table>
+						</div>
 					#elseif($submissionType!=2 && $submissionType!=4)
 						## This message only shows when the submission type allows submitted text and the submission doesn't contain submitted text
-						<p class="instruction">$tlang.getString("gradingsub.nosubmittedtext")</p>
+						<p class="text-warning">$tlang.getString("gradingsub.nosubmittedtext")</p>
 					#end
 					## for returned submission, show the instructor comment as well
 					#if ($!prevFeedbackText)
@@ -465,7 +465,7 @@
 					#end
 					#if ($size == 0 && $attachAllowed)
 						## only display in submission types taht are supposed to have attachments
-						<p class="instruction">
+						<p class="text-warning">
 							#if ($submissionType == 5)
 								$tlang.getString("gen.noattsubmitted.single")
 							#else
@@ -529,7 +529,7 @@
 											&nbsp<img id="infoImg" title="$tlang.getString('peerassessment.peerGradeInfo')" src="/library/image/silk/information.png" onclick="$('#peerReviewInfo').show();"/>
 										#end
 										</label>
-										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" /> <span class="text-info">($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
 										
 										<!--for grading via an external scoring service, if enabled for the associated gradebook item -->
 										#if($scoringComponentEnabled)
@@ -629,17 +629,17 @@
 						<h4>
 							$tlang.getString("gen.instrcomment")
 						</h4>
-						<p class="instruction">
+						<p class="help-block">
 							#if ($submissionType==2)
 								$tlang.getString("gradingsub.usethebel2")
 							#else
 								$tlang.getString("gradingsub.usethebel1")
 							#end
 						</p>
-						<table border="0"><tr><td>
+						<div class="textarea-holder">
 						<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$validator.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
 						#chef_setupformattedtextarea($name_feedback_comment)
-						</td></tr></table>
+						</div>
 						## for returned (not resubmitted ) submission, show the instructor feedback
 						#if ($!prevFeedbackComment)
 							<h4 id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
@@ -663,7 +663,7 @@
 							#end
 						#end
 						#if ($size == 0)
-							<p class="instruction">
+							<p class="text-warning">
                                                             #if ($submissionType == 5)
                                                                 $tlang.getString("gen.noatt.single")
                                                             #else
@@ -742,10 +742,10 @@
 						#else 
 							#set($resubmitStyle="display:none")
 						#end
-						<p class="checkbox" id="tempAllowRes" #if ($submissionType == 4) style = "display:none"#end>
+						<div class="form-group" id="tempAllowRes" #if ($submissionType == 4) style = "display:none"#end>
 							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $submissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitContainer').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitContainer').style.display = 'none';}" />
 							<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
-	    				</p>
+	    				</div>
 						<div id="allowResubmitContainer" style="$!resubmitStyle">
 						  <span id="allowResubmitNumber">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="allowResubmitNumberSelect">
@@ -837,7 +837,7 @@
 							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						#end
 
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 					<div class="centreColumn">
 						<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString( "nav.list" )"
@@ -859,7 +859,7 @@
 						<input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString( "nav.next" )"
 							#if( !$!goNTButton ) disabled="disabled" #end 
 							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 				</fieldset>
 			</div>
