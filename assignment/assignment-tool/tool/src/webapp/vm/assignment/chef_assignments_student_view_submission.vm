@@ -23,26 +23,6 @@ $(document).ready(function(){
     });
     
 });
-	
-var reportsExpanded = false;
-function handleReportsTriangleDisclosure(btn)
-{
-	var reportsDiv = document.getElementById("reportsDiv");
-	if (reportsExpanded)
-	{
-		btn.src = "#imageLink("sakai/expand.gif")";
-		btn.alt = "$tlang.getString('review.report.expand')";
-		reportsDiv.style.display="none";
-	}
-	else
-	{
-		btn.src = "#imageLink("sakai/collapse.gif")";
-		btn.alt = "$tlang.getString('review.report.collapse')";
-		reportsDiv.style.display="block";
-		ASN.resizeFrame();
-	}
-	reportsExpanded = !reportsExpanded;
-}
 </script>
 ## Include other javascript specific to this page
 <script type="text/javascript" src="/sakai-assignment-tool/js/studentViewSubmission.js"></script>
@@ -318,7 +298,7 @@ function handleReportsTriangleDisclosure(btn)
 								#set($reviewResults=$submission.ContentReviewResults)
 								#if ($reviewResults.size() >= 3)
 									<div class="discTria">
-										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+										<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
 										$reviewResults.size() $tlang.getString("review.reports")
 									</div>
 									<div id="reportsDiv" style="display:none;">
