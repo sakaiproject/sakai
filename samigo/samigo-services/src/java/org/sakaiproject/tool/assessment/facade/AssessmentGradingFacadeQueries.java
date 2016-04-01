@@ -1,3 +1,4 @@
+
 /**********************************************************************************
  * $URL$
  * $Id$
@@ -260,6 +261,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return list;
       }
       else {
+        if(list.isEmpty()) {
+             return new ArrayList();
+        }
         // only take highest or latest
         Iterator items = list.iterator();
         ArrayList newlist = new ArrayList();
@@ -1977,6 +1981,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    };
 	    return getHibernateTemplate().executeFind(hcb);
   }
+  
+  public List getItemGradingIds(final Long assessmentGradingId){
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select i.itemGradingId from "+
+	    		         " ItemGradingData i where i.assessmentGradingId=?");
+	    		q.setLong(0, assessmentGradingId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    return getHibernateTemplate().executeFind(hcb);
+}
   
   public HashSet getItemSet(final Long publishedAssessmentId, final Long sectionId) {
 	  HashSet itemSet = new HashSet();
