@@ -33,7 +33,11 @@ var dhtml_view_sites = function(){
 
         var topPosition = allSitesButton.offset().top + allSitesButton.outerHeight() + topPadding;
         var rightPosition = $PBJQ('body').outerWidth() - (allSitesButton.offset().left + allSitesButton.outerWidth());
-        modal.css('top', topPosition).css('right', rightPosition);
+        if( $PBJQ('html').attr('dir') !== "rtl" ){
+          modal.css('top', topPosition).css('right', rightPosition);
+        }else{
+          modal.css('top', topPosition).css('left', $PBJQ('body').outerWidth() - rightPosition );
+        }
       }
 
       var paneHeight = $PBJQ(window).height();
