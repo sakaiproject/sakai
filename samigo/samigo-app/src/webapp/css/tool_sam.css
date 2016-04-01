@@ -1227,3 +1227,7 @@ input[type='reset'].linearButton {
 .hiddenArrow {
 	display: none;
 }
+
+div.eventLogPagerContainer {
+	margin: 1em 0;
+}

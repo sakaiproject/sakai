@@ -27,17 +27,13 @@
     </h1>
   </div>
 
-  <h:panelGroup layout="block" styleClass="pull-right">
- 	  <h:outputText   value="#{eventLogMessages.previous}"  rendered="#{!eventLog.hasPreviousPage}" />
-	  <h:commandLink action="eventLog" value="#{eventLogMessages.previous}" rendered="#{eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}">
-		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
-	  </h:commandLink>
-	  <h:outputText escape="false" value="&nbsp;&nbsp;&nbsp;" />
-
-	  <h:outputText   value="#{eventLogMessages.next}"  rendered="#{!eventLog.hasNextPage}" />
-	  <h:commandLink action="eventLog" value="#{eventLogMessages.next}" rendered="#{eventLog.hasNextPage}" title="#{eventLogMessages.previous}">
-		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogNextPageListener" />
-	  </h:commandLink>
+  <h:panelGroup layout="block" styleClass="pull-right eventLogPagerContainer">
+    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
+    </h:commandButton>
+    <h:commandButton action="eventLog" value="#{eventLogMessages.next}" disabled="#{!eventLog.hasNextPage}" title="#{eventLogMessages.previous}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogNextPageListener" />
+    </h:commandButton>
   </h:panelGroup>
 
  <div class="divContainer">
