@@ -2599,6 +2599,10 @@ function openDropdown(dropDiv, button) {
     hideMultimedia();
     dropDiv.dialog('open');
     dropDiv.find("a").first().focus();
+    if (addAboveItem === '')
+	dropDiv.find(".addContentMessage").show();
+    else
+	dropDiv.find(".addContentMessage").hide();
     return false;
 }
 
