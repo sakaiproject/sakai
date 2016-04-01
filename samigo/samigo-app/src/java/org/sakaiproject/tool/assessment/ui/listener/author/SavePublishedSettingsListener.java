@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
@@ -195,6 +196,7 @@ implements ActionListener
 	    catch( NullPointerException | NumberFormatException ex )
 	    {
 	        LOG.warn( ex );
+	        assessment.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
 	    }
 	    
 	    // l. FINALLY: save the assessment
@@ -523,6 +525,7 @@ implements ActionListener
 			catch( NumberFormatException ex )
 			{
 				LOG.warn( ex );
+				assessment.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
 			}
 		}
 

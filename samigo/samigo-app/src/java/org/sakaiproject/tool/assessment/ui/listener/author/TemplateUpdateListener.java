@@ -37,6 +37,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
@@ -243,6 +244,7 @@ public class TemplateUpdateListener
       catch( NullPointerException | NumberFormatException ex )
       {
           LOG.warn( ex );
+          aac.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
       }
       
       if (templateBean.getValueMap().get("automaticSubmission_isInstructorEditable") == null) {
