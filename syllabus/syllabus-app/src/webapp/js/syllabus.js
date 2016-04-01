@@ -517,6 +517,9 @@ function doAddItemButtonClick( msgs, published )
 	}
 	else
 	{
+		// Fetch the content from the new wysiwyg
+		$("#newContentTextAreaWysiwyg").val($('#newContentDiv').find('iframe').contents().find('body').html()).change();
+
 		// ID doesn't exist since we're adding a new one
 		var id = "0";
 		params = 
@@ -524,8 +527,8 @@ function doAddItemButtonClick( msgs, published )
 			"add" : true,
 			"title": title,
 			"siteId": $("#siteId").val(),
-			"published": published
-		
+			"published": published,
+			"content": $("#newContentTextAreaWysiwyg").val()
 		};
 
 		postAjax( id, params, msgs );
