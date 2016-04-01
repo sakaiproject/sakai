@@ -10872,9 +10872,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			// SAK-17606
 			m_anonymousSubmissionId = el.getAttribute("anonymousSubmissionId");
-			
-			// SAK-29314
-			m_isUserSubmission = getBool(el.getAttribute(SUBMISSION_ATTR_IS_USER_SUB));
 
 			m_submitterId = el.getAttribute("submitterid");
 
@@ -10893,6 +10890,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			addElementsToList("feedbackattachment",m_feedbackAttachments,el,true);
 			addElementsToList("submittedattachment",m_submittedAttachments,el,true);
+
+			/* SAK-30644 - handle legacy submissions with no 'isUserSubmission' attribute gracefully.
+				You must ensure that both m_submittedText and m_sumbittedAttachments have 
+				been set prior to calling this method. If they are not set, this algorithm
+				will likely return false negatives.
+			*/
+			getIsUserSubmission( el.getAttribute( SUBMISSION_ATTR_IS_USER_SUB ) );
 
 			// READ THE PROPERTIES, SUBMITTED TEXT, FEEDBACK COMMENT, FEEDBACK TEXT
 			NodeList children = el.getChildNodes();
@@ -10972,7 +10976,36 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			M_log.debug(" BaseAssignmentSubmission: LEAVING STORAGE CONSTRUCTOR");
 
 		}// storage constructor
-		
+
+		/**
+		 * Handle legacy submissions with no 'isUserSubmission' attribute gracefully.
+		 * You must ensure that both m_submittedText and m_sumbittedAttachments have 
+		 * been set prior to calling this method. If they are not set, this algorithm
+		 * will likely return false negatives.
+		 * 
+		 * @see SAK-30644
+		 */
+		private void getIsUserSubmission( String isUserSubmission )
+		{
+			if( StringUtils.isBlank( isUserSubmission ) )
+			{
+				// Initialize the list if it's null, to avoid NPE's in check below
+				if( m_submittedAttachments == null )
+				{
+					m_submittedAttachments = m_entityManager.newReferenceList();
+				}
+
+				// If there is submitted text, attachments, or if the type is 'non-electronic', this is considered an actual user submission
+				m_isUserSubmission = StringUtils.isNotBlank( m_submittedText ) || 
+									 getAssignment().getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION ||
+									 !m_submittedAttachments.isEmpty();
+			}
+			else
+			{
+				m_isUserSubmission = getBool( isUserSubmission );
+			}
+		}
+
 		/**
 		 * @param services
 		 * @return
@@ -11059,9 +11092,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							// SAK-17606
 							m_anonymousSubmissionId = m_id.substring(27)+" (" + rb.getString("grading.anonymous.title")  + ")";
 
-							// SAK-29314
-							m_isUserSubmission = getBool(attributes.getValue(SUBMISSION_ATTR_IS_USER_SUB));
-
 							m_submitterId = attributes.getValue("submitterid");
 
 							m_submissionLog = new ArrayList();
@@ -11079,6 +11109,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 							addElementsToList("feedbackattachment",m_feedbackAttachments,attributes,true);
 							addElementsToList("submittedattachment",m_submittedAttachments,attributes,true);
+
+							/* SAK-30644 - handle legacy submissions with no 'isUserSubmission' attribute gracefully.
+								You must ensure that both m_submittedText and m_sumbittedAttachments have 
+								been set prior to calling this method. If they are not set, this algorithm
+								will likely return false negatives.
+							*/
+							getIsUserSubmission( attributes.getValue( SUBMISSION_ATTR_IS_USER_SUB ) );
 
 							entity = thisEntity;
 						}
