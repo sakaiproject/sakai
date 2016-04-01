@@ -114,12 +114,12 @@
             <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.scoring}" rendered="#{sectionBean.type == '2'}">
                 <t:div id="pointsOption" rendered="#{sectionBean.type == '2'}">
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_correct_prefix}"/>
-                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" onchange="toPoint(this.id);"/>
+                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" styleClass="ConvertPoint"/>
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_correct_suffix}"/>
                 </t:div>
                 <t:div id="deductOption" rendered="#{sectionBean.type == '2'}">
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_deduct_prefix}"/>
-                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" onchange="toPoint(this.id);"/>
+                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" styleClass="ConvertPoint"/>
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_deduct_suffix}"/>
                 </t:div>
             </t:fieldset>

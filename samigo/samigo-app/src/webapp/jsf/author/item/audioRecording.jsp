@@ -78,8 +78,7 @@
         <h:outputLabel value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
-                        required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);"
-                        styleClass="form-control">
+                        required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
                 <f:validateDoubleRange minimum="0.00"/>
             </h:inputText>
             <h:message for="answerptr" styleClass="validate"/>
@@ -100,7 +99,7 @@
   Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
    <div class="shorttext">
     <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
+    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="ConvertPoint">
 <f:validateDoubleRange/>
 </h:inputText><br/>
     <h:message for="answerminptr" styleClass="validate"/>

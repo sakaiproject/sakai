@@ -71,15 +71,13 @@
  </h:commandButton>
 </p>
 
- 
     <!-- QUESTION PROPERTIES -->
     <!-- 1 POINTS -->
     <div class="form-group row">
         <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-control-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
-                         required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);"
-                         styleClass="form-control">
+                         required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
                 <f:validateDoubleRange minimum="0.00"/>
             </h:inputText>
             <h:message for="answerptr" styleClass="validate"/>
@@ -101,8 +99,7 @@
             <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" 
                            styleClass="col-md-4 form-control-label"/>
             <div class="col-md-2">
-                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" 
-                             onchange="toPoint(this.id);" styleClass="form-control">
+                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
                     <f:validateDoubleRange />
                 </h:inputText>    
                 <h:outputText value="#{authorMessages.answer_min_point_info}"/>
@@ -111,16 +108,16 @@
         </div>
     </f:subview>
 
-    <!-- DISCOUNT -->
+    <!-- NEGATIVE POINT -->
     <div class="form-group row">
         <h:outputLabel for="answerdsc" value="#{authorMessages.negative_point_value}" styleClass="col-md-4 form-control-label"/>
         <div class="col-md-2">
-            <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" 
-                         required="true" onchange="toPoint(this.id);" styleClass="form-control">
+            <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" 
+                        styleClass="form-control ConvertPoint" disabled="#{itemauthor.disableNegativePoints}">
                         <f:validateDoubleRange/>
             </h:inputText>
+            <small><h:outputText value="#{authorMessages.negative_point_value_note}" rendered="#{itemauthor.disableNegativePoints==true}"/></small>
             <h:message for="answerdsc" styleClass="validate"/>
-            <h:outputText value="#{authorMessages.note_negative_point_value_question}" />
         </div>
     </div>
 

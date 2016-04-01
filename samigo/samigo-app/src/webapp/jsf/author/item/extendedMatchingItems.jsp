@@ -495,7 +495,7 @@
 								<f:verbatim>
 									<br />
 								</f:verbatim>
-								<h:inputText id="itemScore" value="#{answer.score}" onchange="toPoint(this.id);"
+								<h:inputText id="itemScore" value="#{answer.score}" styleClass="ConvertPoint"
 									style="" size="4" maxlength="4" >
 									<f:validateDoubleRange minimum="0.00"/>
 								</h:inputText>

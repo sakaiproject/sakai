@@ -80,7 +80,7 @@
         <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
-                        required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);" styleClass="form-control">
+                        required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
                 <f:validateDoubleRange minimum="0.00"/>
             </h:inputText>
             <h:message for="answerptr" styleClass="validate"/>
@@ -102,8 +102,7 @@
         <div class="form-group row">   
             <h:outputLabel value="#{authorMessages.answer_min_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
             <div class="col-md-2">
-                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);" 
-                            styleClass="form-control">
+                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
                     <f:validateDoubleRange/>
                 </h:inputText>
                 <h:outputText value="#{authorMessages.answer_min_point_info}"  />

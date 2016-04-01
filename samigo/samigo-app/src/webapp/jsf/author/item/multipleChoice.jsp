@@ -57,7 +57,7 @@
   <div class="form-group row"> 
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.answer_point_value}" />
     <div class="col-md-2">
-      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" styleClass="form-control" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
+      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" styleClass="form-control ConvertPoint" disabled="#{author.isEditPoolFlow}">
         <f:validateDoubleRange minimum="0.00" />
       </h:inputText>
       <h:message for="answerptr" styleClass="validate" />
@@ -81,7 +81,7 @@
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="shorttext">
       <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  onchange="toPoint(this.id); toggleNegativePointVal(this.value);">
+        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  styleClass="ConvertPoint">
           <f:validateDoubleRange />
         </h:inputText>
         <small>
@@ -153,14 +153,13 @@
 </div>
 
 <div id="discountDiv" class="longtext">
-  <h:panelGroup id="discountTable"
-        rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
-        || itemauthor.currentItem.itemType==12 || (itemauthor.currentItem.itemType==2 && itemauthor.currentItem.mcmsPartialCredit=='false')}">
+  <h:panelGroup id="discountTable">
   <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
-  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" onchange="toPoint(this.id);">
+  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint" disabled="#{itemauthor.disableNegativePoints}">
     <f:validateDoubleRange/>
   </h:inputText>
+  <small><h:outputText value="#{authorMessages.negative_point_value_note}" rendered="#{itemauthor.disableNegativePoints==true}"/></small>
   <f:verbatim> <script type="text/javascript" defer='defer'>
   		var itemType = "${itemauthor.currentItem.itemType}";
   		var discDiv=document.getElementById('discountDiv');
@@ -417,19 +416,6 @@
  </h:commandButton>
 
 </p>
-
-<f:subview id="disableNegVal" rendered="#{!empty itemauthor.currentItem.itemMinScore}">
-<f:verbatim>
-<script type="text/javascript">
-	var negPointField = document.getElementById('itemForm:answerdsc');
-	if(negPointField){
-		negPointField.value = 0;
-		negPointField.disabled = true;
-	}
-</script>
-</f:verbatim>
-</f:subview>
-
 </h:form>
 <!-- end content -->
 </div>
