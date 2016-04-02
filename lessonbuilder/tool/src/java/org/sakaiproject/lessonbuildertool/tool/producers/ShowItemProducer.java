@@ -352,7 +352,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    // that will be checked. THat's not the case when the URL is directly present.
 	    // in that case we have to get it from the item.
 	    String source = params.getSource();
-	    if (item.getAttribute("multimediaUrl") != null)
+	    if (item != null && item.getAttribute("multimediaUrl") != null)
 		source = item.getAttribute("multimediaUrl");
 	    UIComponent iframe = UILink.make(tofill, "iframe1", source);
 	    if (item != null && item.getType() == SimplePageItem.BLTI) {
