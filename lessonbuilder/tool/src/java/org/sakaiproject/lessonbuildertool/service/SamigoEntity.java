@@ -595,7 +595,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    return null;
     
 	if (samigo_linked)
-	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id + "%26settings=true";
+	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id + "&settings=true";
 	else
 	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/index/mainIndex";
 
