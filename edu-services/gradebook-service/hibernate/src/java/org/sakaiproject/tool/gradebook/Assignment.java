@@ -652,15 +652,24 @@ public class Assignment extends GradableObject {
 		 * Convenience method for checking if the grade for the assignment should be included in calculations.
 		 * This is different from just the {@link #isCounted()} method for an assignment.  This method does a more thorough check
 		 * using other values, such as if removed, isExtraCredit, ungraded, etc in addition to the assignment's notCounted property.
+		 * Now also considers category type. If categories are configured (setting 2 or 3), uncategorised items are not counted.
 		 * @return true if grades for this assignment should be included in various calculations.
 		 */
 		public boolean isIncludedInCalculations() {
 			boolean isIncludedInCalculations = false;
-			boolean extraCredit = isExtraCredit()!=null && isExtraCredit();
-    		if (!removed && !ungraded && !notCounted && (extraCredit || (pointsPossible != null && pointsPossible>0)))
-    		{
+			int categoryType = this.gradebook.getCategory_type();
+			
+    		if (!removed &&
+    			!ungraded &&
+    			!notCounted &&
+    			(extraCredit || (pointsPossible != null && pointsPossible > 0))) {
     			isIncludedInCalculations = true;
     		}
+    		
+    		if (categoryType != 1 && this.category == null) {
+    			isIncludedInCalculations = false;
+    		}
+    		
 			return isIncludedInCalculations;
 		}
 
