@@ -54,6 +54,7 @@ public class GradeItemCellPanel extends Panel {
 	Map<String, Object> modelData;
 
 	TextField<String> gradeCell;
+	private String originalGrade;
 
 	String rawGrade;
 	String formattedGrade;
@@ -181,12 +182,11 @@ public class GradeItemCellPanel extends Panel {
 
 			this.gradeCell.add(new AjaxFormComponentUpdatingBehavior("scorechange.sakai") {
 				private static final long serialVersionUID = 1L;
-				private String originalGrade;
 
 				@Override
 				public void onBind() {
 					super.onBind();
-					this.originalGrade = GradeItemCellPanel.this.gradeCell.getDefaultModelObjectAsString();
+					GradeItemCellPanel.this.originalGrade = GradeItemCellPanel.this.gradeCell.getDefaultModelObjectAsString();
 				}
 
 				@Override
@@ -199,20 +199,20 @@ public class GradeItemCellPanel extends Panel {
 					final DoubleValidator validator = new DoubleValidator();
 
 					if (StringUtils.isNotBlank(rawGrade) && (!validator.isValid(rawGrade) || Double.parseDouble(rawGrade) < 0)) {
+						// show warning and revert button
 						markWarning(getComponent());
-						GradeItemCellPanel.this.gradeCell.setDefaultModelObject(this.originalGrade);
 					} else {
 						final String newGrade = FormatHelper.formatGrade(rawGrade);
 
 						// for concurrency, get the original grade we have in the UI and pass it into the service as a check
 						final GradeSaveResponse result = GradeItemCellPanel.this.businessService.saveGrade(assignmentId, studentUuid,
-								this.originalGrade, newGrade, GradeItemCellPanel.this.comment);
+							GradeItemCellPanel.this.originalGrade, newGrade, GradeItemCellPanel.this.comment);
 
 						// TODO here, add the message
 						switch (result) {
 							case OK:
 								markSuccessful(GradeItemCellPanel.this.gradeCell);
-								this.originalGrade = newGrade;
+								GradeItemCellPanel.this.originalGrade = newGrade;
 								refreshCourseGradeAndCategoryAverages(target);
 								break;
 							case ERROR:
@@ -225,7 +225,7 @@ public class GradeItemCellPanel extends Panel {
 							case OVER_LIMIT:
 								markOverLimit(GradeItemCellPanel.this.gradeCell);
 								refreshCourseGradeAndCategoryAverages(target);
-								this.originalGrade = newGrade;
+								GradeItemCellPanel.this.originalGrade = newGrade;
 								break;
 							case NO_CHANGE:
 								handleNoChange(GradeItemCellPanel.this.gradeCell);
@@ -306,6 +306,35 @@ public class GradeItemCellPanel extends Panel {
 				}
 			});
 
+			this.gradeCell.add(new AjaxEventBehavior("revertscore.sakai") {
+				@Override
+				protected void onEvent(final AjaxRequestTarget target) {
+					getComponent().setDefaultModelObject(GradeItemCellPanel.this.originalGrade);
+					clearNotifications();
+					refreshNotifications();
+					Component cell = getParentCellFor(getComponent());
+					handleNoChange(cell);
+					target.add(cell);
+				}
+
+				@Override
+				protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+					super.updateAjaxAttributes(attributes);
+
+					final Map<String, Object> extraParameters = attributes.getExtraParameters();
+					extraParameters.put("assignmentId", assignmentId);
+					extraParameters.put("studentUuid", studentUuid);
+
+					final AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+						@Override
+						public CharSequence getCompleteHandler(final Component component) {
+							return "GradebookWicketEventProxy.revertGradeItem.handleComplete('" + getParentCellFor(component).getMarkupId()
+									+ "', attrs, jqXHR, textStatus);";
+						}
+					};
+					attributes.getAjaxCallListeners().add(myAjaxCallListener);
+				}
+			});
 
 			this.gradeCell.add(new AjaxEventBehavior("viewlog.sakai") {
 				@Override

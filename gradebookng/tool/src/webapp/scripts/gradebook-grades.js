@@ -1387,7 +1387,15 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
 
     hideAllPopovers();
     $cellToFocus.focus();
-  });
+  }).on("click", ".popover .gb-revert-score", function(event) {
+    event.preventDefault();
+    var $popover = $(event.target).closest(".popover");
+    var $close = $popover.find(".gb-popover-close");
+    var cell = self.getCellModelForStudentAndAssignment($close.data("studentuuid"), $close.data("assignmentid"));
+    cell._focusAfterSaveComplete = true;
+    cell.$input.trigger("revertscore.sakai");
+    hideAllPopovers();
+  });;
 
   // close the dropdown if the user navigates away from it
   self.$spreadsheet.find(".btn-group").on("shown.bs.dropdown", function(event) {
@@ -1779,6 +1787,11 @@ GradebookEditableCell.prototype.handleBeforeSave = function() {
 
 
 GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
+  this.handleWicketCellReplacement(cellId);
+};
+
+
+GradebookEditableCell.prototype.handleWicketCellReplacement = function(cellId) {
   //bind a timeout to the successful save. An easing would be nice
   $(".grade-save-success").removeClass("grade-save-success", 1000);
 
@@ -2442,6 +2455,12 @@ GradebookWicketEventProxy = {
     handleComplete: function(cellId, attrs, jqXHR, textStatus) {
       var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
       model.handleSaveComplete && model.handleSaveComplete(cellId);
+    }
+  },
+  revertGradeItem: {
+    handleComplete: function(cellId, attrs, jqXHR, textStatus) {
+      var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
+      model.handleWicketCellReplacement && model.handleWicketCellReplacement(cellId);
     }
   }
 };

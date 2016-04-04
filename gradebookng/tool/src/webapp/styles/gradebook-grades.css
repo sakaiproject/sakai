@@ -711,6 +711,9 @@
   padding: 5px 10px;
   font-size: 0.9em;
 }
+.gb-popover-notifications .gb-revert-score {
+  margin-top: 20px;
+}
 .gb-popover-close {
   float: right;
   text-decoration: none;
