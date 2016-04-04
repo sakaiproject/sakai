@@ -1080,9 +1080,9 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
 
 
 GradebookSpreadsheet.prototype.isGroupedByCategory = function() {
-  return this.$spreadsheet.hasClass("gb-grouped-by-category");
+  return this.toolbarModel.$toolbar.
+      find("#toggleCategoriesToolbarItem").hasClass("on");
 }
-
 
 GradebookSpreadsheet.prototype.getCategoriesMap = function() {
   return this._CATEGORIES_MAP;

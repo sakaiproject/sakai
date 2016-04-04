@@ -241,7 +241,16 @@ public class Assignment extends GradableObject {
                 // if categories are null
                 if (one.getCategory() == null && two.getCategory() == null) {
                     // sort by assignment sort order
-                    return one.getSortOrder().compareTo(two.getSortOrder());
+                    if (one.getSortOrder() == null && two.getSortOrder() == null) {
+                        // if no sortOrder, then sort based on id
+                        return one.getId().compareTo(two.getId());
+                    } else if (one.getSortOrder() == null) {
+                        return 1;
+                    } else if (two.getSortOrder() == null) {
+                        return -1;
+                    } else {
+                        return one.getSortOrder().compareTo(two.getSortOrder());
+                    }
                 } else if (one.getCategory() == null) {
                     return 1;
                 } else if (two.getCategory() == null) {
