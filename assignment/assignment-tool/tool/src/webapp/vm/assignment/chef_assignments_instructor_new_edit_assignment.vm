@@ -121,7 +121,6 @@
 		</div>
 	#end
 
-	#set($submitnotif="submitnotifTop")
 
 	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="assignmentId" value="$!assignment.Reference" />
@@ -130,6 +129,9 @@
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
 		<input type="hidden" name="$name_order" id="$name_order" value="$!value_position_order" />
+		<div class="row col-sm-12">
+			#buttonBar()
+		</div>
 
 		<div class="form-group row form-required">
 			<label for="$name_title" class="col-sm-2 form-control-label">
@@ -1753,9 +1755,8 @@
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
-		#set($submitnotif="submitnotifBottom")
 		<div class="row col-sm-12">
-			#buttonBar($submitnotif)
+			#buttonBar()
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
