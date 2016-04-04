@@ -8,6 +8,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -16,8 +17,8 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -61,6 +62,8 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 		// unpack model
 		final Long assignmentId = this.model.getObject();
+
+		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 
 		// form model
 		final GradeOverride override = new GradeOverride();
@@ -123,6 +126,12 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 		form.add(new TextField<Double>("grade").setRequired(true));
 
+		form.add(new Label("points", assignment.getPoints()));
+
+		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
+		hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
+		form.add(hiddenGradePoints);
+
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
 		final GradebookUiSettings settings = ((GradebookPage) getPage()).getUiSettings();
 
@@ -156,10 +165,11 @@ public class UpdateUngradedItemsPanel extends Panel {
 		// feedback panel
 		form.add(new GbFeedbackPanel("updateGradeFeedback"));
 
-		final Assignment assignment = this.businessService.getAssignment(assignmentId);
-		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
-		hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
-		form.add(hiddenGradePoints);
+		// confirmation dialog
+		add(new Label("confirmationMessage",
+			new StringResourceModel(
+				"label.updateungradeditems.confirmation.general", null,
+				new Object[]{"${score}", "${group}"})).setEscapeModelStrings(false));
 	}
 
 	/**

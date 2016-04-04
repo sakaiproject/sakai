@@ -19,7 +19,7 @@
 						<wicket:message key="label.updateungradeditems.groups" />
 					</label>
 					<div class="col-xs-5">
-						<select wicket:id="group">
+						<select wicket:id="group" class="gb-update-ungraded-group">
 							<option value="1">Section 1</option>
 						</select>
 					</div>
@@ -29,8 +29,11 @@
 					<label wicket:for="grade" class="col-xs-4 control-label">
 						<wicket:message key="label.updateungradeditems.grade" />
 					</label>
-					<div class="col-xs-2">
-						<input wicket:id="grade" type="text" class="form-control gb-update-ungraded-value" placeholder="100" />
+					<div class="col-xs-4">
+						<div class="input-group">
+							<input wicket:id="grade" type="text" class="form-control gb-update-ungraded-value" placeholder="100" />
+							<span class="input-group-addon"><small>/<wicket:container wicket:id="points"/></small></span>
+						</div>
 					</div>
 				</div>
 
@@ -45,20 +48,23 @@
 			<input wicket:id="gradePoints" type="hidden" id="gradePoints"/>
 		</form>
 
-		<script id="extraCreditModalTemplate" type="text/template">
-			<div class="modal gb-update-ungraded-extracredit-confirmation">
+		<script id="updateUngradedConfirmationModalTemplate" type="text/template">
+			<div class="modal gb-update-ungraded-confirmation">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h3 class="modal-title"><wicket:message key="label.updateungradeditems.extracreditconfirmation.title" /></h3>
+							<h3 class="modal-title"><wicket:message key="label.updateungradeditems.confirmation.title" /></h3>
 						</div>
 						<div class="modal-body">
-							<p><wicket:message key="label.updateungradeditems.extracreditconfirmation.content" /></p>
+							<p><wicket:container wicket:id="confirmationMessage"/></p>
+							{if isExtraCredit}
+								<p><wicket:message key="label.updateungradeditems.confirmation.extracredit" /></p>
+							{/if}
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-primary gb-update-ungraded-extracredit-continue" data-dismiss="modal"><wicket:message key="label.updateungradeditems.extracreditconfirmation.continue" /></button>
-							<button type="button" class="btn btn-default gb-update-ungraded-extracredit-cancel" data-dismiss="modal"><wicket:message key="label.updateungradeditems.extracreditconfirmation.cancel" /></button>
+							<button type="button" class="btn btn-primary gb-update-ungraded-continue" data-dismiss="modal"><wicket:message key="label.updateungradeditems.confirmation.continue" /></button>
+							<button type="button" class="btn btn-default gb-update-ungraded-cancel" data-dismiss="modal"><wicket:message key="label.updateungradeditems.confirmation.cancel" /></button>
 						</div>
 					</div>
 				</div>
