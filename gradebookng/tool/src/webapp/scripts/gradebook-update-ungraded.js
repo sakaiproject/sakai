@@ -8,10 +8,10 @@
 function GradebookUpdateUngraded($content) {
   this.$content = $content;
 
-  this.setupExtraCreditCheck();
+  this.setupConfirmation();
 };
 
-GradebookUpdateUngraded.prototype.setupExtraCreditCheck = function(){
+GradebookUpdateUngraded.prototype.setupConfirmation = function(){
   var self = this;
 
   function isExtraCreditValue() {
@@ -21,16 +21,27 @@ GradebookUpdateUngraded.prototype.setupExtraCreditCheck = function(){
     return updateValue > gradePoints;
   };
 
+  function buildConfirmationModal() {
+    var templateHtml = $("#updateUngradedConfirmationModalTemplate").html().trim();
+    var modalTemplate = TrimPath.parseTemplate(templateHtml);
+    return $(modalTemplate.process({
+      score: self.$content.find(".gb-update-ungraded-value").val(),
+      group: self.$content.find(".gb-update-ungraded-group :selected").text().trim(),
+      isExtraCredit: isExtraCreditValue()
+    }));
+  };
+
   function showConfirmation() {
-      var $confirmationModal = $($("#extraCreditModalTemplate").html());
-      $confirmationModal.on("click", ".gb-update-ungraded-extracredit-continue", function() {
+      var $confirmationModal = buildConfirmationModal();
+
+      $confirmationModal.on("click", ".gb-update-ungraded-continue", function() {
         performRealSubmit();
       });
       $(document.body).append($confirmationModal);
 
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
-        self.$content.find(".gb-update-ungraded-value").focus();
+        self.$content.find(".gb-update-ungraded-group").focus();
       });
       $confirmationModal.on("show.bs.modal", function() {
         var $formModal = self.$content.closest(".wicket-modal");
@@ -38,7 +49,7 @@ GradebookUpdateUngraded.prototype.setupExtraCreditCheck = function(){
       });
 
       $confirmationModal.on("shown.bs.modal", function() {
-        $confirmationModal.find(".gb-update-ungraded-extracredit-cancel").focus();
+        $confirmationModal.find(".gb-update-ungraded-cancel").focus();
       });
 
       $confirmationModal.modal().modal('show');
@@ -54,11 +65,7 @@ GradebookUpdateUngraded.prototype.setupExtraCreditCheck = function(){
     event.preventDefault();
     event.stopPropagation();
 
-    if (isExtraCreditValue()) {
-      showConfirmation();
-    } else {
-      performRealSubmit();
-    }
+    showConfirmation();
 
     return false;
   };

@@ -1301,11 +1301,25 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public boolean updateUngradedItems(final long assignmentId, final double grade) {
+		return updateUngradedItems(assignmentId, grade, null);
+	}
+
+
+	/**
+	 * Updates ungraded items in the given assignment for students
+	 * within a particular group and with the given grade
+	 *
+	 * @param assignmentId
+	 * @param grade
+	 * @param group
+	 * @return
+	 */
+	public boolean updateUngradedItems(final long assignmentId, final double grade, final GbGroup group) {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
 		// get students
-		final List<String> studentUuids = this.getGradeableUsers();
+		final List<String> studentUuids = (group == null) ? this.getGradeableUsers() : this.getGradeableUsers(group);
 
 		// get grades (only returns those where there is a grade)
 		final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignmentId,
