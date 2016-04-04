@@ -3211,15 +3211,19 @@ public class SimplePageBean {
 	    return ret;
 	}
 
-         public String getReleaseString(SimplePageItem i) {
+         public String getReleaseString(SimplePageItem i, Locale locale) {
 	     if (i.getType() == SimplePageItem.PAGE) {
 		 SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
 		 if (page == null)
 		     return null;
 		 if (page.isHidden())
 		     return messageLocator.getMessage("simplepage.hiddenpage");
-		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
-		     return messageLocator.getMessage("simplepage.pagenotreleased");
+		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date())) {
+			 Date releaseDate = page.getReleaseDate();
+			 DateFormat fullDate = DateFormat.getDateInstance(DateFormat.MEDIUM, (locale == null) ? Locale.getDefault(Locale.Category.FORMAT) : locale);
+			 DateFormat shortTime = DateFormat.getTimeInstance(DateFormat.SHORT, (locale == null) ? Locale.getDefault(Locale.Category.FORMAT) : locale);
+			 return messageLocator.getMessage("simplepage.pagenotreleased.until").replace("{0}", fullDate.format(releaseDate)).replace("{1}", shortTime.format(releaseDate));
+		 }
 	     }
 	     return null;
 	 }
