@@ -36,7 +36,7 @@
 
 <div class="portletBody container-fluid">
     #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
-	<div class="page-header>
+	<div class="page-header">
 		<h1>
 		$validator.escapeHtml($assignment.getTitle()) 
 		<small>
@@ -44,7 +44,8 @@
 			<span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
 		#else
 			<span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
-		#end <span class="highlight">  - $!tlang.getString('gen.subm2') </span>
+		#end
+		  - $tlang.getString('gen.subm2')
 		</small>
 		</h1>
 	</div>
@@ -771,14 +772,14 @@
 	## assignment details
 	<a id="toggleModel" href="javascript:;" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" /><h3>$tlang.getString("gen.assdet")</h3></a>
 	<div class="toggledContent">
-	<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString("gen.theassinf")">
+	<table class="itemSummary" summary="$tlang.getString("gen.theassinf")">
 		<tr> 
 			<th>
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
 					#assignmentTitleIcon($assignment)
-					$validator.escapeHtml($!assignment_title)
+					$validator.escapeHtml($assignment.getTitle())
 			</td>
 		</tr>
 		<tr>
