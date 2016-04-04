@@ -13,7 +13,18 @@
 					<p><wicket:message key="label.updateungradeditems.instructions.1" /></p>
 					<p><wicket:message key="label.updateungradeditems.instructions.2" /></p>
 				</div>
-				 
+
+				<div class="form-group form-group-sm">
+					<label wicket:for="group" class="col-xs-4 control-label">
+						<wicket:message key="label.updateungradeditems.groups" />
+					</label>
+					<div class="col-xs-5">
+						<select wicket:id="group">
+							<option value="1">Section 1</option>
+						</select>
+					</div>
+				</div>
+
 				<div class="form-group form-group-sm">
 					<label wicket:for="grade" class="col-xs-4 control-label">
 						<wicket:message key="label.updateungradeditems.grade" />
