@@ -1,21 +1,28 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -76,12 +83,13 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 				try {
 					final Double overrideValue = Double.valueOf(override.getGrade());
+					final GbGroup group = override.getGroup();
 
 					if (overrideValue > assignment.getPoints()) {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
-					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, overrideValue);
+					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, overrideValue, group);
 
 					if (success) {
 						UpdateUngradedItemsPanel.this.window.close(target);
@@ -115,6 +123,34 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 		form.add(new TextField<Double>("grade").setRequired(true));
 
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		final GradebookUiSettings settings = ((GradebookPage) getPage()).getUiSettings();
+
+		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
+
+		final DropDownChoice<GbGroup> groupAndSectionFilter = new DropDownChoice<GbGroup>(
+			"group",
+			new PropertyModel<GbGroup>(override, "group"),
+			groups,
+			new ChoiceRenderer<GbGroup>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Object getDisplayValue(final GbGroup g) {
+					return g.getTitle();
+				}
+
+				@Override
+				public String getIdValue(final GbGroup g, final int index) {
+					return g.getId();
+				}
+			});
+
+		groupAndSectionFilter.setNullValid(false);
+		groupAndSectionFilter.setModelObject(
+			(settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
+		form.add(groupAndSectionFilter);
+
 		add(form);
 
 		// feedback panel
@@ -137,6 +173,9 @@ public class UpdateUngradedItemsPanel extends Panel {
 		@Setter
 		private String grade;
 
+		@Getter
+		@Setter
+		private GbGroup group;
 	}
 
 }
