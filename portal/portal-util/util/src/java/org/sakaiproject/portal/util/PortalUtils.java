@@ -113,6 +113,9 @@ public class PortalUtils
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
+             "   document.write('\\x3Clink rel=\"stylesheet\" href=\"" +
+                 getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.css" + getCDNQuery() + 
+                 "\"/>')\n" +
              "} else { \n" +
              "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);\n" +
              "   if (typeof jQuery.migrateWarnings == 'undefined') {\n" +
@@ -125,6 +128,7 @@ public class PortalUtils
              "   }\n" +
              "   if (typeof jQuery.ui == 'undefined') {\n" +
              "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Clink rel=\"stylesheet\" href=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.css" + getCDNQuery() + "\"/>')\n" +
              "           window.console && console.log('Adding jQuery UI');\n" +
              "   }\n" +
              "}\n" +
