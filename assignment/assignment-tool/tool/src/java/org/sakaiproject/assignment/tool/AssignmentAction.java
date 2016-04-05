@@ -4897,11 +4897,10 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
-		String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-		context.put("view", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
+		context.put("view", MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
 		context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION)!=null?state.getAttribute(VIEW_SUBMISSION_LIST_OPTION):"");
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH):"");
-		                        
+
 		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 
 		if (AssignmentService.getAllowGroupAssignments()) {
@@ -4912,6 +4911,7 @@ public class AssignmentAction extends PagedResourceActionII
 		 
 		add2ndToolbarFields(data, context);
 
+		String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 		if (view != null && !AssignmentConstants.ALL.equals(view)) {
 		context.put("accessPointUrl", ServerConfigurationService.getAccessUrl()
 				+ AssignmentService.gradesSpreadsheetReference(view.substring(view.indexOf(Entity.SEPARATOR)+1), null));
