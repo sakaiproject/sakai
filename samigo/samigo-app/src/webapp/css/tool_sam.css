@@ -254,6 +254,11 @@ table.settings {
 
 /* Nav ========================================*/
 
+/* override Morpheus, which sets this to display:block */
+.navIntraTool li span.current, .navIntraTool li span a {
+        display: inline;
+}
+
 .navIntraTool li, .itemAction li {
         display: inline;
         margin: 0;
