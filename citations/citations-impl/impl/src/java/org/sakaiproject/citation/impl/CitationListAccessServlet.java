@@ -350,9 +350,9 @@ public class CitationListAccessServlet implements HttpAccess
 					ServerConfigurationService.getString("official.institution.background.colour") +"; \">" +
 					"<div class=\"banner\"><h1 style=\" margin-left:15px; color:" + ServerConfigurationService.getString("official.institution.text.colour") + ";\">" +
 					Validator.escapeHtml(title) + "</h1></div> " +
-					(!isPrintView ? "<div class=\"bannerLinks\">"  +
-					"<a class=\"export\" href=" + exportUrlAll + ">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=" + req.getRequestURL() + "?printView" + ">Print</a>" +
-					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" + "</div>" : "") + "</div>");
+					"<div class=\"bannerLinks\">"  +
+					(!isPrintView ? "<a class=\"export\" href=" + exportUrlAll + ">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=" + req.getRequestURL() + "?printView" + ">Print</a>"  : "") +
+					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" + "</div>" + "</div>");
     		out.println("<div style=\"clear:both;\"></div>");
     		if( introduction != null && !introduction.trim().equals("") )
     		{
