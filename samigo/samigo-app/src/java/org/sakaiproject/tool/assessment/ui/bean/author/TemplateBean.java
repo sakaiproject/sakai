@@ -34,6 +34,8 @@ import java.util.HashMap;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
@@ -986,7 +988,8 @@ public class TemplateBean implements Serializable
   }
   
   public boolean getShowAssessmentTypes() {
-	  return ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
+	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+	  return authorizationBean.isSuperUser() || ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
   }
 
   public boolean isSecureDeliveryAvailable() {
