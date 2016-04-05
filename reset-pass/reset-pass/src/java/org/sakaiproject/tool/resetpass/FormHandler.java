@@ -164,8 +164,8 @@ public class FormHandler {
 			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
 			buff.append(messageLocator.getMessage("mailBody3",new Object[]{pass})+ "\n\n");
 
-			if (serverConfigurationService.getString("support.email", null) != null )
-				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("support.email")}) + "\n\n");
+			if (serverConfigurationService.getString("mail.support", null) != null )
+				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("mail.support")}) + "\n\n");
 
 			m_log.debug(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName}));
 			buff.append(messageLocator.getMessage("mailBodySalut")+"\n");
