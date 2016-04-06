@@ -2,7 +2,6 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -39,12 +38,17 @@ public class SettingsPage extends BasePage {
 	private boolean categoryExpanded = false;
 	private boolean gradingSchemaExpanded = false;
 
+	SettingsGradeEntryPanel gradeEntryPanel;
+	SettingsGradeReleasePanel gradeReleasePanel;
+	SettingsCategoryPanel categoryPanel;
+	SettingsGradingSchemaPanel gradingSchemaPanel;
+
 	public SettingsPage() {
 		disableLink(this.settingsPageLink);
 	}
 
 	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded,
-											final boolean categoryExpanded, final boolean gradingSchemaExpanded) {
+			final boolean categoryExpanded, final boolean gradingSchemaExpanded) {
 		disableLink(this.settingsPageLink);
 		this.gradeEntryExpanded = gradeEntryExpanded;
 		this.gradeReleaseExpanded = gradeReleaseExpanded;
@@ -63,10 +67,10 @@ public class SettingsPage extends BasePage {
 		final GbSettings gbSettings = new GbSettings(settings);
 		final CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<GbSettings>(gbSettings);
 
-		final SettingsGradeEntryPanel gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, gradeEntryExpanded);
-		final SettingsGradeReleasePanel gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, gradeReleaseExpanded);
-		final SettingsCategoryPanel categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, categoryExpanded);
-		final SettingsGradingSchemaPanel gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, gradingSchemaExpanded);
+		this.gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, this.gradeEntryExpanded);
+		this.gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, this.gradeReleaseExpanded);
+		this.categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, this.categoryExpanded);
+		this.gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, this.gradingSchemaExpanded);
 
 		// form
 		final Form<GbSettings> form = new Form<GbSettings>("form", formModel) {
@@ -137,18 +141,20 @@ public class SettingsPage extends BasePage {
 
 				final GbSettings model = getModelObject();
 
-				Page responsePage = new SettingsPage(gradeEntryPanel.isExpanded(), gradeReleasePanel.isExpanded(), categoryPanel.isExpanded(), gradingSchemaPanel.isExpanded());
+				Page responsePage = new SettingsPage(SettingsPage.this.gradeEntryPanel.isExpanded(),
+						SettingsPage.this.gradeReleasePanel.isExpanded(), SettingsPage.this.categoryPanel.isExpanded(),
+						SettingsPage.this.gradingSchemaPanel.isExpanded());
 
 				// update settings
 				try {
 					SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
 					getSession().info(getString("settingspage.update.success"));
-				} catch (ConflictingCategoryNameException e) {
+				} catch (final ConflictingCategoryNameException e) {
 					getSession().error(getString("settingspage.update.failure.categorynameconflict"));
-					responsePage = this.getPage();
-				} catch (IllegalArgumentException e) {
+					responsePage = getPage();
+				} catch (final IllegalArgumentException e) {
 					getSession().error(e.getMessage());
-					responsePage = this.getPage();
+					responsePage = getPage();
 				}
 
 				setResponsePage(responsePage);
@@ -168,10 +174,10 @@ public class SettingsPage extends BasePage {
 		form.add(cancel);
 
 		// panels
-		form.add(gradeEntryPanel);
-		form.add(gradeReleasePanel);
-		form.add(categoryPanel);
-		form.add(gradingSchemaPanel);
+		form.add(this.gradeEntryPanel);
+		form.add(this.gradeReleasePanel);
+		form.add(this.categoryPanel);
+		form.add(this.gradingSchemaPanel);
 
 		add(form);
 
@@ -205,4 +211,16 @@ public class SettingsPage extends BasePage {
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
 
 	}
+
+	/**
+	 * Getters for these panels as we need to interact with them from the child panels
+	 */
+	public SettingsGradeReleasePanel getSettingsGradeReleasePanel() {
+		return this.gradeReleasePanel;
+	}
+
+	public SettingsCategoryPanel getSettingsCategoryPanel() {
+		return this.categoryPanel;
+	}
+
 }
