@@ -1050,6 +1050,20 @@
                 <regexp name="onsiteURL"/>
             </regexp-list>
         </attribute>
+
+        <!-- custom attribute to support ShareStream LTI -->
+        <attribute name="sharestream-lti-url" description="used by the IMG tag inside of CKEditor to support ShareStream LTI media embedding">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <!-- custom attribute to support Kaltura LTI -->
+        <attribute name="kaltura-lti-url" description="used by the IMG tag inside of CKEditor to support Kaltura LTI media embedding">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+         </attribute>
     </common-attributes>
 
 
@@ -1621,6 +1635,10 @@
                 <regexp name="anything" />
               </regexp-list>
             </attribute>
+
+            <!-- KNL-1426 sharestream and kaltura -->
+            <attribute name="sharestream-lti-url"/>
+            <attribute name="kaltura-lti-url"/>
         </tag>
 
         <!-- no way to do this safely without hooking up the same code to @import to embed the remote stylesheet (malicious user could change offsite resource to be malicious after validation -->
