@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -60,6 +61,13 @@ public class GradebookUiSettings implements Serializable {
 	@Getter
 	@Setter
 	private GbCategoryAverageSortOrder categorySortOrder;
+
+	/**
+	 * For sorting based on coursegrade
+	 */
+	@Getter
+	@Setter
+	private SortDirection courseGradeSortOrder;
 
 	/**
 	 * For showing/hiding the points
