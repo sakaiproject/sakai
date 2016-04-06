@@ -1,6 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-duplicate.vm,v 1.2 2005/04/29 13:44:25 zqian.umich.edu Exp $ -->
 ## enter the site title for duplicated site.
-<div class="portletBody">
+<div class="portletBody container-fluid">
 	<form name = "duplicateSiteForm" method = "post" action="#toolForm($action)">
 		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
@@ -16,15 +16,17 @@
 						$tlang.getString("sitdup.dupaclanoncourse")
 					#end
 				</p>
-				<p class="shorttext required">
-					<span class ="reqStar">*</span>
-					<label for="title">
+				<div class="form-group row">					
+					<label for="title" class="col-sm-2 form-control-label">
+						<span class ="reqStar">*</span>
 						$tlang.getString("sitdup.sitti")
 					</label>
-					<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="" />
-				</p>
+					<div class="col-sm-6">
+						<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="" />
+					</div>
+				</div>
 				#if ($canSelect)
-				#if ($allowUnmanaged)
+				#if ($allowUnmanaged)			
 				<p class="checkbox indnt1">
 					<input type="radio" name="adminSite" id="unmanaged" value="unmanaged" #if ("unmanaged" == $adminSite) checked="checked" #end/>
 						<label for="unmanaged">
@@ -42,11 +44,12 @@
 				#end
 				#end
 				#if ($!isCourseSite)
-						<p class="shorttext required">
-									<span class ="reqStar"> *</span>
-									<label for="selectTerm">
+						<div class="form-group row">										
+									<label for="selectTerm" class="col-sm-2 form-control-label">
+										<span class ="reqStar"> *</span>
 										$tlang.getString("sitetype.acater")
 									</label>	
+									<div class="col-sm-6">
 									<select name="selectTerm" id="selectTerm">
 										#foreach($term in $termList)
 											<option value ="$term.eid"
@@ -64,7 +67,8 @@
 											</option>
 										#end
 									</select> 
-								</p>
+									</div>
+						</div>
 						#end	
 					#if ($hasSiteSpecificQuota)
 					<h4>$tlang.getString("sitdup.duptit")</h4>

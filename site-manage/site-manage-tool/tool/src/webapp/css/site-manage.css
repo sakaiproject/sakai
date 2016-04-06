@@ -204,55 +204,19 @@ dl.defList dd{
     margin:0;
 }
 
-#toolHolderWW {
-    clear: both;
-    height: 100%;
-    overflow: hidden;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-direction: normal;
-    -moz-box-direction: normal;
-    -webkit-box-orient: horizontal;
-    -moz-box-orient: horizontal;
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
-    -webkit-flex-wrap: nowrap;
-    -ms-flex-wrap: nowrap;
-    flex-wrap: nowrap;
-    -webkit-box-pack: justify;
-    -moz-box-pack: justify;
-    -webkit-justify-content: space-between;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    -webkit-align-content: flex-start;
-    -ms-flex-line-pack: start;
-    align-content: flex-start;
-    -webkit-box-align: start;
-    -moz-box-align: start;
-    -webkit-align-items: flex-start;
-    -ms-flex-align: start;
-    align-items: flex-start;
-}
-
 #toolHolderW {
     background: none repeat scroll 0 0 #EEEEEE;
     border-radius: 5px 5px 5px 5px;
     padding: 0.5em;
     margin-bottom: 12px;
-    margin-right: 20px;
-    order: 1;
 }
 
 #toolSelectionList {
-    order: 2;
     margin: 0;
     line-height: 200%;
     border: 1px solid #DDDDDD;
     border-radius: 5px;
+    padding: 0 0 0 0;
 }
 
 #toolSelectionList h4{
@@ -385,6 +349,7 @@ dl.defList dd{
     margin:0;
     padding:0;
     position: relative;
+    width: 100%
 }
 #toolSelectionList ul li {
     line-height: 1.4;
@@ -399,309 +364,10 @@ dl.defList dd{
     border-top: 0 none
 }
 .removeTool {
-    background: #c00;
-    color:#fff !important;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
     text-decoration: none !important;
-    width:10px;
-    display: inline-block;
-    padding: 1px 5px 2px;
-    line-height: 1.4;
-    text-align: center;
-    vertical-align: text-bottom;
 }
 
-.portletBody .icon-osp-evaluation {
-    background-image: url(/library/image/silk/thumb_up.png) !important;
-}
 
-.portletBody .icon-osp-glossary {
-    background-image: url(/library/image/silk/text_list_bullets.png) !important;
-}
-
-.portletBody .icon-osp-matrix {
-    background-image: url(/library/image/silk/table.png) !important;
-}
-
-.portletBody .icon-osp-presentation {
-    background-image: url(/library/image/silk/briefcase.png) !important;
-}
-
-.portletBody .icon-osp-presLayout {
-    background-image: url(/library/image/silk/layout_content.png) !important;
-}
-
-.portletBody .icon-osp-presTemplate {
-    background-image: url(/library/image/silk/application_view_tile.png) !important;
-}
-
-.portletBody .icon-osp-style {
-    background-image: url(/library/image/silk/style.png) !important;
-}
-
-.portletBody .icon-osp-wizard {
-    background-image: url(/library/image/silk/wand.png) !important;
-}
-
-.portletBody .icon-sakai-announcements {
-    background-image: url(/library/image/silk/flag_blue.png) !important;
-}
-
-.portletBody .icon-sakai-chat {
-    background-image: url(/library/image/silk/user_comment.png) !important;
-}
-
-.portletBody .icon-sakai-datapoint {
-    background-image: url(/library/image/silk/chart_line.png) !important;
-}
-
-.portletBody .icon-sakai-discussion {
-    background-image: url(/library/image/silk/comments.png) !important;
-}
-
-.portletBody .icon-sakai-dropbox {
-    background-image: url(/library/image/silk/folder_page.png) !important;
-}
-
-.portletBody .icon-sakai-emailtemplateservice {
-    background-image: url(/library/image/silk/email_edit.png) !important;
-}
-
-.portletBody .icon-sakai-gmt {
-    background-image: url(/library/image/silk/award_star_gold_3.png) !important;
-}
-
-.portletBody .icon-sakai-help {
-    background-image: url(/library/image/silk/help.png) !important;
-}
-
-.portletBody .icon-sakai-iframe {
-    background-image: url(/library/image/silk/page_world.png) !important;
-}
-
-.portletBody .icon-sakai-iframe-site {
-    background-image: url(/library/image/silk/house.png) !important;
-}
-
-.portletBody .icon-sakai-web-168 {
-    background-image: url(/library/image/silk/application_go.png) !important;
-}
-
-.portletBody .icon-sakai-mailbox {
-    background-image: url(/library/image/silk/email.png) !important;
-}
-
-.portletBody .icon-sakai-messages {
-    background-image: url(/library/image/silk/comment.png) !important;
-}
-
-.portletBody .icon-sakai-metaobj {
-    background-image: url(/library/image/silk/application_form.png) !important;
-}
-
-.portletBody .icon-sakai-membership {
-    background-image: url(/library/image/silk/group.png) !important;
-}
-
-.portletBody .icon-sakai-news {
-    background-image: url(/library/image/silk/rss.png) !important;
-}
-
-.portletBody .icon-sakai-podcasts{
-    background-image: url(/library/image/silk/ipod_cast.png) !important;
-}
-
-.portletBody .icon-sakai-postem{
-    background-image: url(/library/image/silk/database_table.png) !important;
-}
-
-.portletBody .icon-sakai-preferences{
-    background-image: url(/library/image/silk/cog.png) !important;
-}
-
-.portletBody .icon-sakai-rutgers-linktool{
-    background-image: url(/library/image/silk/application.png) !important;
-}
-
-.portletBody .icon-sakai-sections{
-    background-image: url(/library/image/silk/group_gear.png) !important;
-}
-
-.portletBody .icon-sakai-singleuser{
-    background-image: url(/library/image/silk/user.png) !important;
-}
-
-.portletBody .icon-sakai-syllabus{
-    background-image: url(/library/image/silk/script.png) !important;
-}
-
-.portletBody .icon-blogger{
-    background-image: url(/library/image/silk/book_edit.png) !important;
-}
-
-.portletBody .icon-sakai-assignment-grades{
-    background-image: url(/library/image/silk/page_edit.png) !important;
-}
-
-.portletBody .icon-sakai-forums{
-    background-image: url(/library/image/silk/comments.png) !important;
-}
-
-.portletBody .icon-sakai-gradebook-tool{
-    background-image: url(/library/image/silk/report.png) !important;
-}
-
-.portletBody .icon-sakai-mailtool {
-    background-image: url(/library/image/silk/email_go.png) !important;
-}
-
-.portletBody .icon-sakai-poll{
-    background-image: url(/library/image/silk/chart_bar.png) !important;
-}
-
-.portletBody .icon-sakai-sitestats {
-    background-image: url(/library/image/silk/chart_bar.png) !important;
-}
-
-.portletBody .icon-sakai-sitestats-admin {
-    background-image: url(/library/image/silk/chart_line.png) !important;
-}
-
-.portletBody .icon-sakai-presentation {
-    background-image: url(/library/image/silk/monitor.png) !important;
-}
-
-.portletBody .icon-sakai-profile {
-    background-image: url(/library/image/silk/vcard_edit.png) !important;
-}
-
-.portletBody .icon-sakai-reports {
-    background-image: url(/library/image/silk/report_magnify.png) !important;
-}
-
-.portletBody .icon-sakai-resetpass {
-    background-image: url(/library/image/silk/key.png) !important;
-}
-
-.portletBody .icon-sakai-resources {
-    background-image: url(/library/image/silk/folder.png) !important;
-}
-
-.portletBody .icon-sakai-rwiki {
-    background-image: url(/library/image/silk/page_white_edit.png) !important;
-}
-
-.portletBody .icon-sakai-samigo {
-    background-image: url(/library/image/silk/pencil.png) !important;
-}
-
-.portletBody .icon-sakai-schedule {
-    background-image: url(/library/image/silk/calendar.png) !important;
-}
-
-.portletBody .icon-sakai-search {
-    background-image: url(/library/image/silk/find.png) !important;
-}
-
-.portletBody .icon-sakai-siteinfo {
-    background-image: url(/library/image/silk/application_lightning.png) !important;
-}
-
-.portletBody .icon-sakai-sitesetup{
-    background-image: url(/library/image/silk/application_lightning.png) !important;
-}
-
-.portletBody .icon-sakai-site-roster {
-    background-image: url(/library/image/silk/vcard.png) !important;
-}
-
-.portletBody .icon-sakai-synoptic-messagecenter{
-    background-image: url(/library/image/silk/comment.png) !important;
-}
-
-.portletBody .icon-sakai-conferencing {
-    background-image : url(/library/image/silk/webcam.png) !important;
-}
-
-.portletBody .icon-sakai-profile2 { 
-    background-image: url(/library/image/silk/vcard.png) !important; 
-} 
-
-/*admin tools*/
-.portletBody .icon-sakai-users{
-    background-image: url(/library/image/silk/folder_user.png) !important;
-}
-.portletBody .icon-sakai-aliases{
-    background-image: url(/library/image/silk/tag_blue.png) !important;
-}
-.portletBody .icon-sakai-sites{
-    background-image: url(/library/image/silk/application_cascade.png) !important;
-}
-.portletBody .icon-sakai-realms{
-    background-image: url(/library/image/silk/sitemap_color.png) !important;
-}
-.portletBody .icon-sakai-online{
-    background-image: url(/library/image/silk/report_user.png) !important;
-}
-.portletBody .icon-sakai-memory{
-    background-image: url(/library/image/silk/server_chart.png) !important;
-}
-.portletBody .icon-sakai-archive{
-    background-image: url(/library/image/silk/page_white_compressed.png) !important;
-}
-.portletBody .icon-sakai-scheduler{
-    background-image: url(/library/image/silk/clock.png) !important;
-}
-.portletBody .icon-sakai-su{
-    background-image: url(/library/image/silk/user_go.png) !important;
-}
-.portletBody .icon-sakai-usermembership{
-    background-image: url(/library/image/silk/drive_user.png) !important;
-}
-
-.portletBody .icon-sakai-motd { 
-    background-image: url(/library/image/silk/house.png) !important; 
-} 
-.portletBody .icon-sakai-sitebrowser { 
-    background-image: url(/library/image/silk/world.png) !important; 
-} 
-.portletBody .icon-sakai-createuser { 
-    background-image: url(/library/image/silk/user_add.png) !important; 
-} 
-.portletBody .icon-sakai-subsite { 
-    background-image: url(/library/image/silk/chart_organisation.png) !important; 
-}
-
-.portletBody .icon-sakai-iframe-service {
-    background-image: url(/library/image/silk/house.png) !important;
-}
-.portletBody .icon-sakai-iframe-myworkspace {
-    background-image: url(/library/image/silk/house.png) !important;
-}
-
-.portletBody .icon-sakai-basiclti { 
-    background-image: url(/library/image/silk/application_go.png) !important; 
-}
-.portletBody .icon-sakai-basiclti-admin { 
-    background-image: url(/library/image/silk/application_go.png) !important; 
-}
-.portletBody .icon-sakai-lessonbuildertool {
-    background-image: url(/library/image/silk/book_open.png) !important;
-}
-.portletBody .icon-sakai-see-all-tools {
-    background-image: url(/library/image/silk/bullet_go.png) !important;
-}
-.portletBody .icon-sakai-signup {
-    background-image: url(/library/image/silk/date.png) !important;
-}
-.portletBody .icon-sakai-site-roster2 { 
-    background-image: url(/library/image/silk/vcard.png) !important; 
-}
-.portletBody .icon-home { 
-  background-image: url("/library/image/silk/house.png") !important;
-}
 #alertBox {
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
@@ -873,11 +539,15 @@ dl.defList dd{
     vertical-align:middle;
     text-align: center;
 }
+
+#toolSelectionList li span i{
+	font-size: 0.9em;
+}
+
 #toolSelectionList li .selectedToolTitle
 {
     padding: 6px 0 6px 30px;   
-    text-align:left;
-    background-image: url(/library/image/silk/application.png);
+    text-align:left;    
     background-position: 8px 8px;
     background-repeat: no-repeat;
 }
@@ -900,4 +570,23 @@ dl.defList dd{
 /* SAK-30378 */
 .actionsContainer {
     margin-top: 1em;
+}
+#summary {
+	border:none;
+}
+
+#summary tr{
+	background: transparent;
+}
+
+#summary td{
+	border:none;
+}
+
+#summary th{
+	font-weight: bold;
+}
+
+.listNav{
+	text-align:center;
 }

@@ -111,7 +111,7 @@ a.item_control, a.tool_add_url
 .fieldsetVis{
 	border:1px solid #ccc;
 	padding:1em;
-    width:70%;
+    width:100%;
 }
 .fieldsetVis legend{
 	border:1px solid #ccc;
@@ -125,7 +125,6 @@ a.item_control, a.tool_add_url
     border-radius: 5px;
     background: none repeat scroll 0 0 #EEEEEE;
     padding: 0.5em;
-    width: 35em;
 }
 
 .optGroupSelectSelected{
@@ -169,27 +168,6 @@ div#setName p {
 	margin: 0 !important;
 }
 
-div#setName, div#groupList, div#pendingGroupList {
-	margin: 0 0 1em 1em;
-}
-
-div#groupList, div#pendingGroupList {
-	display: table;
-}
-
-div#groupListLabel {
-	padding-right: 8.5em;
-}
-
-div#pendingGroupListLabel {
-	max-width: 10em;
-	padding-right: 5.5em;
-}
-
-div#groupsContainer, div#groupListLabel, div#pendingGroupsContainer, div#pendingGroupListLabel {
-	display: table-cell;
-}
-
 div#userPanel div.edit.collapsed h4, div#userPanel div.edit.expanded h4 {
 	font-weight: normal;
 }
@@ -197,7 +175,6 @@ div#userPanel div.edit.collapsed h4, div#userPanel div.edit.expanded h4 {
 div#genPanel div.edit.collapsed, div#genPanel div.edit.expanded,
 div#userPanel div.edit.collapsed, div#userPanel div.edit.expanded {
 	display: block !important;
-	background-color: #FFF;
 }
 
 div#genPanel div.collapsed h4, div#genPanel div.expanded h4,
@@ -216,8 +193,7 @@ div#genPanel div.expanded h4, div#userPanel div.expanded h4 {
 }
 
 div#genPanel div.edit, div#userPanel div.edit {
-	display: none;
-	background-color: #EEE;
+	display: none;	
 }
 
 div#genPanel div.edit p, div#genPanel div.edit h4, div#userPanel div.edit h4 {
@@ -236,10 +212,7 @@ div#userPanel div.edit div {
 	padding: 0 1em 0 1em;
 }
 
-div#genPanel div.edit input#allowpreview-row\:\:allowPreviewMembership,
-div#genPanel div.edit input#allowview-row\:\:allowViewMembership,
-div#genPanel div.edit input#generate-row\:\:generate,
-div#genPanel div.edit input#generate-row\:\:generateDisabled,
+
 div#genPanel div.edit img#generateAdditionalSpinner {
 	margin: 0 0 1em 0.5em !important;
 }
@@ -248,7 +221,7 @@ div#allowunjoinEdit-row\:\: {
 	margin: 1em 0 1em 0;
 }
 
-div.left, div.right, div#groupFields {
+div.left, div.right{
 	display: inline-block;
 }
 
@@ -263,4 +236,29 @@ div.act img#editJoinableGroupSpinner {
 
 div.autoGroupsRoleContainer {
 	margin-top: 2em;
+}
+
+.membership{
+	text-align:center;
+}
+.rotate{
+	-ms-transform: rotate(90deg); /* IE 9 */
+	-webkit-transform: rotate(90deg); /* Chrome, Safari, Opera */
+	transform: rotate(90deg);
+}
+
+input[type="radio"] + label{
+	max-width: calc(100% - 50px);	
+}
+
+input[type="radio"]{
+	vertical-align: top !important;
+}
+
+input[type="checkbox"] ~ label{
+	max-width: calc(100% - 50px);	
+}
+
+input[type="checkbox"]{
+	vertical-align: top !important;
 }

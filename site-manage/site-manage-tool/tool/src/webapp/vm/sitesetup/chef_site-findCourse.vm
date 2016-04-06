@@ -1,4 +1,4 @@
-<div class="portletBody">
+<div class="portletBody container-fluid">
 
 	## bjones86 - SAK-23255
 	#if( $isAdmin || !$skipCourseSectionSelection )
@@ -14,7 +14,7 @@
 		
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 		   #if ($selectedProviderCourse || $cmRequestedSections)
-				<p class="instruction">
+				<p>
 					$tlang.getString("sitegen.addcourse.you")
 				</p>	
 				<form name = "removeSectionForm" method="post" action="#toolForm($action)">
@@ -80,16 +80,16 @@
 		      be dynamically labelled based on the config. -->
 		#set ($i=0)
 		#set($maxLevel = $cmLevels.size() - 1)
-		<table class ="itemSummary" cellspacing="0" summary="info on the new project site">
+		
 		#foreach ($level in $cmLevels)
-			<tr>
-				<td>
+			<div class="form-group row ">
+				
 					#set($fieldName="idField_$i")
-					<label for="id-$fieldName">
+					<label for="id-$fieldName" class="col-sm-3 form-control-label">
 				  		<!-- label for this level in CM -->
 				  		${level}
 					</label>
-				</td>
+				
 				
 	##   Removed the manual entry page.  This is handled instead by template #37 from within
 	##   SiteAction.  This was preserved because of its ability to handle multiple levels
@@ -102,7 +102,7 @@
 	##			CourseOffering
 	##			Section
 	##
-				<td>
+				<div class="col-sm-6">
 				  	<!-- use dropdown list to select from coursemanagement service provided options -->
 					  <input type=hidden name="cmLevelChanged" id="cmLevelChanged" value="false" />
 					  <input type=hidden name="cmChangedLevel" id="cmChangedLevel" value="-1" />
@@ -134,12 +134,12 @@
 					     #end
 				      <!-- end population of select options -->
 					  </select>
-		      	</td>
+		      	</div>
 			  <!-- end creation of select box -->
 			  #set($i = $i + 1)
-			  </tr>
+			  </div>
 		   #end
-		</table>
+		
 	
 		   <div class="shorttext">
 		   	<label for ="selectedSections">
@@ -168,23 +168,27 @@
 		#if ($requireAuthorizer)
 			<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
 
-					<div class="shorttext required">
-						<span class="reqStar">*</span>						
-						<label for="uniqname">		
+					<div class="shorttext required form-group row ">						
+						<label for="uniqname" class="col-sm-3 form-control-label">		
+							<span class="reqStar">*</span>						
 						   $tlang.getString("man.authoriz")
 						</label>
-						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />
+						<div class="col-sm-6">
+							<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />
+						</div>
 					</div>
-					<p class="labelindnt instruction">
+					<p class="labelindnt">
 					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext">
-						<label for="additional">
+					<div class="shorttext  form-group row">
+						<label for="additional" class="col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>
-						<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						<div class="col-sm-6">
+							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						</div>
 					</div>
-					<p  class="instruction labelindnt">
+					<p  class="labelindnt">
 						<span class="textPanelFooter">$tlang.getString("man.please")</span>
 					</p>
 			</div>

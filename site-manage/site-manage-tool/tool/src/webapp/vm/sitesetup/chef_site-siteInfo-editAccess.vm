@@ -94,39 +94,41 @@
 	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
 		<input name="publicChangeableOption" id="publicChangeableOption" type="hidden" #if($!publicChangeable) value="true" #else value="false" #end />
 		<input name="publishedOption" id="publishedOption" type="hidden" #if($published) value="true" #else value="false" #end />
-		## site status
+		## site status ##
 		<fieldset>
 		<legend>
 		<h4>
 			$tlang.getString("ediacc.sitsta")
 		</h4>
 		</legend>
-		<p class="instruction" id="site_status_inst">
+		<p id="site_status_inst">
 			$tlang.getString("ediacc.pubyousit")
 		</p>
-		<p class="checkbox indnt1">
-			<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked);" aria-describedby="site_status_inst" />
+		<div class="radio">			
 			<label for="publish">
+				<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked);" aria-describedby="site_status_inst" />
 				$tlang.getString("ediacc.pubsit")
 			</label>
-		</p>
-		<p class="checkbox indnt1">
-			<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked);" aria-describedby="site_status_inst" />
+		</div>
+		<div class="radio">			
 			<label for="unpublish">
+				<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked);" aria-describedby="site_status_inst" />
 				$tlang.getString("ediacc.unpubsit")
 			</label>
-		</p>
+		</div>
 		</fieldset>
+		## END site status ##
+		## Additional Access ##
 		#if (!$!disableAdditional)
         <fieldset>
 			<legend>
 				<h4>$tlang.getString("ediacc.addit")</h4>
 			</legend>
- 			<p class="instruction">$tlang.getString("ediacc.additin")</p>
+ 			<p>$tlang.getString("ediacc.additin")</p>
 			#foreach($roleGroup in $additionalRoleGroups)
 				#if ($roleGroup.size > 0)
 					<fieldset style="float: left; width: 20em;">
-						<legend>$roleGroup.name</legend>
+						<legend><h4>$roleGroup.name</h4></legend>
 						#foreach($role in $roleGroup.roles)
 							<p class="checkbox indnt1">
 								<label>
@@ -142,7 +144,8 @@
 			</p>
         </fieldset>
         #end
-		## site visibility
+        ## END Additional Access ##
+		## Site visibility ##
 		<fieldset>
 		<legend>
 		<h4>
@@ -165,23 +168,21 @@
 			#end
 		#end
 		<div id="publicChangeableDiv" $publicChangeableDivDisplay >
-			<p class="instruction" id="site_vis_inst">
+			<p  id="site_vis_inst">
 				$tlang.getString("ediacc.vis.instr")
 				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
 			</p>
-			<p class="checkbox indnt1">
-				<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end
-				aria-describedby="site_vis_inst" 
-				/>
+			<div class="radio">
 				<label for="access_public">
+					<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end aria-describedby="site_vis_inst" />
 					$tlang.getString("ediacc.dismysit")
 				</label>
-			</p>
+			</div>
 			<p class="checkbox indnt1">
 			</p>
 		</div>
 		<div id="publicChangeableNoDiv" $publicChangeableNoDivDisplay>
-			<p class="instruction">
+			<p>
 				## the site should be public
 				$tlang.getString("ediacc.dismysit")
 
@@ -189,13 +190,15 @@
 			<p />
 		</div>
 		<div id="publicChangeableNoUnpublishDiv" $publicChangeableNoUnpublishDivDisplay>
-			<p class="instruction">
+			<p>
 				## not changeable due to this is a draft site
 				$tlang.getString("ediacc.disdraft")
 			</p>
 			<p />
 		</div>
 		</fieldset>
+		## END site visibility ##
+		## Global Access ##
 		<fieldset>
 		<legend>
 		<h4>
@@ -210,33 +213,31 @@
 			#set($globalAccessNoDivDisplay='style="display:block"')
 		#end 
 		<div id="globalAccessDiv" $globalAccessDivDisplay>
-			<p class="instruction" id="site_glob_inst">
+			<p id="site_glob_inst">
 				$tlang.getString("ediacc.gloacc1")
 				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
 				<br />
 			</p>
-			<p class="instruction">
+			<p >
 				$tlang.getString("ediacc.yousitcan")
 			</p>
 			## set site joinable and joiner role
-			<p class="radio indnt1">
-				<input type="radio" name="joinable" id="unjoinable" value="false" #if (!$joinable) checked="checked"#end 
-				onclick="this.checked ? document.getElementById('joinerrole').style.display='none' : document.getElementById('joinerrole').style.display='block'; utils.resizeFrame();"
-				aria-describedby="site_glob_inst"
-				/>
+			<div class="radio">
 				<label for="unjoinable">
+					<input type="radio" name="joinable" id="unjoinable" value="false" #if (!$joinable) checked="checked"#end 
+				      onclick="this.checked ? document.getElementById('joinerrole').style.display='none' : document.getElementById('joinerrole').style.display='block'; utils.resizeFrame();"
+				      aria-describedby="site_glob_inst" />
 					$tlang.getString("ediacc.cannotbejoi")
 				</label>
-			</p>
-			<p class="radio indnt1">
-				<input type="radio" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
-				onclick="this.checked ? document.getElementById('joinerrole').style.display='block' : document.getElementById('joinerrole').style.display='none'; utils.resizeFrame();"
-				aria-describedby="site_glob_inst"
-				/>
+			</div>
+			<div class="radio">
 				<label for="joinable">
+				     <input type="radio" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
+				            onclick="this.checked ? document.getElementById('joinerrole').style.display='block' : document.getElementById('joinerrole').style.display='none'; utils.resizeFrame();"
+				            aria-describedby="site_glob_inst" />				
 					$tlang.getFormattedMessage("ediacc.canbejoi", $uiService)
 				</label>
-			</p>
+			</div>
 			<div id="joinerrole" #if ($joinable) style="display: block;" #else  style="display: none;" #end>
 				<div class="messageWarning indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
 				<p class="checkbox indnt3">
@@ -373,12 +374,12 @@
 		</div>
 		</fieldset>
 		<div id="globalAccessNoDiv" $globalAccessNoDivDisplay>
-			<p class="instruction">
+			<p>
 				$tlang.getString("ediacc.other.setsitacc"): $tlang.getString("sitegen.siteinfolist.sitepar")
 			</p>
 			<p/>
 		</div>
-
+		## END Global Access ##
 		<span id="siteId" style="display:none">$site.id</span>
 		#if ($viewDelegatedAccessUsers)
 			<span id="viewDelegatedAccessUsers" style="display:none">true</span>
@@ -490,7 +491,7 @@
 		</div>
 		#end
 			<p/>
-		</div>		
+				
 		<input type="hidden" name="continue" value="$!continue" />
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />

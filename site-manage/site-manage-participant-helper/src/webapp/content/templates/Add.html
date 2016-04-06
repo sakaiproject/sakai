@@ -4,6 +4,7 @@
 	<title>Site Add Participant</title>
 	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/AddParticipant.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
 	<link type="text/css" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" media="screen" />
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
@@ -16,11 +17,11 @@
 	<div rsf:id="content:">
 		<!-- instruction for adding participant to course sites  -->
 		<h3 rsf:id="msg=java.addp">Add Participant</h3>
-		<p class="instruction">
+		<p>
 			<span rsf:id="add.official" class="highlight"></span>
 			<span rsf:id = "add.official1"></span>
-			<span class="instruction" rsf:id = "add.official.instruction"></span>
 		</p>
+		<p rsf:id = "add.official.instruction"></p>
 		<!-- alert message -->
 		<div rsf:id="error-row:">
 			<div class="alertMessage" rsf:id="error">We Have Errors!</div>
@@ -33,28 +34,28 @@
 		<form rsf:id="participant-form" >
 			<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
 			<!-- add official account -->
-			<h4 class="instruction" rsf:id="officialAccountSectionTitle"></h4>
+			<h4 rsf:id="officialAccountSectionTitle"></h4>
 			<label rsf:id="officialAccountLabel" for ="officialAccountParticipant">
 	           Official Account Label
 	        </label>
 	        <br/>
 	        <textarea rsf:id="officialAccountParticipant" name="officialAccountParticipant" cols="35" rows="4" id="officialAccountParticipant"></textarea>
 			<a href="#" onclick="rsf:id='officialAccountPickerAction'"><h5 rsf:id="officialAccountPickerLabel"></h5></a><br />
-			<h5 class="instruction textPanelFooter" rsf:id="msg=add.multiple"></h5>
+			<h5 class="textPanelFooter" rsf:id="msg=add.multiple"></h5>
 			
 			<!-- add non-official account -->
-			<h4 class="instruction" rsf:id="nonOfficialAccountSectionTitle"></h4>
+			<h4  rsf:id="nonOfficialAccountSectionTitle"></h4>
 			<label rsf:id="nonOfficialAccountLabel" for ="nonOfficialAccountParticipant">
 	           Non-Official Account Label
 	        </label>
 	        <br/>
 	        <textarea rsf:id="nonOfficialAccountParticipant" name="nonOfficialAccountParticipant" cols="35" rows="4" id="nonOfficialAccountParticipant"></textarea>
-			<h5 class="instruction textPanelFooter" rsf:id="nonOfficialAddMultiple"></h5>
+			<h5 class="textPanelFooter" rsf:id="nonOfficialAddMultiple"></h5>
 			
 			<!--  choose roles -->
-			<h4 class="instruction" rsf:id="msg=add.participants"></h4> 
+			<h4 rsf:id="msg=add.participants"></h4> 
 			<span rsf:id="select-roles"></span>
-			<table class="listHier lines nolines" style="width:auto" summary="">
+			<table style="width:auto" summary="">
 				<tr rsf:id="role-row:">
 					<td>
 					  <input rsf:id="role-select" title="Select role type" type="radio" id="radio" name="roleChoice" value=""/>
@@ -64,11 +65,11 @@
 					</td>		
 				</tr>
 			</table>
-			
+						
 			<!--  choose active/inactive status -->
-			<h4 class="instruction" rsf:id="status-message"></h4> 
+			<h4  rsf:id="status-message"></h4> 
 			<span rsf:id="select-status"></span>
-			<table class="listHier lines nolines" style="width:auto" summary="">
+			<table style="width:auto" summary="">
 				<tr rsf:id="status-row:">
 					<td>
 					  <input rsf:id="status-select" title="Select status type" type="radio" id="radio" name="statusChoice" value=""/>
