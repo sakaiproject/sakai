@@ -676,7 +676,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 			}
 			replacementValues.put("displayName", userDisplayName);
 			replacementValues.put("userEid", userEid);
-			replacementValues.put("supportemail", serverConfigurationService.getString("support.email"));
+			replacementValues.put("supportemail", serverConfigurationService.getString("mail.support"));
 			replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 			
 		} catch (UserNotDefinedException e) {
@@ -714,7 +714,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		String templateKey = getTemplateKey(account.getAccountStatus());
 		RenderedTemplate renderedTemplate = emailTemplateService.getRenderedTemplateForUser(templateKey, userReference, replacementValues);
-		emailTemplateService.sendMessage(userIds,emailAddresses, renderedTemplate, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.name"));
+		emailTemplateService.sendMessage(userIds,emailAddresses, renderedTemplate, serverConfigurationService.getString("mail.support"), serverConfigurationService.getString("mail.support.name",serverConfigurationService.getString("support.name")));
 	}
 
 
