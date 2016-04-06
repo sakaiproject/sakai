@@ -191,7 +191,6 @@ public class SettingsGradeReleasePanel extends Panel {
 						displayOptions++;
 					}
 					if (displayOptions == 0) {
-						System.out.println("visible");
 						return true;
 					}
 				}
