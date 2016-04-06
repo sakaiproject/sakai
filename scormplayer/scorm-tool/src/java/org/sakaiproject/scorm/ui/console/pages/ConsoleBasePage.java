@@ -84,14 +84,14 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		
         NavIntraLink listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);
         NavIntraLink uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
-        NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
+        //NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
         
         WebMarkupContainer listContainer = new WebMarkupContainer( "listContainer" );
         WebMarkupContainer uploadContainer = new WebMarkupContainer( "uploadContainer" );
-        WebMarkupContainer validateContainer = new WebMarkupContainer( "validateContainer" );
+        //WebMarkupContainer validateContainer = new WebMarkupContainer( "validateContainer" );
         listContainer.add( listLink );
         uploadContainer.add( uploadLink );
-        validateContainer.add( validateLink );
+        //validateContainer.add( validateLink );
 
         SimpleAttributeModifier className = new SimpleAttributeModifier( "class", "current" );
         if( listLink.linksTo( getPage() ) )
@@ -104,48 +104,48 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
             uploadContainer.add( className );
             uploadLink.add( className );
         }
-        else if( validateLink.linksTo( getPage() ) )
-        {
-            validateContainer.add( className );
-            validateLink.add( className );
-        }
+        //else if( validateLink.linksTo( getPage() ) )
+        //{
+        //    validateContainer.add( className );
+        //    validateLink.add( className );
+        //}
         
         listLink.setVisible(canUpload || canValidate);
         uploadLink.setVisible(canUpload);
         
         // SCO-107 - hide the validate link (interface is currently unimplemented)
         //validateLink.setVisible(canValidate);
-        validateLink.setVisibilityAllowed(false);
+        //validateLink.setVisibilityAllowed(false);
         
         Icon listIcon = new Icon("listIcon", LIST_ICON);
         Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
-        Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
+        //Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
         
         // SCO-109 - conditionally show the icons in the menu bar buttons
         boolean enableMenuBarIcons = serverConfigurationService.getBoolean( SAK_PROP_ENABLE_MENU_BUTTON_ICONS, true );
         if( enableMenuBarIcons )
         {
-        listIcon.setVisible(canUpload || canValidate);
-        uploadIcon.setVisible(canUpload);
-        
-        // SCO-107 hide the validate link (interface is currently unimplemented)
-        //validateIcon.setVisible(canValidate);
-        validateIcon.setVisibilityAllowed(false);
+            listIcon.setVisible(canUpload || canValidate);
+            uploadIcon.setVisible(canUpload);
+
+            // SCO-107 hide the validate link (interface is currently unimplemented)
+            //validateIcon.setVisible(canValidate);
+            //validateIcon.setVisibilityAllowed(false);
         }
         else
         {
             listIcon.setVisibilityAllowed( false );
             uploadIcon.setVisibilityAllowed( false );
-            validateIcon.setVisibilityAllowed( false );
+            //validateIcon.setVisibilityAllowed( false );
         }
         
         listContainer.add(listIcon);
         uploadContainer.add(uploadIcon);
-        validateContainer.add(validateIcon);
+        //validateContainer.add(validateIcon);
 
         wmc.add( listContainer );
         wmc.add( uploadContainer );
-        wmc.add( validateContainer );
+        //wmc.add( validateContainer );
 
         // add the toolbar container
         add(wmc);
