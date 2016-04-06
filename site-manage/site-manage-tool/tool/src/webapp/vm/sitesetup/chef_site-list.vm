@@ -15,7 +15,7 @@
 		})
     });
 </script>
-<div class ="portletBody">
+<div class ="portletBody container-fluid">
 	<ul id="actionToolBar" class="navIntraTool actionToolBar">
 		#if($allowAddSite)
 			<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doNew_site")" title="$tlang.getString('java.new')">$tlang.getString("java.new")</a></span></li>
@@ -38,34 +38,42 @@
 		#end
 	</div>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
-	<div class="navPanel">
-		<div class="viewNav">
+	<div class="navPanel row">
+		<div class="viewNav col-sm-7">
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
-				<input type="hidden" name="eventSubmit_doView_sites" value="view" />
-				<label for="view">$tlang.getString("list.view")</label>
-				<select id="view" name="view" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'viewFilterSpinner' );document.viewForm.submit();">
-					#foreach($view in $viewKeys)
-						<option value ="$view"
-						#if($view == $viewSelected) selected="selected" #end
-						> $views.get($view) </option>
+				<div class="form-group row">
+					<input type="hidden" name="eventSubmit_doView_sites" value="view" />
+					<label for="view" class="col-sm-3">$tlang.getString("list.view")</label>
+					<div class="col-sm-5">
+						<select id="view" name="view" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'viewFilterSpinner' );document.viewForm.submit();">
+							#foreach($view in $viewKeys)
+								<option value ="$view"
+								#if($view == $viewSelected) selected="selected" #end
+								> $views.get($view) </option>
+							#end
+						</select>
+						<div id="viewFilterSpinner" class="allocatedSpinPlaceholder"></div>
+					</div>
+				</div>
+				<div class="form-group row"> 					
+					#if(!$hideTermFilter)
+						<label for="termview" class="col-sm-3">$tlang.getString("list.selectTerm")</label>
+						<div class="col-sm-5">
+							<select id="termview" name="termview" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'termFilterSpinner' );document.viewForm.submit();">
+								#foreach($view in $termViewKeys)
+									<option value ="$view"
+									#if($view == $viewTermSelected) selected="selected" #end
+									> $termViews.get($view) </option>
+								#end
+							</select>
+							<div id="termFilterSpinner" class="allocatedSpinPlaceholder"></div>
+						</div>						
 					#end
-				</select>
-				<div id="viewFilterSpinner" class="allocatedSpinPlaceholder"></div>
-				#if(!$hideTermFilter)
-					<label for="termview">$tlang.getString("list.selectTerm")</label>
-					<select id="termview" name="termview" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'termFilterSpinner' );document.viewForm.submit();">
-						#foreach($view in $termViewKeys)
-							<option value ="$view"
-							#if($view == $viewTermSelected) selected="selected" #end
-							> $termViews.get($view) </option>
-						#end
-					</select>
-					<div id="termFilterSpinner" class="allocatedSpinPlaceholder"></div>
-				#end
+				</div>
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
-		<div class="searchNav">
+		<div class="searchNav col-sm-5" style="text-align: right">
 			#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
 				## hide search form when in normal user login and in my workspace sites view
 				<form name="searchForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
@@ -110,7 +118,7 @@
 					</div>
 				#end
 				<div class="listNav">
-					<div class="instruction">
+					<div>
 						$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("import.of") $allMsgNumber $tlang.getString("list.items")
 						<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
 					</div>
