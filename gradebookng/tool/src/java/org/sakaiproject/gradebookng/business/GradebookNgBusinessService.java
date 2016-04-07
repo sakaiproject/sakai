@@ -539,7 +539,7 @@ public class GradebookNgBusinessService {
 			final GbAssignmentGradeSortOrder assignmentSortOrder,
 			final GbStudentNameSortOrder nameSortOrder, final GbCategoryAverageSortOrder categorySortOrder,
 			final GbGroup groupFilter)
-					throws GbException {
+			throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(groupFilter), assignmentSortOrder, nameSortOrder,
 				categorySortOrder);
 	}
@@ -1307,10 +1307,8 @@ public class GradebookNgBusinessService {
 		return updateUngradedItems(assignmentId, grade, null);
 	}
 
-
 	/**
-	 * Updates ungraded items in the given assignment for students
-	 * within a particular group and with the given grade
+	 * Updates ungraded items in the given assignment for students within a particular group and with the given grade
 	 *
 	 * @param assignmentId
 	 * @param grade
@@ -1869,6 +1867,36 @@ public class GradebookNgBusinessService {
 			return new CompareToBuilder()
 					.append(subtotal1, subtotal2)
 					.toComparison();
+
+		}
+	}
+
+	/**
+	 * Comparator class for sorting by course grade
+	 *
+	 * Note that course grade can have multiple forms but ultimately results in a string output, so the settings have to be passed in.
+	 *
+	 */
+	class CourseGradeComparator implements Comparator<GbStudentGradeInfo> {
+
+		@Setter
+		private Gradebook gradebook;
+
+		@Override
+		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
+
+			// GbCourseGradeLabel.buildCourseGrade will need to be moved somewhere shared so we can use it
+			// and have everything passed to it
+			// everyhting might need to be first passed to this comparator so we can then pass it on to build the course grade for each
+
+			// final Double subtotal1 = g1.getCategoryAverages().get(this.categoryId);
+			// final Double subtotal2 = g2.getCategoryAverages().get(this.categoryId);
+
+			// return new CompareToBuilder()
+			// .append(subtotal1, subtotal2)
+			// .toComparison();
+
+			return 0;
 
 		}
 	}
