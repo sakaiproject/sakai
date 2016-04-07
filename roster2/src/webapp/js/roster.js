@@ -553,7 +553,7 @@
 	}
 
     Handlebars.registerHelper('translate', function (key) {
-        return roster.i18n[key];
+        return roster.i18n[key]?roster.i18n[key].replace('\\',''):roster.i18n[key];
     });
 
     Handlebars.registerHelper('getName', function (firstNameLastName) {
