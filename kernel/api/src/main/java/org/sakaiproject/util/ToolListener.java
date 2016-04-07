@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -56,22 +57,32 @@ public class ToolListener implements ServletContextListener
 	private static final Logger M_log = LoggerFactory.getLogger(ToolListener.class);
 
 	/**
+	 * The content parameter in your web.xml specifying the webapp root relative
+	 * path to look in for the tool registration files.
+	 */
+	public final static String PATH = ToolListener.class.getName()+".PATH";
+	
+	/**
 	 * Initialize.
 	 */
 	public void contextInitialized(ServletContextEvent event)
 	{
-		// The the location of resource and registration files.
-		Set paths = event.getServletContext().getResourcePaths("/tools/");
 		final String sakaiHomePath = ServerConfigurationService.getSakaiHomePath();
-
-		//	First Pass:  Search for tool registration file.
-		if (paths == null) {
+		// The the location of resource and registration files.
+		ServletContext context = event.getServletContext();
+		String toolFolder = getToolsFolder(context);
+		Set<String> paths = context.getResourcePaths(toolFolder);
+		if (paths == null)
+		{
+			// Warn if the listener is setup but no tools found.
+			M_log.warn("No tools folder found: "+ context.getRealPath(toolFolder));
 			return;
 		}
 		int registered = 0;
-		for (Iterator i = paths.iterator(); i.hasNext();)
+		// First Pass: Search for tool registration files
+		for(Iterator<String> i = paths.iterator(); i.hasNext();)
 		{
-			final String path = (String) i.next();
+			final String path = i.next();
 
 			// skip directories
 			if (path.endsWith("/")) continue;
@@ -132,5 +143,31 @@ public class ToolListener implements ServletContextListener
 	 */
 	public void contextDestroyed(ServletContextEvent event)
 	{
+	}
+
+	/**
+	 * This locates the tool registration folder inside the webapp.
+	 * @param context The servlet context.
+	 * @return The standard tool registration folder location or the configured value.
+	 */
+	protected String getToolsFolder(ServletContext context)
+	{
+		String path = context.getInitParameter(PATH);
+		if (path == null)
+		{
+			path = "/tools/";
+		}
+		else
+		{
+			if (!path.startsWith("/"))
+			{
+				path = "/"+ path;
+			}
+			if (!path.endsWith("/"))
+			{
+				path = path+ "/";
+			}
+		}
+		return path;
 	}
 }
