@@ -11,6 +11,7 @@ CKEDITOR.plugins.setLang('autosave', 'sv', {
     loadedContent: 'Inladdat innehåll',
     autoSavedContent: 'Autosparat innehåll (från: \'',
 	ok: 'Läs in Autosparat innehåll',
+	no: 'Nej tack',
 	diffType: 'Visa skillnader:',
 	sideBySide: 'Sida vid sida',
 	inline: 'Ihop'

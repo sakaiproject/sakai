@@ -15,6 +15,7 @@ var delete_orphan_enabled = true;
 
 $(window).load(function () {
 	window.onbeforeunload = null;
+	fixupHeights();
 });
 
 function msg(s) {
@@ -2963,9 +2964,15 @@ function fixupColAttrs() {
 	});
 };
 
-$(window).load(fixupHeights);
-
+// called twice, once at page load, once after all comments are loaded.
+// depending upon content one or the other may be first, so there's no way to
+// be sure without doing it both times
 function fixupHeights() {
+    // if CSS is going to treat this as narrow device, don't need to match columns,
+    // because they are stacked vertically
+    if (window.matchMedia("only screen and (max-width: 800px)").matches) {
+	return;
+    }
     $(".section").each(function(index) {
 	    var max = 0;
 	    // reset to auto to cause recomputation. This is needed because

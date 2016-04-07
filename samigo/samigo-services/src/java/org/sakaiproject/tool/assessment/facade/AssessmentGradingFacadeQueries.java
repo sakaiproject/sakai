@@ -2229,11 +2229,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
 	    				"select a.publishedAssessmentId, a.agentId, count(*) " +
-	    				" from AssessmentGradingData a, StudentGradingSummaryData s, AuthorizationData au " +
+	    				" from AssessmentGradingData a, StudentGradingSummaryData s, AuthorizationData au, PublishedAssessmentData p " +
 	    				" where a.forGrade=? and au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId" +
 	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
 	    				" and a.submittedDate > s.createdDate" +
-	    				" group by a.publishedAssessmentId, a.agentId");
+	    				" and a.publishedAssessmentId = p.publishedAssessmentId" +
+	    				" and p.status != 2" +
+	    				" group by a.publishedAssessmentId, a.agentId" +
+	    				" order by a.publishedAssessmentId");
 	    		q.setBoolean(0, true);
 	    		q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
 	    		q.setString(2, siteId);

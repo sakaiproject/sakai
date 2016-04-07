@@ -49,6 +49,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
@@ -93,7 +94,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class AssessmentSettingsBean
     implements Serializable {
-    private static Log log = LogFactory.getLog(AssessmentSettingsBean.class);
+    private static final Log log = LogFactory.getLog(AssessmentSettingsBean.class);
 
     private static final IntegrationContextFactory integrationContextFactory =
       IntegrationContextFactory.getInstance();
@@ -129,10 +130,10 @@ public class AssessmentSettingsBean
   private Date dueDate;
   private Date retractDate;
   private Date feedbackDate;
-  private Integer timeLimit  =  Integer.valueOf(0); // in seconds, calculated from timedHours & timedMinutes
-  private Integer timedHours = Integer.valueOf(0);
-  private Integer timedMinutes  = Integer.valueOf(0);
-  private Integer timedSeconds  = Integer.valueOf(0);
+  private Integer timeLimit = 0; // in seconds, calculated from timedHours & timedMinutes
+  private Integer timedHours = 0;
+  private Integer timedMinutes = 0;
+  private Integer timedSeconds = 0;
   private boolean timedAssessment = false;
   private boolean autoSubmit = false;
   private String assessmentFormat; // question (1)/part(2)/assessment(3) on separate page
@@ -143,7 +144,7 @@ public class AssessmentSettingsBean
   private String submissionsAllowed;
   private String submissionsSaved; // bad name, this is autoSaved
   private String lateHandling;
-  private String instructorNotification;
+  private String instructorNotification = Integer.toString( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT ); // Default is 'No - I do not want to receive any emails';
   private String submissionMessage;
   private String releaseTo;
   private SelectItem[] publishingTargets;
@@ -210,7 +211,7 @@ public class AssessmentSettingsBean
   private SelectItem[] extendedTimeTargets;
   
   // SAM-2323 jQuery-UI datepicker
-  private TimeUtil tu = new TimeUtil();
+  private final TimeUtil tu = new TimeUtil();
   private final String HIDDEN_START_DATE_FIELD = "startDateISO8601";
   private final String HIDDEN_END_DATE_FIELD = "endDateISO8601";
   private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
@@ -293,7 +294,7 @@ public class AssessmentSettingsBean
 			}
 
       // these are properties in AssessmentAccessControl
-      AssessmentAccessControlIfc accessControl = null;
+      AssessmentAccessControlIfc accessControl;
       accessControl = assessment.getAssessmentAccessControl();
       if (accessControl != null) {
         this.startDate = accessControl.getStartDate();
@@ -315,18 +316,13 @@ public class AssessmentSettingsBean
         groupsAuthorized = null;
 
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
-        if (timeLimit !=null && timeLimit.intValue()>0)
-          setTimeLimitDisplay(timeLimit.intValue());
+        if (timeLimit !=null && timeLimit>0)
+          setTimeLimitDisplay(timeLimit);
         else 
           resetTimeLimitDisplay();
         if ((Integer.valueOf(1)).equals(accessControl.getTimedAssessment()))
           this.timedAssessment = true;
-        if ((Integer.valueOf(1)).equals(accessControl.getAutoSubmit())) {
-          this.autoSubmit = true;
-        }
-        else {
-          this.autoSubmit = false;
-        }
+        this.autoSubmit = (Integer.valueOf(1)).equals(accessControl.getAutoSubmit());
         if (accessControl.getAssessmentFormat()!=null)
           this.assessmentFormat = accessControl.getAssessmentFormat().toString(); // question/part/assessment on separate page
         if (accessControl.getItemNavigation()!=null)
@@ -338,15 +334,10 @@ public class AssessmentSettingsBean
         if (accessControl.getSubmissionsSaved()!=null) // bad name, this is autoSaved
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
-        if (accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview())) {
-            this.isMarkForReview = true;
-        }
-        else {
-        	this.isMarkForReview = false;
-        }
+        this.isMarkForReview = accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview());
         
         // default to unlimited if control value is null
-        if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions().booleanValue()){
+        if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
           this.submissionsAllowed = accessControl.getSubmissionsAllowed().toString();
         }
@@ -378,60 +369,25 @@ public class AssessmentSettingsBean
 
         if (feedback.getFeedbackAuthoring()!=null)
           this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
-        
-        if ((Boolean.TRUE).equals(feedback.getShowQuestionText()))
-          this.showQuestionText = true;
-        else
-            this.showQuestionText = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStudentResponse()))
-          this.showStudentResponse = true;
-        else
-            this.showStudentResponse = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowCorrectResponse()))
-          this.showCorrectResponse = true;
-        else
-            this.showCorrectResponse = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStudentScore()))
-          this.showStudentScore = true;
-        else
-            this.showStudentScore = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStudentQuestionScore()))
-          this.showStudentQuestionScore = true;
-        else
-            this.showStudentQuestionScore = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowQuestionLevelFeedback()))
-          this.showQuestionLevelFeedback = true;
-        else
-            this.showQuestionLevelFeedback = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()))
-          this.showSelectionLevelFeedback = true;// must be MC
-        else
-            this.showSelectionLevelFeedback = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowGraderComments()))
-          this.showGraderComments = true;
-        else
-            this.showGraderComments = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStatistics()))
-          this.showStatistics = true;
-        else
-            this.showStatistics = false;
+
+        this.showQuestionText = (Boolean.TRUE).equals(feedback.getShowQuestionText());
+        this.showStudentResponse = (Boolean.TRUE).equals(feedback.getShowStudentResponse());
+        this.showCorrectResponse = (Boolean.TRUE).equals(feedback.getShowCorrectResponse());
+        this.showStudentScore = (Boolean.TRUE).equals(feedback.getShowStudentScore());
+        this.showStudentQuestionScore = (Boolean.TRUE).equals(feedback.getShowStudentQuestionScore());
+        this.showQuestionLevelFeedback = (Boolean.TRUE).equals(feedback.getShowQuestionLevelFeedback());
+        this.showSelectionLevelFeedback = (Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()); // must be MC
+        this.showGraderComments = (Boolean.TRUE).equals(feedback.getShowGraderComments());
+        this.showStatistics = (Boolean.TRUE).equals(feedback.getShowStatistics());
       }
 
       // properties of EvaluationModel
       EvaluationModelIfc evaluation = assessment.getEvaluationModel();
       if (evaluation != null) {
         if (evaluation.getAnonymousGrading()!=null)
-          this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1") ? true : false;
+          this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1");
         if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook().toString().equals("1") ? true : false;
+          this.toDefaultGradebook = evaluation.getToGradeBook().equals("1");
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
 
@@ -485,7 +441,7 @@ public class AssessmentSettingsBean
       }
     }
     catch (RuntimeException ex) {
-    	ex.printStackTrace();
+    	log.error( ex );
     }
   }
 
@@ -668,13 +624,13 @@ public class AssessmentSettingsBean
   public String getReleaseTo() {
     this.releaseTo="";
     if (targetSelected != null){
-      for (int i = 0; i < targetSelected.length; i++) {
-        String user = targetSelected[i];
-        if (!"".equals(releaseTo))
-          releaseTo = releaseTo + ", " + user;
-        else
-          releaseTo = user;
-      }
+        for( String user : targetSelected )
+        {
+            if (!"".equals(releaseTo))
+                releaseTo = releaseTo + ", " + user;
+            else
+                releaseTo = user;
+        }
     }
     return this.releaseTo;
   }
@@ -684,9 +640,9 @@ public class AssessmentSettingsBean
   }
 
   public Integer getTimeLimit() {
-    return  Integer.valueOf(timedHours.intValue()*3600
-        + timedMinutes.intValue()*60
-        + timedSeconds.intValue());
+    return  timedHours*3600
+            + timedMinutes*60
+            + timedSeconds;
   }
 
   public void setTimeLimit(Integer timeLimit) {
@@ -1066,15 +1022,15 @@ public class AssessmentSettingsBean
   }
 
   public void setTimeLimitDisplay(int time){
-    this.timedHours=Integer.valueOf(time/60/60);
-    this.timedMinutes = Integer.valueOf((time/60)%60);
-    this.timedSeconds = Integer.valueOf(time % 60);
+    this.timedHours=time/60/60;
+    this.timedMinutes = (time/60)%60;
+    this.timedSeconds = time % 60;
   }
 
   public void resetTimeLimitDisplay(){
-    this.timedHours=Integer.valueOf(0);
-    this.timedMinutes = Integer.valueOf(0);
-    this.timedSeconds = Integer.valueOf(0);
+    this.timedHours=0;
+    this.timedMinutes = 0;
+    this.timedSeconds = 0;
   }
 
   // followings are set of SelectItem[] used in authorSettings.jsp
@@ -1158,8 +1114,7 @@ public class AssessmentSettingsBean
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      log.warn("Unable to format date.");
-      ex.printStackTrace();
+      log.warn("Unable to format date.", ex);
     }
     return dateString;
   }
@@ -1324,10 +1279,7 @@ public class AssessmentSettingsBean
 
   public boolean validateTarget(String firstTarget){
     HashMap targets = ptHelper.getTargets();
-    if (targets.get(firstTarget) != null)
-      return true;
-    else
-      return false;
+    return targets.get(firstTarget) != null;
   }
 
   public SelectItem[] getPublishingTargets(){
@@ -1410,7 +1362,7 @@ public class AssessmentSettingsBean
   FacesContext context=FacesContext.getCurrentInstance();
   ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
         String err;
-  if(this.error)
+  if(AssessmentSettingsBean.error)
       {
 	err=rb.getString("deliveryDate_error");
     context.addMessage(null,new FacesMessage(err));
@@ -1558,7 +1510,7 @@ public class AssessmentSettingsBean
   public SelectItem[] getGroupsForSite(){
       SelectItem[] groupSelectItems = new SelectItem[0];
       TreeMap sortedSelectItems = new TreeMap();
-      Site site = null;
+      Site site;
       try {
           site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
           Collection groups = site.getGroups();
@@ -1711,13 +1663,13 @@ public class AssessmentSettingsBean
 	}
 
 	/**
-	 * Popluate the select item list of extended time targets
+	 * Populate the select item list of extended time targets
 	 * 
 	 * @return
 	 */
 	public SelectItem[] initExtendedTimeTargets() {
 		SelectItem[] extTimeSelectItems = null;
-		Site site = null;
+		Site site;
 
 		try {
 			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
@@ -1727,9 +1679,8 @@ public class AssessmentSettingsBean
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
 
 			// Treemaps are used here because they auto-sort
-			TreeMap SectionTargets = new TreeMap<String, String>();
-			TreeMap groupTargets = new TreeMap<String, String>();
-			TreeMap studentTargets = new TreeMap<String, String>();
+			TreeMap groupTargets = new TreeMap<>();
+			TreeMap studentTargets = new TreeMap<>();
 
 			// Add groups to target set
 			if (groups != null && groups.size() > 0) {

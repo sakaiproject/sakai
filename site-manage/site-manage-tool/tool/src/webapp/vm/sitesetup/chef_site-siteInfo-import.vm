@@ -20,16 +20,16 @@
 			#foreach($site in $sites)
 			#set ($siteIDCounter = $siteIDCounter + 1)
 				#if ($!currentSite && ($site.Id != $!currentSite.Id))
-					<p class="checkbox indnt3">
-					<input type="checkbox" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
-						#if ($!importSiteList.containsKey($!site))
-							checked="checked"
-						#end
-					 />
+					<div class="checkbox">		
 						<label for="site_$siteIDCounter">
+							<input type="checkbox" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
+								#if ($!importSiteList.containsKey($!site))
+									checked="checked"
+								#end
+							 />
 							$validator.escapeHtml($site.getTitle())
 						</label>
-					</p>	
+					</div>	
 				#end
 			#end
 			<input type="hidden" name="back" value="$!backIndex" />

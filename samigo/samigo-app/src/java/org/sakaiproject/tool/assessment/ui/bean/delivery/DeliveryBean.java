@@ -1656,47 +1656,49 @@ public class DeliveryBean
 	  }
 	 
 	  EventLogService eventService = new EventLogService();
-	 	     EventLogFacade eventLogFacade = new EventLogFacade();
-	 	 
-	 	     List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
-	 	     EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
-	 	     eventLogData.setErrorMsg(eventLogMessages.getString("no_error"));
-	 	     Date endDate = new Date();
-	 	     eventLogData.setEndDate(endDate);
-	 	     if(endDate != null && eventLogData.getStartDate() != null) {
-	 	         double minute= 1000*60;
-	 	         int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
-	 	         eventLogData.setEclipseTime(Integer.valueOf(eclipseTime));
-	 	     } else {
-	 	         eventLogData.setEclipseTime(null);
-	 	         eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
-	 	     }
-	 	     eventLogFacade.setData(eventLogData);
-	 	 
-	 	     eventService.saveOrUpdateEventLog(eventLogFacade);
+ 	  EventLogFacade eventLogFacade = new EventLogFacade();
+ 	 
+ 	  List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+	  if(eventLogDataList != null && eventLogDataList.size() > 0) {
+	 	  EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+	 	  eventLogData.setErrorMsg(eventLogMessages.getString("no_error"));
+	 	  Date endDate = new Date();
+	 	  eventLogData.setEndDate(endDate);
+	 	  if(endDate != null && eventLogData.getStartDate() != null) {
+	 	      double minute= 1000*60;
+	 	      int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+	 	      eventLogData.setEclipseTime(Integer.valueOf(eclipseTime));
+	 	  } else {
+	 	      eventLogData.setEclipseTime(null);
+	 	      eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+	 	  }
+	 	  eventLogFacade.setData(eventLogData);
+	 	  eventService.saveOrUpdateEventLog(eventLogFacade);
+	  }
+	  notificationValues.put("assessmentGradingID", local_assessmentGradingID);
+	  notificationValues.put("userID", adata.getAgentId());
+	  notificationValues.put("submissionDate", getSubmissionDateString());
+	  notificationValues.put("publishedAssessmentID", adata.getPublishedAssessmentId());
 
-	 	     notificationValues.put("assessmentGradingID", local_assessmentGradingID);
-	 	     notificationValues.put("userID", adata.getAgentId());
-	 	     notificationValues.put("submissionDate", getSubmissionDateString());
-	 	     notificationValues.put("publishedAssessmentID", adata.getPublishedAssessmentId());
-
-	 	     EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notificationValues.toString(), AgentFacade.getCurrentSiteId(), true, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
+	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notificationValues.toString(), AgentFacade.getCurrentSiteId(), true, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
  
 	  return returnValue;
-	 }catch(Exception e) {
-		 EventLogService eventService = new EventLogService();
-		 EventLogFacade eventLogFacade = new EventLogFacade();
-		 EventLogData eventLogData = null;
+	  }
+	  catch(Exception e) {
+		  EventLogService eventService = new EventLogService();
+		  EventLogFacade eventLogFacade = new EventLogFacade();
+		  EventLogData eventLogData = null;
 
-		 List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
-		 if(eventLogDataList != null && eventLogDataList.size() > 0) {
-			 eventLogData= (EventLogData) eventLogDataList.get(0);
-			 eventLogData.setErrorMsg(eventLogMessages.getString("error_submit"));
-			 eventLogData.setEndDate(new Date());
-		 } 
-		 eventLogFacade.setData(eventLogData);
-		 eventService.saveOrUpdateEventLog(eventLogFacade);
-		 return null;
+		  List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+		  if(eventLogDataList != null && eventLogDataList.size() > 0) {
+			  eventLogData= (EventLogData) eventLogDataList.get(0);
+			  eventLogData.setErrorMsg(eventLogMessages.getString("error_submit"));
+			  eventLogData.setEndDate(new Date());
+			  eventLogFacade.setData(eventLogData);
+			  eventService.saveOrUpdateEventLog(eventLogFacade);
+		  } 
+
+		  return null;
 	 }
   }
   

@@ -40,17 +40,17 @@ public class SettingsGradeEntryPanel extends Panel {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				expanded = true;
+				SettingsGradeEntryPanel.this.expanded = true;
 			}
 		});
 		settingsGradeEntryPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				expanded = false;
+				SettingsGradeEntryPanel.this.expanded = false;
 			}
 		});
-		if (expanded) {
+		if (this.expanded) {
 			settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
 		}
 		add(settingsGradeEntryPanel);
@@ -59,12 +59,12 @@ public class SettingsGradeEntryPanel extends Panel {
 		final RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry",
 				new PropertyModel<Integer>(this.model, "gradebookInformation.gradeType"));
 		gradeEntry.add(new Radio<>("points", new Model<>(1)));
-		gradeEntry.add(new Radio<>("percentages", new Model<>(2)));
+		// gradeEntry.add(new Radio<>("percentages", new Model<>(2)));
 		settingsGradeEntryPanel.add(gradeEntry);
 
 	}
 
 	public boolean isExpanded() {
-		return expanded;
+		return this.expanded;
 	}
 }

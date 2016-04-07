@@ -1144,8 +1144,9 @@ div[role="dialog"] {
 .right-col {
  display: inline-block;
 }
-.multimediaType .right-col {
- width:100%;  /* for embedded video */
+/* types that need to span the full column */
+.multimediaType .right-col, .textType .right-col {
+ width:100%;
 }
 .right-col2 {
  left:5px;
@@ -1226,6 +1227,12 @@ color: #666;
 }
 .addbottom a {
    text-decoration: none;
+}
+
+/* if ckeditor overflows column, keep it on top, but under chat window */
+.evolved-box {
+  position:relative;
+  z-index:100002;
 }
 
 .right-col a {
