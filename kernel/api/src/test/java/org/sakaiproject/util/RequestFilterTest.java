@@ -4,23 +4,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.ClosingException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.security.Principal;
-import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -139,6 +137,22 @@ public class RequestFilterTest {
         verify(sessionManager).startSession();
     }
 
+    @Test
+    public void testAssureSessionShutdownExisting() {
+        // When we're in shutdown existing sessions continue to work.
+        setupCookieSession();
+        when(sessionManager.startSession()).thenThrow(new ClosingException());
+        filter.assureSession(request, response);
+    }
+
+    @Test(expected = ClosingException.class)
+    public void testAssureSessionShutdownNew() {
+        // When we're in shutdown new sessions are rejected.
+        when(sessionManager.startSession()).thenThrow(new ClosingException());
+        filter.assureSession(request, response);
+
+    }
+
     private void setupCookieSession() {
         Cookie cookie = mock(Cookie.class);
         when (cookie.getName()).thenReturn("JSESSIONID");
@@ -154,4 +168,5 @@ public class RequestFilterTest {
         when(sessionManager.makeSessionId(request, principal)).thenReturn("principalSession");
         when(sessionManager.getSession("principalSession")).thenReturn(session);
     }
+
 }
