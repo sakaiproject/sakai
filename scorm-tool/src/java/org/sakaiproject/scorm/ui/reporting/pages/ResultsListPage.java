@@ -98,6 +98,7 @@ public class ResultsListPage extends ConsoleBasePage {
 		super(pageParams);
 
 		final long contentPackageId = pageParams.getLong("contentPackageId");
+		final ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 
 		// SCO-94 - deny users who do not have scorm.view.results permission
 		String context = lms.currentContext();
@@ -119,7 +120,7 @@ public class ResultsListPage extends ConsoleBasePage {
 				File tempFile = null;
 				try
 				{
-					tempFile = File.createTempFile( "export", ".csv" );
+					tempFile = File.createTempFile( contentPackage.getTitle() + "_results", ".csv" );
 					InputStream data = new ByteArrayInputStream( generateExportCSV( dataProvider ).getBytes() );
 					Files.writeTo( tempFile, data );
 				}
@@ -131,7 +132,7 @@ public class ResultsListPage extends ConsoleBasePage {
 				return tempFile;
 			}
 		};
-		DownloadLink btnExport = new DownloadLink( "btnExport", fileModel, "export.csv" );
+		DownloadLink btnExport = new DownloadLink( "btnExport", fileModel, contentPackage.getTitle() + "_results.csv" );
 		btnExport.setDeleteAfterDownload( true );
 		add( btnExport );
 
@@ -146,8 +147,6 @@ public class ResultsListPage extends ConsoleBasePage {
 		{
 			// SCO-94
 			heading.setVisibilityAllowed( false );
-
-			ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 
 			addBreadcrumb(new Model(contentPackage.getTitle()), ResultsListPage.class, new PageParameters(), false);
 
