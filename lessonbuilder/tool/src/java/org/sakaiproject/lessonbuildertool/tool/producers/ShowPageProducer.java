@@ -462,10 +462,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// however this test is consistent with CKeditor's check.
 		// that desireable, since if CKeditor is going to use a bare
 		// text block, we want to handle it as noEditor
-		String userAgent = httpServletRequest.getHeader("User-Agent");
-		if (userAgent == null)
-		    userAgent = "";
-		boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
+		//   Update, Apr 7, 2016: CKeditor now works except for very old
+		// browser versions. from my reading of the code, it works except
+		// for IE < 7, Firefox < 5, Safari < 5.1. Sakai itself isn't supported
+		// for those versions, so I'm not going to bother to test.
+		//String userAgent = httpServletRequest.getHeader("User-Agent");
+		//if (userAgent == null)
+		//    userAgent = "";
+		//boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
+		boolean noEditor = false;
 
 		// set up locale
 		Locale M_locale = null;
