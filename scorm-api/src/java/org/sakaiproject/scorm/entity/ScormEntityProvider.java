@@ -52,4 +52,5 @@ public interface ScormEntityProvider extends EntityProvider
     public final static String SCORM_ENTITY_PROP_CONTENT_PACKAGE_ID = "contentPackageID";
     public final static String SCORM_ENTITY_PROP_RESOURCE_ID        = "resourceID";
     public final static String SCORM_ENTITY_PROP_TITLE              = "title";
+    public final static String SCORM_ENTITY_PROP_TITLE_ENCODED      = "titleEncoded";
 }
