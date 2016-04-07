@@ -34,16 +34,18 @@ public class ScormEntity implements Comparable<ScormEntity>
     private String contentPackageID;
     private String resourceID;
     private String title;
+    private String titleEncoded;
 
     // Constructors
     public ScormEntity() {}
-    public ScormEntity( String siteID, String toolID, String contentPackageID, String resourceID, String title )
+    public ScormEntity( String siteID, String toolID, String contentPackageID, String resourceID, String title, String titleEncoded )
     {
         this.siteID             = siteID;
         this.toolID             = toolID;
         this.contentPackageID   = contentPackageID;
         this.resourceID         = resourceID;
         this.title              = title;
+        this.titleEncoded       = titleEncoded;
     }
 
     @Override
@@ -58,6 +60,7 @@ public class ScormEntity implements Comparable<ScormEntity>
     public String getContentPackageID() { return this.contentPackageID; }
     public String getResourceID()       { return this.resourceID; }
     public String getTitle()            { return this.title; }
+    public String getTitleEncoded()     { return this.titleEncoded; }
     public String getID()
     {
         if( StringUtils.isNotBlank( toolID ) && StringUtils.isNotBlank( contentPackageID ) && StringUtils.isNotBlank( resourceID ) )
@@ -66,7 +69,7 @@ public class ScormEntity implements Comparable<ScormEntity>
                    toolID           + ScormEntityProvider.ENTITY_PARAM_DELIMITER + 
                    contentPackageID + ScormEntityProvider.ENTITY_PARAM_DELIMITER + 
                    resourceID       + ScormEntityProvider.ENTITY_PARAM_DELIMITER + 
-                   title;
+                   titleEncoded;
         }
         else
         {
@@ -80,4 +83,5 @@ public class ScormEntity implements Comparable<ScormEntity>
     public void setContentPackageID ( String contentPackageID ) { this.contentPackageID = contentPackageID; }
     public void setResourceID       ( String resourceID )       { this.resourceID = resourceID; }
     public void setTitle            ( String title )            { this.title = title; }
+    public void setTitleEncoded     ( String titleEncoded )     { this.titleEncoded = titleEncoded; }
 }

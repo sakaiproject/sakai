@@ -20,6 +20,8 @@
 package org.sakaiproject.scorm.entity;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -73,6 +75,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
     private static final String TOOL_LAUNCH_PERM            = "scorm.launch";
     private static final String TOOL_REG_NAME               = "sakai.scorm.tool";
     private static final String SCORM_PLAYER_PAGE_URL_PART  = "wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage";
+    private static final String URL_CHARACTER_ENCODING      = "UTF-8";
 
     // Instance members
     private final ResourceLoader resourceLoader = new ResourceLoader( "messages" );
@@ -348,6 +351,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
                 properties.put( SCORM_ENTITY_PROP_CONTENT_PACKAGE_ID, entity.getContentPackageID() );
                 properties.put( SCORM_ENTITY_PROP_RESOURCE_ID, entity.getResourceID() );
                 properties.put( SCORM_ENTITY_PROP_TITLE, entity.getTitle() );
+                properties.put( SCORM_ENTITY_PROP_TITLE_ENCODED, entity.getTitleEncoded() );
             }
         }
 
@@ -419,7 +423,17 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
                 String resourceID       = tokens[3];
                 String title            = tokens[4];
 
-                entity = new ScormEntity( siteID, toolID, contentPackageID, resourceID, title );
+                String titleEncoded = title;
+                try
+                {
+                    titleEncoded = URLEncoder.encode( title, URL_CHARACTER_ENCODING );
+                }
+                catch( UnsupportedEncodingException ex )
+                {
+                    LOG.warn( "Unable to encode SCORM entity title: " + title, ex );
+                }
+
+                entity = new ScormEntity( siteID, toolID, contentPackageID, resourceID, title, titleEncoded );
             }
             else
             {
@@ -477,7 +491,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
                      SCORM_PLAYER_PAGE_URL_PART + "&contentPackageId=" +
                      entity.getContentPackageID() + "&resourceId=" +
                      entity.getResourceID() + "&title=" +
-                     entity.getTitle();
+                     entity.getTitleEncoded();
         return url;
     }
 
