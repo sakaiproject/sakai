@@ -1228,6 +1228,12 @@ color: #666;
    text-decoration: none;
 }
 
+/* if ckeditor overflows column, keep it on top, but under chat window */
+.evolved-box {
+  position:relative;
+  z-index:100002;
+}
+
 .right-col a {
 color:inherit;
 }
