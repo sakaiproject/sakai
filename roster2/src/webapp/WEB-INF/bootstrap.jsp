@@ -26,7 +26,6 @@
         <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
         <link rel="stylesheet" type="text/css" href="/sakai-roster2-tool/css/roster.css" />
         <link rel="stylesheet" type="text/css" href="/library/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" />
-        <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.11.3/themes/smoothness/jquery-ui.min.css" />
 
         <script type="text/javascript">
 
@@ -54,7 +53,7 @@
     <body>
 
         <!-- wrap tool in portletBody div for PDA portal compatibility -->
-        <div class="portletBody">
+        <div class="portletBody container-fluid">
 
         <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
