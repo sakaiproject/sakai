@@ -597,14 +597,19 @@ GradebookSpreadsheet.prototype.handleScrollEvent = function() {
     var leftOffset = self.$horizontalOverflow.offset().left;
     var topOffset = Math.max(0, self.$table.offset().top - $(window).scrollTop());
 
+    self.$fixedColumnsHeader.css("position", "fixed");
+
     if (self.$horizontalOverflow[0].scrollLeft > 0 || self.$table.offset().top < $(window).scrollTop()) {
       if (self.$horizontalOverflow[0].scrollLeft > 0) {
         showFixedHeader = true;
       }
 
       if ($(window).scrollTop() + self.$fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
-        // don't change anything as we don't want the fixed header to scroll to below the table
-        topOffset = self.$fixedColumnsHeader.position().top;
+        // hard position the fixed column header just above the bottom of the
+        // table
+        topOffset = self.$table.height() - self.$fixedColumnsHeader.height() - 80;
+        leftOffset = 0;
+        self.$fixedColumnsHeader.css("position", "absolute");
         // except check for the horizontal scroll
         if (self.$horizontalOverflow[0].scrollLeft == 0) {
           showFixedHeader = true;
@@ -622,8 +627,9 @@ GradebookSpreadsheet.prototype.handleScrollEvent = function() {
   }
 
   function positionFixedHeader() {
-    if ($(window).scrollTop() + self.$fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
-      // don't change anything as we don't want the fixed header to scroll to below the table
+    if ($(window).scrollTop() + self.$fixedHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
+      // freeze the header just above the bottom of the table
+      self.$fixedHeader.css("top", self.$table.height() - self.$fixedHeader.height() - 80);
     } else if (self.$table.offset().top < $(window).scrollTop()) {
       var forceCategoryLabelRefresh = self.$fixedHeader.is(":not(:visible)");
 
