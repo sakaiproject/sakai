@@ -205,10 +205,10 @@ function handleReportsTriangleDisclosure(btn)
 										<span class="reportIcon">
 										
 										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
 										#else
 											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag flagStyle" style="color:$reviewResult.getReviewIconColor() !important"></i>
 											</a>
 										#end
 										</span>
@@ -216,6 +216,11 @@ function handleReportsTriangleDisclosure(btn)
 											$tlang.getString("submission.inline")
 										#else
 											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+										#if($reviewResult.getExternalGrade() && $assignment.getContent().AllowStudentViewExternalGrade)
+											<span style="font-style:italic !important">
+												($tlang.getString("gen.gra.ext") $reviewResult.getExternalGrade() / $maxPointsInt)
+											</span>
 										#end
 									</div>
 								#end

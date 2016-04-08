@@ -9,6 +9,14 @@
 	$(document).ready(function() {
 		ASN.setupAssignNew();
 		#if($turnitin_forceSingleAttachment)
+			var useReview = document.getElementById('$name_UseReviewService');
+			if(useReview.checked){
+				$("#subType > option").each(function(){
+					if($(this).val() != 5 && $(this).val() != 1){
+						$(this).prop('disabled', 'disabled');
+					}
+				});
+			}
 		 	$("#new_assignment_use_review_service").click(function (){
 		 		var checked = this.checked;
 		 		if(checked){
@@ -16,7 +24,7 @@
 		 		}
 		 		$("#subType > option").each(function(){
 		 			if(checked){
-		 				if($(this).val() != 5){
+		 				if($(this).val() != 5 && $(this).val() != 1){
 		 					$(this).prop('disabled', 'disabled');
 		 				}
 		 			}else{
@@ -577,7 +585,6 @@
 					#end
 					$tlang.getString("review.submit.papers.repository")
 					<br/>
-
 					<div class="radio">
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE))
 							<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE"))checked#end/>$tlang.getString("review.submit.papers.repository.none")<br/>
@@ -590,6 +597,29 @@
 						#end
 					</div>
 
+					<div class="checkbox">
+						#if ($!value_AllowStudentViewExternalGrade.equals("true"))
+							<input id="$name_AllowStudentViewExternalGrade" name="$name_AllowStudentViewExternalGrade" type="checkbox" value="true" checked="checked" />
+						#else
+							<input id="$name_AllowStudentViewExternalGrade" name="$name_AllowStudentViewExternalGrade" type="checkbox" value="true" />
+						#end
+						<label for="$name_AllowStudentViewExternalGrade">
+							$tlang.getString("review.allow.grades") 
+						</label>
+					</div>
+					<div class="checkbox">
+						#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE.equals("true"))			
+							<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" type="checkbox" value="true" checked="checked" />
+						#else
+							<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" type="checkbox" value="true" />
+						#end
+						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE">
+							$tlang.getString("review.originality.allow.any.file") 
+						</label>
+					</div>
+					<br/>
+
+					
 					<h4>
 						$tlang.getString("review.originality.reports")
 					</h4>

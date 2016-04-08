@@ -1,0 +1,11 @@
+<div>
+	<iframe 
+		id="ltiiframe"
+		style="width:99%;padding:0 !important; height:750px"
+		frameborder="0"
+		marginwidth="0"
+		marginheight="0"
+		src="$!ltiLink"
+		height="750px">
+	</iframe>
+</div>

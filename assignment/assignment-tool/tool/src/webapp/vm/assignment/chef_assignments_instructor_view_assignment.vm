@@ -208,6 +208,20 @@
 					#end
 				</td>
 			</tr>
+			#if($allowReviewService && $assignment.getContent().AllowReviewService)
+				<tr> 
+					<th>
+						$tlang.getString("content.review")
+					</th>
+					<td>
+						#if($!ltiLink)
+							<a href="$ltiLink" title="$tlang.getString("content.review.inbox")" target="_blank">$reviewServiceName</a>
+						#else
+							$reviewServiceName
+						#end
+					</td>
+				</tr>
+			#end
 		</table>
 		<h4>
 			$tlang.getString("gen.assinf")

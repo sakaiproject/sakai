@@ -588,6 +588,14 @@ public interface AssignmentService extends EntityProducer
 	 *        The AssignmentSubmissionEdit object to commit.
 	 */
 	public void commitEdit(AssignmentSubmissionEdit submission);
+	
+	/**
+	 * Method for allowing to commit TII properties into the Submission object
+	 * 
+	 * @param submission
+	 *        The AssignmentSubmissionEdit object to commit.
+	 */
+	public void commitEditFromCallback(AssignmentSubmissionEdit submission);
 
 	/**
 	 * Cancel the changes made to a AssignmentSubmissionEdit object, and release the lock. The AssignmentSubmissionEdit is disabled, and not to be used after this call.

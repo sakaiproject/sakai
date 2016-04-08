@@ -33,6 +33,16 @@ public class ContentReviewResult
 	 * The URL of the content review icon associated with this item
 	 */
 	private String reviewIconURL;
+	
+	/**
+	 * The URL of the content review color associated with this item
+	 */
+	private String reviewIconColor;
+	
+	/**
+	 *  Indicates whether the external grade for this submission is different than the assignments one
+	 */
+	private String externalGrade;
 
 	/**
 	 * An error string, if any, return from the review service
@@ -127,6 +137,38 @@ public class ContentReviewResult
 	public void setReviewIconURL(String reviewIconURL)
 	{
 		this.reviewIconURL = reviewIconURL;
+	}
+	
+	/**
+	 * Getter for the color of the content review icon associated with this item
+	 */
+	public String getReviewIconColor()
+	{
+		return reviewIconColor;
+	}
+
+	/**
+	 * Setter for the color of the content review icon associated with this item
+	 */
+	public void setReviewIconColor(String reviewIconColor)
+	{
+		this.reviewIconColor = reviewIconColor;
+	}
+
+	/**
+	 * Getter for the external grade
+	 */
+	public String getExternalGrade()
+	{
+		return externalGrade;
+	}
+
+	/**
+	 * Setter for the external grade
+	 */
+	public void setExternalGrade(String externalGrade)
+	{
+		this.externalGrade = externalGrade;
 	}
 
 	/**

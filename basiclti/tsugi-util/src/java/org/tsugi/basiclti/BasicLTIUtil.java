@@ -302,6 +302,8 @@ public class BasicLTIUtil {
 			String tool_consumer_instance_contact_email,
 			Map<String, String> extra) {
 
+		postProp = BasicLTIUtil.cleanupProperties(postProp);
+			
 		if ( postProp.get(LTI_VERSION) == null ) postProp.put(LTI_VERSION, "LTI-1p0");
 		if ( postProp.get(LTI_MESSAGE_TYPE) == null ) postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
 
@@ -1142,4 +1144,109 @@ public class BasicLTIUtil {
 	public static boolean equalsIgnoreCase(String str1, String str2) {
 		return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
 	}
+	
+	/**
+	 * Any properties which are not well known (i.e. in
+	 * {@link BasicLTIConstants#validPropertyNames}) will be mapped to custom
+	 * properties per the specified semantics. NOTE: no blacklisting of keys is
+	 * performed.
+	 * 
+	 * @param rawProperties
+	 *		  A set of properties that will be cleaned.
+	 * @return A cleansed version of rawProperties.
+	 */
+	public static Map<String, String> cleanupProperties(
+			final Map<String, String> rawProperties) {
+		return cleanupProperties(rawProperties, null);
+	}
+
+	/**
+	 * Any properties which are not well known (i.e. in
+	 * {@link BasicLTIConstants#validPropertyNames}) will be mapped to custom
+	 * properties per the specified semantics.
+	 * 
+	 * @param rawProperties
+	 *		  A set of properties that will be cleaned.
+	 * @param blackList
+	 *		  An array of {@link String}s which are considered unsafe to be
+	 *		  included in launch data. Any matches will be removed from the
+	 *		  return.
+	 * @return A cleansed version of rawProperties.
+	 */
+	public static Map<String, String> cleanupProperties(
+			final Map<String, String> rawProperties, final String[] blackList) {
+		final Map<String, String> newProp = new HashMap<String, String>(
+				rawProperties.size()); // roughly the same size
+		for (String okey : rawProperties.keySet()) {
+			final String key = okey.trim();
+			if (blackList != null) {
+				boolean blackListed = false;
+				for (String blackKey : blackList) {
+					if (blackKey.equals(key)) {
+						blackListed = true;
+						break;
+					}
+				}
+				if (blackListed) {
+					continue;
+				}
+			}
+			final String value = rawProperties.get(key);
+			if (value == null || "".equals(value)) {
+				// remove null or empty values
+				continue;
+			}
+			if (isSpecifiedPropertyName(key)) {
+				// a well known property name
+				newProp.put(key, value);
+			} else {
+				// convert to a custom property name
+				newProp.put(adaptToCustomPropertyName(key), value);
+			}
+		}
+		return newProp;
+	}
+
+	/**
+	 * Any properties which are not well known (i.e. in
+	 * {@link BasicLTIConstants#validPropertyNames}) will be mapped to custom
+	 * properties per the specified semantics.
+	 * 
+	 * @deprecated See {@link #cleanupProperties(Map)}
+	 * @param rawProperties
+	 *		  A set of {@link Properties} that will be cleaned. Keys must be of
+	 *		  type {@link String}.
+	 * @return A cleansed version of {@link Properties}.
+	 */
+	public static Properties cleanupProperties(final Properties rawProperties) {
+		final Map<String, String> map = cleanupProperties(
+				convertToMap(rawProperties), null);
+		return convertToProperties(map);
+	}
+
+	/**
+	 * Checks to see if the passed propertyName is equal to one of the Strings
+	 * contained in {@link BasicLTIConstants#validPropertyNames}. String matching
+	 * is case sensitive.
+	 * 
+	 * @param propertyName
+	 * @return true if propertyName is equal to one of the Strings contained in
+	 *		 {@link BasicLTIConstants#validPropertyNames} 
+	 *		 or is a custom parameter oe extension parameter ;
+	 *		 else return false.
+	 */
+	public static boolean isSpecifiedPropertyName(final String propertyName) {
+		boolean found = false;
+		if ( propertyName.startsWith(CUSTOM_PREFIX) ) return true;
+		if ( propertyName.startsWith(EXTENSION_PREFIX) ) return true;
+		if ( propertyName.startsWith(OAUTH_PREFIX) ) return true;
+		for (String key : BasicLTIConstants.validPropertyNames) {
+			if (key.equals(propertyName)) {
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
+
 }

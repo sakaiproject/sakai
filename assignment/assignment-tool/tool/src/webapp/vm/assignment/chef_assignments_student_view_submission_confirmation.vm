@@ -31,6 +31,15 @@
    <p class="alertMessage">$tlang.getString('confirm.submission.email.noEmailAddress')</p>	 
   #end	 
  #end
+	#if ($!usingreview && $!namenull)
+		<p class="alertMessage">$tlang.getFormattedMessage('review.user.name', $reviewServiceName)</p>
+	#end
+	#if ($!usingreview && $!lastnamenull)
+		<p class="alertMessage">$tlang.getFormattedMessage('review.user.lastname', $reviewServiceName)</p>
+	#end
+	#if ($!usingreview && $!mailnull)
+		<p class="alertMessage">$tlang.getFormattedMessage('review.user.email', $reviewServiceName)</p>
+	#end
 	<form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">
 		<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString('confirm.submission.title')">
 			## user

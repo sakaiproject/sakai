@@ -29,6 +29,7 @@
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
  		
  		<!--<property name="contentReviewService"><ref bean="org.sakaiproject.contentreview.service.ContentReviewService"/></property>-->
+		<!--<property name="contentReviewSiteAdvisor"><ref bean="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor"/></property>-->
  		
  		<!--use to allow group awareness option in assignments. 
  			By default this is true.-->

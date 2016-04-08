@@ -234,10 +234,10 @@
 										#set ($props = $reviewResult.getContentResource().Properties)
 										<span class="reportIcon">
 										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
 										#else
 											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag flagStyle" style="color:$reviewResult.getReviewIconColor() !important"></i>
 											</a>
 										#end
 										</span>
@@ -245,6 +245,11 @@
 											$tlang.getString("submission.inline")
 										#else
 											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+										#if($reviewResult.getExternalGrade() && $assignment.getContent().AllowStudentViewExternalGrade)
+											<span style="font-style:italic !important">
+												($tlang.getString("gen.gra.ext") $reviewResult.getExternalGrade() / $maxPointsInt)
+											</span>
 										#end
 									</div>
 								#end
@@ -530,6 +535,18 @@
 										#end
 										</label>
 										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" /> <span class="text-info">($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+										#if($allowReviewService && $assignment.getContent().AllowReviewService && $submission.isExternalGradeDifferent())
+											#set($reviewResultsExt=$submission.ContentReviewResults)
+											#if ($reviewResultsExt.size() == 1)
+												#foreach ($reviewResultExt in $reviewResultsExt)
+													#if ($reviewResultExt.getExternalGrade())
+														<span style="font-style:italic !important" class="instruction">
+															($tlang.getString("gen.gra.ext") $reviewResultExt.getExternalGrade())
+														</span>
+													#end
+												#end
+											#end
+										#end
 										
 										<!--for grading via an external scoring service, if enabled for the associated gradebook item -->
 										#if($scoringComponentEnabled)
