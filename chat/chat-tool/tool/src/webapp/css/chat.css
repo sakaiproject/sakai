@@ -69,6 +69,18 @@ h3 {
    float:left;
    clear:none;
 }
+
+.exclude{
+    font-weight: bold !important;
+}
+.jsfFormTable input[type='text']{
+    margin: 0 10px 0 10px;
+}
+
+.chat-select-date img{
+    vertical-align: middle !important;
+}
+
 .presence {
    height: calc(20em);
 }
