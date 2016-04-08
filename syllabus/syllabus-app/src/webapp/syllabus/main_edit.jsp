@@ -228,7 +228,7 @@
 				  	<h:commandLink action="#{SyllabusTool.processListNew}" 
 				  		styleClass="actionLink" 
 				  		onmousedown="assignWarningClick(this);"
-					    rendered="#{SyllabusTool.addIteme == 'true'}">
+					    rendered="#{SyllabusTool.addItem == 'true'}">
 					    	<h:outputText value="#{msgs.bar_new}"/>
 					</h:commandLink>
 				<f:verbatim></span></li></f:verbatim>
