@@ -228,6 +228,24 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		// get Sections
 		Map<String, List> termsToSites = new HashMap<String, List>();
 		Map<String, List> tabsMoreTerms = new TreeMap<String, List>();
+		
+		//SAK-30712
+		boolean moresitesExternalConfig = Boolean.parseBoolean(serverConfigurationService.getString("moresites.externalConfig","false"));
+		Map<String, String> moresitesExternalSiteTypes = new HashMap<String, String>();
+		if (moresitesExternalConfig)
+		{
+			String[] moresitesExternalSites = serverConfigurationService.getStrings("moresites.externalConfig.siteTypes");
+			String[] moresitesExternalKeys = serverConfigurationService.getStrings("moresites.externalConfig.propertyKeys");
+			if (moresitesExternalSites.length!=moresitesExternalKeys.length) moresitesExternalConfig=false;
+			else
+			{
+				for (int i=0;i<moresitesExternalSites.length;i++)
+				{
+					moresitesExternalSiteTypes.put(moresitesExternalSites[i], moresitesExternalKeys[i]);
+				}
+			}
+		}
+		
 		for (int i = 0; i < allSites.size(); i++)
 		{
 			Site site = allSites.get(i);
@@ -236,7 +254,11 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			String type = site.getType();
 			String term = null;
 
-			if (isCourseType(type))
+			if (moresitesExternalConfig && moresitesExternalSiteTypes.containsKey(type))
+			{
+				term = rb.getString(moresitesExternalSiteTypes.get(type));
+			}
+			else if (isCourseType(type))
 			{
 				term = siteProperties.getProperty("term");
 				if(null==term) {
