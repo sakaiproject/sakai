@@ -348,7 +348,7 @@
     </managed-property>
     <managed-property>
       <property-name>showExtendedMatchingItems</property-name>
-      <value>true</value>
+      <value>false</value>
     </managed-property>
     <managed-property>
       <property-name>selectFromQuestionBank</property-name>
