@@ -4460,7 +4460,7 @@ public class DiscussionForumTool
 	  GradebookService gradebookService = getGradebookService();
 	  if (gradebookService == null) return;
 	  
-	  Assignment assignment = gradebookService.getAssignment(gradebookUid, gradebookUid);
+	  Assignment assignment = gradebookService.getAssignment(gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
 	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
