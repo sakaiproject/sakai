@@ -33,6 +33,7 @@ public interface LessonBuilderAccessAPI {
     public HttpAccess getHttpAccess();
     public void setToolApi(ToolApi t);
     public String loadCartridge(File f, String d, String siteId);
+    public String deleteOrphanPages(String siteId);
     
 }
 

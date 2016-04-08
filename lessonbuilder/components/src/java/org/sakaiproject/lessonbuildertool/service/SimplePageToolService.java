@@ -91,6 +91,11 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 	    return toolApi.loadCartridge(f, d, siteId);
 	}
 
+	public String deleteOrphanPages(String siteId) {
+	    log.info("deleteOrphanPages in simplepagetoolservice " + siteId);
+	    return toolApi.deleteOrphanPages(siteId);
+	}
+
 	public SimplePageToolService() {}
 
 	public void init() {

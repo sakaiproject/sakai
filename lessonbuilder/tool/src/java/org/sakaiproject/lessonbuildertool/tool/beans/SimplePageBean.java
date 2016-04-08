@@ -2719,7 +2719,7 @@ public class SimplePageBean {
 		return "permission-failed";
 
 	    String siteId = getCurrentSiteId();
-
+	    log.debug("Found "+ selectedEntities.length + " pages to delete");
 	    for (int i = 0; i < selectedEntities.length; i++) {
 		deletePage(siteId, Long.valueOf(selectedEntities[i]));
 		if ((i % 10) == 0) {

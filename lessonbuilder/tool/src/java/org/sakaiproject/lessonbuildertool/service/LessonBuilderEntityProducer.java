@@ -2081,6 +2081,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    }
 
     }
+    
+    public String deleteOrphanPages(String siteId) {
+    	SimplePageBean spb = makeSimplePageBean(siteId);
+    	return spb.deleteOrphanPages();
+    }
 
     SimplePageBean makeSimplePageBean(String siteId) {
 	SimplePageBean simplePageBean = new SimplePageBean();
