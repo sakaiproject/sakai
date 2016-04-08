@@ -1,17 +1,13 @@
-# Morpheus update
+# Morpheus for Sakai
 
-## New folder structure
+Morpheus (Mobile Optimized Responsive Portal for Higher Education Using Sass) is the new responsive design portal (the primary UI) which will be available in Sakai 11 (and is in a preview state for Sakai 10). The neo portal is the portal which was developed and released for Sakai 2.9. Before that the portal was known as the Charon portal.
 
-We have thought about a new folder and files structure for Morpheus (beyond the user experience), 
-
-This structure is more developer friendly than it was. In the SASS folder structure we have:
-
-- Some base styles (like *tool_base.css*)
-- The files actually are getting compiled by SASS (portal, tool and access) in the root folder
-- A customization file which has the variables to change Morpheus appearance: Typography, colors, menu sizes or logos.
-
-Inside */modules/* folder, we have added a folder for every tool that we desire to compile inside the Morpheus CSS. You can use Morpheus customization variables or not in your own tool, of course.
-
-## More information about morpheus:
+## Documentation about morpheus:
+ - [Technologies](./technologies.md) [Spanish version](./technologies.es.md)
+ - [Folder structure and files](./folder-structure.md) [Spanish version](./folder-structure.es.md)
  - [Compiling my own skin with maven](./compile-skin.md)
  - [Adding a tool to Morpheus](./customization-tool.md)
+
+## Fixing methods for tools
+
+There's a confluence page created to help developers to approach fixing tools. Maybe want to read it [https://confluence.sakaiproject.org/display/QA/How+can+I+fix+a+tool+in+Morpheus]
