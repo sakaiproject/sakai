@@ -174,7 +174,7 @@
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
   </div>
-</div>
+
 
 <p class="act">
 
