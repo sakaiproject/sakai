@@ -1169,7 +1169,9 @@ GradebookSpreadsheet.prototype.refreshHiddenVisualCue = function() {
 GradebookSpreadsheet.prototype.showCategoryScoreColumn = function(category) {
   var headerModel = this._CATEGORY_DATA[category].scoreHeaderModel;
   headerModel.show();
-  this.$table.find("> tbody > tr > *:eq("+headerModel.$cell.index()+")").show();
+  this.$table.find("> tbody > tr").each(function(i, row) {
+    $(row).find("> *:eq("+headerModel.$cell.index()+")").show();
+  });
   this.refreshWidth();
 };
 
@@ -1177,7 +1179,9 @@ GradebookSpreadsheet.prototype.showCategoryScoreColumn = function(category) {
 GradebookSpreadsheet.prototype.hideCategoryScoreColumn = function(category) {
   var headerModel = this._CATEGORY_DATA[category].scoreHeaderModel;
   headerModel.hide();
-  this.$table.find("> tbody > tr > *:eq("+headerModel.$cell.index()+")").hide();
+  this.$table.find("> tbody > tr").each(function(i, row) {
+    $(row).find("> *:eq("+headerModel.$cell.index()+")").hide();
+  });
   this.refreshWidth();
 };
 
