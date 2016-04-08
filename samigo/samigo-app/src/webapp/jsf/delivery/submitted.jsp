@@ -127,6 +127,8 @@ window.close();
 
 </div>
 
+<p><h:outputText value="#{delivery.receiptEmailSetting} #{deliveryMessages.receiptEmail_changeSetting}" escape="false" /></p>
+
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}" action="select"

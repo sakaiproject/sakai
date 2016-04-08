@@ -10,13 +10,14 @@
     Student             : ${userName} (${userDisplayID})
     Submission ID       : ${assessmentGradingID}
     Submitted on        : ${submissionDate}
+    Confirmation Number : ${confirmationNumber}
 
     Assessment Due Date : ${assessmentDueDate}
     Site ID             : ${siteID}
 
 ---
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
-Control what email notifications you receive at My Workspace -> Preferences -> Notifications
+${changeSettingInstructions}
         </message>
         <messagehtml>&lt;pre&gt;
 The following assessment auto submission was recorded by Isidore:
@@ -27,13 +28,14 @@ The following assessment auto submission was recorded by Isidore:
     Student             : ${userName} (${userDisplayID})
     Submission ID       : ${assessmentGradingID}
     Submitted Date      : ${submissionDate}
+    Confirmation Number : ${confirmationNumber}
 
     Assessment Due Date : ${assessmentDueDate}
     Site ID             : ${siteID}
 
 ---
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
-Control what email notifications you receive at My Workspace -&gt; Preferences -&gt; Notifications
+${changeSettingInstructions}
 &lt;/pre&gt;
         </messagehtml>
         <version>1</version>

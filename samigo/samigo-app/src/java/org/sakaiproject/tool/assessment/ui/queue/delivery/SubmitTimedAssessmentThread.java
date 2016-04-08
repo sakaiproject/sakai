@@ -52,14 +52,14 @@ import java.util.ResourceBundle;
 public class SubmitTimedAssessmentThread extends TimerTask
 {
 
-  private static Log log = LogFactory.getLog(SubmitTimedAssessmentThread.class);
-  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+  private static final Log log = LogFactory.getLog(SubmitTimedAssessmentThread.class);
+  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   
   public SubmitTimedAssessmentThread(){}
 
   public void run(){
     log.debug("run!!");
-    ArrayList<TimedAssessmentGradingModel> removeTimedAGList = new ArrayList<TimedAssessmentGradingModel>();
+    ArrayList<TimedAssessmentGradingModel> removeTimedAGList = new ArrayList<>();
     // get the queue, go through the queue till it is empty     
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     Iterator iter = queue.iterator();
@@ -80,7 +80,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
           // set all the properties right and persist status to DB
           GradingService service = new GradingService();
           AssessmentGradingData ag = service.load(timedAG.getAssessmentGradingId().toString(), false);
-          if (!ag.getForGrade().booleanValue()) {
+          if (!ag.getForGrade()) {
             // Change user id for the Gradebook update (if required) and so the event is associated with the correct userid
             Session s = SessionManager.getCurrentSession();
             if (s != null) {
@@ -88,7 +88,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
             }
 
             ag.setForGrade(Boolean.TRUE);
-            ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
+            ag.setTimeElapsed(timedAG.getTimeLimit());
             ag.setStatus(AssessmentGradingData.SUBMITTED); // this will change status 0 -> 1
             ag.setIsLate(islate(ag.getPublishedAssessmentId()));
 	    Date submitDate = new Date();
@@ -106,10 +106,10 @@ public class SubmitTimedAssessmentThread extends TimerTask
           EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
           eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
           eventLogData.setEndDate(submitDate);
-          if(submitDate != null && eventLogData.getStartDate() != null) {
+          if(eventLogData.getStartDate() != null) {
         	  double minute= 1000*60;
         	  int eclipseTime = (int)Math.ceil(((submitDate.getTime() - eventLogData.getStartDate().getTime())/minute));
-        	  eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
+        	  eventLogData.setEclipseTime(eclipseTime); 
           } else {
         	  eventLogData.setEclipseTime(null); 
         	  eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
@@ -122,12 +122,17 @@ public class SubmitTimedAssessmentThread extends TimerTask
 
             EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
-            Map<String, Object> notiValues = new HashMap<String, Object>();
+            Map<String, Object> notiValues = new HashMap<>();
 
             notiValues.put("assessmentGradingID", ag.getAssessmentGradingId());
             notiValues.put("userID", ag.getAgentId());
             notiValues.put("submissionDate", submitDate.toString());
             notiValues.put("publishedAssessmentID", ag.getPublishedAssessmentId());
+
+            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment( ag.getPublishedAssessmentId().toString() );
+            String confirmationNumber = ag.getAssessmentGradingId() + "-" + publishedAssessment.getPublishedAssessmentId() + "-"
+                                            + ag.getAgentId() + "-" + ag.getSubmittedDate().toString();
+            notiValues.put( "confirmationNumber", confirmationNumber );
 
             EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
             notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
