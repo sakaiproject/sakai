@@ -87,15 +87,6 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
-				if (settings == null) {
-					settings = new GradebookUiSettings();
-					gradebookPage.setUiSettings(settings);
-				}
-
-				if (settings.getCategoryColor(categoryName) == null) {
-					settings.setCategoryColor(categoryName, gradebookPage.generateRandomRGBColorString());
-					gradebookPage.setUiSettings(settings);
-				}
 
 				final Label categoryLabel = new Label("category", categoryName);
 				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName)));

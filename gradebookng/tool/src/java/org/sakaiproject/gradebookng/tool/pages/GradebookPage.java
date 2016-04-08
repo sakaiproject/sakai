@@ -625,6 +625,8 @@ public class GradebookPage extends BasePage {
 		if (settings == null) {
 			settings = new GradebookUiSettings();
 			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
+			settings.setCategoryColors(this.businessService.getGradebookCategories());
+			setUiSettings(settings);
 		}
 
 		return settings;
@@ -655,21 +657,6 @@ public class GradebookPage extends BasePage {
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
-	}
-
-	/**
-	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
-	 */
-	public String generateRandomRGBColorString() {
-		final Random rand = new Random();
-		final int min = 180;
-		final int max = 250;
-
-		final int r = rand.nextInt((max - min) + 1) + min;
-		final int g = rand.nextInt((max - min) + 1) + min;
-		final int b = rand.nextInt((max - min) + 1) + min;
-
-		return String.format("rgb(%d,%d,%d)", r, g, b);
 	}
 
 	/**
