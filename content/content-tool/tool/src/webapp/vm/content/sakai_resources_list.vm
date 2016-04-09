@@ -182,7 +182,7 @@
     <div class="container-fluid">
       <div class="row">
     		#if($listActions || $showHotDropboxWidget)
-    				<div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group">
+    				<div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group" style="padding-left:0;">
     					#if($listActions)
     							#set ($itemsOnLine = 0)
     							#foreach($key in $listActions.keySet())
@@ -213,7 +213,7 @@
     					#end
     				</div>
     		#end
-        <div class="col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right">
+        <div class="col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right;padding-right:0">
             #if($showHotDropboxWidget)
               <label for="dropboxHighlight" class="hidden-sm hidden-xs">
                   <small>$clang.getString("dropbox_highlight")</small>
