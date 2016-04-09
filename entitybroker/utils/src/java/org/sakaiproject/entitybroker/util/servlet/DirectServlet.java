@@ -148,11 +148,11 @@ public abstract class DirectServlet extends HttpServlet {
         // catch the login helper posts
         String option = req.getPathInfo();
         if (option != null) {
-			final String[] parts = option.split("/");
-			if ((parts.length == 2) && ((parts[1].equals("login")))) {
-				handleUserLogin(req, res, null);
-			}
-		}
+            final String[] parts = option.split("/");
+            if ((parts.length == 2) && ((parts[1].equals("login")))) {
+                handleUserLogin(req, res, null);
+            }
+        }
         dispatch(req, res);
     }
 
