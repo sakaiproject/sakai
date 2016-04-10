@@ -19,8 +19,9 @@ import lombok.Setter;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
- * DTO for storing data in the session so that state is preserved between requests. Things like filters and ordering go in here and are
- * persisted whenever something is set.
+ * DTO for storing data in the session so that state is preserved between
+ * requests. Things like filters and ordering go in here and are persisted
+ * whenever something is set.
  *
  * They are then retrieved on the GradebookPage load and passed around.
  *
@@ -67,6 +68,8 @@ public class GradebookUiSettings implements Serializable {
 
 	/**
 	 * For sorting based on coursegrade
+	 *
+	 * TODO this could be its own class to bring it in to line with the others
 	 */
 	@Getter
 	@Setter
@@ -80,7 +83,8 @@ public class GradebookUiSettings implements Serializable {
 	private Boolean showPoints;
 
 	public GradebookUiSettings() {
-		// defaults. Note there is no default for assignmentSortOrder as that requires an assignmentId which will differ between gradebooks
+		// defaults. Note there is no default for assignmentSortOrder as that
+		// requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
 		this.assignmentVisibility = new HashMap<Long, Boolean>();
 		this.categoryScoreVisibility = new HashMap<String, Boolean>();
@@ -90,7 +94,8 @@ public class GradebookUiSettings implements Serializable {
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {
-		return (this.assignmentVisibility.containsKey(assignmentId)) ? this.assignmentVisibility.get(assignmentId) : true;
+		return (this.assignmentVisibility.containsKey(assignmentId)) ? this.assignmentVisibility.get(assignmentId)
+				: true;
 	}
 
 	public void setAssignmentVisibility(final Long assignmentId, final Boolean visible) {
