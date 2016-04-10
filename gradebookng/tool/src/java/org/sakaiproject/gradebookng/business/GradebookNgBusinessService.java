@@ -969,6 +969,7 @@ public class GradebookNgBusinessService {
 		if (settings.getCourseGradeSortOrder() != null) {
 			final CourseGradeComparator comparator = new CourseGradeComparator();
 			comparator.setGradebook(gradebook);
+			comparator.setSettings(settings);
 
 			// sort
 			Collections.sort(items, comparator);
@@ -2046,14 +2047,22 @@ public class GradebookNgBusinessService {
 		@Setter
 		private Gradebook gradebook;
 
+		@Setter
+		private GradebookUiSettings settings;
+
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
+
+			// gradebook and settings are now in the comparator so we can use
+			// them
+
+			// we are going to need a GbCourseGrade to wrap the course grade and
+			// the display string so that we
+			// ca calculate it once then just compare here
 
 			// GbCourseGradeLabel.buildCourseGrade will need to be moved
 			// somewhere shared so we can use it
 			// and have everything passed to it
-			// everyhting might need to be first passed to this comparator so we
-			// can then pass it on to build the course grade for each
 
 			// final Double subtotal1 =
 			// g1.getCategoryAverages().get(this.categoryId);
