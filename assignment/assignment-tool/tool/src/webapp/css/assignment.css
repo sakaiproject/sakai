@@ -124,7 +124,7 @@ a.toggleAnchor > h3 {
 .assignmentAttachRadio
 {
     margin: 2px;
-    height: 2.5em;
+    padding: 0 1em;
 }
 
 .assignmentAttachRadio input, .assignmentAttachRadio img, .assignmentAttachRadio span
