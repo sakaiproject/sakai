@@ -75,7 +75,7 @@
                 <div id="typeSpinner" class="allocatedSpinPlaceholder"></div>
             </legend>
             <h:selectOneRadio id="typeTable" value="#{sectionBean.type}" layout="pageDirection" valueChangeListener="#{sectionBean.toggleAuthorType}"
-                       onclick="SPNR.insertSpinnerInPreallocated( null, null, 'typeSpinner' );this.form.onsubmit();document.forms[0].submit();"
+                       onclick="SPNR.insertSpinnerInPreallocated( this, null, 'typeSpinner' );this.form.onsubmit();document.forms[0].submit();"
                        onkeypress="this.form.onsubmit();document.forms[0].submit();" 
                        disabled="#{!author.isEditPendingAssessmentFlow}" disabledClass="inactive">
                 <f:selectItems value="#{sectionBean.authorTypeList}" />
@@ -145,12 +145,12 @@
         </fieldset>
 
   <p class="act">
-     <h:commandButton value="#{commonMessages.action_save}" type="submit" 
+     <h:commandButton value="#{commonMessages.action_save}" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );"
        styleClass="active" action="#{sectionBean.getOutcome}" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener" />
      </h:commandButton>
-     <h:commandButton value="#{commonMessages.cancel_action}" style="act" immediate="true" action="editAssessment" >
+     <h:commandButton value="#{commonMessages.cancel_action}" style="act" immediate="true" action="editAssessment" onclick="SPNR.disableControlsAndSpin( this, null );" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetPartAttachmentListener" />
         <f:actionListener

@@ -15,7 +15,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class UpdateRandomPoolQuestionsListener  implements ActionListener{
 	public void processAction(ActionEvent arg0) throws AbortProcessingException {
 		String sectionId = (String) FacesContext.getCurrentInstance()
-		.getExternalContext().getRequestParameterMap().get("assesssmentForm:randomQuestionsSectionId");
+		.getExternalContext().getRequestParameterMap().get("assessmentForm:randomQuestionsSectionId");
 
 		AssessmentService assessmentService = new AssessmentService();
 		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(new Long(sectionId));

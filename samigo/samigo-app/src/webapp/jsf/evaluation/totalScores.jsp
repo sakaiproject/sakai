@@ -37,7 +37,8 @@
 			{
 				background-color: #f1f1f1;
 			}
-		</style> 
+		</style>
+        <script src="/library/js/spinner.js" type="text/javascript"></script>
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/javascript">
@@ -192,7 +193,7 @@ $(document).ready(function(){
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
   <h:panelGroup styleClass="col-md-6" layout="block">
     <h:panelGroup styleClass="apply-grades" layout="block" rendered="#{totalScores.allSubmissions!='4'}">
-	  <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit">
+	  <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
       </h:commandButton>
       <h:outputText value="&#160;" escape="false" />

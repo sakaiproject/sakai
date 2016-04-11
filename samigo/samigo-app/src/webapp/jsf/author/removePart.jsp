@@ -31,6 +31,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.remove_p_conf}" /></title>
+      <script src="/library/js/spinner.js" type="text/javascript"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -62,11 +63,10 @@
      </h:panelGrid>
  </h:panelGrid>
    <p class="act">
-      <h:commandButton type="submit" value="#{commonMessages.remove_action}" action="removePart" styleClass="active">
+      <h:commandButton type="submit" value="#{commonMessages.remove_action}" action="removePart" styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" >
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePartListener" />
       </h:commandButton>
-       <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
-         action="editAssessment" />
+      <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="editAssessment" onclick="SPNR.disableControlsAndSpin( this, null );" />
    </p>
  </h:form>
  <!-- end content -->
