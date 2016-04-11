@@ -30,10 +30,17 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
-<script type="text/JavaScript">
-<%@ include file="/js/samigotree.js" %>
-</script>
+          <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
+          <script type="text/JavaScript">
+              <%@ include file="/js/samigotree.js" %>
+          </script>
+          <script type="text/javascript">
+              function flagFolders() {
+                  collapseAllRows();
+                  flagRows();
+              }
+              window.onload = flagFolders;
+          </script>
       </head>
 <body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>;disabledButton()">
  <div class="portletBody container-fluid">
