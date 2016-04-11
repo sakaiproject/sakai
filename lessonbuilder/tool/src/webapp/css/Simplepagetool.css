@@ -1555,6 +1555,20 @@ body > .portletBody > .action {
    of any video players or other embedded content. That requires larger values for some
    elements of Morpheus. */
 
-#Mrphs-footerApp__chat, .Mrphs-userNav__subnav {
+/* directURL popup */
+nav.Mrphs-container--toolTitleNav {
+        z-index: 100001 !important;
+}
+/* menu off user icon, site menu in narrow, site menu in  wide mode */
+.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal {
         z-index: 100002 !important;
+	position:relative;
+}
+/* chat open button */
+#Mrphs-footerApp__chat {
+        z-index: 100003 !important;
+}
+/* actual portal chat */
+.Mrphs-portalChat {
+        z-index: 100004 !important;
 }
