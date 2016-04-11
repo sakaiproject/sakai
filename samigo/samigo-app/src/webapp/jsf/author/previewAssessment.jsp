@@ -48,7 +48,7 @@
 <div class="portletBody">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
-<h:form id="assesssmentForm">
+<h:form id="assessmentForm">
 
 <h:messages styleClass="messageSamigo" layout="table"/>
 
