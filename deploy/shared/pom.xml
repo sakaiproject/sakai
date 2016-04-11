@@ -56,9 +56,9 @@
         <!-- required by a number of projects.  Job scheduler shared-deploy now deploys it -->
         <!--
         <dependency>
-            <groupId>org.opensymphony.quartz</groupId>
+            <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <version>1.6.6</version>
+            <version>${sakai.quartz.version}</version>
             <scope>compile</scope>
         </dependency>
         -->
