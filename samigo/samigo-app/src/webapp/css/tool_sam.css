@@ -1027,6 +1027,64 @@ div.collapsed {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 
+
+/*	Tiers for Question Pool Table */
+
+#questionpool .tier0,
+#editform .tier0 {
+	margin-left: 0  !important;
+}
+
+#questionpool .tier1,
+#editform .tier1 {
+	margin-left: 1em  !important;
+}
+
+#questionpool .tier2,
+#editform .tier2 {
+	margin-left: 2em  !important;
+}
+
+#questionpool .tier3,
+#editform .tier3{
+	margin-left: 3em  !important;
+}
+
+#questionpool .tier4,
+#editform .tier4{
+	margin-left: 4em  !important;
+}
+
+#questionpool .tier5,
+#editform .tier5{
+	margin-left: 5em  !important;
+}
+
+#questionpool .tier6,
+#editform .tier6{
+	margin-left: 6em  !important;
+}
+
+#questionpool .tier7,
+#editform .tier7{
+	margin-left: 7em  !important;
+}
+
+#questionpool .tier8,
+#editform .tier8{
+	margin-left: 8em  !important;
+}
+
+#questionpool .tier9,
+#editform .tier9{
+	margin-left: 9em  !important;
+}
+
+#questionpool .tier10,
+#editform .tier10{
+	margin-left: 10em  !important;
+}
+
 ul.groupList {
     display: block;
     list-style-type: disc;
@@ -1231,3 +1289,4 @@ input[type='reset'].linearButton {
 div.eventLogPagerContainer {
 	margin: 1em 0;
 }
+

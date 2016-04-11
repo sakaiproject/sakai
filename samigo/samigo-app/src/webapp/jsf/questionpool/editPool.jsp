@@ -47,6 +47,13 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
+          <script type="text/javascript">
+              function flagFolders() {
+                  collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);
+                  flagRows();
+              }
+              window.onload = flagFolders;
+          </script>
       </head>
 
 <f:verbatim><body onload="disableIt();checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
