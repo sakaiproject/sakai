@@ -15,53 +15,19 @@
 
     <packaging>jar</packaging>
 
-    <profiles>
-        <profile>
-            <id>sakai2.9</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property><name>sakai2.9</name></property>
-            </activation>
-
-            <dependencies>
-                <dependency>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.opensymphony.quartz</groupId>
-                    <artifactId>quartz</artifactId>
-                    <version>${sakai.quartz.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>sakai-10</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-                <property><name>sakai-10</name></property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.quartz-scheduler</groupId>
-                    <artifactId>quartz</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-core</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-jdbc</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        </profiles>
     <dependencies>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
         <!-- project dependencies -->
         <dependency>
             <groupId>org.sakaiproject.delegatedaccess</groupId>
