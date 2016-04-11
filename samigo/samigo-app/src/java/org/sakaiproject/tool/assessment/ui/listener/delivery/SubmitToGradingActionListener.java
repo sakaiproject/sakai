@@ -838,7 +838,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			else{
-				handleMarkForReview(grading, adds);
+				updateItemGradingData(grading, adds);
 			}
 			break;
 
@@ -916,6 +916,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 	return ret;
    }
 
+    private void updateItemGradingData(List<ItemGradingData> grading, HashSet<ItemGradingData> adds){
+        for (int m = 0; m < grading.size(); m++) {
+          ItemGradingData itemgrading = grading.get(m);
+          if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0)  {
+        	  adds.add(itemgrading);
+          }
+        }
+      }
+    
     private void handleMarkForReview(List<ItemGradingData> grading, HashSet<ItemGradingData> adds){
       for (int m = 0; m < grading.size(); m++) {
         ItemGradingData itemgrading = grading.get(m);
