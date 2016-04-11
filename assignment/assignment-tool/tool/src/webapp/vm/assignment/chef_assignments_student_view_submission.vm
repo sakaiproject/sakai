@@ -875,7 +875,7 @@ $(document).ready(function(){
 						#end
 					#end
 
-					<div class="assignmentAttachRadio assignmentAttachmentHighlight spinnerBesideContainer">
+					<div class="assignmentAttachRadio assignmentAttachmentHighlight">
 						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="ASN.highlightSelectedAttachment(); ASN.enableSubmitUnlessNoFile(true);" checked />
 						<span>
 							#set($attachment = $newSingleUploadedFile)
