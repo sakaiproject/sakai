@@ -39,6 +39,8 @@ var dhtml_view_sites = function(){
           modal.css('top', topPosition).css('left', $PBJQ('body').outerWidth() - rightPosition );
         }
       }
+      
+      modal.toggleClass('outscreen');
 
       var paneHeight = $PBJQ(window).height();
 
@@ -50,7 +52,6 @@ var dhtml_view_sites = function(){
 
       $PBJQ('.tab-pane').css('max-height', paneHeight);
 
-      modal.toggleClass('outscreen');
 
       $PBJQ('#txtSearch').focus();
       createDHTMLMask(dhtml_view_sites);
