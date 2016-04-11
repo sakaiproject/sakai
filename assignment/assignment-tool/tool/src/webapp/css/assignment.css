@@ -175,6 +175,10 @@ a.toggleAnchor > h3 {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 
+.collapse{
+    display: block !important;
+}
+
 label.disabled {
     color: #aaa;
 }
