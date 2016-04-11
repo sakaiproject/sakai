@@ -8,6 +8,10 @@
 		vertical-align: top;
 	}
 	
+	input[type="checkbox"] + label{
+        display: inline;
+    }
+	
 	.itemSummary {
 		@media #{$phone}{
 			th, td.header{
