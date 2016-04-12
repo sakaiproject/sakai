@@ -82,7 +82,7 @@ function hiddenLinkOnClick(){
 </script>
 
 <!-- content... -->
-<div class="portletBody container">
+<div class="portletBody container-fluid">
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{questionScores.publishedId}" />
   <h:inputHidden id="itemId" value="#{questionScores.itemId}" />
