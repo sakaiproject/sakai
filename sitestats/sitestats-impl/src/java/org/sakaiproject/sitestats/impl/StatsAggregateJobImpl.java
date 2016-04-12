@@ -135,7 +135,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 	// ################################################################
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		String result = null;
-		String jobName = context.getJobDetail().getFullName();
+		String jobName = context.getJobDetail().getKey().getName();
 		
 		// ABORT if job is currently running in this cluster node.
 		//  -> Required as StatefullJob is only correctly supported in trunk!
