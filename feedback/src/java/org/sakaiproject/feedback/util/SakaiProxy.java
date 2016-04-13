@@ -342,4 +342,8 @@ public class SakaiProxy {
     public Locale getLocale() {
         return rb.getLocale();
     }
+
+    public String getServerName() {
+        return serverConfigurationService.getServerName();
+    }
 }
