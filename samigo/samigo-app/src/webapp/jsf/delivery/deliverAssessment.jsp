@@ -168,9 +168,9 @@
 		<div id="time-due-warning" style="display:none;text-align:center" >
 				<h:outputText value="#{deliveryMessages.time_due_warning_1}" escape="false"/>
 				<br/><br />
-				<button type="button"><h:outputText value="#{deliveryMessages.button_submit}" escape="false"/></button>
+				<button type="button" onclick="clickSubmit();"><h:outputText value="#{deliveryMessages.button_submit}" escape="false"/></button>
 				<br /><br />	
-				<a href="#"><h:outputText value="<u>#{deliveryMessages.link_do_not_submit}</u>" escape="false"/></a>
+				<a href="#" onclick="clickDoNotSubmit();"><h:outputText value="<u>#{deliveryMessages.link_do_not_submit}</u>" escape="false"/></a>
 				<br /><br />
 				<h:outputText value="#{deliveryMessages.time_due_warning_2}" escape="false"/>
 				<br /><br />
