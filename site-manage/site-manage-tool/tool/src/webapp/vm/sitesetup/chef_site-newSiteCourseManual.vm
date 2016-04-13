@@ -1,5 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourseManual.vm,v 1.4 2005/06/03 14:08:16 gsilver.umich.edu Exp $ -->
-<div class="portletBody">
+<div class="portletBody container-fluid">
 
 	## bjones86 - SAK-23255
 	#if( $isAdmin || !$skipManualCourseCreation )
@@ -22,16 +22,16 @@
 			<input type="hidden" name="option" id="option" value="add" />
 			<input type="hidden" name="eventSubmit_doManual_add_course" value="x" />
 			#if ($!site && ($!providerCourseList.size() > 0 || $!manualCourseList.size()>0 ))
-				<p class="instruction">
+				<p>
 				$tlang.getString("nscourse.already")
 				</p>
 				#foreach($id in $!providerCourseTitles)
-					<p class="indnt2">
+					<p class="step">
 						$id
 					</p>
 				#end
 				#foreach($id in $!manualCourseList)
-					<p class="indnt2">
+					<p class="step">
 						$id $tlang.getString("man.requested")
 					</p>
 				#end
@@ -43,7 +43,7 @@
 								</p>
 							#end
 				#end
-				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p>
+				<p>$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p>
 				<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
 					#foreach ($item in $!selectedProviderCourseTitles.keySet())
 						<tr>
@@ -104,7 +104,7 @@
 						$tlang.getString("man.enter2") <span class="reqStarInline">*</span> $tlang.getString("man.means")
 					#end
 				</p>
-				<table  class="listHier lines nolines"  style="width:50%" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString("man.list.summary")">
+				<table  class="listHier lines nolines"  style="width:100%;max-width: 500px" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString("man.list.summary")">
 					<tr>
 						#set($bound = $!form_requiredFields.size())
 						#set($bound = $bound - 1)
@@ -167,24 +167,28 @@
 				</div>
 				#if (!$!isFutureTerm)
 				  #if ($requireAuthorizer)
-					<div class="shorttext required">
-						<label for="uniqname">
+					<div class="shorttext required  form-group row">
+						<label for="uniqname"  class="col-sm-3 form-control-label">
                             <span class="reqStar">*</span>
 						   $tlang.getString("man.authoriz")
 						</label>
-						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname"  aria-describedby="uniquenameins"/>
+						<div class="col-sm-6">
+							<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname"  aria-describedby="uniquenameins"/>
+						</div>
 					</div>
-					<p class="labelindnt instruction"  id="uniquenameins">
-					   $tlang.getString("man.email")
+					<p class="labelindnt">
+					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext">
-						<label for="additional" class="block">
+					<div class="shorttext form-group row">
+						<label for="additional" class="block col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>
-						<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual" aria-describedby="additionalinst">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						<div class="col-sm-6">
+							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual" aria-describedby="additionalinst">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						</div>
 					</div>
-					<p  class="instruction labelindnt" id="additionalinst">
-						$tlang.getString("man.please")
+					<p  class="labelindnt">
+						<span class="textPanelFooter">$tlang.getString("man.please")</span>
 					</p>
 					#else 
 					  <input type="hidden" name="uniqname"  value="admin" />

@@ -209,9 +209,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // mp4 means it plays with the flash player if HTML5 doesn't work.
     // flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
     // Strobe claims to handle MOV files as well, but I feel safer passing them to quicktime, though that requires Quicktime installation
-        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v,audio/mpeg,audio/mp3";
+        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v,audio/mpeg,audio/mp3,video/x-m4v";
         private static String[] mp4Types = null;
-        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac,audio/mp3";
+        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac,audio/mp3,video/x-m4v";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] html5Types = null;
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
@@ -462,10 +462,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// however this test is consistent with CKeditor's check.
 		// that desireable, since if CKeditor is going to use a bare
 		// text block, we want to handle it as noEditor
-		String userAgent = httpServletRequest.getHeader("User-Agent");
-		if (userAgent == null)
-		    userAgent = "";
-		boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
+		//   Update, Apr 7, 2016: CKeditor now works except for very old
+		// browser versions. from my reading of the code, it works except
+		// for IE < 7, Firefox < 5, Safari < 5.1. Sakai itself isn't supported
+		// for those versions, so I'm not going to bother to test.
+		//String userAgent = httpServletRequest.getHeader("User-Agent");
+		//if (userAgent == null)
+		//    userAgent = "";
+		//boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
+		boolean noEditor = false;
 
 		// set up locale
 		Locale M_locale = null;
@@ -1887,10 +1892,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 boolean isAudio = mimeType.startsWith("audio/");
                                 UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
                                 UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
-                                if (lengthOk(height) && height.getOld().indexOf("%") < 0)
-                                h5video.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
-                                if (lengthOk(width) && width.getOld().indexOf("%") < 0)
-                                h5video.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+				// HTML5 spec says % isn't legal in width, so have to use style
+                                if (lengthOk(height))
+                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + height.getNew()));
+                                if (lengthOk(width))
+                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + width.getNew()));
                                 h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
                                 decorate(new UIFreeAttributeDecorator("type", mimeType));
 				String caption = i.getAttribute("captionfile");

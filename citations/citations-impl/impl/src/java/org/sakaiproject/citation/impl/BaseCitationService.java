@@ -4811,7 +4811,6 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
-	    typedef.addAction(makeSitePageAction);
 	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);

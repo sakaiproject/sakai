@@ -50,6 +50,12 @@
       <samigo:script path="/js/authoring.js"/>        
 
       <script type="text/javascript">
+      if (needJQuery) {
+         document.write('\x3Clink href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css?version=" rel="stylesheet">');
+      }
+      </script>
+
+      <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
           $("#jqueryui-accordion").accordion({ heightStyle: "content", collapsible: true, active: 1 });
@@ -341,7 +347,7 @@
   </h:panelGroup>
 
   <!-- SUBMISSION EMAILS -->
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.instructorNotification_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.instructorNotification}" />
     <div class="col-md-10">
       <t:selectOneRadio id="notificationEmailChoices" value="#{publishedSettings.instructorNotification}" layout="spread">

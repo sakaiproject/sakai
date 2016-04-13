@@ -134,43 +134,11 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     public void init () {
 	assessmentCache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
-	String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
 
-	// the samigo distributed with 2.8 final has the link
-	boolean defaultEditLink = false;
-	int cle = 2;
-	int major = 6;
-	int minor = 0;
-	if (sakaiVersion != null) {
-	    String []parts = sakaiVersion.split("\\.");
-	    if (parts.length >= 1) {
-		try {
-		    cle = Integer.parseInt(parts[0]);
-		} catch (Exception e) {
-		};
-	    }
-	    if (parts.length >= 2) {
-		try {
-		    String[] s = parts[1].split("\\D");
-		    major = Integer.parseInt(s[0]);
-		} catch (Exception e) {
-		};
-	    }
-	    // may be something like 2.8.1-foo, so must terminate on non-digit
-	    if (parts.length >= 3) {
-		try {
-		    String[] s = parts[2].split("\\D");
-		    minor = Integer.parseInt(s[0]);
-		} catch (Exception e) {
-		};
-	    }
-	    // samigo starting with 2.8.1 has the edit link
-	    if (cle > 2 || (cle == 2 && (major == 8 && minor > 0 || major > 8)))
-		defaultEditLink = true;
-	}
-	System.out.println("SamigoEntity thinks this is Sakai verison " + cle + "." + major + "." + minor + ", defaulting Samigo edit link to " + defaultEditLink);
 
-	samigo_linked = ServerConfigurationService.getBoolean("lessonbuilder.samigo.editlink", defaultEditLink);
+
+	samigo_linked = ServerConfigurationService.getBoolean("lessonbuilder.samigo.editlink", true);
+	System.out.println("SamigoEntity edit link " + samigo_linked);
 
 	log.info("init()");
 

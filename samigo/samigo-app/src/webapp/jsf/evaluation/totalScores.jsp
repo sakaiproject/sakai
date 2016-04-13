@@ -37,7 +37,8 @@
 			{
 				background-color: #f1f1f1;
 			}
-		</style> 
+		</style>
+        <script src="/library/js/spinner.js" type="text/javascript"></script>
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/javascript">
@@ -78,6 +79,20 @@ function disableIt()
     }
   }
 }
+
+$(document).ready(function(){
+  $("a.sam-scoretable-deleteattempt").each(function(){
+    this.existingOnclick = this.onclick;
+    this.onclick = null;
+    $(this).click(function(){
+      if ( confirm("Are you sure you want to delete this attempt?") ) {
+        this.existingOnclick();
+      } else {
+        return false;
+      }
+    });
+  });
+});
 </script>
 </head>
 <body onload="disableIt();<%= request.getAttribute("html.body.onload") %>">
@@ -178,7 +193,7 @@ function disableIt()
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
   <h:panelGroup styleClass="col-md-6" layout="block">
     <h:panelGroup styleClass="apply-grades" layout="block" rendered="#{totalScores.allSubmissions!='4'}">
-	  <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit">
+	  <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
       </h:commandButton>
       <h:outputText value="&#160;" escape="false" />
@@ -286,6 +301,30 @@ function disableIt()
   <!-- note that we will have to hook up with the back end to get N at a time -->
 <div class="table-responsive">
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
+
+	<!-- Add Submission Attempt Deleter-->
+	<h:column rendered="true">
+     <f:facet name="header">
+       <h:outputText value="Delete" rendered="true" />
+     </f:facet>
+     <h:panelGroup> <span class="tier2">
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+
+       <h:commandLink styleClass="sam-scoretable-deleteattempt" title="delete attempt" action="totalScores" immediate="true" rendered="true" >
+         <h:outputText value="X" rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.GrantSubmissionListener" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+</span>
+     </h:panelGroup>
+    </h:column>
     
     <!-- NAME/SUBMISSION ID -->
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType ne 'lastName'}">

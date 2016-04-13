@@ -5,6 +5,18 @@
 @import "_chat_variables";
 
 .Mrphs-{
+	&sakai-chat{
+		#chatLeft{
+			textarea{
+				width: 100%;
+			}
+		}
+		.chatListMonitor{
+			border: 1px solid #000;
+			font-size: 0.9em;
+			padding: 0.5em;
+		}
+	}
 	&footerApp{
 		&__presence, &__portalChat{
 		    background-color: $footerApp__chat__header__background;

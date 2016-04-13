@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -104,6 +105,10 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			Collections.sort(categoryNames);
 		}
 
+		WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
+		toggleActions.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+		add(toggleActions);
+
 		// output all of the categories
 		// within each we then add the assignments in each category
 		add(new ListView<String>("categoriesList", categoryNames) {
@@ -115,8 +120,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 				final List<Assignment> categoryAssignments = categoryNamesToAssignments.get(categoryName);
 
-				categoryItem.add(new Label("category", categoryName));
-				categoryItem.add(new Label("categoryGrade", categoryAverages.get(categoryName)));
+				WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
+				categoryRow.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+				categoryItem.add(categoryRow);
+				categoryRow.add(new Label("category", categoryName));
+				categoryRow.add(new Label("categoryGrade", categoryAverages.get(categoryName)));
 
 				String categoryWeight = "";
 				if (!categoryAssignments.isEmpty()) {
@@ -125,7 +133,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						categoryWeight = FormatHelper.formatDoubleAsPercentage(weight * 100);
 					}
 				}
-				categoryItem.add(new Label("categoryWeight", categoryWeight));
+				categoryRow.add(new Label("categoryWeight", categoryWeight));
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
 					private static final long serialVersionUID = 1L;
@@ -136,6 +144,10 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 						if (!assignment.isReleased()) {
 							assignmentItem.setVisible(false);
+						}
+
+						if (StudentGradeSummaryGradesPanel.this.configuredCategoryType == GbCategoryType.NO_CATEGORY) {
+							assignmentItem.add(new AttributeAppender("class", " gb-no-categories"));
 						}
 
 						final GbGradeInfo gradeInfo = grades.get(assignment);

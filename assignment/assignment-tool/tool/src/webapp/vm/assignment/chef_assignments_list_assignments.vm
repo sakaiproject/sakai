@@ -48,7 +48,7 @@
 	<div class="navPanel">
 		#if ($allowAddAssignment)
 			#if (!$!view.equals('stuvie'))
-			<div class="viewNav">
+			<div class="col-md-8">
 				<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<div class="spinnerBesideContainer">
@@ -65,16 +65,18 @@
 				</form>
 			</div>
 			#else
-				<div class="viewNav" style="width:50%">
+				<div class="col-md-8">
 				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div>
 			</div>
 			#end
 		#else
-			<div class="viewNav">
+			<div class="col-md-8">
 				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
 			</div>
 		#end
-		#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+		<div class="col-md-4">
+			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+		</div>
 	</div>
 
 	<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
@@ -82,6 +84,9 @@
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
+					<th id="attachments" class="attach"> 
+						&nbsp;
+					</th>				
 					<th id="title">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
@@ -212,6 +217,24 @@
 					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
+							<td headers="attachments" class="attach">
+								#set ($attachments = $assignmentContent.getAttachments())
+								#set ($size = 0)
+								#set ($props = false)
+								#if (!$!attachments.isEmpty())
+									#foreach ($attachment in $attachments)
+										#set ($props = $attachment.Properties) 
+										#if ($!props)
+											#set ($size = $size + 1)
+										#end
+									#end
+								#end
+								#if ($size > 0)
+									<i class="icon-sakai-clip"></i>
+								#else
+									&nbsp;
+								#end
+							</td>						
 							<td headers="title">
 									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
 										<h4>

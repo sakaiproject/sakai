@@ -81,6 +81,7 @@
     <property name="timedAssessment" type="integer" column="TIMEDASSESSMENT" not-null="false" />
     <property name="retryAllowed" type="integer" column="RETRYALLOWED" not-null="false" />
     <property name="lateHandling" type="integer" column="LATEHANDLING" not-null="false" />
+    <property name="instructorNotification" type="integer" column="INSTRUCTORNOTIFICATION" not-null="false" />
     <property name="startDate" type="timestamp" column="STARTDATE" not-null="false" />
     <property name="dueDate" type="timestamp" column="DUEDATE" not-null="false" />
     <property name="scoreDate" type="timestamp" column="SCOREDATE" not-null="false" />

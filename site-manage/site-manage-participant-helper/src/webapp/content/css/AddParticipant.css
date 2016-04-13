@@ -1,0 +1,9 @@
+input[type="radio"] + label{
+	overflow:auto;
+    display:block;	
+}
+
+input[type="radio"]{
+    float:left;
+    margin-right:10px !important;
+}

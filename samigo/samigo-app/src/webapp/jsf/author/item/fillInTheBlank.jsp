@@ -78,7 +78,7 @@
 <%-- 1 POINTS --%>
 <div class="tier2">
   <div class="shorttext"><h:outputLabel value="#{authorMessages.answer_point_value}" />
-  <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
+  <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
     <f:validateDoubleRange minimum="0.00"/>
   </h:inputText>
  <br/>  <h:message for="answerptr" styleClass="validate"/>
@@ -164,6 +164,22 @@
 <h:outputText value="#{authorMessages.mutually_exclusive_example}" escape="false"/>
 </h:panelGroup>
 </h:panelGrid>
+
+    <h:panelGrid columns="1">
+        <h:panelGroup>
+            <h:selectBooleanCheckbox value="#{itemauthor.currentItem.ignoreSpacesForFib}">
+            </h:selectBooleanCheckbox>
+            <h:outputText value="#{authorMessages.ignore_spaces}" escape="false"/>
+        </h:panelGroup>
+        <h:panelGroup>
+            <h:outputText value="&nbsp;&nbsp;" escape="false"/>
+            <h:outputText value="#{authorMessages.ignore_spaces_note}" escape="false"/>
+        </h:panelGroup>
+        <h:panelGroup>
+            <h:outputText value="&nbsp;&nbsp;" escape="false"/>
+            <h:outputText value="#{authorMessages.ignore_spaces_example}" escape="false"/>
+        </h:panelGroup>
+    </h:panelGrid>
 </div>
 
   <!-- 2a ATTACHMENTS -->

@@ -15,6 +15,7 @@ var delete_orphan_enabled = true;
 
 $(window).load(function () {
 	window.onbeforeunload = null;
+	fixupHeights();
 });
 
 function msg(s) {
@@ -1389,11 +1390,11 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_assessment"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + escape(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_quiz"));
 					$("#edit-item-settings-p").show();
 					$("#edit-item-settings").attr("href", 
-						$("#edit-item-settings").attr("href").replace(/(source=).*?(&)/, '$1' + escape(editsettingsurl) + '$2'));
+						$("#edit-item-settings").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editsettingsurl) + '$2'));
 					$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
 
 				}else if (type === '8'){
@@ -1403,7 +1404,7 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_forum"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + escape(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_topic"));
 
 				}else if (type === 'b'){
@@ -1429,7 +1430,7 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_assignment"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + escape(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_assignment"));
 
 				}
@@ -2615,6 +2616,10 @@ function openDropdown(dropDiv, button) {
     hideMultimedia();
     dropDiv.dialog('open');
     dropDiv.find("a").first().focus();
+    if (addAboveItem === '')
+	dropDiv.find(".addContentMessage").show();
+    else
+	dropDiv.find(".addContentMessage").hide();
     return false;
 }
 
@@ -2959,9 +2964,15 @@ function fixupColAttrs() {
 	});
 };
 
-$(window).load(fixupHeights);
-
+// called twice, once at page load, once after all comments are loaded.
+// depending upon content one or the other may be first, so there's no way to
+// be sure without doing it both times
 function fixupHeights() {
+    // if CSS is going to treat this as narrow device, don't need to match columns,
+    // because they are stacked vertically
+    if (window.matchMedia("only screen and (max-width: 800px)").matches) {
+	return;
+    }
     $(".section").each(function(index) {
 	    var max = 0;
 	    // reset to auto to cause recomputation. This is needed because

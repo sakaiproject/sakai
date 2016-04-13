@@ -172,7 +172,7 @@
           </div>
         #end
           ## SAK-23350
-        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" style="text-align: right">
           <p><small class="muted">$tlang.getString("dropbox.privacy.note")</small></p>
         </div>
       </div>
@@ -182,7 +182,7 @@
     <div class="container-fluid">
       <div class="row">
     		#if($listActions || $showHotDropboxWidget)
-    				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group">
+    				<div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group" style="padding-left:0;">
     					#if($listActions)
     							#set ($itemsOnLine = 0)
     							#foreach($key in $listActions.keySet())
@@ -213,12 +213,12 @@
     					#end
     				</div>
     		#end
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right">
+        <div class="col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right;padding-right:0">
             #if($showHotDropboxWidget)
-              <label for="dropboxHighlight" class="hidden-sm hidden-xs visible-md-block visible-lg-block">
+              <label for="dropboxHighlight" class="hidden-sm hidden-xs">
                   <small>$clang.getString("dropbox_highlight")</small>
               </label>
-              <select class="form-control input-sm" name="dropboxHighlight" id="dropboxHighlight" onchange="document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
+              <select class="form-control " name="dropboxHighlight" id="dropboxHighlight" onchange="document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
                   <option value="1"#if("$!dropboxHighlight" == "1") selected="selected"#end>$clang.getString("sh.1day")</option>
                   <option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>$clang.getString("sh.2day")</option>
                   <option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>$clang.getString("sh.3day")</option>
@@ -479,7 +479,7 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
-                            <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                            <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>

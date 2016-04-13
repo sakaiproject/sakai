@@ -2,10 +2,10 @@
 	<span class="instruction rosterTitleMessage">{{translate 'title_msg'}}</span>
 {{/if}}
 
-<div class="roster-table">
-    <div class="roster-table-row">
-        <div class="roster-table-cell">{{translate 'groups'}}</div>
-        <div class="roster-table-cell">
+<div class="row">
+    <div class="form-group col-sm-6">
+        <label for="roster-groups-selector-top" class="form-control-label col-sm-3">{{translate 'groups'}}</label>
+        <div class="col-sm-4">
             <select id="roster-groups-selector-top">
                 <option value="all">{{translate 'roster_sections_all'}}</option>
                 {{#each siteGroups}}
@@ -14,39 +14,38 @@
             </select>
         </div>
     </div>
-    <div class="roster-table-row">
-        <div class="roster-table-cell">{{translate 'roles_label'}}</div>
-        <div class="roster-table-cell">
-            <select id="roster-roles-selector">
-                <option value="all">{{translate 'roster_sections_all'}}</option>
-                {{#each roles}}
-                <option id="roster-role-option-{{this}}" value="{{this}}">{{this}}</option>
-                {{/each}}
-            </select>
-        </div>
+    <div class="form-group col-sm-6">        
+            <label for="roster-roles-selector" class="form-control-label col-sm-2">{{translate 'roles_label'}}</label>
+            <div class="col-sm-4">
+                <select id="roster-roles-selector">
+                    <option value="all">{{translate 'roster_sections_all'}}</option>
+                    {{#each roles}}
+                    <option id="roster-role-option-{{this}}" value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
     </div>
 </div>
 
-<table id="roster_form:search_group" class="searchFilter">
-	<tbody>
-		<tr>
-			<td>
-				<div id="roster_form:search_filter" class="act">
-					<input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" name="roster_form_search" />
-					<input id="roster-search-button" class="active" type="button" value="{{translate 'roster_search_button'}}" name="roster_form:search_button" />
-					<input id="roster_form_clear_button" type="button" value="{{translate 'roster_clear_button'}}" name="roster_form:clear_button" />
-				</div>
-			</td>
-            <td>
-                <span class="instruction">
-                    <div id="roster-members-total" class="rosterRoleTopLine">{{membersTotal}}</div>
-                    <div id="roster-role-totals" class="rosterRoleBottomLine">({{roleFragments}})</div>
-                </span>
-            </td>
-		</tr>
-	</tbody>
-</table>
-<div id="roster_type_selector">
+<div id="roster_form:search_group" class="row">
+    <div class="form-group col-sm-6">
+        <label for="roster-search-field" class="form-control-label col-sm-3">{{translate 'roster_search_text'}}</label>
+        <div class="col-sm-9">
+            <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" name="roster_form_search" />
+            <input id="roster-search-button" class="active" type="button" value="{{translate 'roster_search_button'}}" name="roster_form:search_button" />
+            <input id="roster_form_clear_button" type="button" value="{{translate 'roster_clear_button'}}" name="roster_form:clear_button" />		
+        </div>	
+     </div>
+</div>
+
+<div id="summary" class="row">
+    <span>
+        <div id="roster-members-total" class="rosterRoleTopLine">{{membersTotal}}</div>
+        <div id="roster-role-totals" class="rosterRoleBottomLine">({{roleFragments}})</div>
+    </span>	
+</div>
+
+<div id="roster_type_selector" class="row">
     {{#if viewOfficialPhoto}}
     <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {{#if checkOfficialPicturesButton}}checked{{/if}}/><span>{{translate 'roster_show_official_pictures'}}</span>
     <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {{#unless checkOfficialPicturesButton}}checked{{/unless}}/><span>{{translate 'roster_show_profile_pictures'}}</span>

@@ -890,10 +890,10 @@ ASN.toggleAutoAnnounceOptions = function(checked){
     var section = document.getElementById("selectAutoAnnounceOptions");
     if(checked){
         section.style.display="block";
-        resizeFrame('grow');
+        ASN.resizeFrame('grow');
     }else{
         section.style.display="none";
-        resizeFrame('shrink');
+        ASN.resizeFrame('shrink');
     }
 };
 
@@ -915,7 +915,7 @@ ASN.setupPeerReviewAttachment = function(){
             }
         }
         $('.cloned a').show();
-        resizeFrame('grow');
+        ASN.resizeFrame('grow');
     });
     var notifyDeleteControl = function(){
         $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
@@ -940,3 +940,22 @@ ASN.submitPeerReviewAttachment = function(id, action)
         theForm.submit();
     }
 };
+
+
+ASN.handleReportsTriangleDisclosure = function (header, content)
+{
+    var headerSrc = header.src;
+    var expand = "/library/image/sakai/expand.gif";
+    var collapse = "/library/image/sakai/collapse.gif";
+    if (headerSrc.indexOf(expand) !== -1)
+    {
+        header.src = collapse;
+        content.removeAttribute("style");
+        ASN.resizeFrame();
+    }
+    else if (headerSrc.indexOf(collapse) !== -1)
+    {
+        header.src = expand;
+        content.style.display = "none";
+    }
+}

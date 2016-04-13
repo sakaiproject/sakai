@@ -271,18 +271,17 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .mainList {
 }
 
+/* padding-top 35 for one col, 25 for multiple, 20 in narrow screen */
 .column {
     margin: 7px 15px;
     padding: 15px 7px;
+    padding-top: 25px;
     list-style:none;
-    background-color: #f6f6f6;
     background-color: white;
-    border-left: solid #c8c8c8 1px;
-    border-right: solid #c8c8c8 1px;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;
     border-radius: 7px;
-    border: 1px solid #ccc;
+    border: 1px solid #222;
     display:inline-block;
     vertical-align: top;
 }
@@ -345,6 +344,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     width: calc(200% / 2 - 17px) !important;
 }
 .cols1 {
+    padding-top:35px;
     width: calc(100% - 17px) !important;
 }
 /* this is to prevent the last column from going to a new
@@ -818,6 +818,12 @@ ul#toolbar li em {
     padding-left: 7px !important;
     display:block;
 }
+.addContentMessage {
+    margin-top:10px;
+    margin-bottom:20px;
+    padding: 10px !important;
+    display:block;
+}
 .dropDownDiv li:first-child {
     border-top:none !important;
 }
@@ -1051,9 +1057,6 @@ div[role="dialog"] {
 .action {
   margin-top:5px;
 }			      
-.Mrphs-toolTitleNav .Mrphs-toolTitleNav__button_container {
-  top:-10px !important;
-}
 .Mrphs-siteHierarchy {
     height: auto !important;
 }
@@ -1141,8 +1144,9 @@ div[role="dialog"] {
 .right-col {
  display: inline-block;
 }
-.multimediaType .right-col {
- width:100%;  /* for embedded video */
+/* types that need to span the full column */
+.multimediaType .right-col, .textType .right-col {
+ width:100%;
 }
 .right-col2 {
  left:5px;
@@ -1225,6 +1229,12 @@ color: #666;
    text-decoration: none;
 }
 
+/* if ckeditor overflows column, keep it on top, but under chat window */
+.evolved-box {
+  position:relative;
+  z-index:100002;
+}
+
 .right-col a {
 color:inherit;
 }
@@ -1277,6 +1287,20 @@ font-size: 90%;
   margin-bottom:-30px !important;
 }
 
+/* for ShowItem */
+.itemHeader {
+  margin-bottom:20px; 
+  border-bottom:solid black 1px
+}
+.itemTitle {
+  line-height:10px;
+  margin-top:35px;
+  margin-bottom:5px;
+}
+/* without this it sticks up 1px into the top bar */
+.portletBody {
+  margin-top:2px;
+}
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
 .Mrphs-container--toolTitleNav {
@@ -1292,12 +1316,18 @@ font-size: 90%;
 .itemclass {
   margin-top: 0.5em !important;
 }
+.itemTitle {
+  width: calc(100% - 100px);
+  padding-top:0px;
+  margin-top:10px;
+}
 .removeNarrow {
  display:none !important;
 }
 .column {
   margin-left: 2px;
   margin-right: 2px;
+  padding-top: 20px;
 }
 .right-col {
   padding-left: 7px;
@@ -1392,14 +1422,6 @@ font-size: 90%;
   padding-top: 1px;
   padding-left: 10px;
   padding-right: 10px;
-}
-/* for ShowItem */
-.itemHeader {
-  margin-bottom:20px; 
-  border-bottom:solid black 1px
-}
-.itemTitle {
-  margin-top:10px
 }
 .startupHelp {
   margin-top: 20px;
@@ -1533,6 +1555,20 @@ body > .portletBody > .action {
    of any video players or other embedded content. That requires larger values for some
    elements of Morpheus. */
 
-#Mrphs-footerApp__chat, .Mrphs-userNav__subnav {
+/* directURL popup */
+nav.Mrphs-container--toolTitleNav {
+        z-index: 100001 !important;
+}
+/* menu off user icon, site menu in narrow, site menu in  wide mode */
+.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal {
         z-index: 100002 !important;
+	position:relative;
+}
+/* chat open button */
+#Mrphs-footerApp__chat {
+        z-index: 100003 !important;
+}
+/* actual portal chat */
+.Mrphs-portalChat {
+        z-index: 100004 !important;
 }

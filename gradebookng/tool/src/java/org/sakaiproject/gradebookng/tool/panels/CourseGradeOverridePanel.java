@@ -157,6 +157,11 @@ public class CourseGradeOverridePanel extends Panel {
 					target.addChildren(form, FeedbackPanel.class);
 				}
 			}
+
+			@Override
+			public boolean isVisible() {
+				return StringUtils.isNotBlank(formModel.getObject());
+			}
 		};
 		revertLink.setDefaultFormProcessing(false);
 		form.add(revertLink);

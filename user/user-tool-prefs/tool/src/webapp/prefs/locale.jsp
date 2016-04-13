@@ -71,7 +71,8 @@
 				
     			 <h:selectOneListbox 
                       value="#{UserPrefsTool.selectedLocaleString}"
-                      size="20">
+                      size="20"
+                      styleClass="multiLine">
 				    <f:selectItems value="#{UserPrefsTool.prefLocales}" />
 				 </h:selectOneListbox>
 			    <div class="act">

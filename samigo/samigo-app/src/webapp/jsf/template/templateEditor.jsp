@@ -302,6 +302,7 @@
     </h:selectOneRadio>
     </h:panelGroup>
     </h:panelGrid>
+          </div>
 
 <!-- Display Scores -->
       <div class="longtext"><h:outputLabel value="#{templateMessages.displayScores}"/></div>
@@ -310,7 +311,7 @@
      
         <h:selectBooleanCheckbox id="displayScores"
           value="#{template.valueMap.displayScores_isInstructorEditable}"/>
-        <h:outputLabel for="numbering" value="#{templateMessages.template_canbedefault}"/>
+        <h:outputLabel for="displayScores" value="#{templateMessages.template_canbedefault}"/>
 
        <h:outputText value=" "/>
        <h:panelGroup>
@@ -324,25 +325,25 @@
   </samigo:hideDivision>
 
   <!-- MARK FOR REVIEW -->
-  <samigo:hideDivision title="#{templateMessages.mark_for_review}">
+  <samigo:hideDivision title="#{templateMessages.mark_for_review}" id="div8">
     <div class="tier3">
       <h:panelGrid columns="2" summary="#{templateMessages.mark_for_review}">
         <h:selectBooleanCheckbox id="mark_for_review"
           value="#{template.valueMap.markForReview_isInstructorEditable}"/>
-        <h:outputLabel for="question_layout" value="#{templateMessages.template_canbedefault}"/>
+        <h:outputLabel for="mark_for_review" value="#{templateMessages.template_canbedefault}"/>
         <h:outputText value=" "/>
        
 	    <h:panelGroup>
           <h:selectBooleanCheckbox id="add_mark_for_review"
            value="#{template.markForReview}"/>
-           <h:outputLabel value="#{templateMessages.add_mark_for_review}"/>
+           <h:outputLabel for="add_mark_for_review" value="#{templateMessages.add_mark_for_review}"/>
         </h:panelGroup>
       </h:panelGrid>
     </div>
   </samigo:hideDivision>
 
   <!-- *** SUBMISSIONS *** -->
-  <samigo:hideDivision title="#{templateMessages.submissions}" id="div8">
+  <samigo:hideDivision title="#{templateMessages.submissions}" id="div9">
  <div class="tier2">
 
     <!-- NUMBER OF SUBMISSIONS -->
@@ -390,6 +391,24 @@
     </h:panelGrid>
 </div>
 
+     <!-- SUBMISSION EMAILS / INSTRUCTOR NOTIFICATION -->
+     <div class="longtext"><h:outputLabel value="#{templateMessages.submission_emails}" /></div>
+     <div class="tier3">
+         <h:panelGrid columns="2" summary="#{templateMessages.submission_emails_sub}" >
+             <h:selectBooleanCheckbox id="submission_emails" value="#{template.valueMap.instructorNotification_isInstructorEditable}" />
+             <h:outputLabel for="submission_emails" value="#{templateMessages.template_canbedefault}" />
+
+             <h:outputText value=" " />
+             <h:panelGroup>
+                 <h:selectOneRadio layout="pageDirection" value="#{template.instructorNotification}" required="true">
+                     <f:selectItem itemValue="3" itemLabel="#{templateMessages.submission_emails_one_email}" />
+                     <f:selectItem itemValue="2" itemLabel="#{templateMessages.submission_emails_digest_email}" />
+                     <f:selectItem itemValue="1" itemLabel="#{templateMessages.submission_emails_no_email}" />
+                 </h:selectOneRadio>
+             </h:panelGroup>
+         </h:panelGrid>
+     </div>
+
     <!-- AUTOMATIC SUBMISSION -->
     <div class="longtext"><h:outputLabel value="#{templateMessages.automatic_submission}" rendered="#{templateIndex.automaticSubmissionEnabled}"/></div>
         <div class="tier3">
@@ -434,7 +453,7 @@
   </samigo:hideDivision>
 
   <!-- *** SUBMISSION MESSAGE *** -->
-  <samigo:hideDivision title="#{templateMessages.submission_message}" id="div9">
+  <samigo:hideDivision title="#{templateMessages.submission_message}" id="div10">
  <div class="tier2">
   <div class="longtext">
     <h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
@@ -455,7 +474,7 @@
 
   <!-- *** FEEDBACK *** -->
 
-  <samigo:hideDivision title="#{commonMessages.feedback}" id="div10">
+  <samigo:hideDivision title="#{commonMessages.feedback}" id="div11">
  <div class="tier2">
 
   <!-- FEEDBACK AUTHORING--> 
@@ -578,7 +597,7 @@
   </samigo:hideDivision>
 
   <!-- *** GRADING *** -->
-  <samigo:hideDivision title="#{templateMessages.grading}" id="div11">
+  <samigo:hideDivision title="#{templateMessages.grading}" id="div12">
   <div class="tier2">
 
     <!-- ANON GRADING-->
@@ -656,7 +675,7 @@
   </samigo:hideDivision>
 
  <!-- *** HUONG COLORS AND GRAPHICS	*** -->
- <samigo:hideDivision title="#{templateMessages.graphics}" id="div12">
+ <samigo:hideDivision title="#{templateMessages.graphics}" id="div13">
     <div class="tier2">
  <div class="longtext"><h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
  <div class="tier3">
@@ -669,7 +688,7 @@
   </samigo:hideDivision>
 
   <!-- *** META *** -->
-  <samigo:hideDivision title="#{templateMessages.metadata}" id="div13">
+  <samigo:hideDivision title="#{templateMessages.metadata}" id="div14">
   <div class="tier2">
    <div class="longtext">
     <h:outputLabel value="#{templateMessages.record_data_for}"/></div>

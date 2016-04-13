@@ -117,7 +117,7 @@
 
         #if( $withGrade && $!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
-                #if( !$!view.equals( "all" ) )
+                #if( !$!view.equals( "grarep" ) )
                     <span>
                         <a href="#toolLinkParam( "$action" "doView" "view=grarep" )" title="$!tlang.getString( "gen.grarep" )">$!tlang.getString( "gen.grarep" )</a>
                     </span>

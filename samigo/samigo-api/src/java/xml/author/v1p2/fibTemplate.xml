@@ -17,7 +17,11 @@
       <qtimetadatafield>
         <fieldlabel>CASE_SENSITIVE</fieldlabel>
         <fieldentry>False</fieldentry>
-      </qtimetadatafield>      
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>IGNORE_SPACES</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
       <qtimetadatafield>
         <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
         <fieldentry/>

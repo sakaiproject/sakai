@@ -4944,11 +4944,10 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
-		String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-		context.put("view", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
+		context.put("view", MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
 		context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION)!=null?state.getAttribute(VIEW_SUBMISSION_LIST_OPTION):"");
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH):"");
-		                        
+
 		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 
 		if (AssignmentService.getAllowGroupAssignments()) {
@@ -4959,6 +4958,7 @@ public class AssignmentAction extends PagedResourceActionII
 		 
 		add2ndToolbarFields(data, context);
 
+		String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 		if (view != null && !AssignmentConstants.ALL.equals(view)) {
 		context.put("accessPointUrl", ServerConfigurationService.getAccessUrl()
 				+ AssignmentService.gradesSpreadsheetReference(view.substring(view.indexOf(Entity.SEPARATOR)+1), null));
@@ -9594,7 +9594,8 @@ public class AssignmentAction extends PagedResourceActionII
         dform.applyPattern("yyyy-MM-dd HH:mm:ss");
         opts.put("dtstart", dform.format(openTime.getTime()));
         opts.put("dtdue", dform.format(dueTime.getTime()));
-        //opts.put("dtpost", dform.format(closeTime.getTime()));       
+        //opts.put("dtpost", dform.format(closeTime.getTime()));
+        opts.put("points", assign.getMaxGradePoint());
         opts.put("title", assign.getTitle());
         opts.put("instructions", assign.getInstructions());
         if(assign.getAttachments() != null && assign.getAttachments().size() > 0){

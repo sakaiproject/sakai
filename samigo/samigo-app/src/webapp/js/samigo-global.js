@@ -39,19 +39,21 @@ function chef_setupformattedtextarea(client_id, shouldToggle, frame_id) {
 }
 
 $( document ).ready(function() {
-  $("#selectIndexForm\\:selectTable").tablesorter({ 
-    theme: 'default', 
-    sortList: [[2,0]],
-    textExtraction: {
-      0: function(node, table, cellIndex) { return $(node).find("a").text(); }
-    }
-  });
-  $("#editform\\:questionpool-questions").tablesorter({
-    theme: 'default',
-    headers: {
-      0: {
-        sorter: false
+  if ( $("#selectIndexForm\\:selectTable").length ) {
+    $("#selectIndexForm\\:selectTable").tablesorter({ 
+      sortList: [[2,0]],
+      textExtraction: {
+        0: function(node, table, cellIndex) { return $(node).find("a").text(); }
       }
-    }
-  });
+    });
+  }
+  if ( $("#editform\\:questionpool-questions").length ) {
+    $("#editform\\:questionpool-questions").tablesorter({
+      headers: {
+        0: {
+          sorter: false
+        }
+      }
+    });
+  }
 });

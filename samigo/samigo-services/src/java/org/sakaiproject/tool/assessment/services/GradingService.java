@@ -283,6 +283,50 @@ public class GradingService
     } 
   }
 
+  /**
+   * This method is added to update student's total score to gradebook
+   * after submit attept is deleted in assessment.
+   * @param gdataList  a list of AssessmentGradingData
+   * @param pub   PublishedAssessment object
+   * @param studentId
+   */
+
+  public void notifyDeleteToGradebook(ArrayList gdataList, PublishedAssessmentIfc pub, String studentId){
+    try {
+      AssessmentGradingData gdata = null;
+      if (gdataList.size()>0) {
+        gdata = (AssessmentGradingData) gdataList.get(0);
+      } 
+      else {
+        return;
+      }
+
+      Integer scoringType = getScoringType(pub);
+      ArrayList fullList = getAssessmentGradingsByScoringType(
+          scoringType, gdata.getPublishedAssessmentId());
+
+      ArrayList l = new ArrayList();
+      for (int i=0; i< fullList.size(); i++){
+         AssessmentGradingData ag = (AssessmentGradingData)fullList.get(i);
+         if (ag.getAgentId().equals(studentId))
+               l.add(ag);
+      }
+      
+      //When there is no more submission left for this student, update
+      //this student's grade on gradebook as null(the initial state).
+      if(l.size() == 0)
+    	  l.add(gdata);
+
+      notifyGradebook(l, pub);
+    } catch (GradebookServiceException ge) {
+         ge.printStackTrace();
+         throw ge;
+    } catch (Exception e) {
+         e.printStackTrace();
+         throw new RuntimeException(e);
+    }
+
+  }
 
   private ArrayList getListForGradebookNotification(
        ArrayList newList, ArrayList oldList){
@@ -1513,8 +1557,8 @@ public class GradingService
     }
 
     // change the final score back to the original score since it may set to average score.
-    // data.getFinalScore() != originalFinalScore
-    if(!(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
+    // if we're deleting the last submission, the score might be null bugid 5440
+    if(originalFinalScore != null && data.getFinalScore() != null && !(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
     	data.setFinalScore(originalFinalScore);
     }
     
@@ -1635,6 +1679,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
     String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
+    String ignorespaces = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB);
     //Set answerSet = new HashSet();
 
     if (answertext != null)
@@ -1643,10 +1688,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       while (st.hasMoreTokens())
       {
         String answer = st.nextToken().trim();
+        boolean ignoreSpaces = "true".equalsIgnoreCase(ignorespaces);
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-            matchresult = fibmatch(answer, studentanswer, true);
+            matchresult = fibmatch(answer, studentanswer, true, ignoreSpaces);
              
           }
         }  // if case sensitive 
@@ -1654,7 +1700,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-    	    matchresult = fibmatch(answer, studentanswer, false);
+    	    matchresult = fibmatch(answer, studentanswer, false, ignoreSpaces);
            }
         }  // else , case insensitive
  
@@ -1715,6 +1761,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
     String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
+    String ignorespaces = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB);
     //Set answerSet = new HashSet();
 
 
@@ -1724,17 +1771,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       while (st.hasMoreTokens())
       {
         String answer = st.nextToken().trim();
+        boolean ignoreSpaces = "true".equalsIgnoreCase(ignorespaces);
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-            matchresult = fibmatch(answer, studentanswer, true);
+            matchresult = fibmatch(answer, studentanswer, true, ignoreSpaces);
            }
         }  // if case sensitive 
         else {
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
         	  studentanswer= data.getAnswerText().trim();
-    	    matchresult = fibmatch(answer, studentanswer, false);
+    	    matchresult = fibmatch(answer, studentanswer, false, ignoreSpaces);
            }
         }  // else , case insensitive
  
@@ -2284,6 +2332,16 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return results;
 	  }
   
+  public List getItemGradingIds(Long assessmentGradingId) {
+	    List results = null;
+	    try {
+	         results = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().getItemGradingIds(assessmentGradingId);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return results;
+  }
+
   public List getPublishedItemIds(Long assessmentGradingId) {
 	  	List results = null;
 	    try {
@@ -2317,10 +2375,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return typeId;
   }
   
-  public boolean fibmatch(String answer, String input, boolean casesensitive) {
+  public boolean fibmatch(String answer, String input, boolean casesensitive, boolean ignorespaces) {
 
 	  
 		try {
+		 if (ignorespaces) {
+			 answer = answer.replaceAll(" ", "");
+			 input = input.replaceAll(" ", "");
+		 }
  		 StringBuilder regex_quotebuf = new StringBuilder();
 		 
 		 String REGEX = answer.replaceAll("\\*", "|*|");

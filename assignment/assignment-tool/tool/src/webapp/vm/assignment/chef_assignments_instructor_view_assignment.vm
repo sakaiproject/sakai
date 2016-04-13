@@ -121,6 +121,9 @@
 							#set($count=$count+1)
 						#end
 					#end
+					#if($count==1)
+						#set($for=$tlang.getString("gen.viewallgroupssections"))
+					#end
 					$validator.escapeHtml($!for)
 				</td>
 			</tr>

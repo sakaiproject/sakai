@@ -10,6 +10,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
     
     $PBJQ.ajax({
       url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+      dataType: "text",
       success: function(shortUrl) {
         $PBJQ('.'+textbox).val(shortUrl);
       }
@@ -23,6 +24,10 @@ $PBJQ(document).ready(function(){
   $PBJQ('.Mrphs-toolTitleNav__link--directurl').click( function( e ){
     var origin = $PBJQ(this).position();
     $PBJQ(this).siblings('.Mrphs-directUrl').toggleClass('active').css( { 'left' : origin.left + 'px' } );
+    e.preventDefault();
+  });
+  $PBJQ('.Mrphs-directUrl .dropDown_close').click( function( e ){
+    $PBJQ(this).parent().toggleClass('active');
     e.preventDefault();
   });
 });

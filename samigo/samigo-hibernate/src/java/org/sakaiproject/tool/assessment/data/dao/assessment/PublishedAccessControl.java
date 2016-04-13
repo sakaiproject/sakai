@@ -54,6 +54,7 @@ public class PublishedAccessControl
   private Integer timedAssessment;
   private Integer retryAllowed;
   private Integer lateHandling;
+  private Integer instructorNotification;
   private Date startDate;
   private Date dueDate;
   private Date scoreDate;
@@ -82,7 +83,7 @@ public class PublishedAccessControl
   public PublishedAccessControl(Integer submissionsAllowed, Integer submissionsSaved,
                                  Integer assessmentFormat, Integer bookMarkingItem,
                                  Integer timeLimit, Integer timedAssessment,
-                                 Integer retryAllowed, Integer lateHandling,
+                                 Integer retryAllowed, Integer lateHandling, Integer instructorNotification,
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate, 
                                  String releaseTo)
@@ -95,6 +96,7 @@ public class PublishedAccessControl
     this.timedAssessment = timedAssessment;
     this.retryAllowed = retryAllowed;
     this.lateHandling = lateHandling;
+    this.instructorNotification = instructorNotification;
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
@@ -105,7 +107,7 @@ public class PublishedAccessControl
   public PublishedAccessControl(Integer submissionsAllowed, Integer submissionsSaved,
                                  Integer assessmentFormat, Integer bookMarkingItem,
                                  Integer timeLimit, Integer timedAssessment,
-                                 Integer retryAllowed, Integer lateHandling,
+                                 Integer retryAllowed, Integer lateHandling, Integer instructorNotification,
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate)
   {
@@ -117,6 +119,7 @@ public class PublishedAccessControl
     this.timedAssessment = timedAssessment;
     this.retryAllowed = retryAllowed;
     this.lateHandling = lateHandling;
+    this.instructorNotification = instructorNotification;
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
@@ -128,7 +131,7 @@ public class PublishedAccessControl
         this.getSubmissionsAllowed(), this.getSubmissionsSaved(),
         this.getAssessmentFormat(), this.getBookMarkingItem(),
         this.getTimeLimit(), this.getTimedAssessment(),
-        this.getRetryAllowed(), this.getLateHandling(),
+        this.getRetryAllowed(), this.getLateHandling(), this.getInstructorNotification(),
         this.getStartDate(), this.getDueDate(),
         this.getScoreDate(), this.getFeedbackDate(),
         this.getReleaseTo());
@@ -247,6 +250,16 @@ public class PublishedAccessControl
   public Integer getLateHandling()
   {
     return lateHandling;
+  }
+
+  public void setInstructorNotification(Integer instructorNotification)
+  {
+    this.instructorNotification = instructorNotification;
+  }
+
+  public Integer getInstructorNotification()
+  {
+    return instructorNotification;
   }
 
   public void setTimedAssessment(Integer timedAssessment)

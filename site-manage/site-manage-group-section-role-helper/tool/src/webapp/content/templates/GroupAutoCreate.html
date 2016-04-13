@@ -14,7 +14,7 @@
         <script type="text/javascript" src="/library/js/spinner.js"></script>
     </head>
     <body>
-        <div class="portletBody">
+        <div class="portletBody container-fluid">
             <div rsf:id="error-row:">
                 <div class="alertMessage" rsf:id="error">
                     We Have Errors!
@@ -71,18 +71,28 @@
                                 <label rsf:id="rosterSplitByGroupsLabel" for="rosterGroupSplit">Split by number of groups</label>
                             </p>
                             <div id="rosterGroupFields" class="indnt3">
-                                <p class="shorttext">
-                                    <span class="reqStar">*</span>
-                                    <label rsf:id="roster-group-title-group">Group Title</label>
-                                    <input rsf:id="roster-groupTitle-group" id="roster-groupTitle-group" type="text"/>
-                                    <span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
-                                </p>
-                                <p class="shorttext">
-                                    <span class="reqStar">*</span>
-                                    <label rsf:id="roster-group-unit" id="roster-group-unit">Number of groups</label>
-                                    <input rsf:id="roster-numToSplit-group" id="roster-numToSplit-group" type="text" size="3"/>
-                                    <span class="validFMess" rsf:id="msg=numToSplit.group.empty.alert">Need a number here</span>
-                                </p>
+                                <div class="form-group row">
+                                	<div class="col-sm-6">
+                                		<span class="reqStar">*</span>
+                                    	<label for="roster-groupTitle-group" rsf:id="roster-group-title-group"  class="form-control-label">Group Title</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                    	<input rsf:id="roster-groupTitle-group" id="roster-groupTitle-group" type="text"/>
+                                    	<span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
+                                    </div>
+                                </div >
+                                <div class="form-group row">
+                                	<div class="col-sm-6">
+                                    	<span class="reqStar">*</span>
+                                    	<label for="roster-numToSplit-group" rsf:id="roster-group-unit" id="roster-group-unit" class="form-control-label">
+                                    		Number of groups
+                                    	</label>
+                                    </div>                                    
+                                    <div class="col-sm-4">
+                                    	<input rsf:id="roster-numToSplit-group" id="roster-numToSplit-group" type="text" size="3"/>
+                                    	<span class="validFMess" rsf:id="msg=numToSplit.group.empty.alert">Need a number here</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <p class="checkbox indnt2  optGroupSelect">
@@ -90,18 +100,30 @@
                                 <label rsf:id="rosterSplitByUsersLabel" for="rosterUserSplit">Split by number of users per group</label>
                             </p>
                             <div style="display:none" id="rosterUserFields" class="indnt3">
-                                <p class="shorttext">
-                                    <span class="reqStar">*</span>
-                                    <label rsf:id="roster-group-title-user">Group Title</label>
-                                    <input rsf:id="roster-groupTitle-user" id="roster-groupTitle-user" type="text"/>
-                                    <span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
-                                </p>
-                                <p class="shorttext">
-                                    <span class="reqStar">*</span>
-                                    <label rsf:id="roster-user-unit">Number of users in a group</label>
-                                    <input rsf:id="roster-numToSplit-user" id="roster-numToSplit-user" type="text" size="3"/>
-                                    <span class="validFMess" rsf:id="msg=numToSplit.user.notanumber.alert">Need a number here</span>
-                                </p>
+                                <div class="form-group row">
+                                	<div class="col-sm-6">
+                                    	<span class="reqStar">*</span>
+                                    	<label for="roster-groupTitle-user" rsf:id="roster-group-title-user" class="form-control-label">
+                                    	Group Title
+                                    	</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                    	<input rsf:id="roster-groupTitle-user" id="roster-groupTitle-user" type="text"/>
+                                    	<span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                	<div class="col-sm-6">
+                                    	<span class="reqStar">*</span>
+                                    	<label for="roster-numToSplit-group" rsf:id="roster-user-unit" class="form-control-label">
+                                    	Number of users in a group
+                                    	</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                    	<input rsf:id="roster-numToSplit-user" id="roster-numToSplit-user" type="text" size="3"/>
+                                    	<span class="validFMess" rsf:id="msg=numToSplit.user.notanumber.alert">Need a number here</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </fieldset>
@@ -139,21 +161,81 @@
                 
                     <fieldset class="fieldsetVis" id="roleOptionsFieldset" style="display:none">          
 	                	<span rsf:id="option-radios" />
-	                	<p class="checkbox"><input rsf:id="roleOption" id="roleOption" type="radio" name="optionRadio" value="1"/> <label for="roleOption" rsf:id="roleOptionLabel">Create a separate group for each role.</label></p>
-	                	<p class="checkbox"><input rsf:id="randomOption" id="randomOption" type="radio" name="optionRadio" value="2"/> <label for="randomOption" rsf:id="randomOptionLabel">Randomly create groups by number of groups or number of users per group.</label></p>                	     
+	                	<p class="checkbox">
+	                		<input rsf:id="roleOption" id="roleOption" type="radio" name="optionRadio" value="1" class="radiobutton"/>
+	                		<label for="roleOption" rsf:id="roleOptionLabel" class="labelradio">
+	                		Create a separate group for each role.
+	                		</label>
+	                	</p>
+	                	<p class="checkbox">
+	                		<input rsf:id="randomOption" id="randomOption" type="radio" name="optionRadio" value="2" class="radiobutton"/>
+	                		<label for="randomOption" rsf:id="randomOptionLabel" class="labelradio">
+	                		Randomly create groups by number of groups or number of users per group.
+	                		</label>
+	                	</p>                	     
 	                	                	
 	                	<div id="randomGroupCreateDiv"  style="display: none">
 	                		<span rsf:id="graded-radios" />
-		                	<p class="checkbox indnt2 optGroupSelect optGroupSelectSelected"><input rsf:id="groupSplit" id="groupSplit" type="radio" name="groupSplitRadio" value="1"/><label rsf:id="splitByGroupsLabel" for="groupSplit">Split by number of groups</label></p>
+		                	<p class="checkbox indnt2 optGroupSelect optGroupSelectSelected">
+		                		<input rsf:id="groupSplit" id="groupSplit" type="radio" name="groupSplitRadio" value="1"/>
+		                		<label rsf:id="splitByGroupsLabel" for="groupSplit">Split by number of groups</label>
+		                	</p>
 		                	<div id="groupFields" class="indnt3">
-			                	<p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-title-group">Group Title</label><input rsf:id="groupTitle-group" id="groupTitle-group" type="text"/><span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span></p>
-		                		<p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-unit" id="group-unit">Number of groups</label><input rsf:id="numToSplit-group" id="numToSplit-group" type="text" size="3"/><span class="validFMess" rsf:id="msg=numToSplit.group.empty.alert">Need a number here</span></p>
+			                	<div class="form-group row">
+			                		<div class="col-sm-6">
+			                			<span class="reqStar">*</span>
+			                			<label for="groupTitle-group" rsf:id="group-title-group" class="form-control-label">
+			                			Group Title
+			                			</label>
+			                		</div>
+			                		<div class="col-sm-4">
+			                			<input rsf:id="groupTitle-group" id="groupTitle-group" type="text"/>
+			                			<span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
+			                		</div>
+			                	</div>
+		                		<div class="form-group row">
+		                			<div class="col-sm-6">
+		                				<span class="reqStar">*</span>
+		                				<label for="numToSplit-group" rsf:id="group-unit" id="group-unit" class="form-control-label">
+		                					Number of groups
+		                				</label>
+		                			</div>
+		                			<div class="col-sm-4">
+		                				<input rsf:id="numToSplit-group" id="numToSplit-group" type="text" size="3"/>
+		                				<span class="validFMess" rsf:id="msg=numToSplit.group.empty.alert">Need a number here</span>
+		                			</div>
+		                		</div>
 	                		</div>
 	                		
-		                	<p class="checkbox indnt2  optGroupSelect"><input rsf:id="userSplit" id="userSplit" type="radio" name="groupSplitRadio" value="2"/><label rsf:id="splitByUsersLabel" for="userSplit">Split by number of users per group</label></p>
+		                	<p class="checkbox indnt2 optGroupSelect">
+		                		<input rsf:id="userSplit" id="userSplit" type="radio" name="groupSplitRadio" value="2"/>
+		                		<label rsf:id="splitByUsersLabel" for="userSplit">Split by number of users per group</label>
+		                	</p>
 		                	<div style="display:none" id="userFields" class="indnt3">     
-			                	<p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-title-user">Group Title</label><input rsf:id="groupTitle-user" id="groupTitle-user" type="text"/><span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span></p>
-		                		<p class="shorttext"><span class="reqStar">*</span><label rsf:id="user-unit">Number of users in a group</label><input rsf:id="numToSplit-user" id="numToSplit-user" type="text" size="3"/><span class="validFMess" rsf:id="msg=numToSplit.user.notanumber.alert">Need a number here</span></p>
+			                	<div class="form-group row">
+			                		<div class="col-sm-6">
+			                			<span class="reqStar">*</span>
+			                			<label for="groupTitle-user" rsf:id="group-title-user" class="form-control-label">
+			                			Group Title
+			                			</label>
+			                		</div>
+			                		<div class="col-sm-4">
+			                			<input rsf:id="groupTitle-user" id="groupTitle-user" type="text"/>
+			                			<span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
+			                		</div>
+			                	</div>
+		                		<div class="form-group row">
+		                			<div class="col-sm-6">
+		                				<span class="reqStar">*</span>
+		                				<label for="numToSplit-user" rsf:id="user-unit" class="form-control-label">
+		                				Number of users in a group
+		                				</label>
+		                			</div>
+		                			<div class="col-sm-4">
+		                				<input rsf:id="numToSplit-user" id="numToSplit-user" type="text" size="3"/>
+		                				<span class="validFMess" rsf:id="msg=numToSplit.user.notanumber.alert">Need a number here</span>
+		                			</div>
+		                		</div>
 	                		</div>     				                	           		
 	                	</div>
 	                	</fieldset>

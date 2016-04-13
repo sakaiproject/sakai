@@ -77,7 +77,8 @@
 					
     			 <h:selectOneListbox 
                       value="#{UserPrefsTool.selectedTimeZone}"
-                      size="20">
+                      size="20"
+                      styleClass="multiLine">
 				    <f:selectItems value="#{UserPrefsTool.prefTimeZones}" />
 				 </h:selectOneListbox>
 

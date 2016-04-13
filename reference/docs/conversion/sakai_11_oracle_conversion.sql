@@ -318,7 +318,7 @@ ALTER TABLE CM_ENROLLMENT_T ADD DROP_DATE DATE;
 -- SAK-29422 Incorporate NYU's "public announcement system"
 
 CREATE TABLE pasystem_popup_screens (
-  uuid char(255) PRIMARY KEY ,
+  uuid varchar2(255) PRIMARY KEY ,
   descriptor varchar2(255),
   start_time NUMBER,
   end_time NUMBER,
@@ -330,13 +330,13 @@ CREATE INDEX popup_screen_start_time on pasystem_popup_screens (start_time);
 CREATE INDEX popup_screen_end_time on pasystem_popup_screens (end_time);
 
 CREATE TABLE pasystem_popup_content (
-  uuid char(255),
+  uuid varchar2(255),
   template_content CLOB,
   CONSTRAINT popup_content_uuid_fk FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
 CREATE TABLE pasystem_popup_assign (
-  uuid char(255),
+  uuid varchar2(255),
   user_eid varchar2(255) DEFAULT NULL,
   CONSTRAINT popup_assign_uuid_fk FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
@@ -344,7 +344,7 @@ CREATE TABLE pasystem_popup_assign (
 CREATE INDEX popup_assign_lower_user_eid on pasystem_popup_assign (lower(user_eid));
 
 CREATE TABLE pasystem_popup_dismissed (
-  uuid char(255),
+  uuid varchar2(255),
   user_eid varchar2(255) DEFAULT NULL,
   state varchar2(50) DEFAULT NULL,
   dismiss_time NUMBER,
@@ -356,7 +356,7 @@ CREATE INDEX popup_dismissed_lower_user_eid on pasystem_popup_dismissed (lower(u
 CREATE INDEX popup_dismissed_state on pasystem_popup_dismissed (state);
 
 CREATE TABLE pasystem_banner_alert
-( uuid CHAR(255) NOT NULL PRIMARY KEY,
+( uuid VARCHAR2(255) NOT NULL PRIMARY KEY,
   message VARCHAR2(4000) NOT NULL,
   hosts VARCHAR2(512),
   active NUMBER(1,0) DEFAULT 0 NOT NULL,
@@ -376,7 +376,7 @@ INSERT (function_key, function_name)
 VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, t.function_name);
 
 CREATE TABLE pasystem_banner_dismissed (
-  uuid char(255),
+  uuid varchar2(255),
   user_eid varchar2(255) DEFAULT NULL,
   state varchar2(50) DEFAULT NULL,
   dismiss_time NUMBER,
@@ -530,11 +530,8 @@ alter table qrtz_job_details modify is_nonconcurrent not null;
 alter table qrtz_job_details modify is_update_data not null;
 alter table qrtz_job_details drop column is_stateful;
 alter table qrtz_fired_triggers add is_nonconcurrent varchar2(1);
-alter table qrtz_fired_triggers add is_update_data varchar2(1);
 update qrtz_fired_triggers set is_nonconcurrent = is_stateful;
-update qrtz_fired_triggers set is_update_data = is_stateful;
 alter table qrtz_fired_triggers modify is_nonconcurrent not null;
-alter table qrtz_fired_triggers modify is_update_data not null;
 alter table qrtz_fired_triggers drop column is_stateful;
 --
 -- add new 'sched_name' column to all tables
@@ -925,3 +922,41 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Mana
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
 -- END KNL-1424
+
+--SAM-2709 Submission Email Notifications Hidden Inappropriately--
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD INSTRUCTORNOTIFICATION integer;
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD INSTRUCTORNOTIFICATION integer;
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'instructorNotification_isInstructorEditable', 'true') ;
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Quiz'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Problem Set'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Survey'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+--END SAM-2709

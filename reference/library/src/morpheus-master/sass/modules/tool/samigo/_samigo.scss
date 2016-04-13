@@ -14,6 +14,15 @@
 		}
 	}
 
+	.samigo-inline-form {
+		td {
+			label{
+				display: inline;
+				margin: 0 0 0 0.3em;
+			}
+		}
+	}
+
 	#samigo-create-new-box, #samigo-create-import-box {
 		@extend .bs-callout-primary;
 		border-left-width: 1px;
@@ -43,6 +52,12 @@
 			legend {
 				display: none;
 			}
+		}
+	}
+
+	.samigo-inline-radio {
+		label {
+			margin-right: 1em;
 		}
 	}
 }

@@ -1080,9 +1080,9 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
 
 
 GradebookSpreadsheet.prototype.isGroupedByCategory = function() {
-  return this.$spreadsheet.hasClass("gb-grouped-by-category");
+  return this.toolbarModel.$toolbar.
+      find("#toggleCategoriesToolbarItem").hasClass("on");
 }
-
 
 GradebookSpreadsheet.prototype.getCategoriesMap = function() {
   return this._CATEGORIES_MAP;
@@ -1097,7 +1097,9 @@ GradebookSpreadsheet.prototype.getHeaderModelForAssignment = function(assignment
 GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
   var headerModel = this.getHeaderModelForAssignment(assignmentId);
   headerModel.show();
-  this.$table.find("> tbody > tr > *:eq("+headerModel.$cell.index()+")").show();
+  this.$table.find("> tbody > tr").each(function(i, row) {
+    $(row).find("> *:eq("+headerModel.$cell.index()+")").show();
+  });
   this.refreshWidth();
 };
 
@@ -1105,7 +1107,9 @@ GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
 GradebookSpreadsheet.prototype.hideGradeItemColumn = function(assignmentId) {
   var headerModel = this.getHeaderModelForAssignment(assignmentId);
   headerModel.hide();
-  this.$table.find("> tbody > tr > *:eq("+headerModel.$cell.index()+")").hide();
+  this.$table.find("> tbody > tr").each(function(i, row) {
+    $(row).find("> *:eq("+headerModel.$cell.index()+")").hide();
+  });
   this.refreshWidth();
 };
 
@@ -1383,7 +1387,15 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
 
     hideAllPopovers();
     $cellToFocus.focus();
-  });
+  }).on("click", ".popover .gb-revert-score", function(event) {
+    event.preventDefault();
+    var $popover = $(event.target).closest(".popover");
+    var $close = $popover.find(".gb-popover-close");
+    var cell = self.getCellModelForStudentAndAssignment($close.data("studentuuid"), $close.data("assignmentid"));
+    cell._focusAfterSaveComplete = true;
+    cell.$input.trigger("revertscore.sakai");
+    hideAllPopovers();
+  });;
 
   // close the dropdown if the user navigates away from it
   self.$spreadsheet.find(".btn-group").on("shown.bs.dropdown", function(event) {
@@ -1775,6 +1787,11 @@ GradebookEditableCell.prototype.handleBeforeSave = function() {
 
 
 GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
+  this.handleWicketCellReplacement(cellId);
+};
+
+
+GradebookEditableCell.prototype.handleWicketCellReplacement = function(cellId) {
   //bind a timeout to the successful save. An easing would be nice
   $(".grade-save-success").removeClass("grade-save-success", 1000);
 
@@ -2438,6 +2455,12 @@ GradebookWicketEventProxy = {
     handleComplete: function(cellId, attrs, jqXHR, textStatus) {
       var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
       model.handleSaveComplete && model.handleSaveComplete(cellId);
+    }
+  },
+  revertGradeItem: {
+    handleComplete: function(cellId, attrs, jqXHR, textStatus) {
+      var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
+      model.handleWicketCellReplacement && model.handleWicketCellReplacement(cellId);
     }
   }
 };

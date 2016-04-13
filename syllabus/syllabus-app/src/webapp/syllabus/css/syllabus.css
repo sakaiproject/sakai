@@ -438,6 +438,12 @@ a.draft{
 }
 .ui-accordion .ui-accordion-header{
 	overflow: auto !important;
+	background-color: #D9EEF7;
+}
+
+.ui-state-active a{
+	color: #454545 !important;
+	font-weight: bold;
 }
  /* IE has layout issues when sorting (see #5413) */
 .group { zoom: 1 }

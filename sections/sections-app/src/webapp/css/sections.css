@@ -37,6 +37,11 @@ tr.paddedSectionRow td  table {padding-top:0 !important; padding-bottom:1em !imp
 /* Form labels should be bold */
 label.formLabel {font-weight:bold;}
 
+/* Right margin for the text input in Student Membership */
+#rosterForm\3A search {
+    margin-right: 1em;
+}
+
 /* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.itemSummary td.itemName {
     font-weight:bold;

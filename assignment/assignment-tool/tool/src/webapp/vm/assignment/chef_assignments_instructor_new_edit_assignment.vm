@@ -116,7 +116,7 @@
 	</div>
 
 	#if ($alertMessage)
-		<div class="row instruction cm-sm-10">
+		<div class="alertMessage">
 			<strong>$tlang.getString("gen.alert")</strong> <small> $alertMessage </small>
 		</div>
 	#end
@@ -349,7 +349,7 @@
 		#end
 
 		<div class="form-group row">
-			<label class="col-sm-2 control-label">
+			<label class="col-sm-2 control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
 			<div class="col-sm-10">

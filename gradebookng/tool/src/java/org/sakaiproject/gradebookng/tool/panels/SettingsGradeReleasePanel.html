@@ -31,7 +31,11 @@
 
 				<div class="form-group" wicket:id="courseGradeType">
 				
-					<p class="instruction"><wicket:message key="settingspage.displaycoursegrade.instructions" /></p>
+					<div class="instruction">
+						<div><wicket:message key="settingspage.displaycoursegrade.instructions.1" /></div>
+						<div><wicket:message key="settingspage.displaycoursegrade.instructions.2" /></div>
+					</div>
+					
 					<p class="messageError" wicket:id="minimumOptions">minimum options message</p>
 					
 					<div class="col-sm-offset-1 col-sm-20">
@@ -39,21 +43,21 @@
 						<div class="checkbox">
 							<label>
 								<input wicket:id="letterGrade" type="checkbox" />
-								<wicket:message key="settingspage.displaycoursegrade.lettergrade" />
+								<span><wicket:message key="settingspage.displaycoursegrade.lettergrade" /></span>
 							</label>
 						</div>
 
 						<div class="checkbox">
 							<label>
 								<input wicket:id="percentage" type="checkbox" />
-								<wicket:message key="settingspage.displaycoursegrade.percentage" />
+								<span><wicket:message key="settingspage.displaycoursegrade.percentage" /></span>
 							</label>
 						</div>
 
 						<div class="checkbox">
 							<label>
 								<input wicket:id="points" type="checkbox" />
-								<wicket:message key="settingspage.displaycoursegrade.points" />
+								<span><wicket:message key="settingspage.displaycoursegrade.points" /></span>
 							</label>
 						</div>
 

@@ -1,5 +1,28 @@
 .#{$namespace}skipNav__menu{
-	display: none;
+	position: absolute;
+	top:  -30em;
+	left: -30em;
+	a{
+		&:focus{
+			@media #{$desktop}{
+				background-color: $primary-color;
+				border: 1px solid $background-color;
+				color: $background-color;
+				display: block !important;
+				font-size: 0.9em;
+				left: 5px;
+				line-height: 1;
+				padding: 7px 5px;
+				position: fixed;
+				text-decoration: none;
+				top: 9px;
+				z-index: 100000;
+			}
+		}
+		.accesibility_key{
+			margin: 0 0 0 0.2em;
+		}
+	}
 	@media #{$phone}{
 		position: fixed;
 		z-index: 20;
@@ -17,6 +40,9 @@
 		@include transition( top 0.25s linear 0s );
 		&.moving{
 			top: -4.2em;
+		}
+		.accesibility_key{
+			display: none;
 		}
 		li{
 			@include flex-basis( 50% );

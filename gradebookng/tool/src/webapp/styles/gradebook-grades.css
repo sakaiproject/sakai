@@ -106,7 +106,7 @@
 #gradebookGrades thead th {
   vertical-align: top;
   background: #F0f0f0;
-  text-shadow: 1px 1px 0 #FFF;
+  text-shadow: 1px 1px 2px #FFF;
   font-weight: normal;
 }
 #gradebookGrades thead th .gb-title {
@@ -262,7 +262,7 @@
   display: table-row;
 }
 #gradebookGrades .gb-category-weight {
-  color: #999;
+  color: #777;
 }
 #gradebookGrades .gb-category-weight:before {
   content: "[";
@@ -585,6 +585,9 @@
 #gradeItemsTogglePanel .gradebook-item-category-score-filter {
   margin-left: 20px;
 }
+#gradeItemsTogglePanel .gb-no-categories .gradebook-item-filter {
+  margin-left: 10px;
+}
 #gradeItemsTogglePanel .gradebook-item-category-score-filter label {
   font-style: italic;
 }
@@ -707,6 +710,9 @@
   margin: 1em 0;
   padding: 5px 10px;
   font-size: 0.9em;
+}
+.gb-popover-notifications .gb-revert-score {
+  margin-top: 20px;
 }
 .gb-popover-close {
   float: right;
@@ -946,6 +952,9 @@ ul.feedbackPanel li span {
 .gb-summary-grade-panel .gb-summary-grade-row td:first-child {
   padding-left: 34px;
 }
+.gb-summary-grade-panel .gb-no-categories .gb-summary-grade-row td:first-child {
+  padding-left: 0;
+}
 .gb-summary-grade-duedate,
 .gb-summary-grade-score,
 .gb-summary-grade-weight,
@@ -1062,7 +1071,7 @@ ul.feedbackPanel li span {
   float: right;
 }
 /* Update Ungraded modal */
-.gb-update-ungraded-extracredit-confirmation.in {
+.gb-update-ungraded-confirmation.in {
   position: absolute;
   right:0;
   bottom: auto;
@@ -1070,10 +1079,10 @@ ul.feedbackPanel li span {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
-.gb-update-ungraded-extracredit-confirmation {
+.gb-update-ungraded-confirmation {
   z-index: 50000 !important;
 }
-.gb-update-ungraded-extracredit-confirmation .modal-dialog {
+.gb-update-ungraded-confirmation .modal-dialog {
   z-index: 50001 !important;
 }
 
