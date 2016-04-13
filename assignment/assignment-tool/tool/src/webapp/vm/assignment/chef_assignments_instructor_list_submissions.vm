@@ -127,11 +127,11 @@
 			#else
 				<div class="listNav">
 						## download all
-							<a href="" class="noPointers" id="downloadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'download', null, null ); return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+							<a href="" class="noPointers" id="downloadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, 'pagingHeader' ); ASN.submitForm( 'viewForm', 'download', null, null ); return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 						#if(!$disableGrade)
 							## upload all
-								|  <a href="" class="noPointers" id="uploadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'upload', null, null ); return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
-							|  <a href="" class="noPointers" id="releaseGrades" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'releaseGrades', null, null ); return false;"
+								|  <a href="" class="noPointers" id="uploadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, 'pagingHeader' ); ASN.submitForm( 'viewForm', 'upload', null, null ); return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
+							|  <a href="" class="noPointers" id="releaseGrades" onclick="SPNR.insertSpinnerAfter( this, escapeList, 'pagingHeader' ); ASN.submitForm( 'viewForm', 'releaseGrades', null, null ); return false;"
 							#if ($withGrade)
 								title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 							#else
@@ -143,7 +143,7 @@
 								#set ($helperInfo = false)
 								#set ($helperInfo = $provider.provider.getItemsHelperInfo($activity.Reference))
 								#if ($helperInfo)
-									|  <a id="helpItems" class="noPointers" onclick="SPNR.insertSpinnerAfter( this, escapeList, null );" href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+									|  <a id="helpItems" class="noPointers" onclick="SPNR.insertSpinnerAfter( this, escapeList, 'pagingHeader' );" href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 								#end
 							#end
 						#end
