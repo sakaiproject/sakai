@@ -71,7 +71,7 @@
  </h:commandButton>
 </p>
 
- <div>
+ 
     <!-- QUESTION PROPERTIES -->
     <!-- 1 POINTS -->
     <div class="form-group row">
@@ -94,24 +94,22 @@
             </h:selectOneRadio>
         </div>
     </div>
-  <!-- 1.2 MIN POINTS -->
-<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-<f:verbatim>
-<div class="shorttext">
-</f:verbatim>
-    <h:outputLabel value="#{authorMessages.answer_min_point_value}"/>
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
-<f:validateDoubleRange />
-</h:inputText>
-<f:verbatim><div></f:verbatim>
-<h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
-<f:verbatim></div></f:verbatim>
- <h:message for="answerminptr" styleClass="validate"/>
-<f:verbatim>
-  </div>
-<br/>
-</f:verbatim>
-</f:subview>
+
+    <!-- 1.2 MIN POINTS -->
+    <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
+        <div class="form-group row">   
+            <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" 
+                           styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-2">
+                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" 
+                             onchange="toPoint(this.id);" styleClass="form-control">
+                    <f:validateDoubleRange />
+                </h:inputText>    
+                <h:outputText value="#{authorMessages.answer_min_point_info}"/>
+                <h:message for="answerminptr" styleClass="validate"/>
+            </div>
+        </div>
+    </f:subview>
 
     <!-- DISCOUNT -->
     <div class="form-group row">
@@ -221,9 +219,7 @@
 
     <!-- METADATA -->
     <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-        <div class="form-group row">
-            <h:outputLabel value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-control-label"/>
-        </div>
+        <h:outputLabel value="Metadata"/><br/>
         <div class="form-group row">
             <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 form-control-label"/>
             <div class="col-md-5">
