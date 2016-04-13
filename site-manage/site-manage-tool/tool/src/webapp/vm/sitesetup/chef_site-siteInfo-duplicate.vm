@@ -95,7 +95,7 @@
 		<div class="act">
 			#if (!$!siteDuplicated)
 				<input
-					type="button"
+					type="submit"
 					class="active"
 					name="$tlang.getString("sitdup.dup")"
 					id="duplicateSite" 
