@@ -40,6 +40,8 @@ import javax.faces.validator.ValidatorException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -428,6 +430,22 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			Double origPointsPossible = originalAssignment.getPointsPossible();
 			Double newPointsPossible = assignment.getPointsPossible();
 			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
+			
+			// Check if there are assignments which send grades to this gradebook item
+			// If yes, we cannot allow to modify the gradebook item's name
+			AssignmentService aService = (AssignmentService)ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
+			Iterator iAssignments = aService.getAssignmentsForContext(getGradebookUid());
+			
+			while (iAssignments.hasNext())
+			{
+				org.sakaiproject.assignment.api.Assignment assignment = (org.sakaiproject.assignment.api.Assignment) iAssignments.next();
+				String associateGradebookAssignment = StringUtils.trimToNull(
+						assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+				if (originalAssignment.getName().equals(associateGradebookAssignment)) {
+					FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_error_title_assignment") + assignment.getTitle());
+		            return "failure";
+				}
+			}
 			
 			/* If grade entry by percentage or letter and the points possible has changed for this assignment,
 			 * we need to convert all of the stored point values to retain the same value
