@@ -57,7 +57,8 @@ public class FeedbackTool extends HttpServlet {
 
     private SiteService siteService = null;
 
-    private final String[] DYNAMIC_PROPERTIES = { "help_tooltip",  "overview", "technical_setup_instruction", "report_technical_tooltip", "short_technical_description",
+    private final String[] DYNAMIC_PROPERTIES = { "help_tooltip",  "overview", "technical_setup_instruction", "feature_suggestion_setup_instruction",
+            "report_technical_tooltip", "short_technical_description",
             "suggest_feature_tooltip", "feature_description", "technical_instruction",  "error", "help_home"};
 
     // In entitybroker you can't have slashes in IDs so we need to escape them.
