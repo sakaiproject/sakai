@@ -3477,36 +3477,40 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		if ((assignmentReference != null) && (person != null))
 		{
-                    try {
-                        Assignment a = getAssignment(assignmentReference);
-                        if (a.isGroup()) {
-                           Site _site = SiteService.getSite( a.getContext() );
-                           Collection groups = _site.getGroupsWithMember(person.getId());
-                           if (groups != null) {
-                               Iterator<Group> itgroup = groups.iterator();
-                               while (submission == null && itgroup.hasNext()) {
-                                   Group _g = itgroup.next();
-                                   submission = getSubmission(assignmentReference, _g.getId());
-                               }
-                           }
-                        } else {
-                       M_log.debug(" BaseAssignmentContent : Getting submission ");     
+			//First check their personal submission
 			submission = m_submissionStorage.get(assignmentId, person.getId());
-		}
-                    } catch (IdUnusedException iue) { } catch (PermissionException pme) { }
-		}
-
-		if (submission != null)
-		{
-			try
-			{
-				unlock2(SECURE_ACCESS_ASSIGNMENT_SUBMISSION, SECURE_ACCESS_ASSIGNMENT, submission.getReference());
+			if (submission != null && allowGetSubmission(submission.getReference())) {
+				return submission;
 			}
-			catch (PermissionException e)
-			{
-				return null;
+			try {
+				Assignment a = getAssignment(assignmentReference);
+				if (a.isGroup()) {
+					M_log.debug(a.getTitle() + " is a group, getting groups");     
+					Site _site = SiteService.getSite( a.getContext() );
+					Collection groups = _site.getGroupsWithMember(person.getId());
+					if (groups != null) {
+						Iterator<Group> itgroup = groups.iterator();
+						while (itgroup.hasNext()) {
+							Group _g = itgroup.next();
+							M_log.debug("Checking submission for group:"+_g.getTitle());
+							submission = getSubmission(assignmentReference, _g.getId());
+							if (submission != null && allowGetSubmission(submission.getReference())) {
+								return submission;
+							}
+						}
+					}
+					else {
+						M_log.info("Assignmentt" +a.getId() + " is grouped but " + person.getId() + " is not in any of the site groups");
+					}
+				}
+			} catch (IdUnusedException iue) { 
+				M_log.debug(iue);
+			} catch (PermissionException pme) { 
+				M_log.debug(pme);
 			}
 		}
+		
+		M_log.debug("No submission found for user " + person.getId() + " in assignment " + assignmentReference);
 
 		return submission;
 	}
@@ -3544,6 +3548,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			catch (PermissionException e)
 			{
+				M_log.debug(e);
 				return null;
 			}
 		}
@@ -3655,6 +3660,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String userId = SessionManager.getCurrentSessionUserId();
 			if (!userId.equals(submission.getSubmitterId()) && submitterIds != null && !submitterIds.contains(userId))
 			{
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("getSubmission throwing PermissionException. SubmitterId="+submission.getSubmitterId() + "submitterIds="+StringUtils.join(submitterIds, ","));
+				}
 				throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionId);
 			}
 		}
