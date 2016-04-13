@@ -53,7 +53,7 @@ SPNR.insertSpinnerAfter = function( clickedElement, escapeList, overrideSpinnerL
     spinner.className = "spinPlaceholder";
 
     // If an override location for the spinner is desired, append it as a child...
-    if( overrideSpinnerLocation && document.getElementById( overrideSpinnerLocation ) )
+    if( overrideSpinnerLocation !== null && overrideSpinnerLocation !== "" )
     {
         clickedElement = document.getElementById( overrideSpinnerLocation );
         clickedElement.appendChild( spinner );
