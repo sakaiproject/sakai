@@ -129,6 +129,8 @@ import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.scoringservice.api.ScoringAgent;
+import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -3234,6 +3236,18 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteDuplicated", Boolean.TRUE);
 				context.put("duplicatedName", state
 						.getAttribute(SITE_DUPLICATED_NAME));
+			}
+			
+			// Add option to also copy ScoringComponent associations
+			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService"); 
+			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
+			if (scoringAgent != null && scoringAgent.isEnabled(site.getId(), null)) {
+				// check to see if the site has any associated ScoringComponents to duplicate
+				List components = scoringAgent.getScoringComponents(site.getId());
+				if (components != null && !components.isEmpty()) {
+					context.put("scoringAgentOption", Boolean.TRUE);
+					context.put("scoringAgentName", scoringAgent.getName());
+				}
 			}
 			
 			// SAK-20797 - display checkboxes only if sitespecific value exists
@@ -9637,6 +9651,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 								// import tool content
 								importToolContent(oldSiteId, site, false);
+								
+								String transferScoringData = params.getString("selectScoringData");
+								if(transferScoringData != null && transferScoringData.equals("transferScoringData")) {
+									ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
+									ScoringAgent agent = scoringService.getDefaultScoringAgent();
+									if (agent != null && agent.isEnabled(oldSiteId, null)) {
+										agent.transferScoringComponentAssociations(oldSiteId, site.getId());
+									}
+								}
 	
 								String siteType = site.getType();
 								if (SiteTypeUtil.isCourseSite(siteType)) {
