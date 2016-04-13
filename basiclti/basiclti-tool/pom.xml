@@ -66,11 +66,6 @@
             <artifactId>sakai-velocity-tool</artifactId>
         </dependency>
         <dependency>
-          <groupId>velocity-tools</groupId>
-          <artifactId>velocity-tools-generic</artifactId>
-          <version>1.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.portal</groupId>
             <artifactId>sakai-portal-util</artifactId>
         </dependency>

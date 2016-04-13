@@ -4,9 +4,8 @@ import java.io.OutputStream;
 
 public interface LTIExportService {
 
-	public static final int TYPE_CSV = 0;
-	public static final int TYPE_EXCEL = 1;
+	public static enum ExportType {CSV, EXCEL};
 	
-	public abstract void export(OutputStream out, String siteId, int exportType, String filterId);
+	public abstract void export(OutputStream out, String siteId, ExportType exportType, String filterId);
 
 }

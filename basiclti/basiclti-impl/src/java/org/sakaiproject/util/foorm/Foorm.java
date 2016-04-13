@@ -1482,7 +1482,7 @@ public class Foorm {
 					sb.append(" AND ");
 				}
 				sb.append(searchField + " LIKE ?");
-				ret.addSerchValue((Object)("%" + searchValue + "%"));
+				ret.addSearchValue((Object)("%" + searchValue + "%"));
 			}
 		}
 		ret.setSearch((sb.length() > 0) ? sb.toString() : null);

@@ -66,6 +66,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.lti.api.LTIExportService;
+import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -384,55 +385,57 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				} 
 				else if (refId.startsWith("export:") && refId.length() > 7) 
 				{
-		            final String[] tokens = refId.split(":");
-		            int exportType = -1;
-		            try {
-		                exportType = Integer.parseInt(tokens[1]);
-		            }
-		            catch (Exception ex) {}
-		            if (exportType == LTIExportService.TYPE_CSV || exportType == LTIExportService.TYPE_EXCEL) {
-		                String filterId = null;
-		                if (tokens.length == 3) {
-		                    filterId = tokens[2];
-		                }
-		                if (exportType == LTIExportService.TYPE_CSV) {
-		                    res.setContentType("text/csv");
-		                    res.setHeader("Content-Disposition", "attachment; filename = export_tool_links.csv");
-		                }
-		                if (exportType == LTIExportService.TYPE_EXCEL) {
-		                    res.setContentType("application/vnd.ms-excel");
-		                    res.setHeader("Content-Disposition", "attachment; filename = export_tool_links.xls");
-		                }
-		                OutputStream out = null;
-		                try {
-		                    out = (OutputStream)res.getOutputStream();
-		                    ltiExportService.export(out, ref.getContext(), exportType, filterId);
-		                    out.flush();
-		                    out.close();
-		                }
-		                catch (Throwable e) {
-		                    logger.warn(": lti export " + e.getMessage());
-		                    if (out != null) {
-		                        try {
-		                            out.close();
-		                        }
-		                        catch (Throwable ignore) {
-		                        	logger.warn(": lti export 2 " + ignore.getMessage());
-		                        }
-		                    }
-		                }
-		                finally {
-		                    if (out != null) {
-		                        try {
-		                            out.close();
-		                        }
-		                        catch (Throwable ignore) {
-		                        	logger.warn(": lti export 3 " + ignore.getMessage());
-		                        }
-		                    }
-		                }
-		            }
-		        }
+					final String[] tokens = refId.split(":");
+					try 
+					{
+						ExportType exportType = ExportType.valueOf(tokens[1]);
+
+						String filterId = null;
+						if (tokens.length == 3) 
+						{
+							filterId = tokens[2];
+						}
+						if (exportType == ExportType.CSV) 
+						{
+							res.setContentType("text/csv");
+							res.setHeader("Content-Disposition", "attachment; filename = export_tool_links.csv");
+						}
+						if (exportType == ExportType.EXCEL) 
+						{
+							res.setContentType("application/vnd.ms-excel");
+							res.setHeader("Content-Disposition", "attachment; filename = export_tool_links.xls");
+						}
+						OutputStream out = null;
+						try 
+						{
+							out = (OutputStream)res.getOutputStream();
+							ltiExportService.export(out, ref.getContext(), exportType, filterId);							
+						}
+						catch(Exception ignore)
+						{
+							logger.warn(": lti export " + ignore.getMessage());
+						}					
+						finally 
+						{
+							if (out != null) 
+							{
+								try 
+								{
+									out.flush();
+									out.close();
+								}
+								catch (Throwable ignore) 
+								{
+									logger.warn(": lti export " + ignore.getMessage());
+								}
+							}
+						}
+					}
+					catch (java.lang.IllegalArgumentException ex)
+					{
+						logger.warn(": lti export invalid export type");
+					}
+				}
 				else
 				{
 					String splashParm = req.getParameter("splash");

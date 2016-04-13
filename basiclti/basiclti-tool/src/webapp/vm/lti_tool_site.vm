@@ -43,14 +43,17 @@ ${includeLatestJQuery}
 		
 		//prepare searching fields
 		var changeTimeout = null;
-		$("thead tr td input", "#tools_site").keyup(function(){
+		
+		onInputchange = function(){
 			if(changeTimeout != null) {
 				clearTimeout(changeTimeout);
 			}
 			var id = $(this).attr('id').replace('input_', '');
 			var value = $(this).val();
 			changeTimeout = setTimeout(function() { doChange(id, value); }, 1000);
-		}).each(function(){
+		};
+		
+		$("thead tr td input", "#tools_site").keyup(onInputchange).each(function(){
 			var id = $(this).attr('id');
 			if(id) {
 				$(this).attr('placeholder', $('#'+id.replace('input_', '')).attr('data-placeholder'));
@@ -58,6 +61,8 @@ ${includeLatestJQuery}
 		}).focus(function() {
 			this.value = this.value;
 		});
+		
+		$("thead tr td select", "#tools_site").change(onInputchange);
 		
 		var doChange = function(id, val) {
 			$(location).attr("href", '#toolLinkParam("ToolSite" "doSearch" "field='+id+'&search='+val+'")'.replace(/&amp;/g, '&'));
@@ -145,17 +150,25 @@ ${includeLatestJQuery}
 				<th id="action" width="25%" class="filter-false">$tlang.getString("bl_action")</th>
 			</tr>
 			<tr class="tablesorter-filter">
-				<td><input class="tablesorter-filter" id="input_title" #if($SEARCH_MAP && $SEARCH_MAP.get('title')) value="$SEARCH_MAP.get('title')" #end /></td>
+				<td><input class="tablesorter-filter" id="input_title" #if($search_map && $search_map.get('title')) value="$search_map.get('title')" #end /></td>
 				<td></td>
 				#if ($isAdmin) 
-					<td><input class="tablesorter-filter" id="input_SITE_TITLE" #if($SEARCH_MAP && $SEARCH_MAP.get('SITE_TITLE')) value="$SEARCH_MAP.get('SITE_TITLE')" #end /></td>
+					<td><input class="tablesorter-filter" id="input_SITE_TITLE" #if($search_map && $search_map.get('SITE_TITLE')) value="$search_map.get('SITE_TITLE')" #end /></td>
 				#end
 					<td></td>
 				#if ($isAdmin)
-					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($SEARCH_MAP && $SEARCH_MAP.get('SITE_CONTACT_NAME')) value="$SEARCH_MAP.get('SITE_CONTACT_NAME')" #end /></td>
-					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($SEARCH_MAP && $SEARCH_MAP.get('SITE_CONTACT_EMAIL')) value="$SEARCH_MAP.get('SITE_CONTACT_EMAIL')" #end /></td>
+					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($search_map && $search_map.get('SITE_CONTACT_NAME')) value="$search_map.get('SITE_CONTACT_NAME')" #end /></td>
+					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($search_map && $search_map.get('SITE_CONTACT_EMAIL')) value="$search_map.get('SITE_CONTACT_EMAIL')" #end /></td>
 					#if ($attribution_name)
-					<td><input class="tablesorter-filter" id="input_ATTRIBUTION" #if($SEARCH_MAP && $SEARCH_MAP.get('ATTRIBUTION')) value="$SEARCH_MAP.get('ATTRIBUTION')" #end /></td>
+					<td>
+						#if ($attribution_values && $attribution_values.size() > 0)
+						<select class="tablesorter-filter" id="input_ATTRIBUTION">
+							#foreach ($attribution_value in $attribution_values)
+								<option #if($search_map && $search_map.get('ATTRIBUTION') && $search_map.get('ATTRIBUTION') == $attribution_value) selected="selected" #end value="$attribution_value">$attribution_value</option>
+							#end
+						</select>
+						#end
+					</td>
 					#end
 				#end
 				<td></td>
@@ -180,9 +193,9 @@ ${includeLatestJQuery}
 				<a href="$launch">$launch</a>
 			</td>
 			#if ($isAdmin) 
-				<td headers="site"><a href="/portal/site/$validator.escapeHtml($!content.get("SITE_ID"))">$validator.escapeHtml($!content.get("SITE_TITLE"))</a></td>
+				<td headers="site"><a href="$!content.get("site_url")">$validator.escapeHtml($!content.get("SITE_TITLE"))</a></td>
 			#end
-				<td headers="createdat">$!dateTool.format($!dateToolFormat, $!content.get("created_at"))</td>
+				<td headers="createdat">$!dateTool.format($!content.get("created_at"))</td>
 			#if ($isAdmin)
 				<td headers="contactname"> $validator.escapeHtml($!content.get("SITE_CONTACT_NAME"))</td>
 				<td headers="contactemail"> $validator.escapeHtml($!content.get("SITE_CONTACT_EMAIL"))</td>

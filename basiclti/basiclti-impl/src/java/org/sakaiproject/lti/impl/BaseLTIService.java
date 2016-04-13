@@ -34,6 +34,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
@@ -289,9 +290,9 @@ public abstract class BaseLTIService implements LTIService {
 	 * 
 	 * {@inheritDoc}
 	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getExportLaunch(java.lang.String, java.lang.String, int)
+	 * @see org.sakaiproject.lti.api.LTIService#getExportUrl(java.lang.String, java.lang.String, org.sakaiproject.lti.api.LTIExportService.ExportType)
 	 */
-	public String getExportLaunch(String siteId, String filterId, int exportType) {
+	public String getExportUrl(String siteId, String filterId, ExportType exportType) {
         if (siteId == null) {
             return null;
         }

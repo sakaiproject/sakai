@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.site.api.Site;
 
 /**
@@ -209,7 +210,7 @@ public interface LTIService {
 	 * @param exportType
 	 * @return
 	 */
-	public String getExportLaunch(String siteId, String filterId, int exportType);
+	public String getExportUrl(String siteId, String filterId, ExportType exportType);
 
 	/**
 	 * 
@@ -737,7 +738,7 @@ public interface LTIService {
 		"updated_at:autodate" };
 	
     public static final String[] CONTENT_EXTRA_FIELDS = { 
-    	"SITE_TITLE:text:table=sakai_site:realname=TITLE", 
+    	"SITE_TITLE:text:table=SAKAI_SITE:realname=TITLE", 
     	"SITE_CONTACT_NAME:text:table=ssp1:realname=VALUE", 
     	"SITE_CONTACT_EMAIL:text:table=ssp2:realname=VALUE", 
     	"ATTRIBUTION:text:table=ssp3:realname=VALUE" 
@@ -920,6 +921,5 @@ public interface LTIService {
     public static final String LTI_SEARCH_TOKEN_SEPARATOR = "#:#";
     public static final String LTI_SITE_ATTRIBUTION_PROPERTY_KEY = "basiclti.tool.site.attribution.key";
     public static final String LTI_SITE_ATTRIBUTION_PROPERTY_NAME = "basiclti.tool.site.attribution.name";
-    public static final String LTI_DATE_FORMAT = "basiclti.tool.date.format";
 
 }
