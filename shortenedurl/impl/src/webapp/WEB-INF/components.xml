@@ -72,5 +72,12 @@
 		<property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
-	
+
+    <bean id="org.sakaiproject.shortenedurl.impl.ShortenedUrlInterceptor"
+          class="org.sakaiproject.shortenedurl.impl.ShortenedInterceptor" init-method="init">
+        <property name="registry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
+        <property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService" />
+        <property name="scs" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    </bean>
+
 </beans>
