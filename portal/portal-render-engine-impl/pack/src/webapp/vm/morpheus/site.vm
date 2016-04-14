@@ -78,14 +78,14 @@
         }
         if ( needJQuery ) {
             document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.11.3/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.2.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Cscript src="${pageWebjarsPath}bootstrap/3.3.6/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.css$!{portalCDNQuery}"/>')
             window.console && console.log('Portal scripts loaded JQ+MI+BS+UI');
         } else {
             if (typeof jQuery.migrateWarnings == 'undefined') {
-                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.2.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
                 window.console && console.log('Portal adding jQuery migrate');
             }
             if ( typeof jQuery.fn.popover == 'undefined') {

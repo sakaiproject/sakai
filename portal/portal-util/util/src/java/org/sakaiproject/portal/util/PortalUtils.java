@@ -105,7 +105,7 @@ public class PortalUtils
                  getWebjarsPath() + "jquery/1.11.3/jquery.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getWebjarsPath() + "jquery-migrate/1.2.1/jquery-migrate.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-migrate/1.4.0/jquery-migrate.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getWebjarsPath() + "bootstrap/3.3.6/js/bootstrap.min.js" + getCDNQuery() + 
@@ -119,7 +119,7 @@ public class PortalUtils
              "} else { \n" +
              "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+'" + where + "');\n" +
              "   if (typeof jQuery.migrateWarnings == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.4.0.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding jQuery migrate');\n" +
              "   }\n" +
              "   if ( typeof jQuery.fn.popover == 'undefined') {\n" +
