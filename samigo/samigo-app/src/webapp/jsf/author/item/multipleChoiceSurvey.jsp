@@ -37,7 +37,7 @@
       </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
 
-<div class="portletBody">
+<div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
 
@@ -73,107 +73,113 @@
   <!-- this is for creating multiple choice SURVEY questions only -->
   <!-- text for answers are predetermined(in properties file), do not allow users to change -->
 
-  <!-- 1 POINTS -->
-  <div class="tier2">
-<div class="shorttext">
-
-    <h:outputLabel value="#{authorMessages.answer_point_value}"/>
-    <h:outputText value="#{authorMessages.zeropoints}"/>
- </div>
-<br/>
+    <!-- 1 POINTS -->
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-2">
+            <h:outputText value="#{authorMessages.zeropoints}"/>
+        </div>
+    </div>
+    <br/>
+    
   <!-- 2 TEXT -->
-  <div class="longtext">
-  <h:outputLabel value="#{authorMessages.q_text}" />
-  <!-- WYSIWYG -->
-  <br/>
-   
-  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
-     <f:validateLength minimum="1" maximum="60000"/>
-   </samigo:wysiwyg>
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-4 form-control-label"/>
+        <!-- WYSIWYG -->
+        <div class="col-md-8">
+            <h:panelGrid>
+            <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
+                <f:validateLength minimum="1" maximum="60000"/>
+            </samigo:wysiwyg>
+            </h:panelGrid>
+        </div>
+    </div>
 
-  </h:panelGrid>
-  </div>
+    <!-- 2a ATTACHMENTS -->
+    <%@ include file="/jsf/author/item/attachment.jsp" %>
 
-  <!-- 2a ATTACHMENTS -->
-  <%@ include file="/jsf/author/item/attachment.jsp" %>
-
-  <!-- 3 ANSWER -->
-  <!-- qti survey type  
+    <!-- 3 ANSWER -->
+    <!-- qti survey type  
        PREDEFINED_SCALE: YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 
-  -->
+    -->
 
-<div class="longtext">
-    <h:outputLabel value="#{authorMessages.answer} " /> </div>
-   <div class="tier2">
-    <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale">
-     <f:selectItem itemValue="YES" itemLabel="#{authorMessages.yes_no}" />
-     <f:selectItem itemValue="AGREE" itemLabel="#{authorMessages.disagree_agree}" />
-     <f:selectItem itemValue="UNDECIDED" itemLabel="#{authorMessages.disagree_undecided}" />
-     <f:selectItem itemValue="AVERAGE"
-	itemLabel="#{authorMessages.below_average} -> #{authorMessages.above_average}" />
-     <f:selectItem itemValue="STRONGLY_AGREE"
-       itemLabel="#{authorMessages.strongly_disagree} -> #{authorMessages.strongly_agree}" />
-     <f:selectItem itemValue="EXCELLENT"
-        itemLabel="#{authorMessages.unacceptable} -> #{authorMessages.excellent}" />
-     <f:selectItem itemValue="5" itemLabel="#{authorMessages.scale5}" />
-     <f:selectItem itemValue="10" itemLabel="#{authorMessages.scale10}" />
-    </h:selectOneRadio>
-  <br />
+    <div class="longtext">
+        <h:outputLabel value="#{authorMessages.answer} " /> </div>
+        <div class="samigo-radio">
+            <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale">
+                <f:selectItem itemValue="YES" itemLabel="#{authorMessages.yes_no}" />
+                <f:selectItem itemValue="AGREE" itemLabel="#{authorMessages.disagree_agree}" />
+                <f:selectItem itemValue="UNDECIDED" itemLabel="#{authorMessages.disagree_undecided}" />
+                <f:selectItem itemValue="AVERAGE"
+	                   itemLabel="#{authorMessages.below_average} -> #{authorMessages.above_average}" />
+                <f:selectItem itemValue="STRONGLY_AGREE"
+                    itemLabel="#{authorMessages.strongly_disagree} -> #{authorMessages.strongly_agree}" />
+                <f:selectItem itemValue="EXCELLENT"
+                    itemLabel="#{authorMessages.unacceptable} -> #{authorMessages.excellent}" />
+                <f:selectItem itemValue="5" itemLabel="#{authorMessages.scale5}" />
+                <f:selectItem itemValue="10" itemLabel="#{authorMessages.scale10}" />
+            </h:selectOneRadio>
+        <br />
+    </div>
 
-  </div>
     <!-- 4 PART -->
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-<f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_p}" />
-  <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
-     <f:selectItems  value="#{itemauthor.sectionSelectList}" />
-  </h:selectOneMenu>
- </h:panelGrid>
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">    
+        <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-8">
+            <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
+                <f:selectItems  value="#{itemauthor.sectionSelectList}" />
+            </h:selectOneMenu>
+        </div>
+    </h:panelGroup>
 
     <!-- 5 POOL -->
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-<f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_question_p}" />
-  <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
-     <f:selectItems value="#{itemauthor.poolSelectList}" />
-  </h:selectOneMenu>
-  </h:panelGrid>
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
+        <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_question_p}" 
+                    styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-8">                    
+            <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
+                <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
+                <f:selectItems value="#{itemauthor.poolSelectList}" />
+            </h:selectOneMenu>
+        </div>
+    </h:panelGroup>
 
- <!-- FEEDBACK -->
- <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
- <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{commonMessages.feedback_optional}<br />" escape="false"/>
-<f:verbatim><div class="tier2"></f:verbatim>
-  <!-- WYSIWYG -->
-  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
- <f:verbatim> </div></div></f:verbatim>
-</h:panelGroup>
+    <!-- FEEDBACK -->
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+        <h:outputLabel value="#{commonMessages.feedback_optional}" styleClass="col-md-4 form-control-label"/>
+        <!-- WYSIWYG -->
+        <div class="col-md-8">
+            <h:panelGrid>
+                <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
+                    <f:validateLength maximum="60000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
+        </div> 
+    </h:panelGroup>
 
-<!-- METADATA -->
-<h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim></f:verbatim>
-<h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="tier2"></f:verbatim>
-
-<h:panelGrid columns="2" columnClasses="shorttext">
-  <h:outputText value="#{authorMessages.objective}" />
-  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-
-  <h:outputText value="#{authorMessages.keyword}" />
-  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-
-  <h:outputText value="#{authorMessages.rubric_colon}" />
-  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
-  </h:panelGrid>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
-  </div>
+    <!-- METADATA -->
+    <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
+        <h:outputLabel value="Metadata"/>
+        <div class="form-group row">
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 form-control-label" />
+            <div class="col-md-5">
+                <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 form-control-label" />
+            <div class="col-md-5">
+                <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 form-control-label" />
+            <div class="col-md-5">
+                <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
+            </div>
+        </div> 
+    </h:panelGroup>
+ 
 
 
 <p class="act">
