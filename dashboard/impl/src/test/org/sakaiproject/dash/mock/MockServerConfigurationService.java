@@ -21,6 +21,7 @@
 
 package org.sakaiproject.dash.mock;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
@@ -64,6 +65,13 @@ public class MockServerConfigurationService implements
 	 */
 	public String getServerName() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.component.api.ServerConfigurationService#getServerNameAliases()
+	 */
+	public Collection<String> getServerNameAliases() {
 		return null;
 	}
 

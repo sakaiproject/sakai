@@ -30,6 +30,7 @@
         <property name="lockManager">                <ref bean="org.sakaiproject.content.api.LockManager"/>                  </property>
         <property name="authzGroupService">          <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>              </property>
         <property name="resourceTypeRegistry">       <ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/>         </property>
+        <property name="contentCopy">                <ref bean="org.sakaiproject.content.api.ContentCopy"/>                  </property>
         <property name="virusScanner">				<ref bean="org.sakaiproject.antivirus.api.VirusScanner"/>				</property>
         <property name="contentTypeImageService">	<ref bean="org.sakaiproject.content.api.ContentTypeImageService"/>		</property>
         <property name="eventTrackingService">		<ref bean="org.sakaiproject.event.api.EventTrackingService"/>			</property>
@@ -253,4 +254,18 @@
               <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
             </bean>
 
+	<!-- Bean which re-writes HTML content and copies associated references from CHS. -->
+	<bean id="org.sakaiproject.content.api.ContentCopy"
+		class="org.sakaiproject.content.impl.ContentCopyImpl" init-method="init">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+        <property name="interceptorRegistry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
+	</bean>
+
+    <bean id="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" class="org.sakaiproject.content.impl.ContentCopyInterceptorRegistryImpl" />
+    <bean id="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" class="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" init-method="init">
+        <property name="interceptorRegistry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
+    </bean>
 </beans>

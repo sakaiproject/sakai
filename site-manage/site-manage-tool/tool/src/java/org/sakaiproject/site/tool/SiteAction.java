@@ -97,6 +97,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
@@ -183,6 +185,8 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+	
+	private ContentCopy contentCopy = (ContentCopy)ComponentManager.get(ContentCopy.class);
 
 	private ImportService importService = org.sakaiproject.importer.cover.ImportService
 			.getInstance();
@@ -9605,6 +9609,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							// set title
 							site.setTitle(title);
 							
+							// Update the description and copy and related content.
+							ContentCopyContext context = contentCopy.createCopyContext(oldSiteId, newSiteId, true);
+							String nDescription = contentCopy.convertContent(context, site.getDescription(), "text/html", null);
+							site.setDescription(nDescription);
+							contentCopy.copyReferences(context);
+							
 							// SAK-20797 alter quota if required
 							boolean	duplicateQuota = params.getString("dupequota") != null ? params.getBoolean("dupequota") : false;
 							if (duplicateQuota==true) {
@@ -9665,11 +9675,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								try 
 								{
 									AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
-									if (SiteTypeUtil.isCourseSite(siteType)) 
-									{
-										// also remove the provider id attribute if any
-										realmEdit.setProviderGroupId(null);
-									}
+									// also remove the provider id attribute if any
+									realmEdit.setProviderGroupId(null);
 									
 									// add current user as the maintainer
 									realmEdit.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
@@ -10031,7 +10038,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				ContentResource resource = m_contentHostingService.getResource(ref.getId());
 				// the new resource
 				ContentResource nResource = null;
-				String nResourceId = resource.getId().replaceAll(oSiteId, nSiteId);
+				String oResourceId = resource.getId();
+				String nResourceId = oResourceId.replaceAll(oSiteId, nSiteId);
 				try
 				{
 					nResource = m_contentHostingService.getResource(nResourceId);
@@ -10042,8 +10050,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// copy the resource then
 					try
 					{
-						nResourceId = m_contentHostingService.copy(resource.getId(), nResourceId);
-						nResource = m_contentHostingService.getResource(nResourceId);
+						ContentCopyContext copyContext = contentCopy.createCopyContext(oSiteId, nSiteId, true);
+						copyContext.addResource(oResourceId);
+						contentCopy.copyReferences(copyContext);
+						String copyResourceId = copyContext.getCopyResults().get(oResourceId);
+						if (copyResourceId != null) {
+							rv = m_contentHostingService.getUrl(copyResourceId);
+						}
 					}
 					catch (Exception n3Exception)
 					{
@@ -10051,8 +10064,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					}
 				}
 				
-				// get the new resource url
-				rv = nResource != null?nResource.getUrl(false):"";
+				// fallback to empty if something went wrong
+				if (rv == null) {
+					rv = "";
+				}
 				
 			}
 			catch (URISyntaxException use)
@@ -10076,7 +10091,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private void importToolContent(String oSiteId, Site site, boolean bypassSecurity) {
 		String nSiteId = site.getId();
-
 		// import tool content
 		if (bypassSecurity)
 		{
@@ -13604,7 +13618,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									+ fromContext + " to: " + toContext, t);
 				}
 			}
-		}
+		}		
 		
 		// record direct URL for this tool in old and new sites, so anyone using the URL in HTML text will 
 		// get a proper update for the HTML in the new site

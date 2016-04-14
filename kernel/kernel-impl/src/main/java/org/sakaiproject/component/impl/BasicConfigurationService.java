@@ -24,6 +24,8 @@ package org.sakaiproject.component.impl;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -289,6 +291,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         return getConfig("serverName", "localhost"); //(String) properties.get("serverName");
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	public Collection<String> getServerNameAliases(){
+		String[] names = getStrings("serverNameAliases");
+		return (names == null) ? Collections.<String>emptyList() : Arrays.asList(names);
+	}
 
     /**
      * {@inheritDoc}

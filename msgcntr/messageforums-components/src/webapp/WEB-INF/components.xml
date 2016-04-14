@@ -54,6 +54,8 @@
         </property>
         <property name="authzGroupService">
             <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+		<property name="contentCopy">
+        	<ref bean="org.sakaiproject.content.api.ContentCopy"/>
         </property>
     </bean>
 	    

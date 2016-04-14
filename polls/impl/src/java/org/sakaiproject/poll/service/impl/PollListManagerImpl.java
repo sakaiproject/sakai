@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
@@ -36,9 +37,12 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -55,13 +59,14 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.util.PollUtil;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.util.cover.LinkMigrationHelper;
 import org.springframework.dao.DataAccessException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 
-public class PollListManagerImpl implements PollListManager,EntityTransferrer {
+public class PollListManagerImpl implements PollListManager,EntityTransferrer,EntityTransferrerRefMigrator {
 
     // use commons logger
     private static Log log = LogFactory.getLog(PollListManagerImpl.class);
@@ -95,6 +100,11 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     public void setExternalLogic(ExternalLogic externalLogic) {
 		this.externalLogic = externalLogic;
 	}
+    
+    private ContentCopy contentCopy;
+    public void setContentCopy(ContentCopy contentCopy) {
+    	this.contentCopy = contentCopy;
+    }
 
 	public void init() {
         try {
@@ -571,11 +581,37 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 		}
 
 
-		public void transferCopyEntities(String fromContext, String toContext, List resourceIds, boolean condition){
-			transferCopyEntities(fromContext, toContext, resourceIds);
+		public void transferCopyEntities(String fromContext, String toContext, List resourceIds, boolean cleanup){
+			transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds, cleanup);
+		}
+		
+		@Override
+		public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> resourceIds, boolean cleanup) {
+			try {
+				if(cleanup == true) {
+					Iterator<Poll> toPolls = findAllPolls(toContext).iterator();
+					while (toPolls.hasNext()){
+						Poll toPoll = toPolls.next();
+						deletePoll(toPoll);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				log.debug("transferCopyEntities: End removing poll data");
+			}
+			transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
+			return null;
 		}
 
 		public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
+			transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
+		}
+		
+		@Override
+		public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> resourceIds) {
+			// Create the copycontext to track re-writing and copying.
+			ContentCopyContext context = contentCopy.createCopyContext(fromContext, toContext, true);
 			try{
 				Iterator<Poll> fromPolls = findAllPolls(fromContext).iterator();
 				while (fromPolls.hasNext()){
@@ -592,7 +628,10 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 			        toPoll.setVoteClose(fromPollV.getVoteClose());		       
 			        toPoll.setDisplayResult(fromPollV.getDisplayResult());
 			        toPoll.setLimitVoting(fromPollV.getLimitVoting());
-			        toPoll.setDetails(fromPollV.getDetails());
+			        
+			        // Update any references in the details.
+			        String toDetails = contentCopy.convertContent(context, fromPollV.getDetails(), "text/html", null);
+			        toPoll.setDetails(toDetails);
 			        
 			        //Guardamos toPoll para que se puedan ir añandiéndole las opciones y los votos
 			        savePoll(toPoll);
@@ -604,7 +643,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 				        while (fromOptions.hasNext()){
 				        	Option fromOption = (Option) fromOptions.next();
 				        	Option toOption = (Option) new Option();
-				        	toOption.setOptionText(fromOption.getOptionText());
+				        	// Convert any references
+				        	String toText = contentCopy.convertContent(context, fromOption.getOptionText(), "text/html", null);
+				        	toOption.setOptionText(toText);
 				        	toOption.setStatus(fromOption.getStatus());
 				        	toOption.setPollId(toPoll.getPollId());
 				        	toOption.setDeleted(fromOption.getDeleted());
@@ -626,9 +667,57 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 			        //Actualizamos toPoll
 			        savePoll(toPoll);
 				}
+				contentCopy.copyReferences(context);
 			}catch(Exception e){
 				e.printStackTrace();
 			}
+			return null;
+		}
+		
+		@Override
+		public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+			try{
+				Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+				Iterator<Poll> toPolls = findAllPolls(toContext).iterator();
+				boolean update = false;
+				while (toPolls.hasNext()){
+					Poll toPoll = toPolls.next();
+					
+					if(toPoll.getDetails() != null) {
+						String details = toPoll.getDetails();
+						details = LinkMigrationHelper.migrateAllLinks(entrySet, details);
+						if(!toPoll.getDetails().equals(details)){
+							toPoll.setDetails(details);
+							update = true;							
+						}
+					}
+
+					List<Option> options = getOptionsForPoll(toPoll);
+					if (options!=null){
+						Iterator<Option> toOptions = options.iterator();
+						while (toOptions.hasNext()){
+							Option toOption = (Option) toOptions.next();
+							
+							if(toOption.getOptionText() != null) {
+								String optionText = toOption.getOptionText();
+								optionText = LinkMigrationHelper.migrateAllLinks(entrySet, optionText);
+								if(!toOption.getOptionText().equals(optionText)){
+									toOption.setOptionText(optionText);
+									saveOption(toOption);
+									
+									update = true;
+								}
+							}
+						}
+					}
+
+					if(update)
+						savePoll(toPoll);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+
 		}
 
 
