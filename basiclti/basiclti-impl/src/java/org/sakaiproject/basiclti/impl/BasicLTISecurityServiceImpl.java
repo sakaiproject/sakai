@@ -356,7 +356,11 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 								String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
 								if ( siteId != null && ! siteId.equals(ref.getContext()) ) 
 								{
-									tool = null;
+									logger.warn("SiteId is not context: " + siteId + " - " + ref.getContext());
+									String turnitinSite = ServerConfigurationService.getString("turnitin.lti.site", "!turnitin");
+									if(!siteId.equals(turnitinSite)){
+										tool = null;
+									}
 								}
 							}
 						}
