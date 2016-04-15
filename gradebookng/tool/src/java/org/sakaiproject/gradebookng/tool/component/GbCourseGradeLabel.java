@@ -52,10 +52,10 @@ public class GbCourseGradeLabel extends Label {
 	private CourseGrade courseGrade;
 	private GbRole currentUserRole;
 	private String studentUuid;
+	private String currentUserUuid;
 
 	public GbCourseGradeLabel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
-		this.model = model;
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class GbCourseGradeLabel extends Label {
 		super.onInitialize();
 
 		// unpack model
-		final Map<String, Object> modelData = this.model.getObject();
+		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 
 		// required
 		this.currentUserRole = (GbRole) modelData.get("currentUserRole");
@@ -76,12 +76,15 @@ public class GbCourseGradeLabel extends Label {
 		this.studentUuid = (String) modelData.get("studentUuid");
 
 		// required for TA and student
-		final String currentUserUuid = (String) modelData.get("currentUserUuid");
+		this.currentUserUuid = (String) modelData.get("currentUserUuid");
 
+		// something has gone wrong and there's no course grade!
+		if (this.courseGrade == null) {
+			setDefaultModel(Model.of(getString("coursegrade.display.none")));
 		// instructor, can view
-		if (this.currentUserRole == GbRole.INSTRUCTOR) {
+		} else if (this.currentUserRole == GbRole.INSTRUCTOR) {
 			setDefaultModel(Model.of(buildCourseGrade()));
-			// TA, permission check
+		// TA, permission check
 		} else if (this.currentUserRole == GbRole.TA) {
 			// TODO this could be passed in though we have groups to cater for
 			if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
@@ -118,12 +121,21 @@ public class GbCourseGradeLabel extends Label {
 			// if event is for this student (which may not be applicable if we have no student)
 			if (StringUtils.equals(this.studentUuid, scoreChangedEvent.getStudentUuid())) {
 
-				// get the new course grade
-				final CourseGrade updatedCourseGrade = this.businessService.getCourseGrade(scoreChangedEvent.getStudentUuid());
-				this.courseGrade = updatedCourseGrade;
+				if ((!this.currentUserRole.equals(GbRole.INSTRUCTOR)) &&
+						!this.businessService.isCourseGradeVisible(this.currentUserUuid)) {
+					setDefaultModel(new ResourceModel("label.coursegrade.nopermission"));
+				} else {
+					// get the new course grade
+					final CourseGrade updatedCourseGrade = this.businessService.getCourseGrade(scoreChangedEvent.getStudentUuid());
+					this.courseGrade = updatedCourseGrade;
 
-				// update the string and announce
-				setDefaultModel(Model.of(buildCourseGrade()));
+					if (this.courseGrade == null) {
+						setDefaultModel(Model.of(getString("coursegrade.display.none")));
+					} else {
+						setDefaultModel(Model.of(buildCourseGrade()));
+					}
+				}
+
 				scoreChangedEvent.getTarget().add(this);
 				scoreChangedEvent.getTarget().appendJavaScript(
 						String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
