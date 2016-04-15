@@ -347,21 +347,24 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			String cacheKey = context + ":" + assignmentId + ":" + userId;
 			//first check if cache already has the URL for this contentId and user
 			if(userUrlCache.containsKey(cacheKey)){
-				Map<String, Object[]> userUrlCacheObj = (Map<String, Object[]>) userUrlCache.get(cacheKey);
-				if(userUrlCacheObj.containsKey(externalContentId)){
-					//check if cache has expired:
-					Object[] cacheItem = userUrlCacheObj.get(externalContentId);
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(new Date());
-					//subtract the exipre time (currently set to 20 while the plag token is set to 30, leaving 10 mins in worse case for instructor to use token)
-					cal.add(Calendar.MINUTE, CACHE_EXPIRE_URLS_MINS * -1);
-					if(((Date) cacheItem[1]).after(cal.getTime())){
-						//token hasn't expired, use it
-						returnUrl = (String) cacheItem[0];
-					}else{
-						//token is expired, remove it
-						userUrlCacheObj.remove(externalContentId);
-						userUrlCache.put(cacheKey, userUrlCacheObj);
+				Object cacheObj = userUrlCache.get(cacheKey);
+				if(cacheObj != null && cacheObj instanceof Map){
+					Map<String, Object[]> userUrlCacheObj = (Map<String, Object[]>) cacheObj;
+					if(userUrlCacheObj.containsKey(externalContentId)){
+						//check if cache has expired:
+						Object[] cacheItem = userUrlCacheObj.get(externalContentId);
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(new Date());
+						//subtract the exipre time (currently set to 20 while the plag token is set to 30, leaving 10 mins in worse case for instructor to use token)
+						cal.add(Calendar.MINUTE, CACHE_EXPIRE_URLS_MINS * -1);
+						if(((Date) cacheItem[1]).after(cal.getTime())){
+							//token hasn't expired, use it
+							returnUrl = (String) cacheItem[0];
+						}else{
+							//token is expired, remove it
+							userUrlCacheObj.remove(externalContentId);
+							userUrlCache.put(cacheKey, userUrlCacheObj);
+						}
 					}
 				}
 			}
@@ -370,16 +373,19 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 				//instructors get all URLs at once, so only check VC every 2 minutes to avoid multiple calls in the same thread:
 				boolean skip = false;
 				if(instructor && userUrlCache.containsKey(cacheKey)){
-					Map<String, Object[]> userUrlCacheObj = (Map<String, Object[]>) userUrlCache.get(cacheKey);
-					if(userUrlCacheObj.containsKey(VERICITE_CACHE_PLACEHOLDER)){
-						Object[] cacheItem = userUrlCacheObj.get(VERICITE_CACHE_PLACEHOLDER);
-						Calendar cal = Calendar.getInstance();
-						cal.setTime(new Date());
-						//only check vericite every 2 mins to prevent subsequent calls from the same thread
-						cal.add(Calendar.MINUTE, VERICITE_SERVICE_CALL_THROTTLE_MINS * -1);
-						if(((Date) cacheItem[1]).after(cal.getTime())){
-							//we just checked VC, skip asking again
-							skip = true;
+					Object cacheObj = userUrlCache.get(cacheKey);
+					if(cacheObj != null && cacheObj instanceof Map){
+						Map<String, Object[]> userUrlCacheObj = (Map<String, Object[]>) cacheObj;
+						if(userUrlCacheObj.containsKey(VERICITE_CACHE_PLACEHOLDER)){
+							Object[] cacheItem = userUrlCacheObj.get(VERICITE_CACHE_PLACEHOLDER);
+							Calendar cal = Calendar.getInstance();
+							cal.setTime(new Date());
+							//only check vericite every 2 mins to prevent subsequent calls from the same thread
+							cal.add(Calendar.MINUTE, VERICITE_SERVICE_CALL_THROTTLE_MINS * -1);
+							if(((Date) cacheItem[1]).after(cal.getTime())){
+								//we just checked VC, skip asking again
+								skip = true;
+							}
 						}
 					}
 				}
@@ -447,21 +453,24 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		String assignment = getAssignmentId(assignmentRef, isA2);
 		if(StringUtils.isNotEmpty(assignment)){
 			if(contentScoreCache.containsKey(assignment)){
-				Map<String, Map<String, Object[]>> contentScoreCacheObject = (Map<String, Map<String, Object[]>>) contentScoreCache.get(assignment);
-				if(contentScoreCacheObject.containsKey(userId) 
-						&& contentScoreCacheObject.get(userId).containsKey(externalContentId)){
-					Object[] cacheItem = contentScoreCacheObject.get(userId).get(externalContentId);
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(new Date());
-					//subtract the exipre time
-					cal.add(Calendar.MINUTE, CONTENT_SCORE_CACHE_MINS * -1);
-					if(((Date) cacheItem[1]).after(cal.getTime())){
-						//token hasn't expired, use it
-						score = (Integer) cacheItem[0];
-					}else{
-						//token is expired, remove it
-						contentScoreCacheObject.remove(userId);
-						contentScoreCache.put(assignment, contentScoreCacheObject);
+				Object cacheObj = contentScoreCache.get(assignment);
+				if(cacheObj != null && cacheObj instanceof Map){
+					Map<String, Map<String, Object[]>> contentScoreCacheObject = (Map<String, Map<String, Object[]>>) cacheObj;
+					if(contentScoreCacheObject.containsKey(userId) 
+							&& contentScoreCacheObject.get(userId).containsKey(externalContentId)){
+						Object[] cacheItem = contentScoreCacheObject.get(userId).get(externalContentId);
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(new Date());
+						//subtract the exipre time
+						cal.add(Calendar.MINUTE, CONTENT_SCORE_CACHE_MINS * -1);
+						if(((Date) cacheItem[1]).after(cal.getTime())){
+							//token hasn't expired, use it
+							score = (Integer) cacheItem[0];
+						}else{
+							//token is expired, remove it
+							contentScoreCacheObject.remove(userId);
+							contentScoreCache.put(assignment, contentScoreCacheObject);
+						}
 					}
 				}
 			}
@@ -472,17 +481,20 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			boolean skip = false;
 			if(StringUtils.isNotEmpty(assignment)
 					&& contentScoreCache.containsKey(assignment)){ 
-				Map<String, Map<String, Object[]>> contentScoreCacheObject = (Map<String, Map<String, Object[]>>) contentScoreCache.get(assignment);
-				if(contentScoreCacheObject.containsKey(VERICITE_CACHE_PLACEHOLDER)
-						&& contentScoreCacheObject.get(VERICITE_CACHE_PLACEHOLDER).containsKey(VERICITE_CACHE_PLACEHOLDER)){
-					Object[] cacheItem = contentScoreCacheObject.get(VERICITE_CACHE_PLACEHOLDER).get(VERICITE_CACHE_PLACEHOLDER);
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(new Date());
-					//only check vericite every 2 mins to prevent subsequent calls from the same thread
-					cal.add(Calendar.MINUTE, VERICITE_SERVICE_CALL_THROTTLE_MINS * -1);
-					if(((Date) cacheItem[1]).after(cal.getTime())){
-						//we just checked VC, skip asking again
-						skip = true;
+				Object cacheObj = contentScoreCache.get(assignment);
+				if(cacheObj != null && cacheObj instanceof Map){
+					Map<String, Map<String, Object[]>> contentScoreCacheObject = (Map<String, Map<String, Object[]>>) cacheObj;
+					if(contentScoreCacheObject.containsKey(VERICITE_CACHE_PLACEHOLDER)
+							&& contentScoreCacheObject.get(VERICITE_CACHE_PLACEHOLDER).containsKey(VERICITE_CACHE_PLACEHOLDER)){
+						Object[] cacheItem = contentScoreCacheObject.get(VERICITE_CACHE_PLACEHOLDER).get(VERICITE_CACHE_PLACEHOLDER);
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(new Date());
+						//only check vericite every 2 mins to prevent subsequent calls from the same thread
+						cal.add(Calendar.MINUTE, VERICITE_SERVICE_CALL_THROTTLE_MINS * -1);
+						if(((Date) cacheItem[1]).after(cal.getTime())){
+							//we just checked VC, skip asking again
+							skip = true;
+						}
 					}
 				}
 			}			
@@ -863,7 +875,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 	}
 		
 	private String getAssignmentTitle(String assignmentRef){
-		if(assignmentTitleCache.containsKey(assignmentRef)){
+		if(assignmentTitleCache.containsKey(assignmentRef) && assignmentTitleCache.get(assignmentRef) != null){
 			return (String) assignmentTitleCache.get(assignmentRef);
 		}else{
 			String assignmentTitle = null;
