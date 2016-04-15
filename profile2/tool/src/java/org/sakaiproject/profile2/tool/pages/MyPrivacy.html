@@ -26,186 +26,191 @@
 <body>
 <wicket:extend>
 	
-	<div id="pageWrapper">
+	<div id="pageWrapper" class="container-fluid">
+	<div class="row">
 	
 		<!-- 
-		<div id="leftPanel">
+		<div id="leftPanel" class="col-md-2">
 	    
 	    </div>
 		-->
 		
-		<div id="fullWidth">
+		<div id="fullWidth" class="col-md-12">
             
             <div class="mainSectionContentForm">
             
 	            <h3 wicket:id="heading" class="header icon privacy">[Privacy settings]</h3>
 	            
-	            <div wicket:id="infoLocked" class="instruction">[can't change]</div>
+	            <div wicket:id="infoLocked" class="profile_instruction">[can't change]</div>
 	            
 	            <form wicket:id="form" class="profileForm">
-					<table class="profileContent" wicket:message="summary:accessibility.privacy.overview">
+					<div class="profileContent" wicket:message="summary:accessibility.privacy.overview">
 						
 						<!-- profileImage -->
-						<tr wicket:id="profileImageContainer">
-							<td class="label" wicket:id="profileImageLabel">[profileImageLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="profileImageContainer">
+							<div class="col-md-6" wicket:id="profileImageLabel">
+								[profileImageLabel]
+							</div>
+							<div class="col-md-5">
 								<label for="imageprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.image"></wicket:message></label>
 								<select wicket:id="profileImage" wicket:message="title:accessibility.privacy.image"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="profileImageToolTip">[profileImageToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1">
+								<div class="toolTip"><span wicket:id="profileImageToolTip">[profileImageToolTip]</span></div>
+							</div>
+						</div>
 						
 						<!-- basicInfo -->
-						<tr wicket:id="basicInfoContainer">
-							<td class="label" wicket:id="basicInfoLabel">[basicInfoLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="basicInfoContainer">
+							<div class="col-md-6" wicket:id="basicInfoLabel">[basicInfoLabel]</div>
+							<div class="col-md-5">
 								<label for="basicinfoprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.basic"></wicket:message></label>
 								<select wicket:id="basicInfo" wicket:message="title:accessibility.privacy.basic"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="basicInfoToolTip">[basicInfoToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="basicInfoToolTip">[basicInfoToolTip]</span></div></div>
+						</div>
 						
 						<!-- contactInfo -->
-						<tr wicket:id="contactInfoContainer">
-							<td class="label" wicket:id="contactInfoLabel">[contactInfoLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="contactInfoContainer">
+							<div class="col-md-6" wicket:id="contactInfoLabel">[contactInfoLabel]</div>
+							<div class="col-md-5">
 								<label for="contactinfoprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.contact"></wicket:message></label>
 								<select wicket:id="contactInfo" wicket:message="title:accessibility.privacy.contact"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="contactInfoToolTip">[contactInfoToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="contactInfoToolTip">[contactInfoToolTip]</span></div></div>
+						</div>
 
 						<!-- staffInfo -->
-						<tr wicket:id="staffInfoContainer">
-							<td class="label" wicket:id="staffInfoLabel">[staffInfoLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="staffInfoContainer">
+							<div class="col-md-6" wicket:id="staffInfoLabel">[staffInfoLabel]</div>
+							<div class="col-md-5">
 								<label for="staffinfoprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.staff"></wicket:message></label>
 								<select wicket:id="staffInfo" wicket:message="title:accessibility.privacy.staff"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="staffInfoToolTip">[staffInfoToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="staffInfoToolTip">[staffInfoToolTip]</span></div></div>
+						</div>
 												
 						<!-- studentInfo -->
-						<tr wicket:id="studentInfoContainer">
-							<td class="label" wicket:id="studentInfoLabel">[studentInfoLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="studentInfoContainer">
+							<div class="col-md-6" wicket:id="studentInfoLabel">[studentInfoLabel]</div>
+							<div class="col-md-5">
 								<label for="studentinfoprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.student"></wicket:message></label>
 								<select wicket:id="studentInfo" wicket:message="title:accessibility.privacy.student"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="studentInfoToolTip">[studentInfoToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="studentInfoToolTip">[studentInfoToolTip]</span></div></div>
+						</div>
 						
 						<!-- businessInfo -->
-						<tr wicket:id="businessInfoContainer">
-							<td class="label" wicket:id="businessInfoLabel">[businessInfoLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="businessInfoContainer">
+							<div class="col-md-6" wicket:id="businessInfoLabel">[businessInfoLabel]</div>
+							<div class="col-md-5">
 								<label for="businessinfoprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.business"></wicket:message></label>
 								<select wicket:id="businessInfo" wicket:message="title:accessibility.privacy.business"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="businessInfoToolTip">[businessInfoToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="businessInfoToolTip">[businessInfoToolTip]</span></div></div>
+						</div>
 		
 						<!-- socialNetworkingInfo -->
-						<tr wicket:id="socialNetworkingInfoContainer">
-							<td class="label" wicket:id="socialNetworkingInfoLabel">[socialNetworkingInfoLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="socialNetworkingInfoContainer">
+							<div class="col-md-6" wicket:id="socialNetworkingInfoLabel">[socialNetworkingInfoLabel]</div>
+							<div class="col-md-5">
 								<label for="socialinfoprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.social"></wicket:message></label>
 								<select wicket:id="socialNetworkingInfo" wicket:message="title:accessibility.privacy.social"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="socialNetworkingInfoToolTip">[socialNetworkingInfoToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="socialNetworkingInfoToolTip">[socialNetworkingInfoToolTip]</span></div></div>
+						</div>
 										
 						<!-- personalInfo -->
-						<tr wicket:id="personalInfoContainer">
-							<td class="label" wicket:id="personalInfoLabel">[personalInfoLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="personalInfoContainer">
+							<div class="col-md-6" wicket:id="personalInfoLabel">[personalInfoLabel]</div>
+							<div class="col-md-5">
 								<label for="personalinfoprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.personal"></wicket:message></label>
 								<select wicket:id="personalInfo" wicket:message="title:accessibility.privacy.personal"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="personalInfoToolTip">[personalInfoToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="personalInfoToolTip">[personalInfoToolTip]</span></div></div>
+						</div>
 						
 						<!-- showBirthYear -->
-						<tr wicket:id="birthYearContainer">
-							<td class="label" wicket:id="birthYearLabel">[birthYearLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="birthYearContainer">
+							<div class="col-md-6" wicket:id="birthYearLabel">[birthYearLabel]</div>
+							<div class="col-md-5">
 								<input wicket:id="birthYear" type="checkbox" />
 								<label for="birthyearprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.birthyear" /></label>
-							</td>
-							<td class="toolTip"><span wicket:id="birthYearToolTip">[birthYearToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="birthYearToolTip">[birthYearToolTip]</span></div></div>
+						</div>
 												
 						<!-- myFriends -->
-						<tr wicket:id="myFriendsContainer">
-							<td class="label" wicket:id="myFriendsLabel">[myFriendsLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="myFriendsContainer">
+							<div class="col-md-6" wicket:id="myFriendsLabel">[myFriendsLabel]</div>
+							<div class="col-md-5">
 								<label for="friendsprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.friends"></wicket:message></label>
 								<select wicket:id="myFriends" wicket:message="title:accessibility.privacy.friends"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="myFriendsToolTip">[myFriendsToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="myFriendsToolTip">[myFriendsToolTip]</span></div></div>
+						</div>
 						
 						<!-- myOnlineStatus -->
-						<tr wicket:id="onlineStatusContainer">
-							<td class="label" wicket:id="onlineStatusLabel">[onlineStatusLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="onlineStatusContainer">
+							<div class="col-md-6" wicket:id="onlineStatusLabel">[onlineStatusLabel]</div>
+							<div class="col-md-5">
 								<label for="onlinestatusprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.onlinestatus"></wicket:message></label>
 								<select wicket:id="onlineStatus" wicket:message="title:accessibility.privacy.onlinestatus"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="onlineStatusToolTip">[onlineStatusToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="onlineStatusToolTip">[onlineStatusToolTip]</span></div></div>
+						</div>
 						
 						<!-- myStatus -->
-						<tr wicket:id="myStatusContainer">
-							<td class="label" wicket:id="myStatusLabel">[myStatusLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="myStatusContainer">
+							<div class="col-md-6" wicket:id="myStatusLabel">[myStatusLabel]</div>
+							<div class="col-md-5">
 								<label for="statusprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.status"></wicket:message></label>
 								<select wicket:id="myStatus" wicket:message="title:accessibility.privacy.status"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="myStatusToolTip">[myStatusToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="myStatusToolTip">[myStatusToolTip]</span></div></div>
+						</div>
 						
 						<!-- myPictures -->
-						<tr wicket:id="myPicturesContainer">
-							<td class="label" wicket:id="myPicturesLabel">[myPicturesLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="myPicturesContainer">
+							<div class="col-md-6" wicket:id="myPicturesLabel">[myPicturesLabel]</div>
+							<div class="col-md-5">
 								<label for="picturesprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.pictures"></wicket:message></label>
 								<select wicket:id="myPictures" wicket:message="title:accessibility.privacy.pictures"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="myPicturesToolTip">[myPicturesToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="myPicturesToolTip">[myPicturesToolTip]</span></div></div>
+						</div>
 						
 						<!-- myMessages -->
-						<tr wicket:id="messagesContainer">
-							<td class="label" wicket:id="messagesLabel">[messagesLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="messagesContainer">
+							<div class="col-md-6" wicket:id="messagesLabel">[messagesLabel]</div>
+							<div class="col-md-5">
 								<label for="messagesprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.messages"></wicket:message></label>
 								<select wicket:id="messages" wicket:message="title:accessibility.privacy.messages"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="messagesToolTip">[messagesToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="messagesToolTip">[messagesToolTip]</span></div></div>
+						</div>
 						
 						<!-- myKudos -->
-						<tr wicket:id="myKudosContainer">
-							<td class="label" wicket:id="myKudosLabel">[myKudosLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="myKudosContainer">
+							<div class="col-md-6" wicket:id="myKudosLabel">[myKudosLabel]</div>
+							<div class="col-md-5">
 								<label for="kudosprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.kudos"></wicket:message></label>
 								<select wicket:id="myKudos" wicket:message="title:accessibility.privacy.kudos"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="myKudosToolTip">[myKudosToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="myKudosToolTip">[myKudosToolTip]</span></div></div>
+						</div>
 						
 						<!-- myWall -->
-						<tr wicket:id="myWallContainer">
-							<td class="label" wicket:id="myWallLabel">[myWallLabel]</td>
-							<td class="content">
+						<div class="row" wicket:id="myWallContainer">
+							<div class="col-md-6" wicket:id="myWallLabel">[myWallLabel]</div>
+							<div class="col-md-5">
 								<label for="wallprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.wall"></wicket:message></label>
 								<select wicket:id="myWall" wicket:message="title:accessibility.privacy.wall"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="myWallToolTip">[myWallToolTip]</span></td>
-						</tr>
+							</div>
+							<div class="col-md-1"><div class="toolTip"><span wicket:id="myWallToolTip">[myWallToolTip]</span></div></div>
+						</div>
 											
-					</table>
+					</div>
 					
 					<div class="pageFormButtons">
 						<input type="submit" wicket:id="submit" value="Save" />
@@ -220,9 +225,10 @@
 		
 		</div>
 		
-		<!-- <div id="rightPanel"></div> -->
+		<!-- <div id="rightPanel" class="col-md-8"></div> -->
 	
 	
+	</div>
 	</div>
 	
 	<!--  general MyPrivacy scripting -->

@@ -34,10 +34,12 @@
 			<span wicket:id="clearLabel">[clearLabel]</span>
     	</a>
     </div>
-    <div wicket:id="statusFormContainer">
-    	<form wicket:id="form" class="form-rounded">
-			<label for="messageinput" class="accessibility-label"><wicket:message key="accessibility.profile.status.input">Enter your current status</wicket:message></label>
-			<input type="text" wicket:id="message" class="statusField" wicket:message="title:text.no.status"/>
+    <div wicket:id="statusFormContainer" class="panel panel-default">
+    	<form wicket:id="form" class="panel-content panel-profile-message">
+			<label for="messageinput" class="accessibility-label">
+				<wicket:message key="accessibility.profile.status.input">Enter your current status</wicket:message>
+			</label>
+			<input type="text" wicket:id="message" class="form-control" wicket:message="title:text.no.status"/>
 			<input type="submit" wicket:id="submit" value="Say it" /><span id="tracker" class="text-counter"></span>
 		</form>
     </div>
