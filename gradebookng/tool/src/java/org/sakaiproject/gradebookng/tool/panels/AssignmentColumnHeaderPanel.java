@@ -401,10 +401,14 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		} else {
 			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
 					this.businessService.getCurrentUser().getId());
+			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 			for (PermissionDefinition permission : permissions) {
-				if (assignment.getCategoryId() != null &&
-						assignment.getCategoryId().equals(permission.getCategoryId())) {
-					if (permission.getFunction().equals(GraderPermission.GRADE.toString())) {
+				boolean gradePermission = permission.getFunction().equals(GraderPermission.GRADE.toString());
+ 
+				if (gradePermission) {
+					if ((assignment.getCategoryId() == null && permission.getCategoryId() == null) ||
+						(assignment.getCategoryId() != null &&
+							assignment.getCategoryId().equals(permission.getCategoryId()))) {
 						canEdit = true;
 						break;
 					}

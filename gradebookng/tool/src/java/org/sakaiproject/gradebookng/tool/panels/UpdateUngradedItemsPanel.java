@@ -1,6 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
@@ -20,6 +22,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
@@ -29,6 +32,8 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 /**
  *
@@ -133,9 +138,49 @@ public class UpdateUngradedItemsPanel extends Panel {
 		form.add(hiddenGradePoints);
 
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
-		final GradebookUiSettings settings = ((GradebookPage) getPage()).getUiSettings();
-
 		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
+
+		if (this.businessService.getUserRole() == GbRole.TA) {
+			boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
+			List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
+				this.businessService.getCurrentUser().getId());
+
+			List<String> gradableGroupIds = new ArrayList<>();
+			boolean canGradeAllGroups = false;
+
+			for (PermissionDefinition permission : permissions) {
+				if (permission.getFunction().equals(GraderPermission.GRADE.toString())) {
+					if (categoriesEnabled && permission.getCategoryId() != null) {
+						if (permission.getCategoryId().equals(assignment.getCategoryId())) {
+							if (permission.getGroupReference() == null) {
+								canGradeAllGroups = true;
+								break;
+							} else {
+								gradableGroupIds.add(permission.getGroupReference());
+							}
+						}
+					} else if (!categoriesEnabled && permission.getCategoryId() == null
+						&& permission.getGroupReference() == null) {
+						canGradeAllGroups = true;
+						break;
+					} else {
+						gradableGroupIds.add(permission.getGroupReference());
+					}
+				}
+			}
+			if (!canGradeAllGroups) {
+				// remove the ones that the user can't view
+				final Iterator<GbGroup> iter = groups.iterator();
+				while (iter.hasNext()) {
+					final GbGroup group = iter.next();
+					if (!gradableGroupIds.contains(group.getReference())) {
+						iter.remove();
+					}
+				}
+			}
+		}
+
+		final GradebookUiSettings settings = ((GradebookPage) getPage()).getUiSettings();
 
 		final DropDownChoice<GbGroup> groupAndSectionFilter = new DropDownChoice<GbGroup>(
 			"group",
@@ -156,8 +201,10 @@ public class UpdateUngradedItemsPanel extends Panel {
 			});
 
 		groupAndSectionFilter.setNullValid(false);
-		groupAndSectionFilter.setModelObject(
-			(settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
+		if (!groups.isEmpty()) {
+			groupAndSectionFilter.setModelObject(
+				(settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
+		}
 		form.add(groupAndSectionFilter);
 
 		add(form);
