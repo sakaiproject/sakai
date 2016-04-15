@@ -342,9 +342,9 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		String context = getSiteIdFromConentId(contentId);
 		if(context != null){
 			String externalContentId = getAttachmentId(contentId);
-			String cacheKey = context + ":" + userId;
 			String returnUrl = null;
 			String assignmentId = getAssignmentId(assignmentRef, isA2(contentId, assignmentRef));
+			String cacheKey = context + ":" + assignmentId + ":" + userId;
 			//first check if cache already has the URL for this contentId and user
 			if(userUrlCache.containsKey(cacheKey)){
 				Map<String, Object[]> userUrlCacheObj = (Map<String, Object[]>) userUrlCache.get(cacheKey);
