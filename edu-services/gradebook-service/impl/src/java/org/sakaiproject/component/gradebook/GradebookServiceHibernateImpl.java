@@ -40,6 +40,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -1540,37 +1541,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  } else {
 			  // this user has grader perms, so we need to filter the items returned
 			  // if this gradebook has categories enabled, we need to check for category-specific restrictions
-
 			  if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
-				  assignmentsToReturn.addAll(getAssignments(gradebookUid));
+				  assignmentsToReturn.addAll(getAssignments(gradebookUid, sortBy));
 			  } else {
-
 				  String userUid = getUserUid();
 				  if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
-					  assignmentsToReturn.addAll(getAssignments(gradebookUid));
-				  }
-
-				  // categories are enabled, so we need to check the category restrictions
-				  List allCategories = getCategoriesWithAssignments(gradebook.getId());
-				  if (allCategories != null && !allCategories.isEmpty()) {
-					  List<Long> catIds = new ArrayList<Long>();
-					  for (Category category : (List<Category>) allCategories) {
-						  catIds.add(category.getId());
-					  }
-					  List<Long> viewableCategorieIds = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, catIds);
-					  List<Category> viewableCategories = new ArrayList<Category>();
-					  for (Category category : (List<Category>) allCategories) {
-						  if(viewableCategorieIds.contains(category.getId())){
-							  viewableCategories.add(category);
-						  }
-					  }
-					  
-					  for (Iterator catIter = viewableCategories.iterator(); catIter.hasNext();) {
-						  Category cat = (Category) catIter.next();
-						  if (cat != null) {
-							  List assignments = cat.getAssignmentList();
-							  if (assignments != null && !assignments.isEmpty()) {
-								  viewableAssignments.addAll(assignments);
+					  assignmentsToReturn.addAll(getAssignments(gradebookUid, sortBy));
+				  } else {
+					  List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = getAssignments(gradebookUid, sortBy);
+					  List<Long> categoryIds = ((List<Category>)getCategories(gradebook.getId())).stream().map(Category::getId).collect(Collectors.toList());
+					  // categories are enabled, so we need to check the category restrictions
+					  if (!categoryIds.isEmpty()) {
+						  List<Long> viewableCategoryIds = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, categoryIds);
+						  for (org.sakaiproject.service.gradebook.shared.Assignment assignment : assignments) {
+							  if (assignment.getCategoryId() != null && viewableCategoryIds.contains(assignment.getCategoryId())) {
+								  assignmentsToReturn.add(assignment);
 							  }
 						  }
 					  }
