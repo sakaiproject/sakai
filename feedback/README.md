@@ -22,18 +22,23 @@ The contact us has 4 boxes each covering a different aspect:
 
 4/ "Feature suggestion"
 
-Each "box" is assigned an email address or URL and each box can be disabled in the properties file,
-so if you don't want users to suggest new features, you can remove the box.
+Each box can be disabled in the properties file, so if you don't want users to suggest new features, you can remove the box.
+
+Box 1 takes its contacts from the membership of the current site.
+
+Boxes 2 & 3 are assigned a single email address: if the property 'feedback.technicalAddress' is not set then the 'mail.support' property is used.
+
+Box 4 expects a URL specified by the property 'feedback.featureSuggestionUrl'.
 
 This 5 minute video may explain more: http://screencast.com/t/ctJKW7iFI
 
-The contact us tool can send an email to the helpdesk with all the relevant info automatically included
-(eg, site URL, username, browser and version, plugins installed): http://blogs.it.ox.ac.uk/adamweblearn/2016/04/the-contact-us-tool/
+The contact us tool sends an email containing all known relevant info automatically included
+(eg, site URL, username, browser and version, plugins installed) see: http://blogs.it.ox.ac.uk/adamweblearn/2016/04/the-contact-us-tool/
 
 Deployment
 ----------------
 
-At Oxford, the Contact Us tool is added to every site in much the same way as the Help tool
+The Contact Us tool is intended to be added to every site in much the same way as the Help tool
 - it is placed just above the help tool. It is intended to replicate the "Contact Us" facility you may see on Google or other websites.
 
 
@@ -44,17 +49,24 @@ The code builds as a webapp which you can drop straight into your tomcat. To
 configure the tool, set these properties in your sakai.properties or
 local.properties.
 
+    feedback.featureSuggestionUrl
+    feedback.helpPagesUrl
+    feedback.supplementaryInfo
+
+# The address to which technical feedback and queries will be sent if mail.support is not appropriate.
+
+    feedback.technicalAddress
+	
+Examples:
+
     feedback.featureSuggestionUrl=http://sakaifeature.myinstitution.ac.uk
     feedback.helpPagesUrl=http://sakaihelp.myinstitution.ac.uk
     feedback.supplementaryInfo=This is a chunk of really helpful \
     supplementary information. Enjoy!
-
-# The address to which technical feedback and queries will be sent.
-
     feedback.technicalAddress=feedback@sakai.myinstitution.ac.uk
 
 If you have configured Recaptcha in your Sakai, Feedback will use it to
-validate unauthenticated technical feedback reports.
+validate unauthenticated technical feedback reports, ie, when non-logged in users use the Feedback tool.
 
 
 Forcing the Tool onto Existing Sites
@@ -62,7 +74,7 @@ Forcing the Tool onto Existing Sites
 
 To backfill existing sites to have the Feedback Tool. you need to run a quartz
 job to add the tool to all the sites. There is a Job called "Backfill tool into sites"
-which when run can add a specific tool to all sites that match a partiular type.
+which when run can add a specific tool to all sites that match a particular type.
 
 
 Forcing the Tool to Stay on Sites
@@ -80,7 +92,7 @@ Turning Off Automatically Including the Tool in New Sites
 ---------------------------------------------------------
 
 The way the Contact Us tool works by default is that, when you are creating a new
- site, when you get to the 'Project Site Tools' page where you can choose the tools
+ site, when you get to the 'Site Tools' page where you can choose the tools
  to include on the new site, the Contact Us tool is automatically ticked and greyed out
   (like the Site Info tool).  To turn off this feature so that the tool is not ticked
   or greyed out by default, you need to remove the words "required=true"
