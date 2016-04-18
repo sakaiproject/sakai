@@ -170,8 +170,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                     } else if (statement.getRawMap() != null 
                             && !statement.getRawMap().isEmpty()) {
                         valid = true;
-                    } else if (statement.getRawJSON() != null 
-                            && !StringUtils.isNotBlank(statement.getRawJSON())) {
+                    } else if (StringUtils.isNotBlank(statement.getRawJSON())) {
                         valid = true;
                     }
                     if (valid) {
