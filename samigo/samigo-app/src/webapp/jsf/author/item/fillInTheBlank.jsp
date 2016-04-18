@@ -36,7 +36,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
-<div class="portletBody">
+<div class="portletBody container-fluid">
 <%-- content... --%>
 <%-- FORM --%>
 
@@ -74,172 +74,174 @@
  </h:commandButton>
 </p>
 
-<%-- QUESTION PROPERTIES --%>
-<%-- 1 POINTS --%>
-<div class="tier2">
-  <div class="shorttext"><h:outputLabel value="#{authorMessages.answer_point_value}" />
-  <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
-    <f:validateDoubleRange minimum="0.00"/>
-  </h:inputText>
- <br/>  <h:message for="answerptr" styleClass="validate"/>
- </div>
- <div class="longtext">
-    <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
-	<div class="tier3">
-    <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
-     <f:selectItem itemValue="true"
-       itemLabel="#{authorMessages.yes}" />
-     <f:selectItem itemValue="false"
-       itemLabel="#{authorMessages.no}" />
-    </h:selectOneRadio>
-  </div>
-<br/>
-  <!-- 1.2 Min POINTS -->
-<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-<f:verbatim>
-<div class="shorttext">
-</f:verbatim>
-    <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
-<f:validateDoubleRange/>
-</h:inputText>
-<f:verbatim><div></f:verbatim>
-<h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
-<f:verbatim></div></f:verbatim>
-    <h:message for="answerminptr" styleClass="validate"/><br/>
-<f:verbatim>
-  </div>
-<br/>
-</f:verbatim>
-</f:subview>
+    <%-- QUESTION PROPERTIES --%>
+    <%-- 1 POINTS --%>
+    <div class="form-group row">
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-2">
+            <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
+                        required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);" styleClass="form-control">
+                <f:validateDoubleRange minimum="0.00"/>
+            </h:inputText>
+            <h:message for="answerptr" styleClass="validate"/>
+        </div>
+    </div>
+    
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-5 samigo-inline-radio">
+            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
+            </h:selectOneRadio>
+        </div>
+    </div>  
 
-<%-- 2 QUESTION TEXT --%>
-  <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
-  <br/></div>
-  <f:verbatim><div class="tier2"></f:verbatim>
-  <h:outputText value="#{authorMessages.defining_answers}" escape="false"/>
-  <f:verbatim><div class="tier3"></f:verbatim>
-  <h:outputText value="#{authorMessages.fib_note_1}<br /><br />" escape="false"/>
-  <h:outputText value="#{authorMessages.fib_note_2}<br /><br />" escape="false"/>
-  <h:outputText value="#{authorMessages.fib_note_3}<br /><br />" escape="false"/>
-  <f:verbatim></div></f:verbatim>
-  
-   <h:panelGrid>
-   <samigo:wysiwyg
-     rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
-    <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
- <br />
+    <!-- 1.2 Min POINTS -->
+    <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
+        <div class="form-group row">   
+            <h:outputLabel value="#{authorMessages.answer_min_point_value}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-2">
+                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);" 
+                            styleClass="form-control">
+                    <f:validateDoubleRange/>
+                </h:inputText>
+                <h:outputText value="#{authorMessages.answer_min_point_info}"  />
+                <h:message for="answerminptr" styleClass="validate"/>
+            </div>
+        </div>
+    </f:subview>
 
-<h:panelGrid columns="1" border="0">
-<h:panelGroup>
-<h:selectBooleanCheckbox value="#{itemauthor.currentItem.caseSensitiveForFib}">
-</h:selectBooleanCheckbox>
-<h:outputText value="#{authorMessages.case_sensitive}" escape="false"/>
-</h:panelGroup>
-<h:panelGroup>
-<h:outputText value="&nbsp;&nbsp;" escape="false"/>
-<h:outputText value="#{authorMessages.case_sensitive_note}" escape="false"/>
-</h:panelGroup>
-<h:panelGroup>
-<h:outputText value="&nbsp;&nbsp;" escape="false"/>
-<h:outputText value="#{authorMessages.case_sensitive_example}" escape="false"/>
-</h:panelGroup>
-</h:panelGrid>
-<br/>
-
-<h:panelGrid columns="1">
-<h:panelGroup>
-<h:selectBooleanCheckbox value="#{itemauthor.currentItem.mutuallyExclusiveForFib}">
-</h:selectBooleanCheckbox>
-<h:outputText value="#{authorMessages.mutually_exclusive}" escape="false"/>
-</h:panelGroup>
-<h:panelGroup>
-<h:outputText value="&nbsp;&nbsp;" escape="false"/>
-<h:outputText value="#{authorMessages.mutually_exclusive_note}" escape="false"/>
-</h:panelGroup>
-<h:panelGroup>
-<h:outputText value="&nbsp;&nbsp;" escape="false"/>
-<h:outputText value="#{authorMessages.mutually_exclusive_example}" escape="false"/>
-</h:panelGroup>
-</h:panelGrid>
-
-    <h:panelGrid columns="1">
-        <h:panelGroup>
-            <h:selectBooleanCheckbox value="#{itemauthor.currentItem.ignoreSpacesForFib}">
-            </h:selectBooleanCheckbox>
-            <h:outputText value="#{authorMessages.ignore_spaces}" escape="false"/>
-        </h:panelGroup>
-        <h:panelGroup>
-            <h:outputText value="&nbsp;&nbsp;" escape="false"/>
-            <h:outputText value="#{authorMessages.ignore_spaces_note}" escape="false"/>
-        </h:panelGroup>
-        <h:panelGroup>
-            <h:outputText value="&nbsp;&nbsp;" escape="false"/>
-            <h:outputText value="#{authorMessages.ignore_spaces_example}" escape="false"/>
-        </h:panelGroup>
+    <%-- 2 QUESTION TEXT --%> 
+    <h:outputLabel value="#{authorMessages.q_text}" /><br/>
+    <h:outputText value="#{authorMessages.defining_answers}<br/>" escape="false"/>  
+    <h:outputText value="#{authorMessages.fib_note_1}<br /><br />" escape="false"/>
+    <h:outputText value="#{authorMessages.fib_note_2}<br /><br />" escape="false"/>
+    <h:outputText value="#{authorMessages.fib_note_3}<br /><br />" escape="false"/>
+    <h:panelGrid>
+        <samigo:wysiwyg
+                 rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
+                <f:validateLength maximum="60000"/>
+        </samigo:wysiwyg>
     </h:panelGrid>
-</div>
+    <br />
+    
+    <div>
+        <div class="samigo-checkbox">
+            <h:selectBooleanCheckbox id="sensitive" value="#{itemauthor.currentItem.caseSensitiveForFib}">
+            </h:selectBooleanCheckbox>
+            <h:outputLabel for="sensitive" value="#{authorMessages.case_sensitive}" escape="false"/>
+        </div>
+        <p>
+            <h:outputText value="#{authorMessages.case_sensitive_note}" escape="false"/><br />
+            <h:outputText value="#{authorMessages.case_sensitive_example}" escape="false"/>
+        </p>
+    </div>
 
-  <!-- 2a ATTACHMENTS -->
-  <%@ include file="/jsf/author/item/attachment.jsp" %>
+    <div>
+        <div class="samigo-checkbox">
+            <h:selectBooleanCheckbox id="exclusive" value="#{itemauthor.currentItem.mutuallyExclusiveForFib}">
+            </h:selectBooleanCheckbox>
+            <h:outputLabel for="exclusive" value="#{authorMessages.mutually_exclusive}" escape="false"/>
+        </div>
+        <p>
+            <h:outputText value="#{authorMessages.mutually_exclusive_note}" escape="false"/><br/>
+            <h:outputText value="#{authorMessages.mutually_exclusive_example}" escape="false"/>
+        </p>
+    </div>
 
-<%-- 3 PART --%>
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'  && !author.isEditPoolFlow}">
-  <f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel value="#{authorMessages.assign_to_p}" />
-  <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
-     <f:selectItems  value="#{itemauthor.sectionSelectList}" />
-     <%-- use this in real  value="#{section.sectionNumberList}" --%>
-  </h:selectOneMenu>
-</h:panelGrid>
-<%-- 5 POOL --%>
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
- <f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel value="#{authorMessages.assign_to_question_p}" />
-  <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
-     <f:selectItems value="#{itemauthor.poolSelectList}" />
-  </h:selectOneMenu>
-</h:panelGrid>
-<%-- FEEDBACK --%>
-<f:verbatim><div class="longtext"></f:verbatim>
- <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}"/>
-<f:verbatim> <div class="tier2"></f:verbatim>
-  
-  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-   <h:outputText value="#{authorMessages.correct_answer_opti}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
+    <div>
+        <div class="samigo-checkbox">
+            <h:selectBooleanCheckbox id="spaces" value="#{itemauthor.currentItem.ignoreSpacesForFib}">
+            </h:selectBooleanCheckbox>
+            <h:outputLabel for="espaces" value="#{authorMessages.ignore_spaces}" escape="false"/>
+        </div>
+        <p>
+            <h:outputText value="#{authorMessages.ignore_spaces_note}" escape="false"/><br/>
+            <h:outputText value="#{authorMessages.ignore_spaces_example}" escape="false"/>
+        </p>
+   </div>
 
-  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-   <h:outputText value="#{authorMessages.incorrect_answer_op}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
-  
- <f:verbatim> </div></div></f:verbatim>
- <%-- METADATA --%>
-<h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim></f:verbatim>
-<h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="tier3"></f:verbatim>
 
-<h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputText value="#{authorMessages.objective}" />
-  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputText value="#{authorMessages.keyword}" />
-  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputText value="#{authorMessages.rubric_colon}" />
-  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
-</h:panelGrid>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
-</div>
+    <!-- 2a ATTACHMENTS -->
+    <%@ include file="/jsf/author/item/attachment.jsp" %>
+
+    <%-- 3 PART --%>
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment'  && !author.isEditPoolFlow}">
+        <h:outputLabel value="#{authorMessages.assign_to_p}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-8">
+            <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
+                <f:selectItems  value="#{itemauthor.sectionSelectList}" />
+                <%-- use this in real  value="#{section.sectionNumberList}" --%>
+            </h:selectOneMenu>
+       </div>
+    </h:panelGroup>
+    
+    <%-- 5 POOL --%>
+    <h:panelGroup styleClass="form-group row" layout="block" 
+                    rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
+        <h:outputLabel value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-8">
+            <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
+                <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
+                <f:selectItems value="#{itemauthor.poolSelectList}" />
+            </h:selectOneMenu>
+        </div>
+    </h:panelGroup>
+    
+    
+    <%-- FEEDBACK --%>
+    <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-control-label"/>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.correct_answer_opti}" styleClass="col-md-4 form-control-label"/>
+            <!-- WYSIWYG -->
+            <div class="col-md-8">
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+                </h:panelGrid>
+            </div>
+       </div>
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-4 form-control-label"/>
+            <!-- WYSIWYG -->
+            <div class="col-md-8"> 
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+                 </h:panelGrid>
+            </div>
+        </div>
+    </h:panelGroup>
+
+    <%-- METADATA --%>
+    <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}">
+        <h:outputLabel value="Metadata"/><br/>
+        <div class="form-group row">
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-5">
+                <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
+           	</div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-5">
+                <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-5">
+                <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
+            </div>
+        </div>
+    </h:panelGroup>
+
 <%-- BUTTONS --%>
 <p class="act">
 
