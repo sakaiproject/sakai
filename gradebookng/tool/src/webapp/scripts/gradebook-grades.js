@@ -225,6 +225,9 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
       $targetCell = $cell.nextAll(":visible:first");
     } else {
       fromCell.focus();
+      if (fromCell.data("_pendingReplacement")) {
+        fromCell.data("model")._focusAfterSaveComplete = true;
+      }
       return true;
     }
   } else if (direction == "up") {
@@ -270,6 +273,9 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
 
     } else {
       fromCell.focus();
+      if (fromCell.data("_pendingReplacement")) {
+        fromCell.data("model")._focusAfterSaveComplete = true;
+      }
     }
   }
 
@@ -389,8 +395,11 @@ GradebookSpreadsheet.prototype.handleInputArrowKey = function(event, $cell) {
 
 
 GradebookSpreadsheet.prototype.handleInputTab = function(event, $cell) {
-  // default to standard tab flow
-  return true;
+  if (event.shiftKey) {
+    this.navigate(event, $cell, "left", true);
+  } else {
+    this.navigate(event, $cell, "right", true);
+  }
 };
 
 
@@ -1730,6 +1739,7 @@ GradebookEditableCell.prototype.setupInput = function() {
     // manually; a Wicket behaviour is bound to this custom event and handles the
     // the update in the Wicket backend.
     if (self.$cell.data("originalValue") != self.$input.val()) {
+      self.$cell.data("_pendingReplacement", true);
       self.$input.trigger("scorechange.sakai");
     }
   }
