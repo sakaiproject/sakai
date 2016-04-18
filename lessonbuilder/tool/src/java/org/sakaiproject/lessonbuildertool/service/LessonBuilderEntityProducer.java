@@ -243,8 +243,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  if (linkMigrationHelper != null)
 	      migrateAllLinks = linkMigrationHelper.getMethod("migrateAllLinks", new Class[] { Set.class, String.class });
       } catch (Exception e) {
-	  System.out.println("Exception in introspection " + e);
-	  System.out.println("loader " + RequestFilter.class.getClassLoader());
+	  logger.info("Exception in introspection " + e);
+	  logger.info("loader " + RequestFilter.class.getClassLoader());
       }
 
       // Builds a Regexp selector.
@@ -284,7 +284,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       servers.add("localhost");
       // if neither is defined we're in trouble;
       if (servers.size() == 0)
-	  System.out.println("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
+	  logger.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
 
       // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
       // otherwise we have to restart sakai, since the entity stuff can't be restarted
@@ -319,7 +319,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 
       } catch (Exception e) {
-	  System.out.println(e);
+	  logger.info(e);
       } finally {
 	  securityService.popAdvisor();
       }
@@ -2006,7 +2006,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// don't set until we know the save worked
 		dummyPageId = page.getId();
 	    } catch (Exception e) {
-		System.out.println("can't add dummy page to site " + e);
+		logger.info("can't add dummy page to site " + e);
 	    }
 	    toolSession = ses.getToolSession(tool.getId());
 	    sessionManager.setCurrentToolSession(toolSession);
@@ -2052,7 +2052,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return ret;
 
 	    } catch (Exception e) {
-		System.out.println("exception in createentity " + e);
+		logger.info("exception in createentity " + e);
 		e.printStackTrace();
 		return "exception in createentity " + e;
 	    } finally {

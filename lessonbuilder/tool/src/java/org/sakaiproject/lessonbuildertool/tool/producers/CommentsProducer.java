@@ -14,6 +14,8 @@ import java.net.URLEncoder;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
@@ -48,6 +50,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class CommentsProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
+	private static final Log log = LogFactory.getLog(CommentsProducer.class);
 	public static final String VIEW_ID = "Comments";
 
 	private SimplePageBean simplePageBean;
@@ -327,7 +330,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("comments error " + e);
+			log.info("comments error " + e);
 		};
 
 	}

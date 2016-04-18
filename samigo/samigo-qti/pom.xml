@@ -50,14 +50,8 @@
 			<artifactId>samigo-hibernate</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.8</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
-			<version>1.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-collections</groupId>
@@ -67,10 +61,6 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-       		</dependency>
 		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
@@ -104,6 +94,7 @@
 				<directory>src/test</directory>
 				<includes>
 					<include>**/*.xml</include>
+					<include>**/log4j.properties</include>
 				</includes>
 				<excludes>
 					<exclude>**/*.java</exclude>

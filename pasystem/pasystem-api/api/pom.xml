@@ -17,13 +17,6 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-  </dependencies>
-
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>

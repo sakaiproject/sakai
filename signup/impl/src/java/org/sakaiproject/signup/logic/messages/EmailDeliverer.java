@@ -22,7 +22,7 @@ package org.sakaiproject.signup.logic.messages;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.user.api.User;
 
@@ -34,7 +34,7 @@ public class EmailDeliverer implements Runnable {
 
 	private List<User> sakaiUsers;
 	private final EmailService emailService;
-	private Log logger = LogFactoryImpl.getLog(getClass());
+	private Log logger = LogFactory.getLog(EmailDeliverer.class);
 	private final List<String> headers;
 	private final String message;
 

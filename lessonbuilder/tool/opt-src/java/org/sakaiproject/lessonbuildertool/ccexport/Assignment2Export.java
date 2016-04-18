@@ -121,7 +121,7 @@ public class Assignment2Export extends AssignmentExport {
 
 	if (ComponentManager.get("org.sakaiproject.assignment2.service.api.Assignment2Service") != null)
 	    haveA2 = true;
-	System.out.println("Assignment2Export init: haveA2 = " + haveA2);
+	log.info("Assignment2Export init: haveA2 = " + haveA2);
 
 	log.info("init()");
 
@@ -258,7 +258,7 @@ public class Assignment2Export extends AssignmentExport {
 	    ret.attachments = SqlService.dbRead(connection, sql, fields, null);
 
 	} catch (Exception e) {
-	    System.out.println("error reading assignment2 " + e);
+	    log.info("error reading assignment2 " + e);
 	    // leave ret as null list
 	} finally {
 	    try {

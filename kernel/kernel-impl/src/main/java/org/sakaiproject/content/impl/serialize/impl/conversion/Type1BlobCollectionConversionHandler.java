@@ -31,17 +31,17 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
  */
 public class Type1BlobCollectionConversionHandler implements SchemaConversionHandler
 {
-	private static final Log log = LogFactory.getLog(Type1BlobCollectionConversionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(Type1BlobCollectionConversionHandler.class);
 
 	/*
 	 * (non-Javadoc)
@@ -120,7 +120,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 
 			if(result == null)
 			{
-				System.out.println("convertSource(" + id + ") result is NULL");;
+				log.info("convertSource(" + id + ") result is NULL");;
 			}
 			else
 			{
@@ -182,7 +182,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 			}
 			else
 			{
-				System.out.println("getValidateSource(" + id + ") blob is null" );
+				log.info("getValidateSource(" + id + ") blob is null" );
 			}
 			break;
 		case Types.CLOB:

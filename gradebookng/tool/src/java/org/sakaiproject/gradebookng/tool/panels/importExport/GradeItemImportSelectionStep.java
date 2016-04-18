@@ -1,6 +1,9 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import org.apache.log4j.Logger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -24,15 +27,13 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Page to allow the user to select which items in the imported file ar to be imported
  */
+@Slf4j
 public class GradeItemImportSelectionStep extends Panel {
-	private static final Logger log = Logger.getLogger(GradeItemImportSelectionStep.class);
 	private static final long serialVersionUID = 1L;
 
 	private final String panelId;

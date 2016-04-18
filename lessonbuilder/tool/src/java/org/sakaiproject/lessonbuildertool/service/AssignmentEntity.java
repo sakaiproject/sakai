@@ -813,7 +813,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    AssignmentService.commitEdit(a);
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
-	    System.out.println("can't create assignment " + e);
+	    log.info("can't create assignment " + e);
 	};
 	return null;
     }
@@ -957,7 +957,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
-	    System.out.println("can't create assignment " + e);
+	    log.info("can't create assignment " + e);
 	};
 	return null;
     }

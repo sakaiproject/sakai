@@ -106,7 +106,7 @@ public class AjaxServer extends HttpServlet
    private static LessonsAccess lessonsAccess;
 
    public void setSimplePageToolDao(Object dao) {
-       System.out.println("setdao " + dao);
+       log.info("setdao " + dao);
        simplePageToolDao = (SimplePageToolDao) dao;
    }
 
@@ -308,7 +308,7 @@ public class AjaxServer extends HttpServlet
 	// simplepagebean checks filterHtml property of tool. We can't really do that.
 
 	String filterSpec = filterHtml;
-	System.out.println("filterspec " + filterSpec);
+	log.info("filterspec " + filterSpec);
 	if (filterSpec == null) // should never be null. unspeciifed should give ""
 	    filter = FILTER_DEFAULT;
 	// old specifications

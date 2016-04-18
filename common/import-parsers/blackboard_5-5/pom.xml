@@ -27,12 +27,6 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1</version>
-		</dependency>
-		
-		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>archive-api</artifactId>
 		<!--	<version>${sakai.version}</version> -->

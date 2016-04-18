@@ -29,8 +29,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ReEncryptPasswords {
 
+	private static final Logger log = LoggerFactory.getLogger(ReEncryptPasswords.class);
 	private static Properties props;
 
 	/**
@@ -49,13 +53,13 @@ public class ReEncryptPasswords {
 			location = System.getProperty("local.properties", "local.properties");
 			props.load(new FileInputStream(location));
 		} catch (Exception e) {
-			System.out.println("Didn't load local.properties: "+ location);
+			log.warn("Didn't load local.properties: "+ location);
 		}
 		try {
 			location = System.getProperty("security.properties", "security.properties");
 			props.load(new FileInputStream(location));
 		} catch (Exception e) {
-			System.out.println("Didn't load security.properties: "+ location);
+			log.warn("Didn't load security.properties: "+ location);
 		}
 		
 		String url, username, password, driver;
@@ -91,7 +95,7 @@ public class ReEncryptPasswords {
 			}
 		}
 		conn.commit();
-		System.out.println(" Users processed: "+ total+ " updated: "+ updated);
+		log.info(" Users processed: "+ total+ " updated: "+ updated);
 	}
 
 	/**

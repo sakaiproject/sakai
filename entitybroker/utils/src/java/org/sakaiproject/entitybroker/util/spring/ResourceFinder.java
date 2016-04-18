@@ -30,6 +30,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Takes a path or list of paths to resources and turns them into different things (file/IS/resource),
  * this also allows us to look on a relative or absolute path and will automatically
@@ -63,6 +65,7 @@ import org.springframework.core.io.Resource;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@Slf4j
 public class ResourceFinder {
 
    public static String relativePath = "sakai/";
@@ -77,7 +80,7 @@ public class ResourceFinder {
                rs.add(r);
             } catch (IllegalArgumentException e) {
                // do not add if not found, just skip
-               System.out.println("WARN: " + e.getMessage() + ", continuing...");
+               log.warn(e.getMessage() + ", continuing...");
             }
          }
       }

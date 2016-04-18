@@ -46,12 +46,15 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Handles the poll entity
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class PollEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, 
         RequestStorable, RedirectDefinable {
 
@@ -249,7 +252,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
 
     @Deprecated
     public List<?> getEntities(EntityReference ref, Search search) {
-	System.out.println("get entities");
+        log.info("get entities");
         // get the setting which indicates if we are getting polls we can admin or polls we can take
         boolean adminControl = false;
         Restriction adminRes = search.getRestrictionByProperty("admin");

@@ -2,7 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
@@ -17,16 +17,16 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Importer has detected that items need to be created so extract the data and wrap the 'AddOrEditGradeItemPanelContent' panel
  */
+@Slf4j
 public class CreateGradeItemStep extends Panel {
-	private static final Logger LOG = Logger.getLogger(CreateGradeItemStep.class);
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String panelId;
     private IModel<ImportWizardModel> model;
 
@@ -44,9 +44,9 @@ public class CreateGradeItemStep extends Panel {
         final ImportWizardModel importWizardModel = this.model.getObject();
 
         final int step = importWizardModel.getStep();
-        
+
         ProcessedGradeItem processedGradeItem = importWizardModel.getGbItemsToCreate().get(step - 1);
-        
+
         //setup new assignment for populating
         Assignment assignment = new Assignment();
         assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
@@ -61,15 +61,15 @@ public class CreateGradeItemStep extends Panel {
 			@Override
             protected void onSubmit() {
                 List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
-                
+
                 Assignment a = (Assignment)getDefaultModel().getObject();
 
                 if (a != null) {
                     assignmentsToCreate.add(assignment);
                 }
-                
-                LOG.debug("Assignment: " + assignment);
-                
+
+                log.debug("Assignment: " + assignment);
+
                 //Figure out if there are more steps
                 //If so, go to the next step (ie do it all over again)
                 Component newPanel = null;
@@ -82,7 +82,7 @@ public class CreateGradeItemStep extends Panel {
                     //If not, continue on in the wizard
                     newPanel = new GradeImportConfirmationStep(panelId, Model.of(importWizardModel));
                 }
-                
+
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);
 
@@ -95,7 +95,7 @@ public class CreateGradeItemStep extends Panel {
 
 			@Override
             public void onSubmit() {
-                LOG.debug("Clicking back button...");
+                log.debug("Clicking back button...");
                 Component newPanel = null;
                 if (step > 1) {
                     importWizardModel.setStep(step-1);

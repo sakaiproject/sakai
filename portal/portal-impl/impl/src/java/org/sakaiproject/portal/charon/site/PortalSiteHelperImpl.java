@@ -922,7 +922,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		ppp = getToolManager().getCurrentPlacement();
 		if (ppp == null)
 		{
-			System.out.println("WARNING portal-temporary placement not set - null");
+			log.warn("portal-temporary placement not set - null");
 		}
 		else
 		{
@@ -933,7 +933,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 			else
 			{
-				System.out.println("WARNING portal-temporary placement mismatch site="
+				log.warn("portal-temporary placement mismatch site="
 						+ site.getId() + " context=" + cont);
 			}
 		}

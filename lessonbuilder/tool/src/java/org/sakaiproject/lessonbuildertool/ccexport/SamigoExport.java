@@ -282,7 +282,7 @@ public class SamigoExport {
 	    // older. all pools at once
 	    List<QuestionPoolDataIfc>pools = questionPoolFacadeQueries.getBasicInfoOfAllPools(UserDirectoryService.getCurrentUser().getId());
 
-	    System.out.println("pools " + pools.size());
+	    log.info("pools " + pools.size());
 
 	    if (pools != null && pools.size() > 0) {
 		int poolno = 1;

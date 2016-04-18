@@ -94,10 +94,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-        <dependency>
             <groupId>easymock</groupId>
             <artifactId>easymock</artifactId>
             <version>1.2_Java1.3</version>
@@ -145,6 +141,7 @@
                 <includes>
                     <include>hibernate-test.xml</include>
                     <include>hibernate.properties</include>
+                    <include>log4j.properties</include>
                 </includes>
                 <filtering>false</filtering>
             </testResource>

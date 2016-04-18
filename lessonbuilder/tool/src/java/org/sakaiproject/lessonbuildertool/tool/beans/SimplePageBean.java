@@ -327,7 +327,7 @@ public class SimplePageBean {
 		date = date.substring(0,19);
 		this.peerEvalDueDate = isoDateFormat.parse(date);
 	    } catch (Exception e) {
-		System.out.println(e + "bad format duedate " + date);
+		log.info(e + "bad format duedate " + date);
 	    }
 	}
 	
@@ -340,7 +340,7 @@ public class SimplePageBean {
 		date = date.substring(0,19);
 		this.peerEvalOpenDate = isoDateFormat.parse(date);
 	    } catch (Exception e) {
-		System.out.println(e + "bad format duedate " + date);
+		log.info(e + "bad format duedate " + date);
 	    }
 	}
 	
@@ -443,22 +443,22 @@ public class SimplePageBean {
 		try {
 		    items = csvParser.parseLine(bltiToolLines[i]);
 		} catch (Exception e) {
-		    System.out.println("bad blti tool spec in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    log.info("bad blti tool spec in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
 		    continue;
 		}
 		if (items.length < 5) {
-		    System.out.println("bad blti tool spec in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);
+		    log.info("bad blti tool spec in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);
 		    continue;
 		}
 		BltiTool bltiTool = new BltiTool();
 		try {
 		    bltiTool.id = Integer.parseInt(items[0]);
 		} catch (Exception e) {
-		    System.out.println("first item in line not integer in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    log.info("first item in line not integer in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
 		    continue;
 		}
 		if (items[1] == null || items[1].length() == 0) {
-		    System.out.println("second item in line missing in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    log.info("second item in line missing in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
 		    continue;
 		}
 		bltiTool.title = items[1];
@@ -468,7 +468,7 @@ public class SimplePageBean {
 		else
 		    bltiTool.description = items[2];
 		if (items[3] == null || items[3].length() == 0) {
-		    System.out.println("third item in line missing in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    log.info("third item in line missing in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
 		    continue;
 		}
 		bltiTool.addText = items[3];
@@ -480,7 +480,7 @@ public class SimplePageBean {
 		ret.put(bltiTool.id, bltiTool);
 	    }
 	    for (BltiTool tool: ret.values()) {
-		System.out.println(tool.id + " " + tool.title + " " + tool.description + " " + tool.addText);
+		log.info(tool.id + " " + tool.title + " " + tool.description + " " + tool.addText);
 	    }
 	    return ret;
 	}
@@ -677,7 +677,7 @@ public class SimplePageBean {
 	public void setErrMessage(String s) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		if (toolSession == null) {
-		    System.out.println("Lesson Builder error not in tool: " + s);
+		    log.info("Lesson Builder error not in tool: " + s);
 		    return;
 		}
 		List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
@@ -780,7 +780,7 @@ public class SimplePageBean {
 		date = date.substring(0,19);
 		this.releaseDate = isoDateFormat.parse(date);
 	    } catch (Exception e) {
-		System.out.println(e + "bad format releasedate " + date);
+		log.info(e + "bad format releasedate " + date);
 	    }
 	}
 
@@ -2661,7 +2661,7 @@ public class SimplePageBean {
 
 	    // this adds everything you can find from top level pages to entries
 	    for (SimplePageItem sitePageItem : sitePages) {
-		// System.out.println("findallpages " + sitePageItem.getName() + " " + true);
+		// log.info("findallpages " + sitePageItem.getName() + " " + true);
 		pagePickerProducer().findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true, true);
 	    }
 		    
@@ -5312,7 +5312,7 @@ public class SimplePageBean {
 			List<SimplePageItem> items = getItemsOnPage(pageId);
 
 			for (SimplePageItem i : items) {
-			    // System.out.println(i.getSequence() + " " + i.isRequired() + " " + isItemVisible(i) + " " + isItemComplete(i));
+			    // log.info(i.getSequence() + " " + i.isRequired() + " " + isItemVisible(i) + " " + isItemComplete(i));
 				if (i.getSequence() >= item.getSequence()) {
 				    break;
 				} else if (i.isRequired() && isItemVisible(i)) {
@@ -6109,7 +6109,7 @@ public class SimplePageBean {
 			    //		  else
 					update(item);
 			} catch (Exception e) {
-			    System.out.println("save error " + e);
+			    log.info("save error " + e);
 				// 	saveItem and update produce the errors
 			}
 		}catch(Exception ex) {
@@ -6171,7 +6171,7 @@ public class SimplePageBean {
 			e.printStackTrace();
                         return;
                 }
-		// System.out.println("contentItem="+contentItem);
+		// log.info("contentItem="+contentItem);
 
 		// Extract the content item data
 		Map item = (Map) contentItem.getItemOfType(ContentItem.TYPE_FILEITEM);
@@ -6181,7 +6181,7 @@ public class SimplePageBean {
 		}
 
 		String localUrl = (String) item.get("url");
-		// System.out.println("localUrl="+localUrl);
+		// log.info("localUrl="+localUrl);
 
 		InputStream fis = null;
 		if ( localUrl != null && localUrl.length() > 1 ) {
@@ -6195,7 +6195,7 @@ public class SimplePageBean {
 				return;
 			}
 
-			// System.out.println("Importing...");
+			// log.info("Importing...");
 			long length = importCcFromStream(fis);
 			if ( length > 0 && toolSession != null) {
 				String successMessage = messageLocator.getMessage("simplepage.lti-import-success-length").replace("{}", length+"");
@@ -7372,7 +7372,7 @@ public class SimplePageBean {
 					      m.getUserId(), String.valueOf(c.getPoints()));
 				    }
 				} catch (Exception e) {
-				    System.out.println("unable to get members of group " + group);
+				    log.info("unable to get members of group " + group);
 				}
 			    }
 			}
@@ -7865,7 +7865,7 @@ public class SimplePageBean {
 			    evalTargets.add(m.getUserId());
 			}
 		    } catch (Exception e) {
-			System.out.println("unable to get members of group " + group);
+			log.info("unable to get members of group " + group);
 		    }
 		} else {
 		    evalTargets.add(getCurrentPage().getOwner());
@@ -7932,7 +7932,7 @@ public class SimplePageBean {
 			groupMembers.add(m.getUserId());
 		    }
 		} catch (Exception e) {
-		    System.out.println("unable to get members of group " + group);
+		    log.info("unable to get members of group " + group);
 		}
 	    }
 	    return groupMembers;

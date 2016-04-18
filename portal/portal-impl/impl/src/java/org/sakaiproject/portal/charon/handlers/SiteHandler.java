@@ -1082,10 +1082,10 @@ public class SiteHandler extends WorksiteHandler
 			String bodyString = responseStr.substring(bodyStart + 1, bodyEnd);
 			if (tidAllow.indexOf(":debug:") >= 0)
 			{
-				System.out.println(" ---- Head --- ");
-				System.out.println(headString);
-				System.out.println(" ---- Body --- ");
-				System.out.println(bodyString);
+				log.info(" ---- Head --- ");
+				log.info(headString);
+				log.info(" ---- Body --- ");
+				log.info(bodyString);
 			}
 			m.put("responseHead", headString);
 			m.put("responseBody", bodyString);

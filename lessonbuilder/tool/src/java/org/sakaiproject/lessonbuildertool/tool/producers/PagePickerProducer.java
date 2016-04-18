@@ -43,6 +43,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -84,6 +86,7 @@ import uk.org.ponder.rsf.util.RSFUtil;
  * 
  */
 public class PagePickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Log log = LogFactory.getLog(PagePickerProducer.class);
 	public static final String VIEW_ID = "PagePicker";
 	private static String SITE_UPD = "site.upd";
 
@@ -142,7 +145,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     //      that lets us find at the end anything that hasn't been shown
 
     public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, Set<Long>sharedPages, int level, boolean toplevel, boolean canEditPage) {
-	    // System.out.println("in findallpages " + pageItem.getName() + " " + toplevel);
+	    // log.info("in findallpages " + pageItem.getName() + " " + toplevel);
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
 
 	    if (pageId == 0L)
@@ -177,7 +180,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			    Properties roleConfig = placement.getPlacementConfig();
 			    String roleList = roleConfig.getProperty("functions.require");
 			    String visibility = roleConfig.getProperty("sakai-portal:visible");
-			    // System.out.println("roles " + roleList + " visi " + visibility);
+			    // log.info("roles " + roleList + " visi " + visibility);
 			    // doesn't require site update, so visible
 			    if ((visibility == null || !visibility.equals("false")) &&
 				(roleList == null || roleList.indexOf(SITE_UPD) < 0)) {
@@ -236,7 +239,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			if (item.getNextPage())
 			    nexts.add(item);
 			else  {
-			    // System.out.println("call for subpage " + item.getName() + " " + false);
+			    // log.info("call for subpage " + item.getName() + " " + false);
 			    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level +1, false, canEditPage);
 			}
 	    	}
@@ -244,7 +247,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    // nexts done afterwards
 	    for (SimplePageItem item: nexts) {
 	    	if (item.getType() == SimplePageItem.PAGE) {
-		    // System.out.println("calling findallpage " + item.getName() + " " + false);
+		    // log.info("calling findallpage " + item.getName() + " " + false);
 		    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level, false, canEditPage);
 	    	}
 	    }
@@ -272,7 +275,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			try {
 				simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 			} catch (Exception e) {
-				System.out.println("PagePicker permission exception " + e);
+				log.info("PagePicker permission exception " + e);
 				return;
 			}
 		}
@@ -347,7 +350,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		// this adds everything you can find from top level pages to entries. But make sure user can see
 		// the tool
 		for (SimplePageItem sitePageItem : sitePages) {
-		    // System.out.println("findallpages " + sitePageItem.getName() + " " + true);
+		    // log.info("findallpages " + sitePageItem.getName() + " " + true);
 		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true, canEditPage);
 		}
 
