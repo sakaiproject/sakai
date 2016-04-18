@@ -72,6 +72,8 @@ public class PermissionsPage extends BasePage {
 		// get list of categories
 		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
 
+		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
+
 		// add the default 'all' category
 		categories.add(0, new CategoryDefinition(this.ALL_CATEGORIES, getString("categories.all")));
 
@@ -329,6 +331,7 @@ public class PermissionsPage extends BasePage {
 				// set selected or first item
 				categoryChooser.setModelObject((permission.getCategoryId() != null) ? permission.getCategoryId() : categoryIdList.get(0));
 				categoryChooser.setNullValid(false);
+				categoryChooser.setVisible(categoriesEnabled);
 				item.add(categoryChooser);
 
 				// in
