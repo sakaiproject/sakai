@@ -84,20 +84,17 @@
 /** STAT WIDGET: Mini panels */
 .widget .ministatContainer {
     margin-left: 100px;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    flex-direction: row;
 }
 .widget .ministat {
-    min-width: 60px;
-    max-width: 120px;
-    width: auto;
-    width: expression(this.clientWidth<62 ? "60px" :   this.clientWidth>122 ? "120px" : "auto");
-    min-height: 60px;
-    max-height: 60px;
-    height: auto;
-    height: expression(this.clientHeight<62 ? "60px" : "auto");
     padding: 0 10px;
     border-left: 1px solid #CCC;
     text-align: center;
-    float: left;
 }
 .widget .load {
     text-align: center;
@@ -135,12 +132,13 @@
 .widget .ministat .label {
     font-size: 12px;
     font-style:normal;
-    /*color: #777;*//* STAT-224 */
 }
 .widget .ministat a {
     text-decoration: none !important;
     /*color: #777;*//* STAT-224 */
-    line-height: 13px !important;
+    line-height: 1 !important;
+    font-size: 0.9em;
+    display:inline-block;
 }
 .widget .ministat a.extlink,
 .widget .ministat a.extlink span {
