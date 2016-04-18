@@ -549,17 +549,20 @@
 										</select>
 									</p>	
 								#elseif ($gradeType == 5)
-									<p class="checkbox">
-											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
+									<p class="form-group">											
+											<label for="gradeChecked">
+											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> 
+											$tlang.getString("gen.gra2") $tlang.getString("gen.checked")
+											</label>
 									</p>	
 								#end
 
                                                                 #if ($assignment.isGroup())
-                                                                    <p class="checkbox" id="tempGradeOverride" >
+                                                                    <div class="form-group" id="tempGradeOverride" >
                                                                         <input type="checkbox" id="allowGradeOverrideToggle" #if($value_grades && $value_grades.size()>0)checked="checked"#end name ="allowGradeOverrideToggle" onclick="if(checked){document.getElementById('gradeOverridePanel').style.display='block';ASN.resizeFrame();}else{document.getElementById('gradeOverridePanel').style.display = 'none';}" />
                                                                         <label for="allowGradeOverrideToggle">$tlang.getString("allowGradeOverride")</label>
-                                                                    </p>
-                                                                    <div id="gradeOverridePanel" style="margin-left: 50px;width:80%;#if(!$value_grades || $value_grades.size()<1)display:none;#end">
+                                                                    </div>
+                                                                    <div id="gradeOverridePanel" style="#if(!$value_grades || $value_grades.size()<1)display:none;#end">
                                                                     ## replace it with submitter sort names
                                                                     #foreach ($submitter in $submission.submitters)
                                                                         #set($submitterName = $submitter.getDisplayName())
@@ -572,37 +575,49 @@
                                                                         #set ($group_value_grade = "")
                                                                         #set ($group_value_grade = $value_grades.get($submitter.getId()))
                                                                         #if ($gradeType == 2)
-                                                                            $!submitterName
+                                                                            <div class="row-override">
+                                                                            <label>$!submitterName</label>
                                                                             <div class="shorttext">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> 
+                                                                                <span$tlang.getString("gen.grade.override")</span> 
                                                                                 <select name="$group_name_grade" id="grade">
 											<option  value="" #if($!group_value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
 											#foreach ($i in $letterGradeOptions)
 												<option  value="$i" #if ($!group_value_grade.equals($i))selected="selected"#end>$i</option>
 											#end
                                                                                 </select>
-                                                                            </div>    
+                                                                            </div>
+                                                                            </div>  
                                                                         #elseif ($gradeType == 3)
-                                                                            $!submitterName
-                                                                            <div class="shorttext">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> <input type="text" name="$group_name_grade" size="5" maxlength="11" value="$!group_value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
-                                                                            </div>    
+                                                                            <div class="row-override">
+                                                                                <label>$!submitterName</label>
+                                                                                <div class="shorttext">
+                                                                                    <span>$tlang.getString("gen.grade.override")</span> <input type="text" name="$group_name_grade" size="5" maxlength="11" value="$!group_value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" /> <span>($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+                                                                                </div>    
+                                                                            </div>
                                                                         #elseif ($gradeType == 4)
-                                                                            $!submitterName
-                                                                            <div class="shorttext">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> 
-                                                                                <select name="$group_name_grade" id="grade" >
-                                                                                    <option  value="" #if($!group_value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
-                                                                                    #foreach ($i in ["Pass", "Fail"])
-                                                                                        <option  value="$i" #if ($!group_value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
-                                                                                    #end
-                                                                                </select>
-                                                                            </div>    
+                                                                            <div class="row-override">
+                                                                                <label>$!submitterName</label>
+                                                                                <div class="shorttext">
+                                                                                    <span>$tlang.getString("gen.grade.override")</span> 
+                                                                                    <select name="$group_name_grade" id="grade" >
+                                                                                        <option  value="" #if($!group_value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
+                                                                                        #foreach ($i in ["Pass", "Fail"])
+                                                                                            <option  value="$i" #if ($!group_value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+                                                                                        #end
+                                                                                    </select>
+                                                                                </div>   
+                                                                            </div>
                                                                         #elseif ($gradeType == 5)
-                                                                            $!submitterName
-                                                                            <div class="checkbox">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> <input name="$group_name_grade" type="checkbox" value="Checked" #if ($!group_value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
-                                                                            </div>    
+                                                                            <div class="row-override">
+                                                                                <label>$!submitterName</label>
+                                                                                <div class="assignment-checkbox-inline">
+                                                                                    <span>$tlang.getString("gen.grade.override")</span>                                                                                    
+                                                                                    <label for="gradeChecked">
+                                                                                    <input name="$group_name_grade" type="checkbox" value="Checked" #if ($!group_value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> 
+                                                                                    $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
+                                                                                    </label>
+                                                                                </div>   
+                                                                            </div>
                                                                         #end
                                                                     #end
                                                                     </div>
