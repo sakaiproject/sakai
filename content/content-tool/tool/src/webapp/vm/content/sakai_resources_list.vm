@@ -422,7 +422,7 @@
 									<a href="#" 
 										title="$tlang.getString('gen.copycomf') $item.hoverText [$tlang.getString('gen.newwin')]"
 										onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
-										xxx111 $validator.escapeHtml($item.name)
+										$validator.escapeHtml($item.name)
 									</a>
 									&#169;
 								#elseif($item.isCollection())
