@@ -25,4 +25,22 @@
 			}
 		}
 	}
+
+	#gradeOverridePanel{
+		margin-left: 50px;
+		width:100%;
+		background-color: $tool-background-color;		
+		.row-override:nth-child(odd){
+			background: darken($tool-background-color, 5%);
+		}
+		.row-override{
+			padding: 0.5em 0 0.5em;
+		}
+		.shorttext{
+			display: inline-block;
+		}
+		.assignment-checkbox-inline{
+			display: inline-block;
+		}		
+	}
 }
