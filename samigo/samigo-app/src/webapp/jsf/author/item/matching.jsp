@@ -87,179 +87,172 @@
   <h:inputTextarea id="ed0" cols="10" rows="10" value="            " />
   </div>
 
-  <!-- 1 POINTS -->
-  <div class="tier2">
-   <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
-<f:validateDoubleRange minimum="0.00"/>
-</h:inputText>
-<br/><h:message for="answerptr" styleClass="validate"/>
-  </div>
-  <div class="longtext">
-    <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
-	<div class="tier3">
-    <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
-     <f:selectItem itemValue="true"
-       itemLabel="#{authorMessages.yes}" />
-     <f:selectItem itemValue="false"
-       itemLabel="#{authorMessages.no}" />
-    </h:selectOneRadio>
-  </div>
-<br/>
-  <!-- 1.2 Min POINTS -->
-<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-<f:verbatim>
-<div class="shorttext">
-</f:verbatim>
-<h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
-<f:validateDoubleRange/>
-</h:inputText>
-<f:verbatim><div></f:verbatim>
-<h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
-<f:verbatim></div></f:verbatim>
-<br/><h:message for="answerminptr" styleClass="validate"/>
-<f:verbatim>
-  </div>
-<br/>
-</f:verbatim>
-</f:subview>
-  <!-- 2 TEXT -->
-  <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
-  <br/>
-  <!-- WYSIWYG -->
-  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
+    <!-- 1 POINTS -->
+    <div class="form-group row">
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-2">
+            <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
+                        required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);" styleClass="form-control">
+                <f:validateDoubleRange minimum="0.00"/>
+            </h:inputText>
+            <h:message for="answerptr" styleClass="validate"/>
+        </div>
+    </div>
+    
+    <div  class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-5 samigo-inline-radio">
+            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
+            </h:selectOneRadio>
+        </div>
+    </div>
 
-  </h:panelGrid>
-  </div>
-
-  <!-- 2a ATTACHMENTS -->
-  <%@ include file="/jsf/author/item/attachment.jsp" %>
-  
-  <!-- 3 ANSWER -->
-  <div class="longtext"> <h:outputLabel value="#{authorMessages.create_pairing} " /></div>
-<div class="tier2">
-  <!-- display existing pairs -->
-
-<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
-      
-      <h:column>
-        <f:facet name="header">
-          
-          <h:outputText value=""  />
-        </f:facet>
-
-          <h:outputText value="#{pair.sequence}"  />
-      </h:column>
-
-      <h:column>
-        <f:facet name="header">
-          <h:outputText value="#{authorMessages.matching_choice_col}"  />
-        </f:facet>
-          <h:outputText escape="false" value="#{pair.choice}"  />
-      </h:column>
-
-      <h:column>
-        <f:facet name="header">
-          <h:outputText value="#{authorMessages.matching_match_col}"  />
-        </f:facet>
-          <h:outputText escape="false" value="#{pair.match}"  />
-      </h:column>
-
-      <h:column>
-        <f:facet name="header">
-          <h:outputText value=""/>
-        </f:facet>
-
-     <h:panelGrid>
-     <h:panelGroup>
-<h:commandLink rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}" id="modifylink" immediate="true" action="#{itemauthor.currentItem.editMatchPair}">
-  <h:outputText id="modifytext" value="#{commonMessages.edit_action}"/>
-  <f:param name="sequence" value="#{pair.sequence}"/>
-</h:commandLink>
-
-          <h:outputText value="#{authorMessages.matching_currently_editing}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence== pair.sequence}"/>
-          <h:outputText value=" #{authorMessages.separator} " rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}"/>
-
-<h:commandLink id="removelink" immediate="true" action="#{itemauthor.currentItem.removeMatchPair}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}">
-  <h:outputText id="removetext" value="#{commonMessages.remove_action}"/>
-  <f:param name="sequence" value="#{pair.sequence}"/>
-</h:commandLink>
-     </h:panelGroup>
-     </h:panelGrid>
-      </h:column>
-
-     </h:dataTable>
-<h:outputLabel value="<p>#{authorMessages.no_matching_pair}</p>" escape="false" rendered="#{itemauthor.currentItem.matchItemBeanList eq '[]'}"/>
-
-</div>
+    <!-- 1.2 Min POINTS -->
+    <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">    
+        <div class="form-group row">   
+            <h:outputLabel value="#{authorMessages.answer_min_point_value}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-2">
+                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);"
+                            styleClass="form-control">
+                    <f:validateDoubleRange/>
+                </h:inputText>
+                <h:outputText value="#{authorMessages.answer_min_point_info}"  />
+                <h:message for="answerminptr" styleClass="validate"/>
+            </div>
+        </div>
+    </f:subview>
+    
+    <!-- 2 TEXT -->
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-4 form-control-label"/>  
         <!-- WYSIWYG -->
-<div class="tier2">
-   
-          <h:outputText value=" #{authorMessages.matching_choice_col}"/>
-<h:panelGrid>
-  <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.choice}"
-  	rows="140"   
-  	hasToggle="yes" mode="author">
-     <f:validateLength maximum="4000" />
-   </samigo:wysiwyg>  
-   
-</h:panelGrid>
-    <h:outputText value=" #{authorMessages.matching_match_col}"/>
-	<h:selectOneMenu value="#{itemauthor.currentItem.currentMatchPair.controllingSequence }" id="controllingSequence">
-		<f:selectItems value="#{itemauthor.currentItem.selfSequenceList }" />
-	</h:selectOneMenu>
+        <div class="col-md-8">
+            <h:panelGrid>
+                <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}" hasToggle="yes" mode="author">
+                    <f:validateLength maximum="60000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
+        </div>
+    </div>
 
- <h:panelGrid>
-   <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.match}"
-    rows="140"   
-   	hasToggle="yes" mode="author">
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
-
-   </h:panelGrid>
-</div>
-
- <!-- Match FEEDBACK -->
-
-<div class="tier2">
+    <!-- 2a ATTACHMENTS -->
+    <%@ include file="/jsf/author/item/attachment.jsp" %>
   
-<!-- WYSIWYG -->
-<h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
-  <h:outputText value="#{authorMessages.correct_match_feedback_opt}"/>
-  <f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
-   </h:panelGrid>
+    <!-- 3 ANSWER -->
+    <div class="longtext"> 
+        <h:outputLabel value="#{authorMessages.create_pairing} " />
+    </div>
+    <div>
+    <!-- display existing pairs -->
 
-  <f:verbatim><br/></f:verbatim>
+        <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
+      
+        <h:column>
+            <f:facet name="header">          
+                <h:outputText value=""  />
+            </f:facet>
+          <h:outputText value="#{pair.sequence}"  />
+        </h:column>
 
-  <!-- WYSIWYG -->
-  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
-   <h:outputText value="#{authorMessages.incorrect_match_feedback_opt}"/>
-   <f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-  </samigo:wysiwyg>
-  </h:panelGrid>
+        <h:column>
+            <f:facet name="header">
+                <h:outputText value="#{authorMessages.matching_choice_col}"  />
+            </f:facet>
+          <h:outputText escape="false" value="#{pair.choice}"  />
+        </h:column>
 
-<f:verbatim><br/></f:verbatim>
-  </div>
+        <h:column>
+            <f:facet name="header">
+                <h:outputText value="#{authorMessages.matching_match_col}"  />
+            </f:facet>
+            <h:outputText escape="false" value="#{pair.match}"  />
+        </h:column>
+        
+        <h:column>
+            <f:facet name="header">
+                <h:outputText value=""/>
+            </f:facet>
+            <h:panelGrid>
+                <h:panelGroup>
+                    <h:commandLink rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}" id="modifylink" immediate="true" action="#{itemauthor.currentItem.editMatchPair}">
+                        <h:outputText id="modifytext" value="#{commonMessages.edit_action}"/>
+                        <f:param name="sequence" value="#{pair.sequence}"/>
+                    </h:commandLink>
+                    <h:outputText value="#{authorMessages.matching_currently_editing}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence== pair.sequence}"/>
+                    <h:outputText value=" #{authorMessages.separator} " rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}"/>
+                    <h:commandLink id="removelink" immediate="true" action="#{itemauthor.currentItem.removeMatchPair}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}">
+                        <h:outputText id="removetext" value="#{commonMessages.remove_action}"/>
+                        <f:param name="sequence" value="#{pair.sequence}"/>
+                    </h:commandLink>
+                </h:panelGroup>
+            </h:panelGrid>
+        </h:column>
+        </h:dataTable>
+        <h:outputLabel value="<p>#{authorMessages.no_matching_pair}</p>" escape="false" rendered="#{itemauthor.currentItem.matchItemBeanList eq '[]'}"/>
+    </div>
+    
+    <!-- WYSIWYG -->
+    <div class="tier2">
+        <div class="form-group row">
+            <h:outputLabel value=" #{authorMessages.matching_choice_col}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-8">
+                <h:panelGrid>
+                    <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.choice}"
+                        rows="140" hasToggle="yes" mode="author">
+                        <f:validateLength maximum="4000" />
+                    </samigo:wysiwyg>   
+                </h:panelGrid>
+            </div>
+        </div>
+        <div class="form-group row">        
+            <h:outputLabel for="controllingSequence" value=" #{authorMessages.matching_match_col}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-8">
+        <h:selectOneMenu value="#{itemauthor.currentItem.currentMatchPair.controllingSequence }" id="controllingSequence">
+            <f:selectItems value="#{itemauthor.currentItem.selfSequenceList }" />
+        </h:selectOneMenu>        
+        <h:panelGrid>
+            <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.match}"
+                rows="140" hasToggle="yes" mode="author">
+                <f:validateLength maximum="4000"/>
+            </samigo:wysiwyg>
+        </h:panelGrid>
+        </div>
+        </div>
+    </div>
 
+    <!-- Match FEEDBACK -->
+    <h:panelGroup layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}"> 
+        <!-- WYSIWYG -->
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.correct_match_feedback_opt}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-8">
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}" hasToggle="yes" mode="author">
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+               </h:panelGrid>
+            </div>
+        </div>
+        <!-- WYSIWYG -->
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.incorrect_match_feedback_opt}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-8">
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" hasToggle="yes" mode="author">
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+                </h:panelGrid>
+            </div>
+        </div>
+     </h:panelGroup>
 
-<f:verbatim><br/></f:verbatim>
-<f:verbatim><br/></f:verbatim>
-<div class="tier2">
-  <h:commandButton value="#{commonMessages.action_save_pair}" action="#{itemauthor.currentItem.addMatchPair}">
-  </h:commandButton>
-</div>
-<f:verbatim><br/></f:verbatim>
-<f:verbatim><br/></f:verbatim>
-<f:verbatim><br/></f:verbatim>
+    <f:verbatim><br/></f:verbatim>
+    <div class="tier2">
+        <h:commandButton value="#{commonMessages.action_save_pair}" action="#{itemauthor.currentItem.addMatchPair}"></h:commandButton>
+    </div>
+    <f:verbatim><br/></f:verbatim>
 
 <%--
     <!-- 4 RANDOMIZE -->
@@ -282,75 +275,80 @@
        itemLabel="#{authorMessages.no}" />
     </h:selectOneRadio>
   </div>
-
 --%>
+
     <!-- 6 PART -->
-
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-<f:verbatim>&nbsp;</f:verbatim>
-<h:outputLabel value="#{authorMessages.assign_to_p}" />
-  <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
-     <f:selectItems  value="#{itemauthor.sectionSelectList}" />
-  </h:selectOneMenu>
-
-  </h:panelGrid>
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
+        <h:outputLabel value="#{authorMessages.assign_to_p}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-8">
+            <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
+                <f:selectItems  value="#{itemauthor.sectionSelectList}" />
+            </h:selectOneMenu>
+        </div>
+    </h:panelGroup>
 
     <!-- 7 POOL -->
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-<f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{authorMessages.assign_to_question_p}" />
-<%-- stub debug --%>
-  <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
-     <f:selectItems value="#{itemauthor.poolSelectList}" />
-  </h:selectOneMenu>
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">      
+        <h:outputLabel value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 form-control-label"/>
+        <div class="col-md-8">
+            <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
+                <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
+                <f:selectItems value="#{itemauthor.poolSelectList}" />
+            </h:selectOneMenu>
+       </div>
+  </h:panelGroup>
 
-  </h:panelGrid><br/>
+    <!-- 8 FEEDBACK -->    
+    <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-control-label"/>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.correct_answer_opti}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-8">
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+               </h:panelGrid>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-8">
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+                </h:panelGrid>
+           </div>
+        </div>
+    </h:panelGroup>
 
 
- <!-- 8 FEEDBACK -->
-  <f:verbatim></f:verbatim>
-<f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}"/>
-<f:verbatim><br/></br/></div><div class="tier2"></f:verbatim>
+    <!-- METADATA -->
+    <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
+        <h:outputLabel value="Metadata"/><br/>
+        <div class="form-group row">
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-5">
+                <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-5">
+                <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 form-control-label"/>
+            <div class="col-md-5">
+                <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
+            </div>
+        </div>
+    </h:panelGroup>
 
-<h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputText value="#{authorMessages.correct_answer_opti}" />
-  <f:verbatim><br/></f:verbatim>
-  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
- </h:panelGrid>
-
-<f:verbatim><br/></f:verbatim>
-
- <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputText value="#{authorMessages.incorrect_answer_op}"/>
-  <f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
- </h:panelGrid>
-
-<f:verbatim><br/></div></f:verbatim>
-
-<!-- METADATA -->
-
-<h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim></f:verbatim>
-<h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="tier2"></f:verbatim>
-
-<h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputText value="#{authorMessages.objective}" />
-  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputText value="#{authorMessages.keyword}" />
-  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputText value="#{authorMessages.rubric_colon}" />
-  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
-</h:panelGrid>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
-</div>
 
 
 
