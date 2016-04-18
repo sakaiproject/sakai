@@ -7,6 +7,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;
 import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.SakaiFsService;
@@ -30,6 +31,9 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
     private MessageForumsForumManager messageForumsForumManager;
     private UIPermissionsManager uiPermissionsManager;
     private UserDirectoryService userDirectoryService;
+    private ServerConfigurationService serverConfigurationService;
+    private static final String MFORUM_FORUM_PREFIX = "/direct/forum/";
+    private static final String MFORUM_TOPIC_PREFIX = "/direct/forum_topic/";
 
     public void setDiscussionForumManager(DiscussionForumManager discussionForumManager) {
         this.discussionForumManager = discussionForumManager;
@@ -45,6 +49,10 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
 
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     @Override
@@ -227,8 +235,19 @@ public class MsgCntrSiteVolumeFactory implements SiteVolumeFactory {
             return null;
         }
 
-        public String getURL(FsItem f) {
-            return null;
+        public String getURL(FsItem fsItem) {
+            String serverUrlPrefix = serverConfigurationService.getServerUrl();
+            if(fsItem instanceof ForumMsgCntrFsItem){
+                BaseForum forum1 = ((ForumMsgCntrFsItem)fsItem).getForum();
+               return serverUrlPrefix + MFORUM_FORUM_PREFIX + String.valueOf(forum1.getId());
+            }
+            else if(fsItem instanceof TopicMsgCntrFsItem){
+                Topic topic = ((TopicMsgCntrFsItem)fsItem).getTopic();
+                return serverUrlPrefix + MFORUM_TOPIC_PREFIX + String.valueOf(topic.getId());
+            }
+            else{
+                return null;
+            }
         }
 
         public boolean isWriteable(FsItem fsi) {
