@@ -148,7 +148,7 @@ function toggleRows(elm) {
  var rows = tables[t].getElementsByTagName("TR");
 
  //var rows = document.getElementsByTagName("TR");
- elm.style.backgroundImage = "${pageContext.request.contextPath}/images/folder-closed.gif)";
+ elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
  var newDisplay = "none";
  var spannode = elm.parentNode;
  var inputnode = spannode.getElementsByTagName("INPUT")[0];
