@@ -26,15 +26,16 @@
 <body>
 <wicket:extend>
 	
-	<div id="pageWrapper">
+	<div id="pageWrapper" class="container-fluid">
+	<div class="row">
 	
 		<!-- 
-		<div id="leftPanel">
+		<div id="leftPanel" class="col-md-2">
 	    
 	    </div>
 		-->
 		
-		<div id="fullWidth">
+		<div id="fullWidth" class="col-md-12">
 		
 			<form wicket:id="tabs" class="form-rounded">		
            		<input type="submit" wicket:id="repeater" value="[buttons]" />
@@ -45,8 +46,9 @@
 			
 		</div>
 		
-		<!-- <div id="rightPanel"></div> -->
+		<!-- <div id="rightPanel" class="col-md-8"></div> -->
 	
+	</div>
 	</div>
 	
 	<script type="text/javascript">

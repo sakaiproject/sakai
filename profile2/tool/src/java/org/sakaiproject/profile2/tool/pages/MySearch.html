@@ -26,65 +26,75 @@
 <body>
 <wicket:extend>
 	
-	<div id="pageWrapper">
-	
+	<div id="pageWrapper" class="container-fluid">
+	<div class="row">
 		<!-- 
-		<div id="leftPanel">
+		<div id="leftPanel" class="col-md-2">
 	    
 	    </div>
 		-->
 		
-		<div id="fullWidth">
+		<div id="fullWidth" class="col-md-12">
 			<!-- search form -->
 			<div class="mainSectionContentForm">
 				<h3 wicket:id="searchHeading" class="header icon search">[searchHeading]</h3>
 				
 				<form wicket:id="searchForm" class="profileForm">
-					<table class="profileContent">
-						<tr>
-							<td class="label" wicket:id="searchLabel">[searchLabel]</td>
-							<td class="content">
-								<label for="searchinput" class="accessibility-label"><wicket:message key="text.search.terms.tooltip"></wicket:message></label>
-								<input type="text" wicket:id="searchField" class="formInputField" wicket:message="title:text.search.terms.tooltip" />
-							</td>
-							<td class="toolTip"><span wicket:id="searchToolTip">[searchToolTip]</span></td>
-						</tr>
-					</table>
+
+					<div class="profileContent">
+						<p class="accesibility-label" wicket:id="searchLabel">[searchLabel]</p>
+						<div class="form-group">
+							<p class="content">
+								<label for="searchinput">
+									<p class="toolTip"><span wicket:id="searchToolTip">[searchToolTip]</span></p>
+									<wicket:message key="text.search.terms.tooltip"></wicket:message>
+								</label>
+								<input type="text" wicket:id="searchField" class="form-control" wicket:message="title:text.search.terms.tooltip" />
+							</p>
+						</div>
+					</div>
 					
-					<table class="profileContent">
-						<tr wicket:id="searchTypeRadioGroup">
-							<td wicket:id="searchTypeNameLabel">[searchTypeNameLabel]</td>
-							<td>
-								<input type="radio" wicket:id="searchTypeName" />
-								<label for="searchtypenameinput" class="accessibility-label"><wicket:message key="text.search.byname.tooltip" /></label>
-							</td>
-							<td wicket:id="searchTypeInterestLabel">[searchTypeInterestLabel]</td>
-							<td>
-								<input type="radio" wicket:id="searchTypeInterest" />
-								<label for="searchtypeinterestinput" class="accessibility-label"><wicket:message key="text.search.byinterest.tooltip" /></label>
-							</td>
-						</tr>
-					</table>
-					<table class="profileContent">
-						<tr>
-							<td class="label" wicket:id="connectionsLabel">[connectionsLabel]</td>
-							<td>
+					<div class="profileContent">
+						<div wicket:id="searchTypeRadioGroup">
+							<h4 wicket:id="searchTypeNameLabel">[searchTypeNameLabel]</h4>
+							<div class="radio">
+								<label for="searchtypenameinput">
+									<input type="radio" wicket:id="searchTypeName" />
+									<wicket:message key="text.search.byname.tooltip" />
+								</label>
+							</div>
+							<h4 wicket:id="searchTypeInterestLabel">[searchTypeInterestLabel]</h4>
+							<div class="radio">
+								<label for="searchtypeinterestinput">
+									<input type="radio" wicket:id="searchTypeInterest" />
+									<wicket:message key="text.search.byinterest.tooltip" />
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="profileContent">
+
+						<h4 wicket:id="connectionsLabel">[connectionsLabel]</h4>
+						<div class="checkbox">
+							<label for="includeconnectionsinput">
 								<input type="checkbox" wicket:id="connectionsCheckBox"  />
-								<label for="includeconnectionsinput" class="accessibility-label"><wicket:message key="accessibility.search.connections" /></label>
-							</td>
-						</tr>
-						<tr>
-							<td class="label" wicket:id="worksiteLabel">[worksiteLabel]</td>
-							<td>
+								<wicket:message key="accessibility.search.connections" />
+							</label>
+						</div>
+
+						<h4 wicket:id="worksiteLabel">[worksiteLabel]</h4>
+						<div class="checkbox">
+							<label for="limittositeinput">
 								<input type="checkbox" wicket:id="worksiteCheckBox"  />
-								<label for="limittositeinput" class="accessibility-label"><wicket:message key="accessibility.search.worksite" /></label>
-							</td>
-							<td class="content">
-								<label for="worksiteselect" class="accessibility-label"><wicket:message key="accessibility.search.worksite" /></label>
-								<select wicket:id="worksiteChoice" wicket:message="title:accessibility.search.worksite"></select>
-							</td>
-						</tr>
-					</table>
+								<wicket:message key="accessibility.search.worksite" />
+							</label>
+						</div>
+						<div class="form-group">
+							<label for="worksiteselect"><wicket:message key="accessibility.search.worksite" /></label>
+							<select wicket:id="worksiteChoice" wicket:message="title:accessibility.search.worksite"></select>
+						</div>
+					</div>
 					
 					<div class="pageFormButtons">
 						<input type="submit" wicket:id="searchSubmit" value="Search" />
@@ -144,9 +154,10 @@
 					
 		</div>
 		
-		<!-- <div id="rightPanel"></div> -->
+		<!-- <div id="rightPanel" class="col-md-8"></div> -->
 	
 	
+	</div>
 	</div>
 	
 	<!--  general Search scripting -->
