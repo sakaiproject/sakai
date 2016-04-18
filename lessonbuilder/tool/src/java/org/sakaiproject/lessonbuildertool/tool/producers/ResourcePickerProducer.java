@@ -27,6 +27,8 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -61,6 +63,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class ResourcePickerProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
+	private static final Log log = LogFactory.getLog(ResourcePickerProducer.class);
 	public static final String VIEW_ID = "ResourcePicker";
 
 	public String getViewID() {
@@ -108,7 +111,7 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 			try {
 				simplePageBean.updatePageObject(((FilePickerViewParameters) viewparams).getSender());
 			} catch (Exception e) {
-				System.out.println("ResourcePicker permission exception " + e);
+				log.info("ResourcePicker permission exception " + e);
 				return;
 			}
 		}

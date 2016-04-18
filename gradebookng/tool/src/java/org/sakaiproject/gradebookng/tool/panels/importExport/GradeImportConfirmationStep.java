@@ -1,7 +1,11 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -23,17 +27,13 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by chmaurer on 2/10/15.
  */
+@Slf4j
 public class GradeImportConfirmationStep extends Panel {
-
-    private static final Logger LOG = Logger.getLogger(GradeImportConfirmationStep.class);
 
     @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
@@ -75,9 +75,9 @@ public class GradeImportConfirmationStep extends Panel {
                 itemsToSave.addAll(itemsToUpdate);
                 itemsToSave.addAll(itemsToCreate);
                 for (ProcessedGradeItem processedGradeItem : itemsToSave) {
-                    LOG.debug("Looping through items to save");
+                    log.debug("Looping through items to save");
                     for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
-                        LOG.debug("Looping through detail items to save");
+                        log.debug("Looping through detail items to save");
                         Long assignmentId = processedGradeItem.getItemId();
                         if (assignmentId == null) {
                             //Should be a newly created gn item
@@ -96,7 +96,7 @@ public class GradeImportConfirmationStep extends Panel {
                             if (!StringUtils.equals(currentComment, newComment)) {
                                 boolean success = businessService.updateAssignmentGradeComment(assignmentId,
                                         processedGradeItemDetail.getStudentUuid(), newComment);
-                                LOG.info("Saving comment: " + success + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " +
+                                log.info("Saving comment: " + success + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " +
                                         processedGradeItemDetail.getComment());
                                 if (!success) {
                                     errors = true;
@@ -106,7 +106,7 @@ public class GradeImportConfirmationStep extends Panel {
                             //Anything other than OK is bad
                             errors = true;
                         }
-                        LOG.info("Saving grade: " + saved + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " +
+                        log.info("Saving grade: " + saved + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " +
                                 processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
                     }
                 }
@@ -124,7 +124,7 @@ public class GradeImportConfirmationStep extends Panel {
         Button backButton = new Button("backbutton") {
             @Override
             public void onSubmit() {
-                LOG.debug("Clicking back button...");
+                log.debug("Clicking back button...");
                 Component newPanel = null;
                 if (assignmentsToCreate.size() > 0)
                     newPanel = new CreateGradeItemStep(panelId, Model.of(importWizardModel));

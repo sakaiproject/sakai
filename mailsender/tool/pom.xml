@@ -109,16 +109,5 @@
 			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
-
-		<!-- provided dependencies -->
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-		</dependency>
-
-		<!-- Sakai Dependencies -->
-		<!-- sakai-user-api -->
-		<!-- sakai-util -->
-		<!-- sakai-util-api -->
 	</dependencies>
 </project>

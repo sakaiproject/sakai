@@ -35,10 +35,6 @@
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>
@@ -120,6 +116,7 @@
                 <directory>${basedir}/src/test</directory>
                 <includes>
                     <include>test-components.xml</include>
+                    <include>log4j.properties</include>
                 </includes>
             </testResource>
         </testResources>

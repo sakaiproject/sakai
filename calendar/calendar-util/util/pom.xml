@@ -49,10 +49,6 @@
             <artifactId>sakai-mergedlist-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
         	<groupId>joda-time</groupId>
         	<artifactId>joda-time</artifactId>
         	<version>${joda.time.version}</version>

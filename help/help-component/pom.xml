@@ -85,10 +85,6 @@
         <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
@@ -104,7 +100,7 @@
     <dependency>
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
-   	<version>1.6</version> 
+   	<version>1.6</version>
    </dependency>
   </dependencies>
   

@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -74,7 +76,7 @@ import org.jdom.xpath.XPath;
  */
 
 public class Parser extends AbstractParser {
-  
+  private static final Log log = LogFactory.getLog(Parser.class);
   CartridgeLoader utils; 
   
   private static final String IMS_MANIFEST="imsmanifest.xml";
@@ -118,7 +120,7 @@ public class Parser extends AbstractParser {
       processManifest(manifest, the_handler);
     } catch (Exception e) {
 	the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
-	System.out.println("parse error, stack trace follows " + e);
+	log.info("parse error, stack trace follows " + e);
 	e.printStackTrace();
 	//      throw new ParseException(e.getMessage(),e);
     }
@@ -142,7 +144,7 @@ public class Parser extends AbstractParser {
 	return;
     }
 
-    //System.out.println("Found version " + ns.cc_ns());
+    //log.info("Found version " + ns.cc_ns());
 
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
@@ -239,7 +241,7 @@ public class Parser extends AbstractParser {
 	    the_handler.getSimplePageBean().setErrKey("simplepage.cc-noresource", the_item.getAttributeValue(CC_ITEM_IDREF));
 	    return;
 	}
-      // System.out.println("process item " + the_item + " resources " + the_resources + " resource " + resource);
+      // log.info("process item " + the_item + " resources " + the_resources + " resource " + resource);
 
       the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
                               the_item.getChildText(CC_ITEM_TITLE, ns.cc_ns()));
@@ -257,9 +259,9 @@ public class Parser extends AbstractParser {
       } catch (Exception e) {
 	  e.printStackTrace();
 	  if (the_item == null)
-	      System.out.println("processitem the item null");
+	      log.info("processitem the item null");
 	  else 
-	      System.out.println("processitem failed " + the_item.getAttributeValue(CC_ITEM_IDREF));
+	      log.info("processitem failed " + the_item.getAttributeValue(CC_ITEM_IDREF));
       }
   } 
   

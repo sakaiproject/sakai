@@ -22,12 +22,18 @@
 			<groupId>uk.org.ponder.rsf</groupId>
 			<artifactId>rsf-core-ponderutilcore</artifactId>
 			<version>${rsf.version}</version>
-		</dependency>	  
+		</dependency>
 		<dependency>
 			<groupId>uk.org.ponder.rsf</groupId>
 			<artifactId>rsf-core-servletutil</artifactId>
 			<version>${rsf.version}</version>
-		</dependency>	  
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>uk.org.ponder.rsf</groupId>
 			<artifactId>rsf-core</artifactId>
@@ -120,10 +126,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
 		</dependency>
 	</dependencies>
 

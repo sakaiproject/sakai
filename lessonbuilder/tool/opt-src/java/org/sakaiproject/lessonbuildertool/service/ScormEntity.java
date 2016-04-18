@@ -246,7 +246,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 
 	List<ContentPackage> packages = dao.find(siteId);
-	System.out.println("pckages " + packages.size());
+	log.info("pckages " + packages.size());
 
 	for (ContentPackage contentPackage: packages) {
 	    if (contentPackage.isDeleted())
@@ -288,7 +288,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
-	System.out.println("title " + assignment.getTitle());
+	log.info("title " + assignment.getTitle());
 	return assignment.getTitle();
     }
 
@@ -299,10 +299,10 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	if (assignment == null)
 	    return null;
 
-	System.out.println("simplepagebean " + simplePageBean);
-	System.out.println(simplePageBean.getCurrentTool("sakai.scorm.tool"));
-	System.out.println(assignment.getResourceId());
-	System.out.println(assignment.getTitle());
+	log.info("simplepagebean " + simplePageBean);
+	log.info(simplePageBean.getCurrentTool("sakai.scorm.tool"));
+	log.info(assignment.getResourceId());
+	log.info(assignment.getTitle());
 	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/?wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage&contentPackageId=" + id + "&resourceId=" + assignment.getResourceId() + "&title=" + assignment.getTitle();
     }
 

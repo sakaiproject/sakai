@@ -31,6 +31,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This is the core abstract DirectServlet class which is meant to extended,
  * extend this to plugin whatever system you have for initiating/retrieving the EB services
@@ -41,10 +43,10 @@ import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@Slf4j
 public abstract class DirectServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-
     protected transient EntityRequestHandler entityRequestHandler;
     public void setEntityRequestHandler(EntityRequestHandler entityRequestHandler) {
         this.entityRequestHandler = entityRequestHandler;
@@ -186,7 +188,7 @@ public abstract class DirectServlet extends HttpServlet {
             try {
                 entityRequestHandler.handleEntityAccess(req, res, path);
             } catch (EntityException e) {
-                System.out.println("INFO Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
+                log.info("Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
                 // no longer catching FORBIDDEN or UNAUTHORIZED here
                 //            if (e.responseCode == HttpServletResponse.SC_UNAUTHORIZED ||
                 //                  e.responseCode == HttpServletResponse.SC_FORBIDDEN) {
@@ -208,7 +210,7 @@ public abstract class DirectServlet extends HttpServlet {
             }
             // otherwise reject the request
             String msg = "Security exception accessing entity URL: " + path + " (current user not allowed): " + e.getMessage();
-            System.out.println("INFO " + msg);
+            log.info(msg);
             sendError(res, HttpServletResponse.SC_FORBIDDEN, msg);
         } catch (Exception e) {
             // all other cases

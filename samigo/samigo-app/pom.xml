@@ -128,7 +128,6 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -137,10 +136,6 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -245,10 +240,6 @@
             <artifactId>xml-apis</artifactId>
             <version>2.0.2</version>
         </dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
         <!-- test -->
         <dependency>
             <groupId>org.springframework</groupId>

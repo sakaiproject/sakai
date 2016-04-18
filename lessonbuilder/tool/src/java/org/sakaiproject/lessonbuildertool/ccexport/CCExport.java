@@ -1254,7 +1254,7 @@ public class CCExport {
 		try {
 		    sitepart = URLDecoder.decode(s.substring(startsite, last), "UTF-8");
 		} catch (Exception e) {
-		    System.out.println("decode failed in CCExport " + e);
+		    log.info("decode failed in CCExport " + e);
 		}
 		if (!siteId.equals(sitepart))
 		    continue;
@@ -1280,7 +1280,7 @@ public class CCExport {
 		try {
 		    sakaiId = removeDotDot(URLDecoder.decode(s.substring(sakaistart, sakaiend), "UTF-8"));
 		} catch (Exception e) {
-		    System.out.println("Exception in CCExport URLDecoder " + e);
+		    log.info("Exception in CCExport URLDecoder " + e);
 		}
 		ret.append(s.substring(index, start));
 		ret.append("$IMS-CC-FILEBASE$..");
@@ -1353,7 +1353,7 @@ public class CCExport {
 		try {
 		    sitepart = URLDecoder.decode(s.substring(startsite, last), "UTF-8");
 		} catch (Exception e) {
-		    System.out.println("decode failed in CCExport " + e);
+		    log.info("decode failed in CCExport " + e);
 		}
 		if (!siteId.equals(sitepart))
 		    continue;
@@ -1376,7 +1376,7 @@ public class CCExport {
 		try {
 		    sakaiId = removeDotDot(URLDecoder.decode(s.substring(sakaistart, sakaiend), "UTF-8"));
 		} catch (Exception e) {
-		    System.out.println("Exception in CCExport URLDecoder " + e);
+		    log.info("Exception in CCExport URLDecoder " + e);
 		}
 		// do the mapping. resource.location is a relative URL of the page we're looking at
 		// sakaiid is the URL of the object, starting /group/

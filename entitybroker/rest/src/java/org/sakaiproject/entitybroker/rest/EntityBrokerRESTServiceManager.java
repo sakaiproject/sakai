@@ -30,6 +30,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrit
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * This creates all the needed services (as if it were a service manager),
@@ -40,6 +42,7 @@ import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 @SuppressWarnings("deprecation")
 public class EntityBrokerRESTServiceManager {
 
@@ -120,7 +123,7 @@ public class EntityBrokerRESTServiceManager {
      * (i.e. all the required services are set)
      */
     public void init() {
-        System.out.println("INFO: EntityBrokerRESTServiceManager: init()");
+        log.info("EntityBrokerRESTServiceManager: init()");
         if (this.entityBrokerManager == null
                 || this.requestGetter == null
                 || this.requestStorage == null
@@ -166,7 +169,7 @@ public class EntityBrokerRESTServiceManager {
      * Shuts down all services and cleans up
      */
     public void destroy() {
-        System.out.println("INFO: EntityBrokerRESTServiceManager: destroy()");
+        log.info("EntityBrokerRESTServiceManager: destroy()");
         // cleanup everything
         setInstance(null);
         this.entityRESTProvider.destroy();

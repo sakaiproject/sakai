@@ -124,10 +124,6 @@
     	<version>0.97-incubator</version>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>jtidy</groupId>
       <artifactId>jtidy</artifactId>
       <version>4aug2000r7-dev</version>
@@ -157,7 +153,6 @@
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
       <version>1.8.6</version>
-      <type>jar</type>
     </dependency>
     <!-- PDF box uses BouncyCastle for crypotgraphic functions at runtime -->
     <dependency>
@@ -186,7 +181,6 @@
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
       <version>3.1</version>
-      <type>jar</type>
     </dependency>
 <!--
     HSQL DB does not have clean transaction isolation 
@@ -202,12 +196,6 @@
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
       <version>10.8.2.2</version>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
       <type>jar</type>
       <scope>test</scope>
     </dependency>

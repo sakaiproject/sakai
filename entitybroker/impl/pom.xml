@@ -66,11 +66,6 @@
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
         </dependency>
-        <!-- Data processing -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
         <!-- testing -->
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
@@ -96,9 +91,7 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
-
-<!-- Sakai K1 dependencies -->
-<!-- -->
+        <!-- Kernel dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -149,6 +142,7 @@
                 <includes>
                     <include>database-test.xml</include>
                     <include>database.properties</include>
+                    <include>log4j.properties</include>
                 </includes>
             </testResource>
         </testResources>

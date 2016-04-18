@@ -282,7 +282,7 @@ public class LessonBuilderAccessService {
 			prop = simplePageToolDao.makeProperty("accessCryptoKey", DatatypeConverter.printHexBinary(keyBytes));
 			simplePageToolDao.quickSaveItem(prop);
 		    } catch (Exception e) {
-			System.out.println("unable to init cipher for session " + e);
+			M_log.info("unable to init cipher for session " + e);
 			// in case of race condition, our save will fail, but we'll be able to get a value
 			// saved by someone else
 			simplePageToolDao.flush();
@@ -378,7 +378,7 @@ public class LessonBuilderAccessService {
 					}
 
 				    } catch (Exception e) {
-					System.out.println("unable to decode lb.session " + e);
+					M_log.info("unable to decode lb.session " + e);
 				    }
 				}
 

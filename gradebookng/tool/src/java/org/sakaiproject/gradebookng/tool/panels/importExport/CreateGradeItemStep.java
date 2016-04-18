@@ -1,6 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import org.apache.log4j.Logger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -14,15 +16,13 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by chmaurer on 2/15/15.
  */
+@Slf4j
 public class CreateGradeItemStep extends Panel {
-
-    private static final Logger LOG = Logger.getLogger(CreateGradeItemStep.class);
 
     private String panelId;
     private IModel<ImportWizardModel> model;
@@ -61,7 +61,7 @@ public class CreateGradeItemStep extends Panel {
 
                 if (assignment != null)
                     assignmentsToCreate.add(assignment);
-                LOG.debug("Assignment: " + assignment);
+                log.debug("Assignment: " + assignment);
 //                info("assignment: " + getDefaultModelObjectAsString());
                 //Figure out if there are more steps
                 //If so, go to the next step
@@ -85,7 +85,7 @@ public class CreateGradeItemStep extends Panel {
         Button backButton = new Button("backbutton") {
             @Override
             public void onSubmit() {
-                LOG.debug("Clicking back button...");
+                log.debug("Clicking back button...");
                 Component newPanel = null;
                 if (step > 1) {
                     importWizardModel.setStep(step-1);

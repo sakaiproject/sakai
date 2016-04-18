@@ -103,11 +103,6 @@
       <artifactId>sakai-syllabus-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${sakai.commons-logging.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.calendar</groupId>
       <artifactId>sakai-calendar-api</artifactId>
     </dependency>
@@ -122,10 +117,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>

@@ -21,24 +21,39 @@
 
 package org.sakaiproject.tool.impl;
 
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.cluster.api.ClusterService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.*;
-import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.mutable.MutableLong;
+import org.sakaiproject.cluster.api.ClusterService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.ClosingException;
+import org.sakaiproject.tool.api.NonPortableSession;
+import org.sakaiproject.tool.api.RebuildBreakdownService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionAttributeListener;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.SessionStore;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -54,7 +69,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	/** Key in the ThreadLocalManager for access to the current servlet context (from tool-util/servlet/RequestFilter). */
 	protected final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SessionComponent.class);
+	private static Logger M_log = LoggerFactory.getLogger(SessionComponent.class);
 	/** The sessions - keyed by session id. */
 	protected Map<String, Session> m_sessions = new ConcurrentHashMap<String, Session>();
 	/**
@@ -129,7 +144,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		}
 		catch (Exception t)
 		{
-			System.out.println(t);
+			M_log.warn(t.getMessage(), t);
 		}
 	}
 
@@ -172,7 +187,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		}
 		catch (Exception t)
 		{
-			System.out.println(t);
+			M_log.warn(t.getMessage(), t);
 		}
 	}
 

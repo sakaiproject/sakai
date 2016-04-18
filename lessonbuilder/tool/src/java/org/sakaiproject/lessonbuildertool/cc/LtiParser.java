@@ -44,6 +44,8 @@ package org.sakaiproject.lessonbuildertool.cc;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -51,7 +53,7 @@ import org.jdom.Namespace;
 import org.jdom.xpath.XPath;
 
 public class LtiParser extends AbstractParser implements ContentParser {
-  
+  private static final Log log = LogFactory.getLog(LtiParser.class);
   private static final Namespace LT_NS = Namespace.getNamespace("dt", "http://www.imsglobal.org/xsd/imsbasiclti_v1p0");
   
   private static final String FILE="file";
@@ -68,7 +70,7 @@ public class LtiParser extends AbstractParser implements ContentParser {
     try {
       //ok, so we're looking at a discussion topic here...
       Element blti = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF));
-System.out.println("blti="+blti);
+log.info("blti="+blti);
       Namespace topicNs = the_handler.getNs().blti_ns();
       the_handler.startLti(blti.getChildText(TITLE, topicNs),
                                   blti.getChild(TEXT, topicNs).getAttributeValue(TEXTTYPE),

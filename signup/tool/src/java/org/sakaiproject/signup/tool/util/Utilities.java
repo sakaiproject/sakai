@@ -26,10 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -44,7 +45,6 @@ import org.sakaiproject.signup.tool.jsf.MessageUIBean;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
 import org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean;
 import org.sakaiproject.util.ResourceLoader;
-import javax.faces.event.ActionEvent;
 
 /**
  * <p>
@@ -77,7 +77,7 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 	private static final int TYPE_ERROR=1;
 	private static final int TYPE_INFO=2;
 	
-	protected static Log logger = LogFactoryImpl.getLog(Utilities.class);
+	protected static Log logger = LogFactory.getLog(Utilities.class);
 
 	/**
 	 * Add the error message to mssageUIBean for UI purpose.

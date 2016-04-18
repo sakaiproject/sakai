@@ -34,9 +34,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -64,13 +61,16 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Handles the polls tool.
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  * @author Denny (denny.denny @ gmail.com)
  */
-@CommonsLog
+@Slf4j
 public class PollsEntityProvider extends AbstractEntityProvider implements
 		EntityProvider, AutoRegisterEntityProvider, RequestStorable,
 		ActionsExecutable, Outputable, Describeable {
@@ -170,7 +170,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 
 	@EntityCustomAction(action = "my", viewKey = EntityView.VIEW_LIST)
 	public List<?> getEntities(EntityReference ref, Search search) {
-		System.out.println("get entities");
+		log.info("get entities");
 		// get the setting which indicates if we are getting polls we can admin
 		// or polls we can take
 		boolean adminControl = false;
@@ -312,7 +312,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 
-		log.debug(requestStorage == null);
+		log.debug("requestStorage" , requestStorage);
 		Boolean includeVotes = requestStorage.getStoredValueAsType(
 				Boolean.class, "includeVotes");
 		if (includeVotes == null) {
@@ -591,20 +591,20 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 						try {
 							m.invoke(object, new Object[] { dateValue });
 						} catch (IllegalAccessException e) {
-							log.debug(e);
+							log.debug(e.getMessage(), e);
 						} catch (IllegalArgumentException e) {
-							log.debug(e);
+							log.debug(e.getMessage(), e);
 						} catch (InvocationTargetException e) {
-							log.debug(e);
+							log.debug(e.getMessage(), e);
 						}
 					} else {
 						// use generic converter from BeanUtils
 						try {
 							BeanUtils.copyProperty(object, key, value);
 						} catch (IllegalAccessException e) {
-							log.debug(e);
+							log.debug(e.getMessage(), e);
 						} catch (InvocationTargetException e) {
-							log.debug(e);
+							log.debug(e.getMessage(), e);
 						}
 					}
 				}
@@ -723,7 +723,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		try {
 			pollId = Long.valueOf((String) params.get("pollId"));
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 
 		if (pollId == null) {
@@ -737,7 +737,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		try {
 			optionId = Long.valueOf((String) params.get("pollOption"));
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 
 		if (optionId == null) {

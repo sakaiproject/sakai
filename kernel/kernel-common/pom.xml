@@ -20,15 +20,4 @@
   <properties>
     <deploy.target>common</deploy.target>
   </properties>
-  <dependencies>
-<!-- provision logging -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
-  </dependencies>
 </project>

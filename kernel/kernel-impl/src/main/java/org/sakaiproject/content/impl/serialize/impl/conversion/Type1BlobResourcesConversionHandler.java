@@ -31,10 +31,10 @@ import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
@@ -42,8 +42,7 @@ import org.sakaiproject.util.conversion.SchemaConversionHandler;
 public class Type1BlobResourcesConversionHandler implements SchemaConversionHandler
 {
 
-	private static final Log log = LogFactory
-			.getLog(Type1BlobResourcesConversionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(Type1BlobResourcesConversionHandler.class);
 
 	private Pattern contextPattern = Pattern.compile("\\A/(group/|user/|~)(.+?)/");
 
@@ -188,7 +187,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 			}
 			else
 			{
-				System.out.println("getValidateSource(" + id + ") blob is null" );
+				log.info("getValidateSource(" + id + ") blob is null" );
 			}
 			break;
 		case Types.CLOB:

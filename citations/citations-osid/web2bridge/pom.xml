@@ -35,11 +35,6 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${sakai.commons-logging.version}</version>
-    </dependency>
-    <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
     </dependency>

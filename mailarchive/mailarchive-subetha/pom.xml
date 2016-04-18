@@ -54,10 +54,6 @@
             <artifactId>mail</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
@@ -80,13 +76,6 @@
             <version>1.9.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <!-- This is just so that we get some basic logging from subetha when running tests -->
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.12</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -103,6 +92,7 @@
                 <directory>${basedir}/src/test</directory>
                 <includes>
                     <include>**/*.txt</include>
+                    <include>**/log4j.properties</include>
                 </includes>
             </testResource>
         </testResources>

@@ -321,19 +321,19 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     }
 
     public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
-	//System.out.println("isassignmentgrouped lesson-builder:1788 " + isAssignmentGrouped("lesson-builder:1788"));
-	//System.out.println("isassignmentgrouped lesson-builder:comment:7289 " + isAssignmentGrouped("lesson-builder:comment:7289"));
-	//System.out.println("isUserInPath " + isUserInPath("c08d3ac9-c717-472a-ad91-7ce0b434f42f", lessonsAccess.getPagePaths(1788L,false),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
-	//System.out.println("isUserInPath " + isUserInPath("c08d3ac9-c717-472a-ad91-7ce0b434f42f", lessonsAccess.getItemPaths(7289L),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//log.info("isassignmentgrouped lesson-builder:1788 " + isAssignmentGrouped("lesson-builder:1788"));
+	//log.info("isassignmentgrouped lesson-builder:comment:7289 " + isAssignmentGrouped("lesson-builder:comment:7289"));
+	//log.info("isUserInPath " + isUserInPath("c08d3ac9-c717-472a-ad91-7ce0b434f42f", lessonsAccess.getPagePaths(1788L,false),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//log.info("isUserInPath " + isUserInPath("c08d3ac9-c717-472a-ad91-7ce0b434f42f", lessonsAccess.getItemPaths(7289L),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
 	//HashSet<String> userset = new HashSet<String>();
 	//userset.add("c08d3ac9-c717-472a-ad91-7ce0b434f42f");
 	//userset.add("9d1a25ba-4735-48c4-bd5e-ff329f9f7749");
 
-	//System.out.println("usersInPath " + usersInPath(userset, lessonsAccess.getPagePaths(1788L,false),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
-	//System.out.println("userInPath " + usersInPath(userset, lessonsAccess.getItemPaths(7289L),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
-	//System.out.println(isAssignmentVisible("lesson-builder:1788", "c08d3ac9-c717-472a-ad91-7ce0b434f42f"));
-	//System.out.println(isAssignmentVisible("lesson-builder:comment:7289", "c08d3ac9-c717-472a-ad91-7ce0b434f42f"));
-	//System.out.println(getExternalAssignmentsForCurrentUser("60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//log.info("usersInPath " + usersInPath(userset, lessonsAccess.getPagePaths(1788L,false),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//log.info("userInPath " + usersInPath(userset, lessonsAccess.getItemPaths(7289L),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//log.info(isAssignmentVisible("lesson-builder:1788", "c08d3ac9-c717-472a-ad91-7ce0b434f42f"));
+	//log.info(isAssignmentVisible("lesson-builder:comment:7289", "c08d3ac9-c717-472a-ad91-7ce0b434f42f"));
+	//log.info(getExternalAssignmentsForCurrentUser("60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
 
 	Map<String,List<String>> allExternals = new HashMap<String, List<String>>();
 
@@ -407,7 +407,7 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 		    }
 	    }
 	}
-	//System.out.println("getAllExternalAssignments " + studentIds + " " + allExternals);
+	//log.info("getAllExternalAssignments " + studentIds + " " + allExternals);
 
 	return allExternals;
     }

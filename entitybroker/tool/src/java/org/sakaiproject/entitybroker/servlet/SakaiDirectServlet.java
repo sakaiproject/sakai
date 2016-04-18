@@ -42,6 +42,8 @@ import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Direct servlet allows unfettered access to entity URLs within Sakai, it also handles
  * authentication (login) if required (without breaking an entity URL)<br/>
@@ -52,11 +54,11 @@ import org.sakaiproject.util.Web;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Sakai Software Development Team
  */
+@Slf4j
 @SuppressWarnings("deprecation")
 public class SakaiDirectServlet extends DirectServlet {
 
     private static final long serialVersionUID = 1L;
-
     private transient EntityBrokerRESTServiceManager entityRESTServiceManager;
     private transient BasicAuth basicAuth;
 
@@ -112,14 +114,14 @@ public class SakaiDirectServlet extends DirectServlet {
             // defines where to go after login succeeds
             helperURLSet = true;
             String returnURL = Web.returnUrl( req, Validator.escapeUrl(path) );
-            System.out.println("INFO: Direct Login: Setting session ("+session.getId()+") helper URL ("+Tool.HELPER_DONE_URL+") to "+returnURL);
+            log.info("Direct Login: Setting session ("+session.getId()+") helper URL ("+Tool.HELPER_DONE_URL+") to "+returnURL);
             session.setAttribute(Tool.HELPER_DONE_URL, returnURL);
         }
 
         // check that we have a return path set; might have been done earlier
         if (! helperURLSet && session.getAttribute(Tool.HELPER_DONE_URL) == null) {
             session.setAttribute(Tool.HELPER_DONE_URL, "/direct/describe");
-            System.out.println("INFO: doLogin - no HELPER_DONE_URL found, proceeding with default HELPER_DONE_URL: " + "/direct/describe");
+            log.info("doLogin - no HELPER_DONE_URL found, proceeding with default HELPER_DONE_URL: " + "/direct/describe");
         }
 
         // map the request to the helper, leaving the path after ".../options" for the helper

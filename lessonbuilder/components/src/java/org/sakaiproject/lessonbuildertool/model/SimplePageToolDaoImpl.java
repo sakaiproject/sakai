@@ -23,6 +23,7 @@
 
 package org.sakaiproject.lessonbuildertool.model;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,23 +31,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
-import java.sql.Connection;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.sakaiproject.authz.api.SecurityService;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -82,15 +80,13 @@ import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.JSONArray;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao {
-	private static Log log = LogFactory.getLog(SimplePageToolDaoImpl.class);
 
 	private ToolManager toolManager;
 	private SecurityService securityService;
@@ -1372,7 +1368,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    try {
 			conn.setAutoCommit(wasCommit);
 		    } catch (Exception e) {
-			System.out.println("transact: (setAutoCommit): " + e);
+			log.info("transact: (setAutoCommit): " + e);
 		    }
   
 		    sqlService.returnConnection(conn);

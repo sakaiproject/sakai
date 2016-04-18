@@ -34,6 +34,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * This is the standard entity REST provider which will be created and set in the entity broker manager,
@@ -42,6 +44,7 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class EntityRESTProviderBase implements EntityRESTProvider {
 
     protected EntityRESTProviderBase() { }
@@ -76,13 +79,13 @@ public class EntityRESTProviderBase implements EntityRESTProvider {
     }
 
     public void init() {
-        System.out.println("INFO EntityRESTProviderBase init");
+        log.info("EntityRESTProviderBase init");
         // register with the entity broker manager
         this.entityBrokerManager.setEntityRESTProvider(this);
     }
 
     public void destroy() {
-        System.out.println("INFO EntityRESTProviderBase destroy");
+        log.info("EntityRESTProviderBase destroy");
         // unregister
         this.entityBrokerManager.setEntityRESTProvider(null);
     }

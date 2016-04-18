@@ -29,7 +29,7 @@ import net.fortuna.ical4j.model.component.VEvent;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
@@ -84,7 +84,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	@Setter
 	private SignupCalendarHelper calendarHelper;
 	
-	private Log logger = LogFactoryImpl.getLog(getClass());
+	private Log logger = LogFactory.getLog(SignupEmailFacadeImpl.class);
 	
 	
 	/**

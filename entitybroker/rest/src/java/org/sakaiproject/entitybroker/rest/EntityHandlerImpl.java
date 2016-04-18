@@ -77,10 +77,12 @@ import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
+import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
-import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of the handler for the EntityBroker system<br/>
@@ -89,8 +91,10 @@ import org.sakaiproject.entitybroker.util.request.RequestUtils;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
+
     public static String APP_VERSION = "1.0.1";
     public static String SVN_REVISION = "$Revision$";
     public static String SVN_LAST_UPDATE = "$Date$";
@@ -125,7 +129,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     }
 
     public void init() {
-        System.out.println("INFO EntityRequestHandler init complete");
+        log.info("EntityRequestHandler init complete");
     }
 
     private EntityProviderManager entityProviderManager;
@@ -198,7 +202,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     public void setServletContext(String servletContext) {
         if (servletContext != null) {
             this.servletContext = servletContext;
-            //System.out.println("Setting the REST servlet context to: " + servletContext);
+            //log.info("Setting the REST servlet context to: " + servletContext);
             entityBrokerManager.setServletContext(servletContext);
         }
     }
@@ -233,7 +237,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             } catch (SecurityException se) {
             	throw new EntityException(se.getMessage(), path, HttpServletResponse.SC_UNAUTHORIZED);
             } catch (Exception e) {
-                System.out.println("WARN: EntityRequestHandler: External handleUserSessionKey method failed, continuing...: " + e);
+                log.warn("EntityRequestHandler: External handleUserSessionKey method failed, continuing...: " + e);
             }
         }
 
@@ -311,7 +315,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                 res.setStatus(HttpServletResponse.SC_OK);
                             } else {
                                 // do the redirect
-                                System.out.println("INFO: EntityRequestHandler: Entity Redirect: redirecting from ("+path+") to ("+redirectURL+")");
+                                log.info("EntityRequestHandler: Entity Redirect: redirecting from ("+path+") to ("+redirectURL+")");
                                 RequestUtils.handleURLRedirect(redirectURL, true, req, res);
                             }
                             return EntityView.SEPARATOR + prefix; // exit here for redirects
@@ -855,7 +859,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             } catch (UnsupportedOperationException e) {
                 // nothing to do here, this is OK
             } catch (Exception e) {
-                System.out.println("WARN: EntityRequestHandler: External handleEntityError method failed, using default instead: " + e);
+                log.warn("EntityRequestHandler: External handleEntityError method failed, using default instead: " + e);
             }
         }
         return msg;
@@ -1098,7 +1102,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     // nothing to do here
                 }
             } else {
-                System.out.println("WARN: EntityRequestHandler: Unknown type returned for 'lastModified' (not Date, Long, String): " + lm.getClass() + ", using the default value of current time instead");
+                log.warn("EntityRequestHandler: Unknown type returned for 'lastModified' (not Date, Long, String): " + lm.getClass() + ", using the default value of current time instead");
             }
         }
         return lastModified;

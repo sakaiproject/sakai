@@ -99,7 +99,6 @@
 	      <groupId>org.springframework</groupId>
 	      <artifactId>spring-tx</artifactId>
             </dependency>
-
 	  </dependencies>
 
         </profile>
@@ -116,7 +115,6 @@
 	    <src2>src29</src2>
 	    <src3>src28-9</src3>
             <sakai.assignment.groupId>org.sakaiproject.assignment</sakai.assignment.groupId>
-	    <sakai.lombok.version>1.12.4</sakai.lombok.version>
 
 	    <!-- the following are basically dummmies. They cause tool to include the same module twice -->
 	    <!-- it's used becaue for Sakai 10 we need one more dependency than for sakai 2.8 and 9 -->
@@ -147,12 +145,6 @@
 		<artifactId>samigo-qti</artifactId>
 		<version>${sakai.samigo.version}</version>
 	      </dependency>
-	      <dependency>
-		<!-- To keep make it easy to update all tool versions -->
-		<groupId>org.projectlombok</groupId>
-		<artifactId>lombok</artifactId>
-		<version>${sakai.lombok.version}</version>
-	      </dependency>
 	    </dependencies>
 
 
@@ -182,7 +174,6 @@
             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
  	    <!-- LB supports version 2 of basiclti. If you have installed that in 2.8, then use the actual version you installed. Otherwise leave this. The build will use the API for 2.0, but realize at runtime that it's not there, and not show the features that depend upon basiclit -->
 	    <sakai.basiclti.version>2.0.0</sakai.basiclti.version>
-	    <sakai.lombok.version>1.12.4</sakai.lombok.version>
 
 	    <!-- the following are basically dummmies. They cause tool to include the same module twice -->
 	    <!-- it's used becaue for Sakai 10 we need one more dependency than for sakai 2.8 and 9 -->
@@ -220,12 +211,6 @@
 		<version>${sakai.msgcntr.version}</version>
 		<scope>provided</scope>
               </dependency>
-	      <dependency>
-		<!-- To keep make it easy to update all tool versions -->
-		<groupId>org.projectlombok</groupId>
-		<artifactId>lombok</artifactId>
-		<version>${sakai.lombok.version}</version>
-	      </dependency>
 	    </dependencies>
 	  </dependencyManagement>
 

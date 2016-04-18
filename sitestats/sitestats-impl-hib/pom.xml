@@ -29,11 +29,7 @@
     <dependency>
       <groupId>org.sakaiproject.sitestats</groupId>
       <artifactId>sitestats-api</artifactId>
-  </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
+    </dependency>
   </dependencies>
   
   <!-- Build -->

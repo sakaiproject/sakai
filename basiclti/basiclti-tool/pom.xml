@@ -53,11 +53,6 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${sakai.commons-logging.version}</version>
-        </dependency>
-        <dependency>
             <groupId>${sakai.velocity.groupId}</groupId>
             <artifactId>sakai-velocity-tool-api</artifactId>
         </dependency>

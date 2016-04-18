@@ -40,10 +40,6 @@
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>sakai-privacy-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
     </dependencies>
     
     <build>

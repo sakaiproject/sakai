@@ -61,16 +61,19 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Base implementation of the entity provider manager
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
+@Slf4j
 public class EntityProviderManagerImpl implements EntityProviderManager {
 
     public void init() {
-        System.out.println("EntityProviderManagerImpl init");
+        log.info("EntityProviderManagerImpl init");
         
         //SAK-27902 list of allowed services (prefixes) (default: all services registered. Only set this property if you want to filter the allowed services)
         allowedServices = new HashSet<String>();
@@ -94,7 +97,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         	//must have describe in the list
         	allowedServices.add(EntityRequestHandler.DESCRIBE);
         	
-        	System.out.println("INFO Allowed services: " + allowedServices);
+        	log.info("Allowed services: " + allowedServices);
 
         }
         
@@ -198,7 +201,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 } catch (RuntimeException e) {
                     // added because there will be times where we cannot resolve capabilities 
                     // because of shifting ClassLoaders or CL visibility and that should not cause this to die
-                    System.out.println("WARN getPrefixCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
+                    log.warn("getPrefixCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
                 }
             }
         }
@@ -224,7 +227,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             } catch (RuntimeException e) {
                 // added because there will be times where we cannot resolve capabilities 
                 // because of shifting ClassLoaders or CL visibility and that should not cause this to die
-                System.out.println("WARN getRegisteredEntityCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
+                log.warn("getRegisteredEntityCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
             }
         }      
         return m;
@@ -352,7 +355,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 entityProviderMethodStore.addURLRedirects(prefix, redirects);
             }
         }
-        System.out.println("INFO Registered entity provider ("+entityProvider.getClass().getName()
+        log.info("Registered entity provider ("+entityProvider.getClass().getName()
                 +") prefix ("+prefix+") with "+count+" capabilities");
 
         // call the registered listeners
@@ -393,7 +396,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         // clean up the properties cache
         entityProperties.unloadProperties(prefix);
 
-        System.out.println("INFO Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
+        log.info("Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
     }
 
     /*
@@ -422,7 +425,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             // clean up the redirect URLs record
             entityProviderMethodStore.removeURLRedirects(prefix);
         }
-        System.out.println("INFO Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
+        log.info("Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
     }
 
     /*
@@ -439,7 +442,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 prefixMap.remove(bikey);
             }
         }
-        System.out.println("INFO Unregistered entity prefix ("+prefix+")");
+        log.info("Unregistered entity prefix ("+prefix+")");
     }
 
     /**

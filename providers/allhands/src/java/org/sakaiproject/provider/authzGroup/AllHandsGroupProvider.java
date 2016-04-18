@@ -88,7 +88,7 @@ public class AllHandsGroupProvider implements GroupProvider
 	 */
 	public String getRole(String id, String user)
 	{
-		System.out.println("getRole() id="+id+" user="+user);
+		M_log.info("getRole() id="+id+" user="+user);
 		// Apparently this is not called ???
 		return null;
 	}
@@ -136,7 +136,7 @@ public class AllHandsGroupProvider implements GroupProvider
 
 	public Map<String, String> getGroupRolesForUser(String userId)
 	{
-		System.out.println("getGroupRolesForUser() user="+userId);
+		M_log.info("getGroupRolesForUser() user="+userId);
 
 		Map<String, String> rv = new HashMap<String, String>();
 

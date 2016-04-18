@@ -22,9 +22,7 @@
 
   <!-- Project versions -->
   <properties>
-    <commons-digester.version>1.6</commons-digester.version>
     <commons-betwixt.version>0.8</commons-betwixt.version>
-    <commons-beanutils.version>1.7.0</commons-beanutils.version>
     <easymock.version>3.2</easymock.version>
     <h2.version>1.1.111</h2.version>
     <mysql.version>5.1.25</mysql.version>
@@ -111,19 +109,9 @@
       </dependency>
       <!-- Apache Commons -->
       <dependency>
-        <groupId>commons-digester</groupId>
-        <artifactId>commons-digester</artifactId>
-        <version>${commons-digester.version}</version>
-      </dependency>
-      <dependency>
         <groupId>commons-betwixt</groupId>
         <artifactId>commons-betwixt</artifactId>
         <version>${commons-betwixt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils-core</artifactId>
-        <version>${commons-beanutils.version}</version>
       </dependency>
       <!-- Apache others -->
       <dependency>

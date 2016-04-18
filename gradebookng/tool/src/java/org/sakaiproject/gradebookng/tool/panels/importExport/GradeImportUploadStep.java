@@ -1,9 +1,16 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -26,21 +33,14 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import au.com.bytecode.opencsv.CSVWriter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by chmaurer on 1/22/15.
  */
+@Slf4j
 public class GradeImportUploadStep extends Panel {
-
-    private static final Logger log = Logger.getLogger(GradeImportUploadStep.class);
 
     //list of mimetypes for each category. Must be compatible with the parser
     private static final String[] XLS_MIME_TYPES={"application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
@@ -181,7 +181,7 @@ public class GradeImportUploadStep extends Panel {
                         error(getString("error.parse.upload"));
                     } else {
                         //GO TO NEXT PAGE
-                        log.debug(processedGradeItems.size());
+                        log.debug(Integer.toString(processedGradeItems.size()));
 
 						//repaint panel
                         ImportWizardModel importWizardModel = new ImportWizardModel();

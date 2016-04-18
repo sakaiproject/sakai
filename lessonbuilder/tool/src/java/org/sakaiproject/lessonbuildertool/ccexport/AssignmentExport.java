@@ -244,7 +244,7 @@ public class AssignmentExport {
 	try {
 	    assignment = AssignmentService.getAssignment(assignmentId);
 	} catch (Exception e) {
-	    System.out.println("failed to find " + assignmentId);
+	    log.info("failed to find " + assignmentId);
 	    return null;
 	}
 

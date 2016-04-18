@@ -61,11 +61,6 @@
       <artifactId>OkiOSID</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${sakai.commons-logging.version}</version>
-    </dependency>
-    <dependency>
     	<groupId>commons-lang</groupId>
     	<artifactId>commons-lang</artifactId>
     </dependency>
@@ -136,6 +131,7 @@
         <directory>${basedir}/src/test</directory>
         <includes>
           <include>**/*.xml</include>
+          <include>**/log4j.properties</include>
         </includes>
       </testResource>
     </testResources>
