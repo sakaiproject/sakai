@@ -314,7 +314,7 @@ public class GradebookNgBusinessService {
 
 		List<CategoryDefinition> rval = new ArrayList<>();
 
-		if (gradebook != null) {
+		if (gradebook != null && categoriesAreEnabled()) {
 			rval = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
 		}
 
