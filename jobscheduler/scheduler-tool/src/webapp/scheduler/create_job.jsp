@@ -8,28 +8,27 @@
 			<h:form>
   	    <h:graphicImage value="/images/quartz.jpg"/>
 				<sakai:group_box title="#{msgs.create_job}">				 
-				  <sakai:panel_edit>
-				  				  					  						
-						<h:outputText value="#{msgs.job_name}"/>					  					  
-					  
-					  <h:panelGroup>
+					<sakai:panel_edit>
+						<h:panelGroup layout="block" styleClass="form-group row">
+						<h:outputLabel value="#{msgs.job_name}"/>
   					  <h:inputText id="job_name" value="#{schedulerTool.jobName}"
   					               maxlength="#{schedulerTool.jobNameMaxLength}" size="40"
   					               required="true" validator="#{schedulerTool.validateJobName}">
   					    <f:validateLength maximum="#{schedulerTool.jobNameMaxLength}"/>
   					  </h:inputText>
   					  <h:message for="job_name" styleClass="chefRequiredInline"/>
-  					</h:panelGroup>  					
-  					  					  					
-						<h:outputText value="#{msgs.job_type}"/>
+						</h:panelGroup>
+
+						<h:panelGroup layout="block" styleClass="form-group row">
+						<h:outputLabel value="#{msgs.job_type}"/>
   					<h:selectOneMenu value="#{schedulerTool.selectedClass}">
 	   				  <f:selectItems value="#{schedulerTool.beanJobs}"/>
 	   				  <f:selectItems value="#{schedulerTool.jobClasses}"/>
 			  		</h:selectOneMenu>
-
-  				</sakai:panel_edit>  				 				          
+						</h:panelGroup>
+					</sakai:panel_edit>
 				</sakai:group_box>
-									
+
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{schedulerTool.processCreateJob}"

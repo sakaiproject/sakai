@@ -20,7 +20,7 @@
                     <sakai:panel_edit>
                         <h:dataTable value="#{schedulerTool.configurableProperties}"
                                      var="prop"
-                                     styleClass="listHier lines">
+                                     styleClass="table table-striped">
                             <h:column>
                                 <f:facet name="header">
                                     <h:outputText value="#{msgs.properties_name_header}"/>
