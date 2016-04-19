@@ -35,6 +35,7 @@
 							<property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
 							<property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
 							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 						</bean>
 					</set>
 				</property>
