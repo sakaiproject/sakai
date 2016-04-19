@@ -58,9 +58,10 @@
                 SaveData(autoSaveKey, editorInstance);
             }
         });
+        
+        editorInstance.config.autosave_timeOutId = 0;
     }
 
-        editorInstance.config.autosave_timeOutId = 0;
         var savingActive = false;
 
     var startTimer = function(event) {
