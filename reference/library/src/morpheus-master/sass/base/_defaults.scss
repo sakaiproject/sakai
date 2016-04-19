@@ -31,6 +31,12 @@ a{
 		&:hover{
 			text-decoration:underline;
 		}
+		&.btn{
+			text-decoration: none;
+		}
+		&.btn-primary{
+			color: #FFF;
+		}
 		text-decoration:underline;	
 	}
 	&.url{
