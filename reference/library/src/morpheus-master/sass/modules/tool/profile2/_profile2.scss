@@ -49,8 +49,8 @@
 	.gallery-form{
 		.sakai-wicket-iconwithtooltip{
 			position: absolute;
-			margin-top: 2.7em;
-		}
+			margin-top: 0em;
+		} 
 		.addPictureLabel{
 			margin-right: 1.6em; 
 		}
@@ -59,7 +59,7 @@
 		}
 		input[type="submit"]{
 			float: right;
-			margin: -0.7em 0 0 0;
+			margin: -1.6em 0 0 0;
 		}
 		.input-file-container{
 			input[type="file"]{

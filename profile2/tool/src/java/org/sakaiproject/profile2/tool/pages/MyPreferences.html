@@ -127,7 +127,7 @@
 						<h4 class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</h4>
 						<div class="formSectionText" wicket:id="twitterSectionText">[twitterSectionText]</div>
 					</div>
-					<div wicket:id="twitterPanel"></div>
+					<div wicket:id="twitterPanel" class="profile-twitter-account"></div>
 					
 					
 					<!-- Image settings -->
@@ -135,23 +135,22 @@
 						<h4 class="formSectionHeading" wicket:id="imageSettingsHeading">[profile image settings]</h4>
 						<div class="formSectionText" wicket:id="imageSettingsText">[imageSettingsText]</div>
 						
-						<table class="preferencesContent">
-							<tr wicket:id="officialImageContainer">
-								<td wicket:id="officialImageLabel">[officialImageLabel]</td>
-								<td class="content">
+						<div wicket:id="officialImageContainer">
+							<div wicket:id="officialImageLabel">[officialImageLabel]</div>
+							<div class="checkbox">
+								<label for="officalimageinput">
 									<input wicket:id="officialImage" type="checkbox" />
-									<label for="officalimageinput" class="accessibility-label"><wicket:message key="accessibility.prefs.officialimage" /></label>
-								</td>
-							</tr>
+									<wicket:message key="accessibility.prefs.officialimage" />
+								</label>
+							</div>
+						</div>
 						
-							<tr wicket:id="gravatarContainer">
-								<td wicket:id="gravatarLabel">[gravatarLabel]</td>
-								<td class="content">
-									<input wicket:id="gravatarImage" type="checkbox" />
-									<label for="gravatarimageinput" class="accessibility-label"><wicket:message key="accessibility.prefs.gravatar" /></label>
-								</td>
-							</tr>
-						</table>
+						<div wicket:id="gravatarContainer">
+							<div class="content">
+								<input wicket:id="gravatarImage" type="checkbox" />
+								<label for="gravatarimageinput"><wicket:message key="accessibility.prefs.gravatar" /></label>
+							</div>
+						</div>
 					</div>
 					
 					<!-- Widget settings -->
