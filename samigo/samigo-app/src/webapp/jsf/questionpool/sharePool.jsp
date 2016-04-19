@@ -69,6 +69,12 @@
 	  	}
 	}
 
+              function flagFolders() {
+	          collapseAllRows();
+                  flagRows();
+		  disabledButton()
+              }
+              window.onload = flagFolders;
 </script>
       </head>
 <body onload="collapseAllRows();flagRows();disabledButton();<%= request.getAttribute("html.body.onload") %>">
