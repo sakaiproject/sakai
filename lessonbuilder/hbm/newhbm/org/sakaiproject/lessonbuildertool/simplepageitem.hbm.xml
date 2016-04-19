@@ -19,7 +19,7 @@
 	<property name="sequence" type="integer" not-null="true" />
 	<property name="type" type="integer" not-null="true" />
 	<property name="sakaiId" type="string" length="250" />
-	<property name="name" type="string" length="100" />
+	<property name="name" type="string" length="255" />
 	<property name="html" type="materialized_clob" length="200000" />
 	<property name="description" type="materialized_clob" />
 	<property name="height" type="string" length="8" />
