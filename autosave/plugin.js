@@ -12,15 +12,26 @@
     CKEDITOR.plugins.add("autosave", {
         lang: 'ca,cs,de,en,es,fr,ja,nl,pl,pt-br,ru,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
         requires: 'notification',
-        version: 0.13,
+        version: 0.14,
         init: function(editor) {
             CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'css/autosave.min.css'));
+
+            editor.on('uiSpace', function(event) {
+                if (event.data.space == 'bottom' && event.editor.config.autosave_messageType != null && event.editor.config.autosave_messageType == "statusbar") {
+
+                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
+                        + autoSaveMessageId(event.editor)
+                        + '"class="hidden">'
+                        + event.editor.lang.autosave.autoSaveMessage
+                        + '</div></div>';
+                }
+            }, editor, null, 100);
 
             editor.on('instanceReady', function(){
                 if (typeof (jQuery) === 'undefined') {
                     CKEDITOR.scriptLoader.load('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function() {
                         jQuery.noConflict();
-
+                        
                         loadPlugin(editor);
                     });
 
@@ -39,7 +50,6 @@
         var saveOnDestroy = editorInstance.config.autosave_saveOnDestroy != null ? editorInstance.config.autosave_saveOnDestroy : false;
         var saveDetectionSelectors =
             editorInstance.config.autosave_saveDetectionSelectors != null ? editorInstance.config.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
-
 
         CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
             GenerateAutoSaveDialog(editorInstance, autoSaveKey);
@@ -62,7 +72,11 @@
         editorInstance.config.autosave_timeOutId = 0;
     }
 
-        var savingActive = false;
+    function autoSaveMessageId(editorInstance) {
+        return 'cke_autoSaveMessage_' + editorInstance.name;
+    }
+
+    var savingActive = false;
 
     var startTimer = function(event) {
         if (event.editor.config.autosave_timeOutId) {
@@ -214,7 +228,19 @@
         var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getSnapshot(), saveTime: new Date() }));
         localStorage.setItem(autoSaveKey, compressedJSON);
 
-        if (typeof editorInstance.config.autosave_disableNotifications === "undefined" || !editorInstance.config.autosave_disableNotifications) {
+        var messageType = editorInstance.config.autosave_messageType != null ? editorInstance.config.autosave_messageType : "notification";
+        
+        if (messageType == "statusbar") {
+                var autoSaveMessage = document.getElementById(autoSaveMessageId(editorInstance));
+
+                if (autoSaveMessage) {
+                    autoSaveMessage.className = "show";
+
+                    setTimeout(function() {
+                        autoSaveMessage.className = "hidden";
+                    }, 2000);
+                }
+        } else if (messageType == "notification") {
             var notification = new CKEDITOR.plugins.notification(editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' });
             notification.show();
         }

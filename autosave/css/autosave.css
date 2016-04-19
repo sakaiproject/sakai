@@ -68,21 +68,24 @@ table.diff .empty {
 table.diff .replace {
 	background-color:#FFC
 }
-table.diff .delete {
-	background-color:#FCC;
+    table.diff .delete {
+        background-color: #FCC;
         width: 380px;
+        -ms-word-break: break-word;
         word-break: break-word;
-}
+    }
+
 table.diff .skip {
 	background-color:#EFEFEF;
 	border:1px solid #AAA;
 	border-right:1px solid #BBC;
 }
-table.diff .insert {
-	background-color:#CFC;
+    table.diff .insert {
+        background-color: #CFC;
         width: 380px;
+        -ms-word-break: break-word;
         word-break: break-word;
-}
+    }
 table.diff th.author {
 	text-align:right;
 	border-top:1px solid #BBC;
@@ -92,3 +95,19 @@ del{background-color:#EE9999 !important;text-decoration: underline !important}
 ins{background-color:#99EE99 !important;text-decoration: underline !important}
 
 a.cke_dialog_autosave_ok span {width:auto!important}
+
+div.autoSaveMessage div{left:42%;position:absolute;padding:2px;top:4px;font-weight:bold}
+ 
+ .hidden {
+    opacity: 0; 
+ 	visibility: hidden;
+ }
+
+.show {
+    opacity: 1;
+    visibility: visible;
+    -moz-transition: visibility 0.2s linear, opacity 0.2s linear;
+    -o-transition: visibility 0.2s linear, opacity 0.2s linear;
+    -webkit-transition: visibility 0.2s linear, opacity 0.2s linear;
+    transition: visibility 0.2s linear, opacity 0.2s linear;
+}

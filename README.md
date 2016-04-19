@@ -56,3 +56,24 @@ Setting to set the Save button to inform the plugin when the content is saved by
 config.autosave_saveDetectionSelectors = "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
 ````
 
+####Notification Type
+Setting to set the if you want to show the "Auto Saved" message, and if yes you can show as Notification or as Message in the Status bar (Default is "notification")
+
+````js
+// Show as Notification
+config.autosave_messageType = "notification";
+````
+
+````js
+// Show in the Status Bar
+config.autosave_messageType = "statusbar";
+````
+
+
+````js
+// Show no Message
+config.autosave_messageType = "no";
+````
+
+
+
