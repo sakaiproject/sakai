@@ -22,23 +22,23 @@
 			<h1><h:outputText value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" /></h1>
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			
-			    <h:panelGroup styleClass="shorttext">
-					  <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_actpvtmsg1}"/></h:outputLabel>
-					</h:panelGroup>
-					<h:panelGroup >
+			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">
+					<f:verbatim><h3></f:verbatim>
+						<h:outputText value="#{msgs.pvt_actpvtmsg1}"/>
+					<f:verbatim></h3></f:verbatim>
+
 					<h:selectOneRadio id="activate"	value="#{PrivateMessagesTool.activatePvtMsg}"
 							                              layout="pageDirection"  styleClass="checkbox inlineForm table-inline">
 						<f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 						<f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
 					</h:selectOneRadio>
 				</h:panelGroup>
-			  
-			  <h2><h:outputText value="#{msgs.pvt_personal_settings}"  rendered="#{!PrivateMessagesTool.emailForwardDisabled}"/></h2>
+				
+			  <h3><h:outputText value="#{msgs.pvt_personal_settings}"  rendered="#{!PrivateMessagesTool.emailForwardDisabled}"/></h3>
 
-			    <h:panelGroup styleClass="shorttext">
+			    <h:panelGroup styleClass="shorttext" rendered="#{!PrivateMessagesTool.emailForwardDisabled}">
 			      <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
-			    </h:panelGroup>
-			    <h:panelGroup>
+
 			      <h:selectOneRadio immediate="true" id="fwd_msg"
 				value="#{PrivateMessagesTool.forwardPvtMsg}"
 				onchange="this.form.submit();"
@@ -48,18 +48,14 @@
 			          <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 				  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
 			      </h:selectOneRadio> 
-			    </h:panelGroup>
-		           <h:panelGroup styleClass="shorttext">
 		             <h:outputLabel for="fwd_email"><h:outputText value="#{msgs.pvt_emailfor}" /></h:outputLabel>
-		           </h:panelGroup>
-		           <h:panelGroup styleClass="shorttext">
 		             <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" id="fwd_email"
 		               disabled="#{PrivateMessagesTool.forwardPvtMsg == 'no'}" />
 		           </h:panelGroup>
 		         
 		         
 		       <h:panelGroup rendered="#{PrivateMessagesTool.instructor}">	  
-		         <f:verbatim><h2></f:verbatim><h:outputText value="#{msgs.pvt_site_settings}" /><f:verbatim></h2></f:verbatim>
+		         <f:verbatim><h3></f:verbatim><h:outputText value="#{msgs.pvt_site_settings}" /><f:verbatim></h3></f:verbatim>
 				  
                          <h:panelGroup styleClass="shorttext" rendered="#{!PrivateMessagesTool.emailCopyDisabled}">
                            <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_sendemailout}"/></h:outputLabel>
