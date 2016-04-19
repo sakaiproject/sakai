@@ -34,6 +34,11 @@ div#footer {
 #fullWidth {
 }
 
+.profile-twitter-account td.label{
+	text-align: left;
+	width: 250px;
+}
+
 
 #myPhoto {
 	max-width: 100%;
