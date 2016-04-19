@@ -18,7 +18,7 @@
 
 	<property name="toolId" type="string" length="99" not-null="true" />
 	<property name="siteId" type="string" length="99" not-null="true" />
-	<property name="title" type="string" length="100" not-null="true" />
+	<property name="title" type="string" length="255" not-null="true" />
 	<property name="parent" type="long" />
 	<property name="topParent" type="long" />
 	<property name="hidden" type="boolean" />
