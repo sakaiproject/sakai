@@ -69,14 +69,13 @@
  </h:commandButton>
 </p>
 
-
     <!-- QUESTION PROPERTIES -->
     <!-- 1 POINTS -->
     <div class="form-group row">
         <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-2 form-control-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
-                         required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);" styleClass="form-control">
+                         required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
                 <f:validateDoubleRange minimum="0.00"/>
             </h:inputText>
             <h:message for="answerptr" styleClass="validate"/><br/>
@@ -87,7 +86,7 @@
     Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
     <div class="shorttext">
         <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
+        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
     <f:validateDoubleRange/>
     </h:inputText>
         <h:message for="answerminptr" styleClass="validate"/><br/>
@@ -182,9 +181,6 @@
             </div>
         </div>
     </h:panelGroup>
-
-
-
 
 <p class="act">
 

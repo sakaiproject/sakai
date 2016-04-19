@@ -234,10 +234,48 @@ function disableImport(){
   }
 }
 
-function toPoint(id)
-{
-  var x=document.getElementById(id).value
-  document.getElementById(id).value=x.replace(',','.')
+$( document ).ready( function() {
+
+    // inputText with class ConvertPoint changes
+    $( "input.ConvertPoint[type='text']" ).change( function() {
+        var value = $( this ).val();
+        if (value) {
+            $( this ).val(value.replace(',','.'));
+        } else {
+            $( this ).val("0")
+        }
+    });
+
+    // validation for minPoints 
+    $( "#itemForm\\:minPoints\\:answerminptr" ).change( function() {
+        var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
+        var minValue = parseFloat ( $( this ).val() );
+        if (!pointValue.isNaN && !minValue.isNaN) {
+            // minValue should not be equal to or greater than pointValue
+            if (minValue < 0 || minValue >= pointValue) {
+                validationWarningSetDefault($( this ), "0")
+            }
+        }
+    });
+
+    // validation for negative points
+    $( "#itemForm\\:answerdsc" ).change( function() {
+        var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
+        var negativeValue = parseFloat ( $( this ).val() );
+        if (!pointValue.isNaN && !negativeValue.isNaN) {
+            // minValue should not be equal to or greater than pointValue
+            if (negativeValue < 0 || negativeValue > pointValue) {
+                validationWarningSetDefault($( this ), "0")
+            }
+        }
+    });
+
+});
+
+function validationWarningSetDefault(element, value) {
+    $( element ).animate({ backgroundColor: "red" });
+    $( element ).val(value);
+    $( element ).animate({ backgroundColor: "transparent" });
 }
 
 /**
@@ -654,18 +692,6 @@ function mySetMainFrameHeight(id, minHeight)
 	}
 }
 
-function toggleNegativePointVal(val){
-	var negPointField = document.getElementById('itemForm:answerdsc');
-	if(negPointField){
-		if(val){
-			negPointField.value = 0;
-			negPointField.disabled = true;
-		}else{
-			negPointField.disabled = false;
-		}
-	}
-}
-
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");
 
@@ -681,4 +707,3 @@ function clickInsertLink(field){
   var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
   $(hiddenSelector).click();
 }
-
