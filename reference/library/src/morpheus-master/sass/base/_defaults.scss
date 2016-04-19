@@ -32,6 +32,12 @@ a{
 			text-decoration:underline;
 		}
 		text-decoration:underline;	
+		&.btn{
+			text-decoration: none;
+		}
+		&.btn-primary{
+			color: #FFF;
+		}
 	}
 	&.url{
 		@media #{$phone}{
