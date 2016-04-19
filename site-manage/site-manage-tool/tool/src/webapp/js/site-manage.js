@@ -256,6 +256,7 @@ sakai.siteTypeSetup = function(){
         $('#buildOwn').prop('checked', false);
         $('#siteTypeList').hide();
         $('#termList').hide();
+	$('#siteTypeList .checkbox input').prop('checked',false);
         $('#submitBuildOwn').hide();
         $('#submitBuildOwn').prop('disabled', true);
 
