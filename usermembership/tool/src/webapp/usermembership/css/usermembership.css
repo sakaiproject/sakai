@@ -54,6 +54,8 @@ div#sitelistform\:actionContainer1 input, div#sitelistform\:actionContainer2 inp
 	width: 100%;
 	text-align: left;
 	text-shadow: none !important;
+	color: #4398BB !important;
+	text-decoration: underline !important;
 }
 
 div#sitelistform\:actionContainer1 input:hover:enabled, div#sitelistform\:actionContainer2 input:hover:enabled {
