@@ -816,8 +816,15 @@ h6 {
 }
 /* wiki lists */
 ul {padding:.5em;list-style-position:inside;}
+.rwikiRenderedContent ul,.rwiki_renderedContent ul{
+	padding: 0 0 0 2em;
+}
 ul.minus { list-style-type: square }
 ul.star { list-style-type: circle }
+ol {
+	padding: 0 0 0 2em !important;
+}
+ol.decimal { list-style-type: decimal}
 ol.roman { list-style-type: lower-roman }
 ol.ROMAN { list-style-type: upper-roman }
 ol.alpha { list-style-type: lower-alpha }
