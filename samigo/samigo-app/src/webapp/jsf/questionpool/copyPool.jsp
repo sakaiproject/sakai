@@ -34,6 +34,11 @@
                         <!-- stylesheet and script widgets -->
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
+              function flagFolders() {
+	          collapseAllRowsForSelectList();
+                  flagRows();
+              }
+              window.onload = flagFolders;
 </script>
       </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
