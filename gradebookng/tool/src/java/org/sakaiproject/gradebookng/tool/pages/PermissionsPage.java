@@ -13,6 +13,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -333,6 +334,8 @@ public class PermissionsPage extends BasePage {
 				categoryChooser.setNullValid(false);
 				categoryChooser.setVisible(categoriesEnabled);
 				item.add(categoryChooser);
+
+				item.add(new WebMarkupContainer("allGradeItems").setVisible(!categoriesEnabled));
 
 				// in
 				item.add(new Label("in", new ResourceModel("permissionspage.item.in")));
