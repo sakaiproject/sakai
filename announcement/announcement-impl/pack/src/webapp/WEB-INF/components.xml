@@ -26,6 +26,7 @@
 		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
  		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="siteEmailNotificationAnnc"><ref bean="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc"/></property>
+		<property name="contentCopy"><ref bean="org.sakaiproject.content.api.ContentCopy"/></property>
  		<property name="containerTableName"><value>ANNOUNCEMENT_CHANNEL</value></property>
  		<property name="resourceTableName"><value>ANNOUNCEMENT_MESSAGE</value></property>
  		

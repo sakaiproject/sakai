@@ -23,6 +23,11 @@
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-impl</artifactId>
       <version>${project.version}</version>
     </dependency>

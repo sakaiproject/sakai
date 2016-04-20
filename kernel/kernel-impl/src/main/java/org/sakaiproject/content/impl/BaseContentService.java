@@ -36,16 +36,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
@@ -463,6 +466,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** Dependency: CollectionAccessFormatter. */
 	protected CollectionAccessFormatter m_collectionAccessFormatter = null;
+
+	/** Dependency: ContentCopy. */
+	protected ContentCopy m_contentCopy = null;
+
+	/**
+	 * Dependency: ContentCopy.
+	 * 
+	 * @param service
+	 *        The ContentCopy.
+	 */
+	public void setContentCopy(ContentCopy service)
+	{
+		m_contentCopy = service;
+	}
 
 	/**
 	 * Dependency: CollectionAccessFormatter.
@@ -8011,7 +8028,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		return results.toString();
 
 	} // merge
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -8103,282 +8120,70 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	}
 	
 	/**
-	 * {@inheritDoc}
+	 * {@link EntityTransferrer#transferCopyEntities(String, String, List)}
+	 * 
+	 * @return
 	 */
-	public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
-		transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
+	public void transferCopyEntities(String fromContext, String toContext, List ids) {
+		transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
+	}
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> resourceIds)
+	{
+		// This incorrectly expects references to the site collections rather than site IDs as all the 
+		// other services do.
+		
+		// We want to know the site ID from a content ID.
+		// We could parse the strings directly but why duplicate the logic.
+		Reference fromRef = m_entityManager.newReference(getReference(fromContext));
+		Reference toRef = m_entityManager.newReference(getReference(toContext));
+
+		if (fromRef != null && toRef != null) {
+			String fromSiteId = fromRef.getContext();
+			String toSiteId = toRef.getContext();
+
+
+			ContentCopyContext ctx = m_contentCopy.createCopyContext(fromSiteId, toSiteId, true);
+			if (resourceIds != null && resourceIds.size() > 0) {
+				for(String resourceId: resourceIds) {
+					ctx.addResource(resourceId);
+				}
+			} else {
+				Queue<String> collectionsToProcess = new LinkedList<String>();
+				collectionsToProcess.add(fromContext);
+				for(String collectionId = collectionsToProcess.poll(); collectionId != null; collectionId = collectionsToProcess.poll())
+				{
+					try
+					{
+						ContentCollection collection = getCollection(collectionId);
+						List members = collection.getMemberResources();
+						// get the original resource
+						for (Entity member: (List<Entity>)members)
+						{
+							ctx.addResource(member.getId());
+							if (isCollection(member.getId()))
+							{
+								collectionsToProcess.add(member.getId());
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						M_log.warn("Failed to get collection: "+ collectionId);
+					}
+				}
+			}
+
+			// Now do the copy.
+			m_contentCopy.copyReferences(ctx);
+
+			// Now optionally hide the collection:
+			return ctx.getCopyResults();
+		}
+		return Collections.emptyMap();
 	}
 
 
-	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
-
-	{
-		Map transversalMap = new HashMap();
-		// default to import all resources
-		boolean toBeImported = true;
-
-		// set up the target collection
-		ContentCollection toCollection = null;
-		try
-		{
-			toCollection = getCollection(toContext);
-		}
-		catch(IdUnusedException e)
-		{
-			ContentCollectionEdit toCollectionEdit = null;
-			
-			// not such collection yet, add one
-			try
-			{
-				toCollectionEdit = addCollection(toContext);
-				m_storage.commitCollection(toCollectionEdit);
-				((BaseCollectionEdit) toCollectionEdit).closeEdit();
-				
-				//try this again now to get an activated collection
-				try
-				{
-					toCollection = getCollection(toContext);
-				}
-				catch (IdUnusedException eee)
-				{
-					M_log.error(this + toContext, eee);
-				}
-				catch (TypeException eee)
-				{
-					M_log.error(this + toContext, eee);
-				}
-			}
-			catch(IdUsedException ee)
-			{
-				M_log.error(this + toContext, ee);
-			}
-			catch(IdInvalidException ee)
-			{
-				M_log.error(this + toContext, ee);
-			}
-			catch (PermissionException ee)
-			{
-				M_log.error(this + toContext, ee);
-			}
-			catch (InconsistentException ee)
-			{
-				M_log.error(this + toContext, ee);
-			}
-			finally
-			{
-				//safety first!
-				if (toCollectionEdit != null && toCollectionEdit.isActiveEdit()) {
-					((BaseCollectionEdit) toCollectionEdit).closeEdit();
-				}
-			}
-		}
-		catch (TypeException e)
-		{
-			M_log.error(this + toContext, e);
-		}
-		catch (PermissionException e)
-		{
-			M_log.error(this + toContext, e);
-		}
-
-		if (toCollection != null)
-		{
-			// get the list of all resources for importing
-			try
-			{
-				// get the root collection
-				ContentCollection oCollection = getCollection(fromContext);
-
-				// Get the collection members from the 'new' collection
-				List oResources = oCollection.getMemberResources();
-				for (int i = 0; i < oResources.size(); i++)
-				{
-					// get the original resource
-					Entity oResource = (Entity) oResources.get(i);
-					String oId = oResource.getId();
-
-					if (resourceIds != null && resourceIds.size() > 0)
-					{
-						// only import those with ids inside the list
-						toBeImported = false;
-						for (int j = 0; j < resourceIds.size() && !toBeImported; j++)
-						{
-							if (((String) resourceIds.get(j)).equals(oId))
-							{
-								toBeImported = true;
-							}
-						}
-					}
-
-					if (toBeImported)
-					{
-						String oId2 = oResource.getId();
-						String nId = "";
-						String nUrl = "";
-
-						int ind = oId2.indexOf(fromContext);
-						if (ind != -1)
-						{
-							String str1 = "";
-							String str2 = "";
-							if (ind != 0)
-							{
-								// the substring before the fromContext string
-								str1 = oId2.substring(0, ind);
-							}
-							if (!((ind + fromContext.length()) > oId2.length()))
-							{
-								// the substring after the fromContext string
-								str2 = oId2.substring(ind + fromContext.length(), oId2.length());
-							}
-							// get the new resource id; fromContext is replaced with toContext
-							nId = str1 + toContext + str2;
-						}
-
-						ResourceProperties oProperties = oResource.getProperties();
-						boolean isCollection = false;
-						try
-						{
-							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-						}
-						catch (Exception e)
-						{
-						}
-
-						if (isCollection)
-						{
-							// add collection
-							try
-							{
-								ContentCollectionEdit edit = addCollection(nId);
-								// import properties
-								ResourcePropertiesEdit p = edit.getPropertiesEdit();
-								p.clear();
-								p.addAll(oProperties);
-								edit.setAvailability(((ContentCollection) oResource).isHidden(), ((ContentCollection) oResource).getReleaseDate(), ((ContentCollection) oResource).getRetractDate());
-								// SAK-23305
-								hideImportedContent(edit);
-								// complete the edit
-								m_storage.commitCollection(edit);
-								((BaseCollectionEdit) edit).closeEdit();
-								nUrl = edit.getUrl();
-							}
-							catch (IdUsedException e)
-							{
-							}
-							catch (IdInvalidException e)
-							{
-							}
-							catch (PermissionException e)
-							{
-							}
-							catch (InconsistentException e)
-							{
-							}
-							transversalMap.put(oResource.getId(), nId);
-							transversalMap.put(oResource.getUrl(), nUrl);
-							transversalMap.putAll(transferCopyEntitiesRefMigrator(oResource.getId(), nId, resourceIds));
-						}
-						else
-						{
-							try
-							{
-								// add resource
-								ContentResourceEdit edit = addResource(nId);
-								edit.setContentType(((ContentResource) oResource).getContentType());
-								edit.setResourceType(((ContentResource) oResource).getResourceType());
-								edit.setContent(((ContentResource) oResource).streamContent());
-								edit.setAvailability(((ContentResource) oResource).isHidden(), ((ContentResource) oResource).getReleaseDate(), ((ContentResource) oResource).getRetractDate());
-								//edit.setContent(((ContentResource) oResource).getContent());
-								// import properties
-								ResourcePropertiesEdit p = edit.getPropertiesEdit();
-								p.clear();
-								p.addAll(oProperties);
-								// SAK-23305
-								hideImportedContent(edit);
-								// complete the edit
-								m_storage.commitResource(edit);
-								((BaseResourceEdit) edit).closeEdit();
-								nUrl = edit.getUrl();
-								transversalMap.put(oResource.getId(), nId);
-								transversalMap.put(oResource.getUrl(), nUrl);
-							}
-							catch (PermissionException e)
-							{
-							}
-							catch (IdUsedException e)
-							{
-							}
-							catch (IdInvalidException e)
-							{
-							}
-							catch (InconsistentException e)
-							{
-							}
-							catch (ServerOverloadException e)
-							{
-							}
-						} // if
-					} // if
-				} // for
-			}
-			catch (IdUnusedException e)
-			{
-			}
-			catch (TypeException e)
-			{
-			}
-			catch (PermissionException e)
-			{
-			}
-		}
-		transversalMap.put("/fromContext", fromContext);
-		return transversalMap;
-	} // importResources
-
-	/**
-	 * Hide imported content -- SAK-23305
-	 * @param edit Object either a ContentResourceEdit or ContentCollectionEdit object
-	 */
-	private void hideImportedContent(Object edit)
-	{
-		if (m_serverConfigurationService.getBoolean("content.import.hidden", false))
-		{
-			ContentResourceEdit resource = null;
-			ContentCollectionEdit collection = null;
-			String containingCollectionId = null;
-			if (edit instanceof ContentResourceEdit) 
-			{
-				resource = (ContentResourceEdit) edit;
-				containingCollectionId = resource.getContainingCollection().getId();
-			}
-			else if (edit instanceof ContentCollectionEdit)
-			{
-				collection = (ContentCollectionEdit) edit;
-				containingCollectionId = collection.getContainingCollection().getId();
-			}
-			if (resource != null || collection != null)
-			{
-				/*
-				 * If this is "reuse content" during worksite setup, the site collection at this time is
-				 * /group/!admin/ for all content including ones in the folders, so count how many "/" in
-				 * the collection ID. If <= 3, then it's a top-level item and needs to be hidden.
-				 */
-				int slashcount = StringUtils.countMatches(containingCollectionId, "/");
-				if (slashcount <= 3)
-				{
-					if (resource != null)
-					{
-						resource.setHidden();
-					}
-					else if (collection != null)
-					{
-						collection.setHidden();
-					}
-				}
-			}
-		}
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -14358,4 +14163,3 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	}
 
 } // BaseContentService
-
