@@ -175,7 +175,7 @@ a.toggleAnchor > h3 {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 
-.collapse{
+.groupsContainer .collapse{
     display: block !important;
 }
 
