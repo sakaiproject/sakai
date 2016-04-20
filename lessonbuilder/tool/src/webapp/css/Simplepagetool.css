@@ -1582,3 +1582,9 @@ nav.Mrphs-container--toolTitleNav {
 .Mrphs-portalChat {
         z-index: 100004 !important;
 }
+
+.stylingstuff {
+    padding: .5em;
+    margin: .5em 0;
+    border: 1px solid #ccc;
+}
