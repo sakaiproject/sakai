@@ -20,7 +20,7 @@ $(document).ready(function() {
 	</div>
 	<div class="clear"></div>
 	#end
-    <div class="container pull-left">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
             <form action="$actionUrl" method="post" name="customizeForm" >
@@ -104,6 +104,6 @@ $(document).ready(function() {
   </div> <!-- End of col -->
  </div> <!-- End of row -->
 </div> <!-- End of container -->
-<div class="clearfix"></div>
+<div></div>
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
 </div>
