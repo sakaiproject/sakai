@@ -44,6 +44,16 @@
 
 /* end override */
 
+/* wrap unbreakable words */
+#content {
+  word-wrap:break-word;
+  overflow-wrap:break-word;
+}
+/* without this, these divs expand beyond the width of the column if there's an unbreakable word */
+.right-col, .contentCol {
+  max-width:100%;
+}
+
 .title-tools h2{
 	padding-top: 0px;
 }
