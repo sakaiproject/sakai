@@ -131,7 +131,7 @@ function flagRows(){
   for (var i = 0; i < divs.length; i++) {
      var d = divs[i];
      if (d.className == "treefolder"){
-        d.style.backgroundImage = "url(../../images/folder-closed.gif)";
+        d.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
      }
   }
 }
@@ -148,7 +148,7 @@ function toggleRows(elm) {
  var rows = tables[t].getElementsByTagName("TR");
 
  //var rows = document.getElementsByTagName("TR");
- elm.style.backgroundImage = "url(../../images/folder-closed.gif)";
+ elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
  var newDisplay = "none";
  var spannode = elm.parentNode;
  var inputnode = spannode.getElementsByTagName("INPUT")[0];
@@ -169,7 +169,7 @@ function toggleRows(elm) {
     if (r.style.display == "none") {
      if (document.all) newDisplay = "block"; //IE4+ specific code
      else newDisplay = "table-row"; //Netscape and Mozilla
-     elm.style.backgroundImage = "url(../../images/folder-open.gif)";
+     elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-open.gif)";
     }
     break;
    }
@@ -196,7 +196,7 @@ function toggleRows(elm) {
      var tier = cell.getElementsByTagName("SPAN")[0];
      var folder = tier.getElementsByTagName("A")[0];
      if (folder.getAttribute("onclick") != null) {
-      folder.style.backgroundImage = "url(../../images/folder-closed.gif)";
+      folder.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
      }
    }
   }
@@ -268,7 +268,7 @@ function toggleRowsForSelectList(elm) {
  var rows = tables[t].getElementsByTagName("TR");
 
  //var rows = document.getElementsByTagName("TR");
- elm.style.backgroundImage = "url(../../images/folder-closed.gif)";
+ elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
  var newDisplay = "none";
  var spannode = elm.parentNode;
  var inputnode = spannode.getElementsByTagName("INPUT")[0];
@@ -292,7 +292,7 @@ if (cells.length !=7) {
     if (r.style.display == "none") {
      if (document.all) newDisplay = "block"; //IE4+ specific code
      else newDisplay = "table-row"; //Netscape and Mozilla
-     elm.style.backgroundImage = "url(../../images/folder-open.gif)";
+     elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-open.gif)";
     }
     break;
    }
@@ -322,7 +322,7 @@ if (cells.length !=7) {
      var tier = cell.getElementsByTagName("SPAN")[0];
      var folder = tier.getElementsByTagName("A")[0];
      if (folder.getAttribute("onclick") != null) {
-      folder.style.backgroundImage = "url(../../images/folder-closed.gif)";
+      folder.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
      }
    }
  }
