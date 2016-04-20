@@ -215,6 +215,7 @@
 	    if (breadcrumbs.size() > 0) {
 		jQuery(".Mrphs-siteHierarchy").append(jQuery(".breadcrumbs span").slice(1));
 	    }
+	    jQuery(".Mrphs-siteHierarchy").append(jQuery("span.nextprev"));
 	    jQuery(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
 	    jQuery(".genTitle").text(title);
          }
@@ -769,8 +770,14 @@
 		   scrolling="auto"
 		   id="iframe"
 		   ></iframe>
-		   <a href="#" rsf:id="prev1" class="usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">next</a> 
-		   <a style="float:right;" href="#" rsf:id="next1" class="usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">next</a> 
+		   <ul class="navIntraTool">
+		   <li class="bottomButtons contentButton">
+		   <span>
+		   <a href="#" rsf:id="prev1">next</a> 
+		   <a class="bottomRight" href="#" rsf:id="next1">next</a> 
+		   </span>
+		   </li>
+		   </ul>
 
 		<div style="display:none;">
 			<p rsf:id="msg=simplepage.add-comment" id="simplepage.add-comment"></p>
