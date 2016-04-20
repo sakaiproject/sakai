@@ -871,7 +871,8 @@ function handleReportsTriangleDisclosure(btn)
 							</table>
 				 		</div>
 					#end
-				#elseif ($submissionType == 5)
+				</div>
+			#elseif ($submissionType == 5)
 					## attachments > 1, but the assignment type is single uploaded file only
 
 					<div class="assignmentAttachBox">
@@ -960,8 +961,7 @@ function handleReportsTriangleDisclosure(btn)
 					</div>
 				#end
 			#end
-			</div>
-				
+
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
@@ -1100,7 +1100,7 @@ function handleReportsTriangleDisclosure(btn)
 					 class="act">
 						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 					#else
-					 class="act messageInformation">
+					 class="act">
 								#if ($submitted && $!timeSubmitted)
 									#set($name=$tlang.getString("resubmit"))
 								#else
