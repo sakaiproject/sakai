@@ -37,6 +37,7 @@ import java.util.Set;
 
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.util.MathUtils;
@@ -496,10 +497,12 @@ public class SectionContentsBean
 
       setSectionAuthorType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE);
     }
-    if (section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING) != null)
+
+    // SAM-2781 this was added in Sakai 11 so need to be sure this is a real numeric value
+    String qorderString = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING);
+    if (StringUtils.isNotBlank(qorderString) && StringUtils.isNumeric(qorderString))
     {
-      Integer questionorder = new Integer(section.getSectionMetaDataByLabel(
-        SectionDataIfc.QUESTIONS_ORDERING));
+      Integer questionorder = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
       setQuestionOrdering(questionorder);
     }
     else
