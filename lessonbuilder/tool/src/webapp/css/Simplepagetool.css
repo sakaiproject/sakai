@@ -844,6 +844,9 @@ ul#toolbar li em {
 .dropDownDiv li div {
     font-size: .85em !important
 }
+.Mrphs-siteHierarchy span.nextprev {
+   float:right
+}
 span.nextprev {
 }
 a.nextprev {
@@ -1375,6 +1378,12 @@ font-size: 90%;
   line-height:25px; 
   vertical-align:-3px;
   font-size:200%
+}
+.bottomButtons {
+  width:100%
+}
+.bottomRight {
+  float:right
 }
 .contentButton span {
   padding: 0px !important;
