@@ -60,7 +60,7 @@
             <div style="float:left;width:50%;">
               <fieldset>
               <legend><span><spring:message code="siterole.sitetype.title" /></span></legend>
-              <div style="font-style: italic;"><spring:message code="siterole.sitetype.header" /></div>
+              <div class="permsInstruction"><em><spring:message code="siterole.sitetype.header" /></em></div>
               <ul style="margin: 0px;">
                   <c:forEach var="siteType" items="${siteTypes}" varStatus="counter">
                   <li class="checkbox">
@@ -73,7 +73,7 @@
 
               <fieldset>
               <legend><span><spring:message code="siterole.role.title" /></span></legend>
-              <div style="font-style: italic;"><spring:message code="siterole.role.header" /></div>
+              <div class="permsInstruction"><em><spring:message code="siterole.role.header" /></em></div>
               <ul style="margin: 0px;">
                   <c:forEach var="role" items="${roles}" varStatus="counter">
                   <li class="checkbox">
@@ -101,7 +101,7 @@
             <div style="float:right;width:50%;">
               <fieldset>
               <legend><span><spring:message code="siterole.perm.title" /></span></legend>
-              <div style="font-style: italic;"><spring:message code="siterole.perm.header" /></div>
+              <div class="permsInstruction"><em><spring:message code="siterole.perm.header" /></em></div>
               <ul style="margin: 0px;">
                   <c:forEach var="permission" items="${permissions}" varStatus="counter">
                   <li class="checkbox">
