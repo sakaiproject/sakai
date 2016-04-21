@@ -262,7 +262,7 @@
                   </li>
 		  <hr style="border:none"/>
             <li rsf:id="checklist-li">
-                <a role="menuitem" class="add-checklist-link" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
+                <a role="menuitem" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
             </li>
 		  <li rsf:id="question-li">
 		    <a role="menuitem" href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
@@ -839,6 +839,7 @@
              <input type="hidden" class="checklistIdField" id="saveChecklistForm-checklistId" rsf:id="saveChecklistForm-checklistId"></input>
              <input type="hidden" class="checklistItemIdField" id="saveChecklistForm-checklistItemIdInput" rsf:id="saveChecklistForm-checklistItemIdInput"></input>
              <input type="hidden" class="checklistItemDoneField" id="saveChecklistForm-checklistItemDone" rsf:id="saveChecklistForm-checklistItemDone"></input>
+             <input type="hidden" class="checklistCsrfField" id="saveChecklistForm-csrf" rsf:id="saveChecklistForm-csrf"></input>
          </form>
 
          <script rsf:id="saveChecklistForm-init" type="text/javascript">
@@ -944,7 +945,7 @@
 					</div>
 				</div>
       <form action="#" rsf:id="edit-form" class="controlsPanel">
-        <input type="hidden" rsf:id="csrf8" />
+        <input type="hidden" rsf:id="csrf8" id="csrf8"/>
 
                     <div class="">
 

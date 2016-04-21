@@ -131,6 +131,8 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 
             form.parameters.add(new UIELBinding("#{simplePageBean.itemId}", itemId));
 
+	    UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", gparams.getAddBefore());
+
             UIOutput.make(tofill, "attributeString", itemAttributeString);
 
             if (page.getOwner() == null)
