@@ -442,7 +442,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     margin-top: 10px;
     margin-bottom: 0px;
 }
-.mainList li.textType, .mainList li.multimediaType {
+.mainList li.textType, .mainList li.multimediaType, .mainList li.checklistType {
     margin-top: 10px;
     margin-bottom: 10px;
 } 
@@ -474,7 +474,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     vertical-align: top
 }
 
-.statusCol, .contentCol {
+.statusCol, .contentCol, .checklistDiv {
  display: inline-block;
 }
 .link-div h3.link-div-head {
@@ -739,7 +739,7 @@ a.peer-eval-stats {
         font-size:110%;			 
 }
 .noDisplay {
-	display: none
+	display: none !important;
 }
 .imgCell {
 }
@@ -1590,4 +1590,29 @@ nav.Mrphs-container--toolTitleNav {
 /* actual portal chat */
 .Mrphs-portalChat {
         z-index: 100004 !important;
+}
+.hiddenTitle {
+    font-style: italic;
+    font-size: 100%;
+    font-weight: normal;
+    color: #000;
+}
+.checklistSaveMessage {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:13px;
+    margin: 0 0 0 1em;
+    padding:4px 4px 4px 24px;
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+.saveChecklistSuccess {
+    color: #4F8A10;
+    background-image:url('../images/success.png');
+}
+.saveChecklistError {
+    color: #D8000C;
+    background-image: url('../images/failed.png');
+}
+.saveChecklistSaving {
+    margin-left: 2em;
 }
