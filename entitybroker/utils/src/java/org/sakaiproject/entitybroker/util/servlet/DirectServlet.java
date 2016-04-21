@@ -146,12 +146,16 @@ public abstract class DirectServlet extends HttpServlet {
     protected void handleRequest(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         // catch the login helper posts
-        String option = req.getPathInfo();
-        String[] parts = option.split("/");
-        if ((parts.length == 2) && ((parts[1].equals("login")))) {
-            handleUserLogin(req, res, null);
-        } else {
-            dispatch(req, res);
+        // Note that with wrapped requests, URLUtils.getSafePathInfo may return null
+        // so we use the request URI
+        String uri = req.getRequestURI();
+        if ( uri != null ) {
+            String[] parts = uri.split("/");
+            if ((parts.length == 2) && ((parts[1].equals("login")))) {
+                handleUserLogin(req, res, null);
+            } else {
+                dispatch(req, res);
+            }
         }
     }
 
