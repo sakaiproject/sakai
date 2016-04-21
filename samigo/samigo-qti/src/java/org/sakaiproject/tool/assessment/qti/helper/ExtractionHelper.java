@@ -40,6 +40,7 @@ import java.util.TreeSet;
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -1519,7 +1520,18 @@ public class ExtractionHelper
     section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, (String) sectionMap.get("keyword"));
     section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, (String) sectionMap.get("objective"));
     section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, (String) sectionMap.get("rubric"));
-    section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, (String) sectionMap.get("questions-ordering"));
+
+    // SAM-2781: if you are importing from before Sakai 11, this will be null
+    String qorderString = (String) sectionMap.get("questions-ordering");
+    if (StringUtils.isNotBlank(qorderString) && StringUtils.isNumeric(qorderString))
+    {
+      section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, qorderString);
+    }
+    else
+    {
+      section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
+    }
+
   }
 
   /**
