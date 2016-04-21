@@ -9,49 +9,49 @@
 	<script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
 </head>
 <body>
-<div class="portletBody">
+<div class="portletBody container-fluid">
 
 	<div rsf:id="navIntraTool:" class="navIntraTool">Menu items will show here</div>
 
 	<div rsf:id="message-for:*">Messages for the user show here</div>
 
-	<form rsf:id="optionsForm" method="post">
+	<form rsf:id="optionsForm" method="post" class="form-horizontal">
 		<h3 rsf:id="msg=options_toolbar" class="insColor insBak insBorder">Options</h3>
 		<div rsf:id="msg=options_instruction" class="instruction section">
 			You are currently choosing options for Email. Settings chosen on this page will become the default settings for this site.
 		</div>
 
-		<div class="section">
-			<div class="optionsheaderkeyholder">
-				<span rsf:id="msg=options_copies" class="headerkey">Copies:</span>
+		<div class="section form-group">
+			<div class="optionsheaderkeyholder col-sm-4 ">
+				<span rsf:id="msg=options_copies" class="headerkey control-label">Copies:</span>
 			</div>
-			<div class="optionsheadervalue">
-				<div class="checkbox">
+			<div class="optionsheadervalue col-sm-8">
+				<div class="option-checkbox">
 					<input rsf:id="sendMeACopy" id="sendMeACopy" name="sendMeACopy" type="checkbox" />
 					<label rsf:id="msg=sendmeacopy" for="sendMeACopy">Send me a copy</label>
 				</div>
-				<div rsf:id="addToArchiveDiv" class="checkbox">
+				<div rsf:id="addToArchiveDiv" class="checkbox col-sm-8">
 					<input rsf:id="addToArchive" id="addToArchive" name="addToArchive" type="checkbox" />
 					<label rsf:id="msg=addtoemailarchive" for="addToArchive">Add to Email Archive, visible to all site participants</label>
 				</div>
 			</div>
 		</div>
-		<div class="section">
-			<div class="optionsheaderkeyholder">
-				<span rsf:id="msg=options_show_recipients" class="headerkey">Show Recipients:</span>
+		<div class="section form-group">
+			<div class="optionsheaderkeyholder col-sm-4">
+				<span rsf:id="msg=options_show_recipients" class="headerkey control-label">Show Recipients:</span>
 			</div>
-			<div class="optionsheadervalue">
-				<div class="checkbox">
+			<div class="optionsheadervalue col-sm-8">
+				<div class="option-checkbox">
 					<input rsf:id="appendRecipientList" id="appendRecipientList" name="appendRecipientList" type="checkbox" />
 					<label rsf:id="msg=appendrecipientlist" for="appendRecipientList">Append list of recipients to message</label>
 				</div>
 			</div>
 		</div>
-		<div class="section">
-			<div class="optionsheaderkeyholder">
-				<span rsf:id="msg=replyto" class="headerkey">Reply-to:</span>
+		<div class="section form-group">
+			<div class="optionsheaderkeyholder col-sm-4">
+				<span rsf:id="msg=replyto" class="headerkey control-label">Reply-to:</span>
 			</div>
-			<div class="optionsheadervalue">
+			<div class="optionsheadervalue col-sm-8">
 				<span rsf:id="replyToSelect" />
 				<div>
 					<input rsf:id="replyToSender" id="replyToSender" type="radio" />
@@ -62,11 +62,11 @@
 				</div>
 			</div>
 		</div>
-		<div class="section">
-			<div class="optionsheaderkeyholder">
-				<span rsf:id="msg=options_displayinvalidemails" class="headerkey optionsHeaderKey">Display invalid emails:</span>
+		<div class="section form-group">
+			<div class="optionsheaderkeyholder col-sm-4">
+				<span rsf:id="msg=options_displayinvalidemails" class="headerkey optionsHeaderKey control-label">Display invalid emails:</span>
 			</div>
-			<div class="optionsheadervalue">
+			<div class="optionsheadervalue col-sm-8">
 				<span rsf:id="invalidEmailsSelect" />
 				<div>
 					<input rsf:id="invalidEmailsYes" id="invalidEmailsYes" type="radio" />
@@ -77,11 +77,11 @@
 				</div>
 			</div>
 		</div>
-		<div class="section">
-			<div class="optionsheaderkeyholder">
-				<span rsf:id="msg=options_displayemptygroups" class="headerkey optionsHeaderKey">Display empty recipient groups:</span>
+		<div class="section form-group">
+			<div class="optionsheaderkeyholder col-sm-4">
+				<span rsf:id="msg=options_displayemptygroups" class="headerkey optionsHeaderKey control-label">Display empty recipient groups:</span>
 			</div>
-			<div class="optionsheadervalue">
+			<div class="optionsheadervalue col-sm-8">
 				<span rsf:id="emptyGroupsSelect" />
 				<div>
 					<input rsf:id="emptyGroupsYes" id="emptyGroupsYes" type="radio" />
@@ -92,11 +92,11 @@
 				</div>
 			</div>
 		</div>
-		<div rsf:id="subjectPrefixDiv" class="section">
-			<div class="optionsheaderkeyholder">
-				<span rsf:id="msg=options_subjectprefix" class="headerkey">Subject Prefix:</span>
+		<div rsf:id="subjectPrefixDiv" class="section form-group" >
+			<div class="optionsheaderkeyholder col-sm-4">
+				<span rsf:id="msg=options_subjectprefix" class="headerkey control-label">Subject Prefix:</span>
 			</div>
-			<div class="optionsheadervalue">
+			<div class="optionsheadervalue col-sm-8">
 				<span rsf:id="subjectPrefixSelect" />
 				<div>
 					<input rsf:id="subjectPrefixDefault" id="subjectPrefixDefault" type="radio" onclick="jQuery('#customPrefixDiv').hide()" />
