@@ -392,29 +392,68 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    against the WebAIM Color Contrast Checker. I've tried to
    make them subjectively the same darkness.
 */
+/* default */
+.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv {
+  background-color: #b3ecff;
+}
+.column a[href]{
+  color: #004860;
+}
 .colgray {
    background-color: #f0f0f0;
    border-color: #222;
 }
+.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv {
+  background-color: #b8b8b8;
+}
+.colgray a[href]{
+  color:black;
+}
 .colred {
    background-color: #fff0f0;
    border-color: #600;
-   color: #600;
+   color: #4660000;
+}
+.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv {
+  background-color: #ffb3b3;
+}
+.colred a[href], .colred h3.author {
+  color: black;
 }
 .colblue {
    background-color: #f4f4ff;
+   background-color: #e6f9ff;
    border-color: #004;
    color: #004;
+}
+.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv {
+  background-color: #b3d9ff;
+  background-color: #99e7ff;
+}
+.colblue a[href] {
+  color: black;
 }
 .colgreen {
    background-color: #f6fff6;
    border-color: #030;
    color: #030;
 }
+.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv {
+  background-color: #9fc;
+}
+.colgreen a[href] {
+  color: black;
+}
 .colyellow {
    background-color: #ffffe8;
    border-color: #840;
-   color: #840;
+   color: #4b2600;
+}
+.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv {
+  background-color:  #ffd480
+}
+.colyellow a[href],.colyellow h3.author {
+  color: black;
 }
 
 
