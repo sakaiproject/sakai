@@ -65,7 +65,6 @@ public class GradebookNgApplication extends WebApplication {
 		getMarkupSettings().setStripComments(true);
 		getMarkupSettings().setCompressWhitespace(true);
 
-		// to put this app into deployment mode, see web.xml
 	}
 
 	/**
