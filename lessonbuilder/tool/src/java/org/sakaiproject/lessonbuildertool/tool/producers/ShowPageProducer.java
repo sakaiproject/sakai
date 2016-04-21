@@ -4671,7 +4671,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIInput checklistIdInput = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistId", "checklistBean.checklistId");
 			UIInput checklistItemIdInput = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistItemIdInput", "checklistBean.checklistItemId");
 			UIInput checklistItemDone = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistItemDone", "checklistBean.checklistItemDone");
-			UIInitBlock.make(tofill, "saveChecklistForm-init", "checklistAjax.initSaveChecklistForm", new Object[] {checklistIdInput, checklistItemIdInput, checklistItemDone, "checklistBean.results"});
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			String sessionTokenString = null;
+			if (sessionToken != null)
+			    sessionTokenString = sessionToken.toString();
+			UIInput checklistCsrfInput = UIInput.make(saveChecklistForm, "saveChecklistForm-csrf", "checklistBean.csrfToken", sessionTokenString);
+
+			UIInitBlock.make(tofill, "saveChecklistForm-init", "checklistAjax.initSaveChecklistForm", new Object[] {checklistIdInput, checklistItemIdInput, checklistItemDone, checklistCsrfInput, "checklistBean.results"});
 			saveChecklistFormNeeded = true;
 		}
 	}

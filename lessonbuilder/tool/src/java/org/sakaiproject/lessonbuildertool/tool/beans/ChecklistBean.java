@@ -25,6 +25,7 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatusImpl;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.tool.cover.SessionManager;
 
 public class ChecklistBean {
 
@@ -34,10 +35,24 @@ public class ChecklistBean {
     public String checklistId;
     public String checklistItemId;
     public String checklistItemDone;
+    public String csrfToken;
 
     private String[] results;
 
+    public boolean checkCsrf() {
+	Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+	if (sessionToken != null && sessionToken.toString().equals(csrfToken)) {
+	    return true;
+	}
+	else
+	    return false;
+    }
+
     public String[] getResults() {
+	if(!checkCsrf()) {
+	    return new String[]{"error"};
+	}
+
         handleAjaxCall();
         return results;
     }

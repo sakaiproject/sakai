@@ -1122,6 +1122,8 @@ public class SimplePageBean {
 			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
 			return "permission-failed";
 		}
+		if (!checkCsrf())
+		    return "permission-failed";
 		if(!canEditPage()) {
 			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
 			return "failure";
