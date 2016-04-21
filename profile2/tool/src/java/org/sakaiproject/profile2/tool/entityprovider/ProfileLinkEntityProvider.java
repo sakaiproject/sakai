@@ -17,9 +17,6 @@ package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.util.Map;
 
-import lombok.Setter;
-
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
@@ -27,60 +24,61 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 
+import lombok.Setter;
+
 /**
  * This is an entity provider that resolves links. Each has a special use case.
- * 
+ *
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileLinkEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, Redirectable, Describeable {
-	
+public class ProfileLinkEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Redirectable, Describeable {
+
 	public final static String ENTITY_PREFIX = "my";
-	
+
 	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
-	
-	@EntityURLRedirect("/{prefix}/profile/{userUuid}")
-	public String redirectToUserProfile(Map<String,String> vars) {
-		return linkLogic.getInternalDirectUrlToUserProfile(vars.get("userUuid"));
+
+	@EntityURLRedirect("/{prefix}/profile-view/{userUuid}")
+	public String redirectToUserProfile(final Map<String, String> vars) {
+		return this.linkLogic.getInternalDirectUrlToUserProfile(vars.get("userUuid"));
 	}
-	
+
 	@EntityURLRedirect("/{prefix}/profile")
 	public String redirectToMyProfile() {
-		return linkLogic.getInternalDirectUrlToUserProfile();
+		return this.linkLogic.getInternalDirectUrlToUserProfile();
 	}
-	
-	@EntityURLRedirect("/{prefix}/messages/{thread}")
-	public String redirectToMyMessageThread(Map<String,String> vars) {
-		return linkLogic.getInternalDirectUrlToUserMessages(vars.get("thread"));
+
+	@EntityURLRedirect("/{prefix}/messages/thread/{thread}")
+	public String redirectToMyMessageThread(final Map<String, String> vars) {
+		return this.linkLogic.getInternalDirectUrlToUserMessages(vars.get("thread"));
 	}
-	
+
 	@EntityURLRedirect("/{prefix}/messages")
 	public String redirectToMyMessages() {
-		return linkLogic.getInternalDirectUrlToUserMessages(null);
-	}	
-	
+		return this.linkLogic.getInternalDirectUrlToUserMessages(null);
+	}
+
 	@EntityURLRedirect("/{prefix}/connections")
 	public String redirectToMyConnections() {
-		return linkLogic.getInternalDirectUrlToUserConnections();
+		return this.linkLogic.getInternalDirectUrlToUserConnections();
 	}
-	
+
 	@EntityURLRedirect("/{prefix}/wall/{userUuid}")
-	public String redirectToMyWall(Map<String, String> vars) {
-		return linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
+	public String redirectToMyWall(final Map<String, String> vars) {
+		return this.linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
 				null);
 	}
-	 	
-	@EntityURLRedirect("/{prefix}/wall/{userUuid}/{wallItemId}")
-	public String redirectToMyWallItem(Map<String, String> vars) {
-		return linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
+
+	@EntityURLRedirect("/{prefix}/wall/{userUuid}/item/{wallItemId}")
+	public String redirectToMyWallItem(final Map<String, String> vars) {
+		return this.linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
 				vars.get("wallItemId"));
 	}
-	
-	
+
 	@Setter
 	private ProfileLinkLogic linkLogic;
-	
+
 }
