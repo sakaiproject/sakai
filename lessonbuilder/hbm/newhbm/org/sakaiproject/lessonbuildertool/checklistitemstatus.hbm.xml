@@ -9,9 +9,9 @@
         <cache usage="nonstrict-read-write" />
 
         <composite-id>
-            <key-property name="checklistId"/>
-            <key-property name="checklistItemId"/>
-            <key-property name="owner"/>
+            <key-property name="checklistId" type="long"/>
+            <key-property name="checklistItemId" type="long"/>
+            <key-property name="owner" type="string" length="99"/>
         </composite-id>
 
         <property name="done" type="boolean" />
