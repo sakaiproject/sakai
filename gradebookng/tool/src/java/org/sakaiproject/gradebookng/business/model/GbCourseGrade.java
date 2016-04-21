@@ -2,7 +2,6 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
@@ -14,7 +13,7 @@ import lombok.Getter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class GbCourseGrade implements Serializable, Comparable<GbCourseGrade> {
+public class GbCourseGrade implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -38,15 +37,6 @@ public class GbCourseGrade implements Serializable, Comparable<GbCourseGrade> {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
-	}
-
-	/**
-	 * Only compares grades
-	 */
-	@Override
-	public int compareTo(final GbCourseGrade o) {
-		return new CompareToBuilder().append(this.displayString, o.getDisplayString()).toComparison();
-
 	}
 
 }
