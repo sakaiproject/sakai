@@ -1115,3 +1115,8 @@ and (max-device-width : 736px) {
     display: none !important;
   }
 }
+
+.gb-group-title {
+	font-weight: bold;
+	line-height: 3em;
+}

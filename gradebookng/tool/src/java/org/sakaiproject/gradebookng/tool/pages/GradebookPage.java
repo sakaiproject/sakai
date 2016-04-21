@@ -512,8 +512,26 @@ public class GradebookPage extends BasePage {
 		// section and group dropdown
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
 
-		// add the default ALL group to the list
-		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
+		// if only one group, just show the title
+		// otherwise add the 'all groups' option
+		if (groups.size() == 1) {
+			this.form.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
+		} else {
+			this.form.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
+
+			// add the default ALL group to the list
+			String allGroupsTitle = getString("groups.all");
+			if (this.role == GbRole.TA) {
+
+				// does the TA have any permissions set?
+				// we can assume that if they have any then there is probably some sort of group restriction so we can change the label
+				if (!this.businessService.getPermissionsForUser(this.currentUserUuid).isEmpty()) {
+					allGroupsTitle = getString("groups.available");
+				}
+			}
+			groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL));
+
+		}
 
 		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(), groups,
 				new ChoiceRenderer<GbGroup>() {
@@ -552,6 +570,12 @@ public class GradebookPage extends BasePage {
 		// set selected group, or first item in list
 		groupFilter.setModelObject((settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
 		groupFilter.setNullValid(false);
+
+		// if only one item, hide the dropdown
+		if (groups.size() == 1) {
+			groupFilter.setVisible(false);
+		}
+
 		this.form.add(groupFilter);
 
 		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel",
