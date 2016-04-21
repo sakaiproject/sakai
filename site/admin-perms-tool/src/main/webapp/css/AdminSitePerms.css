@@ -31,20 +31,20 @@
     width: 80%;
 }
 .permsControls legend {
-    position: absolute;
-    top: -2px;
-    background: #fff;
-    padding: 6px 18px;
-    border: 2px groove threedface;
     border-top: none;
-    box-shadow: inset 0 -5px 5px rgba(0,0,0,.2);
     text-shadow: 1px 1px 2px rgba(0,0,0,.3);
     font-weight: bold;
+    border: 0;
+    width: auto;
+    padding-bottom: 0.5em;
+}
+
+.permsInstruction {
+    position: relative;
+    top: -1em;
 }
 .permsControls legend span {
     display: block;
-    margin: -16px;
-    background: #fff;
     padding: 0px 6px;
 }
 .permsControls .button label {
