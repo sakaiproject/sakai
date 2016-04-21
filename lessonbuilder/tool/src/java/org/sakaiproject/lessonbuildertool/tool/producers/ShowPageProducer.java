@@ -2165,7 +2165,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								gp.pageItemId = pageItem.getId();
 								gp.siteId = simplePageBean.getCurrentSiteId();
 								
-								UIInternalLink.make(tableRow, "gradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane-comments"), gp)
+								UIInternalLink.make(tableRow, "gradingPaneLink", gp)
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-comments")));
 							}
 
@@ -2588,7 +2588,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								gp.pageItemId = pageItem.getId();
 								gp.studentContentItem = true;
 							
-								UIInternalLink.make(tableRow, "studentGradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane-content"), gp)
+								UIInternalLink.make(tableRow, "studentGradingPaneLink", gp)
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-content")));
 							}
 							
@@ -2807,7 +2807,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							gp.pageId = currentPage.getPageId();
 							gp.pageItemId = pageItem.getId();
 						
-							UIInternalLink.make(tableRow, "questionGradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane"), gp)
+							UIInternalLink.make(tableRow, "questionGradingPaneLink", gp)
 							    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane")));
 						}
 						

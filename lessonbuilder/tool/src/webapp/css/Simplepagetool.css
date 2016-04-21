@@ -869,7 +869,7 @@ img {
 .unsubmitted {
 	background-color: #FFC9D7
 }
-.gradingPaneLink span, .showPollGraph span {
+.showPollGraph span {
 	font-size: 70%;
 	font-weight: normal;
 }
@@ -977,7 +977,7 @@ input[type="submit"].question-submit,.addStudentContent {
    position: static;
 }
 
-.questionDiv .contentCol {
+.questionDiv .contentCol, .checklistDiv {
  margin-top:5px;
  padding: 15px;
  padding-right: 30px;
@@ -1596,6 +1596,10 @@ nav.Mrphs-container--toolTitleNav {
     font-size: 100%;
     font-weight: normal;
     color: #000;
+}
+.checklistDiv h3 {
+    margin-top: 0px;
+    font-size: 100%;
 }
 .checklistSaveMessage {
     font-family:Arial, Helvetica, sans-serif;
