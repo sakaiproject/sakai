@@ -970,11 +970,8 @@ public class GradebookNgBusinessService {
 		Temp.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
 
 		if (settings.getCourseGradeSortOrder() != null) {
-			final CourseGradeComparator comparator = new CourseGradeComparator();
-			comparator.setGradebook(gradebook);
-
 			// sort
-			Collections.sort(items, comparator);
+			Collections.sort(items, new CourseGradeComparator());
 
 			// reverse if required
 			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
