@@ -869,7 +869,7 @@ img {
 .unsubmitted {
 	background-color: #FFC9D7
 }
-.gradingPaneLink span, .showPollGraph span {
+.showPollGraph span {
 	font-size: 70%;
 	font-weight: normal;
 }
