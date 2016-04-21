@@ -22,22 +22,12 @@
         table.wicket-tree-content {
             width: 100%;
         }
-        td {
-            font-size: 100%;
-        }
-        input {
-            font-family: 'Lucida Sans', 'Helvetica', 'Sans-serif', 'sans';
-            font-size: 9pt;         
-        }
         form {
             margin: 0px; padding: 0px;
         }
-        div.my-tree div.wicket-tree-table {
-        }   
         div.wicket-tree-table{
-        	min-width: 800px;
+            min-width: 800px;
         }
-        
         div.my-tree div.wicket-tree-table-body {
             height: 20em;
             overflow: auto;
@@ -45,10 +35,8 @@
         div.wicket-tree-table a{
         	float: none !important;
         }
-        
         div.my-tree{
-        	overflow: -moz-scrollbars-horizontal;;
-        	width: 100%;
+        	width: 90%;
         }
         div.header{
         	height: auto !important;
@@ -62,15 +50,9 @@
         div.header div span.b_ span.c_{
     		height: auto;
 		}
-
-		div.noRoles div.wicket-tree-table {
-    		min-width: 695px;
-		}
-		
 		div.wicket-tree-table div.row-selected{
 			background-color: #FFF !important;
 		}
-		
 		div.wicket-tree-table div.row-selected a.node-link span{
 			font-weight: normal !important;
 		}
@@ -94,15 +76,15 @@
 <wicket:extend>
 	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
 	<br/>
-	<div style="font-size: 150%">
+	<div class="lead">
 		<span><wicket:message key="editUsersTitle"/></span><span wicket:id="userName"></span>
-		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
+		<span class="text-info"><a href="#" onclick="$('.text-info').toggle();"><img src="/library/image/silk/information.png"/></a></span>
 	</div>
 	<br/>
-	<div class="instruction" style="display: none"><a href="#" onclick="$('.instruction').toggle();"><wicket:message key="hideInstructions"/></a></div>	
-	<span class="instruction information" style="white-space: normal; display:none">
+	<div class="text-info" style="display: none"><a href="#" onclick="$('.text-info').toggle();"><wicket:message key="hideInstructions"/></a></div>	
+	<span class="text-info information" style="white-space: normal; display:none">
 		<wicket:message key="editUsersInstructions"/>
-		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
+		<a href="#" onclick="$('.text-info').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
 	</span>
 	<br/>
 	<form wicket:id="filterform">
