@@ -22,7 +22,7 @@
 			<h1><h:outputText value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" /></h1>
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			
-			    <h:panelGroup styleClass="shorttext" layout="block" rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">
+			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">
 					<f:verbatim><h3></f:verbatim>
 						<h:outputText value="#{msgs.pvt_actpvtmsg1}"/>
 					<f:verbatim></h3></f:verbatim>
@@ -36,7 +36,7 @@
 				
 			  <h3><h:outputText value="#{msgs.pvt_personal_settings}"  rendered="#{!PrivateMessagesTool.emailForwardDisabled}"/></h3>
 
-			    <h:panelGroup styleClass="shorttext" layout="block" rendered="#{!PrivateMessagesTool.emailForwardDisabled}">
+			    <h:panelGroup styleClass="shorttext" rendered="#{!PrivateMessagesTool.emailForwardDisabled}">
 			      <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
 
 			      <h:selectOneRadio immediate="true" id="fwd_msg"
@@ -72,7 +72,7 @@
 			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups}">
 			    	<h:outputText value="#{msgs.hiddenGroups_hiddenGroups}"/>
 			    </h:panelGroup>
-			    <h:panelGroup styleClass="shorttext" layout="block" rendered="#{PrivateMessagesTool.currentSiteHasGroups}">
+			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups}">
 			    	<h:outputText value="#{msgs.hiddenGroups_addGroup}: "/>
 			    	<h:selectOneListbox size="1" id="nonHiddenGroup" value ="#{PrivateMessagesTool.selectedNonHiddenGroup}" onchange="this.form.submit();"
 						                  valueChangeListener="#{PrivateMessagesTool.processActionAddHiddenGroup}">
