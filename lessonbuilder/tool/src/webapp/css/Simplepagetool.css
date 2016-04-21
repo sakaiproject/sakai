@@ -54,6 +54,11 @@
   max-width:100%;
 }
 
+.gradingPane {
+  padding-top: 20px;
+  padding-left: 10px;
+}
+
 .title-tools h2{
 	padding-top: 0px;
 }
