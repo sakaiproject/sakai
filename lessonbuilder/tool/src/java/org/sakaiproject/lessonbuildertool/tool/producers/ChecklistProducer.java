@@ -86,8 +86,9 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 
         String itemAttributeString = "";
 
+	SimplePageItem i = null;
         if (itemId != null && itemId != -1) {
-            SimplePageItem i = simplePageBean.findItem(itemId);
+	    i = simplePageBean.findItem(itemId);
             if (i.getPageId() != page.getPageId()) {
                 System.out.println("Checklist asked to edit item not in current page");
                 return;
@@ -134,6 +135,17 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 	    UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", gparams.getAddBefore());
 
             UIOutput.make(tofill, "attributeString", itemAttributeString);
+
+	    String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
+	    String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
+	    UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentLevel);
+
+	    String customClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
+	    if (customClass == null)
+		customClass = "";
+	    // If current user is an admin show the css class input box
+	    UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}", customClass);
+	    UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
             if (page.getOwner() == null)
                 showPageProducer.createGroupList(form, groups, "", "#{simplePageBean.selectedGroups}");
