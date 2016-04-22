@@ -96,13 +96,13 @@
           <h:outputLabel for="identifyAnonAuthors"><h:outputText value="#{msgs.perm_identify_anon_authors}" /></h:outputLabel>
         </h:panelGroup>
 		</h:panelGroup>
-        <h:panelGroup styleClass="checkbox_group permissionRadioGroup">
+        <h:panelGroup styleClass="radio_group permissionRadioGroup">
 						<h:outputText value="#{msgs.perm_revise_postings}" style="display:block;padding:.3em;margin:0  "/>
 						<h:selectOneRadio id="revisePostings" value="#{permission.revisePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}" styleClass="selectOneRadio" >
 							<f:selectItems   value="#{ForumTool.postingOptions}" />
 						</h:selectOneRadio>
         </h:panelGroup>       
-        <h:panelGroup styleClass="checkbox_group permissionRadioGroup">
+        <h:panelGroup styleClass="radio_group permissionRadioGroup">
 						<h:outputText  value="#{msgs.perm_delete_postings}" style="display:block;padding:.3em;margin:0"/>	
 						<h:selectOneRadio id="deletePostings" value="#{permission.deletePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}" styleClass="selectOneRadio">
 		        <f:selectItems   value="#{ForumTool.postingOptions}" />
