@@ -420,7 +420,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ portal.getSiteHelper().getUserSpecificSiteTitle( site );
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false );
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
@@ -547,7 +547,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
 		}else{
 			rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
-			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site ) );
+			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) );
 		}
 		
 		addLocale(rcontext, site, session.getUserId());

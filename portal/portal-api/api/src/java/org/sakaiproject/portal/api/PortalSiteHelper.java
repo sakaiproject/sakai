@@ -108,9 +108,10 @@ public interface PortalSiteHelper
 	 * title (default behaviour)
 	 * 
 	 * @param site the site in question
+	 * @param escaped true if you want the site title HTML escaped, false otherwise
 	 * @return the site or section title
 	 */
-	String getUserSpecificSiteTitle( Site site );
+	String getUserSpecificSiteTitle( Site site, boolean escaped );
 
 	/**
 	 * Generates a SiteView object from the current request and location
