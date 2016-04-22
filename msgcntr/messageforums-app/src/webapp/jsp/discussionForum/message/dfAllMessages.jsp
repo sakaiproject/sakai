@@ -2,13 +2,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
-<%@ page import="org.sakaiproject.tool.messageforums.*,
-				 javax.faces.context.*, javax.faces.application.*,javax.faces.el.*" %>
-<%FacesContext context = FacesContext.getCurrentInstance();
-  Application app = context.getApplication();
-  ValueBinding binding = app.createValueBinding("#{ForumTool}");
-  DiscussionForumTool forumTool = (DiscussionForumTool) binding.getValue(context);%>
-
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
@@ -261,7 +254,7 @@
 			</h:panelGrid>	
 				<%--<%@ include file="dfViewSearchBar.jsp"%> --%>
 				
-				<%if(forumTool.getSelectedTopic().getIsMovePostings()){ %>
+				<h:panelGroup rendered="#{ForumTool.selectedTopic.isMovePostings}" >
 				<f:verbatim><div class="post_move_links"></f:verbatim>
                     <%-- hidden link to call ForumTool.processMoveThread  --%>
                     <h:commandLink value="" action="#{ForumTool.processMoveThread}" id="hidden_move_message_commandLink" ></h:commandLink>
@@ -274,7 +267,7 @@
                     <h:outputText value="#{msgs.move_thread}" />
 					<f:verbatim></a></f:verbatim>
 					<f:verbatim></div></f:verbatim>
-   				<%}%>
+   				</h:panelGroup>
 			<%--//designNote: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%>
 			<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.selectedTopic != null && ForumTool.needToPostFirst}"/>				
 			<h:outputText value="#{msgs.cdfm_no_messages}" rendered="#{ForumTool.selectedTopic == null || (empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst)}"  styleClass="instruction" style="display:block"/>
