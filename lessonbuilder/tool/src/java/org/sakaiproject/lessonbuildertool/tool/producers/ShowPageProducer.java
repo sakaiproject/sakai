@@ -1131,7 +1131,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    } else if ("colunn".equals(i.getFormat()))
 					colnum++;
 				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
-
 				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
 				    Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
@@ -1374,6 +1373,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						linkdiv.decorate(new UIFreeAttributeDecorator("role", "navigation"));
 					    }
 					}
+
+					styleItem(tableRow, linktd, i, "indentLevel", "custom-css-class");
 
 					// note that a lot of the info here is used by the
 					// javascript that prepares
@@ -2846,6 +2847,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					UIOutput.make(tableRow, "checklistDiv");
 
+					styleItem(tableRow, checklistItemContainer, i, null, null);
+
 					// Blank status image used to match spacing of other items
 					addStatusImage(Status.NOT_REQUIRED, tableRow, "checklistStatus", null);
 
@@ -3406,6 +3409,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 	}
 
+	private void styleItem(UIContainer row, UIComponent component, SimplePageItem i, String indent, String customClass) {
+	    // Indent level - default to 0 if not previously set
+	    String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
+	    // Indent number in em is 4 times the level of indent
+
+	    if (!"0".equals(indentLevel))
+		component.decorate(new UIFreeAttributeDecorator("x-indent", indentLevel));
+	    if (indent != null)
+		UIOutput.make(row, indent, indentLevel);
+
+	    // Custom css class(es)
+	    String customCssClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
+	    if (customCssClass != null && customClass != null) {
+		component.decorate(new UIStyleDecorator(customCssClass));
+	    }
+	    if (customClass != null) {
+		UIOutput.make(row, customClass, customCssClass);
+	    }
+
+	}
+
 	public void setSimplePageToolDao(SimplePageToolDao s) {
 		simplePageToolDao = s;
 	}
@@ -3773,6 +3797,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
+
+		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
+		UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentOptions[0]);
+
+		// If current user is an admin show the css class input box
+		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
+		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
 		// can't use site groups on user content, and don't want students to hack
 		// on groups for site content

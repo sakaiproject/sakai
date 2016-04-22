@@ -52,6 +52,11 @@ public interface SimplePageItem {
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
 
+    // item indent JSON attribute stored as {"indentLevel":"5"} where 5 times 4 is the number of left margin in em.
+    public static final String INDENT = "indentLevel";
+
+    // custom css class for simple page item stored as {"customCssClass":"customclass1"} where customclass1 is defined by the user
+    public static final String CUSTOMCSSCLASS = "customCssClass";
 
     // name of nameHidden JSON attribute
     public static final String NAMEHIDDEN = "namehidden";

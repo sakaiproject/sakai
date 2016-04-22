@@ -50,10 +50,12 @@
   overflow-wrap:break-word;
 }
 /* without this, these divs expand beyond the width of the column if there's an unbreakable word */
-.right-col, .contentCol, .checklistDiv, .checklistDescription {
+.right-col, .contentCol, .checklistDescription {
   max-width:100%;
 }
-
+.checklistDiv {
+  max-width:calc(100% - 20px);
+}
 .gradingPane {
   padding-top: 20px;
   padding-left: 10px;
@@ -1030,7 +1032,9 @@ input[type="submit"].question-submit,.addStudentContent {
  -moz-border-radius: 10px;
  border-radius: 10px;
 }
-
+.checklistDiv {
+ padding-right: 15px;
+}
 .questionDivControl {
  margin-top: 5px;
  margin-bottom: 10px;
@@ -1663,4 +1667,10 @@ nav.Mrphs-container--toolTitleNav {
 }
 .saveChecklistSaving {
     margin-left: 2em;
+}
+
+.stylingstuff {
+    padding: .5em;
+    margin: .5em 0;
+    border: 1px solid #ccc;
 }

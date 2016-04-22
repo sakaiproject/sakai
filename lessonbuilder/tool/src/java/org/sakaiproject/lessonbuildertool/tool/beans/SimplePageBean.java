@@ -248,6 +248,9 @@ public class SimplePageBean {
 	private String numberOfPages;
 	private boolean copyPage;
 
+	private String indentLevel;
+	private String customCssClass;
+
 	private String alt = null;
 	private String order = null;
 
@@ -734,6 +737,27 @@ public class SimplePageBean {
 		}
 	}
 
+	public String getIndentLevel() {
+		if (itemId != null && itemId != -1) {
+			return findItem(itemId).getAttribute(SimplePageItem.INDENT);
+		} else {
+			// default is zero
+			return "0";
+		}
+	}
+
+	public void setIndentLevel(String indentLevel) {
+		this.indentLevel = indentLevel;
+	}
+
+	public String getCustomCssClass() {
+		return customCssClass;
+	}
+
+	public void setCustomCssClass(String customCssClass) {
+		this.customCssClass = customCssClass;
+	}
+
 	public void setHidePage(boolean hide) {
 		hidePage = hide;
 	}
@@ -1140,6 +1164,12 @@ public class SimplePageBean {
 		item.setName(name);
 		item.setDescription(description);
 		setItemGroups(item, selectedGroups);
+
+		// Set the indent level for this item
+		item.setAttribute(SimplePageItem.INDENT, indentLevel);
+
+		// Set the custom css class
+		item.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
 
 		// Is the name hidden from students
 		item.setAttribute(SimplePageItem.NAMEHIDDEN, String.valueOf(nameHidden));
@@ -2830,6 +2860,12 @@ public class SimplePageBean {
 			} else {
 				i.setRequirementText(dropDown);
 			}
+
+			// Set the indent level for this item
+			i.setAttribute(SimplePageItem.INDENT, indentLevel);
+
+			// Set the custom css class
+			i.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
 
 			// currently we only display HTML in the same page
 			if (i.getType() == SimplePageItem.RESOURCE)
