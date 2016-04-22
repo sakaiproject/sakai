@@ -435,9 +435,15 @@ $PBJQ(document).ready(function($){
 
     var newFavorites = listFavorites();
 
-    // Retain the sort ordering of our original list
+    // Retain the sort ordering of our original list, adding new items to the end
     newFavorites = newFavorites.sort(function (a, b) {
-      return favoritesList.indexOf(a) - favoritesList.indexOf(b);
+      if (favoritesList.indexOf(a) === -1) {
+        return 1;
+      } else if (favoritesList.indexOf(b) === -1) {
+        return -1;
+      } else {
+        return favoritesList.indexOf(a) - favoritesList.indexOf(b);
+      }
     });
 
     $.ajax({
