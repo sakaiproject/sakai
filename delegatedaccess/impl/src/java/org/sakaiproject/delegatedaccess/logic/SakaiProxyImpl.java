@@ -31,7 +31,8 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -74,7 +75,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class SakaiProxyImpl implements SakaiProxy {
 
-	private static final Logger log = Logger.getLogger(SakaiProxyImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SakaiProxyImpl.class);
 	@Getter @Setter
 	private AuthzGroupService authzGroupService;
 

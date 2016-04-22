@@ -22,7 +22,8 @@ import java.util.List;
 import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
@@ -71,7 +72,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 public class MyProfile extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = Logger.getLogger(MyProfile.class);
+	private static final Logger log = LoggerFactory.getLogger(MyProfile.class);
 	
 
 	/**

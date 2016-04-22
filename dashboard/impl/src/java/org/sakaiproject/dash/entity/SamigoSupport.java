@@ -33,7 +33,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -93,7 +94,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class SamigoSupport {
 	
-	private static Logger logger = Logger.getLogger(SamigoSupport.class);
+	private static Logger logger = LoggerFactory.getLogger(SamigoSupport.class);
 	private static final String CAN_TAKE = "assessment.takeAssessment";
 	private static final String CAN_PUBLISH = "assessment.publishAssessment.any";
 

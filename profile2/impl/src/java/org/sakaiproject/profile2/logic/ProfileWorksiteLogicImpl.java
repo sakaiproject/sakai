@@ -27,7 +27,8 @@ import java.util.Map;
 
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -45,7 +46,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileWorksiteLogicImpl.class);
 	
 	/**
 	 * Profile2 creates <code>project</code> type worksites.

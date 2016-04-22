@@ -15,7 +15,8 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -28,7 +29,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 public class KudosPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = Logger.getLogger(KudosPanel.class);
+	private static final Logger log = LoggerFactory.getLogger(KudosPanel.class);
 
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")

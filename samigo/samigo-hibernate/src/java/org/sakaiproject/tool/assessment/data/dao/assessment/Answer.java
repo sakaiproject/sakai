@@ -28,7 +28,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.samlite.api.Question;
-import org.apache.log4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.io.IOException;
 import java.util.Set;
@@ -38,7 +39,7 @@ import java.util.HashMap;
 
 public class Answer
     implements Serializable, AnswerIfc, Comparable<AnswerIfc>, Cloneable { 
-  static Category errorLogger = Category.getInstance("errorLogger");
+  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 

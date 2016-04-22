@@ -463,7 +463,6 @@ public class Iso8601TimeInterval
    */
   public static void main(String[] args)
   {
-    org.apache.log4j.BasicConfigurator.configure();
     try
     {
       Iso8601TimeInterval ti = new Iso8601TimeInterval("-P2y10m15dT10H30M20S");
