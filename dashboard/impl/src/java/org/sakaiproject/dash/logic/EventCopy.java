@@ -4,7 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.event.api.Event;
 
@@ -20,7 +21,7 @@ public class EventCopy implements Event
 		this.sakaiProxy = proxy;
 	}
 	
-	private static Logger logger = Logger.getLogger(EventCopy.class);
+	private static Logger logger = LoggerFactory.getLogger(EventCopy.class);
 
 	protected String context;
 	protected String eventIdentifier;

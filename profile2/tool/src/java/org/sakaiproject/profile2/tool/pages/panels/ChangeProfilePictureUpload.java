@@ -15,7 +15,8 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -54,7 +55,7 @@ public class ChangeProfilePictureUpload extends Panel{
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
 	
-    private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
+    private static final Logger log = LoggerFactory.getLogger(ChangeProfilePictureUpload.class);
     
     private FeedbackPanel feedback;
 

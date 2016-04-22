@@ -24,7 +24,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ResourceReference;
@@ -71,7 +72,7 @@ import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnList;
  */
 public class ShoppingEditPage extends BaseTreePage{
 	private TreeTable tree;
-	private static final Logger log = Logger.getLogger(ShoppingEditPage.class);
+	private static final Logger log = LoggerFactory.getLogger(ShoppingEditPage.class);
 	private String[] defaultRole = null;
 	private SelectOption filterHierarchy;
 	private String filterSearch = "";

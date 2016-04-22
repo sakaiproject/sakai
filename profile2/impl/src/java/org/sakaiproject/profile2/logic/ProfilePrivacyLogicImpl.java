@@ -19,7 +19,8 @@ import java.util.HashMap;
 
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -35,7 +36,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  */
 public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 
-	private static final Logger log = Logger.getLogger(ProfilePrivacyLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfilePrivacyLogicImpl.class);
 	
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.privacy";	

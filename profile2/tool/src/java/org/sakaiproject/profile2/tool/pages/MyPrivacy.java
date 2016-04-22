@@ -19,7 +19,8 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -44,7 +45,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyPrivacy extends BasePage {
 
-	private static final Logger log = Logger.getLogger(MyPrivacy.class);
+	private static final Logger log = LoggerFactory.getLogger(MyPrivacy.class);
 	private transient ProfilePrivacy profilePrivacy;
 		
 	public MyPrivacy() {

@@ -24,7 +24,8 @@ import java.util.Observer;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -45,7 +46,7 @@ public class DelegatedAccessObserver implements Observer {
 	@Getter @Setter
 	private EventTrackingService eventTrackingService;	
 
-	private static final Logger log = Logger.getLogger(DelegatedAccessObserver.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessObserver.class);
 
 	public void init() {
 		log.info("init()");

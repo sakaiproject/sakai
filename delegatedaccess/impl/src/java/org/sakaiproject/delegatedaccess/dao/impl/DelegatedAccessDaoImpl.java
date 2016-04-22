@@ -32,7 +32,8 @@ import java.util.Set;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -42,7 +43,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedAccessDao {
 
-	private static final Logger log = Logger.getLogger(DelegatedAccessDaoImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessDaoImpl.class);
 	private PropertiesConfiguration statements;
 	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
 	private boolean oracle = false;

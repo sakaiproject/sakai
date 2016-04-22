@@ -24,7 +24,8 @@ import java.util.Map;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
@@ -59,7 +60,7 @@ import org.sakaiproject.tool.api.SessionManager;
  */
 public class KudosJob implements StatefulJob {
 
-	private static final Logger log = Logger.getLogger(KudosJob.class);
+	private static final Logger log = LoggerFactory.getLogger(KudosJob.class);
 	
 	private final String BEAN_ID = "org.sakaiproject.profile2.job.KudosJob";
 	

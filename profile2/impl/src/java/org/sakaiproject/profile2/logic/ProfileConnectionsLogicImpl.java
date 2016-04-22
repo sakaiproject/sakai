@@ -24,7 +24,8 @@ import java.util.Map;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -44,7 +45,7 @@ import org.sakaiproject.user.api.User;
  */
 public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileConnectionsLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileConnectionsLogicImpl.class);
 
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.connections";

@@ -27,7 +27,8 @@ import java.sql.SQLException;
 import org.sakaiproject.dash.model.Context;
 import org.springframework.jdbc.core.RowMapper;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mapper for the "context_users" string returned
@@ -35,7 +36,7 @@ import org.apache.log4j.Logger;
 public class ContextUserMapper implements RowMapper
 {
 
-	private static final Logger log = Logger.getLogger(ContextUserMapper.class);
+	private static final Logger log = LoggerFactory.getLogger(ContextUserMapper.class);
 	
 	public String mapRow(ResultSet rs, int rowNum) throws SQLException {
 		String rv = "";

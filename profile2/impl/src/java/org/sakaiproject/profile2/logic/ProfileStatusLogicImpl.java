@@ -21,7 +21,8 @@ import java.util.Date;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -36,7 +37,7 @@ import org.sakaiproject.profile2.util.ProfileUtils;
  */
 public class ProfileStatusLogicImpl implements ProfileStatusLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileStatusLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileStatusLogicImpl.class);
 
 	
 	/**

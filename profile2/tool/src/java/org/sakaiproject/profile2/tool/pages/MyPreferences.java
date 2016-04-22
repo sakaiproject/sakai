@@ -16,7 +16,8 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -46,7 +47,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyPreferences extends BasePage{
 
-	private static final Logger log = Logger.getLogger(MyPreferences.class);
+	private static final Logger log = LoggerFactory.getLogger(MyPreferences.class);
 	private transient ProfilePreferences profilePreferences;
 
 	private CheckBox officialImage;

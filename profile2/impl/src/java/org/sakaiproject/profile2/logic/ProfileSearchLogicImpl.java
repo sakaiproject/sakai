@@ -27,7 +27,8 @@ import java.util.Set;
 
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
@@ -48,7 +49,7 @@ import org.sakaiproject.user.api.User;
  */
 public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileSearchLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileSearchLogicImpl.class);
 	
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.search";

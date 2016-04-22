@@ -29,7 +29,8 @@ import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
@@ -55,7 +56,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class ProfileImageLogicImpl implements ProfileImageLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileImageLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileImageLogicImpl.class);
 
 	/**
  	 * {@inheritDoc}

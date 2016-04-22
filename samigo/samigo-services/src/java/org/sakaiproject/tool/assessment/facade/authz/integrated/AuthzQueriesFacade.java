@@ -41,6 +41,8 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -55,8 +57,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class AuthzQueriesFacade
   extends HibernateDaoSupport implements AuthzQueriesFacadeAPI
 {
-  private final static org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(AuthzQueriesFacade.class);
+  private final static Logger logger = LoggerFactory.getLogger(AuthzQueriesFacade.class);
 
   // stores sql strings
   private static ResourceBundle res = ResourceBundle.getBundle(

@@ -27,7 +27,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -55,7 +56,7 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.util.ResourceLoader;
 
 public class SamigoETSProviderImpl implements SamigoETSProvider {
-    private static  final   Logger              LOG                                 = Logger.getLogger(SamigoETSProviderImpl.class);
+    private static  final   Logger              LOG                                 = LoggerFactory.getLogger(SamigoETSProviderImpl.class);
     private         final   Map<String,String>  constantValues                      = new HashMap<>();
     private         final   String              MULTIPART_BOUNDARY                  = "======sakai-multi-part-boundary======";
     private         final   String              BOUNDARY_LINE                       = "\n\n--"+MULTIPART_BOUNDARY+"\n";
@@ -190,12 +191,12 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             }
         } catch(org.sakaiproject.exception.IdUnusedException e){
             //Site not found
-            LOG.warn("Site '" + siteID + "' not found while sending instructor notifications for samigo submission.");
-            LOG.debug(e);
+            LOG.warn("Site '{}' not found while sending instructor notifications for samigo submission.", siteID);
+            LOG.debug(e.getMessage(), e);
         } catch(org.sakaiproject.authz.api.GroupNotDefinedException e){
             // Realm not found
-            LOG.warn("AuthzGroup '/site/" + siteID + "' not found while sending instructor notifications for samigo submission");
-            LOG.debug(e);
+            LOG.warn("AuthzGroup '/site/{}' not found while sending instructor notifications for samigo submission", siteID);
+            LOG.debug(e.getMessage(), e);
         }
 
         List<User>          users                   = new ArrayList<>();
@@ -409,7 +410,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
                     decodedHtml = URLDecoder.decode(bodyHtml, "utf8");
                 } catch (UnsupportedEncodingException e) {
                     decodedHtml = bodyHtml;
-                    LOG.warn(e);
+                    LOG.warn(e.getMessage(), e);
                 }
                 template.setHtmlMessage(decodedHtml);
             }

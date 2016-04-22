@@ -28,7 +28,8 @@ import javax.swing.tree.TreeModel;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -48,7 +49,7 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
  *
  */
 public class DelegatedAccessShoppingPeriodJob implements StatefulJob, ScheduledInvocationCommand {
-	private static final Logger log = Logger.getLogger(DelegatedAccessShoppingPeriodJob.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessShoppingPeriodJob.class);
 	@Getter @Setter
 	private ProjectLogic projectLogic;
 	@Getter @Setter	

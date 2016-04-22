@@ -25,7 +25,8 @@ import java.util.Map;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -42,7 +43,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  */
 public class ProfileWallLogicImpl implements ProfileWallLogic {
 	
-	private static final Logger log = Logger.getLogger(ProfileWallLogic.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileWallLogic.class);
 		
 	/**
 	 * Creates a new instance of <code>ProfileWallLogicImpl</code>.

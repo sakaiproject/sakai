@@ -34,7 +34,8 @@ import java.util.TreeSet;
 
 import net.sf.ehcache.Cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.dao.DashboardDao;
@@ -72,7 +73,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 		this.transactionTemplate = new TransactionTemplate(transactionManager);
 	}
 
-	private static Logger logger = Logger.getLogger(DashboardUserLogicImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(DashboardUserLogicImpl.class);
 	
 	// time before rechecking a task assignment, in milliseconds (one hour)
 	private static final long TASK_LOCK_EXPIRATION_PERIOD = 1000L * 60L * 60L * 12L;
@@ -210,7 +211,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 										buf.append(entry.getKey());
 										buf.append(" Date: ");
 										buf.append(entry.getValue());
-										logger.warn(buf);
+										logger.warn(buf.toString());
 									} else {
 
 										if (dashboardEntityInfo.isAvailable(calendarItem.getEntityReference()))
@@ -233,7 +234,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 								buf.append(e);
 								buf.append(" Message: ");
 								buf.append(e.getMessage());
-								logger.warn(buf);
+								logger.warn(buf.toString());
 							}
 						}
 					}
@@ -308,7 +309,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 			buf.append(") added ");
 			buf.append(count);
 			buf.append(" calendarLinks");
-			logger.debug(buf);
+			logger.debug(buf.toString());
 		}
 
 	}
@@ -435,7 +436,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 			buf.append(") added ");
 			buf.append(count);
 			buf.append(" newsLinks");
-			logger.debug(buf);
+			logger.debug(buf.toString());
 		}
 	}
 	
@@ -502,7 +503,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 			buf.append(") added ");
 			buf.append(count);
 			buf.append(" calendarLinks");
-			logger.debug(buf);
+			logger.debug(buf.toString());
 		}
 
 	}
@@ -1194,7 +1195,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 			buf.append(") added ");
 			buf.append(count);
 			buf.append(" calendarLinks");
-			logger.debug(buf);
+			logger.debug(buf.toString());
 		}
 
 	}

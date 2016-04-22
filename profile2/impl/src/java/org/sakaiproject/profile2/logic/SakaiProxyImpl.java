@@ -25,7 +25,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -73,7 +74,7 @@ import lombok.Setter;
  */
 public class SakaiProxyImpl implements SakaiProxy {
 
-	private static final Logger log = Logger.getLogger(SakaiProxyImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SakaiProxyImpl.class);
 
 	/**
 	 * {@inheritDoc}

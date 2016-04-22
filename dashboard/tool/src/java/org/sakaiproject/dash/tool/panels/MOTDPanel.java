@@ -27,7 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -69,7 +70,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class MOTDPanel extends Panel {
 
-	private static final Logger logger = Logger.getLogger(MOTDPanel.class);
+	private static final Logger logger = LoggerFactory.getLogger(MOTDPanel.class);
 	
 	public static final int MOTD_MODE_HIDDEN = 0;
 	public static final int MOTD_MODE_TEXT = 1;
@@ -246,7 +247,7 @@ public class MOTDPanel extends Panel {
 						public void onClick(AjaxRequestTarget target) {
 							logger.debug("starringAction onClick() called -- star ");
 							// need to keep one item
-							logger.debug(newsItemId);
+							logger.debug(Long.toString(newsItemId));
 							//logger.debug(this.getModelObject());
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();

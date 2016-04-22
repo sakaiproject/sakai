@@ -29,7 +29,8 @@ import java.util.Map.Entry;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -66,7 +67,7 @@ import org.sakaiproject.site.api.Site;
  */
 public class DelegatedAccessSiteHierarchyJob implements Job{
 
-	private static final Logger log = Logger.getLogger(DelegatedAccessSiteHierarchyJob.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessSiteHierarchyJob.class);
 	@Getter @Setter
 	private HierarchyService hierarchyService;
 	@Getter @Setter	

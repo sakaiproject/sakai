@@ -20,7 +20,8 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -39,7 +40,7 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 public class MyInfoDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
+	private static final Logger log = LoggerFactory.getLogger(MyInfoDisplay.class);
 	private int visibleFieldCount = 0;
 	private String birthday = ""; 
 	private String birthdayDisplay = "";

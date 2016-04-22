@@ -19,7 +19,8 @@ package org.sakaiproject.delegatedaccess.dao.impl;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -55,7 +56,7 @@ public class DelegatedAccessSampleDataLoader {
 	private UsageSessionService usageSessionService;
 	private SessionManager sessionManager;
 	private UserDirectoryService userDirectoryService;
-	private static final Logger log = Logger.getLogger(DelegatedAccessSampleDataLoader.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessSampleDataLoader.class);
 
 	private List<String> schools = Arrays.asList("MUSIC", "MEDICINE", "EDUCATION");
 	private List<String> depts = Arrays.asList("DEPT1", "DEPT2", "DEPT3");
@@ -175,17 +176,10 @@ public class DelegatedAccessSampleDataLoader {
 								group.addMember("datest", group.getMaintainRole(), true, false);
 								authzGroupService.save(group);
 
-							} catch (IdInvalidException e) {
-								log.warn(e);
-							} catch (IdUsedException e) {
-								log.warn(e);
-								//this means that we have already ran this, lets quit
-								return;
-							} catch (PermissionException e) {
-								log.warn(e);
-							} catch (Exception e){
-								//who knows what happened... let's quit!
-								log.warn(e);
+							} catch (IdInvalidException | PermissionException e) {
+								log.warn(e.getMessage(), e);
+							} catch (Exception e) {
+								log.warn(e.getMessage(), e);
 								return;
 							}
 						}
@@ -197,11 +191,11 @@ public class DelegatedAccessSampleDataLoader {
 			try {
 				delegatedAccessSiteHierarchyJob.execute(null);
 			} catch (JobExecutionException e) {
-				log.warn(e);
+				log.warn(e.getMessage(), e);
 			}
 		
 		}catch(Exception e){
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}finally{
 			securityService.popAdvisor(yesMan);
 			logoutFromSakai();
