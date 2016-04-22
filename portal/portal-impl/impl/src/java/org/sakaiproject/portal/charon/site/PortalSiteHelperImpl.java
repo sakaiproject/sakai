@@ -342,19 +342,25 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getUserSpecificSiteTitle( Site site )
+	public String getUserSpecificSiteTitle( Site site, boolean escaped )
 	{
-		return getUserSpecificSiteTitle( site, true );
+		return getUserSpecificSiteTitle( site, true, escaped );
 	}
 
-	public String getUserSpecificSiteTitle( Site site, boolean truncated )
+	public String getUserSpecificSiteTitle( Site site, boolean truncated, boolean escaped )
 	{
 		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
-		if (truncated) {
-			return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
-		} else {
-			return Web.escapeHtml( retVal );
+		if( truncated )
+		{
+			retVal = FormattedText.makeShortenedText( retVal, null, null, null );
 		}
+
+		if( escaped )
+		{
+			retVal = Web.escapeHtml( retVal );
+		}
+
+		return retVal;
 	}
 
 	/**
@@ -385,8 +391,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						.equals(myWorkspaceSiteId))));
 		
 		// SAK-29138
-		String siteTitleTruncated = getUserSpecificSiteTitle( s, true );
-		String siteTitleNotTruncated = getUserSpecificSiteTitle( s, false );
+		String siteTitleTruncated = getUserSpecificSiteTitle( s, true, true );
+		String siteTitleNotTruncated = getUserSpecificSiteTitle( s, false, true );
 		m.put( "siteTitleNotTruncated", siteTitleNotTruncated );
 		m.put( "siteTitle", siteTitleTruncated );
 		m.put( "fullTitle", siteTitleNotTruncated );
@@ -430,8 +436,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					// System.out.println("PWD["+i+"]="+site.getId()+"
 					// "+site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
-					String siteTitleTruncatedBreadCrumb = getUserSpecificSiteTitle( site, true );
-					String siteTitleNotTruncatedBreadCrumb = getUserSpecificSiteTitle( site, false );
+					String siteTitleTruncatedBreadCrumb = getUserSpecificSiteTitle( site, true, true );
+					String siteTitleNotTruncatedBreadCrumb = getUserSpecificSiteTitle( site, false, true );
 					
 					pm.put("siteTitleNotTruncated", siteTitleNotTruncatedBreadCrumb );
 					pm.put("siteTitle", siteTitleTruncatedBreadCrumb );

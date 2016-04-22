@@ -514,7 +514,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if (site != null)
 		{
 			// SAK-29138
-			title = title + ":" + siteHelper.getUserSpecificSiteTitle( site );
+			title = title + ":" + siteHelper.getUserSpecificSiteTitle( site, false );
 			if (placement != null) title = title + " : " + placement.getTitle();
 		}
 
