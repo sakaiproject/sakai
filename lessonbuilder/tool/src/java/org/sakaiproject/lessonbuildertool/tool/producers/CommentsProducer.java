@@ -14,8 +14,8 @@ import java.net.URLEncoder;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
@@ -50,7 +50,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class CommentsProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
-	private static final Log log = LogFactory.getLog(CommentsProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(CommentsProducer.class);
 	public static final String VIEW_ID = "Comments";
 
 	private SimplePageBean simplePageBean;

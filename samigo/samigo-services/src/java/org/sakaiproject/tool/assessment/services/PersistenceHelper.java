@@ -21,8 +21,8 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility methods for helping with persistence
@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PersistenceHelper {
 	
-	private Log log = LogFactory.getLog(PersistenceHelper.class);
+	private Logger log = LoggerFactory.getLogger(PersistenceHelper.class);
 	
 	
 	private Integer deadlockInterval; // in ms

@@ -27,8 +27,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.component.common.manager.PersistableHelper;
@@ -41,7 +41,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 {
-	private static final Log LOG = LogFactory.getLog(TypeManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TypeManagerImpl.class);
 
 	private static final String ID = "id";
 

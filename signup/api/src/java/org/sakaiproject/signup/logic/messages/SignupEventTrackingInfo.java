@@ -99,7 +99,7 @@ public interface SignupEventTrackingInfo {
 	public void setMeeting(SignupMeeting meeting);
 
 	/**
-	 * get the Transfer Log Info for all users. It's for Log purpose
+	 * get the Transfer Logger Info for all users. It's for Logger purpose
 	 * 
 	 * @return a string value.
 	 */

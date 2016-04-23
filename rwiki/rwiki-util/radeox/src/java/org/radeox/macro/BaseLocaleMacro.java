@@ -26,8 +26,8 @@ package org.radeox.macro;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 
@@ -41,7 +41,7 @@ import org.radeox.api.engine.context.RenderContext;
 
 public abstract class BaseLocaleMacro extends BaseMacro implements LocaleMacro
 {
-	private static Log log = LogFactory.getLog(BaseLocaleMacro.class);
+	private static Logger log = LoggerFactory.getLogger(BaseLocaleMacro.class);
 
 	private String name;
 

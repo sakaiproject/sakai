@@ -23,12 +23,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SignupAttachment {
 
-	private static Log log = LogFactory.getLog(SignupAttachment.class);
+	private static Logger log = LoggerFactory.getLogger(SignupAttachment.class);
 
 	private String resourceId;
 	private String filename;

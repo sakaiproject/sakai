@@ -4,15 +4,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import edu.indiana.lib.twinpeaks.util.*;
 
-
+@Slf4j
 public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 {
-  private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.class);
   //
 	// Index mappings (CQL -> 360 Search) (this is pretty much CQL to CQL)
 	//
@@ -72,11 +72,11 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 		}
 		catch (org.xml.sax.SAXException e)
 		{
-			_log.error("SAX exception: " + e);
+			log.error("SAX exception: " + e);
 		}
 		catch (ParserConfigurationException e)
 		{
-			_log.error("Parse failed: " + e);
+			log.error("Parse failed: " + e);
 		}
 	}
 
@@ -106,7 +106,7 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 		}
 		catch (Exception exception)
 		{
-			_log.error("Exception in CQL parse: " + exception);
+			log.error("Exception in CQL parse: " + exception);
 		}
 
 		if (root == null)
@@ -116,8 +116,8 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 
 		String cqlXml = root.toXCQL( 0 );
 
-		_log.debug("CQL XML:");
-		_log.debug(cqlXml);
+		log.debug("CQL XML:");
+		log.debug(cqlXml);
 
 		// Open the CQL XML string as a stream
 		java.io.ByteArrayInputStream byteInputStream = null;
@@ -127,7 +127,7 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 		}
 		catch (Exception exception)
 		{
-			_log.error("Exception opening input stream: " + exception);
+			log.error("Exception opening input stream: " + exception);
 		}
 
 		if (byteInputStream == null)
@@ -146,7 +146,7 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 		}
 		catch (Exception exception)
 		{
-			_log.error("Exception in parse: " + exception);
+			log.error("Exception in parse: " + exception);
 		}
 
 		String cqlResult = ( String ) cqlStack.pop();
@@ -320,7 +320,7 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 
 		if (s360Index == null || s360Index.equals( "" ))
 		{
-			_log.error("translateIndex(): bad index, using KEYWORD");
+			log.error("translateIndex(): bad index, using KEYWORD");
 			s360Index = (String) INDEX_MAP.get("keyword");
 		}
 
@@ -338,7 +338,7 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 
 		if (s360Boolean == null || s360Boolean.equals( "" ))
 		{
-			_log.error("translateBooleanRelation(): bad boolean relation, using AND" );
+			log.error("translateBooleanRelation(): bad boolean relation, using AND" );
 			s360Boolean = (String) BOOL_RELATION_MAP.get("and");
 		}
 		return s360Boolean;

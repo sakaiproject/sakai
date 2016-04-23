@@ -37,8 +37,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -144,7 +144,7 @@ public class TotalScoresBean
   private boolean isAutoScored = false;
   private boolean hasFileUpload = false;
   
-  private static Log log = LogFactory.getLog(TotalScoresBean.class);
+  private static Logger log = LoggerFactory.getLogger(TotalScoresBean.class);
 
   /**
    * Creates a new TotalScoresBean object.

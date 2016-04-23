@@ -33,8 +33,8 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -68,7 +68,7 @@ public class ItemContentsBean implements Serializable {
 	 */
 	private static final long serialVersionUID = 6270034338280029897L;
 
-	private static Log log = LogFactory.getLog(ItemContentsBean.class);
+	private static Logger log = LoggerFactory.getLogger(ItemContentsBean.class);
 
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 

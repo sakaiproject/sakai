@@ -31,8 +31,8 @@ import java.util.Set;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
@@ -58,7 +58,7 @@ public class AgentResults
 	 * 
 	 */
 	private static final long serialVersionUID = 2820488402465439395L;
-	private static Log log = LogFactory.getLog(AgentResults.class);
+	private static Logger log = LoggerFactory.getLogger(AgentResults.class);
 	
   private Long assessmentGradingId;
   private Long itemGradingId;

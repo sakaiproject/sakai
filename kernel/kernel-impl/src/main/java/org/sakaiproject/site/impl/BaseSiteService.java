@@ -22,8 +22,8 @@
 package org.sakaiproject.site.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.*;
@@ -66,7 +66,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 public abstract class BaseSiteService implements SiteService, Observer
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseSiteService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseSiteService.class);
 
 
 	/**

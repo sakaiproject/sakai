@@ -22,6 +22,7 @@ import edu.indiana.lib.twinpeaks.util.*;
 import java.io.*;
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.osid.repository.Asset;
 import org.osid.repository.AssetIterator;
 import org.osid.repository.Record;
@@ -33,11 +34,9 @@ import org.osid.repository.PartStructure;
 /**
  * Encapsulate one matching search item
  */
+@Slf4j
 public class MatchItem
 {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(MatchItem.class);
-
   private String        _database;
 	private String				_displayName;
 	private String				_description;

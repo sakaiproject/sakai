@@ -28,8 +28,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.db.api.SqlReader;
@@ -1800,7 +1800,7 @@ public class DbCitationService extends BaseCitationService
 	/* Connection management: Original auto-commit state (unknown, on, off) */
 	private static final int AUTO_UNKNOWN		= 1;
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DbCitationService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbCitationService.class);
 	protected static final Pattern MULTIVALUED_PATTERN = Pattern.compile("^(.*)\\t(\\d+)$");
 	
 	protected static final String PROP_SORT_ORDER = "sakai:sort_order";

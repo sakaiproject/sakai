@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.services.shared;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  */
 public class TypeService
 {
-  private Log log = LogFactory.getLog(TypeService.class);
+  private Logger log = LoggerFactory.getLogger(TypeService.class);
 
   /**
    * Creates a new QuestionPoolService object.
@@ -54,7 +54,8 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -66,7 +67,8 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -78,7 +80,8 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -89,7 +92,8 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 }

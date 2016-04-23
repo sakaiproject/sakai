@@ -34,8 +34,8 @@ import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -65,7 +65,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
 public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
-	private Log								LOG									= LogFactory.getLog(StatsUpdateManagerImpl.class);
+	private Logger								LOG									= LoggerFactory.getLogger(StatsUpdateManagerImpl.class);
 	private final static String				PRESENCE_SUFFIX						= "-presence";
 	private final static int				PRESENCE_SUFFIX_LENGTH				= PRESENCE_SUFFIX.length();
 

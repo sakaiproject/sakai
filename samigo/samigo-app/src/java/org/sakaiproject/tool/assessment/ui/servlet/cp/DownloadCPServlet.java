@@ -39,8 +39,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.contentpackaging.ManifestGenerator;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -57,7 +57,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class DownloadCPServlet extends HttpServlet {
 
-	private static Log log = LogFactory.getLog(DownloadCPServlet.class);
+	private static Logger log = LoggerFactory.getLogger(DownloadCPServlet.class);
 
 	/**
 	 * passthu to post

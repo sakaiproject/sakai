@@ -27,8 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -41,7 +41,7 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
 	 * 
 	 */
 	private static final long serialVersionUID = -2260656620640273214L;
-	private static Log log = LogFactory.getLog(AssessmentData.class);
+	private static Logger log = LoggerFactory.getLogger(AssessmentData.class);
 // both Assessment and AssessmentTemplate inherits all the properties & methods from
   // AssessmentBaseData.
   // These are the properties that an assessment has and an assessmentTemplate don't

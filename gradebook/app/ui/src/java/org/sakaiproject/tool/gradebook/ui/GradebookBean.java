@@ -27,8 +27,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.section.api.SectionAwareness;
 
@@ -49,7 +49,7 @@ import org.sakaiproject.tool.gradebook.facades.*;
  * configuration of and access to those services.
  */
 public class GradebookBean extends InitializableBean {
-    private static final Log logger = LogFactory.getLog(GradebookBean.class);
+    private static final Logger logger = LoggerFactory.getLogger(GradebookBean.class);
 
     private Long gradebookId;
     private String gradebookUid;

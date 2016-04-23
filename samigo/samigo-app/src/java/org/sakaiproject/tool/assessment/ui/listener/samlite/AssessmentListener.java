@@ -3,8 +3,8 @@ package org.sakaiproject.tool.assessment.ui.listener.samlite;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -15,7 +15,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.w3c.dom.Document;
 
 public class AssessmentListener implements ActionListener {
-	private static Log log = LogFactory.getLog(AssessmentListener.class);
+	private static Logger log = LoggerFactory.getLogger(AssessmentListener.class);
 	
 	public AssessmentListener() {}
 	

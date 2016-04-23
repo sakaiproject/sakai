@@ -36,8 +36,8 @@ import java.util.TreeSet;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
@@ -117,7 +117,7 @@ import org.hibernate.Transaction;
 
 public class ForumEntity extends HibernateDaoSupport implements LessonEntity, ForumInterface {
 
-    private static Log log = LogFactory.getLog(ForumEntity.class);
+    private static Logger log = LoggerFactory.getLogger(ForumEntity.class);
 
     private static Cache topicCache = null;   // topicid => grouplist
     protected static final int DEFAULT_EXPIRATION = 10 * 60;

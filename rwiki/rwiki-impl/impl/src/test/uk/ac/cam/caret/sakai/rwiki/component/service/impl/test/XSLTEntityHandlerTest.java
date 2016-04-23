@@ -39,8 +39,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
@@ -58,7 +58,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
  */
 public class XSLTEntityHandlerTest extends TestCase
 {
-	private static Log logger = LogFactory.getLog(XSLTEntityHandlerTest.class);
+	private static Logger logger = LoggerFactory.getLogger(XSLTEntityHandlerTest.class);
 
 	private XSLTEntityHandler eh = null;
 

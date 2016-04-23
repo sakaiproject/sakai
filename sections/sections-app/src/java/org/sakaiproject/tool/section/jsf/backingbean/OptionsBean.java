@@ -23,8 +23,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -45,7 +45,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	private static final String EXTERNAL = "external";
 	private static final String INTERNAL = "internal";
 
-	private static final Log log = LogFactory.getLog(OptionsBean.class);
+	private static final Logger log = LoggerFactory.getLogger(OptionsBean.class);
 	
 	private boolean selfRegister;
 	private boolean selfSwitch;

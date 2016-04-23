@@ -21,8 +21,8 @@
 
 package org.sakaiproject.component.common.type;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.component.common.manager.PersistableImpl;
 
@@ -31,7 +31,7 @@ import org.sakaiproject.component.common.manager.PersistableImpl;
  */
 public class TypeImpl extends PersistableImpl implements Type
 {
-	private static final Log LOG = LogFactory.getLog(TypeImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TypeImpl.class);
 
 	private String authority;
 

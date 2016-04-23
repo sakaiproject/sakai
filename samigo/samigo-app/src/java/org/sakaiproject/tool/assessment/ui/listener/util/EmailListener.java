@@ -25,14 +25,14 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
 public class EmailListener implements ActionListener {
-	private static Log log = LogFactory.getLog(EmailListener.class);
+	private static Logger log = LoggerFactory.getLogger(EmailListener.class);
 
 	/**
 	 * Standard process action method.

@@ -1,7 +1,7 @@
 package org.sakaiproject.webservices;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.tool.api.Session;
 
@@ -38,7 +38,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiGradebook extends AbstractWebService {
-    private static final Log LOG = LogFactory.getLog(SakaiGradebook.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SakaiGradebook.class);
 
     protected GradebookFrameworkService gradebookFrameworkService;
 

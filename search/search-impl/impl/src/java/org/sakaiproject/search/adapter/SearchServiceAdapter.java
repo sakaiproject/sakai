@@ -1,7 +1,7 @@
 package org.sakaiproject.search.adapter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.search.api.*;
@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Colin Hebert
  */
 public class SearchServiceAdapter implements SearchService {
-    private static Log log = LogFactory.getLog(SearchServiceAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(SearchServiceAdapter.class);
     private static final String SEARCH_IMPL_PROPERTY = "search.service.impl";
     /**
      * Defaults to the elastic search implementation if nothing was provided.

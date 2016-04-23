@@ -8,7 +8,6 @@ import java.security.MessageDigest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -22,12 +21,14 @@ import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.Base64;
 import org.json.simple.JSONValue;
 
 public class IMSJSONRequest {
 
-	private final static Logger Log = Logger.getLogger(IMSJSONRequest.class .getName());
+	private final static Logger logger = LoggerFactory.getLogger(IMSJSONRequest.class);
 
 	public final static String STATUS = "status";
 	public final static String STATUS_CODE = "code";
@@ -109,7 +110,7 @@ public class IMSJSONRequest {
 
 		if ( oauth_body_hash == null ) {
 			errorMessage = "Did not find oauth_body_hash";
-			Log.info(errorMessage+"\n"+header);
+		 logger.info(errorMessage+"\n"+header);
 			return;
 		}
 
@@ -320,7 +321,7 @@ public class IMSJSONRequest {
 		Properties props = new Properties();
 		props.setProperty("fred","zap");
 		props.setProperty("sam",IMSPOXRequest.MINOR_IDALLOC);
-		System.out.println("---- Generate Log Error ----");
+		System.out.println("---- Generate logger Error ----");
 		output = pox.getResponseFailure(desc,props);
 		System.out.println("---- Failure ----");
 		System.out.println(output);

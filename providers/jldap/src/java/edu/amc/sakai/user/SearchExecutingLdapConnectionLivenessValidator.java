@@ -25,8 +25,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 import com.novell.ldap.LDAPConnection;
@@ -74,7 +74,7 @@ implements LdapConnectionLivenessValidator {
 	public static final String DEFAULT_HOST_NAME = "UNKNOWN_HOST";
 	
 	/** Class-specific logger */
-	private static Log log = LogFactory.getLog(SearchExecutingLdapConnectionLivenessValidator.class);
+	private static Logger log = LoggerFactory.getLogger(SearchExecutingLdapConnectionLivenessValidator.class);
 	
 	/**
 	 * An ID for this instance

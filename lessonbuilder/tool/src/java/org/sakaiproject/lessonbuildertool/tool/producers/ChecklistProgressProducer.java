@@ -22,8 +22,8 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -53,7 +53,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import java.util.*;
 
 public class ChecklistProgressProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-    private static Log log = LogFactory.getLog(ChecklistProgressProducer.class);
+    private static Logger log = LoggerFactory.getLogger(ChecklistProgressProducer.class);
 
     private SimplePageBean simplePageBean;
     private ShowPageProducer showPageProducer;

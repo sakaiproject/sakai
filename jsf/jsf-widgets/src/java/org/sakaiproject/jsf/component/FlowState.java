@@ -26,8 +26,8 @@ import javax.faces.component.UIComponentBase;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.model.PhaseAware;
 
 /**
@@ -53,7 +53,7 @@ import org.sakaiproject.jsf.model.PhaseAware;
  * Any non-transient fields in the bean will be saved and restored from this component.
  */
 public class FlowState extends UIComponentBase {
-	private static final Log logger = LogFactory.getLog(FlowState.class);
+	private static final Logger logger = LoggerFactory.getLogger(FlowState.class);
 
 	public static final String COMPONENT_TYPE = "org.sakaiproject.jsf.FlowState";
 

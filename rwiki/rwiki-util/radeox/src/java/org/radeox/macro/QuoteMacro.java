@@ -26,8 +26,8 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.Messages;
 import org.radeox.api.macro.MacroParameter;
 
@@ -40,7 +40,7 @@ import org.radeox.api.macro.MacroParameter;
 
 public class QuoteMacro extends LocalePreserved
 {
-	private static Log log = LogFactory.getLog(QuoteMacro.class);
+	private static Logger log = LoggerFactory.getLogger(QuoteMacro.class);
 
 	private String[] paramDescription = { Messages.getString("QuoteMacro.0"), //$NON-NLS-1$
 			Messages.getString("QuoteMacro.1") }; //$NON-NLS-1$

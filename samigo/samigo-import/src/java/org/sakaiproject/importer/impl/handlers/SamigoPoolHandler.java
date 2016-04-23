@@ -46,12 +46,12 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SamigoPoolHandler implements HandlesImportable {
-	private static Log log = LogFactory.getLog(SamigoPoolHandler.class);
+	private static Logger log = LoggerFactory.getLogger(SamigoPoolHandler.class);
 
 	// Samigo identifies each question type with an int
 	public static final int TRUE_FALSE = 4;

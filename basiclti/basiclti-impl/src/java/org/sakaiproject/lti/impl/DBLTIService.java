@@ -23,8 +23,8 @@
 package org.sakaiproject.lti.impl;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.lti.api.LTIService;
@@ -56,7 +56,7 @@ import org.sakaiproject.lti.impl.FoormMapRowMapper;
  */
 public class DBLTIService extends BaseLTIService implements LTIService {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(DBLTIService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DBLTIService.class);
 
 	/**
 	 * 

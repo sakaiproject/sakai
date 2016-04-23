@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -60,7 +60,7 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 public class LessonsEntityContentProducer implements EntityContentProducer
 {
 
-	private static Log log = LogFactory.getLog(LessonsEntityContentProducer.class);
+	private static Logger log = LoggerFactory.getLogger(LessonsEntityContentProducer.class);
 	
 	static final String REFERENCE_ROOT = Entity.SEPARATOR + "lessonbuilder";
 

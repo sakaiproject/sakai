@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.impl.report;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.fop.apps.*;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -84,7 +84,7 @@ import java.util.*;
  *
  */
 public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager, Observer {
-	private Log						LOG				= LogFactory.getLog(ReportManagerImpl.class);
+	private Logger						LOG				= LoggerFactory.getLogger(ReportManagerImpl.class);
 	private static ResourceLoader	msgs			= new ResourceLoader("Messages");
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 

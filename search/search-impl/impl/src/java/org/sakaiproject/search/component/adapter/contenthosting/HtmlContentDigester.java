@@ -28,8 +28,8 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
@@ -42,7 +42,7 @@ import org.w3c.tidy.Tidy;
  */
 public class HtmlContentDigester extends BaseContentDigester
 {
-	private static Log log = LogFactory.getLog(HtmlContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(HtmlContentDigester.class);
 
 	private boolean useDirectParser = true;
 
@@ -124,7 +124,7 @@ public class HtmlContentDigester extends BaseContentDigester
 					}
 					catch (IOException e)
 					{
-						log.debug(e);
+						log.debug(e.getMessage());
 					}
 				}
 				if (contentStream != null)
@@ -135,7 +135,7 @@ public class HtmlContentDigester extends BaseContentDigester
 					}
 					catch (IOException e)
 					{
-						log.debug(e);
+						log.debug(e.getMessage());
 					}
 				}
 			}

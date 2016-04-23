@@ -26,8 +26,8 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author rshastri
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PublishedAssessmentBean implements Serializable
 {
-  private static Log log = LogFactory.getLog(PublishedAssessmentBean.class);
+  private static Logger log = LoggerFactory.getLogger(PublishedAssessmentBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 206375673822116682L;

@@ -19,8 +19,8 @@
 
 package org.sakaiproject.user.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.Authentication;
@@ -49,7 +49,7 @@ import java.util.Random;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 public class AuthenticationCache {
-	private static final Log log = LogFactory.getLog(AuthenticationCache.class);
+	private static final Logger log = LoggerFactory.getLogger(AuthenticationCache.class);
 
     private MemoryService memoryService;
 	private Cache authCache = null;

@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateSystemException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -34,8 +36,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 {
 
-	protected final static org.apache.commons.logging.Log logger = org.apache.commons.logging.LogFactory
-			.getLog(LockManagerImpl.class);
+	protected final static Logger logger = LoggerFactory.getLogger(LockManagerImpl.class);
 
 	/*
 	 * (non-Javadoc)
@@ -74,14 +75,9 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 			
 			return (Lock) safePopList(getHibernateTemplate().findByNamedQuery("getLock", new Object[] { assetId, qualifierId }));
 		}
-		catch (HibernateSystemException e)
+		catch (HibernateSystemException | HibernateObjectRetrievalFailureException e)
 		{
-			logger.debug("lock with assetId=" + assetId + " and qualifierId= " + qualifierId + "not found: " + e.getMessage());
-			return null;
-		}
-		catch (HibernateObjectRetrievalFailureException e)
-		{
-			logger.debug("lock with assetId=" + assetId + " and qualifierId= " + qualifierId + "not found: " + e.getMessage());
+			logger.debug("lock with assetId={} and qualifierId={} not found: {}", assetId, qualifierId, e.getMessage());
 			return null;
 		}
 	}
@@ -93,14 +89,14 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		{
 			if (expected == true)
 			{
-				logger.warn("expected Lock not found: " + assetId + ", " + qualifierId);
+				logger.warn("expected Lock not found: {}, {}", assetId, qualifierId);
 			}
 			return new org.sakaiproject.content.hbm.Lock();
 		}
 
 		if (expected == false && lock.isActive())
 		{
-			logger.warn("Lock not expected, but found anyway: " + assetId + ", " + qualifierId);
+			logger.warn("Lock not expected, but found anyway: {}, {}", assetId, qualifierId);
 		}
 		return lock;
 
@@ -127,10 +123,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 	public Collection<Lock> getLocks(String assetId)
 	{
 		Collection<Lock> locks = null;
-		if (logger.isDebugEnabled())
-		{
-			logger.debug("getLocks(" + assetId + ")");
-		}
+		logger.debug("getLocks({})", assetId);
 		try
 		{
 			
@@ -138,7 +131,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		}
 		catch (HibernateObjectRetrievalFailureException e)
 		{
-			logger.error("", e);
+			logger.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		if (locks == null) return null;
@@ -176,17 +169,14 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 	protected Collection<Lock> getQualifierLocks(String qualifier)
 	{
 		Collection<Lock> locks = null;
-		if (logger.isDebugEnabled())
-		{
-			logger.debug("getLocks(" + qualifier + ")");
-		}
+		logger.debug("getLocks({})", qualifier);
 		try
 		{
 			locks = (List<Lock>) getHibernateTemplate().findByNamedQuery("activeByQualifier", qualifier);
 		}
 		catch (HibernateObjectRetrievalFailureException e)
 		{
-			logger.error("", e);
+			logger.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		if (locks == null) return null;

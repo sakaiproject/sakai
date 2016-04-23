@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 
 /**
@@ -45,7 +45,7 @@ public class TimedAssessmentQueue {
     // private SubmitTimedAssessmentThread thread;
   private Timer timer;
 
-  private static Log log = LogFactory.getLog(TimedAssessmentQueue.class);
+  private static Logger log = LoggerFactory.getLogger(TimedAssessmentQueue.class);
   private TimedAssessmentQueue() { 
     queue = new ConcurrentHashMap ();
   } 

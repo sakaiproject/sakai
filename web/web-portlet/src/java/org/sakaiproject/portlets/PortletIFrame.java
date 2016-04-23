@@ -22,8 +22,8 @@
 package org.sakaiproject.portlets;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -76,7 +76,7 @@ import java.util.regex.Pattern;
  */
 public class PortletIFrame extends GenericPortlet {
 
-	private static final Log M_log = LogFactory.getLog(PortletIFrame.class);
+	private static final Logger M_log = LoggerFactory.getLogger(PortletIFrame.class);
 
 	/** Event for accessing the web-content tool */
 	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";

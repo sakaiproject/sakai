@@ -24,8 +24,8 @@ package org.sakaiproject.authz.impl;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 
 /**
@@ -38,7 +38,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 public class FunctionManagerComponent implements FunctionManager
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(FunctionManagerComponent.class);
+	private static Logger M_log = LoggerFactory.getLogger(FunctionManagerComponent.class);
 
 	/** List of security functions. */
 	protected List<String> m_registeredFunctions = new Vector<String>();

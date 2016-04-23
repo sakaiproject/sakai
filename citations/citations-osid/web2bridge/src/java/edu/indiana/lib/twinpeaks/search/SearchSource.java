@@ -17,21 +17,16 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.search;
 
-import edu.indiana.lib.twinpeaks.search.*;
 import edu.indiana.lib.twinpeaks.util.*;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
-import java.text.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
 
-
+@Slf4j
 public class SearchSource {
-
-	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(SearchSource.class);
-
   /**
    * This source is enabled (available for use)
    */
@@ -110,7 +105,7 @@ public class SearchSource {
 		_parameterMap						= parameterMap;
 		_flags 									= flags;
 
-		_log.debug("*************** name + parameters = " + _parameterMap);
+		log.debug("*************** name + parameters = {}", _parameterMap);
 	}
 
   /**
@@ -373,28 +368,28 @@ public class SearchSource {
 		/*
 		 * Only set the configuration once
 		 */
-		_log.debug("SearchSource.populate() starts --------------------------");
+		log.debug("SearchSource.populate() starts --------------------------");
 
 		synchronized (_sourceSync)
 		{
 			if (_sourceList != null)
 			{
-				_log.debug("No action required");
+				log.debug("No action required");
 				return;
 			}
 			_sourceList = new ArrayList();
-			_log.debug("Populating configuration");
+			log.debug("Populating configuration");
 			/*
 			 * Parse the configuration file
 			 */
 			try
 			{
 				document = DomUtils.parseXmlStream(xmlStream);
-				_log.info(DomUtils.serialize(document));
+				log.info(DomUtils.serialize(document));
 			}
 			catch (Exception exception)
 			{
-				_log.error("DOM parse exception");
+				log.error("DOM parse exception");
 				exception.printStackTrace();
 				throw new RuntimeException("DOM error");
 			}
@@ -424,53 +419,53 @@ public class SearchSource {
 				sourceName 		= sourceElement.getAttribute("name");
 
 				if (StringUtils.isNull(sourceName)) {
-					_log.warn("Skipping un-named <source> element");
+					log.warn("Skipping un-named <source> element");
 					continue;
 				}
 				/*
 				 * Search source (Repository) description and **unique** ID
 				 */
 				if ((description = parseHandler(sourceElement, "description")) == null) {
-					_log.warn("Missing <description> in source \"" + sourceName + "\"");
+					log.warn("Missing <description> in source \"" + sourceName + "\"");
 					continue;
 				}
 
 				if ((id = parseHandler(sourceElement, "id")) == null) {
-					_log.warn("Missing <id> in source \"" + sourceName + "\"");
+					log.warn("Missing <id> in source \"" + sourceName + "\"");
 					continue;
 				}
 				/*
 				 * Query and result handler names
 				 */
 				if ((queryHandler = parseHandler(sourceElement, "queryhandler")) == null) {
-					_log.warn("Missing <queryhandler> in source \"" + sourceName + "\"");
+					log.warn("Missing <queryhandler> in source \"" + sourceName + "\"");
 					continue;
 				}
 
 				if ((searchResultHandler = parseHandler(sourceElement, "responsehandler")) == null) {
-					_log.warn("Missing <responsehandler> in source \"" + sourceName + "\"");
+					log.warn("Missing <responsehandler> in source \"" + sourceName + "\"");
 					continue;
 				}
 				/*
 				 * Authority, domain, sarch type & description, URL
 				 */
 				if ((authority = parseHandler(sourceElement, "authority")) == null) {
-					_log.warn("Missing <authority> in source \"" + sourceName + "\"");
+					log.warn("Missing <authority> in source \"" + sourceName + "\"");
 					continue;
 				}
 
 				if ((domain = parseHandler(sourceElement, "domain")) == null) {
-					_log.warn("Missing <domain> in source \"" + sourceName + "\"");
+					log.warn("Missing <domain> in source \"" + sourceName + "\"");
 					continue;
 				}
 
 				if ((searchType = parseHandler(sourceElement, "searchtype")) == null) {
-					_log.warn("Missing <searchtype> in source \"" + sourceName + "\"");
+					log.warn("Missing <searchtype> in source \"" + sourceName + "\"");
 					continue;
 				}
 
 				if ((typeDescription = parseHandler(sourceElement, "searchdescription")) == null) {
-					_log.warn("Missing <searchdescription> in source \"" + sourceName + "\"");
+					log.warn("Missing <searchdescription> in source \"" + sourceName + "\"");
 					continue;
 				}
 				/*
@@ -531,7 +526,7 @@ public class SearchSource {
 			}
 		}
 
-		_log.debug("SearchSource.populate() ends --------------------------");
+		log.debug("SearchSource.populate() ends --------------------------");
 
 		if (_sourceList.size() == 0)
 		{

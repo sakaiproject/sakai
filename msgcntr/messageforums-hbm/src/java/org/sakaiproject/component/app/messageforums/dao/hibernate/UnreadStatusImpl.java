@@ -20,13 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
 public class UnreadStatusImpl implements UnreadStatus {
 
-    private static final Log LOG = LogFactory.getLog(UnreadStatusImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UnreadStatusImpl.class);
     
     private Long topicId;
     private Long messageId;

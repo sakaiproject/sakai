@@ -36,8 +36,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
 import org.w3c.tidy.Tidy;
@@ -53,7 +53,7 @@ public class MockCharonPortal extends HttpServlet
 {
 
 	/** Our log (commons). */
-	private static Log log = LogFactory.getLog(MockCharonPortal.class);
+	private static Logger log = LoggerFactory.getLogger(MockCharonPortal.class);
 
 	private VelocityPortalRenderEngine rengine;
 

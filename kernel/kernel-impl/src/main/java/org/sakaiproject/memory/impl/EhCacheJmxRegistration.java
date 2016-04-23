@@ -23,8 +23,8 @@ package org.sakaiproject.memory.impl;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
@@ -36,7 +36,7 @@ import java.lang.management.ManagementFactory;
 public class EhCacheJmxRegistration
 {
 
-	private static final Log log = LogFactory.getLog(EhCacheJmxRegistration.class);
+	private static final Logger log = LoggerFactory.getLogger(EhCacheJmxRegistration.class);
 
 	private MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 

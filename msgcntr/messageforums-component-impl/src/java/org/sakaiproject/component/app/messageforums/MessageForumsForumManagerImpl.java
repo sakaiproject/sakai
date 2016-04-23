@@ -31,8 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -83,7 +83,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
 
-    private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MessageForumsForumManagerImpl.class);
 
     private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
 
@@ -699,7 +699,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				}
 			}
 		} catch (Exception e) {
-			LOG.warn(e);
+			LOG.warn(e.getMessage());
 		}
 	
         return res;

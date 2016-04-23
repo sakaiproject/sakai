@@ -32,8 +32,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -58,7 +58,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class EditPublishedSettingsListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(EditPublishedSettingsListener.class);
+  private static Logger log = LoggerFactory.getLogger(EditPublishedSettingsListener.class);
 
   public EditPublishedSettingsListener()
   {

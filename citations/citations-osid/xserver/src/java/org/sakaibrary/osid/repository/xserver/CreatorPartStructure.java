@@ -21,12 +21,11 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CreatorPartStructure implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.CreatorPartStructure" );
-	
 	private org.osid.shared.Id CREATOR_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "mit.edu", "partStructure",
 			"creator", "Creator" );
@@ -46,7 +45,7 @@ public class CreatorPartStructure implements org.osid.repository.PartStructure
 			this.CREATOR_PART_STRUCTURE_ID = Managers.getIdManager().getId(
 			"b197541f201080006d751920168000100");
 		} catch (Throwable t) {
-			LOG.warn( "CreatorPartStructure() failed to get partStructure id: "
+			log.warn( "CreatorPartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
 		}
 	}

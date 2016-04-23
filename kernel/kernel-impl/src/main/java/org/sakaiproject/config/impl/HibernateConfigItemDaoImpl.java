@@ -21,8 +21,8 @@
 
 package org.sakaiproject.config.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -44,7 +44,7 @@ import java.util.List;
  *         Created on Mar 8, 2013
  */
 public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements HibernateConfigItemDao {
-    private final Log log = LogFactory.getLog(HibernateConfigItemDaoImpl.class);
+    private final Logger log = LoggerFactory.getLogger(HibernateConfigItemDaoImpl.class);
 
     private static String SAKAI_CONFIG_ITEM_SQL = "sakai_config_item";
     private SqlService sqlService;

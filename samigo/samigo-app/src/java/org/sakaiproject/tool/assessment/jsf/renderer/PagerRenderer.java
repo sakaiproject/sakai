@@ -36,8 +36,8 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 import javax.faces.render.Renderer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,7 +58,7 @@ public class PagerRenderer
   extends Renderer
 {
 
-  private static Log log = LogFactory.getLog(PagerRenderer.class);
+  private static Logger log = LoggerFactory.getLogger(PagerRenderer.class);
 
   public void encodeBegin(FacesContext context,
     UIComponent component) throws IOException

@@ -27,8 +27,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.filter.context.FilterContext;
@@ -44,7 +44,7 @@ import org.radeox.filter.context.FilterContext;
 public class ParagraphFilter implements Filter, CacheFilter
 {
 
-	private static Log log = LogFactory.getLog(ParagraphFilter.class);
+	private static Logger log = LoggerFactory.getLogger(ParagraphFilter.class);
 
 	private InitialRenderContext initialContext;
 
@@ -260,7 +260,7 @@ public class ParagraphFilter implements Filter, CacheFilter
 
 }
 /*
- * private static Log log = LogFactory.getLog(ParagraphFilter.class); private
+ * private static Logger log = LoggerFactory.getLogger(ParagraphFilter.class); private
  * String printFirst; private String printNext; private Pattern matchPattern;
  * protected String getLocaleKey() { return "filter.paragraph"; } protected
  * boolean isSingleLine() { return false; } public String filter(String input,

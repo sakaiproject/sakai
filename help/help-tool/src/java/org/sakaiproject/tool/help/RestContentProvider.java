@@ -46,8 +46,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -73,8 +73,7 @@ public class RestContentProvider
   private static Document xslDocumentPreprocess;
   private static Document xslDocumentAllInOne;
     
-  private static final Log LOG = LogFactory
-      .getLog(RestContentProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RestContentProvider.class);
 
   /**
    * @param htmlDocument
@@ -141,7 +140,7 @@ public class RestContentProvider
 			tf = TransformerFactory.newInstance().newTransformer();
 	    	tf.transform(xmlSource, outputTarget);
 		} catch (TransformerException e) {
-			LOG.warn(e);
+			LOG.warn(e.getMessage());
 		}
     	return out.toString();
     }

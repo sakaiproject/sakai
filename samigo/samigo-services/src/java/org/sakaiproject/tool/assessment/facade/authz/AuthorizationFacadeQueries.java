@@ -41,13 +41,13 @@ import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacade;
 import org.sakaiproject.tool.assessment.facade.authz.QualifierFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthorizationFacadeQueries
    extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{
 
-  private Log log = LogFactory.getLog(AuthorizationFacadeQueries.class);
+  private Logger log = LoggerFactory.getLogger(AuthorizationFacadeQueries.class);
 
   public AuthorizationFacadeQueries() {
   }

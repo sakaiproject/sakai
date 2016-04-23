@@ -41,8 +41,8 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -120,7 +120,7 @@ public class ExtractionHelper
   private static final String ITEM_TRANSFORM = "extractItem.xsl";
   private static final String ITEM_EMI_TRANSFORM = "extractEMIItem.xsl";
   public static final String REMOVE_NAMESPACE_TRANSFORM = "removeDefaultNamespaceFromQTI.xsl";
-  private static Log log = LogFactory.getLog(ExtractionHelper.class);
+  private static Logger log = LoggerFactory.getLogger(ExtractionHelper.class);
 
   private int qtiVersion = QTIVersion.VERSION_1_2;
   private String overridePath = null; // override defaults and settings
@@ -311,17 +311,17 @@ public class ExtractionHelper
     }
     catch (IOException ex)
     {
-      log.error(ex);
+      log.error(ex.getMessage(), ex);
       ex.printStackTrace(System.out);
     }
     catch (SAXException ex)
     {
-      log.error(ex);
+      log.error(ex.getMessage(), ex);
       ex.printStackTrace(System.out);
     }
     catch (ParserConfigurationException ex)
     {
-      log.error(ex);
+      log.error(ex.getMessage(), ex);
       ex.printStackTrace(System.out);
     }
     return map;
@@ -361,7 +361,7 @@ public class ExtractionHelper
       }
       catch (DOMException ex)
       {
-        log.error(ex);
+        log.error(ex.getMessage(), ex);
         ex.printStackTrace(System.out);
       }
     }
@@ -399,7 +399,7 @@ public class ExtractionHelper
       }
       catch (DOMException ex)
       {
-        log.error(ex);
+        log.error(ex.getMessage(), ex);
         ex.printStackTrace(System.out);
       }
     }

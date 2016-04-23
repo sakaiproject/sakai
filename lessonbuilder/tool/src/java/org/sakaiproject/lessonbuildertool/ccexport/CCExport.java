@@ -41,8 +41,8 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.content.api.ContentCollection;
@@ -74,7 +74,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 public class CCExport {
 
-    private static Log log = LogFactory.getLog(CCExport.class);
+    private static Logger log = LoggerFactory.getLogger(CCExport.class);
 
     private File root;
     private String rootPath;

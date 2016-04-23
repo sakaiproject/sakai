@@ -33,8 +33,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -53,7 +53,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         implements SectionAwareness {
 
-	private static final Log log = LogFactory.getLog(SectionAwarenessHibernateImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SectionAwarenessHibernateImpl.class);
 
 	/**
 	 * @inheritDoc

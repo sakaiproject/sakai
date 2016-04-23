@@ -37,8 +37,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -74,7 +74,7 @@ public class XMLImportBean implements Serializable
 	
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
-	  private static Log log = LogFactory.getLog(XMLImportBean.class);
+	  private static Logger log = LoggerFactory.getLogger(XMLImportBean.class);
 	  
   private int qtiVersion;
   private String uploadFileName;

@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -48,7 +48,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class SignupNotifyJob implements Job {
 
-	private static final Log LOGGER = LogFactory.getLog(SignupNotifyJob.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SignupNotifyJob.class);
 
 	private EmailService emailService;
 

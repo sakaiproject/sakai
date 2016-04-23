@@ -111,7 +111,7 @@ public abstract class ControllerState implements Observer
 	 */
 	public void update(Observable o, Object arg)
 	{
-		// Log.debug("chef", this + ".update: " + arg.toString());
+		// Logger.debug("chef", this + ".update: " + arg.toString());
 		//
 		// CourierService.deliver(getSetId(), getId());
 

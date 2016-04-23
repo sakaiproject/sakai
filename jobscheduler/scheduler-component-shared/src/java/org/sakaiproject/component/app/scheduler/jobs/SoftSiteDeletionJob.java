@@ -7,8 +7,8 @@ import java.util.List;
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

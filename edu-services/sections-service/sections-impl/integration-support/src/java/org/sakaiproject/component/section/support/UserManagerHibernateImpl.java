@@ -26,15 +26,15 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.component.section.UserImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class UserManagerHibernateImpl extends HibernateDaoSupport implements UserManager {
-	private static Log log = LogFactory.getLog(UserManagerHibernateImpl.class);
+	private static Logger log = LoggerFactory.getLogger(UserManagerHibernateImpl.class);
 	
 	public User createUser(final String userUid, final String displayName,
 			final String sortName, final String displayId) {

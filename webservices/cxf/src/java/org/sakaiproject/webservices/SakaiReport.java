@@ -17,8 +17,8 @@ package org.sakaiproject.webservices;
 
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xml.serializer.utils.XMLChar;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,7 +69,7 @@ import java.text.SimpleDateFormat;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 
 public class SakaiReport extends AbstractWebService {
-    private static final Log LOG = LogFactory.getLog(SakaiReport.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SakaiReport.class);
 
     private SqlService sqlService;
 

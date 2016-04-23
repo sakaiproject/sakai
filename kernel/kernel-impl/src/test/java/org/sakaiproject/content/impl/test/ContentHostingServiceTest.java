@@ -8,8 +8,8 @@ import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -36,7 +36,7 @@ import org.sakaiproject.util.BasicConfigItem;
 public class ContentHostingServiceTest extends SakaiKernelTestBase {
 
 	private static final String SIMPLE_FOLDER1 = "/admin/folder1/";
-	private static final Log log = LogFactory.getLog(ContentHostingServiceTest.class);
+	private static final Logger log = LoggerFactory.getLogger(ContentHostingServiceTest.class);
 	
 	@BeforeClass
 	public static void beforeClass() {
@@ -45,7 +45,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			oneTimeSetup();
 			log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

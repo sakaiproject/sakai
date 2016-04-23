@@ -32,8 +32,8 @@ import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -129,7 +129,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		this.authzGroupService = authzGroupService;
 	}
 
-	private static final Log LOG = LogFactory.getLog(DiscussionForumService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumService.class);
 
 	public void init() throws Exception
 	{
@@ -1148,9 +1148,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						}
 
 					} catch (NumberFormatException nfe) {
-						LOG.error(nfe);
+						LOG.error(nfe.getMessage());
 					} catch (Exception e) {
-						LOG.error(e);
+						LOG.error(e.getMessage(), e);
 					}
 				}
 			}

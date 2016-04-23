@@ -38,8 +38,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.apache.commons.lang.StringUtils;
 
@@ -63,7 +63,7 @@ import javax.xml.xpath.XPathException;
 public class JamesServlet extends HttpServlet
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(JamesServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(JamesServlet.class);
 
 	/** config variable and system property for the james / phoenix home. */
 	private final static String PHOENIX_HOME = "phoenix.home";

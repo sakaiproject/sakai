@@ -23,8 +23,8 @@ package org.apache.commons.dbcp;
 
 import java.sql.Connection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.KeyedObjectPoolFactory;
 import org.apache.commons.pool.ObjectPool;
@@ -43,7 +43,7 @@ public class SakaiPoolableConnectionFactory extends PoolableConnectionFactory
 	protected boolean m_rollbackOnReturn = false;
 
 	
-	protected static final Log M_log = LogFactory.getLog(SakaiPoolableConnectionFactory.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(SakaiPoolableConnectionFactory.class);
 	/**
 	 * Create a new <tt>PoolableConnectionFactory</tt>.
 	 * 

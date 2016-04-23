@@ -46,8 +46,8 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -122,7 +122,7 @@ extends VelocityPortletStateAction
 	private static final long serialVersionUID = -8571818334710261359L;
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(CalendarAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(CalendarAction.class);
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("calendar");

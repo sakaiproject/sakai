@@ -27,8 +27,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  */
 
 public class PublishRepublishNotificationListener implements ValueChangeListener {
-	private static Log log = LogFactory.getLog(PublishRepublishNotificationListener.class);
+	private static Logger log = LoggerFactory.getLogger(PublishRepublishNotificationListener.class);
 
 	/**
 	 * Standard process action method.

@@ -37,14 +37,14 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 
 public class SiteZipper {
 	
-	private static Log log = LogFactory.getLog(SiteZipper.class);
+	private static Logger log = LoggerFactory.getLogger(SiteZipper.class);
 	
 	protected ServerConfigurationService serverConfigurationService = null;
 	public void setServerConfigurationService(ServerConfigurationService service) {

@@ -28,8 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -51,7 +51,7 @@ import org.sakaiproject.tool.api.SessionManager;
 
 public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
-    private Log log = LogFactory.getLog(AssignmentGradeInfoProvider.class);
+    private Logger log = LoggerFactory.getLogger(AssignmentGradeInfoProvider.class);
 
     // Sakai Service Beans
     private AssignmentService assignmentService;

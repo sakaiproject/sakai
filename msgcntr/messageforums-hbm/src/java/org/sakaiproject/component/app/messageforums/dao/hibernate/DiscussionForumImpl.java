@@ -22,8 +22,8 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
  
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.DateRestrictions;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -32,7 +32,7 @@ import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForum {
 
-    private static final Log LOG = LogFactory.getLog(DiscussionForumImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumImpl.class);
 
     private List labels = new UniqueArrayList();
     private DateRestrictions dateRestrictions;

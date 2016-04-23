@@ -39,7 +39,7 @@ import javax.faces.event.ActionListener;
 
 public class AuthorQuestionListener implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(AuthorQuestionListener.class);
+  //private static Logger log = LoggerFactory.getLogger(AuthorQuestionListener.class);
 
   public AuthorQuestionListener()
   {

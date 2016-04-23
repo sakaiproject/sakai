@@ -21,12 +21,15 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
-/** 
+import lombok.extern.slf4j.Slf4j;
+
+/**
  * RepositoryManager manages Repositories.
  *
  * @author Gaurav Bhatnagar (gbhatnag@umich.edu)
  * @version
  */
+@Slf4j
 public class RepositoryManager implements org.osid.repository.RepositoryManager
 {
 	// constants
@@ -34,10 +37,6 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 	public static final String REPOSITORY_DISPLAY_NAME = "MetaLib X-Server";
 	public static final String REPOSITORY_DESCRIPTION = "UM metasearch engine for searching library licensed digital content";
 	public static final String REPOSITORY_ID = "XSERVER01";
-
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-		"org.sakaibrary.osid.repository.xserver.RepositoryManager" );
 
 	private org.osid.id.IdManager idManager = null;
 	private org.osid.OsidContext context = null;
@@ -80,7 +79,7 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 		}
 		catch (Throwable t)
 		{
-			LOG.warn( "RepositoryManager.assignConfiguration() failed in reading " +
+			log.warn( "RepositoryManager.assignConfiguration() failed in reading " +
 					"configuration properties or creating a new Repository: " +
 					t.getMessage(), t );
 
@@ -161,7 +160,7 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 		}
 		catch (Throwable t)
 		{
-			LOG.warn(t.getMessage());
+			log.warn(t.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 	}
@@ -189,7 +188,7 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 		}
 		catch (Throwable t)
 		{
-			LOG.warn(t.getMessage());
+			log.warn(t.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 		throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.UNKNOWN_ID);
@@ -219,7 +218,7 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 		}
 		catch (Throwable t)
 		{
-			LOG.warn(t.getMessage());
+			log.warn(t.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 		throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.UNKNOWN_ID);
@@ -249,7 +248,7 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 		}
 		catch (Throwable t)
 		{
-			LOG.warn(t.getMessage());
+			log.warn(t.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 	}
@@ -291,7 +290,7 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 		}
 		catch( Throwable t )
 		{
-			LOG.warn( t.getMessage() );
+			log.warn( t.getMessage() );
 			throw new org.osid.repository.RepositoryException(
 					org.osid.OsidException.OPERATION_FAILED );
 		}
@@ -300,6 +299,6 @@ public class RepositoryManager implements org.osid.repository.RepositoryManager
 	public void osidVersion_2_0()
 	throws org.osid.repository.RepositoryException
 	{
-		LOG.debug( "osidVersion_2_0() called" );
+		log.debug( "osidVersion_2_0() called" );
 	}
 }

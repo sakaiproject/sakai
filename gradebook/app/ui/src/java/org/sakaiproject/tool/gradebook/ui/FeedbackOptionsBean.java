@@ -32,8 +32,8 @@ import java.util.Map;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -45,7 +45,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  * grade-to-percentage mappings for the gradebook.
  */
 public class FeedbackOptionsBean extends GradebookDependentBean implements Serializable {
-	private static final Log log = LogFactory.getLog(FeedbackOptionsBean.class);
+	private static final Logger log = LoggerFactory.getLogger(FeedbackOptionsBean.class);
 
 	// View maintenance fields - serializable.
 
@@ -204,7 +204,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
             FacesUtil.addErrorMessage(getLocalizedString("feedback_options_illegal_change", new String[] {localGradebook.getSelectedGradeMapping().getName()}));
             return null;
 		} catch (StaleObjectModificationException e) {
-            log.error(e);
+            log.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("feedback_options_locking_failure"));
             return null;
 		}

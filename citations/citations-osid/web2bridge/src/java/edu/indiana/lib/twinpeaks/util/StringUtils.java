@@ -17,13 +17,15 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
+@Slf4j
 public class StringUtils {
 
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StringUtils.class);
 	/**
 	 * Minimum length supported by <code>truncateAtWhitespace()</code>
 	 */

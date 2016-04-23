@@ -33,8 +33,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.util.Resource;
@@ -50,7 +50,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	private ServerConfigurationService serverConfigurationService = null;
 	
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BasicContentTypeImageService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BasicContentTypeImageService.class);
 
 	/** Map content type to image file name. */
 	//protected Properties m_contentTypeImages = null;

@@ -32,8 +32,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -57,7 +57,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 public class StartCreateItemListener implements ValueChangeListener, ActionListener
 {
 
-  private static Log log = LogFactory.getLog(StartCreateItemListener.class);
+  private static Logger log = LoggerFactory.getLogger(StartCreateItemListener.class);
   //private static ContextUtil cu;
   //private String scalename;  // used for multiple choice Survey
 

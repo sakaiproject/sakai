@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -35,7 +35,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class CourseSitePublishJob implements StatefulJob {
 
    // logger
-   private final transient Log logger = LogFactory.getLog(getClass());
+   private final transient Logger logger = LoggerFactory.getLogger(getClass());
 
    // sakai.properties
    public final static String PROPERTY_COURSE_SITE_PUBLISH_USER                             = "course_site_publish_service.user";
@@ -126,7 +126,7 @@ public class CourseSitePublishJob implements StatefulJob {
                int numSitesPublished = courseSitePublishService.publishCourseSites(numDaysBeforeTermStarts);
                logger.info(numSitesPublished + " course sites were published.");
             } catch (Exception ex) {
-               logger.error(ex);
+               logger.error(ex.getMessage());
             }
          }
       }

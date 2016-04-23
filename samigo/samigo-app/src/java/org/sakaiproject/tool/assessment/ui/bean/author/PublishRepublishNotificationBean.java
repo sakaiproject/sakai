@@ -5,12 +5,12 @@ import java.util.ArrayList;
 
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.ResourceLoader;
 
 public class PublishRepublishNotificationBean implements Serializable {
-	private static Log log = LogFactory.getLog(PublishRepublishNotificationBean.class);
+	private static Logger log = LoggerFactory.getLogger(PublishRepublishNotificationBean.class);
 
 	public PublishRepublishNotificationBean() {
 	}

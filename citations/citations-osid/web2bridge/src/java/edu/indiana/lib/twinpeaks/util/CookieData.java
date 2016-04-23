@@ -17,6 +17,8 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -24,9 +26,8 @@ import java.util.*;
 /**
  * Represent a single cookie
  */
+@Slf4j
 public class CookieData {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CookieData.class);
 	/**
 	 * Null (unset) cookie age
 	 */

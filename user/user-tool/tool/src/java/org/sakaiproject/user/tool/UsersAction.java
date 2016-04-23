@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaFactory;
 import net.tanesha.recaptcha.ReCaptchaResponse;
@@ -102,6 +103,7 @@ import org.sakaiproject.util.PasswordCheck;
  * UsersAction is the Sakai users editor.
  * </p>
  */
+@Slf4j
 public class UsersAction extends PagedResourceActionII
 {
 	private static ResourceLoader rb = new ResourceLoader("admin");
@@ -228,12 +230,12 @@ public class UsersAction extends PagedResourceActionII
 			{
 				if (publicKey == null || publicKey.length() == 0)
 				{
-					Log.warn("chef", "recaptcha is enabled but no public key is found.");
+				 	log.warn("recaptcha is enabled but no public key is found.");
 					enabled = Boolean.FALSE;
 				}
 				if (privateKey == null || privateKey.length() == 0)
 				{
-					Log.warn("chef", "recaptcha is enabled but no private key is found.");
+				 	log.warn("recaptcha is enabled but no private key is found.");
 					enabled = Boolean.FALSE;
 				}
 			}
@@ -347,7 +349,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		else
 		{
-			Log.warn("chef", "UsersAction: mode: " + mode);
+		 	log.warn("UsersAction: mode: {}", mode);
 			template = buildListContext(state, context);
 		}
 
@@ -600,10 +602,7 @@ public class UsersAction extends PagedResourceActionII
 	 */
 	private String buildViewContext(SessionState state, Context context)
 	{
-		if (Log.getLogger("chef").isDebugEnabled())
-		{
-			Log.debug("chef", this + ".buildViewContext");
-		}
+		log.debug("buildViewContext start");
 
 		// get current user's id
 		String id = (String) state.getAttribute("user-id");
@@ -641,7 +640,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserNotDefinedException e)
 		{
-			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
+		 	log.warn("UsersAction.doEdit: user not found: {}", id);
 
 			Object[] params = new Object[]{id};
 			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
@@ -763,7 +762,7 @@ public class UsersAction extends PagedResourceActionII
 		
 		state.setAttribute("mode", "import");
 				
-		Log.debug("chef", "doImport");
+	 	log.debug("doImport");
 			
 		List<ImportedUser> users = (List<ImportedUser>)state.getAttribute("importedUsers");
 		if(users !=null && users.size() > 0) {
@@ -793,13 +792,13 @@ public class UsersAction extends PagedResourceActionII
 				}
 				catch (UserIdInvalidException e) {
 					addAlert(state, rb.getString("useact.theuseid2") + ": " + user.getEid());
-					Log.error("chef", "Import user error: " + e.getClass() + ":" + e.getMessage());
+				 	log.error("Import user error: {}", e.getMessage(), e);
 					//try to import the rest
 					continue;
 				}
 				catch (UserPermissionException e){
 					addAlert(state, rb.getString("useact.youdonot3"));
-					Log.error("chef", "Import user error: " + e.getClass() + ":" + e.getMessage());
+				 	log.error("Import user error: {}", e.getMessage(), e);
 					//this is bad so return
 					return;
 				} 
@@ -842,7 +841,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserNotDefinedException e)
 		{
-			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
+		 	log.warn("UsersAction.doEdit: user not found: {}", id);
 
 			Object[] params = new Object[]{id};
 			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
@@ -875,10 +874,7 @@ public class UsersAction extends PagedResourceActionII
 	 */
 	public void doModify(RunData data, Context context)
 	{
-		if (Log.getLogger("chef").isDebugEnabled())
-		{
-			Log.debug("chef", this + ".doModify");
-		}
+		log.debug("doModify start");
 
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		String id = data.getParameters().getString("id");
@@ -897,7 +893,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserNotDefinedException e)
 		{
-			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
+		 	log.warn("UsersAction.doEdit: user not found: {}", id);
 
 			Object[] params = new Object[]{id};
 			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
@@ -969,7 +965,7 @@ public class UsersAction extends PagedResourceActionII
 			catch (UserAlreadyDefinedException e)
 			{
 				// TODO: this means the EID value is not unique... when we implement EID fully, we need to check this and send it back to the user
-				Log.warn("chef", "UsersAction.doSave()" + e);
+			 	log.warn("UsersAction.doSave() {}", e.getMessage());
 				addAlert(state, rb.getString("useact.theuseid1"));
 				return;
 			}
@@ -1019,7 +1015,7 @@ public class UsersAction extends PagedResourceActionII
 				}
 				catch (AuthenticationException ex)
 				{
-					Log.warn("chef", "UsersAction.doSave: authentication failure: " + ex);
+				 	log.warn("UsersAction.doSave: authentication failure: {}", ex.getMessage());
 				}
 
 				// redirect to home (on next build)
@@ -1153,11 +1149,11 @@ public class UsersAction extends PagedResourceActionII
 					AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
 					realmEdit.removeMember(userId);
 					authzGroupService.save(realmEdit);
-					Log.info("chef", "User " + userEid + " removed from realm " + realm);
+				 	log.info("User {} removed from realm {}", userEid, realm);
 				}
 				catch (Exception e)
 				{
-					Log.error("chef", "Could not remove user " + user.getEid() + " from realm " + realm);
+				 	log.error("Could not remove user {} from realm {}", userEid, realm);
 					addAlert(state, rb.getFormattedMessage("useact.couldnot", user.getEid(), realm));
 				}
 			}
@@ -1169,7 +1165,7 @@ public class UsersAction extends PagedResourceActionII
 			UserDirectoryService.removeUser(user);
 
 			// tracking information
-			Log.info("chef", "User " + userEid + " has been deleted by " + UserDirectoryService.getCurrentUser().getEid() + ". The internal ID was " + userId);
+		 	log.info("User {} has been deleted by {}. The internal ID was {}", userEid, UserDirectoryService.getCurrentUser().getEid(), userId);
 		}
 		catch (UserPermissionException e)
 		{
@@ -1739,7 +1735,7 @@ public class UsersAction extends PagedResourceActionII
 	{
 		if (portlet == null)
 		{
-			Log.warn("chef", ".getState(): portlet null");
+		 	log.warn("portlet null");
 			return null;
 		}
 
@@ -1762,7 +1758,7 @@ public class UsersAction extends PagedResourceActionII
 	{
 		if (peid == null)
 		{
-			Log.warn("chef", ".getState(): peid null");
+		 	log.warn("peid null");
 			return null;
 		}
 
@@ -1787,7 +1783,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "getState: " + e.getClass() + ":" + e.getMessage());
+		 	log.warn(e.getMessage(), e);
 		}
 
 		return null;
@@ -1851,7 +1847,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "releaseState: " + e.getClass() + ":" + e.getMessage());
+		 	log.warn(e.getMessage(), e);
 		}
 
 	} // releaseState
@@ -1917,7 +1913,7 @@ public class UsersAction extends PagedResourceActionII
 			context.put("importedUsers", list);
 			
 		} catch (Exception e) {
-			Log.error("chef", "Error reading imported file: " + e.getClass() + " : " + e.getMessage());
+		 	log.error("Error reading imported file: {}", e.getMessage(), e);
 			addAlert(state, rb.getString("import.error"));
 			return;
 		}

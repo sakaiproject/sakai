@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -15,7 +15,7 @@ import org.sakaiproject.lti.api.LTIService;
 import uk.org.ponder.messageutil.MessageLocator;
 
 public class BltiExport {
-    private static Log log = LogFactory.getLog(AssignmentExport.class);
+    private static Logger log = LoggerFactory.getLogger(AssignmentExport.class);
     private static SimplePageToolDao simplePageToolDao;
     static MessageLocator messageLocator = null;
 

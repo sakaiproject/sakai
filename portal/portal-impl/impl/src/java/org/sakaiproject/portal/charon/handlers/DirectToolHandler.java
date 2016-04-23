@@ -27,8 +27,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -59,7 +59,7 @@ import org.sakaiproject.util.Web;
  */
 public class DirectToolHandler extends BasePortalHandler
 {
-	private static Log M_log = LogFactory.getLog(DirectToolHandler.class);
+	private static Logger M_log = LoggerFactory.getLogger(DirectToolHandler.class);
 
 	public static final String URL_FRAGMENT = "directtool";
 

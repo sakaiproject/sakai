@@ -27,8 +27,8 @@ import java.util.Properties;
 import java.util.Stack;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -50,7 +50,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		ToolConfiguration, Identifiable
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseToolConfiguration.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseToolConfiguration.class);
 
 	/** A fixed class serial number. */
 	private static final long serialVersionUID = 1L;

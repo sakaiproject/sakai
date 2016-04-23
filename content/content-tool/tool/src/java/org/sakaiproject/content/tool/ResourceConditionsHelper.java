@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -54,7 +54,7 @@ public class ResourceConditionsHelper {
 	 */
 	private static final long serialVersionUID = -3875833398687224551L;
 
-	static final Log logger = LogFactory.getLog(ResourceConditionsHelper.class);
+	static final Logger logger = LoggerFactory.getLogger(ResourceConditionsHelper.class);
 	
 	static final ConditionService conditionService = (ConditionService)ComponentManager.get("org.sakaiproject.conditions.api.ConditionService");
 	

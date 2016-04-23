@@ -30,8 +30,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class StartRemoveItemsListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(StartRemoveItemsListener.class);
+  private static Logger log = LoggerFactory.getLogger(StartRemoveItemsListener.class);
   private static ContextUtil cu;
 
 

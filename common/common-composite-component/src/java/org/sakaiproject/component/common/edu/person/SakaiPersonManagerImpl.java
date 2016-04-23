@@ -45,8 +45,8 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.PhotoService;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -71,7 +71,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class SakaiPersonManagerImpl extends HibernateDaoSupport implements SakaiPersonManager
 {
-	private static final Log LOG = LogFactory.getLog(SakaiPersonManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SakaiPersonManagerImpl.class);
 
 	private static final String PERCENT_SIGN = "%";
 

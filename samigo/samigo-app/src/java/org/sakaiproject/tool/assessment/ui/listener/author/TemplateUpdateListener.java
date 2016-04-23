@@ -35,8 +35,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
@@ -69,7 +69,7 @@ public class TemplateUpdateListener
     extends TemplateBaseListener
     implements ActionListener
 {
-    private static final Log LOG = LogFactory.getLog(TemplateUpdateListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TemplateUpdateListener.class);
 
   /**
    * Normal listener method.
@@ -243,7 +243,7 @@ public class TemplateUpdateListener
       }
       catch( NullPointerException | NumberFormatException ex )
       {
-          LOG.warn( ex );
+          LOG.warn(ex.getMessage());
           aac.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
       }
       

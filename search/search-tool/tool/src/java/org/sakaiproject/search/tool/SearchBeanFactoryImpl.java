@@ -24,8 +24,8 @@ package org.sakaiproject.search.tool;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -48,7 +48,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class SearchBeanFactoryImpl implements SearchBeanFactory
 {
 
-	private static Log log = LogFactory.getLog(SearchBeanFactoryImpl.class);
+	private static Logger log = LoggerFactory.getLogger(SearchBeanFactoryImpl.class);
 
 	private SearchService searchService;
 

@@ -32,8 +32,8 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -59,7 +59,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 
 	private static final String SITE_ALIAS = "/sitealias/";
 
-	private static final Log log = LogFactory.getLog(SiteNeighbourhoodServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SiteNeighbourhoodServiceImpl.class);
 
 	private SiteService siteService;
 

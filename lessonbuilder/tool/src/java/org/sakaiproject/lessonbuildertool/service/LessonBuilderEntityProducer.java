@@ -52,8 +52,8 @@ import java.util.regex.Pattern;
 import java.lang.reflect.Method;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -130,7 +130,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     implements EntityProducer, EntityTransferrer, EntityTransferrerRefMigrator, Serializable, 
 	       CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
 
-   protected final Log logger = LogFactory.getLog(getClass());
+   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
    private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
    private static final String VERSION_ATTR = "version";
@@ -319,7 +319,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 
       } catch (Exception e) {
-	  logger.info(e);
+	  logger.info(e.getMessage(), e);
       } finally {
 	  securityService.popAdvisor();
       }
@@ -1892,7 +1892,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    }
 	    return uri.toString();
 	} catch (URISyntaxException e) {
-	    // Log this so we may get an idea of the things that are breaking
+	    // Logger this so we may get an idea of the things that are breaking
 	    // the parser.
 	    System.err.println("Failed to parse URL: " + value + " " + e.getMessage());
 	}

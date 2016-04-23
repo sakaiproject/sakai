@@ -19,8 +19,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
 public class IssuePartStructure implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(IssuePartStructure.class);
-		
 	private org.osid.shared.Id ISSUE_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"issue", "Issue of resource container (i.e. Journal title, issue " +

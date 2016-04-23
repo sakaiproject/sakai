@@ -40,8 +40,8 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -337,7 +337,7 @@ public class SyllabusTool
   
   protected BulkSyllabusEntry bulkEntry = null;
 
-  protected Log logger = LogFactory.getLog(SyllabusTool.class);
+  protected Logger logger = LoggerFactory.getLogger(SyllabusTool.class);
 
   protected String filename = null;
 
@@ -681,11 +681,6 @@ public class SyllabusTool
   public void setSyllabusItem(SyllabusItem syllabusItem)
   {
     this.syllabusItem = syllabusItem;
-  }
-
-  public void setLogger(Log logger)
-  {
-    this.logger = logger;
   }
 
   public String getFilename()

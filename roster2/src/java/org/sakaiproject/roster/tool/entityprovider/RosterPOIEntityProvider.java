@@ -32,8 +32,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -67,7 +67,7 @@ import lombok.Setter;
 public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable, RequestAware {
     
-	private static final Log log = LogFactory.getLog(RosterPOIEntityProvider.class);
+	private static final Logger log = LoggerFactory.getLogger(RosterPOIEntityProvider.class);
 	
 	public final static String ENTITY_PREFIX		= "roster-export";
 	public final static String DEFAULT_ID			= ":ID:";

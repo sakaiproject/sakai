@@ -24,15 +24,15 @@ package org.sakaiproject.tool.messageforums;
 
 import java.util.Comparator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.site.api.Group;
 
 public class GroupComparator implements Comparator {
 
-	private Log LOG = LogFactory.getLog(DiscussionForumTool.class);
+	private Logger LOG = LoggerFactory.getLogger(DiscussionForumTool.class);
 
 	private String m_property = null;
 

@@ -46,8 +46,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.citation.api.ConfigurationService;
@@ -88,7 +88,7 @@ import edu.indiana.lib.twinpeaks.util.DomException;
 public class BaseConfigurationService implements ConfigurationService, Observer
 {
 
-  private static Log m_log = LogFactory.getLog(BaseConfigurationService.class);
+  private static Logger m_log = LoggerFactory.getLogger(BaseConfigurationService.class);
 
   /**
    * Locale that will be used if user's locale is not available. 

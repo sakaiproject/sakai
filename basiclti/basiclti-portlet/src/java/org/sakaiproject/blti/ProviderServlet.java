@@ -40,8 +40,8 @@ import net.oauth.*;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -119,7 +119,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class ProviderServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(ProviderServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(ProviderServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";

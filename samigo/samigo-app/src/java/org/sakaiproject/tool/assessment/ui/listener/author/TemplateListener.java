@@ -32,8 +32,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
@@ -49,7 +49,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class TemplateListener extends TemplateBaseListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(TemplateListener.class);
+  private static Logger log = LoggerFactory.getLogger(TemplateListener.class);
   private static BeanSort bs;
 
   public TemplateListener()

@@ -54,7 +54,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ImportQuestionsToAuthoring implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(ImportQuestionsToAuthoring.class);
+  //private static Logger log = LoggerFactory.getLogger(ImportQuestionsToAuthoring.class);
   //private static ContextUtil cu;
 
 

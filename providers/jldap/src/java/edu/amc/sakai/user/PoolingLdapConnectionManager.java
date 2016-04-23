@@ -22,8 +22,8 @@
 
 package edu.amc.sakai.user;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
@@ -46,7 +46,7 @@ import com.novell.ldap.LDAPException;
 public class PoolingLdapConnectionManager extends SimpleLdapConnectionManager {
 	
 	/** Class-specific logger */
-	private static Log log = LogFactory.getLog(PoolingLdapConnectionManager.class);
+	private static Logger log = LoggerFactory.getLogger(PoolingLdapConnectionManager.class);
 	
 	/** LDAP connection pool */
 	private ObjectPool pool;

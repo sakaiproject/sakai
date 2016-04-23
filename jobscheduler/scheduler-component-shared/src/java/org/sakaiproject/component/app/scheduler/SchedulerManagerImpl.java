@@ -39,8 +39,8 @@ import java.util.TreeMap;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -71,7 +71,7 @@ import org.sakaiproject.db.api.SqlService;
 public class SchedulerManagerImpl implements SchedulerManager
 {
 
-  private static final Log LOG = LogFactory.getLog(SchedulerManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SchedulerManagerImpl.class);
   public final static String
         SCHEDULER_LOADJOBS      = "scheduler.loadjobs";
   private DataSource dataSource;

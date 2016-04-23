@@ -30,8 +30,8 @@ import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -96,7 +96,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 	private UIInput selectedTimeslotId;
 
-	private Log logger = LogFactory.getLog(OrganizerSignupMBean.class);
+	private Logger logger = LoggerFactory.getLogger(OrganizerSignupMBean.class);
 
 	private boolean addNewAttendee;
 

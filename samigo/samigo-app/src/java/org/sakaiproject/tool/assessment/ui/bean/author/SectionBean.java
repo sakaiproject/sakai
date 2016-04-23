@@ -38,8 +38,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -65,7 +65,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class SectionBean implements Serializable
 {
-  private static Log log = LogFactory.getLog(SectionBean.class);
+  private static Logger log = LoggerFactory.getLogger(SectionBean.class);
 
 /** Use serialVersionUID for interoperability. */
 private final static long serialVersionUID = 4216587136245498157L;

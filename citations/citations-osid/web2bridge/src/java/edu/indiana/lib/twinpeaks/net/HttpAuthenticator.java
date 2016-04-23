@@ -18,6 +18,7 @@
 package edu.indiana.lib.twinpeaks.net;
 
 import edu.indiana.lib.twinpeaks.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.net.*;
@@ -36,9 +37,8 @@ import java.util.*;
  * This only occurs until we successfully "log in" - after that, we are
  * not invoked again for the site in question.
  */
+@Slf4j
 public class HttpAuthenticator extends java.net.Authenticator {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpAuthenticator.class);
 
 	private HashMap	credentialMap = new HashMap();
 
@@ -61,7 +61,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpAuthent
 		Credentials 	credential;
 		int						attempts;
 
-    _log.debug("Authorization requested for \""
+    log.debug("Authorization requested for \""
             					+ getRequestingPrompt()
             					+ "\", scheme: \""
             					+ getRequestingScheme()
@@ -71,7 +71,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpAuthent
 
 		credential = (Credentials) credentialMap.get(getRequestingPrompt());
 		if (credential == null) {
-			_log.warn("No credentials configured");
+			log.warn("No credentials configured");
 			return null;
 		}
 
@@ -87,10 +87,10 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpAuthent
       if ((attempts % 3) == 0) {
         credential.setAuthorizationAttempts(0);
       }
-      _log.warn("Authorization refused");
+      log.warn("Authorization refused");
        return null;
     }
-    _log.warn("Returning credentials for authorization");
+    log.warn("Returning credentials for authorization");
     return new PasswordAuthentication(credential.getUsername(),
     																	credential.getPassword());
   }

@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -45,7 +45,7 @@ public class MessageForumSynopticBeanLite {
 	private transient List<DecoratedSynopticMsgcntrItem> myContents = null;
 	private transient DecoratedSynopticMsgcntrItem siteHomepageContent = null;
 	/** to get accces to log file */
-	private static final Log LOG = LogFactory.getLog(MessageForumSynopticBeanLite.class);	
+	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBeanLite.class);	
 	private SynopticMsgcntrManager synopticMsgcntrManager;
 	private MessageForumsForumManager forumsManager;
 	private MessageForumsTypeManager typeManager;

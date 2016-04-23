@@ -29,8 +29,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -45,7 +45,7 @@ import org.springframework.util.StringUtils;
 public class TimeUtil 
 {
 
-  private static Log log = LogFactory.getLog(TimeUtil.class);
+  private static Logger log = LoggerFactory.getLogger(TimeUtil.class);
   private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
   private static DateTimeFormatter dtf = DateTimeFormat.forPattern(ISO_8601_DATE_FORMAT);
 

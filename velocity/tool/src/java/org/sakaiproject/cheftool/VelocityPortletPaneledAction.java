@@ -39,8 +39,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
@@ -78,7 +78,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	private static final long serialVersionUID = 1L;
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(VelocityPortletPaneledAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(VelocityPortletPaneledAction.class);
 
 	/** message bundle */
 	private static ResourceLoader rb = new ResourceLoader("velocity-tool");
@@ -118,72 +118,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
 	}
 	
-	protected class MyLogger
-	{
-		public void warn(String channel, String msg)
-		{
-			M_log.warn(msg);
-		}
-
-		public void warn(String channel, String msg, Throwable e)
-		{
-			M_log.warn(msg, e);
-		}
-
-		public void debug(String channel, String msg)
-		{
-			M_log.debug(msg);
-		}
-
-		public void debug(String channel, String msg, Throwable e)
-		{
-			M_log.debug(msg, e);
-		}
-
-		public void info(String channel, String msg)
-		{
-			M_log.info(msg);
-		}
-
-		public void info(String channel, String msg, Throwable e)
-		{
-			M_log.info(msg, e);
-		}
-
-		public void error(String channel, String msg)
-		{
-			M_log.error(msg);
-		}
-
-		public void error(String channel, String msg, Throwable e)
-		{
-			M_log.error(msg, e);
-		}
-
-		// to support: if (Log.getLogger("chef").isDebugEnabled())
-		public MyLogger getLogger(String name)
-		{
-			return this;
-		}
-
-		public boolean isDebugEnabled()
-		{
-			return M_log.isDebugEnabled();
-		}
-
-		public boolean isWarnEnabled()
-		{
-			return M_log.isWarnEnabled();
-		}
-
-		public boolean isInfoEnabled()
-		{
-			return M_log.isInfoEnabled();
-		}
-	}
-
-	protected MyLogger Log = new MyLogger();
-
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		HttpServletRequest req = rundata.getRequest();

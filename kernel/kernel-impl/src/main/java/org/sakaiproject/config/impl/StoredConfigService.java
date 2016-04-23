@@ -26,8 +26,8 @@ import com.ibm.icu.util.Calendar;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.IllegalClassException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
@@ -72,7 +72,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
     // config that should never be persisted
     public static final String SAKAI_CONFIG_NEVER_PERSIST = "sakai.config.never.persist";
 
-    private final Log log = LogFactory.getLog(StoredConfigService.class);
+    private final Logger log = LoggerFactory.getLogger(StoredConfigService.class);
     private ScheduledExecutorService scheduler;
 
     private ServerConfigurationService serverConfigurationService;

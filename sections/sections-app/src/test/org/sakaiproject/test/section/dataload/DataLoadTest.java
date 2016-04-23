@@ -26,8 +26,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -39,7 +39,7 @@ import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.test.section.SectionsTestBase;
 
 public class DataLoadTest extends SectionsTestBase {
-	private static Log log = LogFactory.getLog(DataLoadTest.class);
+	private static Logger log = LoggerFactory.getLogger(DataLoadTest.class);
 	
 	public DataLoadTest() {
     	// Don't roll these tests back, since they are intended to load data

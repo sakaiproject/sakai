@@ -27,13 +27,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.sitestats.api.StatsManager;
 
 
 public class LibraryURIResolver implements URIResolver {
-	private Log					LOG					= LogFactory.getLog(LibraryURIResolver.class);
+	private Logger					LOG					= LoggerFactory.getLogger(LibraryURIResolver.class);
 	private final static String	LIBRARY_HANDLER		= "library://";
 	private final static String	SITESTATS_HANDLER	= "sitestats://";
 	private String				libraryRoot			= null;

@@ -21,8 +21,8 @@
 
 package org.sakaiproject.component.common.edu.person;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.InetOrgPerson;
 import org.sakaiproject.api.common.edu.person.OrganizationalPerson;
 import org.sakaiproject.api.common.edu.person.Person;
@@ -34,7 +34,7 @@ import java.util.Date;
  */
 public class SakaiPersonImpl extends EduPersonImpl implements Person, OrganizationalPerson, InetOrgPerson, SakaiPerson
 {
-	private static final Log LOG = LogFactory.getLog(SakaiPersonImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SakaiPersonImpl.class);
 
 	/**
 	 * Empty constuctor for hibernate

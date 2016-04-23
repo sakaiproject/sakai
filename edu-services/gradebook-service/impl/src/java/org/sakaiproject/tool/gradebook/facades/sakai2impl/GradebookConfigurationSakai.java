@@ -21,8 +21,8 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.db.api.SqlService;
 
@@ -36,7 +36,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookConfiguration;
  * issue HHH-1012.)
  */
 public class GradebookConfigurationSakai extends GradebookConfiguration {
-    private static final Log log = LogFactory.getLog(GradebookConfigurationSakai.class);
+    private static final Logger log = LoggerFactory.getLogger(GradebookConfigurationSakai.class);
 
     private SqlService sqlService;
     private boolean autoDdl;

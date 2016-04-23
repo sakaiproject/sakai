@@ -46,8 +46,8 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -70,7 +70,7 @@ import java.io.ByteArrayInputStream;
 
 public final class XmlUtil
 {
-  private static Log log = LogFactory.getLog(XmlUtil.class);
+  private static Logger log = LoggerFactory.getLogger(XmlUtil.class);
   private static String[] M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
   private static Pattern[] M_goodTagsPatterns;
   private static Pattern[] M_goodCloseTagsPatterns;
@@ -629,7 +629,7 @@ public final class XmlUtil
     return domString;
   }
   
-  public static String processFormattedText(Log log, String value) {
+  public static String processFormattedText(Logger log, String value) {
       if (StringUtils.isEmpty(value)) {
           return value;
       }

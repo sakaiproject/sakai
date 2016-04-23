@@ -21,8 +21,8 @@
 
 package org.sakaiproject.memory.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheLoader;
 import org.sakaiproject.memory.api.CacheStatistics;
@@ -38,7 +38,7 @@ import java.util.Set;
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public abstract class BasicCache<K, V> implements Cache<K, V> {
-    final Log log = LogFactory.getLog(BasicCache.class);
+    final Logger log = LoggerFactory.getLogger(BasicCache.class);
     /**
      * the name for this cache
      */

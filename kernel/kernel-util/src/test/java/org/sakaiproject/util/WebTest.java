@@ -1,7 +1,7 @@
 package org.sakaiproject.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class WebTest {
 
-	private static Log log = LogFactory.getLog(WebTest.class);
+	private static Logger log = LoggerFactory.getLogger(WebTest.class);
 	
 	@BeforeClass
 	public static void beforeClass() {
@@ -19,7 +19,7 @@ public class WebTest {
 			//oneTimeSetup();
             log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 

@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
@@ -48,7 +48,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class GroupEditProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter {
 
 	/** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(GroupEditProducer.class);
+	private static final Logger M_log = LoggerFactory.getLogger(GroupEditProducer.class);
 	
     public SiteManageGroupHandler handler;
     public static final String VIEW_ID = "GroupEdit";

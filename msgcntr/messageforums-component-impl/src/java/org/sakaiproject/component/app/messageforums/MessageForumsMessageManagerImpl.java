@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -74,7 +74,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
 
-    private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
+    private static final Logger LOG = LoggerFactory.getLogger(MessageForumsMessageManagerImpl.class);    
 
     //private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
     //private static final String QUERY_ATTACHMENT_BY_ID = "findAttachmentById";

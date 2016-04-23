@@ -49,8 +49,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -105,7 +105,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ItemAuthorBean
   implements Serializable
 {
-  private static Log log = LogFactory.getLog(ItemAuthorBean.class);
+  private static Logger log = LoggerFactory.getLogger(ItemAuthorBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
@@ -1441,7 +1441,7 @@ public class ItemAuthorBean
 			
 			AssessmentService.getContentHostingService().addResource(collectionId+fullname, mimeType, mediaByte, resourceProperties, NotificationService.NOTI_NONE);
 		}catch(Exception e)	{
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 		finally {
 			SecurityService.popAdvisor();

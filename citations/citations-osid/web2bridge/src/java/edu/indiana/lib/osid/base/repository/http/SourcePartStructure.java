@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class SourcePartStructure extends edu.indiana.lib.osid.base.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(SourcePartStructure.class);
-
     private org.osid.shared.Id SOURCE_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type("mit.edu","partStructure","source");
     private String displayName = "Source";

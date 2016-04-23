@@ -27,8 +27,8 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -49,7 +49,7 @@ public class DeliveryBeanie
 	 */
 	private static final long serialVersionUID = 3740101653033385370L;
 
-private static Log log = LogFactory.getLog(DeliveryBeanie.class);
+private static Logger log = LoggerFactory.getLogger(DeliveryBeanie.class);
 
   private String assessmentId;
   private String assessmentTitle;

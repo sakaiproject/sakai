@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -58,7 +58,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable, Outputable {
 
 	@SuppressWarnings("unused")
-	private static final Log log = LogFactory.getLog(RosterSiteEntityProvider.class);
+	private static final Logger log = LoggerFactory.getLogger(RosterSiteEntityProvider.class);
 	
 	public final static String ENTITY_PREFIX		= "roster-membership";
 	public final static String DEFAULT_ID			= ":ID:";

@@ -21,17 +21,16 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class Part
 implements org.osid.repository.Part
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.Part" );
-	
     private org.osid.repository.PartStructure partStructure = null;
     private org.osid.shared.Id partStructureId = null;
     private java.io.Serializable value = null;
@@ -126,7 +125,7 @@ implements org.osid.repository.Part
         }
         catch (Throwable t)
         {
-            LOG.warn(t.getMessage());
+            log.warn(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.repository.RepositoryException.OPERATION_FAILED);
         }
     }

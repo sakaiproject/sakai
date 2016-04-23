@@ -2,8 +2,8 @@ package org.sakaiproject.search.elasticsearch;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -31,7 +31,7 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class ElasticSearchResult implements SearchResult {
-    private static final Log log = LogFactory.getLog(ElasticSearchResult.class);
+    private static final Logger log = LoggerFactory.getLogger(ElasticSearchResult.class);
     private int index;
     private SearchHit hit;
     private String newUrl;

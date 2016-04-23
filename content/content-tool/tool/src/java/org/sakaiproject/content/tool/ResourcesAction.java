@@ -53,8 +53,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -424,7 +424,7 @@ public class ResourcesAction
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
 
-	static final Log logger = LogFactory.getLog(ResourcesAction.class);
+	static final Logger logger = LoggerFactory.getLogger(ResourcesAction.class);
 	
 	static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 
@@ -7711,7 +7711,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					} catch (Exception e) {
 						String[] args = { e.getClass().getName(), selectedItem, e.getMessage()};
 						addAlert(state, trb.getFormattedMessage("action.exception", args));					
-						logger.fatal("Unable to restore recourse with ID " + selectedItem ,e);
+						logger.error("Unable to restore recourse with ID {}", selectedItem, e);
 					}
 				}
 			} 
@@ -7724,7 +7724,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					} catch (Exception ex) {
 						String[] args = {ex.getClass().getName(),selectedItem, ex.getMessage() };
 						addAlert(state, trb.getFormattedMessage("action.exception", args));					
-						logger.fatal("Unable to permanently remove recourse with ID " + selectedItem ,ex);
+						logger.error("Unable to permanently remove recourse with ID {}", selectedItem, ex);
 					}
 				}				
 			}

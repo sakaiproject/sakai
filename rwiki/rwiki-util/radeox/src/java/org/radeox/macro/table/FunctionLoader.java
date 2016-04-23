@@ -23,8 +23,8 @@
 
 package org.radeox.macro.table;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.macro.PluginLoader;
 import org.radeox.macro.Repository;
 
@@ -38,7 +38,7 @@ import org.radeox.macro.Repository;
 
 public class FunctionLoader extends PluginLoader
 {
-	private static Log log = LogFactory.getLog(FunctionLoader.class);
+	private static Logger log = LoggerFactory.getLogger(FunctionLoader.class);
 
 	protected static FunctionLoader instance;
 

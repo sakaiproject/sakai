@@ -30,8 +30,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIMessage;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Put the message in a "div" instead of a "span", allowing for much more
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  */
 
 public class DivMessageRenderer extends DivMessageRendererBase {
-	private static final Log logger = LogFactory.getLog(DivMessageRenderer.class);
+	private static final Logger logger = LoggerFactory.getLogger(DivMessageRenderer.class);
 
     public void encodeEnd(FacesContext context, UIComponent component) throws IOException {
 		// Note our complete disregard for class cast and null exceptions....

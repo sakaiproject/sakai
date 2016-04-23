@@ -18,8 +18,8 @@ package org.sakaiproject.mailsender.tool.producers.fragments;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.logic.ComposeLogic;
 import org.sakaiproject.mailsender.tool.params.UsersViewParameters;
@@ -43,7 +43,7 @@ public class UsersProducer implements ViewComponentProducer, ViewParamsReporter
 {
 	public static final String VIEW_ID = "users";
 
-	private final Log log = LogFactory.getLog(UsersProducer.class);
+	private final Logger log = LoggerFactory.getLogger(UsersProducer.class);
 	private ComposeLogic composeLogic;
 	private TargettedMessageList messages;
 

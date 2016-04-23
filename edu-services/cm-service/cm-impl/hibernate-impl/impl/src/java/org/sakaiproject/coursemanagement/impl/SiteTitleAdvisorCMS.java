@@ -27,8 +27,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -50,7 +50,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
 {
     // Services
-    private final transient Log log = LogFactory.getLog( getClass() );
+    private final transient Logger log = LoggerFactory.getLogger( getClass() );
     @Getter @Setter private static UserDirectoryService uds;
     @Getter @Setter private static SecurityService ss;
     @Getter @Setter private static CourseManagementService cms;

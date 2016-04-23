@@ -37,8 +37,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.signup.logic.Permission;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
@@ -63,7 +63,7 @@ import org.sakaiproject.user.api.User;
  */
 public class SignupMeetingsBean implements SignupBeanConstants {
 
-	private static Log log = LogFactory.getLog(SignupMeetingsBean.class);
+	private static Logger log = LoggerFactory.getLogger(SignupMeetingsBean.class);
 
 	protected UIData meetingTable;
 

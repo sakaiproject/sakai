@@ -26,8 +26,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -43,7 +43,7 @@ import org.ietf.jgss.Oid;
  */
 public class JassAuthenticate {
 
-	private final static Log log = LogFactory.getLog(JassAuthenticate.class);
+	private final static Logger log = LoggerFactory.getLogger(JassAuthenticate.class);
 	
 	private GSSContext clientContext;
 	private GSSContext serverContext;

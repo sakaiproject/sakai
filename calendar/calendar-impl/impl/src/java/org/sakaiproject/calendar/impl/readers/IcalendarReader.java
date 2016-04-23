@@ -37,8 +37,8 @@ import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.util.CompatibilityHints;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -50,7 +50,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class IcalendarReader extends Reader
 {
 	private ResourceLoader rb = new ResourceLoader("calendar");
-	private static Log M_log = LogFactory.getLog(IcalendarReader.class);
+	private static Logger M_log = LoggerFactory.getLogger(IcalendarReader.class);
 	private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
 	
 	private static final String CONTACT_SECTION_HEADER = "Contacts";

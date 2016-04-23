@@ -1,7 +1,7 @@
 package org.sakaiproject.search.adapter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -19,7 +19,7 @@ import java.util.List;
  * @author Colin Hebert
  */
 public class SearchIndexBuilderAdapter implements SearchIndexBuilder {
-    private static Log log = LogFactory.getLog(SearchIndexBuilderAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(SearchIndexBuilderAdapter.class);
     private static final String SEARCH_BUILDER_IMPL_PROPERTY = "search.indexbuilder.impl";
     /**
      * Defaults to the elastic search implementation if nothing was provided.

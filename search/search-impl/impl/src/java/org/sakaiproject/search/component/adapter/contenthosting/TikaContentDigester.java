@@ -25,8 +25,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.xml.sax.ContentHandler;
 import org.apache.tika.metadata.Metadata;
@@ -40,7 +40,7 @@ import org.apache.tika.sax.BodyContentHandler;
  */
 public class TikaContentDigester extends BaseContentDigester
 {
-	private static Log log = LogFactory.getLog(TikaContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(TikaContentDigester.class);
 
 	/*
 	 * (non-Javadoc)
@@ -85,7 +85,7 @@ public class TikaContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
-					log.debug(e);
+					log.debug(e.getMessage());
 				}
 			}
 		}

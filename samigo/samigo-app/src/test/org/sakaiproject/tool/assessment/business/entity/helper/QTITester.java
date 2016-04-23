@@ -24,8 +24,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 //import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  */
 
 public class QTITester {
-  private static Log log = LogFactory.getLog(QTITester.class);
+  private static Logger log = LoggerFactory.getLogger(QTITester.class);
 //  private static boolean useContextPath = true;
   private static boolean useContextPath = false;
 //  private static int version = QTIVersion.VERSION_1_2;

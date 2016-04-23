@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
 public class RoleProviderTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(RoleProviderTest.class);
+	private static Logger log = LoggerFactory.getLogger(RoleProviderTest.class);
 	
 	@BeforeClass
 	public static void beforeClass() {
@@ -30,7 +30,7 @@ public class RoleProviderTest extends SakaiKernelTestBase {
 			oneTimeSetup();
             log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 

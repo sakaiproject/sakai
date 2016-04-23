@@ -24,8 +24,8 @@ package uk.ac.cam.caret.sakai.rwiki.component.macros;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.radeox.api.engine.ImageRenderEngine;
 import org.radeox.api.engine.RenderEngine;
@@ -45,7 +45,7 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
 public class SakaiLinkMacro extends BaseLocaleMacro
 {
 
-	private static Log log = LogFactory.getLog(SakaiLinkMacro.class);
+	private static Logger log = LoggerFactory.getLogger(SakaiLinkMacro.class);
 
 	public String[] getParamDescription()
 	{

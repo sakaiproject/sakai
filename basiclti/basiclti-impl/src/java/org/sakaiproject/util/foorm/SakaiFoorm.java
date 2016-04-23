@@ -17,7 +17,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.db.api.SqlService;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 public class SakaiFoorm extends Foorm {
 
@@ -42,7 +42,7 @@ public class SakaiFoorm extends Foorm {
 		}
 
 	public void autoDDL(String table, String[] model, SqlService m_sql, boolean m_autoDdl, 
-				boolean doReset, Log M_log)
+				boolean doReset, Logger M_log)
 	{
 		// Use very carefully - for testing table creation
 		if (doReset)

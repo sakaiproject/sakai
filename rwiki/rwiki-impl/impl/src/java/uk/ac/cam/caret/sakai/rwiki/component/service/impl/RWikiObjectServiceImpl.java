@@ -34,8 +34,8 @@ import java.util.Stack;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
@@ -103,7 +103,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 public class RWikiObjectServiceImpl implements RWikiObjectService
 {
 
-	private static Log log = LogFactory.getLog(RWikiObjectServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiObjectServiceImpl.class);
 
 	private RWikiCurrentObjectDao cdao;
 

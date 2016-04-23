@@ -1,10 +1,10 @@
 package edu.indiana.lib.osid.base.repository.http;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class EditionPartStructure implements org.osid.repository.PartStructure
 {
-
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(EditionPartStructure.class);
-		
 	private org.osid.shared.Id EDITION_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"edition", "Edition of resource container (i.e. book, 2nd edition)" );

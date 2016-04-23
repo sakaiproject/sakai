@@ -21,8 +21,8 @@
 
 package org.sakaiproject.component.common.manager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.Typeable;
 
@@ -31,7 +31,7 @@ import org.sakaiproject.api.common.type.Typeable;
  */
 public abstract class TypeablePersistableImpl extends PersistableImpl implements Typeable
 {
-	private static final Log LOG = LogFactory.getLog(TypeablePersistableImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TypeablePersistableImpl.class);
 
 	private static final String NULL = "null";
 

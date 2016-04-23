@@ -29,8 +29,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -64,7 +64,7 @@ import org.sakaiproject.portal.util.URLUtils;
  */
 public class ToolHandler extends BasePortalHandler
 {
-	private static Log M_log = LogFactory.getLog(ToolHandler.class);
+	private static Logger M_log = LoggerFactory.getLogger(ToolHandler.class);
 
 	private static final String URL_FRAGMENT = "tool";
 

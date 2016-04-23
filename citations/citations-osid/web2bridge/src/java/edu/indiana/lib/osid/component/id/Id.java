@@ -21,15 +21,16 @@
 
 package edu.indiana.lib.osid.component.id;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Random;
 
 /**
  * @inheritDoc
  */
+@Slf4j
 public class Id implements org.osid.shared.Id
 {
-	private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(Id.class);
-
 	private static long	idBase		= System.currentTimeMillis();
 	private String 			idString 	= null;
 
@@ -41,7 +42,7 @@ public class Id implements org.osid.shared.Id
 
 	private void log(String entry) throws org.osid.shared.SharedException
 	{
-		_log.debug("Id: " + entry);
+		log.debug("Id: " + entry);
 	}
 
 	protected Id() throws org.osid.shared.SharedException

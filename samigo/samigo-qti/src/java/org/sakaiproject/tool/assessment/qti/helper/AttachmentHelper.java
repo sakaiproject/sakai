@@ -30,8 +30,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
@@ -46,7 +46,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class AttachmentHelper {
-	private static Log log = LogFactory.getLog(AttachmentHelper.class);
+	private static Logger log = LoggerFactory.getLogger(AttachmentHelper.class);
 	
 	public ContentResource createContentResource(String fullFilePath, String filename, String mimeType) {
 		ContentResource contentResource = null;

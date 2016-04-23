@@ -28,8 +28,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
@@ -39,7 +39,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class Export {
 	
 	/** Our log (commons). */
-	private static Log						LOG		= LogFactory.getLog(SiteListBean.class);
+	private static Logger						LOG		= LoggerFactory.getLogger(SiteListBean.class);
 	/** Resource bundle */
 	private static transient ResourceLoader	msgs	= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
 

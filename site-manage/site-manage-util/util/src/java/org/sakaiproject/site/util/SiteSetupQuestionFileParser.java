@@ -48,8 +48,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.sitemanage.api.model.*;
 
@@ -60,7 +60,7 @@ import org.sakaiproject.sitemanage.api.model.*;
  */
 public class SiteSetupQuestionFileParser
 {
-	private static Log m_log = LogFactory.getLog(SiteSetupQuestionFileParser.class);
+	private static Logger m_log = LoggerFactory.getLogger(SiteSetupQuestionFileParser.class);
 	
 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);

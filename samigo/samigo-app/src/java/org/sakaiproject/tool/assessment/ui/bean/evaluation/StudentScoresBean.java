@@ -30,8 +30,8 @@ import java.util.List;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.cover.SessionManager;
  */
 public class StudentScoresBean implements Serializable
 {
-  private static Log log = LogFactory.getLog(StudentScoresBean.class);
+  private static Logger log = LoggerFactory.getLogger(StudentScoresBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;

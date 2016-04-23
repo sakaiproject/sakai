@@ -2,8 +2,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
 public class YearPartStructure implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(YearPartStructure.class);
-		
     private org.osid.shared.Id YEAR_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
     		"year", "Year resource was created" );

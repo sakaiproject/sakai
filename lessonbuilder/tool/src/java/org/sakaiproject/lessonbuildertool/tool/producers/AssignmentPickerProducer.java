@@ -30,8 +30,8 @@ import java.text.DateFormat;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -69,7 +69,7 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  */
 public class AssignmentPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Log log = LogFactory.getLog(AssignmentPickerProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(AssignmentPickerProducer.class);
 	public static final String VIEW_ID = "AssignmentPicker";
 
 	private SimplePageBean simplePageBean;

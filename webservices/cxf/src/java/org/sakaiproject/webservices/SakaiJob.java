@@ -24,8 +24,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.api.Session;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiJob extends AbstractWebService {
 
-    private static final Log LOG = LogFactory.getLog(SakaiJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SakaiJob.class);
 
     /**
      * Delete a job from the Job Scheduler

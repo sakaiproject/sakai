@@ -35,8 +35,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
@@ -62,7 +62,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 public class GrantSubmissionListener
   implements ActionListener
 {
-  private static Log log = LogFactory.getLog(StudentScoreListener.class);
+  private static Logger log = LoggerFactory.getLogger(StudentScoreListener.class);
   private static EvaluationListenerUtil util;
   private static BeanSort bs;
 

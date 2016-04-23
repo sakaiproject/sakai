@@ -2,8 +2,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
 public class MetasearchException extends org.osid.repository.RepositoryException
 {
-	private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(MetasearchException.class);
-
 	public static final String SESSION_TIMED_OUT 	= "Metasearch session has " +
 			"timed out. Please restart your search session.";
 	public static final String METASEARCH_ERROR   = "Metasearch error has occured. Please contact your site's support team.";

@@ -44,8 +44,8 @@ import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatChannel;
@@ -143,7 +143,7 @@ import org.sakaiproject.util.Web;
 public class ChatTool implements RoomObserver, PresenceObserver {
 
    /** Our logger. */
-   private static Log logger = LogFactory.getLog(ChatTool.class);
+   private static Logger logger = LoggerFactory.getLogger(ChatTool.class);
    
    /*  */
    private static final String IFRAME_ROOM_USERS = "Presence";

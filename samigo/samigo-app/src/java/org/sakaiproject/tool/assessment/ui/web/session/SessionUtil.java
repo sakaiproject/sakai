@@ -26,8 +26,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.ToolSession; 
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -63,7 +63,7 @@ public class SessionUtil {
   public static final int DEFAULT_APP_INTERVAL_VAL = 5 * HOURS_TO_SECONDS_MULTIPLIER;
 
   private static final int INTERVAL_BUFFER = 60 * 15;
-  private static Log log = LogFactory.getLog(SessionUtil.class);
+  private static Logger log = LoggerFactory.getLogger(SessionUtil.class);
 
   /**
    * Sets the current <code>HttpSession</code> maxInactiveInterval value

@@ -33,8 +33,8 @@ import javax.faces.component.UIComponentBase;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple looping component which encodes all its children for every record in
@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
  */
 
 public class IteratorComponent extends UIComponentBase implements NamingContainer {
-	private static final Log log = LogFactory.getLog(IteratorComponent.class);
+	private static final Logger log = LoggerFactory.getLogger(IteratorComponent.class);
 
 	public final static String COMPONENT_TYPE = "org.sakaiproject.tool.gradebook.jsf.iterator";
 	public final static String COMPONENT_FAMILY = "javax.faces.Data";

@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class PublisherPartStructure extends edu.indiana.lib.osid.base.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(PublisherPartStructure.class);
-		
     private org.osid.shared.Id PUBLISHER_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type("mit.edu","partStructure","publisher","Publisher");
     private String displayName = "Publisher";

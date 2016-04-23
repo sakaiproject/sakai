@@ -66,8 +66,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -188,7 +188,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator, HardDeleteAware
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseContentService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseContentService.class);
 
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
@@ -7432,7 +7432,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			catch (EntityPropertyTypeException e)
 			{
-				// Log this and assume it's not a collection
+				// Logger this and assume it's not a collection
 				M_log.warn("EntityPropertyTypeException: PROP_IS_COLLECTION not boolean for " + ref.getReference());
 			}
 			if (isCollection)
@@ -8971,7 +8971,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch(EntityPropertyTypeException epte)
 		{
-			M_log.error(epte);
+			M_log.error(epte.getMessage(), epte);
 		}
 
 		// setup the event
@@ -12449,7 +12449,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					}
 					catch (UnsupportedEncodingException e)
 					{
-						M_log.error(e);
+						M_log.error(e.getMessage(), e);
 					}
 					
 					m_body = new byte[(int) m_contentLength];
@@ -12591,7 +12591,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 									}
 									catch (UnsupportedEncodingException e)
 									{
-										M_log.error(e);
+										M_log.error(e.getMessage(), e);
 									}
 									m_body = new byte[(int) m_contentLength];
 									System.arraycopy(decoded, 0, m_body, 0, (int) m_contentLength);
@@ -12995,7 +12995,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (UnsupportedEncodingException e)
 				{
-					M_log.error(e);
+					M_log.error(e.getMessage(), e);
 				}
 				resource.setAttribute("body", enc);
 			}

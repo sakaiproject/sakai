@@ -20,26 +20,19 @@ package edu.indiana.lib.twinpeaks.search;
 import edu.indiana.lib.twinpeaks.net.*;
 import edu.indiana.lib.twinpeaks.util.*;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import javax.xml.parsers.*;
-
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * Base class for HTTP search activities
  */
+@Slf4j
 public abstract class HttpTransactionQueryBase
 											extends QueryBase
 											implements HttpTransactionQueryInterface {
-
-	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransactionQueryBase.class);
-
 	/**
 	 * Name of the cookie List (stored with session context)
 	 */
@@ -434,7 +427,7 @@ public abstract class HttpTransactionQueryBase
 		  return status;
 
     } catch (Exception exception) {
-    	_log.error("Exception seen, the current URL is \"" + getUrl() + "\"");
+    	log.error("Exception seen, the current URL is \"" + getUrl() + "\"");
     	exception.printStackTrace(System.out);
       throw new SearchException(exception.toString());
     }

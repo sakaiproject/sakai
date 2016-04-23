@@ -37,8 +37,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -388,7 +388,7 @@ public class RecordingData
  */
 public Document getXMLDataModel()
 {
-  Log log = LogFactory.getLog(RecordingData.class);
+  Logger log = LoggerFactory.getLogger(RecordingData.class);
   Document document = null;
   DocumentBuilderFactory builderFactory =
     DocumentBuilderFactory.newInstance();
@@ -462,7 +462,7 @@ public Document getXMLDataModel()
    */
   public static void unitTest()
   {
-    Log log = LogFactory.getLog(RecordingData.class);
+    Logger log = LoggerFactory.getLogger(RecordingData.class);
 
     RecordingData rd =
       new RecordingData(

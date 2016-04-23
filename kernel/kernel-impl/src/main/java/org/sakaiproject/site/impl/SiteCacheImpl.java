@@ -25,8 +25,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	
-	private static Log M_log = LogFactory.getLog(SiteCacheImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteCacheImpl.class);
 	/** Map of a tool id to a cached site's tool configuration instance. */
 	protected Map<String, ToolConfiguration> m_tools = new ConcurrentHashMap<String, ToolConfiguration>();
 	/** Map of a page id to a cached site's SitePage instance. */

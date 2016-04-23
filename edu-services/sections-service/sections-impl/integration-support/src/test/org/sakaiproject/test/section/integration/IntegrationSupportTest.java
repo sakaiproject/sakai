@@ -23,8 +23,8 @@ package org.sakaiproject.test.section.integration;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -52,7 +52,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 		"classpath:org/sakaiproject/component/section/support/spring-integrationSupport.xml"
 	})
 public class IntegrationSupportTest extends AbstractJUnit4SpringContextTests {
-	private static final Log log = LogFactory.getLog(IntegrationSupportTest.class);
+	private static final Logger log = LoggerFactory.getLogger(IntegrationSupportTest.class);
 	private static String SITE_1 = "site_1";
 	private static String USER_1 = "integration_user_1";
 	private static String USER_2 = "integration_user_2";

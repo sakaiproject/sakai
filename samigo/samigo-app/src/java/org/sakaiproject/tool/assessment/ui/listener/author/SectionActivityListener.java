@@ -20,8 +20,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -44,7 +44,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 public class SectionActivityListener
 implements ActionListener, ValueChangeListener
 {
-    private static Log log = LogFactory.getLog(SectionActivityListener.class);
+    private static Logger log = LoggerFactory.getLogger(SectionActivityListener.class);
     private static BeanSort bs;
 
     public SectionActivityListener()

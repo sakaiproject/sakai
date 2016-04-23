@@ -3,8 +3,8 @@ package uk.ac.cam.caret.sakai.rwiki.tool.entityproviders;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
@@ -18,7 +18,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
  */
 public class DirectServletPageLinkRenderer implements PageLinkRenderer {
 	
-	private static Log log = LogFactory.getLog(DirectServletPageLinkRenderer.class);
+	private static Logger log = LoggerFactory.getLogger(DirectServletPageLinkRenderer.class);
 	
 	private boolean cachable = false;
 

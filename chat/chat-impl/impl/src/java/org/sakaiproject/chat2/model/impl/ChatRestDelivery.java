@@ -21,8 +21,8 @@
 
 package org.sakaiproject.chat2.model.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.time.api.Time;
@@ -45,7 +45,7 @@ import org.sakaiproject.util.Web;
 public class ChatRestDelivery extends BaseDelivery
 {
 	/** Our logger. */
-	private static Log logger = LogFactory.getLog(ChatRestDelivery.class);
+	private static Logger logger = LoggerFactory.getLogger(ChatRestDelivery.class);
 
 	/** The message.  it could be a string id or the actual message. */
 	protected Object m_message = null;
@@ -110,7 +110,7 @@ public class ChatRestDelivery extends BaseDelivery
       try {
          sender = UserDirectoryService.getUser(message.getOwner());
       } catch(UserNotDefinedException e) {
-         logger.error(e);
+         logger.error(e.getMessage());
       }
 		User myself = UserDirectoryService.getCurrentUser();
 

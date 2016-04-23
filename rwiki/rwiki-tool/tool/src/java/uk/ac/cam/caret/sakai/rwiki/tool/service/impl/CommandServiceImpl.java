@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -53,7 +53,7 @@ import org.sakaiproject.event.api.NotificationService;
  */
 public class CommandServiceImpl implements CommandService
 {
-	private static Log log = LogFactory.getLog(CommandServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(CommandServiceImpl.class);
 
 	private Map commandMap;
 

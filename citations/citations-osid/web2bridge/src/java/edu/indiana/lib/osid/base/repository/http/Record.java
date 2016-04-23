@@ -20,14 +20,16 @@ package edu.indiana.lib.osid.base.repository.http;
  * limitations under the License.
  *
  **********************************************************************************/
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class Record extends edu.indiana.lib.osid.base.repository.Record
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(Record.class);
-
     private java.util.Vector partVector = new java.util.Vector();
     private org.osid.id.IdManager idManager = null;
     private org.osid.shared.Id recordStructureId = null;
@@ -59,7 +61,7 @@ public class Record extends edu.indiana.lib.osid.base.repository.Record
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -76,7 +78,7 @@ public class Record extends edu.indiana.lib.osid.base.repository.Record
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -99,7 +101,7 @@ public class Record extends edu.indiana.lib.osid.base.repository.Record
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -126,7 +128,7 @@ public class Record extends edu.indiana.lib.osid.base.repository.Record
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }

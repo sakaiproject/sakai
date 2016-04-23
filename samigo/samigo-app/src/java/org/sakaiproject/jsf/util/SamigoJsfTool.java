@@ -30,8 +30,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
@@ -71,7 +71,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
     private static final String HELPER_SESSION_PREFIX = "session.";
     private static final String HELPER_RETURN_NOTIFICATION = "/returnToCaller";
     private static final String RESET_ASSESSMENT_BEAN = "/resetAssessmentBean";
-    private static Log log = LogFactory.getLog(SamigoJsfTool.class);
+    private static Logger log = LoggerFactory.getLogger(SamigoJsfTool.class);
 
     /**
          * Recognize a path that is a resource request. It must have an "extension", i.e. a dot followed by characters that do not include a slash.

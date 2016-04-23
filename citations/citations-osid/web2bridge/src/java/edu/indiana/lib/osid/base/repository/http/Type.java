@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class Type extends edu.indiana.lib.osid.base.repository.Type
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(Type.class);
-		
     protected Type(String authority
                  , String domain
                  , String keyword

@@ -33,8 +33,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Comment;
 import org.w3c.dom.DOMException;
@@ -58,7 +58,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
 public abstract class ASIBaseClass
   extends XmlStringBuffer
 {
-  private static Log log = LogFactory.getLog(ASIBaseClass.class);
+  private static Logger log = LoggerFactory.getLogger(ASIBaseClass.class);
   private static final long serialVersionUID = 5670937321581940933L;
   private String idString;
 

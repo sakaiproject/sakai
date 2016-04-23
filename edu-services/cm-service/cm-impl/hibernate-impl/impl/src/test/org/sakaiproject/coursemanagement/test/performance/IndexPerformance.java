@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
@@ -40,7 +40,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 public class IndexPerformance {
-	private static final Log log = LogFactory.getLog(IndexPerformance.class);
+	private static final Logger log = LoggerFactory.getLogger(IndexPerformance.class);
 
 	private static final int secCount = 10;
 	private static final int enrollmentsPerEnrollmentSet = 100;

@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.serialize.DataStreamEntitySerializer;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
@@ -51,8 +51,7 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 
 	private static final int BLOCK3 = 102;
 
-	private static final Log log = LogFactory
-			.getLog(Type1BaseResourcePropertiesSerializer.class);
+	private static final Logger log = LoggerFactory.getLogger(Type1BaseResourcePropertiesSerializer.class);
 
 	/**
 	 * @see org.sakaiproject.entity.api.serialize.DataStreamEntitySerializer#parse(org.sakaiproject.entity.api.serialize.SerializableEntity,

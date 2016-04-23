@@ -3,6 +3,7 @@ package edu.indiana.lib.osid.base.repository.http;
 import edu.indiana.lib.twinpeaks.net.*;
 import edu.indiana.lib.twinpeaks.search.*;
 import edu.indiana.lib.twinpeaks.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.net.*;
@@ -33,10 +34,9 @@ import java.util.*;
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIterator
 {
-	private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(AssetIterator.class);
-
 	private org.osid.shared.Properties 		searchProperties;
 	private org.osid.shared.Id 						repositoryId;
 	/*
@@ -96,7 +96,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
     }
     catch (Throwable throwable)
     {
-   		_log.error("AssetIterator() " + throwable);
+   		log.error("AssetIterator() ", throwable);
     	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.OPERATION_FAILED);
   	}
 	}
@@ -120,11 +120,11 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 
     	this.searchProperties	= searchProperties;
 
-    	_log.debug("AssetIterator max = " + getMaximumRecords() + ", page = " + pageSize + ", start = " + startRecord);
+    	log.debug("AssetIterator max = " + getMaximumRecords() + ", page = " + pageSize + ", start = " + startRecord);
     }
     catch (Throwable throwable)
     {
-    	_log.error("initialize() " + throwable);
+    	log.error("initialize() " + throwable);
     	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.OPERATION_FAILED);
   	}
 	}
@@ -140,7 +140,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 		{
 		  boolean moreRecords;
 
-    _log.debug("hasNextAsset: index=" + index
+    log.debug("hasNextAsset: index=" + index
             +  ", maximum records=" + getMaximumRecords()
             +  ", async init=" + StatusUtils.doingAsyncInit(sessionContext));
       /*
@@ -154,7 +154,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
        * Normal use, are there any more assets?
        */
 			moreRecords = (index < getMaximumRecords());
-    	_log.debug("AssetIterator.hasNext() = " + moreRecords);
+    	log.debug("AssetIterator.hasNext() = " + moreRecords);
 
     	if (!moreRecords)
     	{
@@ -164,7 +164,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
     }
     catch (Throwable throwable)
     {
-    	_log.error("hasNextAsset() " + throwable);
+    	log.error("hasNextAsset() " + throwable);
     	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.OPERATION_FAILED);
   	}
   }
@@ -192,7 +192,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 		/*
 		 * Additional assets should be available from the server
 		 */
-    _log.debug("nextAsset: index=" + index
+    log.debug("nextAsset: index=" + index
             +  ", populated=" + populated
             +  ", async init=" + StatusUtils.doingAsyncInit(sessionContext));
 
@@ -218,7 +218,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
       }
 			catch (SessionTimeoutException sessionTimeoutException)
 			{
-	    	_log.error("nextAsset() session timeout: " + sessionTimeoutException);
+	    	log.error("nextAsset() session timeout: " + sessionTimeoutException);
 	    	throw new MetasearchException(MetasearchException.SESSION_TIMED_OUT);
 			}
 			catch (SearchException searchException)
@@ -232,12 +232,12 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 			  /*
 			   * Unexpected error
 			   */
-	    	_log.error("nextAsset() search exception: " + searchException);
+	    	log.error("nextAsset() search exception: " + searchException);
 	    	throw new MetasearchException(MetasearchException.METASEARCH_ERROR);
 			}
 			catch (Throwable throwable)
 			{
-	    	_log.error("nextAsset() general: ", throwable);
+	    	log.error("nextAsset() general: ", throwable);
 				throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 			}
 		}
@@ -245,7 +245,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 		 * Finally, return the next Asset from the queue
 		 */
     asset = getAsset();
-  	_log.debug("AssetIterator.nextAsset() returns asset at index " + index + ", vector size = " + assetVectorSize());
+  	log.debug("AssetIterator.nextAsset() returns asset at index " + index + ", vector size = " + assetVectorSize());
     return asset;
   }
 
@@ -390,7 +390,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 			addAsset(asset);
 			assetsAdded++;
 
-//		_log.debug("populate() Added " + asset
+//		log.debug("populate() Added " + asset
 //					+  	 ", vector size = "  + assetVectorSize()
 //					+    ", populated = "    + populated);
 

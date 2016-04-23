@@ -27,8 +27,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -45,8 +45,7 @@ public class SiteAssociationBean extends BaseBean {
 	// Sort strings
 	static final String ID = "id", TITLE = "title";
 
-	private static final Log logger = LogFactory
-			.getLog(SiteAssociationBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(SiteAssociationBean.class);
 
 	// Pager sitesPager; See GM-47
 

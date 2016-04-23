@@ -42,8 +42,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -119,7 +119,7 @@ import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 
 public class SamigoExport {
 
-    private static Log log = LogFactory.getLog(SamigoExport.class);
+    private static Logger log = LoggerFactory.getLogger(SamigoExport.class);
 
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     AssessmentService assessmentService = new AssessmentService();

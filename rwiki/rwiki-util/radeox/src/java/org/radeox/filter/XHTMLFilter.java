@@ -34,8 +34,8 @@ import java.util.Stack;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xml.serializer.ToXMLStream;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
@@ -59,7 +59,7 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class XHTMLFilter implements Filter, CacheFilter
 {
-	private static Log log = LogFactory.getLog(XHTMLFilter.class);
+	private static Logger log = LoggerFactory.getLogger(XHTMLFilter.class);
 
 	private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 	private static final Map blockElements = new HashMap();

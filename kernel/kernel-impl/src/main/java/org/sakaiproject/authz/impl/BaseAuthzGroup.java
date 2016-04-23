@@ -22,8 +22,8 @@
 package org.sakaiproject.authz.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -50,7 +50,7 @@ import java.util.*;
 public class BaseAuthzGroup implements AuthzGroup
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseAuthzGroup.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseAuthzGroup.class);
 
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;

@@ -31,8 +31,8 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -53,7 +53,7 @@ import org.sakaiproject.util.FormattedText;
 
 public class AuthorSettingsListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(AuthorSettingsListener.class);
+  private static Logger log = LoggerFactory.getLogger(AuthorSettingsListener.class);
 
   public AuthorSettingsListener()
   {

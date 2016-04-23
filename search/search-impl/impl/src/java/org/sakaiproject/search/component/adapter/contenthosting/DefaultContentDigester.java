@@ -25,8 +25,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.search.api.SearchUtils;
@@ -36,8 +36,7 @@ import org.sakaiproject.search.api.SearchUtils;
  */
 public class DefaultContentDigester implements ContentDigester
 {
-	private static final Log log = LogFactory
-			.getLog(DefaultContentDigester.class);
+	private static final Logger log = LoggerFactory.getLogger(DefaultContentDigester.class);
 	private int maxDigestSize =  1024 * 1024 * 20;
 	private Properties binaryTypes = null;
 	
@@ -74,7 +73,7 @@ public class DefaultContentDigester implements ContentDigester
 				}
 				catch (Exception e)
 				{
-					log.debug(e);
+					log.debug(e.getMessage());
 				}
 			} 
 			return sb.toString();

@@ -20,8 +20,8 @@
 **********************************************************************************/
 package org.sakaiproject.jsf.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
@@ -47,7 +47,7 @@ import java.util.Enumeration;
  */
 public class HelperAwareJsfTool extends JsfTool {
 
-  private static Log M_log = LogFactory.getLog(HelperAwareJsfTool.class);
+  private static Logger M_log = LoggerFactory.getLogger(HelperAwareJsfTool.class);
 
   private static final String HELPER_EXT = ".helper";
 

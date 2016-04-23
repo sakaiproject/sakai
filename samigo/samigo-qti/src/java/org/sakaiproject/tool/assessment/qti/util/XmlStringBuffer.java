@@ -42,8 +42,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.collections.ReferenceMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;
@@ -73,7 +73,7 @@ import org.xml.sax.SAXException;
 public class XmlStringBuffer
   implements java.io.Serializable
 {
-  private static Log log = LogFactory.getLog(XmlStringBuffer.class);
+  private static Logger log = LoggerFactory.getLogger(XmlStringBuffer.class);
 
   /**
    * Explicitly setting serialVersionUID insures future versions can be

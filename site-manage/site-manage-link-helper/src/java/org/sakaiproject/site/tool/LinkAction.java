@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -80,7 +80,7 @@ public class LinkAction extends VelocityPortletPaneledAction
 	/** Name of state attribute for Site instance id */
 	private static final String STATE_SITE_INSTANCE_ID = "site.instance.id";
 
-	private static final Log logger = LogFactory.getLog(LinkAction.class);
+	private static final Logger logger = LoggerFactory.getLogger(LinkAction.class);
 
 	/**
 	 * Get the current site page our current tool is placed on.

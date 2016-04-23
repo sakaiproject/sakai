@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.help.Glossary;
 import org.sakaiproject.api.app.help.GlossaryEntry;
 import org.sakaiproject.component.app.help.model.GlossaryEntryBean;
@@ -45,7 +45,7 @@ public class DefaultGlossary implements Glossary
   private String url;
   private Map<String, GlossaryEntry> glossary = new TreeMap<String, GlossaryEntry>();
   private boolean initialized = false;
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * initialize glossary
@@ -67,7 +67,7 @@ public class DefaultGlossary implements Glossary
     }
     catch (IOException e)
     {
-      logger.error(e);
+      logger.error(e.getMessage());
     }
   }
 

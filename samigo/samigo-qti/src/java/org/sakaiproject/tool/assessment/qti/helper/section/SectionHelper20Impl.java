@@ -23,8 +23,8 @@
 
 package org.sakaiproject.tool.assessment.qti.helper.section;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 // Note sections for QTI 1.2 and 2.0 are nearly identical
 public class SectionHelper20Impl extends SectionHelperBase
 {
-  private static Log log = LogFactory.getLog(SectionHelper20Impl.class);
+  private static Logger log = LoggerFactory.getLogger(SectionHelper20Impl.class);
 
   public SectionHelper20Impl()
   {

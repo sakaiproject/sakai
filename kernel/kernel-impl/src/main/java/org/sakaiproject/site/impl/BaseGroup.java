@@ -26,8 +26,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -53,7 +53,7 @@ import org.w3c.dom.Element;
 public class BaseGroup implements Group, Identifiable
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseGroup.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseGroup.class);
 
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;

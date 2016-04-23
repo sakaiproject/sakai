@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.azeckoski.reflectutils.FieldUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -62,7 +62,7 @@ import org.sakaiproject.user.api.UserPermissionException;
  */
 public class UserEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, Describeable {
 
-    private static Log log = LogFactory.getLog(UserEntityProvider.class);
+    private static Logger log = LoggerFactory.getLogger(UserEntityProvider.class);
 
     private static final String ID_PREFIX = "id=";
 

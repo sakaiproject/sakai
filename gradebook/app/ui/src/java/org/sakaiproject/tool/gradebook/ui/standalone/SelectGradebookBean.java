@@ -28,14 +28,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.ui.InitializableBean;
 
 public class SelectGradebookBean extends InitializableBean {
-	private static final Log logger = LogFactory.getLog(SelectGradebookBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(SelectGradebookBean.class);
 	private Authn authnService;
 	private FrameworkManager frameworkManager;
 

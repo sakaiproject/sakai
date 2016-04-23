@@ -41,8 +41,8 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
@@ -61,7 +61,7 @@ import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class CourseGradeDetailsBean extends EnrollmentTableBean {
-	private static final Log logger = LogFactory.getLog(CourseGradeDetailsBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(CourseGradeDetailsBean.class);
 
 	// View maintenance fields - serializable.
 	private List scoreRows;
@@ -371,7 +371,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		try {
 			saveGrades();
 		} catch (StaleObjectModificationException e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
 		}
 	}
@@ -383,7 +383,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		try {
 			calculateCourseGrades();
 		} catch (StaleObjectModificationException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 			FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
 		}
 		return "courseGradeDetails";

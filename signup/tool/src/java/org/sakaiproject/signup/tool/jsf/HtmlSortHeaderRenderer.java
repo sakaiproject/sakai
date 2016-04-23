@@ -27,8 +27,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.myfaces.component.UserRoleUtils;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
@@ -41,8 +41,7 @@ import org.apache.myfaces.shared_tomahawk.renderkit.html.HtmlLinkRendererBase;
  * to indicate direction.
  */
 public class HtmlSortHeaderRenderer extends HtmlLinkRendererBase {
-	private static final Log log = LogFactory
-			.getLog(HtmlSortHeaderRenderer.class);
+	private static final Logger log = LoggerFactory.getLogger(HtmlSortHeaderRenderer.class);
 	public final static String CURRENT_SORT_STYLE = "currentSort";
 	public final static String NOT_CURRENT_SORT_STYLE = "notCurrentSort";
 

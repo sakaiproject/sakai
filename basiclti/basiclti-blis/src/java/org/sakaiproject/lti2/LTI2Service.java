@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.json.IMSJSONRequest;
 import org.tsugi.lti2.LTI2Config;
@@ -73,7 +73,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class LTI2Service extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(LTI2Service.class);
+	private static Logger M_log = LoggerFactory.getLogger(LTI2Service.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
 
 	protected static SakaiFoorm foorm = new SakaiFoorm();

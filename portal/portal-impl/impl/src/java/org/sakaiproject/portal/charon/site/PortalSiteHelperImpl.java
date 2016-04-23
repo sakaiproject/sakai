@@ -37,8 +37,8 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -91,7 +91,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	// Alias prefix for page aliases. Use Entity.SEPARATOR as IDs shouldn't contain it.
 	private static final String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
 
-	private static final Log log = LogFactory.getLog(PortalSiteHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(PortalSiteHelper.class);
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 

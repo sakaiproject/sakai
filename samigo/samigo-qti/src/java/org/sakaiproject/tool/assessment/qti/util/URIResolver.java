@@ -29,8 +29,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class URIResolver implements javax.xml.transform.URIResolver
 {
-  private static Log log = LogFactory.getLog(URIResolver.class);
+  private static Logger log = LoggerFactory.getLogger(URIResolver.class);
 
     public URIResolver()
     {
@@ -62,7 +62,7 @@ public class URIResolver implements javax.xml.transform.URIResolver
         }
         catch (URISyntaxException e)
         {
-            log.error(e); 
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
 

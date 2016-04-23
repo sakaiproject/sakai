@@ -1,7 +1,7 @@
 package org.sakaiproject.lessonbuildertool.cc;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /***********
  * This code is based on a reference implementation done for the IMS Consortium.
@@ -108,7 +108,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 public class PrintHandler extends DefaultHandler implements AssessmentHandler, DiscussionHandler, AuthorizationHandler,
                                        MetadataHandler, LearningApplicationResourceHandler, QuestionBankHandler,
                                        WebContentHandler, WebLinkHandler{
-  private static final Log log = LogFactory.getLog(PrintHandler.class);
+  private static final Logger log = LoggerFactory.getLogger(PrintHandler.class);
   private static final String HREF="href";
   private static final String TYPE="type";
   private static final String FILE="file";

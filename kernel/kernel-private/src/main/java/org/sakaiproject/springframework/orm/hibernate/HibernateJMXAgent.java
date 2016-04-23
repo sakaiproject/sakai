@@ -30,8 +30,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.jmx.StatisticsService;
 
@@ -40,7 +40,7 @@ import org.hibernate.jmx.StatisticsService;
  */
 public class HibernateJMXAgent
 {
-	private static final Log log = LogFactory.getLog(HibernateJMXAgent.class);
+	private static final Logger log = LoggerFactory.getLogger(HibernateJMXAgent.class);
 
 	private MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 

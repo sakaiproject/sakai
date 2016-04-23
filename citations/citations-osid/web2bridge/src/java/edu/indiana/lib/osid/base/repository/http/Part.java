@@ -20,14 +20,16 @@ package edu.indiana.lib.osid.base.repository.http;
  * limitations under the License.
  *
  **********************************************************************************/
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class Part extends edu.indiana.lib.osid.base.repository.Part
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(Part.class);
-
     private org.osid.repository.PartStructure partStructure = null;
     private org.osid.shared.Id partStructureId = null;
     private java.io.Serializable value = null;
@@ -153,7 +155,7 @@ public class Part extends edu.indiana.lib.osid.base.repository.Part
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.repository.RepositoryException.OPERATION_FAILED);
         }
     }

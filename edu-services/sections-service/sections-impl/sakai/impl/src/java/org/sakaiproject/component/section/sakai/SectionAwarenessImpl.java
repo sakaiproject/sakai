@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -63,7 +63,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class SectionAwarenessImpl implements SectionAwareness {
 
-	private static final Log log = LogFactory.getLog(SectionAwarenessImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SectionAwarenessImpl.class);
 
 	// Sakai services
 	protected SiteService siteService;

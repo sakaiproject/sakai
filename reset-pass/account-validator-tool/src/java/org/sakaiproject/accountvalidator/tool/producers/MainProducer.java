@@ -19,8 +19,8 @@
  */
 package org.sakaiproject.accountvalidator.tool.producers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.tool.otp.AcountValidationLocator;
 import org.sakaiproject.accountvalidator.tool.params.ValidationViewParams;
@@ -39,7 +39,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 public class MainProducer implements ViewComponentProducer, DefaultView, ActionResultInterceptor {
 	
-	 private static Log log = LogFactory.getLog(MainProducer.class);
+	 private static Logger log = LoggerFactory.getLogger(MainProducer.class);
 	public static final String VIEW_ID = "main";
 
 	public String getViewID() {

@@ -21,8 +21,8 @@
 
 package org.sakaiproject.message.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -71,7 +71,7 @@ import java.util.*;
 public abstract class BaseMessage implements MessageService, DoubleStorageUser
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseMessage.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseMessage.class);
 
 	/** A Storage object for persistent storage. */
 	protected Storage m_storage = null;

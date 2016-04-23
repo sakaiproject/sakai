@@ -32,8 +32,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
@@ -78,7 +78,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class SakaiFacadeImpl implements SakaiFacade {
 
-	private static Log log = LogFactory.getLog(SakaiFacadeImpl.class);
+	private static Logger log = LoggerFactory.getLogger(SakaiFacadeImpl.class);
 
 	private FunctionManager functionManager;
 	
@@ -1007,9 +1007,9 @@ public class SakaiFacadeImpl implements SakaiFacade {
 				calendarService.commitCalendar(calendarEdit);
 				calendar = getCalendarById(calendarId);
 			} catch (IdInvalidException highlyUnlikely) {
-				log.error(highlyUnlikely);
+				log.error(highlyUnlikely.getMessage());
 			} catch (IdUsedException extremelyUnlikely) {
-				log.error(extremelyUnlikely);
+				log.error(extremelyUnlikely.getMessage());
 			}
 		}
 		return calendar;

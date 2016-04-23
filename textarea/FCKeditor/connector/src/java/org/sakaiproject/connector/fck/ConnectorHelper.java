@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -53,7 +53,7 @@ public class ConnectorHelper {
 	private static String JFORUMS_TOOL_ID = "sakai.jforum.tool";
 	private static String FORUMS_TOOL_ID = "sakai.forums";
 	
-	private static Log M_log = LogFactory.getLog(ConnectorHelper.class);
+	private static Logger M_log = LoggerFactory.getLogger(ConnectorHelper.class);
 	private SiteService siteService = null;
 	private AssignmentService assignmentService = null;
     private SecurityService securityService = null;

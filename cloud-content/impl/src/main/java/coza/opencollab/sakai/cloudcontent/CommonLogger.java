@@ -6,7 +6,7 @@ package coza.opencollab.sakai.cloudcontent;
  * 
  * @author OpenCollab
  */
-public interface Logger {
+public interface CommonLogger {
 
     /**
      * Called if the space used on the account has reached a warning limit.

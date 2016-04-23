@@ -23,8 +23,8 @@ package org.sakaiproject.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PathHashUtil 
 {
-	private static final Log log = LogFactory.getLog(PathHashUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(PathHashUtil.class);
 
 	
     private static char[] encode = { '0', '1', '2', '3', '4', '5', '6', '7',

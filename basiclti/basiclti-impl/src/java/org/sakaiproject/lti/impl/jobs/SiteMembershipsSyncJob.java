@@ -1,7 +1,7 @@
 package org.sakaiproject.lti.impl.jobs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIProviderUtil;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import org.quartz.StatefulJob;
 
 public class SiteMembershipsSyncJob implements StatefulJob {
 	
-	private static Log M_log = LogFactory.getLog(SiteMembershipsSyncJob.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteMembershipsSyncJob.class);
 	
     private LTIService ltiService = null;
     public void setLtiService(LTIService ltiService) {

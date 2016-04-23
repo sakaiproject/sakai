@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -34,7 +34,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class CourseSiteRemovalJob implements StatefulJob {
    // logger
-   private final transient Log logger = LogFactory.getLog(getClass());
+   private final transient Logger logger = LoggerFactory.getLogger(getClass());
 
    // sakai.properties
    public final static String PROPERTY_COURSE_SITE_REMOVAL_ACTION                        = "course_site_removal_service.action";
@@ -146,7 +146,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
                int numSitesRemoved = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
                logger.info(numSitesRemoved + " course sites were removed.");
             } catch (Exception ex) {
-               logger.error(ex);
+               logger.error(ex.getMessage());
             }
          }
       }

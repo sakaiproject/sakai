@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -46,7 +46,7 @@ public class CalendarActionState
 	implements SessionBindingListener
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(CalendarActionState.class);
+	private static Logger M_log = LoggerFactory.getLogger(CalendarActionState.class);
 
 	private List wizardImportedEvents;
 

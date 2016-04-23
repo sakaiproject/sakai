@@ -23,8 +23,8 @@ package org.sakaiproject.portal.charon.test.http;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.SubmitButton;
@@ -38,7 +38,7 @@ import com.meterware.httpunit.WebResponse;
 public class LoginActionHandler implements ActionHandler
 {
 
-	private static final Log log = LogFactory.getLog(LoginActionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(LoginActionHandler.class);
 
 	private String userName;
 

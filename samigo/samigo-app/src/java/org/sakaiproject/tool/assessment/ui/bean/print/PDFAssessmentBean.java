@@ -23,8 +23,8 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment;
@@ -71,7 +71,7 @@ public class PDFAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Log log = LogFactory.getLog(PDFAssessmentBean.class);
+	private static Logger log = LoggerFactory.getLogger(PDFAssessmentBean.class);
 
 	private static org.sakaiproject.util.api.FormattedText formattedText = (org.sakaiproject.util.api.FormattedText)ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
 	
@@ -674,8 +674,7 @@ public class PDFAssessmentBean implements Serializable {
 					w = img_in.getWidth(null);
 					h = img_in.getHeight(null);					
 				} catch (IOException e) {
-					log.error(e);
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 			}
 				
 				Color c = new Color(27, 148, 224, 80);
@@ -711,8 +710,7 @@ public class PDFAssessmentBean implements Serializable {
 					}
 					g.dispose();
 				} catch (Exception e) {
-					e.printStackTrace();
-					log.error(e);
+					log.error(e.getMessage(), e);
 				}			
 					
 
@@ -722,8 +720,7 @@ public class PDFAssessmentBean implements Serializable {
 					ImageIO.write(img_out, ext, temp);
 					destSrc+=temp.getCanonicalPath();
 				} catch (IOException e) {
-					e.printStackTrace();
-					log.error(e);
+					log.error(e.getMessage(), e);
 				}
 				
 				//print it
@@ -812,17 +809,15 @@ public class PDFAssessmentBean implements Serializable {
 			out.flush();
 		} 
 		catch (IOException e) {
-			log.error(e);
-			e.printStackTrace();
-		} 
+			log.error(e.getMessage(), e);
+		}
 		finally {
 			try {
 				if (out != null) 
 					out.close();
 			} 
 			catch (IOException e) {
-				log.error(e);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 		faces.responseComplete();
@@ -1044,7 +1039,7 @@ public class PDFAssessmentBean implements Serializable {
 
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			System.err.println("document: " + e.getMessage());
 		}
 

@@ -29,8 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.ActiveToolManager;
@@ -47,7 +47,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 public class HelperCommand implements HttpCommand
 {
 
-	private static Log log = LogFactory.getLog(HelperCommand.class);
+	private static Logger log = LoggerFactory.getLogger(HelperCommand.class);
 
 	private ActiveToolManager activeToolManager;
 

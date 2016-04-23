@@ -4,15 +4,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import edu.indiana.lib.twinpeaks.util.*;
 
-
+@Slf4j
 public class CqlParser extends org.xml.sax.helpers.DefaultHandler {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.class);
   //
 	// Index mappings (CQL -> Sirsi)
 	//
@@ -71,11 +70,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		}
 		catch (org.xml.sax.SAXException e)
 		{
-			_log.error("SAX exception: " + e);
+			log.error("SAX exception: " + e);
 		}
 		catch (ParserConfigurationException e)
 		{
-			_log.error("Parse failed: " + e);
+			log.error("Parse failed: " + e);
 		}
 	}
 
@@ -105,11 +104,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		}
 		catch( java.io.IOException ioe )
 		{
-			_log.error("CQL parse exception: " + ioe);
+			log.error("CQL parse exception: " + ioe);
 		}
 		catch( org.z3950.zing.cql.CQLParseException e )
 		{
-			_log.error("CQL parse exception: " + e);
+			log.error("CQL parse exception: " + e);
 		}
 		
 		if (root == null)
@@ -119,8 +118,8 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 
 		String cqlXml = root.toXCQL( 0 );
 
-		_log.debug("CQL XML:");
-		_log.debug(cqlXml);
+		log.debug("CQL XML:");
+		log.debug(cqlXml);
 
 		// get cqlXml as a stream
 		java.io.ByteArrayInputStream byteInputStream = null;
@@ -131,7 +130,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		}
 		catch( java.io.UnsupportedEncodingException uee )
 		{
-			_log.error("Encoding exception: " + uee);
+			log.error("Encoding exception: " + uee);
 		}
 
 		if (byteInputStream == null)
@@ -150,11 +149,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		}
 		catch( java.io.IOException ioe )
 		{
-			_log.error("IO exception: " + ioe);
+			log.error("IO exception: " + ioe);
 		}
 		catch( org.xml.sax.SAXException spe )
 		{
-			_log.error("SAX exception: " + spe);
+			log.error("SAX exception: " + spe);
 		}
 
 		String cqlResult = ( String ) cqlStack.pop();
@@ -326,7 +325,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 
 		if (sirsiIndex == null || sirsiIndex.equals( "" ))
 		{
-			_log.error("translateIndex(): bad index, using KEYWORD");
+			log.error("translateIndex(): bad index, using KEYWORD");
 			sirsiIndex = (String) INDEX_MAP.get("keyword");
 		}
 
@@ -344,7 +343,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 
 		if (sirsiBoolean == null || sirsiBoolean.equals( "" ))
 		{
-			_log.error("translateBooleanRelation(): bad boolean relation, using AND" );
+			log.error("translateBooleanRelation(): bad boolean relation, using AND" );
 			sirsiBoolean = (String) BOOL_RELATION_MAP.get("and");
 		}
 		return sirsiBoolean;

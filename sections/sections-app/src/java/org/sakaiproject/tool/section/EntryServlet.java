@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.section.api.facade.manager.Context;
@@ -19,7 +19,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 public class EntryServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(EntryServlet.class);
+	private static final Logger log = LoggerFactory.getLogger(EntryServlet.class);
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, java.io.IOException {

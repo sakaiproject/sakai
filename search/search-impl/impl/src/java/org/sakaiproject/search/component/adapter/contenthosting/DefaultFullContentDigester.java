@@ -26,8 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.SearchUtils;
 
@@ -36,8 +36,7 @@ import org.sakaiproject.search.api.SearchUtils;
  */
 public class DefaultFullContentDigester extends DefaultContentDigester
 {
-	private static final Log log = LogFactory
-			.getLog(DefaultFullContentDigester.class);
+	private static final Logger log = LoggerFactory.getLogger(DefaultFullContentDigester.class);
 	
 	private int maxDigestSize = 1024 * 1024 * 5; // 5M
 
@@ -149,12 +148,12 @@ public class DefaultFullContentDigester extends DefaultContentDigester
 			try {
 				this.in.close();
 			} catch ( Exception ex ) {
-				log.debug(ex);
+				log.debug(ex.getMessage());
 			}
 			try { 
 				inputStream.close();
 			} catch ( Exception ex ) {
-				log.debug(ex);
+				log.debug(ex.getMessage());
 			}
 			inputStream = null;
 		}

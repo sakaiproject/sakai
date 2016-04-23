@@ -21,12 +21,11 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StartPagePartStructure implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.StartPagePartStructure" );
-
 	private org.osid.shared.Id START_PAGE_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"startPage", "Page number that resource content begins on" );
@@ -47,7 +46,7 @@ public class StartPagePartStructure implements org.osid.repository.PartStructure
 		}
 		catch (Throwable t)
 		{
-			LOG.warn( "StartPagePartStructure() failed to get partStructure id: "
+			log.warn( "StartPagePartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
 		}
 	}

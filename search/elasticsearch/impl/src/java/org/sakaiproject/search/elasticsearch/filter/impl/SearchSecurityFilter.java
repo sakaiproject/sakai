@@ -21,8 +21,8 @@
 
 package org.sakaiproject.search.elasticsearch.filter.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -43,8 +43,7 @@ import java.util.Map;
 public class SearchSecurityFilter implements SearchItemFilter
 {
 
-	private static final Log log = LogFactory
-			.getLog(SearchSecurityFilter.class);
+	private static final Logger log = LoggerFactory.getLogger(SearchSecurityFilter.class);
 
 	private SearchIndexBuilder searchIndexBuilder = null;
 

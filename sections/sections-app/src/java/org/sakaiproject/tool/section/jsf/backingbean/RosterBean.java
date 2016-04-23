@@ -43,8 +43,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
@@ -65,7 +65,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class RosterBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(RosterBean.class);
+	private static final Logger log = LoggerFactory.getLogger(RosterBean.class);
 	private static final String CAT_COLUMN_PREFIX = "cat";
 
 	private String searchText;

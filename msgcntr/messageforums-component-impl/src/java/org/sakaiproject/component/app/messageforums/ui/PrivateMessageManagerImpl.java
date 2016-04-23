@@ -33,8 +33,8 @@ import java.util.Map.Entry;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
@@ -86,8 +86,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageManager
 {
 
-  private static final Log LOG = LogFactory
-      .getLog(PrivateMessageManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PrivateMessageManagerImpl.class);
 
   private static final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
   private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";

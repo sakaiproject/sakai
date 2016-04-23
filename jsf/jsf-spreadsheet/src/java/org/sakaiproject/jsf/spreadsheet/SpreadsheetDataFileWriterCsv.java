@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -40,7 +40,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  * possible.
  */
 public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
-	private static final Log log = LogFactory.getLog(SpreadsheetDataFileWriterCsv.class);
+	private static final Logger log = LoggerFactory.getLogger(SpreadsheetDataFileWriterCsv.class);
 
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("text/comma-separated-values");
@@ -54,12 +54,12 @@ public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 			out.write(csvString.getBytes("UTF-8"));
 			out.flush();
 		} catch (IOException e) {
-			if (log.isErrorEnabled()) log.error(e);
+			log.error(e.getMessage());
 		} finally {
 			try {
 				if (out != null) out.close();
 			} catch (IOException e) {
-				if (log.isErrorEnabled()) log.error(e);
+				log.error(e.getMessage());
 			}
 		}
 	}

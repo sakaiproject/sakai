@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.test.section;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.test.SakaiTestBase;
 
 import junit.extensions.TestSetup;
@@ -30,7 +30,7 @@ import junit.framework.TestSuite;
 
 public class SectionIntegrationTestSuite extends SakaiTestBase {
 	
-	private static final Log log = LogFactory.getLog(SectionIntegrationTestSuite.class);
+	private static final Logger log = LoggerFactory.getLogger(SectionIntegrationTestSuite.class);
 
 	/**
 	 * Runs only once for the entire TestSuite, so we can keep the same component manager

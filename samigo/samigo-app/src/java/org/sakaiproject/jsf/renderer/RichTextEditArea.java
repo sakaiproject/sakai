@@ -32,8 +32,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -57,7 +57,7 @@ import org.sakaiproject.util.Web;
  */
 public class RichTextEditArea extends Renderer
 {
-  private static Log log = LogFactory.getLog(RichTextEditArea.class);	
+  private static Logger log = LoggerFactory.getLogger(RichTextEditArea.class);	
 
   String editor = ServerConfigurationService.getString("wysiwyg.editor");
   

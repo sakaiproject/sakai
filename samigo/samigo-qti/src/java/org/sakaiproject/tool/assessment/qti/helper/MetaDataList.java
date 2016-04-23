@@ -31,8 +31,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Contract: use List of special "|" delimited "KEY|VALUE" Strings!
@@ -40,7 +40,7 @@ import org.apache.commons.logging.Log;
  */
 public class MetaDataList
 {
-  private static Log log = LogFactory.getLog(ExtractionHelper.class);
+  private static Logger log = LoggerFactory.getLogger(ExtractionHelper.class);
 
   /**
    * list of editable settings

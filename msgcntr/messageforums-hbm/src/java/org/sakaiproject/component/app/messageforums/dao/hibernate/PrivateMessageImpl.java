@@ -23,14 +23,14 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 
 public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 
-    private static final Log LOG = LogFactory.getLog(PrivateMessageImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrivateMessageImpl.class);
     
     private List recipients = null;//new UniqueArrayList();  addRecipient(MessageForumsUser user)
     private Boolean externalEmail;

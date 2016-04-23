@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -45,7 +45,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 
 public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
-    private static final Log LOG = LogFactory.getLog(TopicImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TopicImpl.class);
     
     private String title;
     private String shortDescription;

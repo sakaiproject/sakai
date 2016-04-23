@@ -1,7 +1,7 @@
 package org.sakaiproject.authz.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -10,7 +10,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
 public class DummyUserEncodingTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(DummyUserEncodingTest.class);
+	private static Logger log = LoggerFactory.getLogger(DummyUserEncodingTest.class);
     protected AuthzGroupService _ags;
     protected String _secretPrefix;
 
@@ -21,7 +21,7 @@ public class DummyUserEncodingTest extends SakaiKernelTestBase {
 			oneTimeSetup();
             log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 

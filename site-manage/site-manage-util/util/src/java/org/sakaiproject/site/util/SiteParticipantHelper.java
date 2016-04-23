@@ -13,8 +13,8 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -36,7 +36,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class SiteParticipantHelper {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SiteParticipantHelper.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteParticipantHelper.class);
 	
 	private static String NULL_STRING = "";
 	

@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -102,7 +102,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AssessmentFacadeQueriesAPI {
-	private Log log = LogFactory.getLog(AssessmentFacadeQueries.class);
+	private Logger log = LoggerFactory.getLogger(AssessmentFacadeQueries.class);
 
 	// private ResourceBundle rb =
 	// ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");

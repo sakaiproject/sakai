@@ -23,14 +23,14 @@ package org.sakaiproject.component.section.sakai;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 
 public class CourseImpl implements Course, Serializable {
-	private static final Log log = LogFactory.getLog(CourseImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseImpl.class);
 	private static final long serialVersionUID = 1L;
 
 	public static final String EXTERNALLY_MAINTAINED = "sections_externally_maintained";

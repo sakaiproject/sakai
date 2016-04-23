@@ -33,8 +33,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.application.FacesMessage;
 
 import javax.faces.context.FacesContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -54,7 +54,7 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 public class PoolSaveListener implements ActionListener
 {
 
-  private static Log log = LogFactory.getLog(PoolSaveListener.class);
+  private static Logger log = LoggerFactory.getLogger(PoolSaveListener.class);
   //private static ContextUtil cu;
 
 

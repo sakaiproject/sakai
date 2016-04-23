@@ -26,15 +26,15 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.utils.ConnectionProvider;
 import org.sakaiproject.component.cover.ComponentManager;
 
 public class ConnectionProviderDelegate implements ConnectionProvider
 {
 
-  private static final Log LOG = LogFactory.getLog(ConnectionProviderDelegate.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ConnectionProviderDelegate.class);
   private static DataSource ds;
 
 

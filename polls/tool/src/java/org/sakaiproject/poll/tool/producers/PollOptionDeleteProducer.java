@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
@@ -59,7 +59,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class PollOptionDeleteProducer implements ViewComponentProducer, ActionResultInterceptor,ViewParamsReporter {
 	public static final String VIEW_ID = "pollOptionDelete";
-	private static final Log LOG = LogFactory.getLog(PollOptionDeleteProducer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PollOptionDeleteProducer.class);
 	
 	private MessageLocator messageLocator;
 	private LocaleGetter localeGetter;

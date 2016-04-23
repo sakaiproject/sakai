@@ -22,8 +22,8 @@ package org.sakaiproject.tool.impl;
 
 import com.google.common.collect.MapMaker;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
@@ -66,7 +66,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
     final static String SESSION_LAST_BREAKDOWN_KEY                  = SPECIAL_SESSION_KEY_PREFIX+"LastBreakdownTime";
     final static String SESSION_LAST_REBUILD_KEY                    = SPECIAL_SESSION_KEY_PREFIX+"LastRebuildTime";
 
-    private static final Log log = LogFactory.getLog(RebuildBreakdownServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(RebuildBreakdownServiceImpl.class);
     private final int minSecondsBetweenStoresDefault = 10;
     private final int minSecondsAfterRebuildDefault = 30;
     private final int smallestMinSecondsBetweenStores = 1;

@@ -21,12 +21,11 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DatePartStructure implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.DatePartStructure" );
-	
   private org.osid.shared.Id DATE_PART_STRUCTURE_ID = null;
   private org.osid.shared.Type type = new Type( "mit.edu", "partStructure",
       "date", "Date" );
@@ -45,7 +44,7 @@ public class DatePartStructure implements org.osid.repository.PartStructure
       this.DATE_PART_STRUCTURE_ID = Managers.getIdManager().getId(
           "983287r98y32lala02387923gf470appl");
     } catch (Throwable t) {
-    	LOG.warn( "DatePartStructure() failed to get partStructure id: "
+    	log.warn( "DatePartStructure() failed to get partStructure id: "
 				+ t.getMessage() );
     }        
   }

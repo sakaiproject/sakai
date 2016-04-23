@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -63,7 +63,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	private int							maxHeight							= 600;
 
 	
-	private static Log LOG = LogFactory.getLog(AjaxLazyLoadImage.class);
+	private static Logger LOG = LoggerFactory.getLogger(AjaxLazyLoadImage.class);
 	// State:
 	// 0:add loading component
 	// 1:loading component added, waiting for ajax replace

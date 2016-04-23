@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -50,7 +50,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 
 public class PollToolBean {
 
-	private static final Log LOG = LogFactory.getLog(PollToolBean.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PollToolBean.class);
 	
 	public static final String
 		HANDLE_DELETE_OPTION_DO_NOTHING = "do-nothing",

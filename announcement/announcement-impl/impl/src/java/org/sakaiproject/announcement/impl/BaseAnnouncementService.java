@@ -47,8 +47,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -110,7 +110,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		EntityTransferrer, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseAnnouncementService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseAnnouncementService.class);
 
 	/** private constants definitions */
 	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
@@ -1668,7 +1668,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 				}
 			} catch (PermissionException ex) {
-				M_log.error(ex);
+				M_log.error(ex.getMessage());
 			}
 		}
 		
@@ -1689,7 +1689,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				}
 				msg.getHeaderEdit().setMessage_order(++currentMax);
 			} catch (PermissionException ex) {
-				M_log.error(ex);
+				M_log.error(ex.getMessage());
 			}
 			return currentMax;
 		}

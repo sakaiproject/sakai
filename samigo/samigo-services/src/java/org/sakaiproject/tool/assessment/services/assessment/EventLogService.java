@@ -2,14 +2,14 @@ package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class EventLogService{
-	private Log log = LogFactory.getLog(EventLogService.class);
+	private Logger log = LoggerFactory.getLogger(EventLogService.class);
 
 	public EventLogService() {
 	}

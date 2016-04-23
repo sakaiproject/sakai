@@ -21,8 +21,8 @@
 
 package org.sakaiproject.chat2.tool;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.time.api.Time;
@@ -47,7 +47,7 @@ import org.sakaiproject.util.Web;
 public class ChatDelivery extends BaseDelivery implements Expirable
 {
 	/** Our logger. */
-	private static Log logger = LogFactory.getLog(ChatDelivery.class);
+	private static Logger logger = LoggerFactory.getLogger(ChatDelivery.class);
 
 	/** The message.  it could be a string id or the actual message. */
 	protected Object m_message = null;
@@ -113,7 +113,7 @@ public class ChatDelivery extends BaseDelivery implements Expirable
       } else {
          return "";
       }
-		if (logger.isDebugEnabled()) logger.debug("compose() element: " + m_elementId + ", message: " + message.getId());
+		logger.debug("compose() element: {}, message: {}", m_elementId, message.getId());
 
 		// generate a string of JavaScript commands to update the message log
 		
@@ -121,7 +121,7 @@ public class ChatDelivery extends BaseDelivery implements Expirable
       try {
          sender = UserDirectoryService.getUser(message.getOwner());
       } catch(UserNotDefinedException e) {
-         logger.error(e);
+         logger.error(e.getMessage());
       }
 		User myself = UserDirectoryService.getCurrentUser();
 

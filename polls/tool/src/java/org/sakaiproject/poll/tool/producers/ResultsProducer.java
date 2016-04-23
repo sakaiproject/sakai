@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -75,7 +75,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	private LocaleGetter localegetter;
 		  
 
-	private static final Log LOG  = LogFactory.getLog(ResultsProducer.class);
+	private static final Logger LOG  = LoggerFactory.getLogger(ResultsProducer.class);
 
 
 

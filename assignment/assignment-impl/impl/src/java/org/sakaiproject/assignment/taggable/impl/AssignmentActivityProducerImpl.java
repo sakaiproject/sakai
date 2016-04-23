@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
@@ -47,8 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class AssignmentActivityProducerImpl implements
 		AssignmentActivityProducer {
 
-	private static final Log logger = LogFactory
-			.getLog(AssignmentActivityProducerImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(AssignmentActivityProducerImpl.class);
 
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 

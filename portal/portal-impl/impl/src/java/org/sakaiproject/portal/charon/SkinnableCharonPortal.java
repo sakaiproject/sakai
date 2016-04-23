@@ -42,8 +42,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
@@ -154,7 +154,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	/**
 	 * Our log (commons).
 	 */
-	private static Log M_log = LogFactory.getLog(SkinnableCharonPortal.class);
+	private static Logger M_log = LoggerFactory.getLogger(SkinnableCharonPortal.class);
 
 	/**
 	 * messages.
@@ -1689,10 +1689,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         			} catch (IdUnusedException ex1 ) {
                         				try {
                         					preferences = preferencesService.add( thisUser );
-                        				} catch (IdUsedException ex2) {
-                        					M_log.error(ex2);
-                        				} catch( PermissionException ex3) {
-                        					M_log.error(ex3);
+                        				} catch (IdUsedException | PermissionException ex2) {
+                        					M_log.error(ex2.getMessage());
                         				}
                         			}
                             		if (preferences != null) {
@@ -1701,7 +1699,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                             			preferencesService.commit(preferences);   
                             		}
                         		} catch (Exception e1) {
-                        			M_log.error(e1);
+                        			M_log.error(e1.getMessage(), e1);
                         		}finally{
                         			if(secAdv != null){
                         				securityService.popAdvisor(secAdv);

@@ -22,8 +22,8 @@
 package org.sakaiproject.feedback.tool;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.feedback.util.Constants;
@@ -49,7 +49,7 @@ public class FeedbackTool extends HttpServlet {
     
     private static final long serialVersionUID = 1L;
 
-    private static final Log logger = LogFactory.getLog(FeedbackTool.class);
+    private static final Logger logger = LoggerFactory.getLogger(FeedbackTool.class);
 
     private SakaiProxy sakaiProxy = null;
 

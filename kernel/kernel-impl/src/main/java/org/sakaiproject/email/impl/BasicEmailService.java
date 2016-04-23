@@ -52,8 +52,8 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
@@ -75,7 +75,7 @@ import org.sakaiproject.user.api.User;
 public class BasicEmailService implements EmailService
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BasicEmailService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BasicEmailService.class);
 
 	protected static final String PROTOCOL_SMTP = "smtp";
 	protected static final String PROTOCOL_SMTPS = "smtps";

@@ -29,8 +29,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Models a gradebook and all of its dependent objects, which can all be
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class GradebookArchive {
-    private static Log log = LogFactory.getLog(GradebookArchive.class);
+    private static Logger log = LoggerFactory.getLogger(GradebookArchive.class);
 
     private Gradebook gradebook;
     private GradeMapping selectedGradeMapping;

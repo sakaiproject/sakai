@@ -21,8 +21,8 @@ package org.sakaiproject.accountvalidator.impl.jobs;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -33,7 +33,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 public class CheckAccountsJob implements Job {
 
-	private static Log log = LogFactory.getLog(CheckAccountsJob.class);
+	private static Logger log = LoggerFactory.getLogger(CheckAccountsJob.class);
 	
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService uds) {

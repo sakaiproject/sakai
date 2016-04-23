@@ -33,8 +33,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -60,7 +60,7 @@ public class PageHandler extends BasePortalHandler
 
 	private static final String INCLUDE_PAGE = "include-page";
 
-	private static final Log log = LogFactory.getLog(PageHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(PageHandler.class);
 
 	private static final String URL_FRAGMENT = "page";
         

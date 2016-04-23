@@ -3,8 +3,8 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.time.api.Time;
@@ -22,7 +22,7 @@ import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureExcep
 
 public class ForumScheduleNotificationImpl implements ForumScheduleNotification {
 	
-	private static final Log LOG = LogFactory.getLog(ForumScheduleNotificationImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ForumScheduleNotificationImpl.class);
     
     private static final String AREA_PREFIX = "area-";
     private static final String FORUM_PREFIX = "forum-";

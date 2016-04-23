@@ -58,7 +58,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ItemBean
   implements Serializable
 {
-  //private static Log log = LogFactory.getLog(ItemBean.class);
+  //private static Logger log = LoggerFactory.getLogger(ItemBean.class);
 
   // internal use
   private static final String answerNumbers =

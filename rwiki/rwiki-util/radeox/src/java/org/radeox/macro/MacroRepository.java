@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.macro.Macro;
 
@@ -44,7 +44,7 @@ import org.radeox.api.macro.Macro;
 
 public class MacroRepository extends PluginRepository
 {
-	private static Log log = LogFactory.getLog(MacroRepository.class);
+	private static Logger log = LoggerFactory.getLogger(MacroRepository.class);
 
 	private InitialRenderContext context;
 

@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -63,7 +63,7 @@ public class ResourceSupport {
 
 
 
-	private static Log logger = LogFactory.getLog(ResourceEntityType.class); 
+	private static Logger logger = LoggerFactory.getLogger(ResourceEntityType.class); 
 
 	ResourceLoader rl = new ResourceLoader("dash_entity");
 	

@@ -21,8 +21,8 @@
 
 package org.sakaiproject.user.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
@@ -39,7 +39,7 @@ import org.sakaiproject.user.api.IdPwEvidence;
 public class OpenAuthnComponent implements AuthenticationManager
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(OpenAuthnComponent.class);
+	private static Logger M_log = LoggerFactory.getLogger(OpenAuthnComponent.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods

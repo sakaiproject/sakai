@@ -3,15 +3,15 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class SectionActivityBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static Log log = LogFactory.getLog(SectionActivityBean.class);
+    private static Logger log = LoggerFactory.getLogger(SectionActivityBean.class);
 
     private List displayNamesList;
     private String selectedUser;

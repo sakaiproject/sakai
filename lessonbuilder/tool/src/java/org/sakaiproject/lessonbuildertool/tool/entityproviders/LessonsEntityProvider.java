@@ -38,8 +38,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -104,7 +104,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
 
 
-	private static final Log log = LogFactory.getLog(LessonsEntityProvider.class);
+	private static final Logger log = LoggerFactory.getLogger(LessonsEntityProvider.class);
 	
 	@Override
 	public String getEntityPrefix() {

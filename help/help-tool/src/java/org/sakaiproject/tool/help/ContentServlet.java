@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
@@ -55,7 +55,7 @@ public class ContentServlet extends HttpServlet
   private static final long serialVersionUID = 1L;
 	
   /** Our log (commons). */
-  private static Log M_log = LogFactory.getLog(ContentServlet.class);
+  private static Logger M_log = LoggerFactory.getLogger(ContentServlet.class);
 
   private static final String DOC_ID = "docId";
   

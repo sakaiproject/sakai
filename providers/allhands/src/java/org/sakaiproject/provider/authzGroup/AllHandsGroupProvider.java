@@ -24,8 +24,8 @@ package org.sakaiproject.provider.authzGroup;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.apache.commons.lang.StringUtils;
 
@@ -43,7 +43,7 @@ import org.apache.commons.lang.StringUtils;
 public class AllHandsGroupProvider implements GroupProvider
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(AllHandsGroupProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(AllHandsGroupProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy

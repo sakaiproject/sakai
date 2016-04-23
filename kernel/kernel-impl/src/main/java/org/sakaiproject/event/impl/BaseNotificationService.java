@@ -22,8 +22,8 @@
 package org.sakaiproject.event.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Edit;
@@ -54,7 +54,7 @@ import java.util.*;
 public abstract class BaseNotificationService implements NotificationService, Observer, SingleStorageUser, CacheRefresher
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseNotificationService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseNotificationService.class);
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;

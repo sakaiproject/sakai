@@ -42,8 +42,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.apache.poi.hssf.OldExcelFormatException;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -89,7 +89,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private UploadedFile upFile;
     private String pickedFileReference;
     private String pickedFileDesc;
-    private static final Log logger = LogFactory.getLog(SpreadsheetUploadBean.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpreadsheetUploadBean.class);
     private Spreadsheet spreadsheet;
     private Map rosterMap;
     private List assignmentList;
@@ -1149,7 +1149,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         try{
             getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),this.getUserDirectoryService().getUserDisplayName(getUserUid()),new Date(),sb.toString());
         }catch(ConflictingSpreadsheetNameException e){
-            if(logger.isDebugEnabled())logger.debug(e);
+            logger.debug(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("upload_preview_save_failure"));
             return null;
         }
@@ -1208,7 +1208,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             		 points = "";
             	 }
              }catch(NumberFormatException e){
-                 if(logger.isDebugEnabled())logger.debug(e);
+                 logger.debug(e.getMessage());
                  points = "";
              }
              if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" points "+points);
@@ -1837,11 +1837,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 	        AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,scoreAsDouble);
                 	        asnGradeRecord.setPercentEarned(scoreAsDouble); // in case gb entry by % - sorted out in manager
                 	        gradeRecords.add(asnGradeRecord);
-                	        if(logger.isDebugEnabled())logger.debug("added grades for " + uid + " - score " + scoreAsString);
+                	        logger.debug("added grades for {} - score {}", uid, scoreAsString);
                 	    } catch (ParseException pe) {
                 	        // the score should have already been validated at this point, so
                 	        // there is something wrong
-                	        logger.error("ParseException encountered while parsing value: " + scoreAsString + " Score was not updated.");
+                	        logger.error("ParseException encountered while parsing value: {} Score was not updated.", scoreAsString);
                 	    }
                 	} else if (getGradeEntryByLetter()) {
                 		AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,null);
@@ -1858,7 +1858,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     		return "spreadsheetListing";
 
         } catch (ConflictingAssignmentNameException e) {
-            if(logger.isErrorEnabled())logger.error(e);
+            logger.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
         }
 
@@ -2505,7 +2505,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 inStream = resource.streamContent();
             }
             catch(ServerOverloadException soe) {
-                logger.error(soe.getStackTrace());
+                logger.error(soe.getMessage(), soe);
             }
         }
 

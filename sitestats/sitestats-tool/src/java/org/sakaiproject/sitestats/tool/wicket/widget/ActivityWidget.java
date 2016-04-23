@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.Page;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -44,7 +44,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class ActivityWidget extends Panel {
 	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(ActivityWidget.class);
+	private static Logger				LOG					= LoggerFactory.getLogger(ActivityWidget.class);
 
 	/** The site id. */
 	private String					siteId				= null;

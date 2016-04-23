@@ -37,8 +37,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -69,7 +69,7 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 public class StudentScoreUpdateListener
   implements ActionListener
 {
-  private static Log log = LogFactory.getLog(StudentScoreUpdateListener.class);
+  private static Logger log = LoggerFactory.getLogger(StudentScoreUpdateListener.class);
   private static ContextUtil cu;
 
   /**

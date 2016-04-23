@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
 import org.sakaiproject.user.api.User;
@@ -40,7 +40,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class CreateJoinableGroupsProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter{
 
 	public static final String VIEW_ID = "CreateJoinableGroups";
-	private static final Log M_log = LogFactory.getLog(CreateJoinableGroupsProducer.class);
+	private static final Logger M_log = LoggerFactory.getLogger(CreateJoinableGroupsProducer.class);
 	public SiteManageGroupSectionRoleHandler handler;
 	public MessageLocator messageLocator;
 

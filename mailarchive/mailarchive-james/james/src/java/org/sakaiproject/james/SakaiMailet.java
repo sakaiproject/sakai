@@ -46,8 +46,8 @@ import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -87,7 +87,7 @@ public class SakaiMailet extends GenericMailet
 	private static ResourceLoader rb = new ResourceLoader("sakaimailet");
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(SakaiMailet.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiMailet.class);
 
 	/** The user name of the postmaster user - the one who posts incoming mail. */
 	public static final String POSTMASTER = "postmaster";

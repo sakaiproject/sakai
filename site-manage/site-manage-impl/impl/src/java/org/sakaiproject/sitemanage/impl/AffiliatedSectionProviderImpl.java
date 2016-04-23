@@ -22,8 +22,8 @@ package org.sakaiproject.sitemanage.impl;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
 
 /**
@@ -33,7 +33,7 @@ import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
 public class AffiliatedSectionProviderImpl implements AffiliatedSectionProvider {
 	
 
-	private static final Log log = LogFactory.getLog(AffiliatedSectionProviderImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(AffiliatedSectionProviderImpl.class);
 	
 	public List getAffiliatedSectionEids(String userEid, String academicSessionEid)
 	{

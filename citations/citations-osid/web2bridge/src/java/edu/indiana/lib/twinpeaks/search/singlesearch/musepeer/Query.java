@@ -17,29 +17,21 @@
  **********************************************************************************/
 package edu.indiana.lib.twinpeaks.search.singlesearch.musepeer;
 
-import edu.indiana.lib.twinpeaks.net.*;
 import edu.indiana.lib.twinpeaks.search.*;
 import edu.indiana.lib.twinpeaks.search.singlesearch.CqlParser;
 import edu.indiana.lib.twinpeaks.util.*;
 
-import java.io.*;
-import java.net.*;
 import java.util.*;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * Send a query to the Musepeer  interface
  */
+@Slf4j
 public class Query extends HttpTransactionQueryBase
 {
-	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(Query.class);
   /**
    * DEBUG only: Display server response data?
    */
@@ -104,7 +96,7 @@ public class Query extends HttpTransactionQueryBase
 		}
 
 		action = getRequestParameter("action");
-		_log.debug("*** Beginning action: " + action);
+		log.debug("*** Beginning action: " + action);
 
 		if ("startsearch".equalsIgnoreCase(action))
 		{
@@ -245,7 +237,7 @@ public class Query extends HttpTransactionQueryBase
 		username = getRequestParameter("username");
 		password = getRequestParameter("password");
 
-		_log.debug("Logging in as \"" + username + "\"");
+		log.debug("Logging in as \"" + username + "\"");
 
 		setParameter("action", "logon");
 
@@ -280,7 +272,7 @@ public class Query extends HttpTransactionQueryBase
 		 * Set search criteria
 		 */
 		searchCriteria = getSearchString();
-		_log.debug("Search criteria: " + searchCriteria);
+		log.debug("Search criteria: " + searchCriteria);
 		/*
 		 * Generate the search command
 		 */
@@ -300,7 +292,7 @@ public class Query extends HttpTransactionQueryBase
 
 		  setParameter("dbList", target);
 
- 			_log.debug("SEARCH: added DB " + target);
+ 			log.debug("SEARCH: added DB " + target);
 		}
     /*
      * Start an asynchronous query (no results are returned) to set things up
@@ -339,7 +331,7 @@ public class Query extends HttpTransactionQueryBase
     String    start = Integer.toString(firstRecord);
     String    total = Integer.toString(firstRecord - 1);
 
-		_log.debug("Using result set name \"" + getResultSetName() + "\"");
+		log.debug("Using result set name \"" + getResultSetName() + "\"");
     /*
      * Action, identification
      */
@@ -356,7 +348,7 @@ public class Query extends HttpTransactionQueryBase
     /*
      * Record, page, host requirements
      */
-    _log.debug("PAGE: start = " + start
+    log.debug("PAGE: start = " + start
                 +     ", first = " + start
                 +     ", total = " + total
                 +     ", pageSize = " + pageSize);
@@ -383,8 +375,8 @@ public class Query extends HttpTransactionQueryBase
     String    total = Integer.toString(firstRecord - 1);
     String    limit = Integer.toString(Math.min(pageSize, totalRemaining));
 
-		_log.debug("MORE: using result set name \"" + getResultSetName() + "\"");
-		_log.debug("MORE: queryStatement = " + getSearchString());
+		log.debug("MORE: using result set name \"" + getResultSetName() + "\"");
+		log.debug("MORE: queryStatement = " + getSearchString());
 
     /*
      * Action, identification
@@ -405,7 +397,7 @@ public class Query extends HttpTransactionQueryBase
     /*
      * Record, page, host requirements
      */
-    _log.debug("MORE: start = " + start
+    log.debug("MORE: start = " + start
                 +     ", first = " + first
                 +     ", total = " + total
                 +     ", pageSize = " + pageSize
@@ -432,7 +424,7 @@ public class Query extends HttpTransactionQueryBase
     int totalRemaining  = StatusUtils.getAllRemainingHits(getSessionContext());
 
 
-    _log.debug(pageSize + " VS " + totalRemaining);
+    log.debug(pageSize + " VS " + totalRemaining);
     /*
      * The first page of results?
      */
@@ -500,7 +492,7 @@ public class Query extends HttpTransactionQueryBase
         count++;
       }
 		}
-		_log.debug(count + " active database(s)");
+		log.debug(count + " active database(s)");
   }
 
 	/**
@@ -518,7 +510,7 @@ public class Query extends HttpTransactionQueryBase
 		Element 	element;
 		String		message, errorText;
 
-		_log.debug("VALIDATE: " + action);
+		log.debug("VALIDATE: " + action);
 		/*
 		 * Verify this response corresponds to anticipated server activity
 		 */
@@ -540,7 +532,7 @@ public class Query extends HttpTransactionQueryBase
 	  		sessionId = DomUtils.getText(element);
 				setSessionId(sessionId);
 
-				_log.debug("Saved Muse session ID \"" + sessionId + "\"");
+				log.debug("Saved Muse session ID \"" + sessionId + "\"");
 				return;
 			}
 
@@ -556,7 +548,7 @@ public class Query extends HttpTransactionQueryBase
 				id = DomUtils.getText(element);
 
 				setReferenceId(id);
-				_log.debug("Saved search reference ID \"" + getReferenceId() + "\"");
+				log.debug("Saved search reference ID \"" + getReferenceId() + "\"");
         /*
          * For the initial search, save the result set name as well.
          */
@@ -566,14 +558,14 @@ public class Query extends HttpTransactionQueryBase
 	  			id = DomUtils.getText(element);
 
 					setResultSetName(id);
-					_log.debug("Saved result set name \"" + getResultSetName() + "\"");
+					log.debug("Saved result set name \"" + getResultSetName() + "\"");
 				}
 				return;
 			}
       /*
        * No cleanup activities for this action
        */
-      _log.debug("No \"cleanup\" activities implemented for " + action);
+      log.debug("No \"cleanup\" activities implemented for " + action);
 			return;
 		}
 		/*
@@ -589,7 +581,7 @@ public class Query extends HttpTransactionQueryBase
 		{
 			errorText = action + ": Unexpected document format";
 
-			LogUtils.displayXml(_log, errorText, document);
+			LogUtils.displayXml(log, errorText, document);
 
 			StatusUtils.setGlobalError(getSessionContext(), errorText);
 			throw new SearchException(errorText);
@@ -602,7 +594,7 @@ public class Query extends HttpTransactionQueryBase
 		          + " error: "
 		          + (StringUtils.isNull(message) ? "*unknown*" : message);
 
-		LogUtils.displayXml(_log, errorText, document);
+		LogUtils.displayXml(log, errorText, document);
 		/*
 		 * Session timeout is a special case
 		 *
@@ -744,7 +736,7 @@ public class Query extends HttpTransactionQueryBase
         complete++;
       }
 
-  		_log.debug("****** Target: "
+  		log.debug("****** Target: "
   		        +  target
   		        +  ", status = "
   		        +  status
@@ -901,12 +893,12 @@ public class Query extends HttpTransactionQueryBase
 		CqlParser	parser;
 		String		result;
 
-		_log.debug( "Initial CQL Criteria: " + cql );
+		log.debug( "Initial CQL Criteria: " + cql );
 
 		parser 	= new CqlParser();
 		result	= parser.doCQL2MetasearchCommand(cql);
 
-		_log.debug("Processed Result: " + result);
+		log.debug("Processed Result: " + result);
 		return result;
 	}
 
@@ -955,7 +947,7 @@ public class Query extends HttpTransactionQueryBase
 	{
 	  if (DISPLAY_XML)
 	  {
-	    LogUtils.displayXml(_log, text, xmlObject);
+	    LogUtils.displayXml(log, text, xmlObject);
     }
   }
 }

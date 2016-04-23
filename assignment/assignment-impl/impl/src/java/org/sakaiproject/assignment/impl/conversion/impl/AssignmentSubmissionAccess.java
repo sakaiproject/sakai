@@ -33,8 +33,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.impl.conversion.api.SerializableSubmissionAccess;
 import org.sakaiproject.assignment.impl.conversion.impl.SAXSerializablePropertiesAccess;
@@ -55,8 +55,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		SerializableEntity
 {
-	protected static final Log log = LogFactory
-			.getLog(AssignmentSubmissionAccess.class);
+	protected static final Logger log = LoggerFactory.getLogger(AssignmentSubmissionAccess.class);
 
 	private SAXParserFactory parserFactory;
 	protected SAXSerializablePropertiesAccess saxSerializableProperties = new SAXSerializablePropertiesAccess();

@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -39,7 +39,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 public class DefaultPermissionsManagerImpl 
     implements DefaultPermissionsManager 
 {
-  private static final Log LOG = LogFactory.getLog(DefaultPermissionsManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultPermissionsManagerImpl.class);
   //Dependency injected
   private FunctionManager functionManager;
   private AuthzGroupService authzGroupService;

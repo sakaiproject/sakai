@@ -1,7 +1,7 @@
 package coza.opencollab.sakai.cloudcontent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Closeables;
@@ -94,21 +94,21 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     /**
      * The logger for warnings and errors.
      */
-    private Logger logger = new DefaultLogger();
+    private CommonLogger logger = new DefaultLogger();
     /**
-     * The limit where a error will be made using the Logger.
+     * The limit where a error will be made using the CommonLogger.
      */
     private long errorLimitForAccountSizeInBytes = -1L;
     /**
-     * The limit where a warning will be made using the Logger.
+     * The limit where a warning will be made using the CommonLogger.
      */
     private long warningLimitForAccountSizeInBytes = -1L;
     /**
-     * The limit where a error will be made using the Logger.
+     * The limit where a error will be made using the CommonLogger.
      */
     private long errorLimitForContainerSizeInBytes = -1L;
     /**
-     * The limit where a warning will be made using the Logger.
+     * The limit where a warning will be made using the CommonLogger.
      */
     private long warningLimitForContainerSizeInBytes = -1L;
 //    private boolean retrieveContainerFromIdWithRegex = false;
@@ -188,11 +188,11 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     }
 
     /**
-     * The limit where a error will be made using the Logger.
+     * The limit where a error will be made using the CommonLogger.
      * If the value (default) is negative this will not be tested.
      * If positive then a exception will be thrown before a new resource is saved
      * and the bytes used in the account is already over this value.
-     * A error will also be logged to the Logger.
+     * A error will also be logged to the CommonLogger.
      * 
      * Note that this test is run before the save, thus it is possible that
      * the value can be exceeded after the save with no exception.
@@ -202,9 +202,9 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     }
 
     /**
-     * The limit where a warning will be made using the Logger.
+     * The limit where a warning will be made using the CommonLogger.
      * If the value (default) is negative this will not be tested.
-     * If positive then a warning will be logged to the Logger.
+     * If positive then a warning will be logged to the CommonLogger.
      * 
      * Note that this test is run before the save, thus it is possible that
      * the value can be exceeded after the save with no warning.
@@ -214,11 +214,11 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     }
 
     /**
-     * The limit where a error will be made using the Logger.
+     * The limit where a error will be made using the CommonLogger.
      * If the value (default) is negative this will not be tested.
      * If positive then a exception will be thrown before a new resource is saved
      * and the bytes used in the container is already over this value.
-     * A error will also be logged to the Logger.
+     * A error will also be logged to the CommonLogger.
      * 
      * Note that this test is run before the save, thus it is possible that
      * the value can be exceeded after the save with no exception.
@@ -230,7 +230,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     /**
      * The limit where a warning will be made using the WarningLogger.
      * If the value (default) is negative this will not be tested.
-     * If positive then a warning will be logged to the Logger.
+     * If positive then a warning will be logged to the CommonLogger.
      * 
      * Note that this test is run before the save, thus it is possible that
      * the value can be exceeded after the save with no warning.
@@ -242,7 +242,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     /**
      * The logger for warnings and errors.
      */
-    public void setLogger(Logger logger) {
+    public void setLogger(CommonLogger logger) {
         this.logger = logger;
     }
 
@@ -349,7 +349,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     
     /**
      * Checks the space used for the account against the space available.
-     * Will call the Logger to report any warning or error.
+     * Will call the CommonLogger to report any warning or error.
      */
     private void checkAccountSpace() throws IOException{
         if(warningLimitForAccountSizeInBytes <= 0L && errorLimitForAccountSizeInBytes <= 0L){
@@ -368,7 +368,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     
     /**
      * Checks the space used for the container against the space available.
-     * Will call the Logger to report any warning or error.
+     * Will call the CommonLogger to report any warning or error.
      */
     private void checkContainerSpace(String container) throws IOException{
         if(warningLimitForContainerSizeInBytes <= 0L && errorLimitForContainerSizeInBytes <= 0L){
@@ -457,28 +457,28 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     /**
      * A simple implementation that uses typical commons-logging.
      */
-    class DefaultLogger implements Logger {
+    class DefaultLogger implements CommonLogger {
 
-        private Log log = LogFactory.getLog(SwiftFileSystemHandler.class);
+        private final Logger log = LoggerFactory.getLogger(SwiftFileSystemHandler.class);
 
         @Override
         public void warningOnAccountSize(long warningLimitInBytes, long bytesUsed) {
-            log.warn("Warning on Swift account size -- warningLimit: " + warningLimitInBytes + ", bytesUsed: " + bytesUsed);
+            log.warn("Warning on Swift account size -- warningLimit: {}, bytesUsed: {}", warningLimitInBytes, bytesUsed);
         }
 
         @Override
         public void errorOnAccountSize(long maxSizeInBytes, long bytesUsed) {
-            log.error("Error on Swift account size -- maxSize: " + maxSizeInBytes + ", bytesUsed: " + bytesUsed);
+            log.error("Error on Swift account size -- maxSize: {}, bytesUsed: {}", maxSizeInBytes, bytesUsed);
         }
 
         @Override
         public void warningOnContainerSize(long warningLimitInBytes, long bytesUsed) {
-            log.warn("Warning on Swift container size -- warningLimit: " + warningLimitInBytes + ", bytesUsed: " + bytesUsed);
+            log.warn("Warning on Swift container size -- warningLimit: {}, bytesUsed: {}", warningLimitInBytes, bytesUsed);
         }
 
         @Override
         public void errorOnContainerSize(long maxSizeInBytes, long bytesUsed) {
-            log.error("Error on Swift container size -- maxSize: " + maxSizeInBytes + ", bytesUsed: " + bytesUsed);
+            log.error("Error on Swift container size -- maxSize: {}, bytesUsed: {}", maxSizeInBytes, bytesUsed);
         }
     };
 }

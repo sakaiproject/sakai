@@ -24,8 +24,8 @@ package edu.amc.sakai.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.novell.ldap.LDAPConnection;
 
@@ -47,7 +47,7 @@ import com.novell.ldap.LDAPConnection;
 public class ConsensusLdapConnectionLivenessValidator implements LdapConnectionLivenessValidator {
 
 	/** Class-specific logger */
-	private static Log log = LogFactory.getLog(ConsensusLdapConnectionLivenessValidator.class);
+	private static Logger log = LoggerFactory.getLogger(ConsensusLdapConnectionLivenessValidator.class);
 	
 	private List<LdapConnectionLivenessValidator> delegates = 
 		new ArrayList<LdapConnectionLivenessValidator>(0);

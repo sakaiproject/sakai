@@ -45,7 +45,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
  */
 @Deprecated
 public class BaseEntityProducer implements EntityProducer {
-    //private static final Log log = LogFactory.getLog(BaseEntityProducer.class);
+    //private static final Logger log = LoggerFactory.getLogger(BaseEntityProducer.class);
 
     protected String label;	// This should always be set.
 	protected String referenceRoot = "/gradebook"; // stupid default but OK since it is not used

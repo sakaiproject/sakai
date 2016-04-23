@@ -41,8 +41,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;     
 import org.sakaiproject.portal.util.ToolUtils;
 
@@ -79,7 +79,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class BltiPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Log log = LogFactory.getLog(BltiPickerProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(BltiPickerProducer.class);
 	public static final String VIEW_ID = "BltiPicker";
 
 	private SimplePageBean simplePageBean;

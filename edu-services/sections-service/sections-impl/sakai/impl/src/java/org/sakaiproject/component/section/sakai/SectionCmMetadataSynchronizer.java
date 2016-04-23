@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -55,7 +55,7 @@ import org.sakaiproject.tool.cover.SessionManager;
  *
  */
 public class SectionCmMetadataSynchronizer implements Job {
-	private static final Log log = LogFactory.getLog(SectionCmMetadataSynchronizer.class);
+	private static final Logger log = LoggerFactory.getLogger(SectionCmMetadataSynchronizer.class);
 	public static final int PAGE_SIZE = 100;
 	
 	protected SiteService siteService;
@@ -137,10 +137,8 @@ public class SectionCmMetadataSynchronizer implements Job {
 		}
 		try {
 			siteService.save(site);
-		} catch (IdUnusedException e) {
-			log.error(e);
-		} catch (PermissionException e) {
-			log.error(e);
+		} catch (IdUnusedException | PermissionException e) {
+			log.error(e.getMessage(), e);
 		}
 	}
 	

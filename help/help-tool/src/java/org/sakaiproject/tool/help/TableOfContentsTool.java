@@ -24,8 +24,8 @@ package org.sakaiproject.tool.help;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.TableOfContents;
 
@@ -41,7 +41,7 @@ public class TableOfContentsTool
   private HelpManager helpManager;
   private String baseUrl = null;
 
-  private static final Log LOG = LogFactory.getLog(TableOfContentsTool.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TableOfContentsTool.class);
 
   /**
    * get table of contents

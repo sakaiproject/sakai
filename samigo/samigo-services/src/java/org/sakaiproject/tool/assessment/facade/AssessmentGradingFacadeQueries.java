@@ -50,8 +50,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -117,7 +117,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.ServerOverloadException;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
-  private static final Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
+  private static final Logger log = LoggerFactory.getLogger(AssessmentGradingFacadeQueries.class);
 
   /**
    * Default empty Constructor
@@ -291,7 +291,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return newlist;
       }
     } catch (RuntimeException e) {
-      log.warn( e );
+      log.warn(e.getMessage(), e);
       return new ArrayList();
     }
   }
@@ -436,7 +436,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      log.warn( e );
+      log.warn(e.getMessage(), e);
       return new HashMap();
     }
   }
@@ -493,7 +493,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      log.warn( e );
+      log.warn(e.getMessage(), e);
       return new HashMap();
     }
   }
@@ -529,7 +529,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      log.warn( e );
+      log.warn(e.getMessage(), e);
       return new HashMap();
     }
   }
@@ -610,7 +610,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      log.warn( e );
+      log.warn(e.getMessage(), e);
       return new HashMap();
     }
   }
@@ -879,28 +879,28 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		try {
     			session.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	}
     	if (rs !=null){
     		try {
     			rs.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	}
     	if (statement !=null){
     		try {
     			statement.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	}
        	if (statement0 !=null){
     		try {
     			statement0.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	}
 
@@ -908,14 +908,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		try {
     			conn.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	} 
     }
     if (mediaLocation != null){
         File mediaFile = new File(mediaLocation);
         if (mediaFile.delete()) {
-        	log.warn("problem removing file. mediaLocation = " + mediaLocation);
+        	log.warn("problem removing file. mediaLocation = {}", mediaLocation);
         }
     }
     
@@ -956,7 +956,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         mediaData.setContentResource(getMediaContentResource(mediaData));
         a.add(mediaData);
     }
-    log.debug("*** no. of media ="+a.size());
+    log.debug("*** no. of media = {}", a.size());
     return a;
   }
   
@@ -978,12 +978,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	      mediaData.setContentResource(getMediaContentResource(mediaData));
 	      a.add(mediaData);
 	    }
-	    log.debug("*** no. of media ="+a.size());
+	    log.debug("*** no. of media = {}", a.size());
 	    return a;
   }
 
   public HashMap getMediaItemGradingHash(final Long assessmentGradingId){
-	  log.debug("*** assessmentGradingId =" + assessmentGradingId);
+	  log.debug("*** assessmentGradingId = {}", assessmentGradingId);
 	  HashMap map = new HashMap();
 
 	  final HibernateCallback hcb = new HibernateCallback(){
@@ -1004,7 +1004,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  // There might be duplicate. But we just overwrite it with the same itemGradingData
 		  map.put(itemGradingData.getPublishedItemId(), al);
 	  }
-	  log.debug("*** no. of media =" + map.size());
+	  log.debug("*** no. of media = {}", map.size());
 	  return map;
   }
 
@@ -1017,7 +1017,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         mediaData.setContentResource(getMediaContentResource(mediaData));
         a.add(mediaData);
     }
-    log.debug("*** no. of media ="+a.size());
+    log.debug("*** no. of media = {}", a.size());
     return a;
   }
 
@@ -1071,7 +1071,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
        return a;
 
     	} catch (Exception e) {
-    		log.warn( e );
+    		log.warn(e.getMessage(), e);
     		return new ArrayList();
     	}
   }
@@ -1157,8 +1157,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public ItemGradingData getItemGradingData(
       final Long assessmentGradingId, final Long publishedItemId)
   {
-    log.debug("****assessmentGradingId="+assessmentGradingId);
-    log.debug("****publishedItemId="+publishedItemId);
+    log.debug("****assessmentGradingId={}", assessmentGradingId);
+    log.debug("****publishedItemId={}", publishedItemId);
 
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1345,7 +1345,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         retryCount = 0;
       }
       catch (Exception e) {
-        log.warn("problem inserting/updating assessmentGrading: "+e.getMessage());
+        log.warn("problem inserting/updating assessmentGrading: {}", e.getMessage());
         retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
@@ -1361,7 +1361,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     try{
       session = getSessionFactory().openSession();
       conn = session.connection();
-      log.debug("****Connection="+conn);
+      log.debug("****Connection={}", conn);
       String query="select MEDIA from SAM_MEDIA_T where MEDIAID=?";
       statement = conn.prepareStatement(query);
       statement.setLong(1, mediaId);
@@ -1391,35 +1391,35 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		try {
     			session.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	}
     	if (rs !=null){
     		try {
     			rs.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	}
     	if (statement !=null){
     		try {
     			statement.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	}
        	if (in !=null){
     		try {
     			in.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	} 
     	if (conn !=null){
     		try {
     			conn.close();
     		} catch (Exception e1) {
-    			log.warn( e1 );
+    			log.warn(e1.getMessage(), e1);
     		}
     	} 
     }
@@ -1948,7 +1948,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  Integer nextSequence;
 			  int count = 1;
 			  for (int i = 1; i < list.size(); i++) {
-				  log.debug("i = " + i);
+				  log.debug("i = {}", i);
 				  nextSequence = (Integer) list.get(i);
 				  if (sequence.equals(nextSequence)) {
 					  log.debug("equal");
@@ -1966,7 +1966,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  return position;
 	  } 
 	  catch (Exception e) {
-		  log.warn( e );
+		  log.warn(e.getMessage(), e);
 		  position.add(0);
 		  position.add(0);
 		  return position;
@@ -2082,7 +2082,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    Iterator iter = typeIdList.iterator();
 	    while(iter.hasNext()) {
 	    	typeId = (Long) iter.next();
-	    	log.debug("typeId = " + typeId);
+	    	log.debug("typeId = {}", typeId);
 	    }
 	    return typeId;
   }
@@ -3162,7 +3162,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 */
 	private static class ResponsesComparator implements Comparator {
 		boolean anonymous;
-		private static final Log log = LogFactory.getLog(ResponsesComparator.class);
+		private static final Logger log = LoggerFactory.getLogger(ResponsesComparator.class);
 		
 		public ResponsesComparator(boolean anony) {
 			anonymous = anony;
@@ -3718,7 +3718,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				attach.setLocation(assessmentFacadeQueries.getRelativePath(cr.getUrl(), protocol));
 			}
 		} catch (PermissionException | IdUnusedException | TypeException pe) {
-			log.warn( pe );
+			log.warn(pe.getMessage(), pe);
 		}
 		return attach;
 	}
@@ -3901,7 +3901,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  itemGradingData.setPublishedItemId(publishedItemId);
 		  ItemService itemService = new ItemService();
 		  Long itemTextId = itemService.getItemTextId(publishedItemId);
-		  log.debug("itemTextId = " + itemTextId);
+		  log.debug("itemTextId = {}", itemTextId);
 		  if(itemTextId != -1){
 			  itemGradingData.setPublishedItemTextId(itemTextId);
 			  //we're in the DAO su we can use the DAO method directly

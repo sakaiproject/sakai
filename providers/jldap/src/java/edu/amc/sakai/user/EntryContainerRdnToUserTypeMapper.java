@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.util.DN;
@@ -42,7 +42,7 @@ import com.novell.ldap.util.RDN;
 public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(EntryContainerRdnToUserTypeMapper.class);
+	private static Logger M_log = LoggerFactory.getLogger(EntryContainerRdnToUserTypeMapper.class);
 
 	/** map of container RDN values to Sakai user types */
 	private Map<String,String> rdnToSakaiUserTypeMap = new HashMap<String,String>();

@@ -1,7 +1,7 @@
 package org.sakaiproject.accountvalidator.tool.producers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.tool.params.ValidationViewParams;
@@ -28,7 +28,7 @@ import uk.org.ponder.springutil.SpringMessageLocator;
 public class BaseValidationProducer implements ViewParamsReporter
 {
 
-	private static Log log = LogFactory.getLog(BaseValidationProducer.class);
+	private static Logger log = LoggerFactory.getLogger(BaseValidationProducer.class);
 
 	protected ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService (ServerConfigurationService serverConfigurationService)

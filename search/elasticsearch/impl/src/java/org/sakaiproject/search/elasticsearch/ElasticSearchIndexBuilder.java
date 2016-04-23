@@ -23,8 +23,8 @@ package org.sakaiproject.search.elasticsearch;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -78,7 +78,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
-    private static Log log = LogFactory.getLog(ElasticSearchIndexBuilder.class);
+    private static Logger log = LoggerFactory.getLogger(ElasticSearchIndexBuilder.class);
 
     public static final String SEARCH_TOOL_ID = "sakai.search";
     private final static SecurityAdvisor allowAllAdvisor;

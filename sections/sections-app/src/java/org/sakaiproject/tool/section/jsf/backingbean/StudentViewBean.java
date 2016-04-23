@@ -35,8 +35,8 @@ import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
@@ -56,7 +56,7 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Log log = LogFactory.getLog(StudentViewBean.class);
+	private static final Logger log = LoggerFactory.getLogger(StudentViewBean.class);
 
 	private boolean externallyManaged;
 	private boolean joinAllowed;

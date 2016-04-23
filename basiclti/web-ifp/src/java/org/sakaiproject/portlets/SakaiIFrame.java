@@ -34,8 +34,8 @@ import java.util.ResourceBundle;
 import java.util.List;
 import java.util.Enumeration;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -54,8 +54,8 @@ import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.portlet.util.VelocityHelper;
 import org.sakaiproject.portlet.util.JSPHelper;
@@ -93,7 +93,7 @@ import org.sakaiproject.lti.api.LTIService;
  */
 public class SakaiIFrame extends GenericPortlet {
 
-	private static final Log M_log = LogFactory.getLog(SakaiIFrame.class);
+	private static final Logger M_log = LoggerFactory.getLogger(SakaiIFrame.class);
 	
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 

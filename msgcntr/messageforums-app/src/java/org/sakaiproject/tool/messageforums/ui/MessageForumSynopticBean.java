@@ -31,8 +31,8 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -203,7 +203,7 @@ public class MessageForumSynopticBean {
 	private boolean sitesToViewSet = false;
 	
 	/** to get accces to log file */
-	private static final Log LOG = LogFactory.getLog(MessageForumSynopticBean.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBean.class);
 
 	/** Needed if within a site so we only need stats for this site */
 	private MessageForumsMessageManager messageManager;
@@ -934,7 +934,7 @@ public class MessageForumSynopticBean {
 				}
 				catch (IdUnusedException e) {
 					// Wierdness has happened - pulled from SiteService but now can't
-					// find it. Log and skip
+					// find it. Logger and skip
 					LOG.error("IdUnusedException attempting to access site " + siteId);
 					continue;
 				}
@@ -987,7 +987,7 @@ public class MessageForumSynopticBean {
 			}
 			catch (IdUnusedException e) {
 				// Wierdness has happened - pulled from SiteService but now can't
-				// find it. Log and skip
+				// find it. Logger and skip
 				LOG.error("IdUnusedException attempting to access site " + siteId);
 				continue;
 			}

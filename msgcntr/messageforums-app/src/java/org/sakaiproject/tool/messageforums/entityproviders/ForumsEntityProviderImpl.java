@@ -6,8 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -42,7 +42,7 @@ import org.sakaiproject.tool.messageforums.entityproviders.utils.MessageUtils;
  */
 public class ForumsEntityProviderImpl extends AbstractEntityProvider implements Outputable, AutoRegisterEntityProvider, ActionsExecutable, Describeable {
 	
-	private static final Log LOG = LogFactory.getLog(ForumsEntityProviderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ForumsEntityProviderImpl.class);
 
 	public final static String ENTITY_PREFIX = "forums";
 	

@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
@@ -28,7 +28,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 {
 	private boolean autoDdl;
 
-	private static final Log LOG = LogFactory.getLog(BaseEventDelayHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BaseEventDelayHandler.class);
 
 	private SqlService sqlService;
 	private ScheduledInvocationManager schedInvocMgr;

@@ -30,8 +30,8 @@ import org.tsugi.casa.objects.Application;
 
 import org.tsugi.jackson.JacksonUtil;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.casa.CASAUtil;
@@ -54,7 +54,7 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 @SuppressWarnings("deprecation")
 public class SakaiCASAUtil {
 
-	private static Log M_log = LogFactory.getLog(SakaiCASAUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiCASAUtil.class);
 
 	public static Application getCASAEntry(String toolRegistration)
 	{

@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -54,7 +54,7 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 public class ItemHelper20Impl extends ItemHelperBase
   implements ItemHelperIfc
 {
-  private static Log log = LogFactory.getLog(ItemHelper20Impl.class);
+  private static Logger log = LoggerFactory.getLogger(ItemHelper20Impl.class);
   private AuthoringXml authoringXml;
 
   public ItemHelper20Impl()

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.cheftool;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.event.api.SessionState;
 
 /**
@@ -28,7 +29,7 @@ import org.sakaiproject.event.api.SessionState;
  * VelocityPortletStateAction is an extension of VelocityPortletAction which provides a way to associate Controller state with each instances of the portlet using this action.
  * </p>
  */
-
+@Slf4j
 public abstract class VelocityPortletStateAction extends VelocityPortletPaneledAction
 {
 	/**
@@ -63,7 +64,7 @@ public abstract class VelocityPortletStateAction extends VelocityPortletPaneledA
 	{
 		if (portlet == null)
 		{
-			Log.warn("chef", this + ".getState(): portlet null");
+		 log.warn("portlet null");
 			return null;
 		}
 
@@ -86,7 +87,7 @@ public abstract class VelocityPortletStateAction extends VelocityPortletPaneledA
 	{
 		if (peid == null)
 		{
-			Log.warn("chef", this + ".getState(): peid null");
+		 log.warn("peid null");
 			return null;
 		}
 
@@ -113,7 +114,7 @@ public abstract class VelocityPortletStateAction extends VelocityPortletPaneledA
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "", e);
+			log.warn(e.getMessage(), e);
 		}
 
 		return null;
@@ -177,7 +178,7 @@ public abstract class VelocityPortletStateAction extends VelocityPortletPaneledA
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "", e);
+		 log.warn(e.getMessage(), e);
 		}
 
 	} // releaseState

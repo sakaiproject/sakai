@@ -21,8 +21,8 @@
 
 package org.sakaiproject.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.api.FormattedText.Level;
 import org.sakaiproject.util.api.MockFormattedText;
@@ -39,7 +39,7 @@ import java.text.NumberFormat;
 @Deprecated
 public class FormattedText {
 
-    private static final Log log = LogFactory.getLog(FormattedText.class);
+    private static final Logger log = LoggerFactory.getLogger(FormattedText.class);
 
     private static Object LOCK = new Object();
     private static org.sakaiproject.util.api.FormattedText formattedText;

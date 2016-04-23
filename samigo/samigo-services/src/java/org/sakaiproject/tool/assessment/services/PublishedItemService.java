@@ -1,12 +1,12 @@
 package org.sakaiproject.tool.assessment.services;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 
 public class PublishedItemService extends ItemService {
-	private Log log = LogFactory.getLog(PublishedItemService.class);
+	private Logger log = LoggerFactory.getLogger(PublishedItemService.class);
 
 	public ItemFacade getItem(Long itemId, String agentId) {
 		PublishedItemFacade item = null;
@@ -14,7 +14,7 @@ public class PublishedItemService extends ItemService {
 			item = PersistenceService.getInstance()
 					.getPublishedItemFacadeQueries().getItem(itemId, agentId);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 
@@ -27,7 +27,7 @@ public class PublishedItemService extends ItemService {
 			item = PersistenceService.getInstance()
 					.getPublishedItemFacadeQueries().getItem(itemId);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 
@@ -39,7 +39,7 @@ public class PublishedItemService extends ItemService {
 			PersistenceService.getInstance().getPublishedItemFacadeQueries()
 					.deleteItemContent(itemId, agentId);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -55,7 +55,7 @@ public class PublishedItemService extends ItemService {
       }
       catch(Exception e)
       {
-        log.error(e);
+        log.error(e.getMessage(), e);
 
         return item;
       }

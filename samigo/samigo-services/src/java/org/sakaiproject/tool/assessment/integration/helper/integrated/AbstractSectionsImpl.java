@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -34,7 +34,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  */
 
 class AbstractSectionsImpl {
-    private static final Log log = LogFactory.getLog(AbstractSectionsImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractSectionsImpl.class);
 
     private SectionAwareness sectionAwareness;
 

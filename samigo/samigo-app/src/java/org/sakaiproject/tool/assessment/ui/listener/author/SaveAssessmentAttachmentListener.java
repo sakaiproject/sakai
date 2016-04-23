@@ -33,8 +33,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
@@ -57,7 +57,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 public class SaveAssessmentAttachmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(SaveAssessmentAttachmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(SaveAssessmentAttachmentListener.class);
   
   // this is to indicate which flow
   // if it is true, that means we save the assessment attachment in setting page of a pending assessment (authorSettings.jsp)

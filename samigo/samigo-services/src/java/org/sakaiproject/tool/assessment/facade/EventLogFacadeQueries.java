@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -24,8 +24,7 @@ import org.hibernate.Session;
 public class EventLogFacadeQueries extends HibernateDaoSupport
 implements EventLogFacadeQueriesAPI {
 
-	private Log log = LogFactory
-	.getLog(EventLogFacadeQueries.class);
+	private static final Logger log = LoggerFactory.getLogger(EventLogFacadeQueries.class);
 
 
 	public void saveOrUpdateEventLog(EventLogFacade eventLog){

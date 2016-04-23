@@ -41,8 +41,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -71,7 +71,7 @@ import org.sakaiproject.util.Web;
 public class UserPrefsTool
 {
 	/** Our log (commons). */
-	private static final Log LOG = LogFactory.getLog(UserPrefsTool.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserPrefsTool.class);
 
 	/** * Resource bundle messages */
 	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");

@@ -39,8 +39,8 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -71,7 +71,7 @@ public class SearchBeanImpl implements SearchBean
 
 	public static final String SEARCH_SITE_IDS = "search_site_ids";
 
-	private static final Log log = LogFactory.getLog(SearchBeanImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SearchBeanImpl.class);
 
 	/**
 	 * The searhc string parameter name
@@ -226,7 +226,7 @@ public class SearchBeanImpl implements SearchBean
 		}
 		catch (Exception ex)
 		{
-			log.debug(ex);
+			log.debug(ex.getMessage());
 
 		}
 		currentSite = this.siteService.getSite(this.siteId);
@@ -238,7 +238,7 @@ public class SearchBeanImpl implements SearchBean
 		{}
 		catch (IllegalArgumentException iae)
 		{
-			log.debug(iae);
+			log.debug(iae.getMessage());
 			log.warn("Invalid Scope Supplied: "+ request.getParameter(SEARCH_SCOPE));
 
 		}
@@ -775,7 +775,7 @@ public class SearchBeanImpl implements SearchBean
 		}
 		catch (Exception ex)
 		{
-			log.debug(ex);
+			log.debug(ex.getMessage());
 		}
 		return pages;
 	}

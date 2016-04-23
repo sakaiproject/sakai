@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -57,7 +57,7 @@ import uk.org.ponder.messageutil.MessageLocator;
  */
 public class YaftTopicEntity implements LessonEntity, ForumInterface {
 
-	private static Log log = LogFactory.getLog(YaftTopicEntity.class);
+	private static Logger log = LoggerFactory.getLogger(YaftTopicEntity.class);
 	
 	private static String TOOL_ID = "sakai.yaft";
 

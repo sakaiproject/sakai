@@ -32,8 +32,8 @@ import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.w3c.dom.Element;
 
@@ -56,7 +56,7 @@ import org.sakaiproject.util.api.FormattedText;
 public class FormattedTextImpl implements FormattedText
 {
     /** Our log (commons). */
-    private static final Log M_log = LogFactory.getLog(FormattedTextImpl.class);
+    private static final Logger M_log = LoggerFactory.getLogger(FormattedTextImpl.class);
 
     private ServerConfigurationService serverConfigurationService = null;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -406,7 +406,7 @@ public class FormattedTextImpl implements FormattedText
                 }
             }
             if (logErrors && M_log.isInfoEnabled()) {
-                // KNL-1075 - Log errors if desired so they can be easily found
+                // KNL-1075 - Logger errors if desired so they can be easily found
                 String user = "UNKNOWN";
                 try {
                     user = sessionManager.getCurrentSession().getUserEid();

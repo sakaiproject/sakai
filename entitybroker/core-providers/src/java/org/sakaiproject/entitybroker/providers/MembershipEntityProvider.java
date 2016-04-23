@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -78,7 +78,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MembershipEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
 RESTful, ActionsExecutable {
 
-    private static Log log = LogFactory.getLog(MembershipEntityProvider.class);
+    private static Logger log = LoggerFactory.getLogger(MembershipEntityProvider.class);
 
     private SiteService siteService;
     private AuthzGroupService authzGroupService;

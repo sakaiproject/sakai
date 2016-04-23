@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
@@ -53,7 +53,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class HibernateTestDataLoader extends HibernateDaoSupport implements DataLoader {
-	private static final Log log = LogFactory.getLog(HibernateTestDataLoader.class);
+	private static final Logger log = LoggerFactory.getLogger(HibernateTestDataLoader.class);
 	
 	private CourseManagementService cm;
 

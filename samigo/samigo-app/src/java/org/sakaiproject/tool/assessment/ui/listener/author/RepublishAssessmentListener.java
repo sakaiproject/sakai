@@ -10,8 +10,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -38,10 +39,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class RepublishAssessmentListener implements ActionListener {
 
-	private static Log log = LogFactory
-			.getLog(RepublishAssessmentListener.class);
 	private static final GradebookServiceHelper gbsHelper =
 	    IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 	private static final boolean integrated =

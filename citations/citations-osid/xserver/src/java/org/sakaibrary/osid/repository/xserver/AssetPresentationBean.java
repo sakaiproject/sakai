@@ -21,6 +21,7 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaibrary.osid.repository.xserver.CreatorPartStructure;
 import org.sakaibrary.osid.repository.xserver.DatePartStructure;
 import org.sakaibrary.osid.repository.xserver.PagesPartStructure;
@@ -33,12 +34,10 @@ import org.sakaibrary.osid.repository.xserver.URLPartStructure;
  * 
  * @author gbhatnag
  */
+@Slf4j
 public class AssetPresentationBean implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.AssetPresentationBean" );
 
 	private org.osid.repository.Asset asset;
 	private String assetId;
@@ -70,7 +69,7 @@ public class AssetPresentationBean implements java.io.Serializable {
 				}
 			}
 		} catch( Throwable t ) {
-			LOG.warn( "AssetPresentationBean() failed to loop through Asset, " +
+			log.warn( "AssetPresentationBean() failed to loop through Asset, " +
 					"Record, Parts: " + t.getMessage(), t );
 		}
 

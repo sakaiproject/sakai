@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -81,10 +81,10 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibernateImpl
         implements GradebookManager {
 
-    private static final Log log = LogFactory.getLog(GradebookManagerHibernateImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(GradebookManagerHibernateImpl.class);
     
     // Special logger for data contention analysis.
-    private static final Log logData = LogFactory.getLog(GradebookManagerHibernateImpl.class.getName() + ".GB_DATA");
+    private static final Logger logData = LoggerFactory.getLogger(GradebookManagerHibernateImpl.class.getName() + ".GB_DATA");
 
     /** synchronize from external application*/
     GbSynchronizer synchronizer = null;
@@ -473,7 +473,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
                 			studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
                 		}
 
-                		// Log the grading event, and keep track of the students with saved/updated grades
+                		// Logger the grading event, and keep track of the students with saved/updated grades
                 		logAssignmentGradingEvent(gradeRecordFromCall, graderId, assignment, session);
                 		
                 		studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
@@ -604,7 +604,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
                 				assignmentsWithExcessiveScores.add(assignment);
                 			}
 
-                			// Log the grading event, and keep track of the students with saved/updated grades
+                			// Logger the grading event, and keep track of the students with saved/updated grades
                 			logAssignmentGradingEvent(gradeRecordFromCall, graderId, assignment, session);
                 			
                 			studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
@@ -646,7 +646,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
 	                		assignmentsWithExcessiveScores.add(assignment);
 	                	}
 	
-	                	// Log the grading event, and keep track of the students with saved/updated grades
+	                	// Logger the grading event, and keep track of the students with saved/updated grades
 	                	logAssignmentGradingEvent(gradeRecordFromCall, graderId, assignment, session);
 	                	
 	                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
@@ -747,7 +747,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
                         throw new StaleObjectModificationException(sose);
                     }
 
-                    // Log the grading event
+                    // Logger the grading event
                     session.save(new GradingEvent(courseGrade, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getEnteredGrade()));
                     
                     numberOfUpdatedGrades++;
@@ -2559,7 +2559,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
 			throw new IllegalArgumentException("null gradeRecord or assignment passed to logAssignmentGradingEvent");
 		}
 		
-		// Log the grading event, and keep track of the students with saved/updated grades
+		// Logger the grading event, and keep track of the students with saved/updated grades
 		// we need to log what the user entered depending on the grade entry type
 		Gradebook gradebook = assignment.getGradebook();
 		String gradeEntry = null;

@@ -22,8 +22,8 @@
 
 package org.sakaiproject.user.impl.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,7 +48,7 @@ import java.util.List;
  * UserDirectoryService implementation.
  */
 public class GetUsersByEidTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(GetUsersByEidTest.class);
+	private static Logger log = LoggerFactory.getLogger(GetUsersByEidTest.class);
 	
     // Oracle will throw a SQLException if we put more than this into a
     // "WHERE tbl.col IN (:paramList)" query, and so we need to test for
@@ -83,7 +83,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 			oneTimeSetup("disable_user_cache");
 			oneTimeSetupAfter();
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 

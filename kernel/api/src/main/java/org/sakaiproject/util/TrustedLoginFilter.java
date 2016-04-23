@@ -32,8 +32,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -105,7 +105,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class TrustedLoginFilter implements Filter
 {
-	private final static Log log = LogFactory.getLog(TrustedLoginFilter.class);
+	private final static Logger log = LoggerFactory.getLogger(TrustedLoginFilter.class);
 
 	private SessionManager sessionManager;
 

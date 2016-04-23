@@ -16,8 +16,8 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.app.VelocityEngine;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a simple VelocityHelper Utility
@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 public class VelocityHelper {
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(VelocityHelper.class);
+	private static Logger M_log = LoggerFactory.getLogger(VelocityHelper.class);
 
 	public static VelocityEngine makeEngine(PortletContext pContext)
 		throws java.io.IOException,org.apache.velocity.exception.ResourceNotFoundException,

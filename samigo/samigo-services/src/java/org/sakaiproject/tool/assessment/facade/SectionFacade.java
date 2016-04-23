@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.assessment.AssessmentException;
 import org.osid.assessment.Section;
 import org.osid.shared.Type;
@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.osid.assessment.impl.SectionImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
-  private Log log = LogFactory.getLog(SectionFacade.class);
+  private Logger log = LoggerFactory.getLogger(SectionFacade.class);
 
   private static final long serialVersionUID = 7526471155622776147L;
 

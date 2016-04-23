@@ -22,13 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
 public class BasicLTIProviderUtil {
-	private static Log M_log = LogFactory.getLog(BasicLTIProviderUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(BasicLTIProviderUtil.class);
 	public static final String EMAIL_TRUSTED_CONSUMER = "basiclti.provider.email.trusted.consumers";
 	public static final String HIGHLY_TRUSTED_CONSUMER = "basiclti.provider.highly.trusted.consumers";
 

@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.sakaiproject.content.metadata.model.MetadataConverter;

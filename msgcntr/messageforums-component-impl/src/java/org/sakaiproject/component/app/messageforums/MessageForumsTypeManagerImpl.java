@@ -23,8 +23,8 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
@@ -36,8 +36,7 @@ import org.sakaiproject.db.api.SqlService;
  */
 public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 {
-  private static final Log LOG = LogFactory
-      .getLog(MessageForumsTypeManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MessageForumsTypeManagerImpl.class);
   private static final String NOT_SPECIFIED = "notSpecified";
   private static final String ALL_PARTICIPANTS = "allParticipants";
   private static final String GROUP = "group";

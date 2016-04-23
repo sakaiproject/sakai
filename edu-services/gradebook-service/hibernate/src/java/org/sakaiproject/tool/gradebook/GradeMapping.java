@@ -27,8 +27,8 @@ import java.util.*;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A GradeMapping provides a means to convert between an arbitrary set of grades
@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class GradeMapping implements Serializable, Comparable {
-	protected Log log = LogFactory.getLog(GradeMapping.class);
+	protected Logger log = LoggerFactory.getLogger(GradeMapping.class);
 	protected Long id;
 	protected int version;
 

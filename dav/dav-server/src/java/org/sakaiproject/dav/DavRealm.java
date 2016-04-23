@@ -26,8 +26,8 @@ import java.security.Principal;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.Wrapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple implementation of <b>Realm</b> that consults the Sakai user directory service to provide container security equivalent to then application security in CHEF.
@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
 public final class DavRealm extends RealmBase
 {
 	
-	private static Log M_log = LogFactory.getLog(DavRealm.class);
+	private static Logger M_log = LoggerFactory.getLogger(DavRealm.class);
 
 	/** Descriptive information about this Realm implementation. */
 	protected static final String info = "org.sakaiproject.realm.DavRealm/1.0";

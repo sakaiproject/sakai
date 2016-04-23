@@ -4,12 +4,12 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class TerracottaClassLoader extends URLClassLoader {
 	/** Our logger */
-	private static Log log = LogFactory.getLog(ComponentsLoader.class);
+	private static Logger log = LoggerFactory.getLogger(ComponentsLoader.class);
 	
 	private String classLoaderName;
 

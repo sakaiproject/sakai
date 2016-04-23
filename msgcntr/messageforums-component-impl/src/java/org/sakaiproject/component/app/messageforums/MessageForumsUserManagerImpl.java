@@ -22,8 +22,8 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -43,7 +43,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements MessageForumsUserManager {
 
-  private static final Log LOG = LogFactory.getLog(MessageForumsUserManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MessageForumsUserManagerImpl.class);
   private static final String QUERY_BY_USER_ID = "findUserByUserId";    
   
   /** sakai dependencies */

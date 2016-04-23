@@ -26,8 +26,8 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -61,7 +61,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class PreviewProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Log log = LogFactory.getLog(PreviewProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(PreviewProducer.class);
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private ShowPageProducer showPageProducer;

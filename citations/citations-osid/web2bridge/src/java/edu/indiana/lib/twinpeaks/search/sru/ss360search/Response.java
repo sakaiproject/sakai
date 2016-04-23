@@ -17,30 +17,21 @@
  **********************************************************************************/
 package edu.indiana.lib.twinpeaks.search.sru.ss360search;
 
-import java.util.Iterator;
-import java.util.Map;
-
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import edu.indiana.lib.osid.base.repository.http.CreatorPartStructure;
-import edu.indiana.lib.osid.base.repository.http.DOIPartStructure;
-import edu.indiana.lib.osid.base.repository.http.DataSource;
 import edu.indiana.lib.osid.base.repository.http.DatePartStructure;
-import edu.indiana.lib.osid.base.repository.http.EditionPartStructure;
-import edu.indiana.lib.osid.base.repository.http.EndPagePartStructure;
 import edu.indiana.lib.osid.base.repository.http.InLineCitationPartStructure;
 import edu.indiana.lib.osid.base.repository.http.IsnIdentifierPartStructure;
 import edu.indiana.lib.osid.base.repository.http.IssuePartStructure;
-import edu.indiana.lib.osid.base.repository.http.LanguagePartStructure;
 import edu.indiana.lib.osid.base.repository.http.OpenUrlPartStructure;
 import edu.indiana.lib.osid.base.repository.http.PagesPartStructure;
 import edu.indiana.lib.osid.base.repository.http.PreferredUrlPartStructure;
-import edu.indiana.lib.osid.base.repository.http.PublisherPartStructure;
 import edu.indiana.lib.osid.base.repository.http.SourceTitlePartStructure;
 import edu.indiana.lib.osid.base.repository.http.StartPagePartStructure;
-import edu.indiana.lib.osid.base.repository.http.SubjectPartStructure;
 import edu.indiana.lib.osid.base.repository.http.TypePartStructure;
 import edu.indiana.lib.osid.base.repository.http.URLPartStructure;
 import edu.indiana.lib.osid.base.repository.http.VolumePartStructure;
@@ -59,9 +50,9 @@ import edu.indiana.lib.twinpeaks.util.StringUtils;
 /**
  * Parse the 360 Search XML response
  */
+@Slf4j
 public class Response extends SearchResultBase implements Constants
 {
-	private static org.apache.commons.logging.Log _log = LogUtils.getLog(Response.class);
   /**
    * Session context
    */
@@ -146,7 +137,7 @@ public class Response extends SearchResultBase implements Constants
 
       if (citationElement == null)
       {
-				_log.error("No citation element in 360 Search response");
+				log.error("No citation element in 360 Search response");
   			displayXml(recordElement);
 
 				throw new SearchException("No citation element in 360 Search response");
@@ -157,7 +148,7 @@ public class Response extends SearchResultBase implements Constants
 			target = DomUtils.getTextNS(NS_CS, citationElement, "databaseId");
 			if (StringUtils.isNull(target))
 			{
-				_log.warn("No database id in 360 Search response, ignoring");
+				log.warn("No database id in 360 Search response, ignoring");
   			displayXml(citationElement);
 
 				continue;
@@ -296,7 +287,7 @@ public class Response extends SearchResultBase implements Constants
 			 */
 			NodeList urlList = DomUtils.getElementListNS(NS_CS, citationElement, "url");
 
-			if (urlList.getLength() == 0) _log.warn("*** No URL element!");
+			if (urlList.getLength() == 0) log.warn("*** No URL element!");
 
 			for (int urlIndex = 0; urlIndex < urlList.getLength(); urlIndex++)
 			{
@@ -306,7 +297,7 @@ public class Response extends SearchResultBase implements Constants
   			type    = element.getAttribute("type");
  			  url     = DomUtils.getText(element);
   			
-  			_log.debug("link resolver" + " VS " + type);
+  			log.debug("link resolver" + " VS " + type);
   			
   			if (!StringUtils.isNull(url))
   			{
@@ -549,7 +540,7 @@ public class Response extends SearchResultBase implements Constants
 
 		try
 		{
-			LogUtils.displayXml(_log, errorText, xmlObject);
+			LogUtils.displayXml(log, errorText, xmlObject);
 		} catch (Exception ignore) { }
 	}
 
@@ -562,7 +553,7 @@ public class Response extends SearchResultBase implements Constants
 
 		try
 		{
-			LogUtils.displayXml(_log, xmlObject);
+			LogUtils.displayXml(log, xmlObject);
 		} catch (Exception ignore) { }
 	}
 }

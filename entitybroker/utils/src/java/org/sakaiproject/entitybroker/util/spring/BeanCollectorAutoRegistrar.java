@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entitybroker.collector.AutoRegister;
 import org.sakaiproject.entitybroker.collector.BeanCollector;
 import org.sakaiproject.entitybroker.collector.OrderedBean;
@@ -52,7 +52,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class BeanCollectorAutoRegistrar implements ApplicationListener, ApplicationContextAware, InitializingBean {
 
-   private static Log log = LogFactory.getLog(BeanCollectorAutoRegistrar.class);
+   private static Logger log = LoggerFactory.getLogger(BeanCollectorAutoRegistrar.class);
 
    private ApplicationContext applicationContext;
    public void setApplicationContext(ApplicationContext applicationContext) {

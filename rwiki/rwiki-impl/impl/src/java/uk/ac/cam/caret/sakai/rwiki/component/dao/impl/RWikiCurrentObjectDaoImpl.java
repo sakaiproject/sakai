@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -52,7 +52,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		RWikiCurrentObjectDao, ObjectProxy
 {
-	private static Log log = LogFactory.getLog(RWikiCurrentObjectDaoImpl.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiCurrentObjectDaoImpl.class);
 
 	protected RWikiObjectContentDao contentDAO = null;
 

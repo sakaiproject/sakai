@@ -35,8 +35,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -57,7 +57,7 @@ import org.sakaiproject.portal.util.PortalUtils;
  */
 public class ControllerServlet2 extends HttpServlet
 {
-	private static final Log log = LogFactory.getLog(ControllerServlet2.class);
+	private static final Logger log = LoggerFactory.getLogger(ControllerServlet2.class);
 
 	private static final String MACROS = "/WEB-INF/vm/macros.vm";
 
@@ -273,7 +273,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
-			log.debug(e1);
+			log.debug(e1.getMessage());
 		}
 		try
 		{	SearchAdminBean searchAdminBean = searchBeanFactory.newSearchAdminBean(request);
@@ -285,7 +285,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
-			log.debug(e1);
+			log.debug(e1.getMessage());
 		}
 		try
 		{
@@ -293,7 +293,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
-			log.debug(e1);
+			log.debug(e1.getMessage());
 		}
 		try
 		{
@@ -301,7 +301,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
-			log.debug(e1);
+			log.debug(e1.getMessage());
 		}
 		try
 		{

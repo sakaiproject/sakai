@@ -35,8 +35,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -91,7 +91,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 	private static final String TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET = "acknowledge.passwordReset";
 	
 	private static final int VALIDATION_PERIOD_MONTHS = -36;
-	private static Log log = LogFactory.getLog(ValidationLogicImpl.class);
+	private static Logger log = LoggerFactory.getLogger(ValidationLogicImpl.class);
 	
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	

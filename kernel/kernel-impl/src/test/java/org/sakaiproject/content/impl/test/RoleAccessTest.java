@@ -2,8 +2,8 @@ package org.sakaiproject.content.impl.test;
 
 import junit.extensions.TestSetup;
 import junit.framework.TestSuite;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.*;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 
 public class RoleAccessTest extends SakaiKernelTestBase {
 
-    private static final Log log = LogFactory.getLog(RoleAccessTest.class);
+    private static final Logger log = LoggerFactory.getLogger(RoleAccessTest.class);
 
     protected static final String SITE_ID           = "site-id";
     protected static final String IMAGES_COLLECTION = String.format("/group/%s/images/", SITE_ID);

@@ -7,8 +7,8 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -59,7 +59,7 @@ public class GroupListProducer
         implements ViewComponentProducer, ActionResultInterceptor, DefaultView {
     
 	/** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(GroupListProducer.class);
+	private static final Logger M_log = LoggerFactory.getLogger(GroupListProducer.class);
 	
     public static final String VIEW_ID = "GroupList";
     public Map siteGroups;

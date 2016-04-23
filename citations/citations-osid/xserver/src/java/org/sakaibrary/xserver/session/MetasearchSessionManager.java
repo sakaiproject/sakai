@@ -21,6 +21,7 @@
 
 package org.sakaibrary.xserver.session;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -33,12 +34,10 @@ import org.sakaiproject.memory.api.MemoryService;
  * 
  * @author gbhatnag
  */
+@Slf4j
 public class MetasearchSessionManager implements java.io.Serializable {
   /* constants */
   private static final String CACHE_NAME = "org.sakaibrary.xserver.session.MetasearchSession";
-  private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.session.MetasearchSessionManager" );
 
   /* private static variables */
   private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
@@ -54,7 +53,7 @@ public class MetasearchSessionManager implements java.io.Serializable {
 	  if ( cache == null ) {
 	    cache = memoryService.getCache(CACHE_NAME);
 	
-	    LOG.info( "MetasearchSessionManager cache session initiated properly." );
+	    log.info( "MetasearchSessionManager cache session initiated properly." );
 	  }
   }
 
@@ -84,7 +83,7 @@ public class MetasearchSessionManager implements java.io.Serializable {
         MetasearchSession ms ) {
       // given guid and ms.getGuid() should match -- TODO new Exception Type?
       if( !ms.getGuid().equals( guid ) ) {
-        LOG.warn( "putMetasearchSession(): putting MetasearchSession into " +
+        log.warn( "putMetasearchSession(): putting MetasearchSession into " +
             "cache with mismatched guids..." );
       }
 
@@ -105,7 +104,7 @@ public class MetasearchSessionManager implements java.io.Serializable {
         MetasearchSession ms = (MetasearchSession) cache.get( guid );
         return ms;
       } catch( Exception ce ) {
-        LOG.warn( "MetasearchSessionManager.getMetasearchSession()" +
+        log.warn( "MetasearchSessionManager.getMetasearchSession()" +
             " cannot get cache with guid: " + guid, ce );
       }
       

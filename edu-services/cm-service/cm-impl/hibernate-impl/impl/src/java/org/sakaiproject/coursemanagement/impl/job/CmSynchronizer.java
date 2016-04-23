@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -60,7 +60,7 @@ import org.sakaiproject.coursemanagement.api.Section;
  *
  */
 public abstract class CmSynchronizer {
-	private static final Log log = LogFactory.getLog(CmSynchronizer.class);
+	private static final Logger log = LoggerFactory.getLogger(CmSynchronizer.class);
 
 	protected CourseManagementService cmService;
 	protected CourseManagementAdministration cmAdmin;
@@ -142,7 +142,7 @@ public abstract class CmSynchronizer {
 				}
 			}
 		} catch (JDOMException jde) {
-			log.error(jde);
+			log.error(jde.getMessage());
 		}
 		
 		if(log.isInfoEnabled()) log.info("Finished reconciling AcademicSessions in " + (System.currentTimeMillis()-start) + " ms");
@@ -159,7 +159,7 @@ public abstract class CmSynchronizer {
 			if(log.isDebugEnabled()) log.debug("Found current academic sessions to reconcile: " + academicSessionEids);
 			cmAdmin.setCurrentAcademicSessions(academicSessionEids);
 		} catch (JDOMException jde) {
-			log.error(jde);
+			log.error(jde.getMessage());
 		}
 	}
 	
@@ -204,7 +204,7 @@ public abstract class CmSynchronizer {
 				}
 			}
 		} catch (JDOMException jde) {
-			log.error(jde);
+			log.error(jde.getMessage());
 		}
 		
 		if(log.isInfoEnabled()) log.info("Finished reconciling CanonicalCourses in " + (System.currentTimeMillis()-start) + " ms");
@@ -255,7 +255,7 @@ public abstract class CmSynchronizer {
 
 			}
 		} catch (JDOMException jde) {
-			log.error(jde);
+			log.error(jde.getMessage());
 		}
 		if(log.isInfoEnabled()) log.info("Finished reconciling CourseOfferings in " + (System.currentTimeMillis()-start) + " ms");
 	}
@@ -343,7 +343,7 @@ public abstract class CmSynchronizer {
 				reconcileOfficialInstructors(element, enr);
 			}
 		} catch (JDOMException jde) {
-			log.error(jde);
+			log.error(jde.getMessage());
 		}
 		
 		if(log.isInfoEnabled()) log.info("Finished reconciling EnrollmentSets in " + (System.currentTimeMillis()-start) + " ms");
@@ -475,7 +475,7 @@ public abstract class CmSynchronizer {
 				}
 			}
 		} catch (JDOMException jde) {
-			log.error(jde);
+			log.error(jde.getMessage());
 		}
 		if(log.isInfoEnabled()) log.info("Finished reconciling Sections in " + (System.currentTimeMillis()-start) + " ms");
 	}
@@ -576,7 +576,7 @@ public abstract class CmSynchronizer {
 				}
 			}
 		} catch (JDOMException jde) {
-			log.error(jde);
+			log.error(jde.getMessage());
 		}
 		if(log.isInfoEnabled()) log.info("Finished reconciling CourseSets in " + (System.currentTimeMillis()-start) + " ms");
 	}

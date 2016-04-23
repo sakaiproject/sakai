@@ -23,8 +23,8 @@ package org.sakaiproject.poll.logic.test;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 		"classpath:org/sakaiproject/poll/spring-hibernate.xml" })
 public class PollListManagerTest extends AbstractJUnit4SpringContextTests {
 
-	private static Log log = LogFactory.getLog(PollListManagerTest.class);	
+	private static Logger log = LoggerFactory.getLogger(PollListManagerTest.class);	
 	
 	private TestDataPreload tdp = new TestDataPreload();
 

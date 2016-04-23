@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -62,7 +62,7 @@ import org.sakaiproject.user.api.UserPermissionException;
 public class CheckValidations implements Job {
 
 
-	private static Log log = LogFactory.getLog(CheckValidations.class);
+	private static Logger log = LoggerFactory.getLogger(CheckValidations.class);
 
 
 	private ValidationLogic validationLogic;

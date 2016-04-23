@@ -28,8 +28,8 @@ import java.util.Date;
 import javax.faces.context.FacesContext;
  
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.api.app.messageforums.Area;
 
@@ -40,7 +40,7 @@ import org.sakaiproject.api.app.messageforums.Area;
  */
 public class DiscussionAreaBean 
 {
-	 private static final Log LOG = LogFactory.getLog(DiscussionAreaBean.class);
+	 private static final Logger LOG = LoggerFactory.getLogger(DiscussionAreaBean.class);
 	 
 	 private Area area;
 	 private int numPendingMsgs;

@@ -45,8 +45,8 @@ import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
@@ -77,7 +77,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 
 public class JForumEntity implements LessonEntity, ForumInterface {
 
-    private static final Log log = LogFactory.getLog(JForumEntity.class);
+    private static final Logger log = LoggerFactory.getLogger(JForumEntity.class);
     static boolean initdone = false;
     static boolean haveJforum = false;
 

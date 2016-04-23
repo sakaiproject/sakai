@@ -8,8 +8,8 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.help.TutorialEntityProvider;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -22,7 +22,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoRegisterEntityProvider, RESTful{
 
-	protected final Log log = LogFactory.getLog(getClass());
+	protected final Logger log = LoggerFactory.getLogger(getClass());
 	private ResourceLoader msgs = new ResourceLoader("TutorialMessages");
 	private static PropertiesConfiguration tutorialProps;
 	

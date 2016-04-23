@@ -22,14 +22,14 @@ package org.sakaiproject.coursemanagement.impl.aop;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.impl.exception.PermissionException;
 import org.springframework.aop.MethodBeforeAdvice;
 
 public class CourseManagementAdministrationAuthzAdvisor implements MethodBeforeAdvice {
-	private static final Log log = LogFactory.getLog(CourseManagementAdministrationAuthzAdvisor.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseManagementAdministrationAuthzAdvisor.class);
 	
 	SecurityService securityService;
 	

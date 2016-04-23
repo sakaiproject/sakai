@@ -27,15 +27,15 @@ import java.net.URLDecoder;
 
 import javax.servlet.ServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 
 /**
  * An implementation of the ContextManagement facade to support demos and UI tests.
  */
 public class ContextManagementStandaloneImpl implements ContextManagement {
-	private static Log logger = LogFactory.getLog(ContextManagementStandaloneImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(ContextManagementStandaloneImpl.class);
 
 	private static final String GRADEBOOK_UID_PARAM = "gradebookUid";
 

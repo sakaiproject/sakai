@@ -3,8 +3,8 @@ package org.sakaiproject.site.impl.test;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
 
 public class SiteServiceTest extends SakaiKernelTestBase {
-	private static final Log log = LogFactory.getLog(SiteServiceTest.class);
+	private static final Logger log = LoggerFactory.getLogger(SiteServiceTest.class);
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -36,7 +36,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 			oneTimeSetup(null);
 			log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

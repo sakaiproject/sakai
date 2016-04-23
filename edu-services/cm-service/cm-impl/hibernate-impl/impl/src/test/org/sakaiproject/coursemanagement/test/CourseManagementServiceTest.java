@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ import org.sakaiproject.coursemanagement.impl.DataLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CourseManagementServiceTest extends CourseManagementTestBase {
-	private static final Log log = LogFactory.getLog(CourseManagementServiceTest.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseManagementServiceTest.class);
 	
 	@Autowired
 	private CourseManagementService cm;

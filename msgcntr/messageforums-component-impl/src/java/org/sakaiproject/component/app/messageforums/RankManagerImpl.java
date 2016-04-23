@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -57,7 +57,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.Validator;
 
 public class RankManagerImpl extends HibernateDaoSupport implements RankManager {
-    private static final Log LOG = LogFactory.getLog(RankManagerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RankManagerImpl.class);
     private static final String QUERY_BY_CONTEXT_ID_USERID = "findRanksByContextIdUserID";
     private static final String QUERY_BY_CONTEXT_ID_NUM_POSTS_BASED = "findRanksByContextIdBasedOnNumPost";
     private static final String QUERY_BY_CONTEXT_ID = "findRanksByContextId";

@@ -21,30 +21,12 @@
 
 package org.sakaiproject.citation.servlet;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log; 
-import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.cheftool.VmServlet;
 import org.sakaiproject.citation.api.*;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -55,12 +37,19 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.BasicAuth;
-import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * 
@@ -76,8 +65,7 @@ public class CitationServlet extends VmServlet
 	public static final String COMPACT_TEMPLATE = "/vm/compact.vm";
 //	private String collectionTitle = null;
 	
-	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(CitationServlet.class);
+	private static final Logger M_log = LoggerFactory.getLogger(CitationServlet.class);
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("citations");
@@ -173,9 +161,7 @@ public class CitationServlet extends VmServlet
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		if(M_log.isDebugEnabled()) {
-			M_log.debug("doGet() "  + req.getMethod());
-		}
+		M_log.debug("doGet() {}", req.getMethod());
 		// process any login that might be present
 		basicAuth.doLogin(req);
 		

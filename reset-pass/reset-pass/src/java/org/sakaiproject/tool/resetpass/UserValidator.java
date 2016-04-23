@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -19,7 +19,7 @@ import org.springframework.validation.Validator;
 
 public class UserValidator implements Validator {
 
-	private static Log m_log  = LogFactory.getLog(UserValidator.class);
+	private static Logger m_log  = LoggerFactory.getLogger(UserValidator.class);
 
 	// prefix for error messages - indicates they are to be pulled from tool configuration rather than a resource bundle
 	private final String TOOL_CONFIG_PREFIX = "toolconfig_";

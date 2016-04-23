@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.api.spring;
 
 import java.io.File;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -37,7 +37,7 @@ import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 
 public class FactoryUtil
 {
-  private static Log log = LogFactory.getLog(FactoryUtil.class);
+  private static Logger log = LoggerFactory.getLogger(FactoryUtil.class);
   private static boolean useLocator = false;
 //  private static boolean useLocator = true;
 

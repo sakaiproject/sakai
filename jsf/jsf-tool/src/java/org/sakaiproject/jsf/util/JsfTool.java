@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -48,7 +48,7 @@ import org.sakaiproject.util.Web;
 public class JsfTool extends HttpServlet
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(JsfTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(JsfTool.class);
 
 	/** The file extension to get to JSF. */
 	protected static final String JSF_EXT = ".jsf";

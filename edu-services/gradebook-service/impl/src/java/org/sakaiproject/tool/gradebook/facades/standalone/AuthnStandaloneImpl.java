@@ -26,15 +26,15 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 
 /**
  * An implementation of the Authn facade to support demos and UI tests.
  */
 public class AuthnStandaloneImpl implements Authn {
-	private static Log log = LogFactory.getLog(AuthnStandaloneImpl.class);
+	private static Logger log = LoggerFactory.getLogger(AuthnStandaloneImpl.class);
 
 	private static String USER_ID_PARAMETER = "userUid";
 

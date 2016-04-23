@@ -28,8 +28,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
@@ -57,7 +57,7 @@ import org.w3c.dom.Element;
 public class DbAssignmentService extends BaseAssignmentService
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DbAssignmentService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbAssignmentService.class);
 
 	/** The name of the db table holding assignment objects. */
 	protected String m_assignmentsTableName = "ASSIGNMENT_ASSIGNMENT";

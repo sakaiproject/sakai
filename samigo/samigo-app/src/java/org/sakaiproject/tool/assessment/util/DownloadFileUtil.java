@@ -15,8 +15,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 
 public class DownloadFileUtil {
-	private static Log log = LogFactory.getLog(DownloadFileUtil.class);
+	private static Logger log = LoggerFactory.getLogger(DownloadFileUtil.class);
 
 	public void processWholeSiteOrOneSection(HttpServletRequest req, HttpServletResponse res, ArrayList<ItemDataIfc> idataList, ArrayList<String> userUidList) {
 		processWholeSiteOrOneSection(req, res, idataList, userUidList, null);

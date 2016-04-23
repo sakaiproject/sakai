@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
@@ -69,7 +69,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 public class PortalServiceImpl implements PortalService
 {
-	private static final Log log = LogFactory.getLog(PortalServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(PortalServiceImpl.class);
 
 	/**
 	 * Parameter to force state reset

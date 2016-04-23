@@ -28,8 +28,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -66,7 +66,7 @@ public class FragmentToolRenderService implements ToolRenderService
 
 	private static final String TOOL_FRAGMENT_PRODUCER_ID = "fragment-producer";
 
-	private static final Log log = LogFactory.getLog(FragmentToolRenderService.class);
+	private static final Logger log = LoggerFactory.getLogger(FragmentToolRenderService.class);
 
 	private PortalService portal;
 

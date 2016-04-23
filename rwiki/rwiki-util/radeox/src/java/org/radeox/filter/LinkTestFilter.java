@@ -28,8 +28,8 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.Messages;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
@@ -51,7 +51,7 @@ import org.radeox.util.StringBufferWriter;
 
 public class LinkTestFilter extends LocaleRegexTokenFilter
 {
-	private static Log log = LogFactory.getLog(LinkTestFilter.class);
+	private static Logger log = LoggerFactory.getLogger(LinkTestFilter.class);
 
 	/**
 	 * The regular expression for detecting WikiLinks. Overwrite in subclass to

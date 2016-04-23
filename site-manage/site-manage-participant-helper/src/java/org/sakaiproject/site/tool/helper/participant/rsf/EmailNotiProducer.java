@@ -3,8 +3,8 @@ package org.sakaiproject.site.tool.helper.participant.rsf;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -49,7 +49,7 @@ import uk.org.ponder.stringutil.StringList;
 public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseReporter, ActionResultInterceptor {
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(EmailNotiProducer.class);
+	private static Logger M_log = LoggerFactory.getLogger(EmailNotiProducer.class);
 	
     public SiteAddParticipantHandler handler;
     public static final String VIEW_ID = "EmailNoti";

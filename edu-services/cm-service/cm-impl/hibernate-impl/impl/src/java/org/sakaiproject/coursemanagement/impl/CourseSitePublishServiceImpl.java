@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.coursemanagement.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements CourseSitePublishService {
    // logger
-   private final transient Log logger = LogFactory.getLog(getClass());
+   private final transient Logger logger = LoggerFactory.getLogger(getClass());
 
    // class members
    private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;    // one day in ms = 1000ms/s · 60s/m · 60m/h · 24h/day
@@ -226,7 +226,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
             }
          }
       } catch (Exception ex) {
-         logger.error(ex);
+         logger.error(ex.getMessage(), ex);
       }
       return numSitesPublished;
    }

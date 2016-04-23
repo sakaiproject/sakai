@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Taken from the phoenix 4.0.4 org.apache.avalon.phoenix.launcher.Main.java */
 /*
@@ -49,7 +49,7 @@ import org.apache.commons.logging.LogFactory;
 public final class PhoenixLauncherMain
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(PhoenixLauncherMain.class);
+	private static Logger M_log = LoggerFactory.getLogger(PhoenixLauncherMain.class);
 
 	private static final String MAIN_CLASS = "org.apache.avalon.phoenix.frontends.CLIMain";
 

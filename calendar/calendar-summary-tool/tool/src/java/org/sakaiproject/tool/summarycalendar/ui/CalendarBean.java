@@ -40,8 +40,8 @@ import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.sakaiproject.authz.api.SecurityService;
@@ -90,7 +90,7 @@ public class CalendarBean {
 	private static final String 					MERGED_CALENDARS_PROP 	= "mergedCalendarReferences";
 	
 	/** Our log (commons). */
-	private static Log								LOG						= LogFactory.getLog(CalendarBean.class);
+	private static Logger								LOG						= LoggerFactory.getLogger(CalendarBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader				msgs					= new ResourceLoader("calendar");

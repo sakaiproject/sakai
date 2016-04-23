@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SimpleRole;
@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
 public class BaseRole implements Role
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseRole.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseRole.class);
 
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;

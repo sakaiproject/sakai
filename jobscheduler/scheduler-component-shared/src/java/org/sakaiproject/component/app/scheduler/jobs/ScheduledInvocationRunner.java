@@ -3,8 +3,8 @@ package org.sakaiproject.component.app.scheduler.jobs;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.StatefulJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -18,7 +18,7 @@ import org.sakaiproject.time.api.TimeService;
 
 public class ScheduledInvocationRunner implements StatefulJob {
 
-	private static final Log LOG = LogFactory.getLog(ScheduledInvocationRunner.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ScheduledInvocationRunner.class);
 
 
 	/* (non-Javadoc)

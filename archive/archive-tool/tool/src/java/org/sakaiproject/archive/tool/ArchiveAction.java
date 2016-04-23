@@ -24,8 +24,8 @@ package org.sakaiproject.archive.tool;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.archive.tool.model.SparseFile;
 import org.sakaiproject.archive.tool.model.SparseSite;
@@ -89,7 +89,7 @@ public class ArchiveAction
 	private SecurityService securityService;
 	private IdManager idManager;
 	
-	private static final Log log = LogFactory.getLog(ArchiveAction.class);
+	private static final Logger log = LoggerFactory.getLogger(ArchiveAction.class);
 	
 	// for batch archive
     private long batchArchiveStarted = 0;

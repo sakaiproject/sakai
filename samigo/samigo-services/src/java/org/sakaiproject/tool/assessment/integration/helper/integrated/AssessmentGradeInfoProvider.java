@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
@@ -58,7 +58,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
  */
 public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
-    private Log log = LogFactory.getLog(AssessmentGradeInfoProvider.class);
+    private Logger log = LoggerFactory.getLogger(AssessmentGradeInfoProvider.class);
     private GradebookExternalAssessmentService geaService;
     private UserDirectoryService userDirectoryService;
     private SiteService siteService;

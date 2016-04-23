@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
  */
 
 public class ConfirmRetakeAssessmentListener implements ActionListener {
-	//private static Log log = LogFactory.getLog(ConfirmRemovePartListener.class);
+	//private static Logger log = LoggerFactory.getLogger(ConfirmRemovePartListener.class);
 
 	public ConfirmRetakeAssessmentListener() {
 	}

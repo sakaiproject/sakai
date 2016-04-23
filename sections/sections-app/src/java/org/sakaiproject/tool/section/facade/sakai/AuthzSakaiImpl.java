@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.facade.sakai;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -42,7 +42,7 @@ public class AuthzSakaiImpl implements Authz {
 	private static final String SITE_UPDATE = "site.upd";
 	private static final String SITE_UPDATE_GROUP_MEMBERSHIP = "site.upd.grp.mbrshp";
 
-	private static final Log log = LogFactory.getLog(AuthzSakaiImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(AuthzSakaiImpl.class);
 
 	private AuthzGroupService authzGroupService;
 

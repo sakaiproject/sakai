@@ -1,7 +1,7 @@
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionException;
 
 /**
@@ -13,8 +13,8 @@ import org.quartz.JobExecutionException;
  */
 public class TestConfigurableJob extends AbstractConfigurableJob
 {
-    private static final Log
-        LOG = LogFactory.getLog(TestConfigurableJob.class);
+    private static final Logger
+        LOG = LoggerFactory.getLogger(TestConfigurableJob.class);
 
     public static final String
         INTEGER_PROPERTY            = "integer.property",

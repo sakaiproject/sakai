@@ -32,8 +32,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 	private static final int		COUNT_RESOURCES_MEDIUM	= 10;
 	private static final int		COUNT_RESOURCES_LARGE	= MAX_RESOURCES;
 
-	private Log						LOG						= LogFactory.getLog(EventAggregatorTestPerf.class);
+	private Logger						LOG						= LoggerFactory.getLogger(EventAggregatorTestPerf.class);
 
 	private StatsManager			M_sm;
 	private StatsUpdateManager		M_sum;

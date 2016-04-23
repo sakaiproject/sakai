@@ -20,8 +20,8 @@
 
 package org.sakaiproject.emailtemplateservice.tool.producers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.service.external.ExternalLogic;
@@ -54,7 +54,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  */
 public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsReporter, ActionResultInterceptor {
 
-	private static Log log = LogFactory.getLog(ModifyEmailProducer.class);
+	private static Logger log = LoggerFactory.getLogger(ModifyEmailProducer.class);
 	public static final String VIEW_ID = "modify_email";
 	public String getViewID() {
 		return VIEW_ID;

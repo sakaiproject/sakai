@@ -14,8 +14,8 @@ import net.fortuna.ical4j.model.WeekDayList;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.RRule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.impl.DailyRecurrenceRule;
 import org.sakaiproject.calendar.impl.MWFRecurrenceRule;
 import org.sakaiproject.calendar.impl.MonthlyRecurrenceRule;
@@ -27,7 +27,7 @@ import org.sakaiproject.time.api.Time;
 
 public class ICalRecurrence  
 {
-	private static Log M_log = LogFactory.getLog(ICalRecurrence.class);
+	private static Logger M_log = LoggerFactory.getLogger(ICalRecurrence.class);
 	private String rrule_text = "";
 	private RRule rrule = null;
 	private Recur recur = null;

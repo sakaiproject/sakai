@@ -19,8 +19,8 @@
  */
 package org.sakaiproject.accountvalidator.tool.producers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -45,7 +45,7 @@ import java.util.Set;
  */
 public class NewUserProducer extends BaseValidationProducer implements ViewComponentProducer, ActionResultInterceptor {
 	
-	private static Log log = LogFactory.getLog(NewUserProducer.class);
+	private static Logger log = LoggerFactory.getLogger(NewUserProducer.class);
 	public static final String VIEW_ID = "newUser";
 
 	public String getViewID() {

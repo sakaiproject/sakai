@@ -22,8 +22,8 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
@@ -42,8 +42,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 public class RWikiCurrentObjectContentDaoImpl extends HibernateDaoSupport
 		implements RWikiObjectContentDao
 {
-	private static Log log = LogFactory
-			.getLog(RWikiCurrentObjectContentDaoImpl.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiCurrentObjectContentDaoImpl.class);
 
 	public RWikiObjectContent getContentObject(final RWikiObject parent)
 	{
@@ -64,18 +63,10 @@ public class RWikiCurrentObjectContentDaoImpl extends HibernateDaoSupport
 			List found = (List) getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{
-				if (log.isDebugEnabled())
-				{
-					log.debug("Found " + found.size() + " objects with id "
-							+ parent.getId());
-				}
+				log.debug("Found {} objects with id {}", found.size(), parent.getId());
 				return null;
 			}
-			if (log.isDebugEnabled())
-			{
-				log.debug("Found " + found.size() + " objects with name "
-						+ parent.getId() + " returning most recent one.");
-			}
+			log.debug("Found {} objects with name {} returning most recent one.", found.size(), parent.getId());
 			return (RWikiObjectContent) found.get(0);
 		}
 		finally

@@ -25,8 +25,8 @@ import java.util.UUID;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -55,7 +55,7 @@ import java.util.Properties;
  */
 public abstract class BaseLTIService implements LTIService {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseLTIService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseLTIService.class);
 
 	/** Constants */
 	private final String ADMIN_SITE = "!admin";

@@ -25,8 +25,8 @@ package org.sakaiproject.tool.assessment.facade.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.hibernate.HibernateException;
@@ -36,7 +36,7 @@ import org.hibernate.Session;
 
 public class PagingUtilQueries
     extends HibernateDaoSupport implements PagingUtilQueriesAPI{
-    private Log log = LogFactory.getLog(PagingUtilQueries.class);
+    private Logger log = LoggerFactory.getLogger(PagingUtilQueries.class);
 
   public PagingUtilQueries () {
   }

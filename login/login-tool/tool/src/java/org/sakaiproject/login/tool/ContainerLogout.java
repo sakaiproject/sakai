@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -25,7 +25,7 @@ import org.sakaiproject.tool.api.SessionManager;
 public class ContainerLogout extends HttpServlet {
 
 	/** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(ContainerLogin.class);
+	private static final Logger M_log = LoggerFactory.getLogger(ContainerLogin.class);
 
 	private ServerConfigurationService serverConfigurationService;
 	private UsageSessionService usageSessionService;

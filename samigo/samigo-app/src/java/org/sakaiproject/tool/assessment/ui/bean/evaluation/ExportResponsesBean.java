@@ -38,8 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -86,7 +86,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	private String assessmentName;
 	private boolean anonymous;
 
-	private static Log log = LogFactory.getLog(ExportResponsesBean.class);
+	private static Logger log = LoggerFactory.getLogger(ExportResponsesBean.class);
 
 	/**
 	 * Creates a new TotalScoresBean object.
@@ -301,12 +301,12 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 			getAsWorkbook(spreadsheetData).write(out);
 			out.flush();
 		} catch (IOException e) {
-			if (log.isErrorEnabled()) log.error(e);
+			log.error(e.getMessage(), e);
 		} finally {
 			try {
 				if (out != null) out.close();
 			} catch (IOException e) {
-				if (log.isErrorEnabled()) log.error(e);
+				log.error(e.getMessage(), e);
 			}
 		}
 	}

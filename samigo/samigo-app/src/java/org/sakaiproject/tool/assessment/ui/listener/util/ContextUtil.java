@@ -41,8 +41,8 @@ import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService; 
 
 /**
@@ -56,7 +56,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class ContextUtil
 {
 
-  private static Log log = LogFactory.getLog(ContextUtil.class);
+  private static Logger log = LoggerFactory.getLogger(ContextUtil.class);
 
   private static ServletContext M_servletContext = null;
   /**

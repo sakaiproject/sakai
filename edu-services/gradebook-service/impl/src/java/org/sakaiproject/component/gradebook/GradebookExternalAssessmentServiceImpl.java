@@ -37,8 +37,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -65,9 +65,9 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager implements GradebookExternalAssessmentService {
-	private static final Log log = LogFactory.getLog(GradebookExternalAssessmentServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(GradebookExternalAssessmentServiceImpl.class);
     // Special logger for data contention analysis.
-    private static final Log logData = LogFactory.getLog(GradebookExternalAssessmentServiceImpl.class.getName() + ".GB_DATA");
+    private static final Logger logData = LoggerFactory.getLogger(GradebookExternalAssessmentServiceImpl.class.getName() + ".GB_DATA");
 
     private GradebookService gradebookService;
     private EventTrackingService eventTrackingService;
@@ -961,7 +961,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				Number numericScore = getNumberFormat().parse(doubleAsString.trim());
 				scoreAsDouble = numericScore.doubleValue();
 			} catch (ParseException e) {
-				log.error(e);
+				log.error(e.getMessage());
 			}
 	    }
 

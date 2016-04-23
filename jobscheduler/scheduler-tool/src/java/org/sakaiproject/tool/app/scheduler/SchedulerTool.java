@@ -31,8 +31,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.InterruptableJob;
@@ -64,7 +64,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class SchedulerTool
 {
 
-  private static final Log LOG = LogFactory.getLog(SchedulerTool.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SchedulerTool.class);
 
   private static final String CRON_CHECK_ASTERISK = "**";
   private static final String CRON_CHECK_QUESTION_MARK = "??";

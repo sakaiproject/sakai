@@ -34,8 +34,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
@@ -62,7 +62,7 @@ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   implements ActionListener
 {
-  private static Log log = LogFactory.getLog(LinearAccessDeliveryActionListener.class);
+  private static Logger log = LoggerFactory.getLogger(LinearAccessDeliveryActionListener.class);
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
 

@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -43,7 +43,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * An authentication filter for standalone use in demos and UI tests.
  */
 public class AuthnFilter implements Filter {
-	private static Log logger = LogFactory.getLog(AuthnFilter.class);
+	private static Logger logger = LoggerFactory.getLogger(AuthnFilter.class);
 
 	private String authnRedirect;
 	private String authnServiceBean;

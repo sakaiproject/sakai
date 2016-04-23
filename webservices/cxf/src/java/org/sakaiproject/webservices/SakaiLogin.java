@@ -25,8 +25,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -38,7 +38,7 @@ import org.sakaiproject.user.api.User;
 @SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
 public class SakaiLogin extends AbstractWebService {
 
-    private static final Log LOG = LogFactory.getLog(SakaiLogin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SakaiLogin.class);
 
     /**
      * Login with the supplied credentials and return the session string which can be used in subsequent web service calls, ie via SakaiScript

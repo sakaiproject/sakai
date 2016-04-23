@@ -25,8 +25,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.manager.Persistable;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -38,7 +38,7 @@ public class PersistableHelper
 {
 	private static final String SYSTEM = "SYSTEM";
 
-	private static final Log LOG = LogFactory.getLog(PersistableHelper.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PersistableHelper.class);
 
 	private static final String LASTMODIFIEDDATE = "lastModifiedDate";
 
@@ -66,15 +66,9 @@ public class PersistableHelper
 			PropertyUtils.setProperty(persistable, LASTMODIFIEDBY, actor);
 			PropertyUtils.setProperty(persistable, LASTMODIFIEDDATE, now);
 		}
-		catch (NoSuchMethodException e)
+		catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
 		{
-			LOG.error(e);
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			LOG.error(e);
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-			LOG.error(e);
+			LOG.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}
@@ -97,15 +91,9 @@ public class PersistableHelper
 			PropertyUtils.setProperty(persistable, CREATEDBY, actor);
 			PropertyUtils.setProperty(persistable, CREATEDDATE, now);
 		}
-		catch (NoSuchMethodException e)
+		catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
 		{
-			LOG.error(e);
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			LOG.error(e);
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-			LOG.error(e);
+			LOG.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}

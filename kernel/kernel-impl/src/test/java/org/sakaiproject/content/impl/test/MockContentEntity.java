@@ -23,8 +23,8 @@ package org.sakaiproject.content.impl.test;
 
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingHandler;
@@ -48,7 +48,7 @@ import org.w3c.dom.Element;
  */
 public class MockContentEntity implements ContentEntity, GroupAwareEdit
 {
-	private static final Log logger = LogFactory.getLog(MockContentEntity.class);
+	private static final Logger logger = LoggerFactory.getLogger(MockContentEntity.class);
 	
 	protected String entityId;
 	protected String containingCollectionId;

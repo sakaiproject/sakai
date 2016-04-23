@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -15,8 +15,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		PublishedItemFacadeQueriesAPI {
-	private Log log = LogFactory
-			.getLog(PublishedItemFacadeQueries.class);
+	private Logger log = LoggerFactory.getLogger(PublishedItemFacadeQueries.class);
 
 	public IdImpl getItemId(String id) {
 		return new IdImpl(id);

@@ -27,8 +27,8 @@ import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.pluto.PortletWindow;
 import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
@@ -48,7 +48,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class SakaiPortalCallbackService implements PortalCallbackService
 {
 
-	private static final Log LOG = LogFactory.getLog(SakaiPortalCallbackService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SakaiPortalCallbackService.class);
 
 	public static final String PORTLET_STATE_QUERY_PARAM = "org.sakaiproject.portal.pluto.PORTLET_STATE";
 

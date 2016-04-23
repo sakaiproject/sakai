@@ -9,8 +9,8 @@ import java.util.HashMap;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -20,7 +20,7 @@ public class POXMembershipsResponse {
 
     public static final String UNSPECIFIED = "unspecified";
 
-	private static Log M_log = LogFactory.getLog(POXMembershipsResponse.class);
+	private static Logger M_log = LoggerFactory.getLogger(POXMembershipsResponse.class);
 
     private MembershipsHandler handler = new MembershipsHandler();
 

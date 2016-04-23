@@ -54,8 +54,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -76,7 +76,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
-	private static final Log log = LogFactory.getLog(PeerEvalStatsProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(PeerEvalStatsProducer.class);
 	public static final String VIEW_ID = "PeerEvalStats";
 	
 	private SimplePageBean simplePageBean;

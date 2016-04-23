@@ -27,8 +27,6 @@ package edu.indiana.lib.osid.base.repository.http;
 public class PartStructureIterator
 implements org.osid.repository.PartStructureIterator
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(PartStructureIterator.class);
-		
     private java.util.Vector vector = new java.util.Vector();
     private int i = 0;
 

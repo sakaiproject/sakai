@@ -2,8 +2,8 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 
 import java.util.Comparator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -15,7 +15,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  */
 public class AssessmentGradingComparatorByScoreAndUniqueIdentifier implements
 		Comparator {
-	private static Log log = LogFactory.getLog(AssessmentGradingComparatorByScoreAndUniqueIdentifier.class);
+	private static Logger log = LoggerFactory.getLogger(AssessmentGradingComparatorByScoreAndUniqueIdentifier.class);
 
 	private boolean anonymous;
 	

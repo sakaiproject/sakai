@@ -21,8 +21,8 @@
 
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -30,7 +30,7 @@ import org.quartz.JobExecutionException;
 public class TestJob implements Job
 {
 
-  private static final Log LOG = LogFactory.getLog(TestJob.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TestJob.class);
 
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -40,7 +40,7 @@ public class UpdateSynopticMessageCounts implements Job{
 	private MessageForumsMessageManager messageManager;
 	private SiteService siteService;
 	
-	private static final Log LOG = LogFactory.getLog(UpdateSynopticMessageCounts.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UpdateSynopticMessageCounts.class);
 	
 	
 	private static final boolean runOracleSQL = false;
@@ -185,43 +185,43 @@ public class UpdateSynopticMessageCounts implements Job{
 			}
 						
 		} catch (Exception e1) {
-			LOG.error(e1);			
+			LOG.error(e1.getMessage(), e1);
 		} finally {
 			try {
 				if(unreadMessageCountRS != null)
 					unreadMessageCountRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if(allTopicsAndForumsRS != null)
 					allTopicsAndForumsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if(synotpicSitesRS != null)
 					synotpicSitesRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if(statement != null)
 					statement.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}	
 			try{
 				if(unreadMessagesbySitePS != null)
 					unreadMessagesbySitePS.close();				
 			}catch(Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try{
 				if(findSitesbySitePS != null)
 					findSitesbySitePS.close();				
 			}catch(Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			SqlService.returnConnection(clConnection);
 		}
@@ -264,25 +264,25 @@ public class UpdateSynopticMessageCounts implements Job{
 					isForumsPageInSite = true;
 				}
 			}catch (Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}finally{
 				try{
 					if(rsMessagesForums != null)
 						rsMessagesForums.close();
 				}catch (Exception e){
-					LOG.warn(e);
+					LOG.warn(e.getMessage());
 				}
 				try{
 					if(rsMessages != null)
 						rsMessages.close();
 				}catch (Exception e){
-					LOG.warn(e);
+					LOG.warn(e.getMessage());
 				}
 				try{
 					if(rsForusm != null)
 						rsForusm.close();
 				}catch (Exception e){
-					LOG.warn(e);
+					LOG.warn(e.getMessage());
 				}
 			}
 		}
@@ -399,38 +399,38 @@ public class UpdateSynopticMessageCounts implements Job{
 			}
 			SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userIds, siteId, siteTitle, unreadCountMap);
 		}catch (Exception e){
-			LOG.warn(e);
+			LOG.warn(e.getMessage(), e);
 		}finally{
 
 			try{
 				if(usersMap != null)
 					usersMap.close();
 			}catch(Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 			try{
 				if(getAllUsersInSiteQuery != null)
 					getAllUsersInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if (isForumsPageInSiteQuery != null)
 					isForumsPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if (isMessagesPageInSiteQuery != null)
 					isMessagesPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if (isMessageForumsPageInSiteQuery != null)
 					isMessageForumsPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 		}
 	}
@@ -488,7 +488,7 @@ public class UpdateSynopticMessageCounts implements Job{
 					}
 				}
 			}catch(Exception e){
-				LOG.error(e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		
@@ -518,7 +518,7 @@ public class UpdateSynopticMessageCounts implements Job{
 				}				
 			}
 			}catch(Exception e){
-				LOG.error(e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		

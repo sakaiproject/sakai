@@ -28,8 +28,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -39,7 +39,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
 public class DBHelper extends HibernateDaoSupport {
-	private static Log	LOG						= LogFactory.getLog(DBHelper.class);
+	private static Logger	LOG						= LoggerFactory.getLogger(DBHelper.class);
 	private boolean		autoDdl					= false;
 	private String		dbVendor				= null;
 	private boolean		notifiedIndexesUpdate	= false;
