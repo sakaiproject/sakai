@@ -297,3 +297,23 @@ fieldset .alertMessageInline,fieldset .alertMessage {
 .itemAction a:link {
     border: 1px solid transparent;
 }
+
+.reviewStyle{
+    color: red !important;
+    font-size: 15px !important;
+}
+
+.flagStyle{
+    font-size: 15px !important;
+}
+
+.errorStyle{
+    color: #f39c12 !important;
+    font-size: 15px !important;
+}
+
+.conflicting-assignment-mark{
+    color: red !important;
+    font-style: italic !important;
+    cursor: pointer !important;
+}

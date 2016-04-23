@@ -251,7 +251,7 @@
 												$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))
 
 											#if ($assignmentContent.getAllowReviewService())
-												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
+												<i alt="$reviewIndicator" title="$reviewIndicator" class="fa fa-certificate reviewStyle"></i>
 											#end
 											</a>
 										</h4>

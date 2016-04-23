@@ -41,7 +41,7 @@ public class ContentReviewItem {
 	public static final String SUBMISSION_ERROR_NO_RETRY = "Error occurred submitting content - will not retry";
 	public static final Long SUBMISSION_ERROR_NO_RETRY_CODE = new Long(5);
 	
-	public static final String SUBMISSION_ERROR_USER_DETAILS = "Error occurred submitting content - inconplete or Ivalid user details";
+	public static final String SUBMISSION_ERROR_USER_DETAILS = "Error occurred submitting content - incomplete or invalid user details";
 	public static final Long SUBMISSION_ERROR_USER_DETAILS_CODE = new Long(6);
 	
 	public static final String REPORT_ERROR_RETRY = "Temporary error occurred retrieving report - will retry";
@@ -71,6 +71,11 @@ public class ContentReviewItem {
 	private String lastError;
 	private String iconUrl;
 	private Long retryCount;
+	
+	private boolean urlAccessed;
+	private String submissionId;
+	private boolean resubmission;
+	private String externalGrade;
 	/**
 	 * Default constructor
 	 */
@@ -93,6 +98,10 @@ public class ContentReviewItem {
 		this.reviewScore = null;
 		this.taskId = null;
 		this.retryCount = null;
+		this.urlAccessed = false;
+		this.submissionId = null;
+		this.resubmission = false;
+		this.externalGrade = null;
 	}
 	
 	/**
@@ -116,6 +125,10 @@ public class ContentReviewItem {
 		this.reviewScore = null;
 		this.taskId = taskId;
 		this.id = null;
+		this.urlAccessed = false;
+		this.submissionId = null;
+		this.resubmission = false;
+		this.externalGrade = null;
 	}
 
 	/**
@@ -134,6 +147,10 @@ public class ContentReviewItem {
 		this.status = status;
 		this.reviewScore = reviewScore;
 		this.taskId = taskId;
+		this.urlAccessed = false;
+		this.submissionId = null;
+		this.resubmission = false;
+		this.externalGrade = null;
 	}
 
 	
@@ -275,5 +292,37 @@ public class ContentReviewItem {
 	 */
 	public void setErrorCode(Integer errorCode) {
 		this.errorCode = errorCode;
+	}
+	
+	public boolean isUrlAccessed(){
+		return urlAccessed;
+	}
+	
+	public void setUrlAccessed(boolean urlAccessed) {
+		this.urlAccessed = urlAccessed;
+	}
+		
+	public String getSubmissionId() {
+		return submissionId;
+	}
+
+	public void setSubmissionId(String submissionId) {
+		this.submissionId = submissionId;
+	}
+	
+	public boolean isResubmission(){
+		return resubmission;
+	}
+	
+	public void setResubmission(boolean resubmission) {
+		this.resubmission = resubmission;
+	}
+	
+	public String getExternalGrade(){
+		return externalGrade;
+	}
+	
+	public void setExternalGrade(String externalGrade) {
+		this.externalGrade = externalGrade;
 	}
 }
