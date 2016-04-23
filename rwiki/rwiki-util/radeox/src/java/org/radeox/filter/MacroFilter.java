@@ -25,8 +25,8 @@ package org.radeox.filter;
 
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.Messages;
 import org.radeox.api.engine.IncludeRenderEngine;
 import org.radeox.api.engine.RenderEngine;
@@ -51,7 +51,7 @@ import org.radeox.util.StringBufferWriter;
 
 public class MacroFilter extends RegexTokenFilter
 {
-	private static Log log = LogFactory.getLog(MacroFilter.class);
+	private static Logger log = LoggerFactory.getLogger(MacroFilter.class);
 
 	// private static MacroFilter instance;
 

@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -66,7 +66,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
-  private Log log = LogFactory.getLog(QuestionPoolFacadeQueries.class);
+  private Logger log = LoggerFactory.getLogger(QuestionPoolFacadeQueries.class);
   
   // SAM-2049
   private static final String VERSION_START = " - ";
@@ -517,7 +517,7 @@ public class QuestionPoolFacadeQueries
       return getQuestionPool(qpp);
     }
     catch (Exception e) {
-      log.error(e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }

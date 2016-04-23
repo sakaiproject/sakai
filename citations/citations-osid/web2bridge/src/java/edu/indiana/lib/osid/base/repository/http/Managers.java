@@ -27,8 +27,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
  public class Managers extends edu.indiana.lib.osid.base.repository.Managers
  {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(Managers.class);
-		
 	 private static Managers managers = new Managers();
 	 private static org.osid.id.IdManager idManager = null;
 

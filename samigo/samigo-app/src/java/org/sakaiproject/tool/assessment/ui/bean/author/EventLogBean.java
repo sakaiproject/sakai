@@ -7,15 +7,15 @@ import java.util.Map;
 
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 
 public class EventLogBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Log log = LogFactory.getLog(EventLogBean.class);
+	private static Logger log = LoggerFactory.getLogger(EventLogBean.class);
 
 	public static final int DELETED_STATUS=2;
 	

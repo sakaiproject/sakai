@@ -33,8 +33,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 public class EditTemplateListener
     extends TemplateBaseListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(EditTemplateListener.class);
+  private static Logger log = LoggerFactory.getLogger(EditTemplateListener.class);
   /**
    * Standard processAction.
    * @param ae

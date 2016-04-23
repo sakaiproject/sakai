@@ -53,8 +53,8 @@ import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -112,7 +112,7 @@ import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
 
 public class FCKConnectorServlet extends HttpServlet {
 
-	 private static Log M_log = LogFactory.getLog(FCKConnectorServlet.class);
+	 private static Logger M_log = LoggerFactory.getLogger(FCKConnectorServlet.class);
 
      private static final long serialVersionUID = 1L;
 

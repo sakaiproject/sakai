@@ -65,8 +65,8 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -80,7 +80,7 @@ import org.sakaiproject.exception.IdUnusedException;
  */
 public class EditPageProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
 
-	private static final Log log = LogFactory.getLog(EditPageProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(EditPageProducer.class);
 	private TextInputEvolver richTextEvolver;
 	private SimplePageBean simplePageBean;
 	private ShowPageProducer showPageProducer;

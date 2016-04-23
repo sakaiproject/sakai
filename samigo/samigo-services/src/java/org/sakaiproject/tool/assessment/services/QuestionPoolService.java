@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
  */
 public class QuestionPoolService
 {
-    private Log log = LogFactory.getLog(QuestionPoolService.class);
+    private Logger log = LoggerFactory.getLogger(QuestionPoolService.class);
 
   /**
    * Creates a new QuestionPoolService object.
@@ -104,7 +104,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
     return pool;
@@ -124,7 +125,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
     return idList;
@@ -147,7 +149,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-     e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
 	return found;
 
@@ -165,7 +167,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
     return idList;
@@ -185,7 +188,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
     return poolList;
@@ -205,7 +209,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
     return poolSize;
   }
@@ -224,7 +229,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
     return result;
@@ -265,7 +271,7 @@ public class QuestionPoolService
     	  results = new ArrayList(PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemType(poolId, orderBy, ascending));
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
     return results;
   }
@@ -282,7 +288,7 @@ public class QuestionPoolService
         new ArrayList(PersistenceService.getInstance().
            getQuestionPoolFacadeQueries().getAllItemFacades(poolId));
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
     return results;
   }
@@ -300,7 +306,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -316,7 +323,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -335,8 +343,7 @@ public class QuestionPoolService
       return false;
 
     }catch(Exception e){
-      e.printStackTrace();
-      log.error(e);
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -365,7 +372,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
   }
@@ -388,7 +396,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -404,7 +413,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -427,7 +437,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -444,7 +455,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -461,7 +473,8 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -474,8 +487,7 @@ public class QuestionPoolService
     try{
 	return "";//questionPoolService.exportQuestion(questionId);
     }catch(Exception e){
-      log.debug("Exception in exportQuestion");
-      log.error(e);
+      log.error("Exception in exportQuestion", e);
       return null;
     }
   }
@@ -491,8 +503,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e);
-
+      log.error(e.getMessage(), e);
       return pool;
     }
   }
@@ -554,7 +565,7 @@ public class QuestionPoolService
 		  PersistenceService.getInstance().
 		  getQuestionPoolFacadeQueries().addQuestionPoolAccess(tree, user, questionPoolId, accessTypeId);
 	  } catch (Exception e) {
-		  log.error(e);
+        log.error(e.getMessage(), e);
 	  }
   }
 
@@ -563,7 +574,7 @@ public class QuestionPoolService
 		  PersistenceService.getInstance().
 		  getQuestionPoolFacadeQueries().removeQuestionPoolAccess(tree, user, questionPoolId, accessTypeId);
 	  } catch (Exception e) {
-		  log.error(e);
+        log.error(e.getMessage(), e);
 	  }
   }
 
@@ -574,7 +585,7 @@ public class QuestionPoolService
 		  agents = PersistenceService.getInstance().
 		  getQuestionPoolFacadeQueries().getAgentsWithAccess(questionPoolId);
 	  } catch (Exception e) {
-		  log.error(e);
+        log.error(e.getMessage(), e);
 	  }
 
 	  return agents;
@@ -603,7 +614,7 @@ public class QuestionPoolService
 		  agents.removeAll(agentsWithAccess);
 
 	  } catch (Exception e) {
-		  log.error(e);
+        log.error(e.getMessage(), e);
 	  }
 
 	  return agents;
@@ -614,7 +625,7 @@ public class QuestionPoolService
 	  try {
 		  PersistenceService.getInstance().getQuestionPoolFacadeQueries().transferPoolsOwnership(ownerId, poolIds);
 	  } catch (Exception ex) {
-		  log.error(ex);
+          log.error(ex.getMessage(), ex);
 		  throw new RuntimeException(ex);
 	  }
   }

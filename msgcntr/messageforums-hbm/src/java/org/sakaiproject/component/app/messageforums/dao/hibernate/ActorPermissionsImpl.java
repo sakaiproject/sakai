@@ -22,15 +22,15 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class ActorPermissionsImpl implements ActorPermissions {
 
-    private static final Log LOG = LogFactory.getLog(ActorPermissionsImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActorPermissionsImpl.class);
     
     private List contributors = new UniqueArrayList();
     private List accessors = new UniqueArrayList();

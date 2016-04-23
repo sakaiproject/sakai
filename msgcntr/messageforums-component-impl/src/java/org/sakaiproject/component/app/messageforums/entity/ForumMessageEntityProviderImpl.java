@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -52,7 +52,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   private PrivateMessageManager privateMessageManager;
   private UIPermissionsManager uiPermissionsManager;
   private MessageForumsMessageManager messageManager;
-  private static final Log LOG = LogFactory.getLog(ForumMessageEntityProviderImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ForumMessageEntityProviderImpl.class);
   
 
 

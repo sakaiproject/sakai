@@ -37,8 +37,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -90,7 +90,7 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 public class SavePublishedSettingsListener
 implements ActionListener
 {
-	private static final Log LOG = LogFactory.getLog(SavePublishedSettingsListener.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SavePublishedSettingsListener.class);
 	private static final GradebookServiceHelper gbsHelper =
 		IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 	private static final boolean integrated =
@@ -198,7 +198,7 @@ implements ActionListener
 	    }
 	    catch( NullPointerException | NumberFormatException ex )
 	    {
-	        LOG.warn( ex );
+	        LOG.warn(ex.getMessage(), ex);
 	        assessment.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
 	    }
 	    
@@ -529,7 +529,7 @@ implements ActionListener
 			}
 			catch( NumberFormatException ex )
 			{
-				LOG.warn( ex );
+				LOG.warn(ex.getMessage(), ex);
 				assessment.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
 			}
 		}

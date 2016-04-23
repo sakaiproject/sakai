@@ -21,8 +21,8 @@ import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -70,7 +70,7 @@ public class SiteManageGroupSectionRoleHandler {
 	private static final String REQ_ATTR_GROUPFILE = "groupfile";
 
     /** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(SiteManageGroupSectionRoleHandler.class);
+	private static final Logger M_log = LoggerFactory.getLogger(SiteManageGroupSectionRoleHandler.class);
 	
 	private List<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
@@ -485,9 +485,9 @@ public class SiteManageGroupSectionRoleHandler {
                 siteId = sessionManager.getCurrentToolSession()
                         .getAttribute(HELPER_ID + ".siteId").toString();
             }
-            catch (java.lang.NullPointerException npe) {
+            catch (NullPointerException npe) {
                 // Site ID wasn't set in the helper call!!
-                M_log.warn( npe );
+                M_log.warn(npe.getMessage());
             }
             
             if (siteId == null) {
@@ -501,7 +501,7 @@ public class SiteManageGroupSectionRoleHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                M_log.warn( e );
+                M_log.warn(e.getMessage());
             }
         }
         title = "";
@@ -595,7 +595,7 @@ public class SiteManageGroupSectionRoleHandler {
 
         } 
         catch (IdUnusedException | PermissionException e) {
-            M_log.warn( e );
+            M_log.warn(e.getMessage());
         }
 
         return "";
@@ -845,7 +845,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.error( e );
+                    M_log.error(e.getMessage());
                 }
             }
 	    	return "confirm";
@@ -1801,7 +1801,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         catch( IdUnusedException | PermissionException ex )
         {
-            M_log.error( ex );
+            M_log.error(ex.getMessage());
         }
     }
 

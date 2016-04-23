@@ -22,8 +22,8 @@
 
 package org.sakaiproject.user.impl.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -51,7 +51,7 @@ import java.util.Collection;
  * 
  */
 public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(RequireLocalAccountLegacyAuthenticationTest.class);
+	private static Logger log = LoggerFactory.getLogger(RequireLocalAccountLegacyAuthenticationTest.class);
 	private static TestProvider userDirectoryProvider;
 	private static String LOCALLY_STORED_EID = "locallystoreduser";
 	private static String LOCALLY_STORED_PWD = "locallystoreduser-pwd";
@@ -80,7 +80,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 			oneTimeSetupAfter();
 			if (log.isDebugEnabled()) log.debug("finished setup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

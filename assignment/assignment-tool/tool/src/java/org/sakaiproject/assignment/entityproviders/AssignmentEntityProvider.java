@@ -55,8 +55,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -66,7 +66,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		AutoRegisterEntityProvider, PropertyProvideable, Outputable, Inputable {
 
 	public final static String ENTITY_PREFIX = "assignment";
-	private static Log M_log = LogFactory.getLog(AssignmentEntityProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(AssignmentEntityProvider.class);
 
 	@AllArgsConstructor
 	public class DecoratedAttachment implements Comparable<Object> {

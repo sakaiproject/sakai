@@ -21,8 +21,8 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -45,7 +45,7 @@ public class Spreadsheet  implements Serializable {
     protected String name;
     protected Date dateCreated;
 
-    protected static final Log log = LogFactory.getLog(Spreadsheet.class);
+    protected static final Logger log = LoggerFactory.getLogger(Spreadsheet.class);
 
 
     public Spreadsheet(Gradebook gradebook, String content, String creator, String name, Date dateCreated) {

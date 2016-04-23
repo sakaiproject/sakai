@@ -26,9 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class DatePartStructure extends edu.indiana.lib.osid.base.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(DatePartStructure.class);
-		
-		
     private org.osid.shared.Id DATE_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type("mit.edu","partStructure","date","Date");
     private String displayName = "Date";

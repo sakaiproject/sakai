@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.DigestService;
@@ -73,7 +73,7 @@ import org.w3c.dom.Element;
 public class EmailNotification implements NotificationAction
 {
     // Our logger
-    private static Log M_log = LogFactory.getLog(EmailNotification.class);
+    private static Logger M_log = LoggerFactory.getLogger(EmailNotification.class);
 
 	protected final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
 	protected final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";

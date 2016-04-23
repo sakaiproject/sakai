@@ -36,8 +36,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
@@ -81,7 +81,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
     private int messagesMax = 100;
 
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     /** the clients listening to the various rooms */
     protected Map<String,List<RoomObserver>> roomListeners = new HashMap<String,List<RoomObserver>>();
@@ -962,9 +962,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                     statement.close();
                 } 
                 catch (Exception e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(e);
-                    }
+                    logger.debug(e.getMessage());
                 }
             }
             try{

@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.webservices;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -64,7 +64,7 @@ import java.util.Map;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class TestsAndQuizzes extends AbstractWebService {	
 
-	private static final Log LOG = LogFactory.getLog(TestsAndQuizzes.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TestsAndQuizzes.class);
 
 	/** 
 	 * createAssessmentFromText - WS Endpoint, exposing the SamLite createImportedAssessment()

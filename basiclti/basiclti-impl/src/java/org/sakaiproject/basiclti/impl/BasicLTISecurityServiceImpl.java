@@ -36,8 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
@@ -99,7 +99,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	 *******************************************************************************/
 
 	/** Dependency: a logger component. */
-	private Log logger = LogFactory.getLog(BasicLTISecurityServiceImpl.class);
+	private Logger logger = LoggerFactory.getLogger(BasicLTISecurityServiceImpl.class);
 
 	/**
 	 * Check security for this entity.

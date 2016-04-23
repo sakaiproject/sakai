@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -26,7 +26,7 @@ import org.sakaiproject.tool.api.SessionManager;
  */
 public class AuthzGroupProviderSync implements StatefulJob {
 
-	private static final Log log = LogFactory.getLog(AuthzGroupProviderSync.class);
+	private static final Logger log = LoggerFactory.getLogger(AuthzGroupProviderSync.class);
 	
 	// If it's been modified in the last hour ignore it.
 	private long refreshAge = 3600000;

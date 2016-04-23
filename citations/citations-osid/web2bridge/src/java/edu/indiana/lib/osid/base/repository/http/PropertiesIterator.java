@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class PropertiesIterator extends edu.indiana.lib.osid.base.repository.PropertiesIterator
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(PropertiesIterator.class);
-		
     private java.util.Vector vector = new java.util.Vector();
     private int i = 0;
 

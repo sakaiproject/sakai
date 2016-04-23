@@ -62,8 +62,8 @@ import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathConstants;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -120,7 +120,7 @@ import org.sakaiproject.util.foorm.FoormUtil;
 public class ServiceServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(ServiceServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(ServiceServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
 
 	protected static SakaiFoorm foorm = new SakaiFoorm();
@@ -348,7 +348,7 @@ public class ServiceServlet extends HttpServlet {
 				placement_id = dec2.substring(pos+3);
 			}
 		} catch (Exception e) {
-			// Log some detail for ourselves
+			// Logger some detail for ourselves
 			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
 			signature = null;
 			placement_id = null;
@@ -838,7 +838,7 @@ public class ServiceServlet extends HttpServlet {
 				placement_id = dec2.substring(pos+3);
 			}
 		} catch (Exception e) {
-			// Log some detail for ourselves
+			// Logger some detail for ourselves
 			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
 			signature = null;
 			placement_id = null;

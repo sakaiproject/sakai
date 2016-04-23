@@ -43,8 +43,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -86,7 +86,7 @@ import uk.org.ponder.rsf.util.RSFUtil;
  * 
  */
 public class PagePickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Log log = LogFactory.getLog(PagePickerProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(PagePickerProducer.class);
 	public static final String VIEW_ID = "PagePicker";
 	private static String SITE_UPD = "site.upd";
 

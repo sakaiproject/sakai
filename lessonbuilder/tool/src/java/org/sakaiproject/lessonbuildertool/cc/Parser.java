@@ -47,8 +47,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -76,7 +76,7 @@ import org.jdom.xpath.XPath;
  */
 
 public class Parser extends AbstractParser {
-  private static final Log log = LogFactory.getLog(Parser.class);
+  private static final Logger log = LoggerFactory.getLogger(Parser.class);
   CartridgeLoader utils; 
   
   private static final String IMS_MANIFEST="imsmanifest.xml";

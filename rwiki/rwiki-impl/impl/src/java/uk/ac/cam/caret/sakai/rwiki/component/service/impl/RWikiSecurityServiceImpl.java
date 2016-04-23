@@ -23,8 +23,8 @@ package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
@@ -51,7 +51,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 // FIXME: Component
 public class RWikiSecurityServiceImpl implements RWikiSecurityService
 {
-	private static Log log = LogFactory.getLog(RWikiSecurityServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiSecurityServiceImpl.class);
 
 	private FunctionManager functionManager;
 

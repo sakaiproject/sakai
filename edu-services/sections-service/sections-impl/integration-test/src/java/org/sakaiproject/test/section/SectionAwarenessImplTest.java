@@ -24,10 +24,10 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
@@ -41,7 +41,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
 public class SectionAwarenessImplTest extends SakaiTestBase {
-	private static final Log log = LogFactory.getLog(SectionAwarenessImplTest.class);
+	private static final Logger log = LoggerFactory.getLogger(SectionAwarenessImplTest.class);
 	
 	// Services
 	private SectionAwareness sectionAwareness;

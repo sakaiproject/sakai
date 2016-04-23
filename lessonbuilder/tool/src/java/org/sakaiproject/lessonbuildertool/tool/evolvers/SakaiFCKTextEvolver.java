@@ -9,8 +9,8 @@ package org.sakaiproject.lessonbuildertool.tool.evolvers;
 import java.util.Iterator;
 
 import org.sakaiproject.content.api.ContentHostingService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import uk.org.ponder.htmlutil.HTMLUtil;
@@ -24,7 +24,7 @@ import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 
 public class SakaiFCKTextEvolver implements TextInputEvolver {
-	private static final Log log = LogFactory.getLog(SakaiFCKTextEvolver.class);
+	private static final Logger log = LoggerFactory.getLogger(SakaiFCKTextEvolver.class);
 	public static final String COMPONENT_ID = "sakai-FCKEditor:";
 	private String context;
 	private ContentHostingService contentHostingService;

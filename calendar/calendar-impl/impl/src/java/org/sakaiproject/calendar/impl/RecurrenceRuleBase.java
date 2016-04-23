@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -47,7 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public abstract class RecurrenceRuleBase implements RecurrenceRule
 {
-	protected static final Log M_log = LogFactory.getLog(RecurrenceRuleBase.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(RecurrenceRuleBase.class);
 
 	/** Every this many number of units: 1 would be daily/monthly/annually. */
 	private int interval = 1;

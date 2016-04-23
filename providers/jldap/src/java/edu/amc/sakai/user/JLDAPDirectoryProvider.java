@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.user.api.*;
 import org.apache.commons.lang.StringUtils;
 
@@ -96,7 +96,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
 
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(JLDAPDirectoryProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(JLDAPDirectoryProvider.class);
 
 	/** LDAP host address */
 	private String ldapHost;

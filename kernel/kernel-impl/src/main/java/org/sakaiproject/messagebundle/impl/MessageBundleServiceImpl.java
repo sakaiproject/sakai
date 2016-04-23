@@ -21,8 +21,8 @@
 package org.sakaiproject.messagebundle.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.hibernate.*;
@@ -50,7 +50,7 @@ import java.util.Map.Entry;
  * To change this template use File | Settings | File Templates.
  */
 public class MessageBundleServiceImpl extends HibernateDaoSupport implements MessageBundleService {
-    private static Log logger = LogFactory.getLog(MessageBundleServiceImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(MessageBundleServiceImpl.class);
 
    /**
      * list of bundles that we've already indexed, only want to update once per startup

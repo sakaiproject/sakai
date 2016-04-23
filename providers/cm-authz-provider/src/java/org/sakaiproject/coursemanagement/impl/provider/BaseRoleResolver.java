@@ -24,11 +24,11 @@ package org.sakaiproject.coursemanagement.impl.provider;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BaseRoleResolver implements RoleResolver {
-	static final Log log = LogFactory.getLog(BaseRoleResolver.class);
+	static final Logger log = LoggerFactory.getLogger(BaseRoleResolver.class);
 
 	/** Map of CM section roles to Sakai roles */
 	protected Map<String, String> roleMap;

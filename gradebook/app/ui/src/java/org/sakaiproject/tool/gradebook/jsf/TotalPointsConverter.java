@@ -28,8 +28,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.NumberConverter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -40,7 +40,7 @@ import org.sakaiproject.util.ResourceLoader;
  * Example: 10.0 -> 10, 10.50 -> 10.5
  */
 public class TotalPointsConverter extends NumberConverter {
-    private static final Log log = LogFactory.getLog(TotalPointsConverter.class);
+    private static final Logger log = LoggerFactory.getLogger(TotalPointsConverter.class);
 
     public TotalPointsConverter() {
         setType("number");

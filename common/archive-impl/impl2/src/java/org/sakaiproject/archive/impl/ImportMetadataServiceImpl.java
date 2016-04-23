@@ -24,8 +24,8 @@ package org.sakaiproject.archive.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.api.ImportMetadataService;
 import org.w3c.dom.Document;
@@ -41,7 +41,7 @@ import org.w3c.dom.NodeList;
 
 public class ImportMetadataServiceImpl implements ImportMetadataService
 {
-  private static final Log LOG = LogFactory.getLog(ImportMetadataImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ImportMetadataImpl.class);
 
   private static final String ROOT = "importConfiguration";
   private static final String MAPPINGS = "mappings";

@@ -37,8 +37,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -55,7 +55,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class StorageUtils {
 
-	private static Log M_log = LogFactory.getLog(StorageUtils.class);
+	private static Logger M_log = LoggerFactory.getLogger(StorageUtils.class);
 
 	private static SAXParserFactory parserFactory;
 

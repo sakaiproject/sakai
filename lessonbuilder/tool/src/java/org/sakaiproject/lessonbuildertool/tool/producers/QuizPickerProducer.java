@@ -28,8 +28,8 @@ import java.util.List;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -69,7 +69,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class QuizPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Log log = LogFactory.getLog(QuizPickerProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(QuizPickerProducer.class);
 	public static final String VIEW_ID = "QuizPicker";
 
 	private SimplePageBean simplePageBean;

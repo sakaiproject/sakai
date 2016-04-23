@@ -25,8 +25,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.logic.ValidationException;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
@@ -48,7 +48,7 @@ import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 
 public class ClaimLocator implements BeanLocator {
-	private static Log log = LogFactory.getLog(ClaimLocator.class);
+	private static Logger log = LoggerFactory.getLogger(ClaimLocator.class);
 	
 	private ValidationLogic validationLogic;
 	public void setValidationLogic(ValidationLogic vl) {

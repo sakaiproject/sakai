@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.content.api.ContentResource;
@@ -84,7 +84,7 @@ public class AnswerBean implements Serializable, Comparable{
   //for navigation
   private String outcome;
   
-  private static Log log = LogFactory.getLog(AnswerBean.class);
+  private static Logger log = LoggerFactory.getLogger(AnswerBean.class);
   private String partialCredit = "0";  //to incorporate partial credit
   private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 

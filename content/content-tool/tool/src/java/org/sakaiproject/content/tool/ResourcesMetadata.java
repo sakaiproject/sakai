@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -44,7 +44,7 @@ public class ResourcesMetadata
 	/** Resource bundle using current language locale */
 	private ResourceLoader rb = new ResourceLoader("content");
 	
-	static final Log logger = LogFactory.getLog(ResourcesMetadata.class);
+	static final Logger logger = LoggerFactory.getLogger(ResourcesMetadata.class);
     
 	public static final String WIDGET_STRING = "string";
 	public static final String WIDGET_TEXTAREA = "textarea";

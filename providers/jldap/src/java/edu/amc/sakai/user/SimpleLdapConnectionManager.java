@@ -3,8 +3,8 @@ package edu.amc.sakai.user;
 import java.io.UnsupportedEncodingException;
 
 import com.novell.ldap.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Allocates connected, constrained, and optionally
@@ -22,7 +22,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 		"javax.net.ssl.trustStorePassword";
 	
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(SimpleLdapConnectionManager.class);
+	private static Logger M_log = LoggerFactory.getLogger(SimpleLdapConnectionManager.class);
 	
 	/** connection allocation configuration */
 	private LdapConnectionManagerConfig config;

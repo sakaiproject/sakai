@@ -31,8 +31,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -61,7 +61,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 public class ResetItemAttachmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ResetItemAttachmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(ResetItemAttachmentListener.class);
 
   public ResetItemAttachmentListener()
   {

@@ -27,8 +27,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -41,7 +41,7 @@ import org.sakaiproject.search.api.SearchUtils;
  */
 public class PDFContentDigester extends BaseContentDigester
 {
-	private static Log log = LogFactory.getLog(PDFContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(PDFContentDigester.class);
 
 	public String getContent(ContentResource contentResource)
 	{
@@ -85,7 +85,7 @@ public class PDFContentDigester extends BaseContentDigester
 					pddoc.close();
 				} 
 				catch (IOException e) {
-					log.debug(e);
+					log.debug(e.getMessage());
 				}
 			}
 			
@@ -97,7 +97,7 @@ public class PDFContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
-					log.debug(e);
+					log.debug(e.getMessage());
 				}
 			}
 		}

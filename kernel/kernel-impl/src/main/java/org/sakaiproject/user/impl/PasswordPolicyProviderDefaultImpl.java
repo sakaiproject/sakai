@@ -23,8 +23,8 @@ package org.sakaiproject.user.impl;
 
 import java.util.Arrays;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.PasswordPolicyProvider;
@@ -39,7 +39,7 @@ import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider {
 
     /** Our log (commons). */
-    private static Log logger = LogFactory.getLog(PasswordPolicyProviderDefaultImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(PasswordPolicyProviderDefaultImpl.class);
 
     /** value for minimum password entropy */
     private static final int DEFAULT_MIN_ENTROPY = 16;

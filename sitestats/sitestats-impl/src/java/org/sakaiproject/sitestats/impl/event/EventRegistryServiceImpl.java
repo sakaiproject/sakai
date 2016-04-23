@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.impl.event;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -42,7 +42,7 @@ import java.util.*;
 
 public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService, Observer {
 	/** Static fields */
-	private static Log					LOG							= LogFactory.getLog(EventRegistryServiceImpl.class);
+	private static Logger					LOG							= LoggerFactory.getLogger(EventRegistryServiceImpl.class);
 	private static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
 	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
 	private static ResourceLoader		msgs						= new ResourceLoader("Messages");

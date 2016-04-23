@@ -47,8 +47,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.lti.api.LTIService;
 import org.tsugi.lti2.ContentItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Placement;
@@ -85,7 +85,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class LtiFileItemProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Log log = LogFactory.getLog(LtiFileItemProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(LtiFileItemProducer.class);
 	public static final String VIEW_ID = "LtiFileItem";
 
 	private SimplePageBean simplePageBean;

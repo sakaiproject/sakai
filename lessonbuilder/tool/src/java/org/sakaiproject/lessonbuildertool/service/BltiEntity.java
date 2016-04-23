@@ -39,8 +39,8 @@ import java.util.Properties;
 
 import java.net.URLEncoder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -84,7 +84,7 @@ import org.sakaiproject.lti.api.LTIService;
 
 public class BltiEntity implements LessonEntity, BltiInterface {
 
-    private static Log log = LogFactory.getLog(BltiEntity.class);
+    private static Logger log = LoggerFactory.getLogger(BltiEntity.class);
 
     private static Cache bltiCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;

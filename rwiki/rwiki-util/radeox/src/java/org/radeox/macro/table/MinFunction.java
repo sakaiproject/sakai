@@ -23,8 +23,8 @@
 
 package org.radeox.macro.table;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A function that finds the max of table cells
@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class MinFunction implements Function
 {
-	private static Log log = LogFactory.getLog(MinFunction.class);
+	private static Logger log = LoggerFactory.getLogger(MinFunction.class);
 
 	public String getName()
 	{

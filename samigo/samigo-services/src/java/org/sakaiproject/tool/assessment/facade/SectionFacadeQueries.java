@@ -23,8 +23,8 @@ package org.sakaiproject.tool.assessment.facade;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -36,7 +36,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
-  private Log log = LogFactory.getLog(SectionFacadeQueries.class);
+  private Logger log = LoggerFactory.getLogger(SectionFacadeQueries.class);
 
   public SectionFacadeQueries () {
   }

@@ -33,8 +33,8 @@ import java.util.StringTokenizer;
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Enhanced version of the PortletStateEncoder. This implementation translates
@@ -51,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
 public class EnhancedPortletStateEncoder implements PortletStateEncoder
 {
 
-	private static final Log LOG = LogFactory.getLog(EnhancedPortletStateEncoder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EnhancedPortletStateEncoder.class);
 
 	//
 	// Implementation Note:

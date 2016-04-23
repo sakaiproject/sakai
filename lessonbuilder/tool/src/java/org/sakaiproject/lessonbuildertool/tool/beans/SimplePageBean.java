@@ -28,8 +28,8 @@ import java.text.SimpleDateFormat;
 import java.text.Format;
 import java.math.BigDecimal;
 import java.util.Locale;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -125,7 +125,7 @@ public class SimplePageBean {
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Log log = LogFactory.getLog(SimplePageBean.class);
+	private static Logger log = LoggerFactory.getLogger(SimplePageBean.class);
 
 	public enum Status {
 	    NOT_REQUIRED, REQUIRED, DISABLED, COMPLETED, FAILED, NEEDSGRADING
@@ -7512,7 +7512,7 @@ public class SimplePageBean {
 			String relativeUrl = contentCollectionId + index;
 			return relativeUrl;
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			setErrKey("simplepage.website.cantexpand", null);
 			return null;
 		}

@@ -23,8 +23,8 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -85,7 +85,7 @@ import java.util.*;
 
 public class SamigoEntity implements LessonEntity, QuizEntity {
 
-    private static Log log = LogFactory.getLog(SamigoEntity.class);
+    private static Logger log = LoggerFactory.getLogger(SamigoEntity.class);
 
     private static Cache assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -252,7 +252,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    }
 
 	    if (false) {  // testing
-		log.info(entity.getGroups(true));
+		log.info(entity.getGroups(true).toString());
 		List<String> oldGroups = entity.getGroups(true);
 		//5c51c1fb-bf48-475f-99a6-a303f5ad9520
 		//d579a252-204e-46cd-9720-7eca7bd47630

@@ -34,8 +34,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
@@ -54,7 +54,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  */
 public class EditStudentSectionsBean extends FilteredSectionListingBean implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(EditStudentSectionsBean.class);
+	private static final Logger log = LoggerFactory.getLogger(EditStudentSectionsBean.class);
 
 	protected static final String UNASSIGNED = "unassigned";
 

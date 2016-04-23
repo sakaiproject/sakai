@@ -40,8 +40,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
@@ -63,7 +63,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 public class EmailTemplateServiceImpl implements EmailTemplateService {
 
-   private static Log log = LogFactory.getLog(EmailTemplateServiceImpl.class);
+   private static Logger log = LoggerFactory.getLogger(EmailTemplateServiceImpl.class);
 
    private EmailTemplateServiceDao dao;
    public void setDao(EmailTemplateServiceDao d) {

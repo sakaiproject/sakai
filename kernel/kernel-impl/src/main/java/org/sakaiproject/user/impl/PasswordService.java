@@ -28,8 +28,8 @@ import java.util.Random;
 
 import javax.mail.internet.MimeUtility;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PasswordService {
 
-	private final static Log log = LogFactory.getLog(PasswordService.class);
+	private final static Logger log = LoggerFactory.getLogger(PasswordService.class);
 
 	private Random saltSource = new Random();
 

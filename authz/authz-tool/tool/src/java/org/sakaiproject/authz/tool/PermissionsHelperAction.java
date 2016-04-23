@@ -27,8 +27,8 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
@@ -66,7 +66,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class PermissionsHelperAction extends VelocityPortletPaneledAction
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(PermissionsHelperAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(PermissionsHelperAction.class);
 
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");
 
@@ -161,7 +161,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			}
 			catch (IOException e)
 			{
-				Log.warn("chef", this + " : ", e);
+			 	M_log.warn(e.getMessage());
 			}
 			return;
 		}

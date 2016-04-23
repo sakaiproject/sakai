@@ -29,8 +29,8 @@ import javax.faces.component.UIData;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.exception.IdUnusedException;
@@ -53,7 +53,7 @@ import org.sakaiproject.tool.cover.SessionManager;
  */
 public class SignupPermissionsUpdateBean {
 
-	private Log logger = LogFactory.getLog(SignupPermissionsUpdateBean.class);
+	private Logger logger = LoggerFactory.getLogger(SignupPermissionsUpdateBean.class);
 
 	private SakaiFacade sakaiFacade;
 

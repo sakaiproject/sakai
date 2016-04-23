@@ -16,8 +16,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentResource;
@@ -54,7 +54,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 
     private static final int QTI_VERSION = 1;
     private static final String ARCHIVED_ELEMENT = "assessment";
-    private Log log = LogFactory.getLog(AssessmentEntityProducer.class);
+    private Logger log = LoggerFactory.getLogger(AssessmentEntityProducer.class);
     private QTIServiceAPI qtiService;
 
 	public void init() {

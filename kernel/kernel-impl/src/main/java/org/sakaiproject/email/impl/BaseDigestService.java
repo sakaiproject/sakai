@@ -34,8 +34,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.Digest;
@@ -78,7 +78,7 @@ import org.w3c.dom.NodeList;
 public abstract class BaseDigestService implements DigestService, SingleStorageUser
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BasicEmailService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BasicEmailService.class);
 
 	/** localized tool properties **/
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.EmailImplProperties";

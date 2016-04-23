@@ -26,8 +26,8 @@ package org.radeox.filter.regex;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.filter.FilterSupport;
 import org.radeox.filter.context.FilterContext;
 
@@ -40,7 +40,7 @@ import org.radeox.filter.context.FilterContext;
 
 public abstract class RegexFilter extends FilterSupport
 {
-	private static Log log = LogFactory.getLog(RegexFilter.class);
+	private static Logger log = LoggerFactory.getLogger(RegexFilter.class);
 
 	protected List pattern = new ArrayList();
 

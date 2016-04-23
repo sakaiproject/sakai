@@ -22,8 +22,8 @@ package org.sakaiproject.search.component.adapter.contenthosting;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 public abstract class BaseContentDigester implements ContentDigester
 {
 
-	private static Log log = LogFactory.getLog(BaseContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(BaseContentDigester.class);
 
 	private ContentHostingContentProducer contentProducer = null;
 	

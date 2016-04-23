@@ -6,15 +6,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.BasePhotoService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class FileSystemPhotoService extends BasePhotoService {
-	private static final Log LOG = LogFactory.getLog(FileSystemPhotoService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FileSystemPhotoService.class);
 	
 	private String photoRepositoryPath = null;
 	

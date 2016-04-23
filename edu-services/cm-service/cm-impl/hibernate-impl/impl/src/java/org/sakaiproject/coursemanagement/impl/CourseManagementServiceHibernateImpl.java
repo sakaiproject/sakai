@@ -36,8 +36,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -59,7 +59,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  *
  */
 public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport implements CourseManagementService {
-	private static final Log log = LogFactory.getLog(CourseManagementServiceHibernateImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseManagementServiceHibernateImpl.class);
 	
 	public void init() {
 		log.info("Initializing " + getClass().getName());

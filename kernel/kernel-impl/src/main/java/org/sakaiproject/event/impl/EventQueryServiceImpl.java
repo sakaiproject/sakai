@@ -1,7 +1,7 @@
 package org.sakaiproject.event.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.api.EventQueryService;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -24,7 +24,7 @@ import org.sakaiproject.db.api.SqlService;
  */
 public class EventQueryServiceImpl implements EventQueryService {
 
-	private static Log log = LogFactory.getLog(EventQueryServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(EventQueryServiceImpl.class);
 	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 

@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -60,9 +61,8 @@ import edu.indiana.lib.twinpeaks.util.StringUtils;
 /**
  * Parse the Web2 XML response
  */
+@Slf4j
 public class Web2Response extends SearchResultBase {
-	private static org.apache.commons.logging.Log _log = LogUtils
-			.getLog(Web2Response.class);
 
 	private SessionContext sessionContext;
 
@@ -153,7 +153,7 @@ public class Web2Response extends SearchResultBase {
 
 					StatusUtils.setGlobalError(sessionContext, status, text);
 
-					_log.error("Error RECORD found");
+					log.error("Error RECORD found");
 					displayXml(recordElement);
 
 					throw new SearchException(status);
@@ -161,7 +161,7 @@ public class Web2Response extends SearchResultBase {
 				/*
 				 * Not an error, just note it and ignore
 				 */
-				_log.debug("Skipping RECORD with non-null TYPE \"" + recordType
+				log.debug("Skipping RECORD with non-null TYPE \"" + recordType
 						+ "\"");
 				continue;
 			}
@@ -181,7 +181,7 @@ public class Web2Response extends SearchResultBase {
 			 * document
 			 */
 			if ((dataElement = DomUtils.getElement(recordElement, "DATA")) == null) {
-				_log.error("No DATA element present in server response");
+				log.error("No DATA element present in server response");
   			displayXml(recordElement);
 				throw new SearchException(
 						"Missing mandatory <DATA> element in server response");
@@ -189,13 +189,13 @@ public class Web2Response extends SearchResultBase {
 
 			title = getText(dataElement, "TITLE");
 			if (StringUtils.isNull(title)) {
-				_log.debug("No TITLE text in server response");
+				log.debug("No TITLE text in server response");
 				title = "";
 			}
 
 			description = getText(dataElement, "DESCRIPTION");
 			if (StringUtils.isNull(description)) {
-				_log.debug("No DESCRIPTION text in server response");
+				log.debug("No DESCRIPTION text in server response");
 				description = "";
 			}
 			/*
@@ -205,7 +205,7 @@ public class Web2Response extends SearchResultBase {
 			/*
 			 * Title, abstract, record ID
 			 */
-			_log.debug("Adding TITLE: " + title);
+			log.debug("Adding TITLE: " + title);
 
 			item.setDisplayName(title);
 			item.setDescription(description);
@@ -474,7 +474,7 @@ public class Web2Response extends SearchResultBase {
 			}
 
 		} catch (org.osid.repository.RepositoryException e) {
-			_log.warn("doRegexParse() failed", e);
+			log.warn("doRegexParse() failed", e);
 		}
 	}
 
@@ -503,7 +503,7 @@ public class Web2Response extends SearchResultBase {
 
 			// delete all non-digit chars (ie: p., pp., etc.)
 			spage = spage.replaceAll("\\D", "");
-			_log.debug("======================&&&& Start page: spage &&&================");
+			log.debug("======================&&&& Start page: spage &&&================");
 
 			// create startPage part
 			addPartStructure(item,
@@ -517,7 +517,7 @@ public class Web2Response extends SearchResultBase {
 						.getId(), epage);
 			}
 		} catch (StringIndexOutOfBoundsException e) {
-			_log.warn("createPagesPart()", e);
+			log.warn("createPagesPart()", e);
 		}
 	}
 
@@ -703,7 +703,7 @@ public class Web2Response extends SearchResultBase {
 	private static void displayXml(String errorText, Object xmlObject) {
 
 		try {
-			LogUtils.displayXml(_log, errorText, xmlObject);
+			LogUtils.displayXml(log, errorText, xmlObject);
 		} catch (Exception ignore) {
 		}
 	}
@@ -717,7 +717,7 @@ public class Web2Response extends SearchResultBase {
 	private void displayXml(Object xmlObject) {
 
 		try {
-			LogUtils.displayXml(_log, xmlObject);
+			LogUtils.displayXml(log, xmlObject);
 		} catch (Exception ignore) {
 		}
 	}

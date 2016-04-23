@@ -31,8 +31,8 @@ import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.CourierService;
@@ -55,7 +55,7 @@ import org.sakaiproject.util.StringUtil;
 public class BasicCourierService implements CourierService
 {
 	/** Our logger. */
-	private static final Log M_log = LogFactory.getLog(BasicCourierService.class);
+	private static final Logger M_log = LoggerFactory.getLogger(BasicCourierService.class);
 
         protected static final int nLocks = 100;
 

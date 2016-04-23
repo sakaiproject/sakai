@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.sakai;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
@@ -40,7 +40,7 @@ import org.sakaiproject.site.cover.SiteService;
  */
 public class CourseManagerImpl implements CourseManager {
 
-	private static final Log log = LogFactory.getLog(CourseManagerImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseManagerImpl.class);
 
 	/**
 	 * @inheritDoc

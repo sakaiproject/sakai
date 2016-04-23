@@ -21,8 +21,8 @@
 
 package org.sakaiproject.userauditservice.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,7 +44,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class UserAuditRegistrationUtil implements UserAuditRegistration
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(UserAuditRegistrationUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(UserAuditRegistrationUtil.class);
 	
 	// Services needed
 	protected SqlService sqlService;

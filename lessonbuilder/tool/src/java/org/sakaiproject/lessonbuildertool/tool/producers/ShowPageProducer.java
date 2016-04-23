@@ -66,8 +66,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -165,7 +165,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @author Eric Jeney <jeney@rutgers.edu>
  */
 public class ShowPageProducer implements ViewComponentProducer, DefaultView, NavigationCaseReporter, ViewParamsReporter {
-	private static Log log = LogFactory.getLog(ShowPageProducer.class);
+	private static Logger log = LoggerFactory.getLogger(ShowPageProducer.class);
 
 	String reqStar = "<span class=\"reqStar\">*</span>";
 	

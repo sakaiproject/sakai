@@ -38,8 +38,8 @@ import java.util.Map;
 import java.util.Iterator;
 import java.lang.reflect.Method;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -123,7 +123,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	String groupid;
     }
 
-    private static Log log = LogFactory.getLog(Assignment2Entity.class);
+    private static Logger log = LoggerFactory.getLogger(Assignment2Entity.class);
 
     private static Cache assignmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;

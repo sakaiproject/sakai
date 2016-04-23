@@ -25,8 +25,8 @@ import java.util.Map.Entry;
 import javax.mail.MessagingException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -71,7 +71,7 @@ import org.sakaiproject.util.Validator;
  */
 public class ExternalLogicImpl implements ExternalLogic
 {
-	private static Log log = LogFactory.getLog(ExternalLogicImpl.class);
+	private static Logger log = LoggerFactory.getLogger(ExternalLogicImpl.class);
 
 	// external service references
 	private FunctionManager functionManager;

@@ -34,8 +34,8 @@ import java.util.Set;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
@@ -51,7 +51,7 @@ import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class AssignmentDetailsBean extends EnrollmentTableBean {
-	private static final Log logger = LogFactory.getLog(AssignmentDetailsBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(AssignmentDetailsBean.class);
 
 	/**
 	 * The following variable keeps bean initialization from overwriting

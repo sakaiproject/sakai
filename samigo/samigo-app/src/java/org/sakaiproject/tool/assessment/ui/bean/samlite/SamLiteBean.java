@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
@@ -23,7 +23,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 
 public class SamLiteBean implements Serializable {
-	private static Log log = LogFactory.getLog(SamLiteBean.class);
+	private static Logger log = LoggerFactory.getLogger(SamLiteBean.class);
 	private static final long serialVersionUID = -3122436861866172596L;
 	public static final String DEFAULT_CHARSET = "ascii-us";
 

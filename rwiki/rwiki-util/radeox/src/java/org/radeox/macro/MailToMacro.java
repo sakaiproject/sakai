@@ -26,8 +26,8 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.Messages;
 import org.radeox.api.macro.MacroParameter;
 
@@ -39,7 +39,7 @@ import org.radeox.api.macro.MacroParameter;
 
 public class MailToMacro extends LocalePreserved
 {
-	private static Log log = LogFactory.getLog(MailToMacro.class);
+	private static Logger log = LoggerFactory.getLogger(MailToMacro.class);
 
 	private String[] paramDescription = { Messages.getString("MailToMacro.0") }; //$NON-NLS-1$
 

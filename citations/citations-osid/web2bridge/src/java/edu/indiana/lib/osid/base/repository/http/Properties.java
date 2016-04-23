@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class Properties extends edu.indiana.lib.osid.base.repository.Properties
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(Properties.class);
-		
     public org.osid.shared.ObjectIterator getKeys()
     throws org.osid.shared.SharedException
     {

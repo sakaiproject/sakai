@@ -27,8 +27,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -42,7 +42,7 @@ import org.sakaiproject.user.api.UserEdit;
 public class IMSEntUserDirectoryProvider implements UserDirectoryProvider
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(IMSEntUserDirectoryProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(IMSEntUserDirectoryProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods

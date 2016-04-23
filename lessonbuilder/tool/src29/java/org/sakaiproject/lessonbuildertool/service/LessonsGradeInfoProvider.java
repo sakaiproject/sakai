@@ -21,8 +21,8 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -44,7 +44,7 @@ import java.util.*;
 
 public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 
-    private Log log = LogFactory.getLog(LessonsGradeInfoProvider.class);
+    private Logger log = LoggerFactory.getLogger(LessonsGradeInfoProvider.class);
 
     // caching
     private static Cache cache = null;

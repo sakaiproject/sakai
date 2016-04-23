@@ -23,8 +23,8 @@ package org.sakaiproject.assignment.taggable.impl;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -39,8 +39,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class AssignmentItemImpl implements TaggableItem {
 
-	private static final Log logger = LogFactory
-			.getLog(AssignmentItemImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(AssignmentItemImpl.class);
 
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 

@@ -22,8 +22,8 @@
 package org.sakaiproject.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.i18n.InternationalizedMessages;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("rawtypes")
 public class ResourceLoader extends DummyMap implements InternationalizedMessages
 {
-	protected static final Log M_log = LogFactory.getLog(ResourceLoader.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(ResourceLoader.class);
 
 	// name of ResourceBundle
 	protected String baseName = null;

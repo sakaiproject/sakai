@@ -3,8 +3,6 @@ package edu.indiana.lib.osid.base.repository.http;
 public class SharedProperties
 implements org.osid.shared.Properties
 {
-	private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(SharedProperties.class);
-	
     private java.util.Map map = new java.util.HashMap();
     private org.osid.shared.Type type = new Type("edu.mit","shared","empty");
 

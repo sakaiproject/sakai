@@ -26,8 +26,8 @@ import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
@@ -41,7 +41,7 @@ public class URLUtils
 	/**
 	 * Our log (commons).
 	 */
-	private static Log M_log = LogFactory.getLog(URLUtils.class);
+	private static Logger M_log = LoggerFactory.getLogger(URLUtils.class);
 
 	public static String addParameter(String URL, String name, String value)
 	{

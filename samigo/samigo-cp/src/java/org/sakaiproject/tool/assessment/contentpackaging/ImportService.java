@@ -39,8 +39,8 @@ import javax.servlet.ServletContext;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -53,7 +53,7 @@ import org.w3c.dom.NodeList;
  */
 
 public class ImportService {
-	private static Log log = LogFactory.getLog(ImportService.class);
+	private static Logger log = LoggerFactory.getLogger(ImportService.class);
 	private String qtiFilename;
 
 	public String unzipImportFile(String filename) {

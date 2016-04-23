@@ -29,8 +29,8 @@ import java.util.Vector;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
@@ -162,7 +162,7 @@ public class AdminPrefsTool
 	}
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(AdminPrefsTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(AdminPrefsTool.class);
 
 	/** The PreferencesEdit being worked on. */
 	protected PreferencesEdit m_edit = null;

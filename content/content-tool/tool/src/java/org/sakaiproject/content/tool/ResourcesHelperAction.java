@@ -48,8 +48,8 @@ import java.io.PrintWriter;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -92,7 +92,7 @@ import org.sakaiproject.event.api.NotificationEdit;
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
 	/** the logger for this class */
-	 private static final Log logger = LogFactory.getLog(ResourcesHelperAction.class);
+	 private static final Logger logger = LoggerFactory.getLogger(ResourcesHelperAction.class);
 	 
 	 private static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 	 

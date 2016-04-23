@@ -24,8 +24,8 @@ package org.sakaiproject.component.common.edu.person;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -42,7 +42,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
  */
 public class SakaiPersonObserver implements Observer {
 
-	private static Log log = LogFactory.getLog(SakaiPersonObserver.class);
+	private static Logger log = LoggerFactory.getLogger(SakaiPersonObserver.class);
 	
 	private EventTrackingService eventTrackingService;	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {

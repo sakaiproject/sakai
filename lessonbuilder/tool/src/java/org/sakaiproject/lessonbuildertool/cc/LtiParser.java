@@ -44,8 +44,8 @@ package org.sakaiproject.lessonbuildertool.cc;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -53,7 +53,7 @@ import org.jdom.Namespace;
 import org.jdom.xpath.XPath;
 
 public class LtiParser extends AbstractParser implements ContentParser {
-  private static final Log log = LogFactory.getLog(LtiParser.class);
+  private static final Logger log = LoggerFactory.getLogger(LtiParser.class);
   private static final Namespace LT_NS = Namespace.getNamespace("dt", "http://www.imsglobal.org/xsd/imsbasiclti_v1p0");
   
   private static final String FILE="file";

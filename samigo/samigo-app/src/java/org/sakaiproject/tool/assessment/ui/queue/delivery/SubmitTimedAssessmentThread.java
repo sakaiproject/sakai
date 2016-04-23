@@ -23,8 +23,8 @@ package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -52,7 +52,7 @@ import java.util.ResourceBundle;
 public class SubmitTimedAssessmentThread extends TimerTask
 {
 
-  private static final Log log = LogFactory.getLog(SubmitTimedAssessmentThread.class);
+  private static final Logger log = LoggerFactory.getLogger(SubmitTimedAssessmentThread.class);
   private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   
   public SubmitTimedAssessmentThread(){}

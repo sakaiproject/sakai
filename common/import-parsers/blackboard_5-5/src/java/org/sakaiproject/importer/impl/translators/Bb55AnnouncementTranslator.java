@@ -5,8 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.impl.Blackboard55FileParser;
@@ -17,7 +17,7 @@ import org.w3c.dom.Node;
 
 public class Bb55AnnouncementTranslator implements IMSResourceTranslator {
 	
-	private static Log log = LogFactory.getLog(Bb55AnnouncementTranslator.class);
+	private static Logger log = LoggerFactory.getLogger(Bb55AnnouncementTranslator.class);
 
 	public String getTypeName() {
 		// TODO Auto-generated method stub

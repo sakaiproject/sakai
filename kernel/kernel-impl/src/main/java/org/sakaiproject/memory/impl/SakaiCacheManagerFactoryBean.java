@@ -26,8 +26,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -75,7 +75,7 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
     private final static String DEFAULT_CACHE_SERVER_URL = "localhost:9510";
     private final static int DEFAULT_CACHE_TIMEOUT = 600; // 10 mins
     private final static int DEFAULT_CACHE_MAX_OBJECTS = 10000;
-    protected final Log logger = LogFactory.getLog(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
     protected ServerConfigurationService serverConfigurationService;
     private Resource configLocation;
     private boolean shared = false;

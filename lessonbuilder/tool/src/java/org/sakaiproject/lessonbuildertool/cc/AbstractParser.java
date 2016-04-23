@@ -46,8 +46,8 @@ package org.sakaiproject.lessonbuildertool.cc;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -62,7 +62,7 @@ import java.io.StringBufferInputStream;
 
 public abstract class AbstractParser {
 
-  private static final Log log = LogFactory.getLog(AbstractParser.class);
+  private static final Logger log = LoggerFactory.getLogger(AbstractParser.class);
   private static final String RESOURCE_QUERY="ims:resource[@identifier='xxx']";
   private static final String MD_ROOT="lom";
   private static final String METADATA="metadata";

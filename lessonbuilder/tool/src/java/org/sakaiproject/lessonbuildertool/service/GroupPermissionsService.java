@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
@@ -59,7 +59,7 @@ import org.sakaiproject.db.api.SqlReader;
  * 
  */
 public class GroupPermissionsService {
-	private static Log log = LogFactory.getLog(GroupPermissionsService.class);
+	private static Logger log = LoggerFactory.getLogger(GroupPermissionsService.class);
 
         static private LessonEntity forumEntity = null;
         public void setForumEntity(Object e) {

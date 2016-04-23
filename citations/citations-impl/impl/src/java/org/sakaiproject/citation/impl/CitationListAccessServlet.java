@@ -30,8 +30,8 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationCollectionOrder;
@@ -64,7 +64,7 @@ public class CitationListAccessServlet implements HttpAccess
 	protected static ResourceLoader rb = new ResourceLoader("citations");
 	
 	/** Our logger. */
-	private static Log m_log = LogFactory.getLog(CitationListAccessServlet.class);
+	private static Logger m_log = LoggerFactory.getLogger(CitationListAccessServlet.class);
 
 	private static final Collection<String> specialKeys = new HashSet<String>();
 	static {

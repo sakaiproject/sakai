@@ -4,8 +4,8 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -17,7 +17,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport 
 					implements FavoriteColChoicesFacadeQueriesAPI {
-	private Log log = LogFactory.getLog(FavoriteColChoicesFacadeQueries.class);
+	private Logger log = LoggerFactory.getLogger(FavoriteColChoicesFacadeQueries.class);
 	 public FavoriteColChoicesFacadeQueries () {
 	  }
 

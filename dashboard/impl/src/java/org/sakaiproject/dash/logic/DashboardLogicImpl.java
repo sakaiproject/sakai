@@ -1187,7 +1187,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 			if(calendarLinks.size() > 0) {
 				count = dao.addCalendarLinks(calendarLinks);
 			}
-			// TODO: Log count
+			// TODO: Logger count
 		}
 		if(logger.isDebugEnabled()) {
 			StringBuilder buf = new StringBuilder("updateCalendarLinks(");

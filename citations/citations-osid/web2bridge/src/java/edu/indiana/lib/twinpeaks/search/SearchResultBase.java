@@ -19,25 +19,20 @@ package edu.indiana.lib.twinpeaks.search;
 
 import edu.indiana.lib.twinpeaks.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.osid.repository.AssetIterator;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.xml.parsers.*;
-
 import org.w3c.dom.*;
-import org.w3c.dom.html.*;
-import org.xml.sax.*;
 
 /**
  * Result rendering - base class and helpers
  */
+@Slf4j
 public abstract class SearchResultBase implements SearchResultInterface
 {
-	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(SearchResultBase.class);
-
 	/**
 	 * Parse the search engine response and expose pertinent results
 	 */
@@ -128,7 +123,7 @@ public abstract class SearchResultBase implements SearchResultInterface
     try {
       _start = Integer.parseInt(start);
     } catch (NumberFormatException exception) {
-      _log.warn("Invalid number format: " + start);
+      log.warn("Invalid number format: " + start);
       return;
     }
 	}
@@ -286,7 +281,7 @@ public abstract class SearchResultBase implements SearchResultInterface
 	public String prependProxy(String url, String proxy) {
 		StringBuilder fullUrl;
 
-		_log.debug("prependProxy: proxy [" + proxy + "] vs. [" + url + "]");
+		log.debug("prependProxy: proxy [" + proxy + "] vs. [" + url + "]");
 
 		if (StringUtils.isNull(proxy)) {
 			return url;
@@ -322,7 +317,7 @@ public abstract class SearchResultBase implements SearchResultInterface
 			tag = nodeList.item(0).getNodeName();
 		}
 
-    _log.debug("Unexpected "
+    log.debug("Unexpected "
     								+		tag
     								+ 	" count: "
     								+ 	length

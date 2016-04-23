@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -58,6 +59,7 @@ import org.sakaiproject.util.ResourceLoader;
  * MembershipAction is a tool which displays Sites and lets the user join and un-join joinable Sites.
  * </p>
  */
+@Slf4j
 public class MembershipAction extends PagedResourceActionII
 {
 	private static String STATE_VIEW_MODE = "state_view";
@@ -265,7 +267,7 @@ public class MembershipAction extends PagedResourceActionII
 					}
 					catch( IdNotFoundException ex )
 					{
-						Log.warn( "MembershipAction.buildMainPanelContext: cannot find section " + providerID, ex.getMessage() );
+					 	log.warn( "cannot find section {}, {}", providerID, ex.getMessage());
 					}
 				}
 				
@@ -355,7 +357,7 @@ public class MembershipAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e)
 				{
-					Log.warn("chef", this + ".buildUnjoinconfirmContext(): " + e);
+				 	log.warn(e.getMessage());
 				}
 			}
 			context.put("unjoinSite", unjoinSite);
@@ -477,13 +479,9 @@ public class MembershipAction extends PagedResourceActionII
 					userAuditRegistration.addToUserAuditing(userAuditList);
 				}
 			}
-			catch (IdUnusedException e)
+			catch (IdUnusedException | PermissionException e)
 			{
-				Log.warn("chef", this + ".doJoin(): " + e);
-			}
-			catch (PermissionException e)
-			{
-				Log.warn("chef", this + ".doJoin(): " + e);
+			 	log.warn(e.getMessage());
 			}
 			catch (InUseException e)
 			{
@@ -543,11 +541,11 @@ public class MembershipAction extends PagedResourceActionII
 				{
 					// This could occur if the user's role is the maintain role for the site, and we don't let the user
 					// unjoin sites they are maintainers of
-					Log.warn("chef", this + ".doUnjoin(): " + e);
+				 	log.warn(e.getMessage());
 				}
 				catch (InUseException e)
 				{
-					Log.warn("chef", this + ".doJoin(): " + e);
+				 	log.warn(e.getMessage());
 					addAlert(state, rb.getString("mb.sitebeing"));
 				}
 			}

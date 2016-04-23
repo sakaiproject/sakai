@@ -48,8 +48,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -82,7 +82,7 @@ public class SiteInfoToolServlet extends HttpServlet
 	private static final long serialVersionUID = 1L;
 	
     private transient BasicAuth basicAuth;
-    protected static final Log log = LogFactory.getLog(SiteInfoToolServlet.class);
+    protected static final Logger log = LoggerFactory.getLogger(SiteInfoToolServlet.class);
     
     // create transformerFactory object needed by generatePDF
     private TransformerFactory transformerFactory = null;

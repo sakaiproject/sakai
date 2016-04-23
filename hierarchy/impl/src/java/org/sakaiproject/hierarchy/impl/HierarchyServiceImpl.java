@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
@@ -50,7 +50,7 @@ import org.sakaiproject.db.api.SqlService;
  */
 public class HierarchyServiceImpl implements HierarchyService {
 
-    private static Log log = LogFactory.getLog(HierarchyServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(HierarchyServiceImpl.class);
 
     private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
     private boolean oracle = false;

@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -78,7 +78,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * logic, but not exposed to external callers.
  */
 public abstract class BaseHibernateManager extends HibernateDaoSupport {
-	private static final Log log = LogFactory.getLog(BaseHibernateManager.class);
+	private static final Logger log = LoggerFactory.getLogger(BaseHibernateManager.class);
 
     // Oracle will throw a SQLException if we put more than this into a
     // "WHERE tbl.col IN (:paramList)" query.

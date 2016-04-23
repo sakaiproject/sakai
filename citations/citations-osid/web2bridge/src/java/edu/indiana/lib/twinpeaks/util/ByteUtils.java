@@ -17,16 +17,14 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.util;
 
-import java.io.*;
-import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Byte utilities
  */
+@Slf4j
 public class ByteUtils
 {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(ByteUtils.class);
 	/*
 	 * Byte manipulation utilities
 	 *
@@ -197,8 +195,8 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(ByteUtils.c
 		index				= indexOf(byteText, "XXX");
 		last				= lastIndexOf(byteText, "XXX");
 
-		_log.debug("Index = " + index);
-		_log.debug("Last  = " + last);
-		_log.debug("equal = " + equals(byteText, "XXX".getBytes()));
+		log.debug("Index = " + index);
+		log.debug("Last  = " + last);
+		log.debug("equal = " + equals(byteText, "XXX".getBytes()));
 	}
 }

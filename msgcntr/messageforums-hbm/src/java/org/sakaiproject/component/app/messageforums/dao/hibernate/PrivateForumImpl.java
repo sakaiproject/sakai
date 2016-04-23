@@ -20,13 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 
 public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
 
-    private static final Log LOG = LogFactory.getLog(PrivateForumImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrivateForumImpl.class);
     
     private String owner;
     private Boolean autoForward;

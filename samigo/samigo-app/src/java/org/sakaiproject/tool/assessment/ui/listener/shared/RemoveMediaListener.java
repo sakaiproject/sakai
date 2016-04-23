@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 
 public class RemoveMediaListener implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(RemoveMediaListener.class);
+  //private static Logger log = LoggerFactory.getLogger(RemoveMediaListener.class);
 
   public RemoveMediaListener()
   {

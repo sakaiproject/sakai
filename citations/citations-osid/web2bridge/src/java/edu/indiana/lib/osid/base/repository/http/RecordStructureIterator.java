@@ -20,14 +20,16 @@ package edu.indiana.lib.osid.base.repository.http;
  * limitations under the License.
  *
  **********************************************************************************/
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class RecordStructureIterator extends edu.indiana.lib.osid.base.repository.RecordStructureIterator
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(RecordStructureIterator.class);
-		
     private java.util.Vector vector = new java.util.Vector();
     private int i = 0;
 

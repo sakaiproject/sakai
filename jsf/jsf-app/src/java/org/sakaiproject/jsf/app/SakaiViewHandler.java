@@ -31,8 +31,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
@@ -55,7 +55,7 @@ public class SakaiViewHandler extends ViewHandler
 	public static final String URL_EXT = "sakai.jsf.tool.URL.ext";
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SakaiViewHandler.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiViewHandler.class);
 
 	/** The wrapped ViewHandler. */
 	private ViewHandler m_wrapped = null;

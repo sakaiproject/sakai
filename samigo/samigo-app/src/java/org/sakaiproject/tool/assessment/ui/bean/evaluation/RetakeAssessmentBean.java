@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 
 /**
@@ -41,7 +41,7 @@ public class RetakeAssessmentBean implements Serializable {
 	private String studentName;
 	private HashMap studentGradingSummaryDataMap;
 	
-	private static Log log = LogFactory.getLog(TotalScoresBean.class);
+	private static Logger log = LoggerFactory.getLogger(TotalScoresBean.class);
 
 	public RetakeAssessmentBean() {
 		log.debug("Creating a new RetakeAssessmentBean");

@@ -24,6 +24,7 @@ package org.sakaiproject.cheftool;
 import java.util.List;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuDivider;
@@ -43,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
  * PagedResourceAction is a base class that handles paged display of lists of Resourecs with service support for paging.
  * </p>
  */
+@Slf4j
 public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 {
 	protected static ResourceLoader rb_praII = new ResourceLoader("velocity-tool");
@@ -154,15 +156,13 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 				if (size.intValue() <= 0)
 				{
 					size = new Integer(DEFAULT_PAGE_SIZE);
-					if (Log.getLogger("chef").isDebugEnabled())
-						Log.debug("chef", this + ".initState: size parameter invalid: " + config.getInitParameter(PARAM_PAGESIZE));
+					log.debug("size parameter invalid: {}", config.getInitParameter(PARAM_PAGESIZE));
 				}
 				state.setAttribute(STATE_PAGESIZE, size);
 			}
 			catch (Exception any)
 			{
-				if (Log.getLogger("chef").isDebugEnabled())
-					Log.debug("chef", this + ".initState: size parameter invalid: " + any.toString());
+				log.debug("size parameter invalid: {}" + any.toString());
 				state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
 			}
 		}

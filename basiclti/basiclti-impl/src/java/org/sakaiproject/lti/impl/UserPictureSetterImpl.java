@@ -18,8 +18,8 @@ package org.sakaiproject.lti.impl;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 
@@ -34,7 +34,7 @@ import org.sakaiproject.user.api.User;
  */
 public class UserPictureSetterImpl implements UserPictureSetter {
 
-	private static Log M_log = LogFactory.getLog(UserPictureSetterImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(UserPictureSetterImpl.class);
 
     private ProfileImageLogic profileImageLogic = null;
     public void setProfileImageLogic(ProfileImageLogic profileImageLogic) {

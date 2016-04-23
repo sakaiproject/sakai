@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -101,7 +101,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         return maxDepth;
     }
 
-    private static Log log = LogFactory.getLog(SiteEntityProvider.class);
+    private static Logger log = LoggerFactory.getLogger(SiteEntityProvider.class);
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {

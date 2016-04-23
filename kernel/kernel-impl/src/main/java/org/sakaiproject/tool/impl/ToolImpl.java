@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -42,7 +42,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ToolImpl implements Tool, Comparable
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(ToolImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(ToolImpl.class);
 
 	/** The access security. */
 	protected Tool.AccessSecurity m_accessSecurity = Tool.AccessSecurity.PORTAL;

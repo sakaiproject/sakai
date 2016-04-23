@@ -49,8 +49,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -111,7 +111,7 @@ public class AjaxServer extends HttpServlet
    }
 
    /** Our log (commons). */
-   private static Log log = LogFactory.getLog(AjaxServer.class);
+   private static Logger log = LoggerFactory.getLogger(AjaxServer.class);
    
    public static final String FILTERHTML = "lessonbuilder.filterhtml";
    private static String filterHtml = ServerConfigurationService.getString(FILTERHTML);

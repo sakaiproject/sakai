@@ -31,8 +31,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -52,7 +52,7 @@ import org.sakaiproject.tool.assessment.util.SamigoEmailService;
 import org.sakaiproject.tool.cover.SessionManager;
 
 public class EmailBean implements Serializable {
-	private static Log log = LogFactory.getLog(EmailBean.class);
+	private static Logger log = LoggerFactory.getLogger(EmailBean.class);
 
 	private String fromName;
 

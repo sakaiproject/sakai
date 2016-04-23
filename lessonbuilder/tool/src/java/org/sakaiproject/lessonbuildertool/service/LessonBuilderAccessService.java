@@ -40,8 +40,8 @@ import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketException;
 
@@ -113,7 +113,7 @@ public class LessonBuilderAccessService {
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Log M_log = LogFactory.getLog(LessonBuilderAccessService.class);
+	private static Logger M_log = LoggerFactory.getLogger(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
    

@@ -3,8 +3,6 @@ package edu.indiana.lib.osid.base.repository.http;
 public class InLineCitationPartStructure
 implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(InLineCitationPartStructure.class);
-		
 	private org.osid.shared.Id INLINE_CITATION_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"inLineCitation", "In-line Citation from resource metadata" );

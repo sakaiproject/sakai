@@ -3,8 +3,8 @@ package org.sakaiproject.component.app.scheduler;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -26,7 +26,7 @@ import org.sakaiproject.time.api.Time;
 
 public class ScheduledInvocationManagerImpl implements ScheduledInvocationManager {
 
-	private static final Log LOG = LogFactory.getLog(ScheduledInvocationManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ScheduledInvocationManagerImpl.class);
 
 	private static final String SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL_PROPERTY = "jobscheduler.invocation.interval";
 

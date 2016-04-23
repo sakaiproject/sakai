@@ -22,8 +22,8 @@
 package org.sakaiproject.springframework.orm.hibernate;
 
 import net.sf.ehcache.Ehcache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.EhCache;
@@ -42,7 +42,7 @@ import java.util.Properties;
  */
 public class SakaiCacheProvider implements CacheProvider, ApplicationContextAware
 {
-	private static final Log LOG = LogFactory.getLog(SakaiCacheProvider.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SakaiCacheProvider.class);
 
     private Cache defaultCache;
 

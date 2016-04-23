@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -62,7 +62,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
 
 public abstract class WidgetTabTemplate extends Panel {
 	private static final long		serialVersionUID			= 1L;
-	private static Log				LOG							= LogFactory.getLog(WidgetTabTemplate.class);
+	private static Logger				LOG							= LoggerFactory.getLogger(WidgetTabTemplate.class);
 	public final static int			MAX_TABLE_ROWS				= 5;
 	public final static Integer		FILTER_DATE					= Integer.valueOf(0);
 	public final static Integer		FILTER_ROLE					= Integer.valueOf(1);

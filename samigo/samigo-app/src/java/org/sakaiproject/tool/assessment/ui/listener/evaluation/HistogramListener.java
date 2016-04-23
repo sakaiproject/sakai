@@ -28,8 +28,8 @@ import javax.faces.event.ValueChangeListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.hibernate.Hibernate;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -88,7 +88,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class HistogramListener
   implements ActionListener, ValueChangeListener
 {
-  private static Log log = LogFactory.getLog(HistogramListener.class);
+  private static Logger log = LoggerFactory.getLogger(HistogramListener.class);
   //private static BeanSort bs;
   //private static ContextUtil cu;
   //private static EvaluationListenerUtil util;

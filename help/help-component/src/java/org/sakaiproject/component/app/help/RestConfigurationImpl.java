@@ -32,8 +32,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.help.RestConfiguration;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -60,7 +60,7 @@ public class RestConfigurationImpl implements RestConfiguration
   private static String REST_DOMAIN_URL;
   private static String REST_CORPUS_URL;
 
-  private final static Log LOG = LogFactory.getLog(RestConfigurationImpl.class);
+  private final static Logger LOG = LoggerFactory.getLogger(RestConfigurationImpl.class);
 
   /**
    * @see org.sakaiproject.api.app.help.RestConfiguration#getOrganization()

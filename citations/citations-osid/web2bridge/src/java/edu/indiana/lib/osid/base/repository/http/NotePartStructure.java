@@ -2,7 +2,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
 public class NotePartStructure implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(NotePartStructure.class);
 	private org.osid.shared.Id NOTE_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"note", "Note attached to resource metadata" );

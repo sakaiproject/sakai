@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.api.SessionManager;
 public class Web
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(Web.class);
+	private static Logger M_log = LoggerFactory.getLogger(Web.class);
 
 	// used to remove javascript from html
 	private static final String START_JAVASCRIPT = "<script";
@@ -562,7 +562,7 @@ public class Web
 		}
 		catch (java.io.UnsupportedEncodingException e)
 		{
-			M_log.error(e);
+			M_log.error(e.getMessage(), e);
 		}
 		
 		return fileName;		

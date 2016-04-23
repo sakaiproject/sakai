@@ -23,8 +23,8 @@ package org.sakaiproject.tool.assessment.services.qti;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 public class QTIService implements QTIServiceAPI
 {
-  private static Log log = LogFactory.getLog(QTIService.class);
+  private static Logger log = LoggerFactory.getLogger(QTIService.class);
   public QTIService()
   {
   }

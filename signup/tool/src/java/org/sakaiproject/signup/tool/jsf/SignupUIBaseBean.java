@@ -41,8 +41,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -97,7 +97,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
-	protected Log logger = LogFactory.getLog(SignupUIBaseBean.class);
+	protected Logger logger = LoggerFactory.getLogger(SignupUIBaseBean.class);
 
 	protected Boolean publishedSite;
 	

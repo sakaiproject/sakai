@@ -36,8 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIConstants;
@@ -112,7 +112,7 @@ import net.oauth.signature.OAuthSignatureMethod;
 @SuppressWarnings("deprecation")
 public class SakaiBLTIUtil {
 
-	private static Log M_log = LogFactory.getLog(SakaiBLTIUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiBLTIUtil.class);
 
 	public static final boolean verbosePrint = false;
 
@@ -1918,7 +1918,7 @@ public class SakaiBLTIUtil {
 			} else if (kv.length == 1 && i < positional.length) {
 				op.setProperty(positional[i++], kv[0]);
 			} else {
-				// TODO : Log something here
+				// TODO : Logger something here
 			}
 		}
 		return op;

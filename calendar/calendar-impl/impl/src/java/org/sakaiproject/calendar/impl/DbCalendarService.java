@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -45,7 +45,7 @@ public class DbCalendarService
 	extends BaseCalendarService
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DbCalendarService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbCalendarService.class);
 
 	/** The name of the db table holding calendar calendars. */
 	protected String m_cTableName = "CALENDAR_CALENDAR";

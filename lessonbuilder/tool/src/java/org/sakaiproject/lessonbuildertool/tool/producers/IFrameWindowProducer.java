@@ -24,8 +24,8 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 
@@ -46,7 +46,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
  */
 public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsReporter {
 
-	private static final Log log = LogFactory.getLog(IFrameWindowProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(IFrameWindowProducer.class);
 	private SimplePageBean simplePageBean;
 	public LocaleGetter localeGetter;                                                                                             
 
