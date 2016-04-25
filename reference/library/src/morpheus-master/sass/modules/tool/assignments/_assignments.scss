@@ -46,5 +46,11 @@
 	
 	#reorder-list-sortingToolBar, #reorder-list{
 		max-width: 1200px;
+    }
+    
+    /* SAK-30660 */
+	#optionsAccordion {
+		margin-bottom: 1em;
+		margin-top: 1em;
 	}
 }

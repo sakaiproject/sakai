@@ -526,7 +526,23 @@
 			</label>
 		</div>
 
-		#if ($allowReviewService)
+        <div id="optionsAccordion">
+			#set($gradingSection = ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")))
+			#if($gradingSection || $allowReviewService)
+                <h4>
+					#if ($allowReviewService)
+						$tlang.getString("assignmentOptions.contentReview").replace("{0}", $!reviewServiceTitle)
+					#elseif ($gradingSection)
+						$tlang.getString("assignmentOptions.grading")
+					#else
+						$tlang.getString("assignmentOptions.gradingAndContentReview").replace("{0}", $!reviewServiceTitle)
+					#end
+                </h4>
+            	<div>
+					#if ($allowReviewService)
+						#if($gradingSection)
+							<h5> $reviewServiceTitle </h5>
+						#end
 			<div class="form-group row">
 				<h4> $reviewServiceTitle </h4>
 				#if (4 == $value_SubmissionType)
@@ -744,9 +760,11 @@
 				#end
 			</div>
 		#end
-		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
-			<h4>$!tlang.getString('grading')</h4>
-		#end
+		#if( $gradingSection )
+			#if ($allowReviewService)
+				<h5>$!tlang.getString('grading')</h5>
+			#end
+			<div>
 		#if ($!withGrade && $!withGradebook)
 			## show the "Add to Gradebook" choices or not
 			#if(!$!allowGroupAssignmentsInGradebook)
@@ -899,10 +917,15 @@
 			</div>
 		#end
 		## end anonymous check
-		<h4>
-			$tlang.getString("additionalOptionsName")
-		</h4>
+                    </div>
+				#end ##end grading
+            </div> ## End Grading & Content Review
+			#end
 
+            <h4>$tlang.getString("assignmentOptions.typeAndAccess")</h4>
+            <div>
+                <h5>$tlang.getString("assignmentType")</h5>
+                <div>
 		<div class="radio">
 			<label for="$name_noAdditionalOptionsName" class="$class">
 				<input id="$name_noAdditionalOptionsName" name="$name_additionalOptions" type="radio" value="1"
@@ -1021,10 +1044,11 @@
 		</div>
 		</p>
 		#end
-
+                </div> ## END Assignment Type
 
 		## group/section support
-                <h4>$!tlang.getString('access')</h4>
+                    <h5>$!tlang.getString('access')</h5>
+                    <div>
                 #set( $class = "" )
                 #if( !$!groupsList )
                     #set( $class = "disabled" )
@@ -1157,13 +1181,24 @@
 			</table>
 			</div>
 		</div>
+                    </div> ## End Group- Section
+                </div> ## END Assignment Type / Group-Section
 
+                <h4>
+					#if($!name_assignment_instructor_notifications)
+					$tlang.getString("assignmentOptions.instructorAndStudentEmails")
+				#else
+						$tlang.getString("assignmentOptions.studentEmails")
+					#end
+                </h4>
+                <div>
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)
+                        <h5>
+							$tlang.getString("receive.confirm.submission.email.options")
+                        </h5>
+                        <div>
 		<fieldset>
-			<h4>
-				$tlang.getString("receive.confirm.submission.email.options")
-			</h4>
 			<div class="radio">
     				<label for="notsendnotif">
 				<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
@@ -1183,13 +1218,15 @@
 				</label>
     			</div>
 		</fieldset>
+                        </div>
 		#end
 
 		## whether to notify student about released grade
+                    <h5>
+						$tlang.getString("send.submission.releasegrade.email.options")
+                    </h5>
+                    <div>
 		<fieldset>
-			<h4>
-				$tlang.getString("send.submission.releasegrade.email.options")
-			</h4>
 			<div class="radio">
 				<label for="notsendreleasegradenotif">
 				<input type="radio" name="$!name_assignment_releasegrade_notification" id="notsendreleasegradenotif" value="$!value_assignment_releasegrade_notification_none" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_none))checked="checked" #end />
@@ -1203,11 +1240,18 @@
 				</label>
 			</div>
 		</fieldset>
+                    </div>
+                </div>	## END Email Section
 
+                <h4>
+					$tlang.getString("assignmentOptions.attachmentsAndAddInfo")
+                </h4>
+                <div>
 		## attachments
-		<h4>
+                    <h5>
 			$tlang.getString("gen.att")
-		</h4>
+                    </h5>
+                    <div>
 		#set ($size = 0)
 		#set ($props = false)
 		#foreach ($attachment in $attachments)
@@ -1251,11 +1295,12 @@
 				<input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
 			</div>
 		#end
+                    </div> ## End attachments
 
 	<a name="extraNodesTop"></a>
-	<h4>
+                    <h5>
 		$tlang.getString("additional_information")
-	</h4>
+                    </h5>
 
 	<div class="col-sm-12 row table-reponsive">
 		<table class="table table-striped" id="extraNodeLinkList">
@@ -1397,39 +1442,7 @@
 				<input class="extraNodeInput" type="button" id="modelanswer_cancel" value="$tlang.getString('gen.can')" />
 			</p>
 		</fieldset>
-		#*the panel for grading guideline
-			<fieldset class="extraNode" id="gradingguidelines-node" style="display:none">
-				<legend>Grading guidelines</legend>
-					<div class="validationError alertMessage" id="gradingguidelines-message">
-					</div>
-				<div class="longtext" style="margin:.2em">
-					<span class="reqStar">*</span>
-					<label for="ggtext" class="block">
-						Provide grading rationale. You can choose to whom and when this will display.
-					</label>
-						<textarea name="ggtext" id="ggtext" cols="60" rows="10" wrap="virtual"></textarea>
-						###chef_setupformattedtextareaparams("ggtext" "200" "365" "small")
-				</div>
-				<div class="act">
-						<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
-					</div>
-				<p class="longtext"  style="margin:.2em">
-					<span class="reqStar">*</span>
-					<label for="ggwho" class="block">
-						Show
-					</label>
-					<select id="ggwho">
-						<option value="ggwhodefault"> --select one-- </option>
-						<option value="ggwho1">Only to instructors</option>
-						<option value="ggwho2">also to students (after grading)</option>
-						<option value="ggwho3">also to students (after accept until date)</option>
-					</select>
-				</p>
-				<p class="act">
-					<input class="extraNodeInput"  type="button" value="Save" class="active"/><input class="extraNodeInput"  type="button" value="Cancel" />
-				</p>
-			</fieldset>
-		*#
+
 		<fieldset class="extraNode" id="note-node" style="display:none">## the panel for private note
 			<legend>$tlang.getString("note")</legend>
 			<div class="longtext" style="margin:.2em">
@@ -1753,6 +1766,8 @@
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
+                </div> ## END Attachments & Additional Information
+            </div>
 		#set($submitnotif="submitnotifBottom")
 		<div class="row col-sm-12">
 			#buttonBar($submitnotif)
