@@ -30,14 +30,9 @@
         margin-top:0.5em;
     }
 
-    .connection-email {
-        background-image: url(/library/image/silk/email.png);
-    }
-
     .roster-pictureview {
         display: inline-block;
         border: 1px solid #ccc;
-        border-width: 1px;
         @include border-radius(5px);
         padding: 5px;
         margin-bottom: 5px;
@@ -57,7 +52,6 @@
         }
     }
 
-
     #roster_type_selector {
         margin-left: 10px;
         margin-top: 1em;
@@ -70,11 +64,20 @@
 
     .roster-table {
         display: table;
+        margin-left: 40px;
+        margin-bottom: 1.5em;
+        padding: 1em;
 
         .roster-table-header-group {
             display: table-header-group;
             font-weight: bold;
             padding-bottom: 10px;
+
+            .roster-table-row {
+                background-color: $background-color;
+                border-bottom: 1px solid black;
+                height: 2em;
+            }
         }
 
         .roster-table-row-group {
@@ -103,13 +106,54 @@
                     padding-right: 10px;
                 }
             }
+
+            .roster-name-cell {
+                width: 10%;
+            }
+
+            .roster-userid-cell {
+                width: 5%;
+            }
+
+            .roster-email {
+                width: 15%;
+            }
+            .roster-picture-cell {
+                width: 85px;
+                max-width: 85px;
+                white-space: normal;
+            }
             .roster-last-visit-time-cell {
                 font-size: 0.9em;
             }
         }
         .roster-member:nth-child(odd){
-            background: $tool-tab-background-color;
+            background: #EDECEC;
         }
+
+        .roster-member:hover {
+            background: #D7D2D2;
+        }
+    }
+
+    .roleTitle {
+        font-weight: bold;
+    }
+
+    .roleDetail {
+        float: right;
+        right: 1.5%;
+        background-color: $background-color;
+        top: 80px !important;
+    }
+
+    .roleShown {
+        color: lightgray;
+    }
+
+    .roster-members {
+        display: block;
+        margin-top: 1.5em;
     }
 
     .roster-picture {
@@ -128,7 +172,7 @@
         max-width: 100px !important;
     }
     
-    .roster-group-cell {
+    .roster-group-inner-cell {
         display: inline-block;
         min-width: 40px !important;
         max-width: 80px !important;
@@ -163,6 +207,11 @@
         }
     }
 
+    .scrolling {
+        position: fixed;
+        top: $banner-height;
+    }
+
     @media only screen and (max-width: 800px) {
         .roster-table-header-group {
             display: none !important;
@@ -175,7 +224,6 @@
         .roster-table-row {
             display: block !important;
             border: 1px solid #ccc;
-            border-width: 1px;
             -moz-border-radius: 5px;
             -webkit-border-radius: 5px;
             border-radius: 5px;

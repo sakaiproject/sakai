@@ -86,7 +86,7 @@ body.is-logged-out{
 			top: 0;
 			width: 100%;
 			box-shadow: $divider-shadow;
-			z-index: 1000;
+			z-index: $banner-z-index;
 			overflow: visible;
 		}
 	}

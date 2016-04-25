@@ -48,6 +48,7 @@ public interface SakaiProxy {
 	public final static Boolean DEFAULT_VIEW_CONNECTIONS = true;
 	public final static Boolean DEFAULT_VIEW_USER_DISPLAY_ID = true;
 	public final static Integer DEFAULT_ROSTER_STATE = 0;
+	boolean DEFAULT_12_HR_CLOCK = false;
 	
 	/**
 	 * Returns the ID of the current user.
@@ -232,4 +233,10 @@ public interface SakaiProxy {
     public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId);
 
     public boolean getShowVisits();
+
+	/**
+	 * Returns the value of the <code>roster_12_hr_clock</code> Sakai property
+	 * @return value of the <code>roster_12_hr_clock</code> Sakai property
+	 */
+	boolean get12HrClock();
 }

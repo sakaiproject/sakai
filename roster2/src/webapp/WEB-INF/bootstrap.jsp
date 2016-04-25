@@ -41,6 +41,7 @@
                 officialPictureMode: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
                 viewConnections: ${viewConnections},
+                view12HrClock: ${view12HrClock},
                 superUser: ${superUser},
                 siteMaintainer: ${siteMaintainer},
                 i18n: {},
@@ -57,6 +58,7 @@
         <div id="Mrphs-sakai-roster" class="portletBody container-fluid">
 
         <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
+        <div id="buttons-container" class="pull-right"></div>
 
         <div id="rosterMainContainer">
             <form id="roster_form">
