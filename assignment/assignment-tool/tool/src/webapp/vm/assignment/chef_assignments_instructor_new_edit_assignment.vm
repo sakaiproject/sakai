@@ -528,10 +528,181 @@
 				$tlang.getString("gen.addhonple")
 			</label>
 		</div>
+		##GRADING
+		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
+			<h4>$!tlang.getString('grading')</h4>
+		#end
+		#if ($!withGrade && $!withGradebook)
+		## show the "Add to Gradebook" choices or not
+			#if(!$!allowGroupAssignmentsInGradebook)
+				#set ($addToGBDisplay="none")
+			#else
+				#set ($addToGBDisplay="block")
+			#end
+				<div style="display:$!addToGBDisplay">
+				<div class="checkbox indnt2" style="display:$!addToGBDisplay">
+					<div class="radio">
+						## hide the assignment list from Gradebook when clicked
+						<label for="$!gradebookChoice_no">
+							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) {$('#gradebookList').fadeOut('slow');$('#categoryList').fadeOut('slow');}" >
+							#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end
+						</label>
+					</div>
+					#if (!$!noAddToGradebookChoice)
+					<div class="radio">
+						## hide the assignment list from Gradebook when clicked
+						<label for="$!gradebookChoice_add">
+						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end
+							onclick="
+							if ($('#new_assignment_grade_points').prop('value'))
+							{
+								if (document.getElementById('categoryList'))
+								{
+									## show the gradebook assignment list
+									if (document.getElementById('gradebookList'))
+										$('#gradebookList').fadeOut('slow');
+									if($!value_totalCategories > 1)
+										$('#categoryList').fadeIn('slow');
+								}
+								else
+								{
+									if (document.getElementById('gradebookList'))
+										$('#gradebookList').fadeOut('slow');
+									if (document.getElementById('associate'))
+										$('#associate').prop('checked',false);
+								}
+							}
+							else
+							{
+								## show alert since gradebook integration is only allowed for point-based assignment
+								$('#no').prop('checked',true);
+								if (document.getElementById('categoryList'))
+									$('#categoryList').fadeOut('slow');
+								if (document.getElementById('gradebookList'))
+									$('#gradebookList').fadeOut('slow');
+								if (document.getElementById('associate'))
+									$('#associate').prop('checked',false);
+								if (document.getElementById('gradebookListWarnAssoc'))
+								{
+					       	 		$('#gradebookListWarnAssoc' ).fadeIn('slow');
+					        		$('#gradebookListWarnAssoc').animate({opacity: 1.0}, 2500)
+					  				$('#gradebookListWarnAssoc' ).fadeOut('slow',function ()
+					  				{
+										$('#new_assignment_grade_type').focus();
+							      	});
+							     }
+							}" >
+						$tlang.getString("grading.add")</label>
+						<span id="gradebookListWarnAssoc" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
+					</div>
+					#end
+					## if there exists properiate assignment entries in Gradebook
+					#if (!$!gradebookAssignmentsLabel.isEmpty())
+					<div class="radio">
+						## show the assignment list from Gradebook when clicked
+						<label for="$!gradebookChoice_associate">
+							<input
+								type="radio"
+								name="$!name_Addtogradebook"
+								id="$!gradebookChoice_associate"
+								value="$!gradebookChoice_associate"
+								#if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end
+								onclick="if( document.getElementById('gradebookList') )
+								{
+									if ($('#new_assignment_grade_points').prop('value'))
+									{
+										## show the gradebook assignment list
+										$('#categoryList').fadeOut('slow');
+										$('#gradebookList').fadeIn('slow');
+									}
+									else
+									{
+										## show alert since gradebook integration is only allowed for point-based assignment
+										$('#no').prop('checked',true);
+										$('#categoryList').fadeOut('slow');
+										$('#gradebookList').fadeOut('slow');
+										$('#associate').prop('checked',false);
+						       	 		$('#gradebookListWarn' ).fadeIn('slow');
+						        		$('#gradebookListWarn').animate({opacity: 1.0}, 2500)
+						  				$('#gradebookListWarn' ).fadeOut('slow',function ()
+						  				{
+											$('#new_assignment_grade_type').focus();
+								      	});
+									}
+								}" >
+						$tlang.getString("grading.associate")</label>
+						<span id="gradebookListWarn" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
+					</div>
+					#end
+				</div>
+			</div>
+			## if there exists properiate assignment entries in Gradebook
+			#if (!$!gradebookAssignmentsLabel.isEmpty())
+				## show the "Gradebook Assignment list" choices or not
+				#if($!allowGroupAssignmentsInGradebook && $!gradebookChoice.equals("$!gradebookChoice_associate"))
+					#set ($gbListDisplay="block")
+				#else
+					#set ($gbListDisplay="none")
+				#end
+				<div id="gradebookList" class="col-sm-offset-1 form-group row" style="display:$gbListDisplay">
+					<select name="$!name_AssociateGradebookAssignment" >
+						<option  value="">$tlang.getString("grading.select")</option>
+						#set($gAssignmentSet = $!gradebookAssignmentsLabel.keySet())
+						#foreach ($gaId in $!gAssignmentSet.iterator())
+							<option  value="$gaId"
+								#if($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("disabled"))
+									disabled="disabled"
+								#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected"))
+									selected="selected"
+								#end>
+									$validator.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
+							</option>
+						#end
+					</select>
+				</div>
+			#end
+			#if (!$!categoryTable.isEmpty())
+				## show the "Category list" choices or not
+				<p id="categoryList" class="checkbox  indnt4" #if($!gradebookChoice.equals("$!gradebookChoice_add"))style="display:block" #else style="display:none" #end>
+					<label for="category">
+						$tlang.getString("grading.categorylist")
+					</label>
+					<select name="$name_Category" id="category">
+						#foreach ($i in $categoryKeys)
+							<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
+						#end
+					</select>
+				</p>
+			#end
+		#end
 
+		## SAK-17606 - Show the anonymous grading checkbox if enabled
+		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
+			<div class="checkbox">
+				<label for="$name_CheckAnonymousGrading" #if( !$enableAnonGrading ) class="disabled" #end>
+					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
+					#if ($value_CheckAnonymousGrading.equals("true"))
+						checked="checked"
+					#end
+					#if( !$enableAnonGrading )
+						disabled="disabled"
+					#end
+					/>
+					$tlang.getString("grading.anonymous")
+				</label>
+			</div>
+		#end
+		## end anonymous check
+
+		## BEGIN ACCORDION DIV ##
+		<div id="optionsAccordion">
 		#if ($allowReviewService)
-			<div class="form-group row">
-				<h4> $reviewServiceTitle </h4>
+			## Review Service Accordion header
+			<h4>
+				$tlang.getString("assignmentOptions.contentReview")
+			</h4>
+			<div class="form-group row"> ##START REVIEW SERVICE CONTENT
+				<h5> $reviewServiceTitle </h5>
 				#if (4 == $value_SubmissionType)
 					<div id="review.switch.ne.1" class="information">$reviewSwitchNe1</div>
 					<div class="checkbox  indnt2">
@@ -556,6 +727,7 @@
 					</div>
 				#end
 
+				## START REVIEW SERVICE OPTIONS
 				#if ($!value_UseReviewService.equals("true") && $!value_SubmissionType != 4)
 					<div id="reviewServiceOptions" class="indnt3">
 				#else
@@ -593,9 +765,9 @@
 						#end
 					</div>
 
-					<h4>
+					<h5>
 						$tlang.getString("review.originality.reports")
-					</h4>
+					</h5>
 
 					<div class="radio">
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
@@ -745,176 +917,14 @@
 						#end
 				<!-- End VeriCite custom options -->
 				#end
-			</div>
+				</div> ## END REVIEW SERVICE OPTIONS
+			</div> ## END REVIEW SERVICE CONTENT
 		#end
-		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
-			<h4>$!tlang.getString('grading')</h4>
-		#end
-		#if ($!withGrade && $!withGradebook)
-			## show the "Add to Gradebook" choices or not
-			#if(!$!allowGroupAssignmentsInGradebook)
-				#set ($addToGBDisplay="none")
-			#else
-				#set ($addToGBDisplay="block")
-			#end
-				<div style="display:$!addToGBDisplay">
-				<div class="checkbox indnt2" style="display:$!addToGBDisplay">
-					<div class="radio">
-						## hide the assignment list from Gradebook when clicked					
-						<label for="$!gradebookChoice_no">
-							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) {$('#gradebookList').fadeOut('slow');$('#categoryList').fadeOut('slow');}" >
-							#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end
-						</label>
-					</div>
-					#if (!$!noAddToGradebookChoice)
-					<div class="radio">
-						## hide the assignment list from Gradebook when clicked
-						<label for="$!gradebookChoice_add">
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end
-							onclick="
-							if ($('#new_assignment_grade_points').prop('value'))
-							{
-								if (document.getElementById('categoryList'))
-								{
-									## show the gradebook assignment list
-									if (document.getElementById('gradebookList'))
-										$('#gradebookList').fadeOut('slow');
-									if($!value_totalCategories > 1)
-										$('#categoryList').fadeIn('slow');
-								}
-								else
-								{
-									if (document.getElementById('gradebookList'))
-										$('#gradebookList').fadeOut('slow');
-									if (document.getElementById('associate'))
-										$('#associate').prop('checked',false);
-								}
-							}
-							else
-							{
-								## show alert since gradebook integration is only allowed for point-based assignment
-								$('#no').prop('checked',true);
-								if (document.getElementById('categoryList'))
-									$('#categoryList').fadeOut('slow');
-								if (document.getElementById('gradebookList'))
-									$('#gradebookList').fadeOut('slow');
-								if (document.getElementById('associate'))
-									$('#associate').prop('checked',false);
-								if (document.getElementById('gradebookListWarnAssoc'))
-								{
-					       	 		$('#gradebookListWarnAssoc' ).fadeIn('slow');
-					        		$('#gradebookListWarnAssoc').animate({opacity: 1.0}, 2500)
-					  				$('#gradebookListWarnAssoc' ).fadeOut('slow',function ()
-					  				{
-										$('#new_assignment_grade_type').focus();
-							      	});
-							     }
-							}" >
-						$tlang.getString("grading.add")</label>
-						<span id="gradebookListWarnAssoc" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>						
-					</div>
-					#end
-					## if there exists properiate assignment entries in Gradebook
-					#if (!$!gradebookAssignmentsLabel.isEmpty())
-					<div class="radio">
-						## show the assignment list from Gradebook when clicked
-						<label for="$!gradebookChoice_associate">
-							<input
-								type="radio"
-								name="$!name_Addtogradebook"
-								id="$!gradebookChoice_associate"
-								value="$!gradebookChoice_associate"
-								#if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end
-								onclick="if( document.getElementById('gradebookList') )
-								{
-									if ($('#new_assignment_grade_points').prop('value'))
-									{
-										## show the gradebook assignment list
-										$('#categoryList').fadeOut('slow');
-										$('#gradebookList').fadeIn('slow');
-									}
-									else
-									{
-										## show alert since gradebook integration is only allowed for point-based assignment
-										$('#no').prop('checked',true);
-										$('#categoryList').fadeOut('slow');
-										$('#gradebookList').fadeOut('slow');
-										$('#associate').prop('checked',false);
-						       	 		$('#gradebookListWarn' ).fadeIn('slow');
-						        		$('#gradebookListWarn').animate({opacity: 1.0}, 2500)
-						  				$('#gradebookListWarn' ).fadeOut('slow',function ()
-						  				{
-											$('#new_assignment_grade_type').focus();
-								      	});
-									}
-								}" >
-						$tlang.getString("grading.associate")</label>
-						<span id="gradebookListWarn" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
-					</div>
-					#end
-				</div>
-			</div>
-			## if there exists properiate assignment entries in Gradebook
-			#if (!$!gradebookAssignmentsLabel.isEmpty())
-				## show the "Gradebook Assignment list" choices or not
-				#if($!allowGroupAssignmentsInGradebook && $!gradebookChoice.equals("$!gradebookChoice_associate"))
-					#set ($gbListDisplay="block")
-				#else
-					#set ($gbListDisplay="none")
-				#end
-				<div id="gradebookList" class="col-sm-offset-1 form-group row" style="display:$gbListDisplay">
-					<select name="$!name_AssociateGradebookAssignment" >
-						<option  value="">$tlang.getString("grading.select")</option>
-						#set($gAssignmentSet = $!gradebookAssignmentsLabel.keySet())
-						#foreach ($gaId in $!gAssignmentSet.iterator())
-							<option  value="$gaId"
-								#if($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("disabled"))
-									disabled="disabled"
-								#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected"))
-									selected="selected"
-								#end>
-									$validator.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
-							</option>
-						#end
-					</select>
-				</div>
-			#end
-			#if (!$!categoryTable.isEmpty())
-				## show the "Category list" choices or not
-				<p id="categoryList" class="checkbox  indnt4" #if($!gradebookChoice.equals("$!gradebookChoice_add"))style="display:block" #else style="display:none" #end>
-					<label for="category">
-						$tlang.getString("grading.categorylist")
-					</label>
-					<select name="$name_Category" id="category">
-						#foreach ($i in $categoryKeys)
-							<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
-						#end
-					</select>
-				</p>
-			#end
-		#end
-
-		## SAK-17606 - Show the anonymous grading checkbox if enabled
-		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
-			<div class="checkbox">
-				<label for="$name_CheckAnonymousGrading" #if( !$enableAnonGrading ) class="disabled" #end>
-					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
-					#if ($value_CheckAnonymousGrading.equals("true"))
-						checked="checked"
-					#end
-					#if( !$enableAnonGrading )
-						disabled="disabled"
-					#end
-					/>
-					$tlang.getString("grading.anonymous")
-				</label>
-			</div>
-		#end
-		## end anonymous check
+		## START ASSIGNMENT TYPE AND ACCESSS
 		<h4>
-			$tlang.getString("additionalOptionsName")
+			$tlang.getString("assignmentOptions.typeAndAccess")
 		</h4>
-
+		<div class="form-group row">
 		<div class="radio">
 			<label for="$name_noAdditionalOptionsName" class="$class">
 				<input id="$name_noAdditionalOptionsName" name="$name_additionalOptions" type="radio" value="1"
@@ -1036,7 +1046,7 @@
 
 
 		## group/section support
-                <h4>$!tlang.getString('access')</h4>
+                <h5>$!tlang.getString('access')</h5>
                 #set( $class = "" )
                 #if( !$!groupsList )
                     #set( $class = "disabled" )
@@ -1169,13 +1179,24 @@
 			</table>
 			</div>
 		</div>
+		</div> ## END ASSIGNMENT ACCESS & TYPE
 
+		## START ASSIGNMENT NOTIFICATIONS
+		<h4>
+			#if($!name_assignment_instructor_notifications)
+				$tlang.getString("assignmentOptions.instructorAndStudentEmails")
+			#else
+				$tlang.getString("assignmentOptions.studentEmails")
+			#end
+		</h4>
+		<div class="form-group row"> ## START ASSIGNMENT NOTIFICATIONS CONTENT
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)
+		<div>
 		<fieldset>
-			<h4>
+			<h5>
 				$tlang.getString("receive.confirm.submission.email.options")
-			</h4>
+			</h5>
 			<div class="radio">
     				<label for="notsendnotif">
 				<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
@@ -1195,13 +1216,15 @@
 				</label>
     			</div>
 		</fieldset>
+		</div>
 		#end
 
 		## whether to notify student about released grade
+		<div>
 		<fieldset>
-			<h4>
+			<h5>
 				$tlang.getString("send.submission.releasegrade.email.options")
-			</h4>
+			</h5>
 			<div class="radio">
 				<label for="notsendreleasegradenotif">
 				<input type="radio" name="$!name_assignment_releasegrade_notification" id="notsendreleasegradenotif" value="$!value_assignment_releasegrade_notification_none" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_none))checked="checked" #end />
@@ -1215,11 +1238,18 @@
 				</label>
 			</div>
 		</fieldset>
+		</div>
+		</div> ## END ASSIGNMENT NOTIFICATIONS CONTENT
 
-		## attachments
+		## START ATTACHMENTS AND ADDITIONAL INFO
 		<h4>
-			$tlang.getString("gen.att")
+			$tlang.getString("assignmentOptions.attachmentsAndAddInfo")
 		</h4>
+		<div class="form-group row"> ## START ATTACHMENT AND ADDITIONAL INFO CONTENT
+		## attachments
+		<h5>
+			$tlang.getString("gen.att")
+		</h5>
 		#set ($size = 0)
 		#set ($props = false)
 		#foreach ($attachment in $attachments)
@@ -1265,9 +1295,9 @@
 		#end
 
 	<a name="extraNodesTop"></a>
-	<h4>
+	<h5>
 		$tlang.getString("additional_information")
-	</h4>
+	</h5>
 
 	<div class="col-sm-12 row table-reponsive">
 		<table class="table table-striped" id="extraNodeLinkList">
@@ -1413,39 +1443,6 @@
 				<input class="extraNodeInput" type="button" id="modelanswer_cancel" value="$tlang.getString('gen.can')" />
 			</p>
 		</fieldset>
-		#*the panel for grading guideline
-			<fieldset class="extraNode" id="gradingguidelines-node" style="display:none">
-				<legend>Grading guidelines</legend>
-					<div class="validationError alertMessage" id="gradingguidelines-message">
-					</div>
-				<div class="longtext" style="margin:.2em">
-					<span class="reqStar">*</span>
-					<label for="ggtext" class="block">
-						Provide grading rationale. You can choose to whom and when this will display.
-					</label>
-						<textarea name="ggtext" id="ggtext" cols="60" rows="10" wrap="virtual"></textarea>
-						###chef_setupformattedtextareaparams("ggtext" "200" "365" "small")
-				</div>
-				<div class="act">
-						<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
-					</div>
-				<p class="longtext"  style="margin:.2em">
-					<span class="reqStar">*</span>
-					<label for="ggwho" class="block">
-						Show
-					</label>
-					<select id="ggwho">
-						<option value="ggwhodefault"> --select one-- </option>
-						<option value="ggwho1">Only to instructors</option>
-						<option value="ggwho2">also to students (after grading)</option>
-						<option value="ggwho3">also to students (after accept until date)</option>
-					</select>
-				</p>
-				<p class="act">
-					<input class="extraNodeInput"  type="button" value="Save" class="active"/><input class="extraNodeInput"  type="button" value="Cancel" />
-				</p>
-			</fieldset>
-		*#
 		<fieldset class="extraNode" id="note-node" style="display:none">## the panel for private note
 			<legend>$tlang.getString("note")</legend>
 			<div class="row form-group form-required " >
@@ -1646,7 +1643,7 @@
 				<input name="allPurposeHide" id="allPurposeHide2" value="true" #if($!value_allPurposeHide)checked="checked"#end type="radio" />
 				$tlang.getString("allPurpose.show.hide")
 			</label>
-			<h4><span class="reqStar">*</span>$tlang.getString("allPurpose.show.to")</h4>
+			<h5><span class="reqStar">*</span>$tlang.getString("allPurpose.show.to")</h5>
 			<div class="validationError alertMessage" id="allPurpose_userselect">
 				$tlang.getString("extraNodesRequired")
 			</div>
@@ -1704,6 +1701,8 @@
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
+		</div> ## END ATTACHMENT AND ADDITIONAL INFO CONTENT
+		</div> ## END ACCORDION DIV
 		#set($submitnotif="submitnotifBottom")
 		<div class="row col-sm-12">
 			#buttonBar($submitnotif)
