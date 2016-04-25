@@ -8,7 +8,7 @@ import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import lombok.Getter;
 
 /**
- * Wraps a {@link CourseGrade} and provides a display string
+ * Wraps a {@link CourseGrade} and provides a display string formatted according to the settings from various places in the UI
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -24,11 +24,9 @@ public class GbCourseGrade implements Serializable {
 	private String displayString;
 
 	/**
-	 * Constructor. Takes a {@link CourseGrade}. Display string is set
-	 * afterwards.
+	 * Constructor. Takes a {@link CourseGrade}. Display string is set afterwards.
 	 *
-	 * @param courseGrade
-	 *            CourseGrade object
+	 * @param courseGrade CourseGrade object
 	 */
 	public GbCourseGrade(final CourseGrade courseGrade) {
 		this.courseGrade = courseGrade;
