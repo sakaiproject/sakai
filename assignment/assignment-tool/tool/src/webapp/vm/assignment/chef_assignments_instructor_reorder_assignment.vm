@@ -47,61 +47,65 @@
 		<span id="lastMoveArrayInit" style="display:none"></span>
 		<span id="lastItemMoved"  style="display:none"></span>
 
-		<div id="reorder-list-sortingToolBar" class="itemAction">
-			<a class="title" id="sortByTitle" href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
-					$tlang.getString("listassig.sorbytit")
-					#if ($sortedBy.equals("title"))
-						#if ($sortedAsc.equals("true"))
-							<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
-						#else
-							<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+		<div id="reorder-list-sortingToolBar" class="itemAction row">
+			<div class="col-md-6 col-sm-6 col-xs-12">
+				<a class="title" id="sortByTitle" href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
+						$tlang.getString("listassig.sorbytit")
+						#if ($sortedBy.equals("title"))
+							#if ($sortedAsc.equals("true"))
+								<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+							#else
+								<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+							#end
 						#end
-					#end
-				</a>
-				|
-				<a href="javascript:void(0)" id="sortByOpenDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
-					$tlang.getString("listassig.sorbyope")
-					#if ($sortedBy.equals("opendate"))
-						#if ($sortedAsc.equals("true"))
-							<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
-						#else
-							<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
-						#end
-					#end
-				</a>
-				|
-				<a href="javascript:void(0)" id="sortByDueDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
-					$tlang.getString("gen.sorbydue") ##$tlang.getString("gen.due1")
-					#if ($sortedBy.equals("duedate"))
-						#if ($sortedAsc.equals("true"))
-							<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
-						#else
-							<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
-						#end
-					#end
 				</a>
 			</div>
+			<div class="col-md-3 col-sm-3 col-xs-12">
+					<a href="javascript:void(0)" id="sortByOpenDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
+						$tlang.getString("listassig.sorbyope")
+						#if ($sortedBy.equals("opendate"))
+							#if ($sortedAsc.equals("true"))
+								<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+							#else
+								<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+							#end
+						#end
+					</a>
+			</div>
+			<div class="col-md-3 col-sm-3 col-xs-12">
+					<a href="javascript:void(0)" id="sortByDueDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
+						$tlang.getString("gen.sorbydue") ##$tlang.getString("gen.due1")
+						#if ($sortedBy.equals("duedate"))
+							#if ($sortedAsc.equals("true"))
+								<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+							#else
+								<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+							#end
+						#end
+					</a>
+			</div>
+		</div>
 
 		<ul id="reorder-list">
 
 			#set($count = 1)
 			#foreach($assignment in $assignments)
 
-			<li class="sortable"  id="listitem.orderable$count">
+			<li class="sortable row"  id="listitem.orderable$count">
 				<span style="display:none" class="grabHandle">
 					<input type="text" size="3" value="$count" id="index$count"/>
 					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 				</span>
-				<span class="title">
+				<span class="title col-md-6 col-sm-6 col-xs-12">
 					#if ($!assignment.draft)
 						<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
 					#end
 					$validator.escapeHtml($validator.limit($!assignment.getTitle(), 45))
 				</span>
-				<span class="open">
+				<span class="col-md-3 col-sm-3 col-xs-12">
 					$!assignment.openTime.toStringLocalFull()
 				</span>
-				<span class="close">
+				<span class="col-md-3 col-sm-3 col-xs-12">
 					$!assignment.dueTime.toStringLocalFull()
 					<select name="position_$validator.escapeUrl("$assignment.id")" class="selectSet">
 						#foreach($i in [1..$assignmentsize])
