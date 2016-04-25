@@ -29,6 +29,14 @@
 		display: none;
 		& ~ .#{$namespace}toolTitleNav__button_container > .#{$namespace}directUrl__dropDown{
 			display: none;
+			.dropDown_close{
+				color: #952525;
+				cursor: pointer;
+				float: right;
+				@media #{$phone}{
+					font-size: 1.4em;
+				}
+			}
 			&.active{
 				padding: 0.8em;
 				position:   absolute;
@@ -45,7 +53,7 @@
 				}
 				textarea{
 					display: block;
-					height: 50px;
+					height: 120px;
 					margin: 0.5em 0 0 0;
 					width: 98%;
 				}

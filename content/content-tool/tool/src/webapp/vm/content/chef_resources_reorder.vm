@@ -46,28 +46,28 @@
 		
 
 		
-		<ul id="reorder-list">
+		<ul id="reorder-list" class="container-fluid">
 			#foreach($root in $this_site)
 				#set($collectionMembers = $root.members)
 				#set($count = 1)
 				#foreach($member in $collectionMembers)
-					<li class="sortable"  id="listitem.orderable$count">
+					<li class="sortable row well"  id="listitem.orderable$count">
 						<span style="display:none" class="grabHandle">
 							<input type="text" size="3" value="$count" id="index$count"/>
 							<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 						</span>
-						<span title="$member.name" class="title">
+						<div title="$member.name" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 								#if($member.isFolder())
 									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
 								#else
 									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
 								#end
 								$validator.escapeHtml($member.name)
-						</span>
-						<span headers="creator">
+						</div>
+						<div class="col-lg-4 col-md-4 hidden-xs hidden-sm">
 							$validator.escapeHtml($member.createdBy)
-						</span>
-						<span headers="modified">
+						</div>
+						<div class="col-lg-2 col-md-2 hidden-xs hidden-sm">
 							$member.ModifiedTime
 						</span>
 						<span headers="position" style="display:none">

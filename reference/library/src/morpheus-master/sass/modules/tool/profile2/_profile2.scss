@@ -1,3 +1,4 @@
+
 .#{$namespace}sakai-profile2 {
 
 	.create-worksite {
@@ -8,5 +9,64 @@
 	           }
 	       }
 	   }
+	}
+
+	.label{
+		font-size: 110%;
+		padding: 0 0 0 0;
+		line-height: 2.3em;
+		font-weight: 700;
+	}
+
+	.navIntraTool {
+	    margin: -2px -14px 0 -14px;
+	}
+
+	.Mrphs-pageColumns--single {
+	    margin: 1em 0 1em 0;
+	    clear: both;
+	}
+
+	.portletBody {
+	    background: #fff;
+	    padding: 2.5em 0 40px 0;
+	}
+
+	/* tabs */
+
+	.tab-row ul {
+	  @extend .nav;
+	  @extend .nav-tabs;
+	  @extend .sakai_tabs;
+	}
+
+	.panel-profile-message{
+		padding: 0.5em;
+		background: #F5F5F5;
+		position: relative;
+	}
+
+	.gallery-form{
+		.sakai-wicket-iconwithtooltip{
+			position: absolute;
+			margin-top: 0em;
+		} 
+		.addPictureLabel{
+			margin-right: 1.6em; 
+		}
+		.wicket-mfu-container{
+			margin: 1em 0 0 0;
+		}
+		input[type="submit"]{
+			float: right;
+			margin: -1.6em 0 0 0;
+		}
+		.input-file-container{
+			input[type="file"]{
+				@extend .form-control;
+				position: relative !important;
+				left: 0 !important;
+			}
+		}
 	}
 }

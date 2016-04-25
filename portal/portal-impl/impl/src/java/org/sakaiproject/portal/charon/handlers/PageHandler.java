@@ -158,7 +158,7 @@ public class PageHandler extends BasePortalHandler
 
 		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + page.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) + " : " + page.getTitle();
 
 		String siteType = portal.calcSiteType(site.getId());
 		// start the response

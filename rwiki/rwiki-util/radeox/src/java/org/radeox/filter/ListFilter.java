@@ -70,7 +70,7 @@ public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 		super();
 		openList.put(new Character('-'), "<ul class=\"minus\">");
 		openList.put(new Character('*'), "<ul class=\"star\">");
-		openList.put(new Character('#'), "<ol>");
+		openList.put(new Character('#'), "<ol class=\"decimal\">");
 		openList.put(new Character('i'), "<ol class=\"roman\">");
 		openList.put(new Character('I'), "<ol class=\"ROMAN\">");
 		openList.put(new Character('a'), "<ol class=\"alpha\">");

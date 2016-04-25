@@ -129,6 +129,8 @@ import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.scoringservice.api.ScoringAgent;
+import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -3234,6 +3236,18 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteDuplicated", Boolean.TRUE);
 				context.put("duplicatedName", state
 						.getAttribute(SITE_DUPLICATED_NAME));
+			}
+			
+			// Add option to also copy ScoringComponent associations
+			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService"); 
+			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
+			if (scoringAgent != null && scoringAgent.isEnabled(site.getId(), null)) {
+				// check to see if the site has any associated ScoringComponents to duplicate
+				List components = scoringAgent.getScoringComponents(site.getId());
+				if (components != null && !components.isEmpty()) {
+					context.put("scoringAgentOption", Boolean.TRUE);
+					context.put("scoringAgentName", scoringAgent.getName());
+				}
 			}
 			
 			// SAK-20797 - display checkboxes only if sitespecific value exists
@@ -7635,9 +7649,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		else
 		{
-			Set categories = new HashSet();
-			categories.add((String) state.getAttribute(STATE_SITE_TYPE));
-			Set toolRegistrationList = ToolManager.findTools(categories, null);
+			Set toolRegistrationList = ToolManager.findTools(Collections.singleton(state.getAttribute(STATE_SITE_TYPE)), null);
 			String rv = null;
 			if (toolRegistrationList != null)
 			{
@@ -8313,31 +8325,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (state.getAttribute(STATE_PAGESIZE_SITEINFO) == null) {
 			state.setAttribute(STATE_PAGESIZE_SITEINFO, new Hashtable());
 		}
-
-		if (SITE_MODE_SITESETUP.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
-			
-			// need to watch out for the config question.xml existence.
-			// read the file and put it to backup folder.
-			if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
-			{
-				SiteSetupQuestionFileParser.updateConfig();
-			}
-		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
-		} else if (SITE_MODE_SITEINFO.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))){
-
-			String siteId = ToolManager.getCurrentPlacement().getContext();
-			getReviseSite(state, siteId);
-			Hashtable h = (Hashtable) state
-					.getAttribute(STATE_PAGESIZE_SITEINFO);
-			if (!h.containsKey(siteId)) {
-				// update
-				h.put(siteId, Integer.valueOf(200));
-				state.setAttribute(STATE_PAGESIZE_SITEINFO, h);
-				state.setAttribute(STATE_PAGESIZE, Integer.valueOf(200));
-			}
-		}
 		if (state.getAttribute(STATE_SITE_TYPES) == null) {
 			PortletConfig config = portlet.getPortletConfig();
 
@@ -8365,6 +8352,31 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 		}
+
+		if (SITE_MODE_SITESETUP.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+			// need to watch out for the config question.xml existence.
+			// read the file and put it to backup folder.
+			if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
+			{
+				SiteSetupQuestionFileParser.updateConfig();
+			}
+		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+		} else if (SITE_MODE_SITEINFO.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))){
+
+			String siteId = ToolManager.getCurrentPlacement().getContext();
+			getReviseSite(state, siteId);
+			Hashtable h = (Hashtable) state
+					.getAttribute(STATE_PAGESIZE_SITEINFO);
+			if (!h.containsKey(siteId)) {
+				// update
+				h.put(siteId, Integer.valueOf(200));
+				state.setAttribute(STATE_PAGESIZE_SITEINFO, h);
+				state.setAttribute(STATE_PAGESIZE, Integer.valueOf(200));
+			}
+		}
+
 		
 		// show UI for adding non-official participant(s) or not
 		// if nonOfficialAccount variable is set to be false inside sakai.properties file, do not show the UI section for adding them.
@@ -9637,6 +9649,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 								// import tool content
 								importToolContent(oldSiteId, site, false);
+								
+								String transferScoringData = params.getString("selectScoringData");
+								if(transferScoringData != null && transferScoringData.equals("transferScoringData")) {
+									ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
+									ScoringAgent agent = scoringService.getDefaultScoringAgent();
+									if (agent != null && agent.isEnabled(oldSiteId, null)) {
+										agent.transferScoringComponentAssociations(oldSiteId, site.getId());
+									}
+								}
 	
 								String siteType = site.getType();
 								if (SiteTypeUtil.isCourseSite(siteType)) {

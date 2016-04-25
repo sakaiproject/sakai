@@ -26,15 +26,16 @@
 <body>
 <wicket:extend>
 	
-	<div id="pageWrapper">
+	<div id="pageWrapper" class="container-fluid">
+	<div class="row">
 	
 		<!-- 
-		<div id="leftPanel">
+		<div id="leftPanel" class="col-md-2">
 	    
 	    </div>
 		-->
 		
-		<div id="fullWidth">
+		<div id="fullWidth" class="col-md-12">
             
             <div class="mainSectionContentForm">
             
@@ -45,15 +46,15 @@
 					<!-- Email notifications -->
 					<h4 class="formSectionHeading" wicket:id="emailSectionHeading">[email notifications]</h4>
 					<div class="formSectionText" wicket:id="emailSectionText">[send me email when]</div>
-					
-					<table class="preferencesContent" wicket:message="summary:accessibility.prefs.overview">
+					<div class="table-responsive">
+					<table class="table table-bordered table-striped table-hover table-condensed" wicket:message="summary:accessibility.prefs.overview">
 						<tr>
 							<td>&nbsp;</td>
 							<th class="item" wicket:id="prefOn">[On]</th>
 							<th class="item" wicket:id="prefOff">[Off]</th>
 						</tr>
 						<tr wicket:id="requestEmailEnabled">
-							<td class="label" wicket:id="requestsLabel">[requestsLabel]</td>
+							<td wicket:id="requestsLabel">[requestsLabel]</td>
 							<td class="item">
 								<input type="radio" wicket:id="requestsOn" />
 								<label for="requestsoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.requests.on" /></label>
@@ -64,7 +65,7 @@
 							</td>
 						</tr>
 						<tr wicket:id="confirmEmailEnabled">
-							<td class="label" wicket:id="confirmsLabel">[confirmsLabel]</td>
+							<td wicket:id="confirmsLabel">[confirmsLabel]</td>
 							<td class="item">
 								<input type="radio" wicket:id="confirmsOn" />
 								<label for="confirmsoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.confirms.on" /></label>
@@ -75,7 +76,7 @@
 							</td>
 						</tr>
 						<tr wicket:id="messageNewEmailEnabled">
-							<td class="label" wicket:id="messageNewLabel">[messageNewLabel]</td>
+							<td wicket:id="messageNewLabel">[messageNewLabel]</td>
 							<td class="item">
 								<input type="radio" wicket:id="messageNewOn" />
 								<label for="messagenewoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.messagenew.on" /></label>
@@ -86,7 +87,7 @@
 							</td>
 						</tr>
 						<tr wicket:id="messageReplyEmailEnabled">
-							<td class="label" wicket:id="messageReplyLabel">[messageReplyLabel]</td>
+							<td wicket:id="messageReplyLabel">[messageReplyLabel]</td>
 							<td class="item">
 								<input type="radio" wicket:id="messageReplyOn" />
 								<label for="messagereplyoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.messagereply.on" /></label>
@@ -97,7 +98,7 @@
 							</td>
 						</tr>
 						<tr wicket:id="wallItemNewEmailEnabled">
-							<td class="label" wicket:id="wallItemNewLabel">[wallItemNewLabel]</td>
+							<td wicket:id="wallItemNewLabel">[wallItemNewLabel]</td>
 							<td class="item">
 								<input type="radio" wicket:id="wallItemNewOn" />
 								<label for="wallitemnewoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.wallnew.on" /></label>
@@ -108,7 +109,7 @@
 							</td>
 						</tr>
 						<tr wicket:id="worksiteNewEmailEnabled">
-							<td class="label" wicket:id="worksiteNewLabel">[wallItemNewLabel]</td>
+							<td wicket:id="worksiteNewLabel">[wallItemNewLabel]</td>
 							<td class="item">
 								<input type="radio" wicket:id="worksiteNewOn" />
 								<label for="worksitenewoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.worksite.on" /></label>
@@ -119,14 +120,14 @@
 							</td>
 						</tr>
 					</table>
-					
+					</div>
 					
 					<!-- Twitter integration panel -->
 					<div wicket:id="twitterSectionHeadingContainer">
 						<h4 class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</h4>
 						<div class="formSectionText" wicket:id="twitterSectionText">[twitterSectionText]</div>
 					</div>
-					<div wicket:id="twitterPanel"></div>
+					<div wicket:id="twitterPanel" class="profile-twitter-account"></div>
 					
 					
 					<!-- Image settings -->
@@ -134,23 +135,22 @@
 						<h4 class="formSectionHeading" wicket:id="imageSettingsHeading">[profile image settings]</h4>
 						<div class="formSectionText" wicket:id="imageSettingsText">[imageSettingsText]</div>
 						
-						<table class="preferencesContent">
-							<tr wicket:id="officialImageContainer">
-								<td class="label" wicket:id="officialImageLabel">[officialImageLabel]</td>
-								<td class="content">
+						<div wicket:id="officialImageContainer">
+							<div wicket:id="officialImageLabel">[officialImageLabel]</div>
+							<div class="checkbox">
+								<label for="officalimageinput">
 									<input wicket:id="officialImage" type="checkbox" />
-									<label for="officalimageinput" class="accessibility-label"><wicket:message key="accessibility.prefs.officialimage" /></label>
-								</td>
-							</tr>
+									<wicket:message key="accessibility.prefs.officialimage" />
+								</label>
+							</div>
+						</div>
 						
-							<tr wicket:id="gravatarContainer">
-								<td class="label" wicket:id="gravatarLabel">[gravatarLabel]</td>
-								<td class="content">
-									<input wicket:id="gravatarImage" type="checkbox" />
-									<label for="gravatarimageinput" class="accessibility-label"><wicket:message key="accessibility.prefs.gravatar" /></label>
-								</td>
-							</tr>
-						</table>
+						<div wicket:id="gravatarContainer">
+							<div class="content">
+								<input wicket:id="gravatarImage" type="checkbox" />
+								<label for="gravatarimageinput"><wicket:message key="accessibility.prefs.gravatar" /></label>
+							</div>
+						</div>
 					</div>
 					
 					<!-- Widget settings -->
@@ -158,9 +158,10 @@
 						<h4 class="formSectionHeading" wicket:id="widgetSettingsHeading">[widget settings]</h4>
 						<div class="formSectionText" wicket:id="widgetSettingsText">[widgetSettingsText]</div>
 						
-						<table class="preferencesContent">
+						<div class="table-responsive">
+						<table class="table table-bordered table-striped table-hover table-condensed">
 							<tr wicket:id="kudosContainer">
-								<td class="label" wicket:id="kudosLabel">[kudosLabel]</td>
+								<td wicket:id="kudosLabel">[kudosLabel]</td>
 								<td class="content">
 									<input wicket:id="kudosSetting" type="checkbox" />
 									<label for="kudosinput" class="accessibility-label"><wicket:message key="accessibility.prefs.kudos" /></label>
@@ -168,7 +169,7 @@
 								<td class="toolTip"><span wicket:id="kudosToolTip">[kudosToolTip]</span></td>
 							</tr>
 							<tr wicket:id="galleryFeedContainer">
-								<td class="label" wicket:id="galleryFeedLabel">[galleryFeedLabel]</td>
+								<td wicket:id="galleryFeedLabel">[galleryFeedLabel]</td>
 								<td class="content">
 									<input wicket:id="galleryFeedSetting" type="checkbox" />
 									<label for="galleryfeedsettinginput" class="accessibility-label"><wicket:message key="accessibility.prefs.gallery" /></label>
@@ -176,7 +177,7 @@
 								<td class="toolTip"><span wicket:id="galleryFeedToolTip">[galleryFeedToolTip]</span></td>
 							</tr>
 							<tr wicket:id="onlineStatusContainer">
-								<td class="label" wicket:id="onlineStatusLabel">[onlineStatusLabel]</td>
+								<td wicket:id="onlineStatusLabel">[onlineStatusLabel]</td>
 								<td class="content">
 										<input wicket:id="onlineStatusSetting" type="checkbox" />
 										<label for="onlinestatussettinginput" class="accessibility-label"><wicket:message key="accessibility.prefs.onlinestatus" /></label>
@@ -184,6 +185,7 @@
 								<td class="toolTip"><span wicket:id="onlineStatusToolTip">[onlineStatusToolTip]</span></td>
 							</tr>
 						</table>
+						</div>
 					</div>
 					
 					<div class="pageFormButtons">
@@ -198,9 +200,10 @@
 		
 		</div>
 		
-		<!-- <div id="rightPanel"></div> -->
+		<!-- <div id="rightPanel" class="col-md-8"></div> -->
 	
 	
+	</div>
 	</div>
 	
 	<!--  general MyPrivacy scripting -->

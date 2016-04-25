@@ -58,9 +58,10 @@ public class SimplePageItemImpl implements SimplePageItem  {
     public static final int BLTI = 12;
     public static final int PEEREVAL = 13;
     public static final int BREAK = 14;
+    public static final int CHECKLIST = 15;
 
     // must agree with definition in hbm file
-	public static final int MAXNAME = 100;
+	public static final int MAXNAME = 255;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
@@ -174,6 +175,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		    attributes = simplePageToolDao.newJSONObject();
 	}
 
+    // this should seldom truncate anything. The UI makes sure the user can't enter namss that
+    // are too long. The main case this will happen is if we generate a name, which we do for URLs
+    // and uploaded files.
 	private String maxlength(String s, int maxlen) {
 	    if (s == null)
 		s = "";  // oracle turns "" into null

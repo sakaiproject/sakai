@@ -80,11 +80,6 @@ public class GbHeadersToolbar extends HeadersToolbar {
 					categoryItem.add(new AttributeModifier("colspan", categoryCounts.get(category.getId()) + 1));
 					categoryItem.add(new AttributeModifier("data-category-id", category.getId()));
 					String color = settings.getCategoryColor(category.getName());
-					if (color == null) {
-						color = page.generateRandomRGBColorString();
-						settings.setCategoryColor(category.getName(), color);
-						page.setUiSettings(settings);
-					}
 					categoryItem.add(new AttributeModifier("style",
 							String.format("background-color: %s;", color)));
 					categoryItem.add(new Label("name", category.getName()));

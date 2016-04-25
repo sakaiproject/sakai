@@ -13,6 +13,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -71,6 +72,8 @@ public class PermissionsPage extends BasePage {
 
 		// get list of categories
 		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+
+		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
 		// add the default 'all' category
 		categories.add(0, new CategoryDefinition(this.ALL_CATEGORIES, getString("categories.all")));
@@ -329,7 +332,10 @@ public class PermissionsPage extends BasePage {
 				// set selected or first item
 				categoryChooser.setModelObject((permission.getCategoryId() != null) ? permission.getCategoryId() : categoryIdList.get(0));
 				categoryChooser.setNullValid(false);
+				categoryChooser.setVisible(categoriesEnabled);
 				item.add(categoryChooser);
+
+				item.add(new WebMarkupContainer("allGradeItems").setVisible(!categoriesEnabled));
 
 				// in
 				item.add(new Label("in", new ResourceModel("permissionspage.item.in")));

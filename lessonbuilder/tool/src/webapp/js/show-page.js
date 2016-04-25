@@ -71,6 +71,16 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
+	$("input[type=checkbox].checklist-checkbox").on("change", function(){
+
+		$(this).next("span").addClass("savingChecklistItem");
+		$(this).parent().nextAll(".saveChecklistSaving").show();
+		$("#saveChecklistForm-checklistId").val($(this).closest(".checklistItemForm").find(".checklistId").val()).change();
+		$("#saveChecklistForm-checklistItemIdInput").val($(this).val()).change();
+		$("#saveChecklistForm-checklistItemDone").val($(this).is(':checked')).change();
+
+	});
+
 	// This is called in comments.js as well, however this may be faster.
 	//if(sakai.editor.editors.ckeditor==undefined) {
 //		$(".evolved-box :not(textarea)").hide();
@@ -1312,7 +1322,10 @@ $(document).ready(function() {
 
 			$("#name").val(row.find(".link-text").text());
 			$("#description").val(row.find(".rowdescription").text());
-					      
+
+			$("select[name=indent-level-selection]").val(row.find(".indentLevel").text());
+			$("#customCssClass").val(row.find(".custom-css-class").text());
+
 			var prereq = row.find(".prerequisite-info").text();
 
 			if(prereq === "true") {
@@ -2989,3 +3002,49 @@ function fixupHeights() {
 	});
 };
 
+// indent is 20px. but with narrow screen and indent 8, this could use too
+// much. So constrain indent so only 1/4 of the width can be used for the
+// maximum indent in the column.
+var indentSize = 20;
+var indentFraction = 4;
+function doIndents() {
+    $(".column").each(function(index) {
+	    var max = 0;
+	    var indents = $(this).find("[x-indent]");
+	    var width = $(this).width();
+	    if (indents.size() > 0) {
+		indents.each(function(i) {
+		    var indent = $(this).attr('x-indent');
+		    if (indent > max)
+			max = indent;
+		    });
+		// max for 1 indent is width / 3 / max, so all indents
+		// don't use more than 1/3
+		var indent1 = width / (max * indentFraction);
+		indent1 = Math.min(indent1, indentSize); 
+		// do the indents
+		indents.each(function(i) {
+		    var existing = parseInt($(this).css("padding-left"),10);
+		    $(this).css("padding-left", (existing + indent1 * $(this).attr('x-indent')) + "px");
+		    });
+	    }
+	});		
+
+    if (window.matchMedia("only screen and (max-width: 800px)").matches) {
+	return;
+    }
+    $(".section").each(function(index) {
+	    var max = 0;
+	    // reset to auto to cause recomputation. This is needed because
+	    // this gets called after contents of columns have changed.
+	    $(this).find(".column").css('height','auto');
+	    $(this).find(".column").each(function (i) {
+		    if ($(this).height() > max)
+			max = $(this).height();
+		});
+	    $(this).find(".column").each(function (i) {
+		    if (max > $(this).height())
+			$(this).height(max);
+		});
+	});
+};

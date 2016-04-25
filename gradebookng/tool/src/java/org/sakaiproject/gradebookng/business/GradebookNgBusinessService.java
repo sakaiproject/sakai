@@ -337,7 +337,7 @@ public class GradebookNgBusinessService {
 
 		List<CategoryDefinition> rval = new ArrayList<>();
 
-		if (gradebook != null) {
+		if (gradebook != null && categoriesAreEnabled()) {
 			rval = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
 		}
 
@@ -622,6 +622,9 @@ public class GradebookNgBusinessService {
 		}
 		Temp.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
 
+		boolean categoriesEnabled = categoriesAreEnabled();
+		Temp.timeWithContext("buildGradeMatrix", "categoriesAreEnabled", stopwatch.getTime());
+
 		// get role for current user
 		final GbRole role = this.getUserRole();
 
@@ -890,10 +893,8 @@ public class GradebookNgBusinessService {
 							log.debug("permissionCategoryId: " + permissionCategoryId);
 							log.debug("permissionGroupReference: " + permissionGroupReference);
 
-							// if permissions category is null (can grade all
-							// categories) or they match (can grade this
-							// category)
-							if (permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId)) {
+							// if permissions category is null (can grade all categories) or they match (can grade this category)
+							if (!categoriesEnabled || (permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId))) {
 								categoryOk = true;
 								log.debug("Category check passed");
 							}

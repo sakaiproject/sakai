@@ -24,8 +24,9 @@
 
 <body>
 <wicket:extend>
-	<div id="pageWrapper">
-	<div id="fullWidth">
+	<div id="pageWrapper" class="container-fluid">
+	<div class="row">
+	<div id="fullWidth" class="col-md-12">
 
 	<!-- main gallery form -->
 	<div class="mainSectionContentForm">
@@ -48,31 +49,28 @@
 
 	<!-- separate form for adding a new picture -->
 	<h3 wicket:id="addPictureHeading" class="header icon picture-add">[addPictureHeading]</h3>
-	<form wicket:id="form" class="profileForm">
-	<table class="profileContent">
-		<tr>
-			<td></td>
-			<td>
-				<div wicket:id="fileFeedback" class="wicket-feedbackpanel-nolist">[fileFeedback]</div>
-				<div wicket:id="invalidFileTypeMessage" class="gallery-warning-text" style="display: none;">[invalidFileTypeMessage]</div>
-			</td>
+	<form wicket:id="form" class="panel panel-default panel-profile-message gallery-form">
+		<p wicket:id="fileFeedback" class="wicket-feedbackpanel-nolist">[fileFeedback]</p>
+		<p wicket:id="invalidFileTypeMessage" class="gallery-warning-text" style="display: none;">[invalidFileTypeMessage]</p>
 
-		</tr>
-		<tr wicket:id="addPictureContainer">
-			<td class="label" wicket:id="addPictureLabel">[addPictureLabel]</td>
-			<td class="add-form-item" wicket:id="choosePicture" />
-			<td class="add-form-item"><input type="submit" wicket:id="submitPicture"
-				value="Upload"></input></td>
-			<td class="toolTip"><span wicket:id="galleryImageUploadToolTip">[galleryImageUploadToolTip]</span></td>
-		</tr>
-		<tr wicket:id="fileList">
-			<td class="label">Files</td>
-			<td width="200"><span wicket:id="file">(file)</span></td>
-			<td><a href="#" wicket:id="delete"></a></td>
-		</tr>
-	</table>
+		<section wicket:id="addPictureContainer">
+			<div class="form-group">
+				<h3 wicket:id="addPictureLabel" class="addPictureLabel">[addPictureLabel]</h3>
+				<div class="input-file-container" wicket:id="choosePicture"></div>
+				<input type="submit" wicket:id="submitPicture" value="Upload" />
+				<div class="toolTip" style="margin-top: 0em;">
+					<span wicket:id="galleryImageUploadToolTip">[galleryImageUploadToolTip]</span>
+				</div>
+			</div>
+		</section>
+		<ul wicket:id="fileList">
+			<li class="label">Files</li>
+			<li width="200"><span wicket:id="file">(file)</span></li>
+			<li><a href="#" wicket:id="delete"></a></li>
+		</ul>
 
 	</form>
+	</div>
 	</div>
 	</div>
 	</div>

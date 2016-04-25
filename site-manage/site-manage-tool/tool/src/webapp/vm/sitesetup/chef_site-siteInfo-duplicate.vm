@@ -69,6 +69,12 @@
 									</select> 
 									</div>
 						</div>
+							#if($scoringAgentOption)	
+								<p>
+									<input id="transferScoringData" type="checkbox" value="transferScoringData" name="selectScoringData">
+									<label for="transferScoringData">$tlang.getFormattedMessage("sitdup.dupscoredata", $scoringAgentName)</label>
+								</p>
+							#end
 						#end	
 					#if ($hasSiteSpecificQuota)
 					<h4>$tlang.getString("sitdup.duptit")</h4>
@@ -95,7 +101,7 @@
 		<div class="act">
 			#if (!$!siteDuplicated)
 				<input
-					type="button"
+					type="submit"
 					class="active"
 					name="$tlang.getString("sitdup.dup")"
 					id="duplicateSite" 

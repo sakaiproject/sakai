@@ -13,6 +13,7 @@
  <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
  <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
  <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
+ <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/checklist.css" type="text/css" />
  <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
  <title rsf:id="msg=simplepage.showpage"></title>
 
@@ -59,6 +60,7 @@
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
  <script type="text/javascript" src="$context/js/show-page.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
+ <script type="text/javascript" src="$context/js/checklistAjax.js"></script>
 
  <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
  <script type="text/javascript" language="JavaScript" rsf:id="redirect">
@@ -215,6 +217,7 @@
 	    if (breadcrumbs.size() > 0) {
 		jQuery(".Mrphs-siteHierarchy").append(jQuery(".breadcrumbs span").slice(1));
 	    }
+	    jQuery(".Mrphs-siteHierarchy").append(jQuery("span.nextprev"));
 	    jQuery(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
 	    jQuery(".genTitle").text(title);
          }
@@ -258,6 +261,9 @@
                     <a role="menuitem" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
                   </li>
 		  <hr style="border:none"/>
+            <li rsf:id="checklist-li">
+                <a role="menuitem" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
+            </li>
 		  <li rsf:id="question-li">
 		    <a role="menuitem" href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
 		  </li>
@@ -387,6 +393,8 @@
                         <div class="rowdescription itemdescription" rsf:id="description"></div>
                       </div>
                       <div style="display:none">
+                        <span rsf:id="indentLevel" class="indentLevel"></span>
+                        <span rsf:id="custom-css-class" class="custom-css-class"></span>
                         <span rsf:id="current-item-id2" class="current-item-id2"></span>
                         <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
                         <span rsf:id="type" class="type"></span>
@@ -516,15 +524,12 @@
 
                     <div rsf:id="commentsgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-comments"></a><span rsf:id="icon-comments"></span></div></div>
                     <div rsf:id="commentsSpan" class="commentsCell right-col">
-                    	    <div rsf:id="comments-td" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+                    	    <div rsf:id="comments-td" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="gradingPaneLink" ><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                             <p rsf:id="missing-prereqs" class="instruction"></p>
                         <div class="commentsDiv" rsf:id="commentsDiv">
                             <div rsf:id="item-group-titles6" class="item-group-titles"></div>
                             
-                            <div style="text-align:right;margin-right:25px;" >
-                              <h3 class="offscreen" rsf:id="msg=simplepage.comments-section"></h3>
-                            <a href="#" class="usebutton gradingPaneLink" rsf:id="gradingPaneLink" ></a>
-                            </div>
+                            <h3 class="offscreen" rsf:id="msg=simplepage.comments-section"></h3>
                             
                             <div rsf:id="msg=simplepage.replace-with-comments" class="replaceWithComments">Loading Comments ...</div>
                             
@@ -557,10 +562,39 @@
                         <span style="display:none" rsf:id="commentsGrade" class="commentsGrade"></span>
                         <span style="display:none" rsf:id="commentsMaxPoints" class="commentsMaxPoints"></span>
                     </div>
+
+
+                    <div rsf:id="checklistItemContainer" class="right-col">
+                        <div rsf:id="editchecklist-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-checklistProgress"><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton itemLink" rsf:id="edit-checklist"><span aria-hidden="true" class="fa-edit fa-edit-icon fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
+                        <div class="statusCol">
+                            <img class="status-image icon-image" rsf:id="checklistStatus" />
+                        </div>
+                        <div class="checklistDiv" rsf:id="checklistDiv">
+                            <div>
+                                <h3 class="checklistTitle" rsf:id="checklistTitle"></h3><span rsf:id="item-groups-titles-checklist" class="item-group-titles"></span>
+                                <p class="checklistDescription" rsf:id="checklistDescription"></p>
+                                <div class="checklistItemDiv" rsf:id="checklistItemDiv" style="padding-left:10px">
+                                    <form action="#" rsf:id="checklistItemForm" class="checklistItemForm">
+                                        <div id="checklistItemsDiv" rsf:id="checklistItemsDiv">
+                                            <span rsf:id="checklist-span"/>
+                                            <div rsf:id="select-checklistitem-list:">
+                                                <label class="checklistLabel"><input type="checkbox" rsf:id="select-checklistitem" /><span rsf:id="select-checklistitem-name"></span></label>
+                                                <span class="saveChecklistSuccess checklistSaveMessage" style="display: none;">Save successful!</span>
+                                                <span class="saveChecklistError checklistSaveMessage" style="display: none;">Unable to save checklist item</span>
+                                                <span class="saveChecklistSaving checklistSaveMessage" style="display: none;"><img src="../images/loading.gif" alt="Saving checklist..."/></span>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" rsf:id="checklistId" id="checklistId" class="checklistId"/>
+                                        <input type="hidden" rsf:id="checklistItemId" />
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div rsf:id="studentgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-student"><span rsf:id="icon-student"></span></a></div></div>
                     <div rsf:id="studentSpan" class="right-col">
-                            <div rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+                            <div rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="studentGradingPaneLink" ><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                             <span rsf:id="student-missing-prereqs"></span>
                         <div class="studentDiv" rsf:id="studentDiv">
                             <div rsf:id="item-group-titles7" class="item-group-titles"></div>
@@ -581,9 +615,6 @@
                                   <a class="addStudentContent" href="#" rsf:id="linkLink"></a>
                                 </div>
                               </div>
-                            </div>
-                            <div>
-                                <a href="#" style="margin-top:15px;" class="usebutton gradingPaneLink" rsf:id="studentGradingPaneLink" ></a>
                             </div>
  			    <div class="add-comment-button">
 			      <a rsf:id="peer-eval-stats-link" class="usebutton switchLink peer-eval-stats"><span style="font-weight:normal" rsf:id="msg=simplepage.peer-eval-stats"></span></a>
@@ -673,7 +704,9 @@
 
                     <div rsf:id="questiongroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-question"><span rsf:id="icon-question"></span></a></div></div>
                     <div rsf:id="questionSpan" class="right-col">
-                        <div rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+
+
+                        <div rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="questionGradingPaneLink" ><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                         <div class="questionDiv" rsf:id="questionDiv">
 			    <div rsf:id="questionitem-group-titles" class="item-group-titles"></div>
                             <div class="statusCol">
@@ -719,7 +752,6 @@
                                 <div rsf:id="questionPollGraph" class="questionPollGraph"></div>
                             </div>
                             <div class="questionDivControl">
-                                <a href="#" class="usebutton gradingPaneLink" rsf:id="questionGradingPaneLink" ></a>
                                 <span style="display:none" rsf:id="msg=simplepage.show-poll" class="show-poll"></span>
                                 <span style="display:none" rsf:id="msg=simplepage.hide-poll" class="hide-poll"></span>
                             </div>
@@ -752,6 +784,11 @@
 		    </script>
 	    </div>	
 	    </div>			
+	    <script type="text/javascript">
+	      // to avoid flickering, process indent here
+	      doIndents();
+	    </script>
+
 			<script rsf:id="swfobject" type="text/javascript" src="swfobject.js"></script>
 
 		</div>
@@ -769,8 +806,14 @@
 		   scrolling="auto"
 		   id="iframe"
 		   ></iframe>
-		   <a href="#" rsf:id="prev1" class="usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">next</a> 
-		   <a style="float:right;" href="#" rsf:id="next1" class="usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">next</a> 
+		   <ul class="navIntraTool">
+		   <li class="bottomButtons contentButton">
+		   <span>
+		   <a href="#" rsf:id="prev1">next</a> 
+		   <a class="bottomRight" href="#" rsf:id="next1">next</a> 
+		   </span>
+		   </li>
+		   </ul>
 
 		<div style="display:none;">
 			<p rsf:id="msg=simplepage.add-comment" id="simplepage.add-comment"></p>
@@ -792,6 +835,19 @@
     			// a real function call with real values which come from the 
     			// "emitJavascriptCall" method will be placed here by RSF
 		</script>
+
+         <form class="saveChecklistForm" rsf:id="saveChecklistForm" style="display:none;">
+             <input type="hidden" class="checkboxElementId" id="saveChecklistForm-checkboxElementId" rsf:id="saveChecklistForm-checkboxElementId"></input>
+             <input type="hidden" class="checklistIdField" id="saveChecklistForm-checklistId" rsf:id="saveChecklistForm-checklistId"></input>
+             <input type="hidden" class="checklistItemIdField" id="saveChecklistForm-checklistItemIdInput" rsf:id="saveChecklistForm-checklistItemIdInput"></input>
+             <input type="hidden" class="checklistItemDoneField" id="saveChecklistForm-checklistItemDone" rsf:id="saveChecklistForm-checklistItemDone"></input>
+             <input type="hidden" class="checklistCsrfField" id="saveChecklistForm-csrf" rsf:id="saveChecklistForm-csrf"></input>
+         </form>
+
+         <script rsf:id="saveChecklistForm-init" type="text/javascript">
+             // a real function call with real values which come from the
+             // "emitJavascriptCall" method will be placed here by RSF
+         </script>
 
 		<div rsf:id="dialogDiv" style="display:none" >
 			<div id="messages">
@@ -863,7 +919,7 @@
                     <p class="shorttext required">
                         <span class="reqStar">*</span>
                         <label class="pageTitle" rsf:id="subpage-label" for="subpage-title"></label>
-                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" maxlength="99" length="30" /><br />
+                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" maxlength="255" length="30" /><br />
                     </p>
                 
                     <p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
@@ -891,13 +947,13 @@
 					</div>
 				</div>
       <form action="#" rsf:id="edit-form" class="controlsPanel">
-        <input type="hidden" rsf:id="csrf8" />
+        <input type="hidden" rsf:id="csrf8" id="csrf8"/>
 
                     <div class="">
 
                         <p class="shorttext required">
                             <label rsf:id="name-label" class="pageTitle" for="name"></label>
-                            <input type="text" name="name" rsf:id="name" id="name" size="30" maxlength="99" class="edit-form-input" /><br />
+                            <input type="text" name="name" rsf:id="name" id="name" size="30" maxlength="255" class="edit-form-input" /><br />
                         </p>
                         
                         <p id="pathdiv">
@@ -974,6 +1030,17 @@
                         </p>
 
                     </div>
+
+                    <div id="stylingstuff" class="stylingstuff">
+                        <p class="shorttext">
+                            <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
+                            <select rsf:id="indent-level" name="indent-level" id="indent-level"/>
+                        </p>
+                        <p class="shorttext">
+                            <label for="customCssClass" rsf:id="custom-css-label"></label>
+                            <input rsf:id="customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
+                        </p>
+                    </div>
                     
                     <input type="hidden" rsf:id="item-id" id="item-id" />
                     
@@ -1049,7 +1116,7 @@
 		        <div id="mm-name-section">
                           <p class="shorttext required">
                             <label rsf:id="msg=simplepage.name_label" for="mm-name"></label>
-                            <input type="text" name="mm-name" rsf:id="mm-name" id="mm-name" size="30" maxlength="99" class="edit-form-input" />
+                            <input type="text" name="mm-name" rsf:id="mm-name" id="mm-name" size="30" maxlength="255" class="edit-form-input" />
                           </p>
 			  <hr />
 			</div>
@@ -1273,7 +1340,7 @@
                     <p class="shorttext required">
                         <span class="reqStar">*</span>
                         <label class="pageTitle" rsf:id="pageTitleLabel" for="pageTitle">Page Title</label>
-                        <input rsf:id="pageTitle" maxlength="99" id="pageTitle" type="text"/>
+                        <input rsf:id="pageTitle" maxlength="255" id="pageTitle" type="text"/>
                     </p>
                     
                     <div rsf:id="hideContainer">

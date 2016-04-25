@@ -878,12 +878,12 @@ public class SiteAddParticipantHandler {
 									// multiple matches
 									for (User user : usersWithEmail)
 									{
-										String eid = user.getEid();
-										eidsForAllMatches.append(eid).append("\n");
-										eidsForAllMatchesAlertBuffer.append(eid).append(", ");
+										String displayId = user.getDisplayId();
+										eidsForAllMatches.append(displayId).append("\n");
+										eidsForAllMatchesAlertBuffer.append(displayId).append(", ");
 										
 										// this is to mark the eid so that it won't be used again for email lookup in the future
-										officialAccountEidOnly.add(eid);
+										officialAccountEidOnly.add(user.getEid());
 									}
 									// trim the alert message
 									String eidsForAllMatchesAlert = eidsForAllMatchesAlertBuffer.toString();

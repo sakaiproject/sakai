@@ -1,12 +1,13 @@
 /*
 toggler needs
 */
-.toggleAnchor {
+h4.toggleAnchor {
     border: 1px solid #cef;
     background: #cef !important;
     padding: 5px !important;
     cursor: pointer;
     outline:none;
+    color: black;
 }
  .toggleAnchor:hover{
     border: 1px solid #9cf;

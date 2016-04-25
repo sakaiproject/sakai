@@ -1554,4 +1554,24 @@ public class ItemAuthorBean
 	  this.allowMinScore = allowMinScore;
   }
 
+    public boolean isDisableNegativePoints() {
+        Long type = null;
+        try {
+            type = Long.parseLong(currentItem.getItemType());
+        } catch (NumberFormatException nfe) {
+            return true;
+        }
+        boolean value = true;
+        if (currentItem != null && !getAllowMinScore() && // disable if using min score
+                (currentItem.getPartialCreditFlag().equals("false") || !currentItem.isPartialCreditEnabled()) && // disable if using partial credit
+                (type == TypeFacade.MULTIPLE_CHOICE || // enable for single correct
+                        type == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION || // enable for multiple correct single selection
+                        type == TypeFacade.TRUE_FALSE || // enable for multiple correct single selection
+                        (type == TypeFacade.MULTIPLE_CORRECT && // enable for multiple correct multiple selection and
+                                (currentItem.getMcmsPartialCredit().equals("false"))))) { // not using multiple choice multiple correct partial credit
+            value = false;
+        }
+        log.debug("Disable negative points: " + Boolean.toString(value));
+        return value;
+    }
 }

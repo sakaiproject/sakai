@@ -174,10 +174,10 @@ ol.vertical li.placeholder::before {
 	background-color: #002147; color:#FFF; padding: 5px; min-height:30px;
 }
 .h2Editor {
-	background: #cef none repeat scroll 0 0; color:#000; padding: 5px; min-height:20px;
+	color:#000; padding: 5px; min-height:20px;
 }
 .h3Editor {
-	background: #FFF none repeat scroll 0 0; color:#000;padding:5px; min-height:16px;
+	color:#000;padding:5px; min-height:16px;
 }
 .citationNo {
 	color:#fff;
@@ -251,7 +251,7 @@ a.print {
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
-ol.serialization li.hasSections:hover{
+ol.serialization li.hasSections div.h1TopBar:hover, ol.serialization li.hasSections.accordionH1:hover {
 	cursor: pointer;
 	background: #2a4667 none repeat scroll 0 0;
 }

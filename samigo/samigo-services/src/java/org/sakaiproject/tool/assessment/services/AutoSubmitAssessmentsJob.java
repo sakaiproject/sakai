@@ -52,9 +52,9 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 	 */
 	public void execute(JobExecutionContext jobInfo) throws JobExecutionException {
 		loginToSakai("admin");
- 
- 		String jobName = jobInfo.getJobDetail().getName(); 
- 		String triggerName = jobInfo.getTrigger().getName();
+
+		String jobName = jobInfo.getJobDetail().getKey().getName(); 
+		String triggerName = jobInfo.getTrigger().getKey().getName();
  		Date requestedFire = jobInfo.getScheduledFireTime();
 		Date actualfire = jobInfo.getFireTime();
 

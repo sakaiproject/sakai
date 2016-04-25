@@ -32,12 +32,18 @@
 		.checkbox_group{
 			display: inline-block;
 			margin: 0 0.25% 0 0;
-	    	width: 24.5%;
+			width: 28%;
+			vertical-align: top;
 			@media #{$phone}{
 				display: block;
 				margin: 0 0 1em 0;
 				width: 100%;
 			}
+		}
+		
+		.radio_group{
+			@extend .checkbox_group;
+			width: 20%;
 		}
 	}
 

@@ -93,9 +93,10 @@ public class GrantSubmissionListener
 
 	for(int i = 0; i < itemGradingIds.size(); i++){
 		Long itemGradingId = (Long) itemGradingIds.get(i);
-		//for each grading item, check if question is file upload type
-		if(gradingService.getTypeId(itemGradingId).intValue() == 6){
-			//if is file upload type, check if there is file uploaded
+		//for each grading item, check if question is file upload type or an audio recording type
+		int itemType = gradingService.getTypeId(itemGradingId).intValue();
+		if(itemType == 6 || itemType == 7){
+			//if is file upload or recording type, check if there is file/media uploaded
 			ArrayList mediaDatas = gradingService.getMediaArray(itemGradingId.toString());
 			for(int j = 0; j < mediaDatas.size(); j++) {
 				//if there are file(s) uploaded, delete them

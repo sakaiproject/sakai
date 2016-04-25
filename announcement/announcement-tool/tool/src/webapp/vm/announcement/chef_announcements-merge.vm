@@ -7,7 +7,7 @@
 		<p class="instruction">
 			$tlang.getString("merge.select")
 		</p>
-		<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString("merge.list.summary")">
+		<table class="listHier lines nolines merge-list" cellspacing="0" summary="$tlang.getString("merge.list.summary")">
 		  <tr> 
 			<th id="announcementSite">$tlang.getString("gen.site")</th>
 			<th id="checkbox">$tlang.getString("merge.showann")</th>

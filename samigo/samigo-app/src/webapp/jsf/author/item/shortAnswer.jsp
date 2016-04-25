@@ -54,7 +54,7 @@
   <div class="form-group row"> 
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.answer_point_value}" />
     <div class="col-md-2">
-      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
+      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="ConvertPoint">
 	    <f:validateDoubleRange minimum="0.00"/>
 	  </h:inputText>
 	<h:message for="answerptr" styleClass="validate"/>
@@ -79,7 +79,7 @@
 <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
   <div class="shorttext">
     <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" onchange="toPoint(this.id);">
+    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="ConvertPoint">
 	  <f:validateDoubleRange/>
 	</h:inputText>
     <h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />

@@ -44,6 +44,23 @@
 
 /* end override */
 
+/* wrap unbreakable words */
+#content {
+  word-wrap:break-word;
+  overflow-wrap:break-word;
+}
+/* without this, these divs expand beyond the width of the column if there's an unbreakable word */
+.right-col, .contentCol, .checklistDescription {
+  max-width:100%;
+}
+.checklistDiv {
+  max-width:calc(100% - 20px);
+}
+.gradingPane {
+  padding-top: 20px;
+  padding-left: 10px;
+}
+
 .title-tools h2{
 	padding-top: 0px;
 }
@@ -382,29 +399,68 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    against the WebAIM Color Contrast Checker. I've tried to
    make them subjectively the same darkness.
 */
+/* default */
+.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv {
+  background-color: #b3ecff;
+}
+.column a[href]{
+  color: #004860;
+}
 .colgray {
    background-color: #f0f0f0;
    border-color: #222;
 }
+.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv {
+  background-color: #b8b8b8;
+}
+.colgray a[href]{
+  color:black;
+}
 .colred {
    background-color: #fff0f0;
    border-color: #600;
-   color: #600;
+   color: #4660000;
+}
+.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv {
+  background-color: #ffb3b3;
+}
+.colred a[href], .colred h3.author {
+  color: black;
 }
 .colblue {
    background-color: #f4f4ff;
+   background-color: #e6f9ff;
    border-color: #004;
    color: #004;
+}
+.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv {
+  background-color: #b3d9ff;
+  background-color: #99e7ff;
+}
+.colblue a[href] {
+  color: black;
 }
 .colgreen {
    background-color: #f6fff6;
    border-color: #030;
    color: #030;
 }
+.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv {
+  background-color: #9fc;
+}
+.colgreen a[href] {
+  color: black;
+}
 .colyellow {
    background-color: #ffffe8;
    border-color: #840;
-   color: #840;
+   color: #4b2600;
+}
+.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv {
+  background-color:  #ffd480
+}
+.colyellow a[href],.colyellow h3.author {
+  color: black;
 }
 
 
@@ -432,7 +488,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     margin-top: 10px;
     margin-bottom: 0px;
 }
-.mainList li.textType, .mainList li.multimediaType {
+.mainList li.textType, .mainList li.multimediaType, .mainList li.checklistType {
     margin-top: 10px;
     margin-bottom: 10px;
 } 
@@ -464,7 +520,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     vertical-align: top
 }
 
-.statusCol, .contentCol {
+.statusCol, .contentCol, .checklistDiv {
  display: inline-block;
 }
 .link-div h3.link-div-head {
@@ -729,7 +785,7 @@ a.peer-eval-stats {
         font-size:110%;			 
 }
 .noDisplay {
-	display: none
+	display: none !important;
 }
 .imgCell {
 }
@@ -834,6 +890,9 @@ ul#toolbar li em {
 .dropDownDiv li div {
     font-size: .85em !important
 }
+.Mrphs-siteHierarchy span.nextprev {
+   float:right
+}
 span.nextprev {
 }
 a.nextprev {
@@ -856,7 +915,7 @@ img {
 .unsubmitted {
 	background-color: #FFC9D7
 }
-.gradingPaneLink span, .showPollGraph span {
+.showPollGraph span {
 	font-size: 70%;
 	font-weight: normal;
 }
@@ -964,7 +1023,7 @@ input[type="submit"].question-submit,.addStudentContent {
    position: static;
 }
 
-.questionDiv .contentCol {
+.questionDiv .contentCol, .checklistDiv {
  margin-top:5px;
  padding: 15px;
  padding-right: 30px;
@@ -973,7 +1032,9 @@ input[type="submit"].question-submit,.addStudentContent {
  -moz-border-radius: 10px;
  border-radius: 10px;
 }
-
+.checklistDiv {
+ padding-right: 15px;
+}
 .questionDivControl {
  margin-top: 5px;
  margin-bottom: 10px;
@@ -1366,6 +1427,12 @@ font-size: 90%;
   vertical-align:-3px;
   font-size:200%
 }
+.bottomButtons {
+  width:100%
+}
+.bottomRight {
+  float:right
+}
 .contentButton span {
   padding: 0px !important;
 }
@@ -1555,6 +1622,55 @@ body > .portletBody > .action {
    of any video players or other embedded content. That requires larger values for some
    elements of Morpheus. */
 
-#Mrphs-footerApp__chat, .Mrphs-userNav__subnav {
+/* directURL popup */
+nav.Mrphs-container--toolTitleNav {
+        z-index: 100001 !important;
+}
+/* menu off user icon, site menu in narrow, site menu in  wide mode */
+.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal {
         z-index: 100002 !important;
+	position:relative;
+}
+/* chat open button */
+#Mrphs-footerApp__chat {
+        z-index: 100003 !important;
+}
+/* actual portal chat */
+.Mrphs-portalChat {
+        z-index: 100004 !important;
+}
+.hiddenTitle {
+    font-style: italic;
+    font-size: 100%;
+    font-weight: normal;
+    color: #000;
+}
+.checklistDiv h3 {
+    margin-top: 0px;
+    font-size: 100%;
+}
+.checklistSaveMessage {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:13px;
+    margin: 0 0 0 1em;
+    padding:4px 4px 4px 24px;
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+.saveChecklistSuccess {
+    color: #4F8A10;
+    background-image:url('../images/success.png');
+}
+.saveChecklistError {
+    color: #D8000C;
+    background-image: url('../images/failed.png');
+}
+.saveChecklistSaving {
+    margin-left: 2em;
+}
+
+.stylingstuff {
+    padding: .5em;
+    margin: .5em 0;
+    border: 1px solid #ccc;
 }

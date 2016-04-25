@@ -1,11 +1,11 @@
 <f:view>
-    <sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
+    
 
 	<sakai:view>
 	
 		<sakai:view_title value="#{msgs.edit_channel_title}" rendered="#{!ChatTool.currentChannelEdit.newChannel}" />
 		<sakai:view_title value="#{msgs.add_channel_title}" rendered="#{ChatTool.currentChannelEdit.newChannel}" />
-		
+		<sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
 		<h:messages globalOnly="false" styleClass="alertMessage" 
 			showDetail="true" showSummary="false" rendered="#{not empty facesContext.maximumSeverity}" />
 		<h:form id="editRoomForm">

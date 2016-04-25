@@ -47,6 +47,13 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
+          <script type="text/javascript">
+              function flagFolders() {
+                  collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);
+                  flagRows();
+              }
+              window.onload = flagFolders;
+          </script>
       </head>
 
 <f:verbatim><body onload="disableIt();checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
@@ -80,49 +87,68 @@ function textCounter(field, maxlimit) {
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
- <div class="table-responsive">
-<h:panelGrid styleClass="table table-striped" columns="2" columnClasses="shorttext" rowClasses="poolName, creator, dept, description, objectives, keywords, hidden" id="samPool">
-  <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}"/>
-  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="namefield" size="30" maxlength="255" value="#{questionpool.currentPool.displayName}" />
-  <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>
-  <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
 
-  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{questionPoolMessages.dept}"/>
-  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
-    
-  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{questionPoolMessages.desc}" />
-  <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt();textCounter(this,255);" id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="40" rows="6"
-                  onblur="textCounter(this,255);"
-                  onclick="textCounter(this,255);"
-                  ondblclick="textCounter(this,255);"
-                  onfocus="textCounter(this,255);"
-                  onkeyup="textCounter(this,255);"
-                  onkeypress="textCounter(this,255);"
-                  onmouseup="textCounter(this,255);"
-                  onmousemove="textCounter(this,255);"
-                  onmouseout="textCounter(this,255);"
-                  onmouseover="textCounter(this,255);"
-/>
-
-  <h:outputLabel for="objfield" value="#{questionPoolMessages.obj}" rendered="!#{questionpool.currentPool.showParentPools}"/>
-  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="objfield" size="30" maxlength="255" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
-
-  <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
-  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
+<div class="form-group row"> 
+    <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}" styleClass="col-sm-2  form-control-label"/>
+    <div class="col-sm-6">
+    	<h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="namefield" size="30" maxlength="255" value="#{questionpool.currentPool.displayName}" />
+    </div>
+</div>
+<div class="form-group row"> 
+    <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}" styleClass="col-sm-2  form-control-label"/>
+    <div class="col-sm-6">
+        <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
+    </div>
+</div>
+<h:panelGroup layout="block"  rendered="!#{questionpool.currentPool.showParentPools}" styleClass="form-group row">
+    <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  
+                   for="orgfield" value="#{questionPoolMessages.dept}" styleClass="col-sm-2 form-control-label"/>
+    <div class="col-sm-6">
+       <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+    </div>
+</h:panelGroup>    
+<h:panelGroup layout="block"  rendered="!#{questionpool.currentPool.showParentPools}" styleClass="form-group row">
+    <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" 
+                   value="#{questionPoolMessages.desc}" styleClass="col-sm-2 form-control-label"/>
+    <div class="col-sm-6">
+        <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt();textCounter(this,255);" id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="40" rows="6"
+                         onblur="textCounter(this,255);"
+                         onclick="textCounter(this,255);"
+                         ondblclick="textCounter(this,255);"
+                         onfocus="textCounter(this,255);"
+                         onkeyup="textCounter(this,255);"
+                         onkeypress="textCounter(this,255);"
+                         onmouseup="textCounter(this,255);"
+                         onmousemove="textCounter(this,255);"
+                         onmouseout="textCounter(this,255);"
+                         onmouseover="textCounter(this,255);"
+        />
+    </div>
+</h:panelGroup>  
+<h:panelGroup layout="block"  rendered="!#{questionpool.currentPool.showParentPools}" styleClass="form-group row">
+    <h:outputLabel for="objfield" value="#{questionPoolMessages.obj}" 
+                   rendered="!#{questionpool.currentPool.showParentPools}" styleClass="col-sm-2 form-control-label"/>
+    <div class="col-sm-6">
+        <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="objfield" size="30" maxlength="255" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>ç
+    </div>
+</h:panelGroup>   
+<h:panelGroup layout="block"  rendered="!#{questionpool.currentPool.showParentPools}" styleClass="form-group row">
+    <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}" 
+                   rendered="!#{questionpool.currentPool.showParentPools}" styleClass="col-sm-2 form-control-label"/>
+    <div class="col-sm-6">
+        <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
+    </div>
+</h:panelGroup>
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
   <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
   </h:inputHidden>
-</h:panelGrid>
-<div style="margin-top:1em;margin-bottom:2.5em">
+<div>
   <h:commandButton id="Update" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
     <f:attribute name="addsource" value="editpoolattr"/>
   </h:commandButton>
 </div>
-
- </div>
-
 
 <!-- display subpools  -->
 <div class="tier1">

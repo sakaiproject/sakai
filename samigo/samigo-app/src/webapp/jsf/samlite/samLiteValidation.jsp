@@ -54,128 +54,134 @@
 		    <p/>
 		    <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_validation_instructions}"/></div>
   		 	<p/>
-			<h:dataTable id="questions" styleClass="listHier"
-		 		columnClasses="list-column,list-column,list-column,list-column"
-		 		width="100%" 
-		 		value="#{samLiteBean.questions}" 
-		 		var="question">
-		 		<h:column>
-		 			<f:facet name="header">
-		          		<h:outputText value="#{samLiteMessages.samlite_number}" />
-		        	</f:facet>
-		        	<h:outputText value="#{question.questionNumber}"/>
-		 		</h:column>
-		 		<h:column>
-		 			<f:facet name="header">
-		          		<h:outputText value="#{samLiteMessages.samlite_question}" />
-		        	</f:facet>
-		        	<h:outputText value="#{question.question}" escape="false"/>
-		 		</h:column>
-		 		<h:column>
-		 			<f:facet name="header">
-		          		<h:outputText value="#{samLiteMessages.samlite_type}" />
-		        	</f:facet>
-		 			<h:outputText value="#{question.questionTypeAsString}"/>
-		 		</h:column>
-		 		<h:column>
-		 			<f:facet name="header">
-		          		<h:outputText value="#{samLiteMessages.samlite_points}" />
-		        	</f:facet>
-		 			<h:outputText value="#{question.questionPoints}"/>
-		 		</h:column>
-		 		
-		 		<h:column>
-		 			<f:facet name="header">
-		 				<h:outputText value="#{samLiteMessages.samlite_discount}" />
-		        	</f:facet>
-		 			<h:outputText value="#{question.questionDiscount}"/>
-		 		</h:column>
-		 		
-		 		<h:column>
-		 			<f:facet name="header">
-		          		<h:outputText value="#{samLiteMessages.samlite_answers}" />
-		        	</f:facet>
-		 			<h:panelGrid>
-          				<h:panelGroup rendered="#{question.questionType == 10}">
-           					<h:dataTable value="#{question.answers}" var="answer">
-						        <h:column>
-								  	<h:graphicImage id="image1" rendered="#{answer.correct}"
-						             alt="#{samLiteMessages.correct}" url="/images/checked.gif" >
-						          	</h:graphicImage>
-						          	<h:graphicImage id="image2" rendered="#{!answer.correct}"
-						             alt="#{samLiteMessages.not_correct}" url="/images/unchecked.gif" >
-						          	</h:graphicImage>						   
-						          	<h:outputText value="#{answer.id}. #{answer.text}" escape="false"/>
-						        </h:column>
-						    </h:dataTable>
-          				</h:panelGroup>
-          				<h:panelGroup rendered="#{question.questionType == 15}">
-           					<h:dataTable value="#{question.answers}" var="answer">
-						        <h:column>
-								  	<h:graphicImage id="image1" rendered="#{answer.correct}"
-						             alt="#{samLiteMessages.correct}" url="/images/checked.gif" >
-						          	</h:graphicImage>
-						          	<h:graphicImage id="image2" rendered="#{!answer.correct}"
-						             alt="#{samLiteMessages.not_correct}" url="/images/unchecked.gif" >
-						          	</h:graphicImage>						   
-						          	<h:outputText value="#{answer.id}. #{answer.text}"/>
-						        </h:column>
-						    </h:dataTable>
-          				</h:panelGroup>
-          				<h:panelGroup rendered="#{question.questionType == 20}">
-          					<h:outputText value="#{question.correctAnswer}"/>
-          				</h:panelGroup>
-          				<h:panelGroup rendered="#{question.questionType == 30}">
-          					<h:dataTable value="#{question.answers}" var="answer">
-						        <h:column>
-								  	<h:graphicImage id="image1" rendered="#{answer.correct}"
-						             alt="#{samLiteMessages.correct}" url="/images/checked.gif" >
-						          	</h:graphicImage>
-						          	<h:graphicImage id="image2" rendered="#{!answer.correct}"
-						             alt="#{samLiteMessages.not_correct}" url="/images/unchecked.gif" >
-						          	</h:graphicImage>						   
-						          	<h:outputText value="#{answer.text}"/>
-						        </h:column>
-						    </h:dataTable>
-          				</h:panelGroup>
-		 				<h:panelGroup rendered="#{question.questionType == 40}">
-          					<h:outputText value="#{question.correctAnswer}"/>
-          				</h:panelGroup>
-          				
-          				<h:panelGroup rendered="#{question.questionType == 50}">
-           					<h:dataTable value="#{question.answers}" var="answer">
-						        <h:column>
-						          	<h:outputText value="#{answer.id}. #{answer.text}" escape="false"/>
-						        </h:column>
-						    </h:dataTable>
-          				</h:panelGroup>
-          				
-          				<h:panelGroup rendered="#{question.questionType == 60}">
-          					<h:outputText value="#{question.correctAnswer}"/>
-          				</h:panelGroup>
-          				
-		 			</h:panelGrid>
-				</h:column>
-				<h:column>
-		 			<f:facet name="header">
-		          		<h:outputText value="#{samLiteMessages.samlite_feedback}" />
-		        	</f:facet>
-		 			<h:panelGroup rendered="#{question.feedbackOK != null}">
-						<f:verbatim><b></f:verbatim>
-						<h:outputText value="#{samLiteMessages.samlite_feedbackOK}:"/>
-						<f:verbatim></b><br/></f:verbatim>
-						<h:outputText value="#{question.feedbackOK}"/>
-						<f:verbatim><br/></f:verbatim>
-					</h:panelGroup>
-					<h:panelGroup rendered="#{question.feedbackNOK != null}">
-						<f:verbatim><b></f:verbatim>
-						<h:outputText value="#{samLiteMessages.samlite_feedbackNOK}:"/>
-						<f:verbatim></b><br/></f:verbatim>
-						<h:outputText value="#{question.feedbackNOK}"/>
-					</h:panelGroup>
-		 		</h:column>
-		 	</h:dataTable> 
-		 	<f:verbatim><p/></f:verbatim>
+			<div class="table-responsive">
+				<h:dataTable id="questions"
+					styleClass="table table-hover table-striped table-bordered"
+					columnClasses="list-column,list-column,list-column,list-column,list-column,list-column,list-column"
+					width="100%" value="#{samLiteBean.questions}" var="question">
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{samLiteMessages.samlite_number}" />
+						</f:facet>
+						<h:outputText value="#{question.questionNumber}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{samLiteMessages.samlite_question}" />
+						</f:facet>
+						<h:outputText value="#{question.question}" escape="false" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{samLiteMessages.samlite_type}" />
+						</f:facet>
+						<h:outputText value="#{question.questionTypeAsString}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{samLiteMessages.samlite_points}" />
+						</f:facet>
+						<h:outputText value="#{question.questionPoints}" />
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{samLiteMessages.samlite_discount}" />
+						</f:facet>
+						<h:outputText value="#{question.questionDiscount}" />
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{samLiteMessages.samlite_answers}" />
+						</f:facet>
+						<h:dataTable value="#{question.answers}" var="answer"
+							rendered="#{question.questionType == 10}">
+							<h:column>
+								<h:graphicImage id="image1" rendered="#{answer.correct}"
+									alt="#{samLiteMessages.correct}" url="/images/checked.gif">
+								</h:graphicImage>
+								<h:graphicImage id="image2" rendered="#{!answer.correct}"
+									alt="#{samLiteMessages.not_correct}"
+									url="/images/unchecked.gif">
+								</h:graphicImage>
+								<h:outputText value="#{answer.id}. #{answer.text}"
+									escape="false" />
+							</h:column>
+						</h:dataTable>
+						<h:dataTable value="#{question.answers}" var="answer"
+							rendered="#{question.questionType == 15}">
+							<h:column>
+								<h:graphicImage id="image1" rendered="#{answer.correct}"
+									alt="#{samLiteMessages.correct}" url="/images/checked.gif">
+								</h:graphicImage>
+								<h:graphicImage id="image2" rendered="#{!answer.correct}"
+									alt="#{samLiteMessages.not_correct}"
+									url="/images/unchecked.gif">
+								</h:graphicImage>
+								<h:outputText value="#{answer.id}. #{answer.text}" />
+							</h:column>
+						</h:dataTable>
+						<h:outputText value="#{question.correctAnswer}"
+							rendered="#{question.questionType == 20}" />
+						<h:dataTable value="#{question.answers}" var="answer"
+							rendered="#{question.questionType == 30}">
+							<h:column>
+								<h:graphicImage id="image1" rendered="#{answer.correct}"
+									alt="#{samLiteMessages.correct}" url="/images/checked.gif">
+								</h:graphicImage>
+								<h:graphicImage id="image2" rendered="#{!answer.correct}"
+									alt="#{samLiteMessages.not_correct}"
+									url="/images/unchecked.gif">
+								</h:graphicImage>
+								<h:outputText value="#{answer.text}" />
+							</h:column>
+						</h:dataTable>
+						<h:outputText value="#{question.correctAnswer}"
+							rendered="#{question.questionType == 40}" />
+						<h:dataTable value="#{question.answers}" var="answer"
+							rendered="#{question.questionType == 50}">
+							<h:column>
+								<h:outputText value="#{answer.id}. #{answer.text}"
+									escape="false" />
+							</h:column>
+						</h:dataTable>
+						<h:outputText value="#{question.correctAnswer}"
+							rendered="#{question.questionType == 60}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{samLiteMessages.samlite_feedback}" />
+						</f:facet>
+						<h:panelGroup rendered="#{question.feedbackOK != null}">
+							<f:verbatim>
+								<b>
+							</f:verbatim>
+							<h:outputText value="#{samLiteMessages.samlite_feedbackOK}:" />
+							<f:verbatim>
+								</b>
+								<br />
+							</f:verbatim>
+							<h:outputText value="#{question.feedbackOK}" />
+							<f:verbatim>
+								<br />
+							</f:verbatim>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{question.feedbackNOK != null}">
+							<f:verbatim>
+								<b>
+							</f:verbatim>
+							<h:outputText value="#{samLiteMessages.samlite_feedbackNOK}:" />
+							<f:verbatim>
+								</b>
+								<br />
+							</f:verbatim>
+							<h:outputText value="#{question.feedbackNOK}" />
+						</h:panelGroup>
+					</h:column>
+				</h:dataTable>
+			</div>
+			<f:verbatim><p/></f:verbatim>
 		 	<div class="act">
 				<%-- immediate=true bypasses the valueChangeListener --%>
 		     	<h:commandButton value="#{samLiteMessages.samlite_back}" type="submit" action="samLiteEntry" immediate="true"/>

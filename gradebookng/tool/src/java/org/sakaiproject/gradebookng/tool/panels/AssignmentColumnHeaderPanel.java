@@ -395,22 +395,28 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	}
 
 	private boolean canUserEditAssignment(GbRole role, Assignment assignment) {
-		boolean canEdit = false;
 		if (role == GbRole.INSTRUCTOR) {
-			canEdit = true;
+			return true;
 		} else {
 			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
 					this.businessService.getCurrentUser().getId());
+			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 			for (PermissionDefinition permission : permissions) {
-				if (assignment.getCategoryId() != null &&
-						assignment.getCategoryId().equals(permission.getCategoryId())) {
-					if (permission.getFunction().equals(GraderPermission.GRADE.toString())) {
-						canEdit = true;
-						break;
+				boolean gradePermission = permission.getFunction().equals(GraderPermission.GRADE.toString());
+ 
+				if (gradePermission) {
+					if (categoriesEnabled) {
+						if ((assignment.getCategoryId() == null && permission.getCategoryId() == null) ||
+							(assignment.getCategoryId() != null &&
+								assignment.getCategoryId().equals(permission.getCategoryId()))) {
+							return true;
+						}
+					} else {
+						return true;
 					}
 				}
 			}
 		}
-		return canEdit;
+		return false;
 	}
 }
