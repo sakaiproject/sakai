@@ -48,7 +48,7 @@ RUN mkdir -p /tomcat/shared/classes /tomcat/shared/lib /tomcat/common/classes /t
 RUN mv mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar /tomcat/common/lib/mysql-connector-java-5.1.36-bin.jar
 
 #install sakai
-RUN git clone https://github.com/sakaiproject/sakai.git /sakai
+RUN git clone https://github.com/bzhouduke123/sakai.git /sakai
 WORKDIR /sakai
 RUN mvn clean install sakai:deploy -Dmaven.tomcat.home=/tomcat -Dmaven.test.skip=true
 
