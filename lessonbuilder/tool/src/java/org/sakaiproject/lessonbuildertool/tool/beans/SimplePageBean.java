@@ -1844,7 +1844,7 @@ public class SimplePageBean {
 	}
 
 	public String getActualCurrentPageTitle() {
-		String returnVal = "Lessons";
+		String returnVal = messageLocator.getMessage("simplepage.defaultTitle");
 
 		Placement placement = toolManager.getCurrentPlacement();
 		ToolConfiguration toolConfiguration = siteService.findTool(placement.getId());
