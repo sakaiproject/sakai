@@ -2,7 +2,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.Map;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -67,8 +66,8 @@ public class StudentNameCellPanel extends Panel {
 				}
 
 				content.setOutputMarkupId(true);
-				String modalTitle = (new StringResourceModel("heading.studentsummary",
-						null, new Object[]{displayName, eid})).getString();
+				final String modalTitle = (new StringResourceModel("heading.studentsummary",
+						null, new Object[] { displayName, eid })).getString();
 				target.appendJavaScript(String.format(
 						"new GradebookGradeSummary($(\"#%s\"), false, \"%s\");",
 						content.getMarkupId(), modalTitle));

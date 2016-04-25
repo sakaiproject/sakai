@@ -15,7 +15,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.core.util.string.ComponentRenderer;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -26,7 +25,6 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
@@ -99,10 +97,10 @@ public class GradeItemCellPanel extends Panel {
 		// unpack model
 		this.modelData = this.model.getObject();
 		final Long assignmentId = (Long) this.modelData.get("assignmentId");
-		final String assignmentName = (String) this.modelData.get("assignmentName");
+		// final String assignmentName = (String) this.modelData.get("assignmentName");
 		final Double assignmentPoints = (Double) this.modelData.get("assignmentPoints");
 		final String studentUuid = (String) this.modelData.get("studentUuid");
-		final String studentName = (String) this.modelData.get("studentName");
+		// final String studentName = (String) this.modelData.get("studentName");
 		final Long categoryId = (Long) this.modelData.get("categoryId");
 		final boolean isExternal = (boolean) this.modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) this.modelData.get("gradeInfo");
@@ -206,7 +204,7 @@ public class GradeItemCellPanel extends Panel {
 
 						// for concurrency, get the original grade we have in the UI and pass it into the service as a check
 						final GradeSaveResponse result = GradeItemCellPanel.this.businessService.saveGrade(assignmentId, studentUuid,
-							GradeItemCellPanel.this.originalGrade, newGrade, GradeItemCellPanel.this.comment);
+								GradeItemCellPanel.this.originalGrade, newGrade, GradeItemCellPanel.this.comment);
 
 						// TODO here, add the message
 						switch (result) {
@@ -312,7 +310,7 @@ public class GradeItemCellPanel extends Panel {
 					getComponent().setDefaultModelObject(GradeItemCellPanel.this.originalGrade);
 					clearNotifications();
 					refreshNotifications();
-					Component cell = getParentCellFor(getComponent());
+					final Component cell = getParentCellFor(getComponent());
 					handleNoChange(cell);
 					target.add(cell);
 				}
@@ -353,7 +351,8 @@ public class GradeItemCellPanel extends Panel {
 					final GradebookPage gradebookPage = (GradebookPage) getPage();
 					final GbModalWindow window = gradebookPage.getGradeCommentWindow();
 
-					final EditGradeCommentPanel panel = new EditGradeCommentPanel(window.getContentId(), GradeItemCellPanel.this.model, window);
+					final EditGradeCommentPanel panel = new EditGradeCommentPanel(window.getContentId(), GradeItemCellPanel.this.model,
+							window);
 					window.setContent(panel);
 					window.showUnloadConfirmation(false);
 					window.clearWindowClosedCallbacks();

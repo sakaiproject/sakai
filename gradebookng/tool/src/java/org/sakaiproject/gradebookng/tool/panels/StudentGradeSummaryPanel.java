@@ -9,11 +9,9 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -45,9 +43,10 @@ public class StudentGradeSummaryPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
-		final String eid = (String) modelData.get("eid");
-		final String displayName = (String) modelData.get("displayName");
+		// unpack model
+		// final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
+		// final String eid = (String) modelData.get("eid");
+		// final String displayName = (String) modelData.get("displayName");
 
 		// done button
 		add(new AjaxLink<Void>("done") {
