@@ -278,7 +278,7 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
 
     // Now create a new disabled button with the same attributes as the existing button
     var newElement;
-    if( activateSpinner )
+    if( element.type === "submit" )
     {
         newElement = document.createElement( "button" );
     }
