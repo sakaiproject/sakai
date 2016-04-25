@@ -218,7 +218,7 @@
         
 	  	
 	  	<f:subview id="defaultValueView" rendered="#{mfStatisticsBean.selectedAssign != 'Default_0'}">
-	  		<div class="itemNav" style="display: block">
+	  		<div>
 	  			<h:inputText styleClass="defaultValue" size="5" value="0" onkeyup="warn = true;"/>
           		<f:verbatim>
           			<input type="button" onclick="applyDefaultToUngraded();" value="</f:verbatim><h:outputText value="#{msgs.stat_forum_default_grade}"/><f:verbatim>"/>
