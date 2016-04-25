@@ -50,11 +50,8 @@
   overflow-wrap:break-word;
 }
 /* without this, these divs expand beyond the width of the column if there's an unbreakable word */
-.right-col, .contentCol, .checklistDescription {
+.right-col, .contentCol, .checklistDiv, .checklistDescription {
   max-width:100%;
-}
-.checklistDiv {
-  max-width:calc(100% - 20px);
 }
 .gradingPane {
   padding-top: 20px;

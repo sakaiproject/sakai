@@ -2849,9 +2849,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					styleItem(tableRow, checklistItemContainer, i, null, null);
 
-					// Blank status image used to match spacing of other items
-					addStatusImage(Status.NOT_REQUIRED, tableRow, "checklistStatus", null);
-
 					UIOutput checklistTitle = UIOutput.make(tableRow, "checklistTitle", i.getName());
 
 					if(Boolean.valueOf(i.getAttribute(SimplePageItem.NAMEHIDDEN))) {
