@@ -1157,6 +1157,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
+				    if (canEditPage) {
+					// usual case is this is a break
+					if (i.getType() == SimplePageItem.BREAK)
+					    UIOutput.make(tableRow, "itemid", String.valueOf(i.getId()));
+					else {
+					    // page doesn't start with a break. have to use pageid
+					    UIOutput.make(tableRow, "itemid", "p" + currentPage.getPageId());
+					}
+				    }
 
 				    first = false;
 				    if (i.getType() == SimplePageItem.BREAK)
@@ -1217,7 +1226,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    itemClassName = itemClassName + " newItem";
 
 				tableRow.decorate(new UIFreeAttributeDecorator("class", itemClassName));
-
 
 				if (canEditPage)
 				    UIOutput.make(tableRow, "itemid", String.valueOf(i.getId()));
