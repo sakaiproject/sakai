@@ -70,8 +70,7 @@ import lombok.extern.apachecommons.CommonsLog;
 /**
  * Business service for GradebookNG
  *
- * This is not designed to be consumed outside of the application or supplied
- * entityproviders. Use at your own risk.
+ * This is not designed to be consumed outside of the application or supplied entityproviders. Use at your own risk.
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -140,11 +139,9 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a list of all users in the current site, filtered by the given group,
-	 * that can have grades
+	 * Get a list of all users in the current site, filtered by the given group, that can have grades
 	 *
-	 * @param groupFilter
-	 *            GbGroupType to filter on
+	 * @param groupFilter GbGroupType to filter on
 	 *
 	 * @return a list of users as uuids or null if none
 	 */
@@ -164,12 +161,9 @@ public class GradebookNgBusinessService {
 				final Set<String> groupMembers = new HashSet<>();
 
 				/*
-				 * groups handles both if(groupFilter.getType() ==
-				 * GbGroup.Type.SECTION) { Set<Membership> members =
-				 * this.courseManagementService.getSectionMemberships(
-				 * groupFilter.getId()); for(Membership m: members) {
-				 * if(userUuids.contains(m.getUserId())) {
-				 * groupMembers.add(m.getUserId()); } } }
+				 * groups handles both if(groupFilter.getType() == GbGroup.Type.SECTION) { Set<Membership> members =
+				 * this.courseManagementService.getSectionMemberships( groupFilter.getId()); for(Membership m: members) {
+				 * if(userUuids.contains(m.getUserId())) { groupMembers.add(m.getUserId()); } } }
 				 */
 
 				if (groupFilter.getType() == GbGroup.Type.GROUP) {
@@ -227,8 +221,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Given a list of uuids, get a list of Users
 	 *
-	 * @param userUuids
-	 *            list of user uuids
+	 * @param userUuids list of user uuids
 	 * @return
 	 */
 	private List<User> getUsers(final List<String> userUuids) throws GbException {
@@ -254,8 +247,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Helper to get a reference to the gradebook for the specified site
 	 *
-	 * @param siteId
-	 *            the siteId
+	 * @param siteId the siteId
 	 * @return the gradebook for the site
 	 */
 	private Gradebook getGradebook(final String siteId) {
@@ -269,8 +261,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a list of assignments in the gradebook in the current site that the
-	 * current user is allowed to access
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
 	 *
 	 * @return a list of assignments or null if no gradebook
 	 */
@@ -279,8 +270,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a list of assignments in the gradebook in the current site that the
-	 * current user is allowed to access
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
 	 *
 	 * @return a list of assignments or null if no gradebook
 	 */
@@ -289,8 +279,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a list of assignments in the gradebook in the current site that the
-	 * current user is allowed to access sorted by the provided SortType
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access sorted by the provided
+	 * SortType
 	 *
 	 * @return a list of assignments or null if no gradebook
 	 */
@@ -299,11 +289,9 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a list of assignments in the gradebook in the specified site that the
-	 * current user is allowed to access, sorted by sort order
+	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
 	 *
-	 * @param siteId
-	 *            the siteId
+	 * @param siteId the siteId
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final String siteId, final SortType sortBy) {
@@ -328,8 +316,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of categories in the gradebook in the specified site
 	 *
-	 * @param siteId
-	 *            the siteId
+	 * @param siteId the siteId
 	 * @return a list of categories or empty if no gradebook
 	 */
 	public List<CategoryDefinition> getGradebookCategories(final String siteId) {
@@ -377,11 +364,9 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a map of course grades for the given users. key = studentUuid, value
-	 * = course grade
+	 * Get a map of course grades for the given users. key = studentUuid, value = course grade
 	 *
-	 * @param studentUuids
-	 *            uuids for the students
+	 * @param studentUuids uuids for the students
 	 * @return the map of course grades for students, or an empty map
 	 */
 	public Map<String, CourseGrade> getCourseGrades(final List<String> studentUuids) {
@@ -396,12 +381,10 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the course grade for a student. Safe to call when logged in as a
-	 * student.
+	 * Get the course grade for a student. Safe to call when logged in as a student.
 	 *
 	 * @param studentUuid
-	 * @return coursegrade. May have null fields if the coursegrade has not been
-	 *         released
+	 * @return coursegrade. May have null fields if the coursegrade has not been released
 	 */
 	public CourseGrade getCourseGrade(final String studentUuid) {
 
@@ -411,17 +394,12 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Save the grade and comment for a student's assignment. Ignores the
-	 * concurrency check.
+	 * Save the grade and comment for a student's assignment. Ignores the concurrency check.
 	 *
-	 * @param assignmentId
-	 *            id of the gradebook assignment
-	 * @param studentUuid
-	 *            uuid of the user
-	 * @param grade
-	 *            grade for the assignment/user
-	 * @param comment
-	 *            optional comment for the grade. Can be null.
+	 * @param assignmentId id of the gradebook assignment
+	 * @param studentUuid uuid of the user
+	 * @param grade grade for the assignment/user
+	 * @param comment optional comment for the grade. Can be null.
 	 *
 	 * @return
 	 */
@@ -437,25 +415,17 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Save the grade and comment for a student's assignment and do concurrency
-	 * checking
+	 * Save the grade and comment for a student's assignment and do concurrency checking
 	 *
-	 * @param assignmentId
-	 *            id of the gradebook assignment
-	 * @param studentUuid
-	 *            uuid of the user
-	 * @param oldGrade
-	 *            old grade, passed in for concurrency checking/ If null,
-	 *            concurrency checking is skipped.
-	 * @param newGrade
-	 *            new grade for the assignment/user
-	 * @param comment
-	 *            optional comment for the grade. Can be null.
+	 * @param assignmentId id of the gradebook assignment
+	 * @param studentUuid uuid of the user
+	 * @param oldGrade old grade, passed in for concurrency checking/ If null, concurrency checking is skipped.
+	 * @param newGrade new grade for the assignment/user
+	 * @param comment optional comment for the grade. Can be null.
 	 *
 	 * @return
 	 *
-	 * 		TODO make the concurrency check a boolean instead of the null
-	 *         oldGrade
+	 * 		TODO make the concurrency check a boolean instead of the null oldGrade
 	 */
 	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String oldGrade,
 			final String newGrade, final String comment) {
@@ -555,8 +525,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Build the matrix of assignments, students and grades for all students
 	 *
-	 * @param assignments
-	 *            list of assignments
+	 * @param assignments list of assignments
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments) throws GbException {
@@ -564,14 +533,11 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Build the matrix of assignments and grades for the given users. In
-	 * general this is just one, as we use it for the instructor view student
-	 * summary but could be more for paging etc
+	 * Build the matrix of assignments and grades for the given users. In general this is just one, as we use it for the instructor view
+	 * student summary but could be more for paging etc
 	 *
-	 * @param assignments
-	 *            list of assignments
-	 * @param list
-	 *            of uuids
+	 * @param assignments list of assignments
+	 * @param list of uuids
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
@@ -580,14 +546,10 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Build the matrix of assignments, students and grades for all students,
-	 * with the specified sortOrder
+	 * Build the matrix of assignments, students and grades for all students, with the specified sortOrder
 	 *
-	 * @param assignments
-	 *            list of assignments
-	 * @param settings
-	 *            the UI settings. Wraps sort order and group filter (sort =
-	 *            null for no sort, filter = null for all groups)
+	 * @param assignments list of assignments
+	 * @param settings the UI settings. Wraps sort order and group filter (sort = null for no sort, filter = null for all groups)
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
@@ -596,15 +558,11 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Build the matrix of assignments and grades for the given users with the
-	 * specified sort order
+	 * Build the matrix of assignments and grades for the given users with the specified sort order
 	 *
-	 * @param assignments
-	 *            list of assignments
-	 * @param studentUuids
-	 *            student uuids
-	 * @param settings
-	 *            the settings from the UI that wraps up preferences
+	 * @param assignments list of assignments
+	 * @param studentUuids student uuids
+	 * @param settings the settings from the UI that wraps up preferences
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
@@ -622,7 +580,7 @@ public class GradebookNgBusinessService {
 		}
 		Temp.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
 
-		boolean categoriesEnabled = categoriesAreEnabled();
+		final boolean categoriesEnabled = categoriesAreEnabled();
 		Temp.timeWithContext("buildGradeMatrix", "categoriesAreEnabled", stopwatch.getTime());
 
 		// get role for current user
@@ -650,8 +608,7 @@ public class GradebookNgBusinessService {
 		// to a student's entry
 		final Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 
-		// seed the map for all students so we can progresseively add grades to
-		// it
+		// seed the map for all students so we can progresseively add grades
 		// also add the course grade here, to save an iteration later
 		// TA permissions already included in course grade visibility
 		for (final User student : students) {
@@ -994,11 +951,9 @@ public class GradebookNgBusinessService {
 		// get sections
 		// groups handles both
 		/*
-		 * try { Set<Section> sections =
-		 * courseManagementService.getSections(siteId); for(Section section:
-		 * sections){ rval.add(new GbGroup(section.getEid(), section.getTitle(),
-		 * GbGroup.Type.SECTION)); } } catch (IdNotFoundException e) { //not a
-		 * course site or no sections, ignore }
+		 * try { Set<Section> sections = courseManagementService.getSections(siteId); for(Section section: sections){ rval.add(new
+		 * GbGroup(section.getEid(), section.getTitle(), GbGroup.Type.SECTION)); } } catch (IdNotFoundException e) { //not a course site or
+		 * no sections, ignore }
 		 */
 
 		// get groups
@@ -1049,8 +1004,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Helper to get siteid. This will ONLY work in a portal site context, it
-	 * will return null otherwise (ie via an entityprovider).
+	 * Helper to get siteid. This will ONLY work in a portal site context, it will return null otherwise (ie via an entityprovider).
 	 *
 	 * @return
 	 */
@@ -1075,8 +1029,7 @@ public class GradebookNgBusinessService {
 	 * Add a new assignment definition to the gradebook
 	 *
 	 * @param assignment
-	 * @return id of the newly created assignment or null if there were any
-	 *         errors
+	 * @return id of the newly created assignment or null if there were any errors
 	 */
 	public Long addAssignment(final Assignment assignment) {
 
@@ -1123,15 +1076,11 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Update the order of an assignment. If calling outside of GBNG, use this
-	 * method as you can provide the site id.
+	 * Update the order of an assignment. If calling outside of GBNG, use this method as you can provide the site id.
 	 *
-	 * @param siteId
-	 *            the siteId
-	 * @param assignmentId
-	 *            the assignment we are reordering
-	 * @param order
-	 *            the new order
+	 * @param siteId the siteId
+	 * @param assignmentId the assignment we are reordering
+	 * @param order the new order
 	 * @throws IdUnusedException
 	 * @throws PermissionException
 	 */
@@ -1144,10 +1093,8 @@ public class GradebookNgBusinessService {
 	/**
 	 * Update the categorized order of an assignment.
 	 *
-	 * @param assignmentId
-	 *            the assignment we are reordering
-	 * @param order
-	 *            the new order
+	 * @param assignmentId the assignment we are reordering
+	 * @param order the new order
 	 * @throws JAXBException
 	 * @throws IdUnusedException
 	 * @throws PermissionException
@@ -1161,12 +1108,9 @@ public class GradebookNgBusinessService {
 	/**
 	 * Update the categorized order of an assignment.
 	 *
-	 * @param siteId
-	 *            the site's id
-	 * @param assignmentId
-	 *            the assignment we are reordering
-	 * @param order
-	 *            the new order
+	 * @param siteId the site's id
+	 * @param assignmentId the assignment we are reordering
+	 * @param order the new order
 	 * @throws IdUnusedException
 	 * @throws PermissionException
 	 */
@@ -1204,14 +1148,10 @@ public class GradebookNgBusinessService {
 	/**
 	 * Update the categorized order of an assignment via the gradebook service.
 	 *
-	 * @param gradebookId
-	 *            the gradebook's id
-	 * @param categoryId
-	 *            the id for the cataegory in which we are reordering
-	 * @param assignmentId
-	 *            the assignment we are reordering
-	 * @param order
-	 *            the new order
+	 * @param gradebookId the gradebook's id
+	 * @param categoryId the id for the cataegory in which we are reordering
+	 * @param assignmentId the assignment we are reordering
+	 * @param order the new order
 	 */
 	private void updateAssignmentCategorizedOrder(final String gradebookId, final Long categoryId,
 			final Long assignmentId, final int order) {
@@ -1220,9 +1160,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Comparator class for sorting a list of users by last name Secondary sort
-	 * is on first name to maintain consistent order for those with the same
-	 * last name
+	 * Comparator class for sorting a list of users by last name Secondary sort is on first name to maintain consistent order for those with
+	 * the same last name
 	 */
 	class LastNameComparator implements Comparator<User> {
 		@Override
@@ -1233,9 +1172,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Comparator class for sorting a list of users by first name Secondary sort
-	 * is on last name to maintain consistent order for those with the same
-	 * first name
+	 * Comparator class for sorting a list of users by first name Secondary sort is on last name to maintain consistent order for those with
+	 * the same first name
 	 */
 	class FirstNameComparator implements Comparator<User> {
 		@Override
@@ -1246,17 +1184,12 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Push a an notification into the cache that someone is editing this
-	 * gradebook. We store one entry in the cache per gradebook. This allows
-	 * fast lookup for a given gradebookUid. Within the cached object we store a
-	 * map keyed on the user (eid) that performed the edit (ie could be several
-	 * instructors editing at once) The value of the map is a map wih a special
-	 * key of assignmentid+studentUuid, again for fast lookup. We can then
-	 * access the data object directly and update it. It holds the coords of a
-	 * grade cell that has been edited. So for a given user editing many cells
-	 * there will be many GbGradeCells associated with that user. These have a
-	 * time associated with each so we can discard manually if desired, on
-	 * lookup.
+	 * Push a an notification into the cache that someone is editing this gradebook. We store one entry in the cache per gradebook. This
+	 * allows fast lookup for a given gradebookUid. Within the cached object we store a map keyed on the user (eid) that performed the edit
+	 * (ie could be several instructors editing at once) The value of the map is a map wih a special key of assignmentid+studentUuid, again
+	 * for fast lookup. We can then access the data object directly and update it. It holds the coords of a grade cell that has been edited.
+	 * So for a given user editing many cells there will be many GbGradeCells associated with that user. These have a time associated with
+	 * each so we can discard manually if desired, on lookup.
 	 *
 	 * @param gradebookUid
 	 */
@@ -1296,11 +1229,9 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a list of editing notifications for this gradebook. Excludes any
-	 * notifications for the current user
+	 * Get a list of editing notifications for this gradebook. Excludes any notifications for the current user
 	 *
-	 * @param gradebookUid
-	 *            the gradebook that we are interested in
+	 * @param gradebookUid the gradebook that we are interested in
 	 * @return
 	 */
 	public List<GbGradeCell> getEditingNotifications(final String gradebookUid) {
@@ -1361,17 +1292,14 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the sort order of an assignment. If the assignment has a sort order,
-	 * use that. Otherwise we determine the order of the assignment in the list
-	 * of assignments
+	 * Get the sort order of an assignment. If the assignment has a sort order, use that. Otherwise we determine the order of the assignment
+	 * in the list of assignments
 	 *
-	 * This means that we can always determine the most current sort order for
-	 * an assignment, even if the list has never been sorted.
+	 * This means that we can always determine the most current sort order for an assignment, even if the list has never been sorted.
 	 *
 	 *
 	 * @param assignmentId
-	 * @return sort order if set, or calculated, or -1 if cannot determine at
-	 *         all.
+	 * @return sort order if set, or calculated, or -1 if cannot determine at all.
 	 */
 	public int getAssignmentSortOrder(final long assignmentId) {
 		final String siteId = getCurrentSiteId();
@@ -1440,8 +1368,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Updates ungraded items in the given assignment for students within a
-	 * particular group and with the given grade
+	 * Updates ungraded items in the given assignment for students within a particular group and with the given grade
 	 *
 	 * @param assignmentId
 	 * @param grade
@@ -1532,10 +1459,8 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get the comment for a given student assignment grade
 	 *
-	 * @param assignmentId
-	 *            id of assignment
-	 * @param studentUuid
-	 *            uuid of student
+	 * @param assignmentId id of assignment
+	 * @param studentUuid uuid of student
 	 * @return the comment or null if none
 	 */
 	public String getAssignmentGradeComment(final long assignmentId, final String studentUuid) {
@@ -1558,12 +1483,9 @@ public class GradebookNgBusinessService {
 	/**
 	 * Update (or set) the comment for a student's assignment
 	 *
-	 * @param assignmentId
-	 *            id of assignment
-	 * @param studentUuid
-	 *            uuid of student
-	 * @param comment
-	 *            the comment
+	 * @param assignmentId id of assignment
+	 * @param studentUuid uuid of student
+	 * @param comment the comment
 	 * @return true/false
 	 */
 	public boolean updateAssignmentGradeComment(final long assignmentId, final String studentUuid,
@@ -1597,8 +1519,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get the role of the current user in the given site
 	 *
-	 * @param siteId
-	 *            the siteId to check
+	 * @param siteId the siteId to check
 	 * @return Role
 	 */
 	public GbRole getUserRole(final String siteId) {
@@ -1629,12 +1550,10 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a map of grades for the given student. Safe to call when logged in as
-	 * a student.
+	 * Get a map of grades for the given student. Safe to call when logged in as a student.
 	 *
 	 * @param studentUuid
-	 * @param assignments
-	 *            list of assignments the user can
+	 * @param assignments list of assignments the user can
 	 * @return map of assignment to GbGradeInfo
 	 */
 	public Map<Assignment, GbGradeInfo> getGradesForStudent(final String studentUuid) {
@@ -1671,13 +1590,10 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the category score for the given student. Safe to call when logged in
-	 * as a student.
+	 * Get the category score for the given student. Safe to call when logged in as a student.
 	 *
-	 * @param categoryId
-	 *            id of category
-	 * @param studentUuid
-	 *            uuid of student
+	 * @param categoryId id of category
+	 * @param studentUuid uuid of student
 	 * @return
 	 */
 	public Double getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
@@ -1691,8 +1607,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the settings for this gradebook. Note that this CANNOT be called by a
-	 * student.
+	 * Get the settings for this gradebook. Note that this CANNOT be called by a student.
 	 *
 	 * @return
 	 */
@@ -1710,8 +1625,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Update the settings for this gradebook
 	 *
-	 * @param settings
-	 *            GradebookInformation settings
+	 * @param settings GradebookInformation settings
 	 */
 	public void updateGradebookSettings(final GradebookInformation settings) {
 
@@ -1724,8 +1638,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Remove an assignment from its gradebook
 	 *
-	 * @param assignmentId
-	 *            the id of the assignment to remove
+	 * @param assignmentId the id of the assignment to remove
 	 */
 	public void removeAssignment(final Long assignmentId) {
 		this.gradebookService.removeAssignment(assignmentId);
@@ -1754,8 +1667,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get a list of permissions defined for the given user. Note: These are
-	 * currently only defined/used for a teaching assistant.
+	 * Get a list of permissions defined for the given user. Note: These are currently only defined/used for a teaching assistant.
 	 *
 	 * @param userUuid
 	 * @return list of permissions or empty list if none
@@ -1773,8 +1685,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Update the permissions for the user. Note: These are currently only
-	 * defined/used for a teaching assistant.
+	 * Update the permissions for the user. Note: These are currently only defined/used for a teaching assistant.
 	 *
 	 * @param userUuid
 	 * @param permissions
@@ -1789,15 +1700,12 @@ public class GradebookNgBusinessService {
 	/**
 	 * Check if the course grade is visible to the user
 	 *
-	 * For TA's, the students are already filtered by permission so the TA won't
-	 * see those they don't have access to anyway However if there are
-	 * permissions and the course grade checkbox is NOT checked, then they
-	 * explicitly do not have access to the course grade. So this method checks
-	 * if the TA has any permissions assigned for the site, and if one of them
-	 * is the course grade permission, then they have access.
+	 * For TA's, the students are already filtered by permission so the TA won't see those they don't have access to anyway However if there
+	 * are permissions and the course grade checkbox is NOT checked, then they explicitly do not have access to the course grade. So this
+	 * method checks if the TA has any permissions assigned for the site, and if one of them is the course grade permission, then they have
+	 * access.
 	 *
-	 * @param userUuid
-	 *            user to check
+	 * @param userUuid user to check
 	 * @return boolean
 	 */
 	public boolean isCourseGradeVisible(final String userUuid) {
@@ -1844,8 +1752,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Build a list of group references to site membership (as uuids) for the
-	 * groups that are viewable for the current user.
+	 * Build a list of group references to site membership (as uuids) for the groups that are viewable for the current user.
 	 *
 	 * @return
 	 */
@@ -1889,8 +1796,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Have categories been enabled for the gradebook?
 	 *
-	 * @return if the gradebook is setup for either "Categories Only" or
-	 *         "Categories & Weighting"
+	 * @return if the gradebook is setup for either "Categories Only" or "Categories & Weighting"
 	 */
 	public boolean categoriesAreEnabled() {
 		final String siteId = getCurrentSiteId();
@@ -1917,10 +1823,8 @@ public class GradebookNgBusinessService {
 	/**
 	 * Update the course grade (override) for this student
 	 *
-	 * @param studentUuid
-	 *            uuid of the student
-	 * @param grade
-	 *            the new grade
+	 * @param studentUuid uuid of the student
+	 * @param grade the new grade
 	 * @return
 	 */
 	public boolean updateCourseGrade(final String studentUuid, final String grade) {
@@ -1985,8 +1889,8 @@ public class GradebookNgBusinessService {
 	/**
 	 * Comparator class for sorting an assignment by the grades.
 	 *
-	 * Note that this must have the assignmentId set into it so we can extract
-	 * the appropriate grade entry from the map that each student has.
+	 * Note that this must have the assignmentId set into it so we can extract the appropriate grade entry from the map that each student
+	 * has.
 	 *
 	 */
 	class AssignmentGradeComparator implements Comparator<GbStudentGradeInfo> {
@@ -2012,8 +1916,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Comparator class for sorting a category by the subtotals
 	 *
-	 * Note that this must have the categoryId set into it so we can extract the
-	 * appropriate grade entry from the map that each student has.
+	 * Note that this must have the categoryId set into it so we can extract the appropriate grade entry from the map that each student has.
 	 *
 	 */
 	class CategorySubtotalComparator implements Comparator<GbStudentGradeInfo> {
@@ -2035,8 +1938,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Comparator class for sorting by course grade
 	 *
-	 * Note that course grade can have multiple forms but ultimately results in
-	 * a string output, so the settings have to be passed in.
+	 * Note that course grade can have multiple forms but ultimately results in a string output, so the settings have to be passed in.
 	 *
 	 */
 	class CourseGradeComparator implements Comparator<GbStudentGradeInfo> {
