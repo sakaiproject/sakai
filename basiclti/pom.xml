@@ -167,10 +167,6 @@
                 <artifactId>profile2-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-            </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
