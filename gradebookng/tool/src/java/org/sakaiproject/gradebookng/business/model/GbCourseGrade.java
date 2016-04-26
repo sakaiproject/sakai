@@ -6,6 +6,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Wraps a {@link CourseGrade} and provides a display string formatted according to the settings from various places in the UI
@@ -21,6 +22,7 @@ public class GbCourseGrade implements Serializable {
 	private final CourseGrade courseGrade;
 
 	@Getter
+	@Setter
 	private String displayString;
 
 	/**

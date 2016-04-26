@@ -27,6 +27,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.exception.GbException;
+import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
@@ -34,6 +35,7 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.memory.api.Cache;
@@ -583,6 +585,9 @@ public class GradebookNgBusinessService {
 		final boolean categoriesEnabled = categoriesAreEnabled();
 		Temp.timeWithContext("buildGradeMatrix", "categoriesAreEnabled", stopwatch.getTime());
 
+		// get current user
+		final String currentUserUuid = getCurrentUser().getId();
+
 		// get role for current user
 		final GbRole role = this.getUserRole();
 
@@ -608,6 +613,15 @@ public class GradebookNgBusinessService {
 		// to a student's entry
 		final Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 
+		// setup the course grade formatter
+		// TODO we want the override except in certain cases. Can we hard code this?
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				role,
+				isCourseGradeVisible(currentUserUuid),
+				settings.getShowPoints(),
+				true);
+
 		// seed the map for all students so we can progresseively add grades
 		// also add the course grade here, to save an iteration later
 		// TA permissions already included in course grade visibility
@@ -616,8 +630,11 @@ public class GradebookNgBusinessService {
 			// create and add the user info
 			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
 
-			// add the course grade
-			sg.setCourseGrade(courseGrades.get(student.getId()));
+			// add the course grade, including the display
+			final CourseGrade courseGrade = courseGrades.get(student.getId());
+			final GbCourseGrade gbCourseGrade = new GbCourseGrade(courseGrades.get(student.getId()));
+			gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
+			sg.setCourseGrade(gbCourseGrade);
 
 			// add to map so we can build on it later
 			matrix.put(student.getId(), sg);
@@ -780,7 +797,7 @@ public class GradebookNgBusinessService {
 		if (role == GbRole.TA) {
 
 			// get permissions
-			final List<PermissionDefinition> permissions = getPermissionsForUser(getCurrentUser().getId());
+			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
 
 			// only need to process this if some are defined
 			// again only concerned with grade permission, so parse the list to
@@ -1940,34 +1957,19 @@ public class GradebookNgBusinessService {
 	/**
 	 * Comparator class for sorting by course grade
 	 *
-	 * Note that course grade can have multiple forms but ultimately results in a string output, so the settings have to be passed in.
-	 *
 	 */
 	class CourseGradeComparator implements Comparator<GbStudentGradeInfo> {
 
-		@Setter
-		private Gradebook gradebook;
-
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
-
-			// GbCourseGradeLabel.buildCourseGrade will need to be moved
-			// somewhere shared so we can use it
-			// and have everything passed to it
-			// everyhting might need to be first passed to this comparator so we
-			// can then pass it on to build the course grade for each
-
-			// final Double subtotal1 =
-			// g1.getCategoryAverages().get(this.categoryId);
-			// final Double subtotal2 =
-			// g2.getCategoryAverages().get(this.categoryId);
-
-			// return new CompareToBuilder()
-			// .append(subtotal1, subtotal2)
-			// .toComparison();
-
-			return 0;
-
+			return new CompareToBuilder()
+					.append(g1.getCourseGrade().getDisplayString(), g2.getCourseGrade().getDisplayString())
+					.toComparison();
 		}
+	}
+
+	private String getCourseGradeDisplay() {
+
+		return null;
 	}
 }
