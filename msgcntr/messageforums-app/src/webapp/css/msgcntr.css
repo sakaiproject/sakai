@@ -634,3 +634,12 @@ div.msgcntr-profile-qtip {
 .disable_a_href{
     pointer-events: none;
 }
+
+#msgForum\:grade-message-options{
+	width: 100%;
+}
+
+#msgForum\:grade-message-options label{
+	width: 25%;
+	display:inline-block;
+}

@@ -129,14 +129,14 @@
 			</h:panelGroup>
 
 			
-			<p class="instruction" style="margin-top:1em">
-  	    <h:outputText value="#{msgs.cdfm_required}" rendered="#{ForumTool.allowedToGradeItem}"/> 
-  	    <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline" rendered="#{ForumTool.allowedToGradeItem}" />
-			</p>
+			<h:panelGroup styleClass="instruction" rendered="#{ForumTool.allowedToGradeItem}">
+				<h:outputText value="#{msgs.cdfm_required}" /> 
+				<h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
+			</h:panelGroup>
    
-			<h:panelGrid styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">
+			<h:panelGrid id="grade-message-options" styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">
 				<h:panelGroup>
-					<h:outputLabel for="assignment"  style="padding-bottom:.3em;display:block;clear:both;float:none;white-space:nowrap"  rendered="#{ForumTool.allowedToGradeItem}">
+					<h:outputLabel for="assignment"  rendered="#{ForumTool.allowedToGradeItem}">
 						<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
 						<h:outputText  value="#{msgs.cdfm_assignments}"/>
 					</h:outputLabel>	
@@ -152,7 +152,7 @@
       <h:outputText value="#{msgs.cdfm_no_gb_perm}" rendered="#{ForumTool.selGBItemRestricted && !ForumTool.noItemSelected}" 
       		styleClass="alertMessage"/>
 				<h:panelGroup  rendered="#{!ForumTool.selGBItemRestricted}">
-					<h:outputLabel for="dfMsgGradeGradePoint" rendered="#{ForumTool.allowedToGradeItem}"  style="padding-bottom:.3em;display:block;clear:both;float:none;white-space:nowrap">
+					<h:outputLabel for="dfMsgGradeGradePoint" rendered="#{ForumTool.allowedToGradeItem}" >
 						<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline"  style="padding-right:3px" />
 						<h:outputText  value="#{msgs.cdfm_grade_points}" rendered="#{ForumTool.gradeByPoints}"/>
 						<h:outputText  value="#{msgs.cdfm_grade_percent}" rendered="#{ForumTool.gradeByPercent}"/>
@@ -170,8 +170,7 @@
 				</h:panelGroup>
       </h:panelGroup>
 				<h:panelGroup>
-					<h:outputLabel  for="comments" value="#{msgs.cdfm_comments}" 
-							  style="padding-bottom:.3em;display:block;clear:both;float:none;white-space:nowrap"  rendered="#{!ForumTool.selGBItemRestricted}"/>
+					<h:outputLabel  for="comments" value="#{msgs.cdfm_comments}" rendered="#{!ForumTool.selGBItemRestricted}"/>
        <h:inputTextarea id="comments" value="#{ForumTool.gradeComment}" rows="5" cols="50"
        		rendered="#{!ForumTool.selGBItemRestricted}" readonly="#{!ForumTool.allowedToGradeItem}"/>
 				</h:panelGroup>	
