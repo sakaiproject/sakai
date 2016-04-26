@@ -188,33 +188,16 @@
 											&nbsp;
 										</td>
 										<td headers="status">
-											#if ($!submission.Returned)
-												$tlang.getString("gen.returned")
-											#else
-												#if ($!submission.getGraded())
-													#if ($!submission.getGradeReleased())
-														$tlang.getString("gen.relea")
-													#else
-														$tlang.getString("gen.gra")
-													#end
-												#else
-													#if ($!submission.Submitted)
-														$tlang.getString("ungra")
-													#end
-												#end
-											#end
+											$submission.getStatus()
 											&nbsp;
 										</td>
 										#if ($withGrade)
 											<td headers="grade">
-												#if ($!submission.Graded && ($!submission.GradeReleased || $!submission.Returned))
-													##show grade when it is released or when submission is returned
 													#if ($assignment.getContent().TypeOfGrade == 1)
 														$tlang.getString("gen.nograd")
 													#else
 														$!submission.gradeDisplay
 													#end
-												#end
 											</td>
 										#end
 									</tr>
