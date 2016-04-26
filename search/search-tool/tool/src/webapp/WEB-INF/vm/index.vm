@@ -30,11 +30,16 @@
 
 <div class="portletBody">
 #if ( ${searchModel.hasAdmin()} && ${searchModel.searchServer} )  	
-   <div class="navIntraTool">
-	  <span class="rwiki_pageLinks">
-	    <a href="${searchModel.toolUrl}/admin/index">${rlb.jsp_admin}</a>
-	  </span>
-   </div>
+   <ul class="navIntraTool actionToolBar">
+   	   <li>
+   	   	  <span class="current">${rlb.searchadmin_index_search}</span>
+   	   </li>
+	   <li>
+		  <span>
+		    <a href="${searchModel.toolUrl}/admin/index">${rlb.jsp_admin}</a>
+		  </span>
+	  </li>
+   </ul>
 #end
 #if (${searchModel.enabled} )
 	<div class="navPanel">
