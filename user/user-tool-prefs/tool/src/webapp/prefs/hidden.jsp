@@ -61,6 +61,7 @@
                                 </h:panelGroup>
                         </h3>
 
+                        <p class="instruction"><h:outputText value="#{msgs.hidden_instructions}" escape="false" /></p>
 
                         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 
