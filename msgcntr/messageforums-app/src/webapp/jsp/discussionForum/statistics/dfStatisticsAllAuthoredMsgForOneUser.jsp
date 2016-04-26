@@ -331,20 +331,6 @@
 			--%>
   		</h:dataTable>
 
-  		<h:panelGroup styleClass="act" style="display:block">
-  			<% if(isDialogBox){ %>	  				
-				<f:verbatim>
-					<div style="display: block" class="itemNav">
-          			<input type="button" onclick="closeDialogBoxIfExists();" value="</f:verbatim><h:outputText value="#{msgs.close_window}"/><f:verbatim>"/>
-          			</div>
-          		</f:verbatim>
-			<% }else {%>
-				<h:commandButton action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.buttonUserName}"  
-				               title="#{mfStatisticsBean.buttonUserName}">			               			
-				</h:commandButton>
-			<%}%>
-		</h:panelGroup>
-
 
 <% if(isDialogBox){ %>
     <!-- This is used to keep the dialogbox state when going to the next page (this page) -->
