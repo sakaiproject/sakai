@@ -9,6 +9,7 @@ $break-medium-end: 	1030px;
 $phone  :       "only screen and (max-width : #{ $break-small-end })";
 $tablet :       "only screen and (max-width : #{ $break-medium-end })";
 $desktop:       "only screen and (min-width : #{ $break-medium-end + 1 })";
+$nonPhone:      "only screen and (min-width : #{ $break-small-end + 1 })";
 
 // For the "More Sites" drawer, just use one column if there's not
 // enough room to show two side-by-side.
@@ -42,6 +43,10 @@ $secondary-color:  			 #F00 !default;
 $alt-colour: 				 #d36f00 !default;
 
 $text-color:				 #212121 !default;
+
+$breadcrumbs-color:			 $text-color !default;
+$breadcrumbs-tool-color:		 #185878 !default;
+$breadcrumbs-hover-color:		 #0F4461 !default;
 
 /* Linknav button colors */
 $button-text-color:	 #777 !default;
