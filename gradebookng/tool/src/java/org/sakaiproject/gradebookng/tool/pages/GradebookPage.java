@@ -64,8 +64,7 @@ import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
- * Grades page. Instructors and TAs see this one. Students see the
- * {@link StudentPage}.
+ * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -108,8 +107,7 @@ public class GradebookPage extends BasePage {
 		add(this.form);
 
 		/**
-		 * Note that SEMI_TRANSPARENT has a 100% black background and
-		 * TRANSPARENT is overridden to 10% opacity
+		 * Note that SEMI_TRANSPARENT has a 100% black background and TRANSPARENT is overridden to 10% opacity
 		 */
 		this.addOrEditGradeItemWindow = new GbModalWindow("addOrEditGradeItemWindow");
 		this.addOrEditGradeItemWindow.showUnloadConfirmation(false);
@@ -271,10 +269,11 @@ public class GradebookPage extends BasePage {
 				cellItem.add(new AttributeModifier("tabindex", 0));
 
 				// setup model
-				// note we have additional fields here fornthe course grade
-				// model
+				// TODO we may not need to pass everything into this panel since we now use a display string
+				// however we do requre that the label can receive events and update itself, although this could be recalculated for each
+				// event
 				final Map<String, Object> modelData = new HashMap<>();
-				modelData.put("courseGrade", studentGradeInfo.getCourseGrade());
+				modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
 				modelData.put("studentUuid", studentGradeInfo.getStudentUuid());
 				modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
 				modelData.put("currentUserRole", GradebookPage.this.role);
@@ -652,8 +651,7 @@ public class GradebookPage extends BasePage {
 	}
 
 	/**
-	 * Getter for the GradebookUiSettings. Used to store a few UI related
-	 * settings for the current session only.
+	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only.
 	 *
 	 * TODO move this to a helper
 	 */
@@ -703,8 +701,7 @@ public class GradebookPage extends BasePage {
 	}
 
 	/**
-	 * Helper to generate a RGB CSS color string with values between 180-250 to
-	 * ensure a lighter color e.g. rgb(181,222,199)
+	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
 	 */
 	public String generateRandomRGBColorString() {
 		final Random rand = new Random();
@@ -733,8 +730,7 @@ public class GradebookPage extends BasePage {
 	}
 
 	/**
-	 * Build a table summary for the table along the lines of if verbose:
-	 * "Showing 1{from} to 100{to} of 153{of} students" else:
+	 * Build a table summary for the table along the lines of if verbose: "Showing 1{from} to 100{to} of 153{of} students" else:
 	 * "Showing 100{to} students"
 	 */
 	private Label constructTableLabel(final String componentId, final DataTable table, final boolean verbose) {
