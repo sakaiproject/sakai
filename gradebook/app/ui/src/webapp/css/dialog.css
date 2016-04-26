@@ -37,7 +37,3 @@
 	list-style-position: outside; 
 	list-style: none;
 }
-
-.ui-front { 
-  z-index: 1000 !important; 
-}
