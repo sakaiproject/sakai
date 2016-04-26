@@ -5703,7 +5703,7 @@ public abstract class BaseCitationService implements CitationService
 	/**
      * @param reference
      */
-    private void copyCitationCollection(Reference reference)
+    public void copyCitationCollection(Reference reference)
     {
         ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 		try
