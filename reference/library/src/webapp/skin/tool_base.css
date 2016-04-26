@@ -759,7 +759,6 @@ span.nil a{
 	background:#ffe;
 	margin:1em 0;
 	padding:5px;
-	width:90%
 }
 #reorder-list-sortingToolBar a{
 	outline:none;
@@ -768,7 +767,6 @@ span.nil a{
 	font-size:.9em;	
 	margin:0;
 	padding:0;
-	width:90%
 }
 #reorder-list li {
 	list-style:none;
@@ -794,9 +792,7 @@ span.nil a{
 #reorder-list li .title{
 	display:block;
 	float:left;
-	width:45%;
-    overflow: hidden;
-    white-space: nowrap;
+	white-space: nowrap;
 	}
 #reorder-list li span{
 	padding-right:2em;
