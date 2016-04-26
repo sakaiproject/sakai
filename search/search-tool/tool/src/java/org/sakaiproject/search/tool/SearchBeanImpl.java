@@ -649,7 +649,7 @@ public class SearchBeanImpl implements SearchBean
 		}
 		else
 		{
-			return serverConfigurationService.getString("portalPath") + "/tool/"
+			return serverConfigurationService.getString("portalPath") + "/site/" +  siteId + "/tool/"
 					+ placementId;
 		}
 	}
