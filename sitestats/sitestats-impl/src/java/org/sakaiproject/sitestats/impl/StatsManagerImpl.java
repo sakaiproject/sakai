@@ -1023,7 +1023,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				+ "where s.siteId = :siteid "
 				+ "and s.pageAction = :pageAction "
 				+ "and s.pageRef like :pageRefLike "
-				+ "and s.userId != '?' group by s.pageRef order by total DESC";
+				+ "and s.userId != '?' group by s.pageRef, s.pageId order by total DESC";
 
 			HibernateCallback hcb = new HibernateCallback() {
 
