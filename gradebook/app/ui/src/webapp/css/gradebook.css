@@ -142,8 +142,8 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
 }
 
 .categoryHeading {
-	font-size: 1.1em;
-	font-weight: bold;
+	font-size: 1.1em !important;
+	font-weight: bold !important;
 }
 
 .gradebookItem {
