@@ -116,7 +116,7 @@ public class CourseGradeOverridePanel extends Panel {
 				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade);
 
 				if (success) {
-					getSession().info(getString("message.addcoursegradeoverride.success"));
+					getSession().success(getString("message.addcoursegradeoverride.success"));
 					setResponsePage(getPage().getPageClass());
 				} else {
 					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());
@@ -150,7 +150,7 @@ public class CourseGradeOverridePanel extends Panel {
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
 				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, null);
 				if (success) {
-					getSession().info(getString("message.addcoursegradeoverride.success"));
+					getSession().success(getString("message.addcoursegradeoverride.success"));
 					setResponsePage(getPage().getPageClass());
 				} else {
 					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());

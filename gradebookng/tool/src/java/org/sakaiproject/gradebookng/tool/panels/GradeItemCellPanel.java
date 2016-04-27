@@ -199,6 +199,7 @@ public class GradeItemCellPanel extends Panel {
 					if (StringUtils.isNotBlank(rawGrade) && (!validator.isValid(rawGrade) || Double.parseDouble(rawGrade) < 0)) {
 						// show warning and revert button
 						markWarning(getComponent());
+						warn(getString("grade.notifications.error"));
 					} else {
 						final String newGrade = FormatHelper.formatGrade(rawGrade);
 
@@ -212,11 +213,12 @@ public class GradeItemCellPanel extends Panel {
 								markSuccessful(GradeItemCellPanel.this.gradeCell);
 								GradeItemCellPanel.this.originalGrade = newGrade;
 								refreshCourseGradeAndCategoryAverages(target);
+								success(getString("grade.notifications.saved"));
 								break;
 							case ERROR:
 								markError(getComponent());
 								// show the error message
-								error(getString("grade.notifications.haserror"));
+								error(getString("grade.notifications.error"));
 								// and the invalid score message, just to be helpful
 								GradeItemCellPanel.this.notifications.add(GradeCellNotification.INVALID);
 								break;
@@ -224,13 +226,14 @@ public class GradeItemCellPanel extends Panel {
 								markOverLimit(GradeItemCellPanel.this.gradeCell);
 								refreshCourseGradeAndCategoryAverages(target);
 								GradeItemCellPanel.this.originalGrade = newGrade;
+								success(getString("grade.notifications.saved"));
 								break;
 							case NO_CHANGE:
 								handleNoChange(GradeItemCellPanel.this.gradeCell);
 								break;
 							case CONCURRENT_EDIT:
 								markError(GradeItemCellPanel.this.gradeCell);
-								error(getString("error.concurrentedit"));
+								error(getString("grade.notifications.error"));
 								GradeItemCellPanel.this.notifications.add(GradeCellNotification.CONCURRENT_EDIT);
 								break;
 							default:
