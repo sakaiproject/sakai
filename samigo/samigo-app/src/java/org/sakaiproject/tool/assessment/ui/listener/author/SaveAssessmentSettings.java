@@ -169,6 +169,7 @@ public class SaveAssessmentSettings
     	control.setMarkForReview(AssessmentAccessControl.NOT_MARK_FOR_REVIEW);
     }
 
+    control.setHonorPledge(assessmentSettings.isHonorPledge());
 
     // d. set Submissions
     if (assessmentSettings.getUnlimitedSubmissions()!=null){
