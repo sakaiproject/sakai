@@ -1834,12 +1834,25 @@ public class SimplePageBean {
 		return tool.getId();
 	}
 
+	// Get's the first tool title of the first tool with the commonToolId
 	public String getCurrentToolTitle(String commonToolId) {
 		Site site = getCurrentSite();
 		ToolConfiguration tool = site.getToolForCommonId(commonToolId);
 		if (tool == null)
 			return null;
 		return tool.getTitle();
+	}
+
+	public String getActualCurrentPageTitle() {
+		String returnVal = messageLocator.getMessage("simplepage.defaultTitle");
+
+		Placement placement = toolManager.getCurrentPlacement();
+		ToolConfiguration toolConfiguration = siteService.findTool(placement.getId());
+		SitePage page = toolConfiguration.getContainingPage();
+		if(page != null) {
+			returnVal = page.getTitle();
+		}
+		return returnVal;
 	}
 
 	public Site getCurrentSite() {
