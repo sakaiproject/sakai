@@ -284,7 +284,7 @@ var RcptSelect = function()
 	 */
 	function _safeId(type, id)
 	{
-	    return type + '[id=' + id + ']';
+	    return type + '[id="' + id + '"]';
 	}
 
 	return {
