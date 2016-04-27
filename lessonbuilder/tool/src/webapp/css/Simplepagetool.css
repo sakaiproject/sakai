@@ -562,7 +562,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     border: 1px solid #ccc;
     margin:5px 0;
     position:relative;
-    padding:5px;
+    padding: 0px 0px 0px 0px;
 }
 .flc-reorderer-module:focus {
     outline:1px dashed #000
@@ -573,13 +573,14 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .reordSeqContainer {
     position: absolute;
     width:50px;
-    top:5;
-    left:0;
-    padding:5px;
+    top:2px;
+    left:5px;
+    padding:0px;
     
 }
+
 .reordItemContainer {
-     padding: 5px 20px 5px 30px;
+     padding: 0px 20px 0px 30px;
 }
 .reordItemContainerDesc {
     margin-top:5px;
@@ -602,7 +603,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .reordDeleteContainer {
     position: absolute;
     width:17px;
-    top:5px;
+    top:1px;
     right:5px;
 
 }
@@ -1413,6 +1414,15 @@ font-size: 90%;
 .cols2 .right-col,.cols3 .right-col,.cols4 .right-col,.cols5 .right-col,.cols6 .right-col,.cols7 .right-col,.cols8 .right-col,.cols9 .right-col {
   padding-left: 7px;
   padding-right: 7px;
+}
+}
+/* 480 is boundary of most phones */
+@media only screen and (max-width: 480px) {
+.col1{
+   width: 100%;
+}
+.col2 {
+   width: calc(100% - 15px);
 }
 }
 .lessonsToolButton {
