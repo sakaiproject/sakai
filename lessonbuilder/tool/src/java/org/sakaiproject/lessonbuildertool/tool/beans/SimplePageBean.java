@@ -27,6 +27,7 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 import java.text.SimpleDateFormat;
 import java.text.Format;
 import java.math.BigDecimal;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -2893,6 +2894,10 @@ public class SimplePageBean {
 				SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
 				if (page != null) {
 					page.setTitle(name);
+					if (hasReleaseDate)
+						page.setReleaseDate(releaseDate);
+					else
+						page.setReleaseDate(null);
 					update(page);
 				}
 			} else {
@@ -3375,15 +3380,20 @@ public class SimplePageBean {
 	    return ret;
 	}
 
-         public String getReleaseString(SimplePageItem i) {
+	public String getReleaseString(SimplePageItem i, Locale locale) {
 	     if (i.getType() == SimplePageItem.PAGE) {
 		 SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
 		 if (page == null)
 		     return null;
 		 if (page.isHidden())
 		     return messageLocator.getMessage("simplepage.hiddenpage");
-		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
-		     return messageLocator.getMessage("simplepage.pagenotreleased");
+		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date())) {
+		     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
+		     TimeZone tz = TimeService.getLocalTimeZone();
+		     df.setTimeZone(tz);
+		     String releaseDate = df.format(page.getReleaseDate());
+		     return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDate);
+		 }
 	     }
 	     return null;
 	 }
