@@ -98,6 +98,12 @@
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>0.4</version>
+	    <exclusions>
+		    <exclusion>
+			    <groupId>org.slf4j</groupId>
+			    <artifactId>slf4j-simple</artifactId>
+		    </exclusion>
+	    </exclusions>
         </dependency>
         <dependency>
         	<groupId>org.sakaiproject.entitybroker</groupId>
