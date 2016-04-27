@@ -39,6 +39,14 @@ div#footer {
 	width: 250px;
 }
 
+@media only screen and (max-width : 800px ){
+	.profile-twitter-account td{
+		display: block !important;
+	}
+	.profile-twitter-account td.label{
+		width: 100%;
+	}
+}
 
 #myPhoto {
 	max-width: 100%;
