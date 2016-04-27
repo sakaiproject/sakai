@@ -119,7 +119,7 @@
 		</div>	
 		
 		<form action="#toolForm("$action")" method="post">
-			<table class = "listHier lines specialLink" cellspacing="0" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
+			<table id="membership" class = "listHier lines specialLink" cellspacing="0" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
 				<tr>
 					<th id="checkbox" class="screenOnly attach">
 						<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
