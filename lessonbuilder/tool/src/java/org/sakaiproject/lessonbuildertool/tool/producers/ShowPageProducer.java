@@ -3708,6 +3708,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private void createEditItemDialog(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem) {
+		String currentToolTitle = simplePageBean.getPageTitle();
+		String returnFromEditString = messageLocator.getMessage("simplepage.return_from_edit").replace("{0}",currentToolTitle);
+
 		UIOutput.make(tofill, "edit-item-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edititem_header")));
 
 		UIForm form = UIForm.make(tofill, "edit-form");
@@ -3758,7 +3761,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.setSendingPage(currentPage.getPageId());
 		params.setItemId(pageItem.getId());
 		params.setReturnView(VIEW_ID);
-		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
+		params.setTitle(returnFromEditString);
 		params.setSource("SRC");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-object", params);
@@ -3768,7 +3771,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.setSendingPage(currentPage.getPageId());
 		params.setItemId(pageItem.getId());
 		params.setReturnView(VIEW_ID);
-		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
+		params.setTitle(returnFromEditString);
 		params.setSource("SRC");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-settings", params);
