@@ -29,6 +29,7 @@
         <module>user-tool/tool</module>
         <module>user-tool-admin-prefs/admin-prefs</module>
         <module>user-tool-prefs/tool</module>
+        <module>user-util</module>
       </modules>
     </profile>
   </profiles>
