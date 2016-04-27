@@ -28,8 +28,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -63,7 +63,7 @@ import org.sakaiproject.util.Web;
 public class IFrameToolRenderService implements ToolRenderService
 {
 
-	private static final Log LOG = LogFactory.getLog(IFrameToolRenderService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(IFrameToolRenderService.class);
 
 	private PortalService portalService;
 

@@ -32,8 +32,8 @@ import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.repository.Asset;
 import org.osid.repository.Part;
 import org.osid.repository.PartIterator;
@@ -1542,7 +1542,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public boolean importFromRisList(List risImportList)
 		{
-			Log logger = LogFactory.getLog(BasicCitation.class);
+		 Logger logger = LoggerFactory.getLogger(BasicCitation.class);
 			String currentLine = null; // The active line being parsed from the list (e.g. "TY - BOOK")
 			String RIScode = null; // The RIS Code (e.g. "TY" for "TY - BOOK")
 			String RISvalue = null; // The RIS Value (e.g. "BOOK" for "TY - BOOK")
@@ -4001,7 +4001,7 @@ public abstract class BaseCitationService implements CitationService
 	public static ResourceLoader rb;
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseCitationService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseCitationService.class);
 
 	protected static final String PROPERTY_DEFAULTVALUE = "sakai:defaultValue";
 

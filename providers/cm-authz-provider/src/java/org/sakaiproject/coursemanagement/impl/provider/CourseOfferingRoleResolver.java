@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.Membership;
@@ -39,7 +39,7 @@ import org.sakaiproject.coursemanagement.api.Section;
  *
  */
 public class CourseOfferingRoleResolver extends BaseRoleResolver {
-	private static final Log log = LogFactory.getLog(CourseOfferingRoleResolver.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseOfferingRoleResolver.class);
 
 	// Configuration keys.
 	public static final String COURSE_OFFERING_ROLE_TO_SITE_ROLE = "courseOfferingRoleToSiteRole";

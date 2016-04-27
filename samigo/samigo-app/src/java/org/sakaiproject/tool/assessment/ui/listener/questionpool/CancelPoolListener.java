@@ -26,8 +26,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class CancelPoolListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(CancelPoolListener.class);
+  private static Logger log = LoggerFactory.getLogger(CancelPoolListener.class);
   private static ContextUtil cu;
 
 

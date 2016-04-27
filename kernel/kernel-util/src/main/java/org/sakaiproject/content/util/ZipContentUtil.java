@@ -22,8 +22,8 @@ import java.util.zip.ZipOutputStream;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -47,7 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
 @SuppressWarnings({ "deprecation", "restriction" })
 public class ZipContentUtil {
 	
-	protected static final Log LOG = LogFactory.getLog(ZipContentUtil.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(ZipContentUtil.class);
 	private static final String ZIP_EXTENSION = ".zip";
 	private static final int BUFFER_SIZE = 32000;
 	private static final MimetypesFileTypeMap mime = new MimetypesFileTypeMap();
@@ -167,11 +167,11 @@ public class ZipContentUtil {
 		}
 		catch (PermissionException pE){
 			addAlert(toolSession, rb.getString("permission_error_zip"));
-			LOG.warn(pE);
+			LOG.warn(pE.getMessage(), pE);
 		}
 		catch (Exception e) {
 			addAlert(toolSession, rb.getString("generic_error_zip"));
-			LOG.error(e);
+			LOG.error(e.getMessage(), e);
 		} 
 		finally {
 			if (fis != null) {

@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -64,7 +64,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 public class AttachmentAction
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(AttachmentAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(AttachmentAction.class);
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("helper");

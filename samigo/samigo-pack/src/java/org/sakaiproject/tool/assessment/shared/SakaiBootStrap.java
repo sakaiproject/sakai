@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.shared;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 
@@ -43,7 +43,7 @@ public class SakaiBootStrap
   
   private static final String SAKAI_AUTO_DDL_PROPERTY = "auto.ddl";
 
-  private static final Log LOG = LogFactory.getLog(SakaiBootStrap.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SakaiBootStrap.class);
 
   /** Dependency: SqlService. */
   private SqlService sqlService;

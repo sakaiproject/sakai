@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.sakai.facade;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.component.section.sakai.UserImpl;
 import org.sakaiproject.site.cover.SiteService;
@@ -31,7 +31,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class SakaiUtil {
-	private static final Log log = LogFactory.getLog(SakaiUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(SakaiUtil.class);
 
 	/**
 	 * Gets a User from Sakai's UserDirectory (legacy) service.

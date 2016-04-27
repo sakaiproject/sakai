@@ -27,8 +27,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import javax.faces.component.UIComponent;
@@ -45,7 +45,7 @@ import javax.faces.component.UISelectItems;
 
 public class StartInsertItemListener implements ValueChangeListener
 {
-    private static Log log = LogFactory.getLog(StartInsertItemListener.class);
+    private static Logger log = LoggerFactory.getLogger(StartInsertItemListener.class);
 
 
   /**

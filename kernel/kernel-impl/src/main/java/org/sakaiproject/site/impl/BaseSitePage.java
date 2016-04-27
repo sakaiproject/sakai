@@ -24,8 +24,8 @@ package org.sakaiproject.site.impl;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Site;
@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
 public class BaseSitePage implements SitePage, Identifiable
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseSitePage.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseSitePage.class);
 
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;

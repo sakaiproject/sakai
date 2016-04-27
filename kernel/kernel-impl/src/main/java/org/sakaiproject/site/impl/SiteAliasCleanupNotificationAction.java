@@ -21,8 +21,8 @@
 
 package org.sakaiproject.site.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -42,7 +42,7 @@ import org.w3c.dom.Element;
  */
 public class SiteAliasCleanupNotificationAction implements NotificationAction {
 
-	private static Log log = LogFactory.getLog(SiteAliasCleanupNotificationAction.class);
+	private static Logger log = LoggerFactory.getLogger(SiteAliasCleanupNotificationAction.class);
 	private AliasService aliasService;
 	private NotificationService notificationService;
 	private boolean enabled = true;

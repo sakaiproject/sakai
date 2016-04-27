@@ -19,8 +19,8 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -35,7 +35,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 public class FixPublicSyllabusAttachmentsJob implements Job {
 
-	private static final Log LOG = LogFactory.getLog(FixPublicSyllabusAttachmentsJob.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FixPublicSyllabusAttachmentsJob.class);
 	private SyllabusManager syllabusManager;
 	private AuthzGroupService authzGroupService;
 	private String userId = "admin";

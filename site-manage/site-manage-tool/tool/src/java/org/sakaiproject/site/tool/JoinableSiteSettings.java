@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -43,7 +43,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class JoinableSiteSettings
 {
 	// Logger
-	private static final Log log = LogFactory.getLog( JoinableSiteSettings.class );
+	private static final Logger log = LoggerFactory.getLogger( JoinableSiteSettings.class );
 	
 	// API's
 	private static final UserDirectoryService 		userDirectoryService 	= (UserDirectoryService) 		ComponentManager.get( UserDirectoryService.class );

@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
@@ -73,7 +73,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	private static final String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(SiteEmailNotificationAnnc.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteEmailNotificationAnnc.class);
 
 	private EntityManager entityManager;
 	private SecurityService securityService;

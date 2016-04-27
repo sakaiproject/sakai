@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -66,7 +66,7 @@ public class RealmsAction extends PagedResourceActionII
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");
 
-	private static Log M_log = LogFactory.getLog(RealmsAction.class);
+	private static Logger logger = LoggerFactory.getLogger(RealmsAction.class);
 
 	private AuthzGroupService authzGroupService;
 	private FunctionManager functionManager;
@@ -207,7 +207,7 @@ public class RealmsAction extends PagedResourceActionII
 
 		else
 		{
-			Log.warn("chef", "RealmsAction: mode: " + mode);
+		 	logger.warn("mode: {}", mode);
 			template = buildListContext(state, context);
 		}
 
@@ -661,7 +661,7 @@ public class RealmsAction extends PagedResourceActionII
 		}
 		catch (GroupNotDefinedException e)
 		{
-			Log.warn("chef", "RealmsAction.doEdit: realm not found: " + id);
+		 	logger.warn("realm not found: {}", id);
 
 			addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{id}));
 			state.removeAttribute("mode");
@@ -734,7 +734,7 @@ public class RealmsAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + "doSave_edit(): realmId = " + realm.getId() + " " + e.getMessage());
+			 	logger.warn("realmId = {} {}", realm.getId(), e.getMessage());
 			}
 		}
 
@@ -886,7 +886,7 @@ public class RealmsAction extends PagedResourceActionII
 		}
 		catch (GroupNotDefinedException e)
 		{
-			Log.warn("chef", "RealmsAction.doView: realm not found: " + id);
+		 	logger.warn("realm not found: {}", id);
 
 			addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{id}));
 			state.removeAttribute("mode");
@@ -1301,7 +1301,7 @@ public class RealmsAction extends PagedResourceActionII
 		}
 		catch (UserNotDefinedException e)
 		{
-			Log.warn("chef", this + "doEdit_user(): user not found: " + id);
+		 	logger.warn("user not found: {}", id);
 			addAlert(state, rb.getString("realm.user.notfound"));
 		}
 
@@ -1486,7 +1486,7 @@ public class RealmsAction extends PagedResourceActionII
 		String userId = sessionManager.getCurrentSessionUserId();
 		
 		if(securityService.unlock(userId, AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS, siteRef)) {
-			M_log.debug("Granting view access to Realms tool for userId: " + userId);
+			logger.debug("Granting view access to Realms tool for userId: " + userId);
 			return true;
 		}
 		

@@ -24,8 +24,8 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -36,7 +36,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class RemoveAssignmentBean extends GradebookDependentBean implements Serializable {
-    private static final Log logger = LogFactory.getLog(RemoveAssignmentBean.class);
+    private static final Logger logger = LoggerFactory.getLogger(RemoveAssignmentBean.class);
 
     // View maintenance fields - serializable.
     private Long assignmentId;

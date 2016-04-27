@@ -42,8 +42,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -88,7 +88,7 @@ import org.sakaiproject.util.FormattedText;
 public class TotalScoreListener
   implements ActionListener, ValueChangeListener
 {
-  private static Log log = LogFactory.getLog(TotalScoreListener.class);
+  private static Logger log = LoggerFactory.getLogger(TotalScoreListener.class);
   private static BeanSort bs;
 
   //private SectionAwareness sectionAwareness;

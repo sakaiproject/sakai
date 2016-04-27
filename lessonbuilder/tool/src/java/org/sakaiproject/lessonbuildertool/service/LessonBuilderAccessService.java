@@ -40,8 +40,8 @@ import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketException;
 
@@ -113,7 +113,7 @@ public class LessonBuilderAccessService {
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Log M_log = LogFactory.getLog(LessonBuilderAccessService.class);
+	private static Logger M_log = LoggerFactory.getLogger(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
    
@@ -282,7 +282,7 @@ public class LessonBuilderAccessService {
 			prop = simplePageToolDao.makeProperty("accessCryptoKey", DatatypeConverter.printHexBinary(keyBytes));
 			simplePageToolDao.quickSaveItem(prop);
 		    } catch (Exception e) {
-			System.out.println("unable to init cipher for session " + e);
+			M_log.info("unable to init cipher for session " + e);
 			// in case of race condition, our save will fail, but we'll be able to get a value
 			// saved by someone else
 			simplePageToolDao.flush();
@@ -378,7 +378,7 @@ public class LessonBuilderAccessService {
 					}
 
 				    } catch (Exception e) {
-					System.out.println("unable to decode lb.session " + e);
+					M_log.info("unable to decode lb.session " + e);
 				    }
 				}
 

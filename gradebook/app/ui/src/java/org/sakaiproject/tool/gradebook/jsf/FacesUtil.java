@@ -37,8 +37,8 @@ import javax.faces.component.UIParameter;
 import javax.faces.context.FacesContext;
 import javax.faces.event.FacesEvent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.tool.gradebook.ui.MessagingBean;
 
@@ -46,7 +46,7 @@ import org.sakaiproject.tool.gradebook.ui.MessagingBean;
  * A noninstantiable utility class, because every JSF project needs one.
  */
 public class FacesUtil {
-	private static final Log logger = LogFactory.getLog(FacesUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(FacesUtil.class);
 
 	/**
 	 * Before display, scores are rounded at this number of decimal

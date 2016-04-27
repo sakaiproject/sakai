@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
@@ -57,7 +57,7 @@ import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
  */
 public class Item extends ASIBaseClass
 {
-  private static Log log = LogFactory.getLog(Item.class);
+  private static Logger log = LoggerFactory.getLogger(Item.class);
   private ItemHelperIfc helper;
 
 

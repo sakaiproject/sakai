@@ -19,8 +19,8 @@
 
 package org.sakaiproject.basiclti.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
@@ -30,7 +30,7 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 @SuppressWarnings("deprecation")
 public class SakaiLTIProviderUtil {
 
-	private static Log M_log = LogFactory.getLog(SakaiLTIProviderUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiLTIProviderUtil.class);
 
 
 	public static String getProviderLaunchUrl(String toolRegistration) 

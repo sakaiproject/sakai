@@ -32,7 +32,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -45,7 +46,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public class PublishedItemData
     implements java.io.Serializable, ItemDataIfc, Comparable<ItemDataIfc> {
-  static Category errorLogger = Category.getInstance("errorLogger");
+  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
   static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   private static final long serialVersionUID = 7526471155622776147L;

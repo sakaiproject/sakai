@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -49,7 +49,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 
 public class GradebookHelperImpl implements GradebookHelper
 {
-  private Log log = LogFactory.getLog(GradebookHelperImpl.class);
+  private Logger log = LoggerFactory.getLogger(GradebookHelperImpl.class);
 
   /**
    * Get current gradebook uid.
@@ -67,7 +67,7 @@ public class GradebookHelperImpl implements GradebookHelper
     }
     catch (Exception ex)
     {
-      log.warn(ex);
+      log.warn(ex.getMessage(), ex);
       placement = null;
     }
     if (placement == null)

@@ -418,12 +418,12 @@ public class QtiImport {
 	    while (decvar != null) {
 		try {
 		    String varname = getAttribute(decvar, "varname");
-		    // System.out.println("decvar " + varname);
+		    // log.info("decvar " + varname);
 		    String maxval = getAttribute(decvar, "maxvalue");
 		    Double numval = Double.parseDouble(maxval);
 		    if (varname != null && varname.equals("que_score") && numval > score) {
 			score = numval;
-			// System.out.println("scoreset " + numval + " " + maxval);
+			// log.info("scoreset " + numval + " " + maxval);
 			scoreset = true;
 			break;
 		    }
@@ -461,7 +461,7 @@ public class QtiImport {
 				    } else if (action.equalsIgnoreCase("Add")) {
 					if (numval > 0.0) 
 					    score = score + numval;
-					// System.out.println("add " + score + " " + numval);
+					// log.info("add " + score + " " + numval);
 				    }
 				} catch (Exception ignore) {};
 

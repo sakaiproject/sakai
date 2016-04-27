@@ -1,7 +1,7 @@
 package org.sakaiproject.webservices;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.api.EventQueryService;
 import org.sakaiproject.tool.api.Session;
 
@@ -27,7 +27,7 @@ import org.sakaiproject.event.api.EventQueryService;
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class Activity extends AbstractWebService {
-    private static final Log LOG = LogFactory.getLog(Activity.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Activity.class);
 
     /**
      * Returns a list of events of a user between 2 dates. As this one requires 2 Date objects,

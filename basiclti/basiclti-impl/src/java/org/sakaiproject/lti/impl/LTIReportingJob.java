@@ -1,7 +1,7 @@
 package org.sakaiproject.lti.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -23,7 +23,7 @@ import java.util.Map;
  */
 public class LTIReportingJob implements Job {
 
-    private final Log log = LogFactory.getLog(LTIReportingJob.class);
+    private final Logger log = LoggerFactory.getLogger(LTIReportingJob.class);
 
     protected final ResourceLoader rb = new ResourceLoader("email");
 

@@ -24,8 +24,8 @@ package org.sakaiproject.user.impl.test;
 
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -49,7 +49,7 @@ import org.sakaiproject.user.impl.DbUserService;
 public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 	protected static final String CONFIG = null;
 
-	private static Log log = LogFactory.getLog(AuthenticatedUserProviderTest.class);
+	private static Logger log = LoggerFactory.getLogger(AuthenticatedUserProviderTest.class);
 	private static TestProvider userDirectoryProvider;
 	private UserDirectoryService userDirectoryService;
 	// These services are only used to clear out various caches to make sure
@@ -65,7 +65,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 			oneTimeSetupAfter();
             log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	
@@ -242,7 +242,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 					user.setLastName("Last Name, Jr.");
 					userDirectoryService.commitEdit(user);
 				} catch (Exception e) {
-					log.warn(e);
+					log.warn(e.getMessage(), e);
 				} finally {
 					securityService.popAdvisor();
 				}
@@ -259,7 +259,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 					});
 					user = (UserEdit)userDirectoryService.addUser(null, eid, "First", "Last Name, Sr.", "eid@somewhere.edu", password, "Student", null);
 				} catch (Exception e1) {
-					log.warn(e1);
+					log.warn(e1.getMessage(), e1);
 				} finally {
 					securityService.popAdvisor();
 				}

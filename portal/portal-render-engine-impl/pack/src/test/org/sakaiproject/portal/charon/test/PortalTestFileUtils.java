@@ -33,8 +33,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
@@ -65,7 +65,7 @@ public class PortalTestFileUtils
 
 	}
 
-	private static final Log log = LogFactory.getLog(PortalTestFileUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(PortalTestFileUtils.class);
 
 	/**
 	 * delete all files under this file and including this file

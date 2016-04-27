@@ -1,7 +1,7 @@
 package org.sakaiproject.component.app.scheduler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -10,7 +10,7 @@ import org.sakaiproject.time.api.TimeService;
 
 public class ScheduledInvocationTestJob implements Job {
 
-	private static final Log LOG = LogFactory.getLog(ScheduledInvocationTestJob.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ScheduledInvocationTestJob.class);
 
 	/** Dependency: ScheduledInvocationManager */
 	protected ScheduledInvocationManager m_sim = null;

@@ -25,8 +25,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -45,7 +45,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  */
 
 public class ReorderPartsListener implements ValueChangeListener {
-	private static Log log = LogFactory.getLog(ReorderPartsListener.class);
+	private static Logger log = LoggerFactory.getLogger(ReorderPartsListener.class);
 
 	/**
 	 * Standard process action method.

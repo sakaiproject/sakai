@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -45,7 +45,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  *
  */
 public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
-	private static final Log log = LogFactory.getLog(SpreadsheetDataFileWriter.class);
+	private static final Logger log = LoggerFactory.getLogger(SpreadsheetDataFileWriter.class);
 
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("application/vnd.ms-excel");
@@ -57,12 +57,12 @@ public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
 			getAsWorkbook(spreadsheetData).write(out);
 			out.flush();
 		} catch (IOException e) {
-			if (log.isErrorEnabled()) log.error(e);
+			log.error(e.getMessage());
 		} finally {
 			try {
 				if (out != null) out.close();
 			} catch (IOException e) {
-				if (log.isErrorEnabled()) log.error(e);
+				log.error(e.getMessage());
 			}
 		}
 	}

@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -63,7 +63,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	private static final long serialVersionUID = 1L;
 
 	/** Our log (commons). */
-	private static Log log = LogFactory.getLog(SkinnableLogin.class);
+	private static Logger log = LoggerFactory.getLogger(SkinnableLogin.class);
 
 	// Service instance variables
 	private AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);

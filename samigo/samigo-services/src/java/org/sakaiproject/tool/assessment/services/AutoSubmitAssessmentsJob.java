@@ -4,8 +4,8 @@ package org.sakaiproject.tool.assessment.services;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -20,7 +20,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 public class AutoSubmitAssessmentsJob implements StatefulJob {
 	
-	private static final Log LOG = LogFactory.getLog(AutoSubmitAssessmentsJob.class);	
+	private static final Logger LOG = LoggerFactory.getLogger(AutoSubmitAssessmentsJob.class);	
 	protected String serverName = "unknown";
 
 	private AuthzGroupService authzGroupService;

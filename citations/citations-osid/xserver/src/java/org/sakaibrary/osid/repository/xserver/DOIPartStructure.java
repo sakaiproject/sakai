@@ -21,10 +21,10 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DOIPartStructure implements org.osid.repository.PartStructure {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.DOIPartStructure" );
 
 	private org.osid.shared.Id DOI_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
@@ -43,7 +43,7 @@ public class DOIPartStructure implements org.osid.repository.PartStructure {
 			this.DOI_PART_STRUCTURE_ID = Managers.getIdManager().getId(
 			"8na2340898wna345f5467ks72hk0001ff");
 		} catch (Throwable t) {
-			LOG.warn( "DOIPartStructure() failed to get partStructure id: "
+			log.warn( "DOIPartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
 		}
 	}

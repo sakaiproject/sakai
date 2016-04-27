@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
@@ -35,7 +35,7 @@ import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 public class AreaImpl extends MutableEntityImpl implements Area
 {
 
-  private static final Log LOG = LogFactory.getLog(AreaImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AreaImpl.class);
 
   private String contextId;
 

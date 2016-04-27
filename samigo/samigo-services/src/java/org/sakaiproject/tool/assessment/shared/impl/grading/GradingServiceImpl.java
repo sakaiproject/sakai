@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 
 public class GradingServiceImpl implements GradingServiceAPI
 {
-  private Log log = LogFactory.getLog(GradingServiceImpl.class);
+  private Logger log = LoggerFactory.getLogger(GradingServiceImpl.class);
 
   /**
    * Get all scores for a published assessment from the back end.

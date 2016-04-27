@@ -28,8 +28,8 @@ import java.util.Vector;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -55,7 +55,7 @@ public class SuTool
 	private static final long serialVersionUID = 1L;
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SuTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(SuTool.class);
 
 	protected static final String SU_BECOME_USER = "su.become";
 	protected static final String SU_VIEW_USER = "su.view";

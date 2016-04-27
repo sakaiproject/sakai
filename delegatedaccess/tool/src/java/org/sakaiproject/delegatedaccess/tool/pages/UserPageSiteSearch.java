@@ -30,7 +30,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -75,7 +76,7 @@ import org.sakaiproject.user.api.User;
  *
  */
 public class UserPageSiteSearch extends BasePage {
-	private static final Logger log = Logger.getLogger(UserPageSiteSearch.class);
+	private static final Logger log = LoggerFactory.getLogger(UserPageSiteSearch.class);
 	private int orderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 	private boolean orderAsc = true;
 	private SiteSearchResultDataProvider provider;

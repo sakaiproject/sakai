@@ -19,8 +19,8 @@
  */
 package org.sakaiproject.accountvalidator.tool.producers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
@@ -44,7 +44,7 @@ import java.util.Locale;
  */
 public class PasswordResetProducer extends BaseValidationProducer implements ViewComponentProducer, ActionResultInterceptor {
 	
-	private static Log log = LogFactory.getLog(PasswordResetProducer.class);
+	private static Logger log = LoggerFactory.getLogger(PasswordResetProducer.class);
 	public static final String VIEW_ID = "passwordReset";
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	private static LocaleGetter localeGetter;

@@ -22,8 +22,8 @@
 package org.sakaiproject.alias.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
@@ -59,7 +59,7 @@ import java.util.*;
 public abstract class BaseAliasService implements AliasService, SingleStorageUser
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseAliasService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseAliasService.class);
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;

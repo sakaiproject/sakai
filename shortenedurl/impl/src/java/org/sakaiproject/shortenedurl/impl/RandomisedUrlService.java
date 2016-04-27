@@ -29,8 +29,8 @@ import java.sql.SQLException;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -57,7 +57,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class RandomisedUrlService extends HibernateDaoSupport implements ShortenedUrlService {
 
-	private static Log log = LogFactory.getLog(RandomisedUrlService.class);
+	private static Logger log = LoggerFactory.getLogger(RandomisedUrlService.class);
 	
 	//Hibernate stored queries
 	private static final String QUERY_GET_URL = "getUrl";

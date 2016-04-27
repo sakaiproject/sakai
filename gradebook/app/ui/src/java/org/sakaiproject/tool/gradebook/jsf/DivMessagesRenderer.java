@@ -33,8 +33,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIMessages;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.ui.MessagingBean;
 
 /**
@@ -75,7 +75,7 @@ import org.sakaiproject.tool.gradebook.ui.MessagingBean;
  *
  */
 public class DivMessagesRenderer extends DivMessageRendererBase {
-	private static final Log logger = LogFactory.getLog(DivMessagesRenderer.class);
+	private static final Logger logger = LoggerFactory.getLogger(DivMessagesRenderer.class);
 
 
 

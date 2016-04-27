@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -67,7 +67,7 @@ public class UploadAudioMediaServlet extends HttpServlet
 	 * 
 	 */
 	private static final long serialVersionUID = 8389831837152012411L;
-private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
+private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.class);
 
   public UploadAudioMediaServlet()
   {

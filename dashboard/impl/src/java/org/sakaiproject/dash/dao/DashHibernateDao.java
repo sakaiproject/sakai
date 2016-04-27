@@ -5,8 +5,8 @@ import org.sakaiproject.dash.model.JobRun;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -37,7 +37,7 @@ import java.util.Set;
 
 public class DashHibernateDao extends HibernateDaoSupport {
 
-    private Log                         LOG                                     = LogFactory.getLog(DashHibernateDao.class);
+    private Logger                         LOG                                     = LoggerFactory.getLogger(DashHibernateDao.class);
 
 
 

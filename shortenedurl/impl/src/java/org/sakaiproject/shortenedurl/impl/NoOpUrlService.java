@@ -1,7 +1,7 @@
 package org.sakaiproject.shortenedurl.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 
 /**
@@ -12,7 +12,7 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
  */
 public class NoOpUrlService implements ShortenedUrlService {
 
-	private static Log log = LogFactory.getLog(NoOpUrlService.class);
+	private static Logger log = LoggerFactory.getLogger(NoOpUrlService.class);
 	
 	public String shorten(String url) {
 		log.info("NoOpUrlService returning original url");

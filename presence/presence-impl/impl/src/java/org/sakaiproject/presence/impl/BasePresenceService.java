@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.courier.api.PresenceUpdater;
@@ -61,7 +61,7 @@ import org.w3c.dom.Element;
 public abstract class BasePresenceService implements PresenceService, PresenceUpdater
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BasePresenceService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BasePresenceService.class);
 
 	/** SessionState key. */
 	protected final static String SESSION_KEY = "sakai.presence.service";

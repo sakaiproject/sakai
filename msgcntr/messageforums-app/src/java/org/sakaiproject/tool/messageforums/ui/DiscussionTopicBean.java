@@ -30,8 +30,8 @@ import java.util.List;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -47,8 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class DiscussionTopicBean
 {
-  private static final Log LOG = LogFactory
-  .getLog(DiscussionTopicBean.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DiscussionTopicBean.class);
   private DiscussionTopic topic;
   private int totalNoMessages;
   private int unreadNoMessages;

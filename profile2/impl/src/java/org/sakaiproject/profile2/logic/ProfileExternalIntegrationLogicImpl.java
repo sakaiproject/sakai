@@ -21,7 +21,8 @@ import java.util.Map;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -40,7 +41,7 @@ import twitter4j.auth.AccessToken;
  */
 public class ProfileExternalIntegrationLogicImpl implements ProfileExternalIntegrationLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileExternalIntegrationLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileExternalIntegrationLogicImpl.class);
 
 	/**
 	 * OAuth Consumer registration details for Profile2.

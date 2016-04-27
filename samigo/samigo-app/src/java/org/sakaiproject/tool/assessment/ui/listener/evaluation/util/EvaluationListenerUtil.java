@@ -25,8 +25,8 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation.util;
 
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 
@@ -42,7 +42,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class EvaluationListenerUtil
 {
-  private static Log log = LogFactory.getLog(EvaluationListenerUtil.class);
+  private static Logger log = LoggerFactory.getLogger(EvaluationListenerUtil.class);
   private static ContextUtil cu;
 
   /**

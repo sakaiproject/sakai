@@ -33,8 +33,8 @@ import java.util.Properties;
 
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 public class UpgradeSchema
 {
 
-	private static final Log log = LogFactory.getLog(UpgradeSchema.class);
+	private static final Logger log = LoggerFactory.getLogger(UpgradeSchema.class);
 
 	private SharedPoolDataSource tds;
 

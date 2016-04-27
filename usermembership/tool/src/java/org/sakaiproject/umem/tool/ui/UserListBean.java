@@ -47,8 +47,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -83,7 +83,7 @@ public class UserListBean {
 	private static final String				CFG_USER_TYPE_LIMIT_TO_LIST		= "userType.limitToList";
 
 	/** Our log (commons). */
-	private static Log						LOG					= LogFactory.getLog(UserListBean.class);
+	private static Logger						LOG					= LoggerFactory.getLogger(UserListBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader		msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");

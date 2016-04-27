@@ -36,12 +36,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
-
 import org.azeckoski.reflectutils.ClassFields;
+import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.StringUtils;
-import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
 import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
@@ -70,6 +69,8 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * This handles the internal encoding (translation and formatting) of entity data,
@@ -78,6 +79,7 @@ import org.sakaiproject.entitybroker.util.EntityDataUtils;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class EntityEncodingManager {
 
     public static final String ENTITY_REFERENCE = "entityReference";
@@ -434,7 +436,7 @@ public class EntityEncodingManager {
         }
         if (entities.isEmpty()) {
             // just log this for now
-            System.out.println("INFO: EntityEncodingManager: No entities to format ("+format+") and output for ref (" + ref + ")");
+            log.info("EntityEncodingManager: No entities to format ("+format+") and output for ref (" + ref + ")");
         }
 
         // SAK-22738 - do not show form editing when batch processing is disabled

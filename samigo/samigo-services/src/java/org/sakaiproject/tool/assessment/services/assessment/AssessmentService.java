@@ -34,8 +34,8 @@ import java.util.Set;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -91,7 +91,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  * @author Rachel Gollub <rgollub@stanford.edu>
  */
 public class AssessmentService {
-	private Log log = LogFactory.getLog(AssessmentService.class);
+	private Logger log = LoggerFactory.getLogger(AssessmentService.class);
 	public static final int UPDATE_SUCCESS = 0;
 	public static final int UPDATE_ERROR_DRAW_SIZE_TOO_LARGE = 1;
 
@@ -109,7 +109,7 @@ public class AssessmentService {
 					.getAssessmentFacadeQueries().getAssessmentTemplate(
 							new Long(assessmentTemplateId));
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -120,7 +120,7 @@ public class AssessmentService {
 					.getAssessmentFacadeQueries().getAssessment(
 							Long.valueOf(assessmentId));
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -130,7 +130,7 @@ public class AssessmentService {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries().getAssessment(assessmentId);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -141,7 +141,7 @@ public class AssessmentService {
 					.getAssessmentFacadeQueries().getBasicInfoOfAnAssessment(
 							new Long(assessmentId));
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -150,7 +150,7 @@ public class AssessmentService {
 		try {
 			return PersistenceService.getInstance().getAssessmentFacadeQueries().getBasicInfoOfAnAssessmentFromSectionId(sectionId);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -160,7 +160,7 @@ public class AssessmentService {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries().getAllAssessmentTemplates();
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -171,7 +171,7 @@ public class AssessmentService {
 					.getAssessmentFacadeQueries()
 					.getAllActiveAssessmentTemplates();
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -182,7 +182,7 @@ public class AssessmentService {
 					.getAssessmentFacadeQueries()
 					.getTitleOfAllActiveAssessmentTemplates();
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -250,7 +250,7 @@ public class AssessmentService {
 						.getAllAssessments(orderBy);
 			}
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -281,7 +281,7 @@ public class AssessmentService {
 			assessment = queries.createAssessment(title, description,
 					typeIdLong, templateIdLong, siteId);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new Exception(e);
 		}
 		return assessment;
@@ -344,7 +344,7 @@ public class AssessmentService {
 					.getInstance().getAssessmentFacadeQueries();
 			section = queries.addSection(assessmentIdLong);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return section;
 	}
@@ -356,7 +356,7 @@ public class AssessmentService {
 					.getInstance().getAssessmentFacadeQueries();
 			queries.removeSection(sectionIdLong);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 	}
@@ -367,7 +367,7 @@ public class AssessmentService {
 					.getAssessmentFacadeQueries().getSection(
 							new Long(sectionId));
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -377,7 +377,7 @@ public class AssessmentService {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.saveOrUpdateSection(section);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -602,7 +602,7 @@ public class AssessmentService {
 			assessment = queries.createAssessmentWithoutDefaultSection(title,
 					description, typeIdLong, templateIdLong, siteId);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new Exception(e);
 		}
 		return assessment;
@@ -645,7 +645,7 @@ public class AssessmentService {
 			attachment = queries.createItemAttachment(item, resourceId,
 					filename, protocol, isEditPendingAssessmentFlow);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return attachment;
 	}
@@ -670,7 +670,7 @@ public class AssessmentService {
 			attachment = queries.createItemTextAttachment(itemText, resourceId,
 					filename, protocol, isEditPendingAssessmentFlow);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return attachment;
 	}
@@ -686,7 +686,7 @@ public class AssessmentService {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.updateAssessmentLastModifiedInfo((AssessmentFacade) assessment);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -700,7 +700,7 @@ public class AssessmentService {
 			attachment = queries.createSectionAttachment(section, resourceId,
 					filename, protocol);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return attachment;
 	}
@@ -720,7 +720,7 @@ public class AssessmentService {
 			attachment = queries.createAssessmentAttachment(assessment,
 					resourceId, filename, protocol);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return attachment;
 	}
@@ -739,7 +739,7 @@ public class AssessmentService {
 			attachment = queries.createEmailAttachment(resourceId, filename,
 					protocol);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return attachment;
 	}
@@ -982,7 +982,7 @@ public class AssessmentService {
 		}
 		catch (Exception e)
 		{
-			Log log = LogFactory.getLog(AssessmentService.class);
+		 Logger log = LoggerFactory.getLogger(AssessmentService.class);
 			log.warn("escapeResourceName: ", e);
 			return id;
 		}
@@ -1018,7 +1018,7 @@ public class AssessmentService {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.copyAssessment(assessmentId, apepndCopyTitle);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -1028,7 +1028,7 @@ public class AssessmentService {
 			return PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.getAllActiveAssessmentsByAgent(fromContext);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 
@@ -1059,7 +1059,7 @@ public class AssessmentService {
 			  return PersistenceService.getInstance().getFavoriteColChoicesFacadeQueries()
 			  .getFavoriteColChoicesByAgent(fromContext);
 		  } catch (Exception e) {
-			  log.error(e);
+			  log.error(e.getMessage(), e);
 			  throw new RuntimeException(e);
 		  }
 

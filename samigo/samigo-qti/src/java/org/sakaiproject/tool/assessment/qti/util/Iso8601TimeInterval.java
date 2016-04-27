@@ -26,8 +26,8 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 
@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
  */
 public class Iso8601TimeInterval
 {
-  private static Log log = LogFactory.getLog(Iso8601TimeInterval.class);
+  private static Logger log = LoggerFactory.getLogger(Iso8601TimeInterval.class);
   private static final long SECONDS = 1000L;
   private static final long MINUTES = 60L * SECONDS;
   private static final long HOURS = 60L * MINUTES;
@@ -463,7 +463,6 @@ public class Iso8601TimeInterval
    */
   public static void main(String[] args)
   {
-    org.apache.log4j.BasicConfigurator.configure();
     try
     {
       Iso8601TimeInterval ti = new Iso8601TimeInterval("-P2y10m15dT10H30M20S");

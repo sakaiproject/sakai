@@ -36,8 +36,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -120,8 +120,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		implements PublishedAssessmentFacadeQueriesAPI {
 
-	private Log log = LogFactory
-			.getLog(PublishedAssessmentFacadeQueries.class);
+	private Logger log = LoggerFactory.getLogger(PublishedAssessmentFacadeQueries.class);
 
 	public static final String STARTDATE = "assessmentAccessControl.startDate";
 

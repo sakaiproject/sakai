@@ -31,8 +31,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -46,7 +46,7 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 
 
 public class DownloadFileSubmissionsListener implements ActionListener {
-	private static Log log = LogFactory.getLog(DownloadFileSubmissionsListener.class);
+	private static Logger log = LoggerFactory.getLogger(DownloadFileSubmissionsListener.class);
 
 	/**
 	 * Standard process action method.

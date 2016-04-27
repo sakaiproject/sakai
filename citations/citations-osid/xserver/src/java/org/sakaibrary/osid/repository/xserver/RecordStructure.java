@@ -21,19 +21,17 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Massachusetts Institute of Techbology, Sakai Software Development
  * Team
  * @version
  */
+@Slf4j
 public class RecordStructure
   implements org.osid.repository.RecordStructure
 {
-	
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.RecordStructure" );
-	
   private org.osid.shared.Id id = null;
   private String idString = "af106d4f201080006d751920168000100";
   private String displayName = "Citation";
@@ -60,7 +58,7 @@ public class RecordStructure
     }
     catch (Throwable t)
     {
-      LOG.warn(t.getMessage());
+      log.warn(t.getMessage());
     }
   }
 

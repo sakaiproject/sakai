@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -54,7 +54,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class MembershipManagerImpl implements MembershipManager{
 
-  private static final Log LOG = LogFactory.getLog(MembershipManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MembershipManagerImpl.class);
           
   private SiteService siteService;
   private UserDirectoryService userDirectoryService;

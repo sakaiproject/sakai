@@ -23,8 +23,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  */
 
 public class AuthoringHelperTest {
-  private static Log log = LogFactory.getLog(AuthoringHelperTest.class);
+  private static Logger log = LoggerFactory.getLogger(AuthoringHelperTest.class);
 
   private final static String xslPath =
         "C:\\Documents and Settings\\Ed Smiley\\jbproject\\sam\\webapp.war\\xml\\xsl\\dataTransform\\import\\v1p2";

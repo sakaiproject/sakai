@@ -27,8 +27,8 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
 
@@ -42,7 +42,7 @@ import org.sakaiproject.exception.IdInvalidException;
 public class Validator
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(Validator.class);
+	private static Logger M_log = LoggerFactory.getLogger(Validator.class);
 
 	/** These characters are not allowed in a resource id */
 	public static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";

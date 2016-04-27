@@ -21,17 +21,17 @@
 
 package org.sakaiproject.util;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
-import java.io.File;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -53,8 +53,7 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
  */
 public class ToolListener implements ServletContextListener
 {
-	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(ToolListener.class);
+	private static final Logger M_log = LoggerFactory.getLogger(ToolListener.class);
 
 	/**
 	 * Initialize.
@@ -83,7 +82,7 @@ public class ToolListener implements ServletContextListener
 				final File f = new File(sakaiHomePath + path);
 				if(f.exists()) {
 					ActiveToolManager.register(f, event.getServletContext());
-					ToolListener.M_log.info("overriding tools configuration: registering tools from resource: " + sakaiHomePath + path);
+					M_log.info("overriding tools configuration: registering tools from resource: " + sakaiHomePath + path);
 				} else {
 					M_log.info("registering tools from resource: " + path);
 					ActiveToolManager.register(event.getServletContext().getResourceAsStream(path), event.getServletContext());

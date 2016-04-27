@@ -48,8 +48,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.myfaces.webapp.filter.MultipartRequestWrapper;
 
@@ -144,7 +144,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
 
-    private static final Log logger = LogFactory.getLog(FilePickerAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(FilePickerAction.class);
 
 	protected static final String PREFIX = "filepicker.";
 

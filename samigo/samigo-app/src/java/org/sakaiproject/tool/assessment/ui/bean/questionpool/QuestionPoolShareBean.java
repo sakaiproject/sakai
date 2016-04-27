@@ -31,8 +31,8 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -62,7 +62,7 @@ public class QuestionPoolShareBean implements Serializable
 	 */
 	private static final long serialVersionUID = -1154189308380595101L;
 
-	private static Log log = LogFactory.getLog(QuestionPoolShareBean.class);
+	private static Logger log = LoggerFactory.getLogger(QuestionPoolShareBean.class);
 	
 	// QuestionPool
 	private Long questionPoolId;

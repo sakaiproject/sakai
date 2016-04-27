@@ -34,14 +34,14 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //import org.sakaiproject.content.cover.ComponentManager;
 
 public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 {
-	static final Log logger = LogFactory.getLog(SiteEmailNotificationDragAndDrop.class);
+	static final Logger logger = LoggerFactory.getLogger(SiteEmailNotificationDragAndDrop.class);
 
 	/* property bundles */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteemaconProperties";

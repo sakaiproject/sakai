@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 
@@ -18,7 +18,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 
 public class EmailTemplateLocator implements WriteableBeanLocator {
 
-   private static Log log = LogFactory.getLog(EmailTemplateLocator.class);
+   private static Logger log = LoggerFactory.getLogger(EmailTemplateLocator.class);
 
    public static final String NEW_PREFIX = "new ";
    public static final String NEW_1 = NEW_PREFIX + "1";

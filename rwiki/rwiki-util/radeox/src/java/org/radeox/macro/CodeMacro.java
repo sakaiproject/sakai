@@ -31,8 +31,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.Messages;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
@@ -53,7 +53,7 @@ import org.radeox.util.Service;
 
 public class CodeMacro extends LocalePreserved
 {
-	private static Log log = LogFactory.getLog(CodeMacro.class);
+	private static Logger log = LoggerFactory.getLogger(CodeMacro.class);
 
 	private Map formatters;
 

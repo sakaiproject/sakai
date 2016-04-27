@@ -25,63 +25,22 @@
         The Entity Broker integrates seamlessly with the existing Entity system in Sakai
         (Entity Producers and Entities) and entities created using entity providers are
         accessible in Sakai as if they were created using the legacy system. Send feedback
-        or comments to Aaron Zeckoski (azeckoski@gmail.com, aaronz@vt.edu).</description>
+        or comments to Aaron Zeckoski (azeckoski@gmail.com, aaronz@vt.edu).
+  </description>
   <properties>
     <easymock.version>2.0</easymock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
-  <!-- Define the modules that are part of this -->
-  <profiles>
-    <profile>
-      <id>full</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <modules>
-        <module>api</module>
-        <module>impl</module>
-        <module>rest</module>
-        <module>tool</module>
-        <module>pack</module>
-        <module>mocks</module>
-        <module>utils</module>
-        <module>core-providers</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>tool</id>
-      <modules>
-        <module>rest</module>
-        <module>tool</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>rest</id>
-      <modules>
-        <module>rest</module>
-        <module>tool</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>api</id>
-      <modules>
-        <module>api</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>utils</id>
-      <modules>
-        <module>utils</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>providers</id>
-      <modules>
-        <module>core-providers</module>
-      </modules>
-    </profile>
-  </profiles>
+  <modules>
+    <module>api</module>
+    <module>impl</module>
+    <module>rest</module>
+    <module>tool</module>
+    <module>pack</module>
+    <module>mocks</module>
+    <module>utils</module>
+    <module>core-providers</module>
+  </modules>
   <developers>
     <developer>
       <id>aaronz@vt.edu</id>
@@ -110,19 +69,6 @@
       <timezone>0</timezone>
     </developer>
   </developers>
-
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/entitybroker/${project.version}</url>
-    </site>
-  </distributionManagement>
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.sakaiproject.org/jira/browse/SAK</url>
-  </issueManagement>
-
   <licenses>
     <license>
       <name>Educational Community License, Version 2.0</name>

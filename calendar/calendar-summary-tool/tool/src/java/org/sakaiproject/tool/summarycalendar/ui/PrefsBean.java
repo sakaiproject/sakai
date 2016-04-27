@@ -42,8 +42,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -73,7 +73,7 @@ public class PrefsBean {
 	public static String						SAKPROP_BASE				= "calendarSummary.";
 
 	/** Our log (commons). */
-	private static Log							LOG							= LogFactory.getLog(PrefsBean.class);
+	private static Logger							LOG							= LoggerFactory.getLogger(PrefsBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader			msgs						= new ResourceLoader("calendar");

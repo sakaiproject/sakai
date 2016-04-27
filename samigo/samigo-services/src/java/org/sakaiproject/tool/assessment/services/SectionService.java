@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 
@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
  */
 public class SectionService
 {
-  private Log log = LogFactory.getLog(SectionService.class);
+  private Logger log = LoggerFactory.getLogger(SectionService.class);
 
   /**
    * Creates a new SectionService object.
@@ -55,7 +55,8 @@ public class SectionService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
     return section;

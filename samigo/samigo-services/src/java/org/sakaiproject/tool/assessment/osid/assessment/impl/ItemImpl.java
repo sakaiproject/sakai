@@ -26,7 +26,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.assessment.AssessmentException;
 import org.osid.shared.Id;
 import org.osid.shared.Properties;
@@ -35,7 +36,7 @@ import org.osid.shared.Type;
 import org.osid.shared.TypeIterator;
 
 public class ItemImpl implements Serializable, org.osid.assessment.Item {
-  static Category errorLogger = Category.getInstance("errorLogger");
+  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 

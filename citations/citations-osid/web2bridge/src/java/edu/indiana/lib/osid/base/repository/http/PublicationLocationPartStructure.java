@@ -3,8 +3,6 @@ package edu.indiana.lib.osid.base.repository.http;
 public class PublicationLocationPartStructure
 implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(PublicationLocationPartStructure.class);
-		
     private org.osid.shared.Id PUBLICATION_LOCATION_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
     		"publicationLocation", "Publication Location" );

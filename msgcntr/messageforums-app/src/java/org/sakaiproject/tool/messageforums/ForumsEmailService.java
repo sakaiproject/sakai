@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -64,7 +64,7 @@ import org.sakaiproject.util.ResourceLoader;
  * Really this should be part of the API, rather than the tool.
  */
 public class ForumsEmailService {
-	private static Log log = LogFactory.getLog(ForumsEmailService.class);
+	private static Logger log = LoggerFactory.getLogger(ForumsEmailService.class);
 
 	private List<String> toEmailAddress;
 

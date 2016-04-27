@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  */
 public class XmlMapper
 {
-  private static Log log = LogFactory.getLog(XmlMapper.class);
+  private static Logger log = LoggerFactory.getLogger(XmlMapper.class);
 
   public static final String ATTRIBUTE_PREFIX = "attribute_";
 
@@ -103,7 +103,7 @@ public class XmlMapper
     }
     catch(Exception e)
     {
-      log.error(e); 
+      log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
   }

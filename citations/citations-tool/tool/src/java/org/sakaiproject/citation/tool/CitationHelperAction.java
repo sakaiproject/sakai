@@ -53,8 +53,8 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -451,7 +451,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 	}
 
-	protected final static Log logger = LogFactory.getLog(CitationHelperAction.class);
+	protected final static Logger logger = LoggerFactory.getLogger(CitationHelperAction.class);
 
 	public static ResourceLoader rb = new ResourceLoader("citations");
 	
@@ -672,7 +672,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			catch (IOException e)
 			{
 				logger.warn("IOException", e);
-				// Log.warn("chef", this + " : ", e);
+				// Logger.warn("chef", this + " : ", e);
 			}
 			return;
 		}

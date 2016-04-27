@@ -22,8 +22,8 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
@@ -41,7 +41,7 @@ public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements
 		RWikiPropertyDao
 {
 
-	private static Log log = LogFactory.getLog(RWikiPropertyDaoImpl.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiPropertyDaoImpl.class);
 
 	private String schemaVersion;
 

@@ -5,8 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -15,7 +15,7 @@ import org.sakaiproject.db.cover.SqlService;
 
 public class SakaiEventArchiveJob implements Job {
 	
-	   private static final Log LOG = LogFactory.getLog(SakaiEventArchiveJob.class);
+	   private static final Logger LOG = LoggerFactory.getLogger(SakaiEventArchiveJob.class);
 
 	   private static final String DEFAULT_ARCHIVE_LENGTH = "86400000";
 	   

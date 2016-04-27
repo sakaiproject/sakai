@@ -2,8 +2,8 @@ package org.sakaiproject.mailarchive;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -51,7 +51,7 @@ import static org.sakaiproject.mailarchive.api.MailArchiveService.*;
  */
 public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
 
-    private Log log = LogFactory.getLog(SakaiMessageHandlerFactory.class);
+    private Logger log = LoggerFactory.getLogger(SakaiMessageHandlerFactory.class);
 
     /**
      * The user name of the postmaster user - the one who posts incoming mail.

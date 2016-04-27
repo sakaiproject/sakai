@@ -5,12 +5,12 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SelectRecordedListener implements ValueChangeListener {
 
-	private static Log log = LogFactory.getLog(SelectRecordedListener.class);
+	private static Logger log = LoggerFactory.getLogger(SelectRecordedListener.class);
 
 	public void processValueChange(ValueChangeEvent event) throws AbortProcessingException {
 		log.debug("Processing ... ValueChangeListener");

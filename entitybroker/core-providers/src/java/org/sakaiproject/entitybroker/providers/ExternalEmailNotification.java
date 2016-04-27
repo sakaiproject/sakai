@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
@@ -44,7 +44,7 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Aaron Zeckoski (azeckoski @ gmail.com) (azeckoski @ unicon.net)
  */
 public class ExternalEmailNotification extends EmailNotification {
-    private static Log log = LogFactory.getLog(ExternalEmailNotification.class);
+    private static Logger log = LoggerFactory.getLogger(ExternalEmailNotification.class);
 
     private static final String EMAIL_SUBJECT_PROP = "notify_post_subject";
 

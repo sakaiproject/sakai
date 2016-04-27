@@ -30,8 +30,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -49,7 +49,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class CourseManagerHibernateImpl extends HibernateDaoSupport
 	implements CourseManager {
 
-	private static final Log log = LogFactory.getLog(CourseManagerHibernateImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseManagerHibernateImpl.class);
 
 	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,

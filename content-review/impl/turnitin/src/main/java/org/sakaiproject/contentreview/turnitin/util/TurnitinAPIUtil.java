@@ -49,8 +49,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.SubmissionException;
@@ -71,7 +71,7 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class TurnitinAPIUtil {
 	
-	private static final Log apiTraceLog = LogFactory.getLog("org.sakaiproject.turnitin.util.TurnitinAPIUtil.apicalltrace");
+	private static final Logger apiTraceLog = LoggerFactory.getLogger("org.sakaiproject.turnitin.util.TurnitinAPIUtil.apicalltrace");
 
 	private static String encodeSakaiTitles(String assignTitle) {
 		String assignEnc = assignTitle;

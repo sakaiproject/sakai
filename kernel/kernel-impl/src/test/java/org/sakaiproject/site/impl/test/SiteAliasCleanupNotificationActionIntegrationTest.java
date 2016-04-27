@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.site.impl.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import java.util.List;
 
 public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(SiteAliasCleanupNotificationActionIntegrationTest.class);
+	private static Logger log = LoggerFactory.getLogger(SiteAliasCleanupNotificationActionIntegrationTest.class);
 	private Session session;
 
 	@BeforeClass
@@ -51,7 +51,7 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		try {
 			oneTimeSetup();
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

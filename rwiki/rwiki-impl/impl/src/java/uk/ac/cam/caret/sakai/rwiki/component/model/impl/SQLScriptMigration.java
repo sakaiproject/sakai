@@ -36,8 +36,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.cover.SqlService;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -49,7 +49,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.DataMigrationAgent;
 
 public class SQLScriptMigration implements DataMigrationAgent
 {
-	private static Log log = LogFactory.getLog(SQLScriptMigration.class);
+	private static Logger log = LoggerFactory.getLogger(SQLScriptMigration.class);
 
 	private String from;
 

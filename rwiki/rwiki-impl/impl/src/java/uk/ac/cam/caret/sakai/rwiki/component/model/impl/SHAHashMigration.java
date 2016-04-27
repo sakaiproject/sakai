@@ -23,8 +23,8 @@ package uk.ac.cam.caret.sakai.rwiki.component.model.impl;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectDao;
@@ -39,7 +39,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 // FIXME: Component
 public class SHAHashMigration implements DataMigrationAgent
 {
-	private static Log log = LogFactory.getLog(SHAHashMigration.class);
+	private static Logger log = LoggerFactory.getLogger(SHAHashMigration.class);
 
 	private String from;
 

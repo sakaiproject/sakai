@@ -46,8 +46,8 @@ import java.util.Vector;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -65,9 +65,9 @@ import org.sakaiproject.time.api.Time;
  */
 public abstract class BasicSqlService implements SqlService
 {
-	private static final Log LOG = LogFactory.getLog(BasicSqlService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BasicSqlService.class);
 
-	private static final Log SWC_LOG = LogFactory.getLog(StreamWithConnection.class);
+	private static final Logger SWC_LOG = LoggerFactory.getLogger(StreamWithConnection.class);
 
 	/** Key name in thread local to find the current transaction connection. */
 	protected static final String TRANSACTION_CONNECTION = "sqlService:transaction_connection";

@@ -20,8 +20,8 @@ package org.sakaiproject.component.app.scheduler;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.db.api.SqlReader;
 
@@ -32,7 +32,7 @@ import org.sakaiproject.db.api.SqlReader;
  */
 public class DelayedInvocationReader implements SqlReader {
 
-	private static final Log LOG = LogFactory.getLog(DelayedInvocationReader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DelayedInvocationReader.class);
 
 	public Object readSqlResultRecord(ResultSet result) {
 

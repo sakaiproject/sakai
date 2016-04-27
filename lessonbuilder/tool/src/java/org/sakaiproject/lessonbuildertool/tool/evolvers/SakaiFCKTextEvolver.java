@@ -9,6 +9,8 @@ package org.sakaiproject.lessonbuildertool.tool.evolvers;
 import java.util.Iterator;
 
 import org.sakaiproject.content.api.ContentHostingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import uk.org.ponder.htmlutil.HTMLUtil;
@@ -22,6 +24,7 @@ import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 
 public class SakaiFCKTextEvolver implements TextInputEvolver {
+	private static final Logger log = LoggerFactory.getLogger(SakaiFCKTextEvolver.class);
 	public static final String COMPONENT_ID = "sakai-FCKEditor:";
 	private String context;
 	private ContentHostingService contentHostingService;
@@ -82,9 +85,9 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 		// samigo starting with 2.8.0 has the new editor calling protocol
 		if (version > 2 || (version == 2 && major >= 8))
 		    isNew = true;
-		System.out.println("EditPage thinks Sakai version is " + version + " major " + major + " isNew=" + isNew);
+		log.info("EditPage thinks Sakai version is " + version + " major " + major + " isNew=" + isNew);
 	    }
-	    //System.out.println("isnew " + isNew);
+	    //log.info("isnew " + isNew);
 	    return isNew;
 	}
 

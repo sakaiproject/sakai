@@ -27,7 +27,7 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
-	<dependency>
+        <dependency>
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>sakai-privacy-api</artifactId>
         </dependency>
@@ -35,7 +35,6 @@
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
         </dependency>
-
         <!-- external dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -61,8 +60,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.5</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -70,9 +67,6 @@
             <version>1.9.0</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- Sakai K1 dependencies -->
-<!-- -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -85,58 +79,7 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
-<!-- -->
-
-        <!-- Pre K1 Sakai deps -->
-<!-- 
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-authz-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-cluster-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-component-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-email-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-entity-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-event-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-site-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-tool-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-user-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-util-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-entity-util</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
- -->
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -148,22 +91,13 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
-        <!-- unit testing -->
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-<!-- 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warName>providers</warName>
-                    <outputDirectory>${maven.tomcat.home}</outputDirectory>
-                </configuration>
-            </plugin>
- -->
-        </plugins>
-    </build>
+       <testResources>
+            <testResource>
+                <directory>${basedir}/src/test</directory>
+                <includes>
+                   <include>log4j.properties</include>
+                </includes>
+            </testResource>
+      </testResources>
+   </build>
 </project>

@@ -1,8 +1,8 @@
 package org.sakaiproject.search.elasticsearch;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -72,7 +72,7 @@ import static org.elasticsearch.search.facet.FacetBuilders.*;
  * </p>
  */
 public class ElasticSearchService implements SearchService {
-    private static final Log log = LogFactory.getLog(ElasticSearchService.class);
+    private static final Logger log = LoggerFactory.getLogger(ElasticSearchService.class);
 
     /* constant config */
     public static final String CONFIG_PROPERTY_PREFIX = "elasticsearch.";

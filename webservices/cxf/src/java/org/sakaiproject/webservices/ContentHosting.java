@@ -29,8 +29,8 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -69,7 +69,7 @@ import org.w3c.dom.Node;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class ContentHosting extends AbstractWebService {
 	
-	private static final Log LOG = LogFactory.getLog(ContentHosting.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ContentHosting.class);
 	private static final String VIRTUAL_ROOT_ID = "Virtual-Root-Identifier";
 	private static final String VIRTUAL_ROOT_NAME = "Federated Collections";
 	private static final String RESOURCE_TYPE_COLLECTION = "collection";

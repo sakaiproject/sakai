@@ -34,8 +34,8 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -62,7 +62,7 @@ import org.sakaiproject.util.Web;
  */
 public class MoreSiteViewImpl extends AbstractSiteViewImpl
 {
-	private static final Log LOG = LogFactory.getLog(MoreSiteViewImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MoreSiteViewImpl.class);
 
         /** messages. */
         private static ResourceLoader rb = new ResourceLoader("sitenav");

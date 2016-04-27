@@ -34,8 +34,8 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Description: Backing bean for Published Assessment</p>
@@ -44,7 +44,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PublishedAssessmentBeanie
     implements Serializable {
-    private static Log log = LogFactory.getLog(PublishedAssessmentBeanie.class);
+    private static Logger log = LoggerFactory.getLogger(PublishedAssessmentBeanie.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;

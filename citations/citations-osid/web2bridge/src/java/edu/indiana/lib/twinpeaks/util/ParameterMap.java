@@ -17,6 +17,8 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -28,11 +30,9 @@ import java.util.*;
  *    xxx=value1&xxx=value2
  * </code>
  */
+@Slf4j
 public class ParameterMap
 {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(ParameterMap.class);
-
 	static private final int 	PREFIXSIZE 					= 4;
 	static private final int 	MAXVALUE   					= (1 << PREFIXSIZE * 4) - 1;
 

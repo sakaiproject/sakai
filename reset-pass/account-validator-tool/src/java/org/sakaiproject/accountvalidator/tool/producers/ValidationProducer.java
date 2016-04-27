@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.tool.params.ValidationViewParams;
@@ -65,7 +65,7 @@ import uk.org.ponder.springutil.SpringMessageLocator;
 public class ValidationProducer implements ViewComponentProducer,
 ViewParamsReporter, ActionResultInterceptor {
 
-	private static Log log = LogFactory.getLog(ValidationProducer.class);
+	private static Logger log = LoggerFactory.getLogger(ValidationProducer.class);
 	public static final String VIEW_ID = "validate";
 
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";

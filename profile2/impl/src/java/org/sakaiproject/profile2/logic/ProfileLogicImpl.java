@@ -25,7 +25,8 @@ import java.util.Map;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.conversion.ProfileConverter;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -52,7 +53,7 @@ import org.sakaiproject.user.api.User;
  */
 public class ProfileLogicImpl implements ProfileLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileLogicImpl.class);
 
 	/**
 	 * {@inheritDoc}

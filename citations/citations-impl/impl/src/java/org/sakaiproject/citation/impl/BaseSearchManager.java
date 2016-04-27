@@ -42,8 +42,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.OsidContext;
 import org.osid.OsidException;
 import org.osid.repository.Asset;
@@ -1844,7 +1844,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	}  // public class BasicSearchDatabaseHierarchy
 
 	/** Our logger. */
-	private static Log m_log = LogFactory.getLog(BaseSearchManager.class);
+	private static Logger m_log = LoggerFactory.getLogger(BaseSearchManager.class);
 
 	// our ConfigurationService (gets set in BaseSearchDatabaseHierarchy)
 

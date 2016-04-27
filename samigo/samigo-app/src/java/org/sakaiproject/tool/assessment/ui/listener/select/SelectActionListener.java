@@ -37,8 +37,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
@@ -72,7 +72,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class SelectActionListener
     implements ActionListener {
-  private static Log log = LogFactory.getLog(SelectActionListener.class);
+  private static Logger log = LoggerFactory.getLogger(SelectActionListener.class);
   //private static ContextUtil cu;
   private static BeanSort bs;
   private static BeanSort bs2;

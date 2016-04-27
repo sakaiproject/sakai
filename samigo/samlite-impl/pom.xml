@@ -45,18 +45,6 @@
 		  <groupId>org.apache.commons</groupId>
 		  <artifactId>commons-math</artifactId>
 		</dependency>
-        <!--
-		<dependency>
-			<groupId>xmlbeans</groupId>
-			<artifactId>jsr173</artifactId>
-			<version>1.0_api</version>
-		</dependency>
-        -->
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>${sakai.commons-logging.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-component-manager</artifactId>

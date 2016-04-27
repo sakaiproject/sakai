@@ -1,7 +1,7 @@
 package org.sakaiproject.search.elasticsearch;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.api.EntityContentProducer;
 
 import java.util.Iterator;
@@ -10,7 +10,7 @@ import java.util.TimerTask;
 public class RebuildSiteTask extends TimerTask {
     private final ElasticSearchIndexBuilder elasticSearchIndexBuilder;
     private final String siteId;
-    private static Log log = LogFactory.getLog(RebuildSiteTask.class);
+    private static Logger log = LoggerFactory.getLogger(RebuildSiteTask.class);
 
     public RebuildSiteTask(ElasticSearchIndexBuilder elasticSearchIndexBuilder, String siteId) {
         this.elasticSearchIndexBuilder = elasticSearchIndexBuilder;

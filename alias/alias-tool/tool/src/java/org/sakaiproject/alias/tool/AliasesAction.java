@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -55,6 +56,7 @@ import org.apache.commons.lang.StringUtils;
  * AliasesAction is the Sakai aliases editor.
  * </p>
  */
+@Slf4j
 public class AliasesAction extends PagedResourceActionII
 {
     private static final long serialVersionUID = -5477742481219305334L;
@@ -143,7 +145,7 @@ public class AliasesAction extends PagedResourceActionII
 		}
 		else
 		{
-			Log.warn("chef", "AliasesAction: mode: " + mode);
+			log.warn("mode: {}", mode);
 			template = buildListContext(state, context);
 		}
 
@@ -305,7 +307,7 @@ public class AliasesAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			Log.warn("chef", "AliasesAction.doEdit: alias not found: " + id);
+			log.warn("alias not found: {}", id);
 
 			addAlert(state, rb.getFormattedMessage("alias.notfound", new Object[]{id}));
 			state.removeAttribute("mode");

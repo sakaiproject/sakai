@@ -61,16 +61,6 @@
 			<version>2.6</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
@@ -105,12 +95,7 @@
 			<version>2.6.8</version>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.5.8</version>
-        </dependency>
-		
+
 		<!--  external shared dependencies -->
 		<dependency>
       		<groupId>javax.portlet</groupId>
@@ -124,11 +109,6 @@
       		<version>2.4</version>
       		<scope>provided</scope>
     	</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.pluto</groupId>
 	      	<artifactId>pluto-taglib</artifactId>

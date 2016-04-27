@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.business.entity;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.util.StringParseUtils;
 
@@ -116,7 +116,7 @@ public class FileNamer
    */
   public static void unitTest()
   {
-    Log log = LogFactory.getLog(RecordingData.class);
+    Logger log = LoggerFactory.getLogger(RecordingData.class);
 
     String s;
     s = make("Ed Smiley", "esmiley", "Intro to Wombats 101");

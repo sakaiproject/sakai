@@ -16,11 +16,14 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.tool.cover.SessionManager;
 
 
 public class GradingBean {
+	private static final Logger log = LoggerFactory.getLogger(GradingBean.class);
 	public String id;
 	public String points;
 	public String jsId;
@@ -179,7 +182,7 @@ public class GradingBean {
 				       m.getUserId(), Double.toString(newpoints));
 		    }
 		}catch(Exception ex) {
-		    System.out.println("Exception updating grade " + ex);
+		    log.info("Exception updating grade " + ex);
 		}
 		
 		if(r) {
@@ -204,7 +207,7 @@ public class GradingBean {
 		    try {
 			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), questionItem.getGradebookId(), response.getUserId(), Double.toString(newpoints));
 		    }catch(Exception ex) {
-			System.out.println("Exception updating grade " + ex);
+			log.info("Exception updating grade " + ex);
 		    }
 		
 		if(r) {

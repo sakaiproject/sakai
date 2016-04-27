@@ -58,7 +58,7 @@ import org.sakaiproject.util.FormattedText;
 public class EditPartListener
     implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(EditPartListener.class);
+  //private static Logger log = LoggerFactory.getLogger(EditPartListener.class);
   private boolean isEditPendingAssessmentFlow = true;
   
   public EditPartListener()

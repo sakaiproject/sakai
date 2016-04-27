@@ -32,8 +32,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -88,7 +88,7 @@ import org.sakaiproject.util.Validator;
  */
 public class AdminSitesAction extends PagedResourceActionII
 {
-	private static Log M_log = LogFactory.getLog(AdminSitesAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(AdminSitesAction.class);
 	/** State holding the site id for site id search. */
 	protected static final String STATE_SEARCH_SITE_ID = "search_site";
 
@@ -265,10 +265,7 @@ public class AdminSitesAction extends PagedResourceActionII
             User user = UserDirectoryService.getUser(userPk);
             return user;
         } catch ( UserNotDefinedException e ) {
-            if ( Log.isDebugEnabled() ) {
-                Log.debug("chef", "Failed to find a user record by PK [pk = " + userPk + "]", 
-                        e);
-            }
+			M_log.debug("Failed to find a user record by PK [pk = {}]", userPk, e);
             return null;
         }
         
@@ -289,10 +286,7 @@ public class AdminSitesAction extends PagedResourceActionII
             User user = UserDirectoryService.getUserByEid(eid);
             return user;
         } catch ( UserNotDefinedException e ) {
-            if ( Log.isDebugEnabled() ) {
-                Log.debug("chef", "Failed to find a user record by EID [eid = " + eid + "]", 
-                        e);
-            }
+			M_log.debug("Failed to find a user record by EID [eid = {}]", eid, e);
             return null;
         }
         
@@ -313,10 +307,7 @@ public class AdminSitesAction extends PagedResourceActionII
             Site userSite = SiteService.getSite(userMyWorkspaceSiteDbId); // exceptional if no results
             return userSite;
         } catch ( IdUnusedException e ) {
-            if ( Log.isDebugEnabled() ) {
-                Log.debug("chef", "Failed to locate a workspace for user [user id = " + userDbId + 
-                        "][user eid = " + userEid + "][site id = " + userMyWorkspaceSiteDbId + "]", e);
-            }
+			M_log.debug("Failed to locate a workspace for user [user id = {}][user eid = {}][site id = {}]", userDbId, userEid, userMyWorkspaceSiteDbId, e);
             return null;
         }
     }    
@@ -449,7 +440,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// }
 		else
 		{
-			Log.warn("chef", "SitesAction: mode: " + mode);
+		 	M_log.warn("SitesAction: mode: {}", mode);
 			template = buildListContext(state, context);
 		}
 
@@ -975,7 +966,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				Log.warn("chef", "SitesAction.doEdit: site not found: " + id);
+				 M_log.warn("site not found: {}", id);
 
 				addAlert(state, rb.getFormattedMessage("siteact.site", new Object[]{id}));
 				state.removeAttribute("mode");
@@ -1135,13 +1126,9 @@ public class AdminSitesAction extends PagedResourceActionII
 				
 				SiteService.save(site);
 			}
-			catch (PermissionException e)
+			catch (PermissionException | IdUnusedException e)
 			{
-				Log.warn("chef", "SitesAction.doSave_edit: " + e);
-			}
-			catch (IdUnusedException e)
-			{
-				Log.warn("chef", "SitesAction.doSave_edit: " + e);
+			 	M_log.warn(e.getMessage());
 			}
 
 			// save the realm, too
@@ -1974,7 +1961,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", this + ".readPageForm(): reading layout: " + e);
+		 	M_log.warn("reading layout: {}" + e.getMessage());
 		}
 
 		boolean popup = data.getParameters().getBoolean("popup");
