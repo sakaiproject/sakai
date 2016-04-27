@@ -12,3 +12,11 @@ function f_filterResults(n_win, n_docel, n_body){
         n_result = n_docel;
     return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
 }
+
+$PBJQ(document).ready(function(){
+	$PBJQ('input, textarea', '#content').each( function(){
+		if( $(this).prop('disabled') ){
+			$(this).parent('label').addClass('disabled');
+		}
+	});
+});
