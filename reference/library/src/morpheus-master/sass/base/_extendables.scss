@@ -278,3 +278,9 @@ a.noPointers, input.noPointers {
 	}
 }
 /*** End button spinner overlay ***/
+.ui-dialog.ui-widget {
+	@media #{$phone}{
+		width: 95% !important; 
+		left: 2.5% !important;
+	}
+}
