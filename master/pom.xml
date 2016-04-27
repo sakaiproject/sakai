@@ -597,7 +597,7 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>${sakai.slf4j.version}</version>
-        <scope>runtime</scope>
+        <scope>provided</scope>
       </dependency>
       <!-- log4j is the actual logger used by slf4j, this would be removed if using a different logging impl -->
       <!-- change to scope runtime once all sakai log4j code is switched to slf4j -->
