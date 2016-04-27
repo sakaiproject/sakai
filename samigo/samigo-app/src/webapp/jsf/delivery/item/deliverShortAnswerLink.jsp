@@ -74,9 +74,7 @@ should be included in file importing DeliveryMessages
   <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'&& question.modelAnswerIsNotEmpty}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.model} " />
-      <h:outputLink title="#{deliveryMessages.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswer.faces?idString=#{question.itemData.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" >
-	    <h:outputText  value="#{deliveryMessages.click_here}"/>
-      </h:outputLink>
+	    <h:outputText  value="#{question.key}"/>
     </h:panelGroup>
     <h:outputText value=" "/>
   </h:panelGrid>
