@@ -114,6 +114,8 @@ body.is-logged-out{
 	width: #{ $tool-menu-width * 2.5 };
 	z-index: 99;
 	box-shadow: 0 0 4px rgba( $text-color ,0.35);
+	list-style: none;
+	padding: 0 0 0 0;
 	li{
 		display: block;
 		border: 0px none;
@@ -361,6 +363,8 @@ body.is-logged-out{
 		font-family: $header-font-family;
 		font-weight: $header-font-weight;
 		margin-left: 0.5em;
+		list-style: none;
+		padding: 0 0 0 0;
 		ul{
 			background-color: $toolTabBGColor;
 			text-align: left;
@@ -433,6 +437,8 @@ body.is-logged-out{
 	}
 }
 .#{$namespace}sitesNav__menu{
+	list-style: none;
+	padding: 0 0 0 0;
 	margin-bottom:0px;
 }
 .#{$namespace}sitesNav__menuitem--myworkspace{

@@ -48,6 +48,8 @@ body{
 			}
 			#toolMenu, ul#subSites{
 				ul{
+					list-style: none;
+					padding: 0 0 0 0;
 					li{
 						border-left: 2px solid darken( $toolMenuBGColor, 10% );
 						display: inline-block;
