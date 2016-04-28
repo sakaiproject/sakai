@@ -47,8 +47,22 @@
 
 <div id="roster_type_selector" class="row">
     {{#if viewOfficialPhoto}}
-    <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {{#if checkOfficialPicturesButton}}checked{{/if}}/><span>{{translate 'roster_show_official_pictures'}}</span>
-    <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {{#unless checkOfficialPicturesButton}}checked{{/unless}}/><span>{{translate 'roster_show_profile_pictures'}}</span>
+    <div class="form-inline">
+        <div class="form-group">
+            <div class="radio">
+                <label>
+                <input style="margin-right: 1em;" type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {{#if checkOfficialPicturesButton}}checked{{/if}}/><span>{{translate 'roster_show_official_pictures'}}</span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="radio">
+                <label>
+                <input style="margin-right: 1em;" type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {{#unless checkOfficialPicturesButton}}checked{{/unless}}/><span>{{translate 'roster_show_profile_pictures'}}</span>
+                </label>
+            </div>
+        </div>
+    </div>
     {{/if}}
 </div>
 <div id="roster-members"></div>
