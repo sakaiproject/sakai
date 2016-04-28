@@ -39,6 +39,14 @@ div#footer {
 	width: 250px;
 }
 
+@media only screen and (max-width : 800px ){
+	.profile-twitter-account td{
+		display: block !important;
+	}
+	.profile-twitter-account td.label{
+		width: 100%;
+	}
+}
 
 #myPhoto {
 	max-width: 100%;
@@ -260,8 +268,6 @@ h2 {
 	border-bottom-style: solid;
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
-	margin-left: -40px;
-	padding-left: 5px;
 	list-style-type: none !important;
 }
 
@@ -410,12 +416,18 @@ h2 {
 	margin-bottom: 12px;
 }
 
+.profileContent td{
+	padding: 0.5em 1em 0.5em 0em !important;
+}
+.profileContent td:last-child{
+	padding: 0.5em 0 0.5em 0 !important;
+}
+
 .profileContent .label,
 .preferencesContent .label {
-	float: left;
 	color: #000000;
 	/*color: #444444;*/
-	vertical-align: top;
+	vertical-align: middle;
 	font-weight: normal;
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -434,7 +446,7 @@ h2 {
 .preferencesContent .content {
 	padding-left: 2px;
 	/*padding-right: 40px;*/
-	vertical-align: top;
+	vertical-align: middle;
 	
 	word-wrap: break-word;
     /* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */

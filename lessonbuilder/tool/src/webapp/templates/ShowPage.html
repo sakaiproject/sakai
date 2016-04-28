@@ -14,7 +14,6 @@
  <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
  <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
  <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/checklist.css" type="text/css" />
- <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
  <title rsf:id="msg=simplepage.showpage"></title>
 
  <style type="text/css">
@@ -61,6 +60,7 @@
  <script type="text/javascript" src="$context/js/show-page.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
  <script type="text/javascript" src="$context/js/checklistAjax.js"></script>
+ <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
  <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
  <script type="text/javascript" language="JavaScript" rsf:id="redirect">
@@ -77,7 +77,6 @@
 	 return ""; // default message is OK
      }
  </script>
-
 
 	 <div class="portletBody">
 
@@ -352,7 +351,7 @@
 			  </div>
 			<span rsf:id="addbottom" class="sectionedit addbottom"><a rsf:id="addbottom2" class="add-bottom" href="#" ><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span>
                         <ul class="indent mainList" rsf:id="itemTable:" border="0" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
-                <li rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span>
+                <li rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span><span style="display:none" rsf:id="pageid" class="pageid"></span>
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                       <div rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
@@ -409,6 +408,7 @@
                         <span rsf:id="item-name" class="link-text"></span>
                         <span rsf:id="item-format" class="item-format"></span>
                         <span rsf:id="item-path" class="item-path"></span>
+                        <span rsf:id="subpagereleasedate" class="subpagereleasedate"></span>
                       </div>
                     </div>
                     <div rsf:id="grouptext-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="grouptext-link"><span rsf:id="grouptext-icon"></span></a></div></div>
@@ -566,9 +566,6 @@
 
                     <div rsf:id="checklistItemContainer" class="right-col">
                         <div rsf:id="editchecklist-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-checklistProgress"><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton itemLink" rsf:id="edit-checklist"><span aria-hidden="true" class="fa-edit fa-edit-icon fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
-                        <div class="statusCol">
-                            <img class="status-image icon-image" rsf:id="checklistStatus" />
-                        </div>
                         <div class="checklistDiv" rsf:id="checklistDiv">
                             <div>
                                 <h3 class="checklistTitle" rsf:id="checklistTitle"></h3><span rsf:id="item-groups-titles-checklist" class="item-group-titles"></span>
@@ -1006,6 +1003,15 @@
                         <label for="item-next" id="label-item-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
                         <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
                         <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
+
+                        <input type="checkbox" id="page-releasedate2" rsf:id="page-releasedate2" />
+                        <label for="releaseDate2:1:date-field"><span rsf:id="msg=simplepage.page.releasedate2"></span></label><br />
+                        <div id="releaseDiv2" style="margin-left:3em">
+                            <span rsf:id="releaseDate2:" id="releaseDate2">
+                                <span style="display:none" rsf:id="sbReleaseDate" id="sbReleaseDate"></span>
+                                <input rsf:id="release_date2" type="text" id="release_date2"/>
+                            </span>
+                        </div>
                         </div>
 
                         <div id="newwindowstuff">

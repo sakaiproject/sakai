@@ -118,10 +118,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.catalina.util.DOMWriter;
 import org.apache.tomcat.util.buf.UDecoder;
+import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.dav.MD5Encoder;
 import org.apache.catalina.util.XMLWriter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -181,7 +183,7 @@ public class DavServlet extends HttpServlet
 	private static final long serialVersionUID = 1L;
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DavServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(DavServlet.class);
 	protected static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.dav.bundle.Messages");
 	// -------------------------------------------------------------- Constants
 
@@ -547,6 +549,10 @@ public class DavServlet extends HttpServlet
 
 	private ContentHostingService contentHostingService;
 
+	private CitationService citationService;
+
+	private org.sakaiproject.entity.api.EntityManager entityManager;
+
 	private AliasService aliasService;
 
 	// --------------------------------------------------------- Public Methods
@@ -557,6 +563,8 @@ public class DavServlet extends HttpServlet
 	public void init() throws ServletException
 	{
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+		citationService = ComponentManager.get(CitationService.class);
+		entityManager = ComponentManager.get(org.sakaiproject.entity.api.EntityManager.class);
 		aliasService = ComponentManager.get(AliasService.class);
 
 		// Set our properties from the initialization parameters
@@ -1879,7 +1887,9 @@ public class DavServlet extends HttpServlet
 				else
 				{
 					// Similar to handleAccessResource() in BaseContentService.java
-					
+
+					req.getSession().setAttribute("resourceType", resource.getResourceType());
+
 					contentStream = resource.streamContent();
 
 					if (contentStream == null || len == 0)
@@ -2777,6 +2787,13 @@ public class DavServlet extends HttpServlet
 			if (newfile)
 			{
 				edit = contentHostingService.addResource(resourcePath);
+
+				String resourceType = (String) req.getSession().getAttribute("resourceType");
+				if ("org.sakaiproject.citation.impl.CitationList".equalsIgnoreCase(resourceType))
+				{
+					edit.setResourceType(resourceType);
+					edit.getProperties().addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, "/citation");
+				}
 				final ResourcePropertiesEdit p = edit.getPropertiesEdit();
 				p.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
@@ -2799,6 +2816,13 @@ public class DavServlet extends HttpServlet
 
 			// commit the change
 			contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
+
+			if ("org.sakaiproject.citation.impl.CitationList".equalsIgnoreCase(edit.getResourceType()))
+			{
+				Reference reference = entityManager.newReference(edit.getReference());
+				citationService.copyCitationCollection(reference);
+			}
+
 
 		}
 		catch (IdUsedException e)

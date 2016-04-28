@@ -43,8 +43,8 @@ import javax.faces.event.ActionListener;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -88,7 +88,7 @@ public class PublishAssessmentListener
     implements ActionListener {
 
 
-  private static Log log = LogFactory.getLog(PublishAssessmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(PublishAssessmentListener.class);
 
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
@@ -214,16 +214,14 @@ public class PublishAssessmentListener
     } catch (AssignmentHasIllegalPointsException gbe) {
        // Right now gradebook can only accept assessements with totalPoints > 0 
        // this  might change later
-       log.warn(gbe);
-        gbe.printStackTrace();
+        log.warn(gbe.getMessage(), gbe);
         // Add a global message (not bound to any component) to the faces context indicating the failure
         String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                  "gradebook_exception_min_points");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(gbe);
     } catch (Exception e) {
-        log.warn(e);
-        e.printStackTrace();
+        log.warn(e.getMessage(), e);
         // Add a global message (not bound to any component) to the faces context indicating the failure
         String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                  "gradebook_exception_error");
@@ -357,7 +355,7 @@ public class PublishAssessmentListener
 			  siteTitle = site.getTitle();
 			  publishRepublishNotification.setSiteTitle(siteTitle);
 		  } catch (IdUnusedException iue) {
-			  log.warn(iue);
+			  log.warn(iue.getMessage());
 		  }
 	  }
 	  String newline = "<br />\n";

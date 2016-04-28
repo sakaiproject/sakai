@@ -26,8 +26,8 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.api.ApiDoc;
 
@@ -40,7 +40,7 @@ import org.radeox.macro.api.ApiDoc;
 
 public class ApiDocMacro extends BaseLocaleMacro
 {
-	private static Log log = LogFactory.getLog(ApiDocMacro.class);
+	private static Logger log = LoggerFactory.getLogger(ApiDocMacro.class);
 
 	private String[] paramDescription = {};
 

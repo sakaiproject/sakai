@@ -37,8 +37,8 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.antivirus.api.VirusScanIncompleteException;
 import org.sakaiproject.antivirus.api.VirusScanner;
@@ -69,7 +69,7 @@ import org.sakaiproject.exception.TypeException;
  * @version $Revision$
  */
 public class ClamAVScanner implements VirusScanner {
-	private static final Log logger = LogFactory.getLog(ClamAVScanner.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClamAVScanner.class);
 	private final String STREAM_PORT_STRING = "PORT ";
 	private final String FOUND_STRING = "FOUND";
 	private final String SCAN_INCOMPLETE_MSG = "Virus scan could not finish due to an internal error";

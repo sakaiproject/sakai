@@ -23,8 +23,8 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -85,7 +85,7 @@ import java.util.*;
 
 public class SamigoEntity implements LessonEntity, QuizEntity {
 
-    private static Log log = LogFactory.getLog(SamigoEntity.class);
+    private static Logger log = LoggerFactory.getLogger(SamigoEntity.class);
 
     private static Cache assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -138,7 +138,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 
 	samigo_linked = ServerConfigurationService.getBoolean("lessonbuilder.samigo.editlink", true);
-	System.out.println("SamigoEntity edit link " + samigo_linked);
+	log.info("SamigoEntity edit link " + samigo_linked);
 
 	log.info("init()");
 
@@ -252,22 +252,22 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    }
 
 	    if (false) {  // testing
-		System.out.println(entity.getGroups(true));
+		log.info(entity.getGroups(true).toString());
 		List<String> oldGroups = entity.getGroups(true);
 		//5c51c1fb-bf48-475f-99a6-a303f5ad9520
 		//d579a252-204e-46cd-9720-7eca7bd47630
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups(true));
+		log.info("null " + entity.getGroups(true));
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups(true));
+		log.info("null " + entity.getGroups(true));
 		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520"));
-		System.out.println("5c51 " + entity.getGroups(true));
+		log.info("5c51 " + entity.getGroups(true));
 		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520","d579a252-204e-46cd-9720-7eca7bd47630"));
-		System.out.println("5c51,d579 " + entity.getGroups(true));
+		log.info("5c51,d579 " + entity.getGroups(true));
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups(true));
+		log.info("null " + entity.getGroups(true));
 		entity.setGroups(oldGroups);
-		System.out.println(oldGroups + " " + entity.getGroups(true));
+		log.info(oldGroups + " " + entity.getGroups(true));
 	    }
 
 	}
@@ -352,7 +352,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    else 
 		return a.getAssessmentMetaDataByLabel("ALIAS");
 	} catch (Exception ex) {
-	    System.out.println("exception " + ex);
+	    log.info("exception " + ex);
 	    return null;
 	}
     }
@@ -577,7 +577,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    String aid = assessment.getAssessmentId().toString();
 	    
 	    Document doc = exportObject(aid);
-	    System.out.println("foo " + doc.getElementsByTagName("questestinterop"));
+	    log.info("foo " + doc.getElementsByTagName("questestinterop"));
 	}
 
 	if (samigo_linked)
@@ -607,7 +607,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    QTIService qtiService = new QTIService();
 	    return qtiService.getExportedAssessment(assessmentId, QTIVersion.VERSION_1_2);
 	} catch (Exception e) {
-	    System.out.println("exception in exportobject " + e);
+	    log.info("exception in exportobject " + e);
 	    return null;
 	}
     }

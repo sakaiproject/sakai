@@ -1,7 +1,7 @@
 package org.sakaiproject.chat2.model.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.PresenceObserver;
@@ -15,7 +15,7 @@ public class ChatRestListener implements RoomObserver, PresenceObserver {
 	   private static final String IFRAME_ROOM_USERS = "Presence";
 
 	   /** Our logger. */
-	   private static Log LOG = LogFactory.getLog(ChatRestListener.class);
+	   private static Logger LOG = LoggerFactory.getLogger(ChatRestListener.class);
 
 	   /**   The work-horse of chat   */
 	   private ChatManager chatManager;

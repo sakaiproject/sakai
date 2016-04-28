@@ -32,7 +32,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.azeckoski.reflectutils.ReflectUtils;
-
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -47,8 +46,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -57,6 +57,7 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore {
 
     private HashSet<String> reservedActions = null;
@@ -110,7 +111,7 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
                 try {
                     ca.methodArgTypes = validateActionParamTypes(method.getParameterTypes(), method.getName());
                 } catch (IllegalArgumentException e) {
-                    System.out.println("WARN A method ("+method.getName()+") in the entity provider for prefix ("
+                    log.warn("A method ("+method.getName()+") in the entity provider for prefix ("
                             + entityProvider.getEntityPrefix()+") appears to be a custom action method but"
                             + "does not have a valid set of parameter types, this may be ok but should be checked on: " + e.getMessage());
                     continue;
@@ -153,7 +154,7 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
             cas.put(ca.getKey(), action.copy()); // make a copy to avoid holding objects from another ClassLoader
         }
         entityActions.put(prefix, actions);
-        System.out.println("INFO Registered "+actions.size()+" custom actions for entity prefix ("+prefix+"): " + sb.toString());
+        log.info("Registered "+actions.size()+" custom actions for entity prefix ("+prefix+"): " + sb.toString());
     }
 
     /* (non-Javadoc)
@@ -267,7 +268,7 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
                 sb.append(redirect.template);
             }
             entityRedirects.put(prefix, urlRedirects);
-            System.out.println("INFO Registered "+redirects.length+" url redirects for entity prefix ("+prefix+"): " + sb.toString());
+            log.info("Registered "+redirects.length+" url redirects for entity prefix ("+prefix+"): " + sb.toString());
         }
     }
 
@@ -409,7 +410,7 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
         TemplateMap[] urlMappings = configDefinable.defineURLMappings();
         if (urlMappings == null || urlMappings.length == 0) {
             // this is ok then, or is it?
-            System.out.println("WARN RedirectDefinable: no templates defined for url redirect");
+            log.warn("RedirectDefinable: no templates defined for url redirect");
         } else {
             for (TemplateMap templateMap : urlMappings) {
                 String incomingTemplate = templateMap.getIncomingTemplate();

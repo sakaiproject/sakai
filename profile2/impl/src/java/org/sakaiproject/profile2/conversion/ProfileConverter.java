@@ -33,7 +33,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -61,7 +62,7 @@ import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
  */
 public class ProfileConverter {
 
-	private static final Logger log = Logger.getLogger(ProfileConverter.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileConverter.class);
 	
 	@Setter
 	private SakaiProxy sakaiProxy;

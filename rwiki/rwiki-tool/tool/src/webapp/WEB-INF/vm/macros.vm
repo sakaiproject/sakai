@@ -113,22 +113,6 @@ LOG-LOG-LOG-LOG-LOG
 
 #macro( commandlinks $useHomeLink $usePrinterLink $useViewLink $viewLinkName $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification $homeBean $viewBean $resourceLoaderBean )
 ## <span class="rwiki_pageLinks">
-#if ($usePrinterLink) 
-<li><div class="printLinks">
-<span style="border:none">
-<a href="${util.escapeHtml($viewBean.getRssAccessUrl())}"
-	target="rssfeed" 
-	id="rssLink"  
-	title="${resourceLoaderBean.getString("jsp_rss_feed_changes")}" >&nbsp;</a> 
-</span>
-<span>
-<a href="${util.escapeHtml($viewBean.getPrintViewUrl())}"
-	target="_blank" 
-	id="printerFriendlyLink"  
-	title="${resourceLoaderBean.getString("jsp_printer_friendly")}" >&nbsp;</a> 
-</span></div></li>
-
-#end
 
 #if ( !$viewLinkName )
 #set( $viewLinkName = $resourceLoaderBean.getString("jsp_view"));

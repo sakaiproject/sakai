@@ -28,8 +28,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -49,7 +49,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class ComposeLogicImpl implements ComposeLogic
 {
-	private static final Log log = LogFactory.getLog(ComposeLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ComposeLogicImpl.class);
 	private static final int NUMBER_ROLES = 15;
 
 	protected SiteService siteService;

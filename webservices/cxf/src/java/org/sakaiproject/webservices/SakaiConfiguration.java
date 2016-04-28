@@ -16,8 +16,8 @@
 package org.sakaiproject.webservices;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -53,7 +53,7 @@ import java.util.Properties;
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiConfiguration extends AbstractWebService {
-    private static final Log LOG = LogFactory.getLog(SakaiConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SakaiConfiguration.class);
 
     @WebMethod
     @Path("/adjustLogLevel")

@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class PartIterator extends edu.indiana.lib.osid.base.repository.PartIterator
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(PartIterator.class);
-		
     private java.util.Vector vector = new java.util.Vector();
     private int i = 0;
 

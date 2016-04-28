@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +51,7 @@ import com.sun.faces.util.Util;
  */
 public class HierDataTableRender extends HtmlBasicRenderer 
 {
-	protected static Log log = LogFactory.getLog(HierDataTableRender.class);
+	protected static Logger log = LoggerFactory.getLogger(HierDataTableRender.class);
 
 	private static final String RESOURCE_PATH = "/messageforums-tool";
 	private static final String BARIMG = RESOURCE_PATH + "/" + "images/collapse.gif";

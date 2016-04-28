@@ -24,8 +24,8 @@ package org.sakaiproject.portal.charon.velocity;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.cover.PortalService;
@@ -41,8 +41,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 public class PortalRenderEngineContextListener implements ServletContextListener
 {
 
-	private static final Log log = LogFactory
-			.getLog(PortalRenderEngineContextListener.class);
+	private static final Logger log = LoggerFactory.getLogger(PortalRenderEngineContextListener.class);
 
 	private VelocityPortalRenderEngine vengine;
 

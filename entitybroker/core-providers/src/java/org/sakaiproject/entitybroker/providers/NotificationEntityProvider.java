@@ -19,8 +19,8 @@
 
 package org.sakaiproject.entitybroker.providers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
@@ -52,7 +52,7 @@ public class NotificationEntityProvider extends AbstractEntityProvider implement
     public static final String NOTIFY_POST_ENABLED = "notify.post.enabled";
     public static final String PREFIX = "notify";
 
-    private static Log log = LogFactory.getLog(NotificationEntityProvider.class);
+    private static Logger log = LoggerFactory.getLogger(NotificationEntityProvider.class);
 
     private EventTrackingService eventTrackingService;
     private NotificationService notificationService;

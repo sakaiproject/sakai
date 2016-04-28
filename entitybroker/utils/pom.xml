@@ -10,11 +10,10 @@
     </organization>
     <inceptionYear>2007</inceptionYear>
     <packaging>jar</packaging>
-<!-- the base is parent -->
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>12-SNAPSHOT</version><!--entitybroker.version-->
+        <version>12-SNAPSHOT</version>
     </parent>
     <dependencies>
         <!-- internal dependencies -->
@@ -43,23 +42,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
-
-        <!-- Sakai dependency is for the reloadable proxy also -->
-        <!-- Sakai K1 -->
-<!-- -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-<!-- -->
-        <!-- Sakai preK1 -->
-<!-- 
-        <dependency> 
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-component</artifactId> 
-        </dependency>
- -->
-
         <!-- required for bean cloning and reflection -->
         <dependency>
             <groupId>org.azeckoski</groupId>
@@ -80,8 +66,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.5</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -106,21 +90,5 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
-<!-- unit testing -->
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <!--
-                Convenience declaration of RSF plugin to enable composite builds of
-                SakaiRSF - has no effect otherwise
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-rsf-plugin</artifactId>
-                <version>1.0</version>
-            </plugin>
-        </plugins>
     </build>
 </project>

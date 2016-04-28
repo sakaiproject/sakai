@@ -21,9 +21,28 @@
 
 package org.sakaiproject.content.types;
 
-import static org.sakaiproject.content.api.ResourceToolAction.*;
+import static org.sakaiproject.content.api.ResourceToolAction.ACCESS_PROPERTIES;
+import static org.sakaiproject.content.api.ResourceToolAction.COLLAPSE;
+import static org.sakaiproject.content.api.ResourceToolAction.COMPRESS_ZIP_FOLDER;
+import static org.sakaiproject.content.api.ResourceToolAction.COPY;
+import static org.sakaiproject.content.api.ResourceToolAction.CREATE;
+import static org.sakaiproject.content.api.ResourceToolAction.DELETE;
+import static org.sakaiproject.content.api.ResourceToolAction.EXPAND;
+import static org.sakaiproject.content.api.ResourceToolAction.MAKE_SITE_PAGE;
+import static org.sakaiproject.content.api.ResourceToolAction.MOVE;
+import static org.sakaiproject.content.api.ResourceToolAction.PASTE_COPIED;
+import static org.sakaiproject.content.api.ResourceToolAction.PASTE_MOVED;
+import static org.sakaiproject.content.api.ResourceToolAction.PERMISSIONS;
+import static org.sakaiproject.content.api.ResourceToolAction.REORDER;
+import static org.sakaiproject.content.api.ResourceToolAction.REVISE_METADATA;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -33,14 +52,14 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.ResourceToolAction.ActionType;
+import org.sakaiproject.content.util.BaseInteractionAction;
+import org.sakaiproject.content.util.BaseResourceAction.Localizer;
+import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.content.util.ZipContentUtil;
-import org.sakaiproject.content.util.BaseInteractionAction;
-import org.sakaiproject.content.util.BaseResourceType;
-import org.sakaiproject.content.util.BaseResourceAction.Localizer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -49,9 +68,12 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FolderType extends BaseResourceType implements ExpandableResourceType 
 {
+	private static final Logger logger = LoggerFactory.getLogger(FolderType.class);
 	protected String typeId = ResourceType.TYPE_FOLDER;
 	protected String helperId = "sakai.resource.type.helper";
 	
@@ -333,7 +355,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 			try {
 				zipUtil.compressFolder(reference);
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				logger.warn(e.getMessage());
 			}			
 		}
 		

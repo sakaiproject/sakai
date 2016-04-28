@@ -34,8 +34,8 @@ import java.util.Set;
 import java.util.Calendar;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.section.api.SectionAwareness;
@@ -87,7 +87,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor {
 
-	private static final Log log = LogFactory.getLog(SectionManagerImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SectionManagerImpl.class);
 	
     // Sakai services set by method injection
     protected abstract SiteService siteService();
@@ -545,7 +545,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		try {
 			studentRole = getSectionStudentRole(group);
 		} catch (RoleConfigurationException rce) {
-			log.error(rce);
+			log.error(rce.getMessage());
 			return new ArrayList<EnrollmentRecord>();
 		}
 		 

@@ -9,8 +9,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.Validation;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.cmprovider.data.CmEntityData;
@@ -105,7 +105,7 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
   protected SessionManager sessionManager;
   public void setSessionManager(SessionManager manager) { sessionManager = manager; }
 
-  private static final Log LOG = LogFactory.getLog(AbstractCmEntityProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractCmEntityProvider.class);
 
   public String[] getHandledOutputFormats() {
     return new String[] { Formats.JSON };

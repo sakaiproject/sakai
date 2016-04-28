@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -59,7 +59,7 @@ public class IndexBean implements Serializable
   private boolean templateAscending= true;
   private boolean automaticSubmissionEnabled = false;
   
-  private static Log log = LogFactory.getLog(IndexBean.class);
+  private static Logger log = LoggerFactory.getLogger(IndexBean.class);
 
   /**
    * Creates a new IndexBean object.

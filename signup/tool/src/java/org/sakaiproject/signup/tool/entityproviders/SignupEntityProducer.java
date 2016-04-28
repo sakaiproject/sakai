@@ -28,8 +28,8 @@ import java.util.Stack;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -61,7 +61,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class SignupEntityProducer implements MeetingTypes, EntityProducer, EntityTransferrer,
 		ApplicationContextAware {
 
-	private static Log log = LogFactory.getLog(SignupEntityProducer.class);
+	private static Logger log = LoggerFactory.getLogger(SignupEntityProducer.class);
 	
 	public static final String SIGNUP = "signup";
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + SIGNUP;

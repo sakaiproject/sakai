@@ -46,8 +46,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.xml.sax.SAXException;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
@@ -100,7 +100,7 @@ import org.sakaiproject.util.FormattedText;
  */
 public class AuthoringHelper
 {
-  private static Log log = LogFactory.getLog(AuthoringHelper.class);
+  private static Logger log = LoggerFactory.getLogger(AuthoringHelper.class);
 //  private static final AuthoringXml ax = new AuthoringXml(QTIVersion.VERSION_1_2);
   private AuthoringXml ax;
 
@@ -396,7 +396,7 @@ public class AuthoringHelper
     }
     catch (Exception ex)
     {
-      log.error(ex);
+      log.error(ex.getMessage(), ex);
       return null;
     }
   }

@@ -3,8 +3,6 @@ package edu.indiana.lib.osid.base.repository.http;
 public class URLPartStructure
 implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(URLPartStructure.class);
-		
     private org.osid.shared.Id URL_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type( "mit.edu", "partStructure",
     		"url", "URL associated with resource" );

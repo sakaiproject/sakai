@@ -28,8 +28,8 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -51,7 +51,7 @@ import org.sakaiproject.util.Web;
  */
 public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 {
-    private static final Log LOG = LogFactory.getLog(DefaultSiteViewImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultSiteViewImpl.class);
 
 	/**
 	 * @param siteHelper

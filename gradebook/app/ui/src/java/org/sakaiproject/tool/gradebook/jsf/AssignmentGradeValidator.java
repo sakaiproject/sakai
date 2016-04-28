@@ -32,8 +32,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validates assignment grades entered into the gradebook.  Since we display a
@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
 public class AssignmentGradeValidator implements Validator, Serializable {
-	private static Log logger = LogFactory.getLog(AssignmentGradeValidator.class);
+	private static Logger logger = LoggerFactory.getLogger(AssignmentGradeValidator.class);
 
     /**
 	 * @see javax.faces.validator.Validator#validate(javax.faces.context.FacesContext,

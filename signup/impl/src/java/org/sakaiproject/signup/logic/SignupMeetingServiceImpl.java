@@ -29,8 +29,8 @@ import java.util.StringTokenizer;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -66,7 +66,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
  */
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
-	private static Log log = LogFactory.getLog(SignupMeetingServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(SignupMeetingServiceImpl.class);
 
 	@Getter @Setter
 	private SignupMeetingDao signupMeetingDao;

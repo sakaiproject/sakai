@@ -33,8 +33,8 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -102,7 +102,7 @@ import org.sakaiproject.util.Web;
  */
 public class ReportsEditPage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(ReportsEditPage.class);
+	private static Logger				LOG					= LoggerFactory.getLogger(ReportsEditPage.class);
 	private static final String		REPORT_THISSITE		= "this";
 	private static final String		REPORT_ALLSITES		= "all";
 
@@ -127,7 +127,7 @@ public class ReportsEditPage extends BasePage {
 	/** Ajax update lock */
 	private final ReentrantLock		ajaxUpdateLock	= new ReentrantLock();
 	private boolean					usersLoaded		= false;
-	private static Log log = LogFactory.getLog(ReportsEditPage.class);
+	private static Logger log = LoggerFactory.getLogger(ReportsEditPage.class);
 	
 	private transient Collator		collator		= Collator.getInstance();
 	{

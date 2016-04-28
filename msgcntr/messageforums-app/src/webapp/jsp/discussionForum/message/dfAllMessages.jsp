@@ -254,7 +254,7 @@
 			</h:panelGrid>	
 				<%--<%@ include file="dfViewSearchBar.jsp"%> --%>
 				
-									
+				<h:panelGroup rendered="#{ForumTool.selectedTopic.isMovePostings}" >
 				<f:verbatim><div class="post_move_links"></f:verbatim>
                     <%-- hidden link to call ForumTool.processMoveThread  --%>
                     <h:commandLink value="" action="#{ForumTool.processMoveThread}" id="hidden_move_message_commandLink" ></h:commandLink>
@@ -264,10 +264,10 @@
 					<f:verbatim>
                         <a class="button display-topic-picker" id="msgForum:df_move_message_commandLink" onclick="resizeFrameForDialog();" href="#" >
 				    </f:verbatim>
-                    <h:outputText rendered="#{ForumTool.selectedTopic.isMovePostings}" value="#{msgs.move_thread}" />
+                    <h:outputText value="#{msgs.move_thread}" />
 					<f:verbatim></a></f:verbatim>
 					<f:verbatim></div></f:verbatim>
-   		
+   				</h:panelGroup>
 			<%--//designNote: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%>
 			<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.selectedTopic != null && ForumTool.needToPostFirst}"/>				
 			<h:outputText value="#{msgs.cdfm_no_messages}" rendered="#{ForumTool.selectedTopic == null || (empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst)}"  styleClass="instruction" style="display:block"/>

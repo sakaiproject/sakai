@@ -44,9 +44,12 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(LinkTrackerProducer.class);
 	public static final String VIEW_ID = "LinkTracker";
 
 	public String getViewID() {
@@ -96,7 +99,7 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 		SimplePage page = simplePageBean.getCurrentPage();
 
 		if (i.getPageId() != page.getPageId()) {
-		    System.out.println("LinkTracker asked to track item not in current page");
+		    log.info("LinkTracker asked to track item not in current page");
 		    return;
 		}
 

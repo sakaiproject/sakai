@@ -24,8 +24,8 @@ import java.text.Collator;
 
 import lombok.RequiredArgsConstructor;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <code>Comparator</code> for <code>RosterMember</code>s.
@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 @RequiredArgsConstructor
 public class RosterMemberComparator implements Comparator<RosterMember> {
 
-	private static final Log log = LogFactory.getLog(RosterMemberComparator.class);
+	private static final Logger log = LoggerFactory.getLogger(RosterMemberComparator.class);
 	
 	private final boolean firstNameLastName;
 	private final Collator collator = Collator.getInstance();

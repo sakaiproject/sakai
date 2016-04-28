@@ -40,8 +40,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
@@ -73,7 +73,7 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 public class TotalScoreUpdateListener
   implements ActionListener
 {
-  private static Log log = LogFactory.getLog(TotalScoreUpdateListener.class);
+  private static Logger log = LoggerFactory.getLogger(TotalScoreUpdateListener.class);
   
   /**
    * Standard process action method.

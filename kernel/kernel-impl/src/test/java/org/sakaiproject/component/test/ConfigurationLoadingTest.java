@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -39,7 +39,7 @@ import org.sakaiproject.test.SakaiKernelTestBase;
  *
  */
 public class ConfigurationLoadingTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(ConfigurationLoadingTest.class);
+	private static Logger log = LoggerFactory.getLogger(ConfigurationLoadingTest.class);
 	
 	private ServerConfigurationService serverConfigurationService;
 
@@ -50,7 +50,7 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 		try {
 			oneTimeSetup("filesystem", CONFIG);
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

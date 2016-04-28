@@ -45,8 +45,8 @@ import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.struts.upload.FormFile;
 import org.osid.shared.SharedException;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
@@ -150,7 +150,7 @@ public class QuestionPoolBean implements Serializable
   
   private ItemFacade itemToPreview;
 
-  private static Log log = LogFactory.getLog(QuestionPoolBean.class);
+  private static Logger log = LoggerFactory.getLogger(QuestionPoolBean.class);
 
 
   // for JSF

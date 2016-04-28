@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -64,7 +64,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  */
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-  private Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
+  private Logger log = LoggerFactory.getLogger(GradebookServiceHelperImpl.class);
 
   /**
    * Does a gradebook exist?

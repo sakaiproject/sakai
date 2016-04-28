@@ -1353,6 +1353,29 @@ $(document).ready(function() {
 			
 			if(type === 'page') {
 	                    $("#pagestuff").show();
+
+				var sbpgreleasedate = row.find(".subpagereleasedate").text();
+				if(sbpgreleasedate === '') {
+					$("#page-releasedate2").prop('checked', false);
+					localDatePicker({
+						input: '#release_date2',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						val: sbpgreleasedate,
+						ashidden: { iso8601: 'releaseDate2ISO8601' }
+					});
+				}
+				else {
+					$("#page-releasedate2").prop('checked', true);
+					localDatePicker({
+						input: '#release_date2',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						val: sbpgreleasedate,
+						ashidden: { iso8601: 'releaseDate2ISO8601' }
+					});
+				}
+
 			    var pagenext = row.find(".page-next").text();
 			    if(pagenext === "true") {
 				$("#item-next").prop("checked", true);
@@ -1993,11 +2016,12 @@ $(document).ready(function() {
 		var tail_uls = addAboveLI.parent().nextAll();
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
-		section.after('<div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-edit-icon plus-edit-icon">+</span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"></li></ul></div></div>');
+		section.after('<div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div>');
 		// now go to new section
 		section = section.next();
 		// and move current item and following into the first col of the new section
-		section.find("ul").append(addAboveLI, tail_lis);
+		if (addAboveItem > 0)
+		    section.find("ul").append(addAboveLI, tail_lis);
 		section.find(".column").append(tail_uls);
 		section.append(tail_cols);
 
@@ -2017,14 +2041,16 @@ $(document).ready(function() {
 		// addAboveLI is LI from which add was triggered
 		// following LI's if any
 		var tail_lis = addAboveLI.nextAll();
+
 		// current section DIV
 		var tail_uls = addAboveLI.parent().nextAll();
 		var column = addAboveLI.parent().parent();
-		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-edit-icon plus-edit-icon">+</span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"></li></ul></div>');
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
 		// now go to new section
 		column = column.next();
 		// and move current item and following into the first col of the new section
-		column.find("ul").append(addAboveLI, tail_lis);
+		if (addAboveItem > 0)
+		    column.find("ul").append(addAboveLI, tail_lis);
 		column.find(".column").append(tail_uls);
 		// need trigger on the A we just added
 		column.find('.column-merge-link').click(columnMergeLink);
@@ -2504,6 +2530,10 @@ function checkEditItemForm() {
 		$('#edit-item-error-container').show();
 		return false;
 	}else {
+		if ($("#page-releasedate2").prop('checked'))
+			$("#release_date2").val($("#releaseDate2ISO8601").val());
+		else
+			$("#release_date2").val('');
 		$('#edit-item-error-container').hide();
 		return true;
 	}
@@ -2619,6 +2649,7 @@ function buttonOpenDropdowna() {
 function buttonOpenDropdownb() {
     oldloc = $(this);
     addAboveItem = '-' + $(this).closest('.column').find('ul').children().last().find("span.itemid").text();
+    addAboveLI = $(this).closest('.column').find('ul').children().last().closest("li");
     $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
     return false;

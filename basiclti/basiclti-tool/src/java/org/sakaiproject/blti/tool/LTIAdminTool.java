@@ -34,8 +34,8 @@ import java.net.HttpURLConnection;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.lti2.LTI2Config;
@@ -85,7 +85,7 @@ import org.sakaiproject.util.foorm.SakaiFoorm;
  */
 public class LTIAdminTool extends VelocityPortletPaneledAction
 {
-	private static Log M_log = LogFactory.getLog(LTIAdminTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(LTIAdminTool.class);
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltitool");

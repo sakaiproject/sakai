@@ -26,8 +26,8 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xerces.impl.dv.util.Base64;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
@@ -49,7 +49,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SchemaNames;
 public class RWikiEntityImpl implements RWikiEntity
 {
 
-	private static Log log = LogFactory.getLog(RWikiEntityImpl.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiEntityImpl.class);
 
 	public static final String RW_ID = "id";
 

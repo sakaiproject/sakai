@@ -36,8 +36,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.importer.api.Importable;
@@ -55,7 +55,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 	private static final String CC_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imscc/imscp_v1p1";
 	
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(CommonCartridgeFileParser.class);
+	private static Logger M_log = LoggerFactory.getLogger(CommonCartridgeFileParser.class);
 	
 	public CommonCartridgeFileParser() {
 		// add resource translators here

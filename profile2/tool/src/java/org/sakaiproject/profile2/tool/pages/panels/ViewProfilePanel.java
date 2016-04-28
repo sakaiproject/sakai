@@ -18,7 +18,8 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -44,7 +45,7 @@ public class ViewProfilePanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final Logger log = Logger.getLogger(ViewProfilePanel.class);
+	private static final Logger log = LoggerFactory.getLogger(ViewProfilePanel.class);
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;

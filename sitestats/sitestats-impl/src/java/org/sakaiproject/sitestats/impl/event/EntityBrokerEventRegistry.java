@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.impl.event;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
@@ -39,7 +39,7 @@ import java.util.*;
 
 
 public class EntityBrokerEventRegistry extends Observable implements EventRegistry, EntityProviderListener<Statisticable> {
-	private static Log				LOG						= LogFactory.getLog(EntityBrokerEventRegistry.class);
+	private static Logger				LOG						= LoggerFactory.getLogger(EntityBrokerEventRegistry.class);
 	private static final String		CACHENAME				= EntityBrokerEventRegistry.class.getName();
 
 	/** Event Registry members */

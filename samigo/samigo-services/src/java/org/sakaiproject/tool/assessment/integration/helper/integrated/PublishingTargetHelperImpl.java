@@ -23,8 +23,8 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetH
 
 public class PublishingTargetHelperImpl implements PublishingTargetHelper
 {
-  private Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
+  private Logger log = LoggerFactory.getLogger(PublishingTargetHelperImpl.class);
 
     //private org.sakaiproject.component.api.ComponentManager cm;
 

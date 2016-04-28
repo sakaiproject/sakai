@@ -51,10 +51,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-help-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
    	<dependency>
 		<groupId>commons-codec</groupId>
 		<artifactId>commons-codec</artifactId>

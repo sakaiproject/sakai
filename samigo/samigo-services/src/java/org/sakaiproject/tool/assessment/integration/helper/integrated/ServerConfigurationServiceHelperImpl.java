@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
 /**
@@ -31,7 +31,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurati
  * on the shared Section Awareness API.
  */
 public class ServerConfigurationServiceHelperImpl implements ServerConfigurationServiceHelper {
-    private static final Log log = LogFactory.getLog(ServerConfigurationServiceHelperImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ServerConfigurationServiceHelperImpl.class);
 
     public String getString(String key, String defaultValue){
 	return (ServerConfigurationService.getString(key, defaultValue));

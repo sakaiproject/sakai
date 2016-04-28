@@ -311,7 +311,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			view.setSendingPage(entry.pageId);
 			view.setItemId(entry.pageItemId);
 			// path defaults to null, which is next
-			UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
+			String currentToolTitle = simplePageBean.getPageTitle();
+			String returnText = messageLocator.getMessage("simplepage.return").replace("{0}",currentToolTitle);
+			UIInternalLink.make(tofill, "return",  returnText, view);
 			UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));
 		    } else {
 			GeneralViewParameters view = new GeneralViewParameters(returnView);

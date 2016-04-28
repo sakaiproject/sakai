@@ -38,8 +38,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -57,7 +57,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class PermissionLevelManagerImpl extends HibernateDaoSupport implements PermissionLevelManager {
 
-	private static final Log LOG = LogFactory.getLog(PermissionLevelManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PermissionLevelManagerImpl.class);
 	private EventTrackingService eventTrackingService;
 	private SessionManager sessionManager;
 	private IdManager idManager;

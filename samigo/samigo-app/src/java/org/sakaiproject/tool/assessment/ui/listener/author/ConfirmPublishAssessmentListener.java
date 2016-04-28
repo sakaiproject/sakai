@@ -34,8 +34,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -69,7 +69,7 @@ import org.sakaiproject.util.FormattedText;
 public class ConfirmPublishAssessmentListener
     implements ActionListener {
 
-  private static Log log = LogFactory.getLog(ConfirmPublishAssessmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(ConfirmPublishAssessmentListener.class);
   //private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();

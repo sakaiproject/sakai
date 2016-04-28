@@ -5,8 +5,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.calendar.api.OpaqueUrl;
@@ -17,7 +17,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao {
 
-	private static Log log = LogFactory.getLog(OpaqueUrlDaoHbm.class);
+	private static Logger log = LoggerFactory.getLogger(OpaqueUrlDaoHbm.class);
 	
 	public OpaqueUrl newOpaqueUrl(String userUUID, String calendarRef) {
 		final OpaqueUrlHbm opaqueUrl = new OpaqueUrlHbm(userUUID, calendarRef, UUID.randomUUID().toString());

@@ -25,8 +25,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.POITextExtractor;
 import org.apache.poi.extractor.ExtractorFactory;
 import org.sakaiproject.content.api.ContentResource;
@@ -36,7 +36,7 @@ import org.sakaiproject.content.api.ContentResource;
  */
 public class PoiContentDigester extends BaseContentDigester
 {
-	private static Log log = LogFactory.getLog(PoiContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(PoiContentDigester.class);
 
 	static
 	{
@@ -87,7 +87,7 @@ public class PoiContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
-					log.debug(e);
+					log.debug(e.getMessage());
 				}
 			}
 		}

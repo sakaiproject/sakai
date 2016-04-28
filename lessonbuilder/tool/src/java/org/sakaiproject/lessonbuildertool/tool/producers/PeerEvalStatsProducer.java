@@ -54,6 +54,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -74,6 +76,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
+	private static final Logger log = LoggerFactory.getLogger(PeerEvalStatsProducer.class);
 	public static final String VIEW_ID = "PeerEvalStats";
 	
 	private SimplePageBean simplePageBean;
@@ -101,7 +104,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		try {
 			simplePageBean.updatePageObject(params.getSendingPage(), false);
 		} catch (Exception e) {
-			System.out.println("PeerEval permission exception " + e);
+			log.info("PeerEval permission exception " + e);
 			return;
 		}
 		canEditPage = simplePageBean.canEditPage();
@@ -118,7 +121,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 			users = site.getUsers();
 		} catch (Exception impossible) {
-			System.out.println("Can't find site/users - PeerEvalStatsProducer.java");
+			log.info("Can't find site/users - PeerEvalStatsProducer.java");
 			return;
 		}
 		
@@ -306,7 +309,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		    }
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("peer eval error " + e);
+			log.info("peer eval error " + e);
 		};
 
 	}
@@ -360,7 +363,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 				rows.add(new RubricRow(Integer.parseInt(String.valueOf(cat.get("id"))), String.valueOf(cat.get("rowText"))));
 			}
 		}
-		//else{System.out.println("This rubric has no rows.");}
+		//else{log.info("This rubric has no rows.");}
 		
 		Collections.sort(rows);
 		for(RubricRow row : rows){
@@ -401,7 +404,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 				}
 			}
 		//else
-		//	System.out.println("evaluations is empty/null;");
+		//	log.info("evaluations is empty/null;");
 				
 		return myEvaluations;
 	}

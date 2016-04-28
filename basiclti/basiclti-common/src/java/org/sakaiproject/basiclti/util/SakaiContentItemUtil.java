@@ -21,8 +21,8 @@ package org.sakaiproject.basiclti.util;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
@@ -43,7 +43,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 @SuppressWarnings("deprecation")
 public class SakaiContentItemUtil {
 
-	private static Log M_log = LogFactory.getLog(SakaiContentItemUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiContentItemUtil.class);
 
 	public static LtiLinkItem getLtiLinkItem(String toolRegistration)
 	{

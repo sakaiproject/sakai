@@ -26,8 +26,8 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.javax.Filter;
@@ -55,7 +55,7 @@ import org.w3c.dom.Element;
 public class DbMailArchiveService extends BaseMailArchiveService
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DbMailArchiveService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbMailArchiveService.class);
 
 	/** The name of the db table holding mail archive channels. */
 	protected String m_cTableName = "MAILARCHIVE_CHANNEL";

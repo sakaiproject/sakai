@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.Iterator;
 import java.net.URLEncoder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.Validator;
@@ -93,7 +93,7 @@ import org.sakaiproject.util.Validator;
 
 public class AssignmentExport {
 
-    private static Log log = LogFactory.getLog(AssignmentExport.class);
+    private static Logger log = LoggerFactory.getLogger(AssignmentExport.class);
 
     private static SimplePageToolDao simplePageToolDao;
 
@@ -244,7 +244,7 @@ public class AssignmentExport {
 	try {
 	    assignment = AssignmentService.getAssignment(assignmentId);
 	} catch (Exception e) {
-	    System.out.println("failed to find " + assignmentId);
+	    log.info("failed to find " + assignmentId);
 	    return null;
 	}
 

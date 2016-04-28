@@ -42,8 +42,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -462,7 +462,7 @@ public class MessageForumStatisticsBean {
 	}
 	
 	/** to get accces to log file */
-	private static final Log LOG = LogFactory.getLog(MessageForumSynopticBean.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBean.class);
 	
 	/** Needed if within a site so we only need stats for this site */
 	private MessageForumsMessageManager messageManager;
@@ -823,7 +823,7 @@ public class MessageForumStatisticsBean {
 						}
 					}
 				}catch (IdUnusedException e) {
-					LOG.error(e);
+					LOG.error(e.getMessage());
 				}
 			}else{
 				for (Iterator i = courseMemberMap.entrySet().iterator(); i.hasNext();) {
@@ -2915,7 +2915,7 @@ public class MessageForumStatisticsBean {
 					}
 				}
 			}catch (IdUnusedException e){
-				LOG.error(e);
+				LOG.error(e.getMessage());
 			}
 		}
 		return groups;

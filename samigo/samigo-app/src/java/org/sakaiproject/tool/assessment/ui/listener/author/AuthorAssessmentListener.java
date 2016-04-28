@@ -32,8 +32,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -60,7 +60,7 @@ import org.sakaiproject.util.FormattedText;
 public class AuthorAssessmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(AuthorAssessmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(AuthorAssessmentListener.class);
 
   public AuthorAssessmentListener()
   {

@@ -23,8 +23,8 @@ package org.sakaiproject.authz.impl;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -52,7 +52,7 @@ import java.util.*;
 public abstract class SakaiSecurity implements SecurityService, Observer
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(SakaiSecurity.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiSecurity.class);
 
 	/** A cache of calls to the service and the results. */
 	protected Cache m_callCache = null;

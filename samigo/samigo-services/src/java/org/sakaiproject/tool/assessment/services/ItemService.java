@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -51,7 +51,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
  */
 public class ItemService
 {
-  private Log log = LogFactory.getLog(ItemService.class);
+  private Logger log = LoggerFactory.getLogger(ItemService.class);
 
   /**
    * Creates a new ItemService object.
@@ -79,7 +79,8 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
     return item;
@@ -105,7 +106,8 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -130,7 +132,8 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -156,7 +159,8 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -181,7 +185,8 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -199,7 +204,7 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e);
+      log.error(e.getMessage(), e);
 
       return item;
     }
@@ -217,7 +222,8 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -237,7 +243,7 @@ public class ItemService
 	    }
 	    catch(Exception e)
 	    {
-	      log.error(e);
+	      log.error(e.getMessage(), e);
 	      return -1l;
 	    }
   }
@@ -384,7 +390,8 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new RuntimeException(e);
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
   
@@ -399,7 +406,8 @@ public class ItemService
 	  }
 	  catch(Exception e)
 	  {
-		  log.error(e); throw new RuntimeException(e);
+          log.error(e.getMessage(), e);
+          throw new RuntimeException(e);
 	  }
   }
 }

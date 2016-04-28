@@ -31,7 +31,8 @@ import java.util.List;
 //import java.util.Random;
 import java.util.Set;
 
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -44,7 +45,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public class PublishedSectionData
     implements java.io.Serializable, SectionDataIfc, Comparable{
-  static Category errorLogger = Category.getInstance("errorLogger");
+  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
   public static final Integer ACTIVE_STATUS =  Integer.valueOf(1);

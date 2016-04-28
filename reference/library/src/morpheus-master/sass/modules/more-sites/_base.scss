@@ -73,10 +73,6 @@ body.active-more-sites{
 }
 
 #selectSite{
-	h4{
-		font-size: 1.8em;
-  		margin: 1.5em 0 0.6em 0;
-	}
 	.tab-pane{
 		overflow-y: auto;
 		overflow-x: hidden;
@@ -87,6 +83,12 @@ body.active-more-sites{
 
                 background-color: $tool-background-color;
 	}
+	
+	.tab-bar{
+		list-style: none;
+		padding: 0 0 0 0;
+	}
+
 	.tab-bar .tab-btn{
 		display: inline-block;
 		padding: 5px 2em 5px 2em;
@@ -120,15 +122,30 @@ body.active-more-sites{
 		z-index: 2;
 	}
 
+
+	.tab-bar .favorites-tab-label {
+		font-weight: $default-font-weight;
+		font-size: $default-font-size;
+		margin: 0.2em;
+	}
+
+
         #selectSite-navbar{
 		overflow: hidden;
 		margin: 0;
 		padding: 0;
         }
+
+	.favorites-term-header {
+		font-size: 1.8em;
+  		margin: 1.5em 0 0.6em 0;
+	}
 }
 
 ul#otherSitesMenu{
 	margin: 0;
+	padding: 0 0 0 0;
+	list-style: none;
 	@media #{$desktop}{
 		margin-top: 0.5em;
 		width: 100%;
@@ -172,7 +189,7 @@ ul#otherSitesMenu{
 			width: 100%;
 			float: none;
 		}
-		.fav-sites-term:first-child h4{
+		.fav-sites-term:first-child .favorites-term-header{
 			margin-top: 0;
 		}
 	}
@@ -184,7 +201,7 @@ ul#otherSitesMenu{
 			width: 100%;
 			float: none;
 		}
-		.fav-sites-term:first-child h4{
+		.fav-sites-term:first-child .favorites-term-header{
 			margin-top: 0;
 		}
 	}
@@ -193,6 +210,8 @@ ul#otherSitesMenu{
 
 
 ul.otherSitesCategorList{
+	list-style: none;
+	padding: 0 0 0 0;
 	li{
 		display: inline-block;
 		border: 1px solid darken( $background-color, 30% );
@@ -260,6 +279,8 @@ ul.otherSitesCategorList{
 }
 
 ul#otherSiteTools{
+	list-style: none;
+	padding-left: 0;
 	padding-bottom: 5px;
 
 	li{
@@ -283,15 +304,19 @@ ul#otherSiteTools{
 	}
 }
 
-ul.favoriteSiteList > li{
-	display: block;
-	border: 1px solid $toolBorderColor;
-	@include border-radius( 4px );
-	width: 305px;
-	white-space: nowrap;
-	overflow: hidden;
-	margin: 0.3em;
-	padding: 0.3em 0.5em 0.3em 0.5em;
+ul.favoriteSiteList{
+	list-style: none;
+	padding: 0 0 0 0;
+	> li{
+		display: block;
+		border: 1px solid $toolBorderColor;
+		@include border-radius( 4px );
+		width: 305px;
+		white-space: nowrap;
+		overflow: hidden;
+		margin: 0.3em;
+		padding: 0.3em 0.5em 0.3em 0.5em;
+	}
 }
 
 .fav-title{
@@ -337,6 +362,8 @@ ul.favoriteSiteList > li{
 }
 
 .organizeFavoritesList{
+	list-style: none;
+	padding: 0 0 0 0;
 	.fav-drag-handle{
 		display: inline-block;
 		position: relative;

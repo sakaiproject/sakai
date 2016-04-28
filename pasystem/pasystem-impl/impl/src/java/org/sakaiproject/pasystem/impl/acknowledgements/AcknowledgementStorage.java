@@ -57,6 +57,11 @@ public class AcknowledgementStorage {
                         new DBAction<Void>() {
                             @Override
                             public Void call(DBConnection db) throws SQLException {
+                                db.run("DELETE FROM " + tableName + " where uuid = ? AND user_eid = ?")
+                                        .param(uuid)
+                                        .param(userEid.toLowerCase())
+                                        .executeUpdate();
+
                                 db.run("INSERT INTO " + tableName + " (uuid, user_eid, state, dismiss_time) values (?, ?, ?, ?)")
                                         .param(uuid)
                                         .param(userEid.toLowerCase())

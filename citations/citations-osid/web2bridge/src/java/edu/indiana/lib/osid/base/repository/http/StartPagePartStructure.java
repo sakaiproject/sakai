@@ -19,8 +19,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
 public class StartPagePartStructure implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(StartPagePartStructure.class);
-		
   private org.osid.shared.Id START_PAGE_PART_STRUCTURE_ID = null;
   private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
       "startPage", "Page number that resource content begins on" );

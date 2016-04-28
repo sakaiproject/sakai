@@ -33,8 +33,8 @@ import java.text.RuleBasedCollator;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DOCUMENTATION PENDING
@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
 public class BeanSortComparator
   implements Comparator
 {
-  private static Log log = LogFactory.getLog(BeanSortComparator.class);
+  private static Logger log = LoggerFactory.getLogger(BeanSortComparator.class);
   private String propertyName;
 
   /**

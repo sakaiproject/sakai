@@ -22,8 +22,8 @@ package org.sakaiproject.roster.impl;
 import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -75,7 +75,7 @@ import lombok.Setter;
 @Setter
 public class SakaiProxyImpl implements SakaiProxy, Observer {
 
-	private static final Log log = LogFactory.getLog(SakaiProxyImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SakaiProxyImpl.class);
 		
 	private CourseManagementService courseManagementService;
 	private EventTrackingService eventTrackingService;

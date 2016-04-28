@@ -25,8 +25,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -45,7 +45,7 @@ import org.w3c.dom.Element;
 
 public class CopyFileProcessor extends AttachmentHandler{
 	
-	private static Log log = LogFactory.getLog(CopyFileProcessor.class);
+	private static Logger log = LoggerFactory.getLogger(CopyFileProcessor.class);
 	
 	public CopyFileProcessor(SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService){
 		setSakaiFacade(sakaiFacade);

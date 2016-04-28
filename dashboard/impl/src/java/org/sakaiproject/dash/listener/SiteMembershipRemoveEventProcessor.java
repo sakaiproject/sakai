@@ -21,7 +21,8 @@
 
 package org.sakaiproject.dash.listener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.event.api.Event;
@@ -33,7 +34,7 @@ import org.sakaiproject.site.api.SiteService;
  */
 public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 
-	private static Logger logger = Logger.getLogger(SiteMembershipRemoveEventProcessor.class);
+	private static Logger logger = LoggerFactory.getLogger(SiteMembershipRemoveEventProcessor.class);
 	
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {

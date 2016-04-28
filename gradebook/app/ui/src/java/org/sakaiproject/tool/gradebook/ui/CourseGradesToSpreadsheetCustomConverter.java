@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -43,7 +43,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class CourseGradesToSpreadsheetCustomConverter implements CourseGradesToSpreadsheetConverter {
 
-	private static final Log log = LogFactory.getLog(CourseGradesToSpreadsheetCustomConverter.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseGradesToSpreadsheetCustomConverter.class);
 
 
 	/* 

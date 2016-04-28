@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -64,7 +64,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  */
 public class AgentHelperImpl implements AgentHelper
 {
-  private Log log = LogFactory.getLog(AgentHelperImpl.class);
+  private Logger log = LoggerFactory.getLogger(AgentHelperImpl.class);
   AgentImpl agent;
 
   private AuthzGroupService authzGroupService;

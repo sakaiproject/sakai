@@ -5,6 +5,7 @@ import java.util.*;
 
 import edu.indiana.lib.twinpeaks.search.*;
 import edu.indiana.lib.twinpeaks.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**********************************************************************************
@@ -31,10 +32,9 @@ import edu.indiana.lib.twinpeaks.util.*;
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class RepositoryManager extends edu.indiana.lib.osid.base.repository.RepositoryManager
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(RepositoryManager.class);
-
     private org.osid.repository.Repository repository = null;
     private org.osid.id.IdManager idManager = null;
     private org.osid.OsidContext context = null;
@@ -85,7 +85,7 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
       	}
       	catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
         finally
@@ -133,15 +133,15 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
 	          		continue;
 	           	}
 
-              _log.debug("name = " + ss.getName());
-              _log.debug("description = " + ss.getDescription());
-              _log.debug("id = " + ss.getId());
-              _log.debug("authority = " + ss.getAuthority());
-              _log.debug("domain = " + ss.getDomain());
-              _log.debug("searchType = " + ss.getSearchType());
-              _log.debug("query handler = " + ss.getQueryHandlerClassName());
-              _log.debug("result handler = " + ss.getSearchResultHandlerClassName());
-              _log.debug("osid context = " + this.context);
+              log.debug("name = " + ss.getName());
+              log.debug("description = " + ss.getDescription());
+              log.debug("id = " + ss.getId());
+              log.debug("authority = " + ss.getAuthority());
+              log.debug("domain = " + ss.getDomain());
+              log.debug("searchType = " + ss.getSearchType());
+              log.debug("query handler = " + ss.getQueryHandlerClassName());
+              log.debug("result handler = " + ss.getSearchResultHandlerClassName());
+              log.debug("osid context = " + this.context);
               /*
                * Set up the search-type and add the new Repository
                */
@@ -158,7 +158,7 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
 
             if (t instanceof org.osid.repository.RepositoryException)
             {
@@ -222,7 +222,7 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -250,7 +250,7 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
         throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.UNKNOWN_ID);
@@ -280,7 +280,7 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
         throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.UNKNOWN_ID);
@@ -310,7 +310,7 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -343,14 +343,14 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
                 }
                 catch (Throwable t)
                 {
-                    _log.warn(t.getMessage());
+                    log.warn(t.getMessage());
                 }
             }
             return new AssetIterator(results);
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -377,7 +377,7 @@ public class RepositoryManager extends edu.indiana.lib.osid.base.repository.Repo
         }
         catch (Throwable t)
         {
-            _log.error(t.getMessage());
+            log.error(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }

@@ -26,8 +26,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
@@ -49,7 +49,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class ReportsDataProvider extends SortableSearchableDataProvider {
 	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(ReportsDataProvider.class);
+	private static Logger				LOG					= LoggerFactory.getLogger(ReportsDataProvider.class);
 	public final static String		COL_SITE			= StatsManager.T_SITE;
 	public final static String		COL_USERID			= StatsManager.T_USER;
 	public final static String		COL_USERNAME		= "userName";
@@ -69,7 +69,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	private ReportDef				reportDef;
 	private Report					report;
 	private int 					reportRowCount		= -1;
-	private static Log logger = LogFactory.getLog(ReportsDataProvider.class);	
+	private static Logger logger = LoggerFactory.getLogger(ReportsDataProvider.class);	
 
 	public ReportsDataProvider(PrefsData prefsData, ReportDef reportDef) {
 		this(prefsData, reportDef, true);

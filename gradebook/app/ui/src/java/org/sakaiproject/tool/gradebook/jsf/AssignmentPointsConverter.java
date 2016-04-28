@@ -25,8 +25,8 @@ package org.sakaiproject.tool.gradebook.jsf;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * displayed in a special way with a tooltip "title" attribute.
  */
 public class AssignmentPointsConverter extends PointsConverter {
-	private static final Log log = LogFactory.getLog(AssignmentPointsConverter.class);
+	private static final Logger log = LoggerFactory.getLogger(AssignmentPointsConverter.class);
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");

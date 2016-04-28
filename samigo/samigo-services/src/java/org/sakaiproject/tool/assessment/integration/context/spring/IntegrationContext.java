@@ -21,8 +21,8 @@
 
 package org.sakaiproject.tool.assessment.integration.context.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHe
  */
 public class IntegrationContext extends IntegrationContextFactory
 {
-  private Log log = LogFactory.getLog(IntegrationContext.class);
+  private Logger log = LoggerFactory.getLogger(IntegrationContext.class);
 
   private boolean integrated;
   private AgentHelper agentHelper;

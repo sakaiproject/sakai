@@ -102,22 +102,32 @@ $(function () {
         return true;
     });
 
-    // Populate the hidden input so our updates flow through
-    $('#hidden_sites_form').on('submit', function () {
-        var confirmMsg = $.trim($('#reallyHideConfirm').text());
+    (function () {
+        var clicked_button = undefined;
 
-        if ($('.site-hidden.favorite-site:checked').length > 0 && !confirm(confirmMsg)) {
-            return false;
-        }
+        $('#hidden_sites_form input[type="submit"]').on('click', function () {
+            clicked_button = $(this).attr('name');
+        });
 
-        var siteList = $('.site-hidden:checked').map(function (i, checkbox) {
-            return $(checkbox).data('site-id')
-        }).toArray().join(",");
+        // Populate the hidden input so our updates flow through
+        $('#hidden_sites_form').on('submit', function () {
+            var confirmMsg = $.trim($('#reallyHideConfirm').text());
 
-        $('#hidden_sites_form\\:hiddenSites').val(siteList);
+            if (clicked_button === 'hidden_sites_form:submit' &&
+                $('.site-hidden.favorite-site:checked').length > 0 &&
+                !confirm(confirmMsg)) {
+                return false;
+            }
 
-        return true;
-    });
+            var siteList = $('.site-hidden:checked').map(function (i, checkbox) {
+                return $(checkbox).data('site-id')
+            }).toArray().join(",");
+
+            $('#hidden_sites_form\\:hiddenSites').val(siteList);
+
+            return true;
+        });
+    }());
 
     var getUserFavorites = function (callback) {
         $.ajax({

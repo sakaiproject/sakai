@@ -49,8 +49,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -104,12 +104,12 @@ public class AjaxServer extends HttpServlet
    private static SimplePageToolDao simplePageToolDao;
 
    public void setSimplePageToolDao(Object dao) {
-       System.out.println("setdao " + dao);
+       log.info("setdao " + dao);
        simplePageToolDao = (SimplePageToolDao) dao;
    }
 
    /** Our log (commons). */
-   private static Log log = LogFactory.getLog(AjaxServer.class);
+   private static Logger log = LoggerFactory.getLogger(AjaxServer.class);
    
    public static final String FILTERHTML = "lessonbuilder.filterhtml";
    private static String filterHtml = ServerConfigurationService.getString(FILTERHTML);
@@ -306,7 +306,7 @@ public class AjaxServer extends HttpServlet
 	// simplepagebean checks filterHtml property of tool. We can't really do that.
 
 	String filterSpec = filterHtml;
-	System.out.println("filterspec " + filterSpec);
+	log.info("filterspec " + filterSpec);
 	if (filterSpec == null) // should never be null. unspeciifed should give ""
 	    filter = FILTER_DEFAULT;
 	// old specifications
@@ -477,7 +477,21 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 	
+	boolean below = false;
 	itemId = itemId.trim();
+	if (itemId.startsWith("-")) {
+	    below = true;
+	    itemId = itemId.substring(1);
+	}
+
+	long id = 0;
+	if (!itemId.startsWith("p")) {
+	    try {
+		id = Long.parseLong(itemId);
+	    } catch (Exception e) {
+		log.error("Ajax insertBreakBefore passed illegal item id " + itemId);
+	    }
+	}
 
 	// currently this is only needed by the instructor
 	
@@ -485,8 +499,12 @@ public class AjaxServer extends HttpServlet
 	SimplePage page = null;
 	String siteId = null;
 	try {
-	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
-	    page = simplePageToolDao.getPage(item.getPageId());
+	    if (itemId.startsWith("p")) {
+		page = simplePageToolDao.getPage(Long.parseLong(itemId.substring(1)));
+	    } else {
+		item = simplePageToolDao.findItem(id);
+		page = simplePageToolDao.getPage(item.getPageId());
+	    }
 	    siteId = page.getSiteId();
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -504,29 +522,76 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 	
-	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(page.getPageId());
+
+	// this block of code is because pages really should start with a section break at the top, but don't
+	// always. When that happens, the UI generates a pseudo-item ID or "pxxxx" where xxxx is the page number
+	SimplePageItem firstItem = null;
+	if (items != null && items.size() > 0) {
+	    firstItem = items.get(0);
+	}
+	if (firstItem == null || firstItem.getType() != SimplePageItem.BREAK) {
+	    // old format page. Add an initial break
+	    SimplePageItem breakItem = simplePageToolDao.makeItem(page.getPageId(), 1, SimplePageItem.BREAK, null, null);
+	    breakItem.setFormat("section");
+	    simplePageToolDao.quickUpdate(breakItem);
+	    // increment numbers for items after it
+	    if (items != null) {
+		for (SimplePageItem i: items) {
+		    i.setSequence(i.getSequence() + 1);
+		    simplePageToolDao.quickUpdate(i);
+		}			    
+	    }
+	    // refresh items list
+	    items = simplePageToolDao.findItemsOnPage(page.getPageId());
+	}
+
+	// now we have a new format page, and we can handle it normally
+	if (itemId.startsWith("p")) {
+	    // didn't have initial break when page displayed. We do now, so use it
+	    item = items.get(0);
+	    id = item.getId();
+	}
 
 	// we have an item id. insert before it
 	int nseq = 0;  // sequence number of new item
 	boolean after = false; // we found the item to insert before
-	// have an item number specified, look for the item to insert before
-	long before = item.getId();
-	for (SimplePageItem i: items) {
-	    if (i.getId() == before) {
-		// found item to insert before
-		// use its sequence and bump up it and all after
-		nseq = i.getSequence();
-		after = true;
-	    }
-	    if (after) {
-		i.setSequence(i.getSequence() + 1);
-		simplePageToolDao.quickUpdate(i);
-	    }
-	}			    
+	if (below) {
+	    // have an item number specified, look for the item to insert after
+	    long before = id;
+	    for (SimplePageItem i: items) {
+		if (i.getId() == before) {
+		    // found item to insert after
+		    // use next sequence and bump all after
+		    nseq = i.getSequence() + 1;
+		    after = true;
+		    continue;
+		}
+		if (after) {
+		    i.setSequence(i.getSequence() + 1);
+		    simplePageToolDao.quickUpdate(i);
+		}
+	    }			    
+	} else {
+	    // have an item number specified, look for the item to insert before
+	    long before = item.getId();
+	    for (SimplePageItem i: items) {
+		if (i.getId() == before) {
+		    // found item to insert before
+		    // use its sequence and bump up it and all after
+		    nseq = i.getSequence();
+		    after = true;
+		}
+		if (after) {
+		    i.setSequence(i.getSequence() + 1);
+		    simplePageToolDao.quickUpdate(i);
+		}
+	    }		
+	}	    
 
 	// if after not set, we didn't find the item; either no item specified or it
 	if (!after) {
-	    log.error("Ajax insertBreakBefore passed item not on its page " + before);
+	    log.error("Ajax insertBreakBefore passed item not on its page " + id);
 	    return null;
 	}
 		    

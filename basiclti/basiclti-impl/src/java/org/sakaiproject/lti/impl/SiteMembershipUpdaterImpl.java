@@ -22,8 +22,8 @@ package org.sakaiproject.lti.impl;
 import java.io.IOException;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -40,7 +40,7 @@ import org.sakaiproject.user.api.User;
  */
 public class SiteMembershipUpdaterImpl implements SiteMembershipUpdater {
 
-	private static Log M_log = LogFactory.getLog(SiteMembershipUpdaterImpl .class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteMembershipUpdaterImpl .class);
 
     /**
      *  Injected from Spring, see components.xml

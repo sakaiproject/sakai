@@ -18,8 +18,8 @@ package org.sakaiproject.mailsender.tool.producers.fragments;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.logic.ComposeLogic;
@@ -54,7 +54,7 @@ public class UserGroupingProducer implements ViewComponentProducer, ViewParamsRe
 {
 	public static final String VIEW_ID = "userGroup";
 
-	private final Log log = LogFactory.getLog(UserGroupingProducer.class);
+	private final Logger log = LoggerFactory.getLogger(UserGroupingProducer.class);
 	private ComposeLogic composeLogic;
 	private TargettedMessageList messages;
 	private ViewStateHandler viewStateHandler;

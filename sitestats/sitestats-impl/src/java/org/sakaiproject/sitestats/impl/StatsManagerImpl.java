@@ -37,8 +37,8 @@ import java.util.Set;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.FlushMode;
@@ -102,7 +102,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  *
  */
 public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager, Observer {
-	private Log							LOG										= LogFactory.getLog(StatsManagerImpl.class);
+	private Logger							LOG										= LoggerFactory.getLogger(StatsManagerImpl.class);
 	
 	/** Spring bean members */
 	private Boolean						enableSiteVisits						= null;
@@ -1023,7 +1023,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				+ "where s.siteId = :siteid "
 				+ "and s.pageAction = :pageAction "
 				+ "and s.pageRef like :pageRefLike "
-				+ "and s.userId != '?' group by s.pageRef order by total DESC";
+				+ "and s.userId != '?' group by s.pageRef, s.pageId order by total DESC";
 
 			HibernateCallback hcb = new HibernateCallback() {
 

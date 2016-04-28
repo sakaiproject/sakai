@@ -47,8 +47,8 @@ import java.net.URLEncoder;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.db.api.SqlReader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -93,7 +93,7 @@ import org.sakaiproject.assignment2.model.AssignmentAttachment;
 
 public class Assignment2Export extends AssignmentExport {
 
-    private static Log log = LogFactory.getLog(AssignmentExport.class);
+    private static Logger log = LoggerFactory.getLogger(AssignmentExport.class);
 
     private static SimplePageToolDao simplePageToolDao;
 
@@ -121,7 +121,7 @@ public class Assignment2Export extends AssignmentExport {
 
 	if (ComponentManager.get("org.sakaiproject.assignment2.service.api.Assignment2Service") != null)
 	    haveA2 = true;
-	System.out.println("Assignment2Export init: haveA2 = " + haveA2);
+	log.info("Assignment2Export init: haveA2 = " + haveA2);
 
 	log.info("init()");
 
@@ -258,7 +258,7 @@ public class Assignment2Export extends AssignmentExport {
 	    ret.attachments = SqlService.dbRead(connection, sql, fields, null);
 
 	} catch (Exception e) {
-	    System.out.println("error reading assignment2 " + e);
+	    log.info("error reading assignment2 " + e);
 	    // leave ret as null list
 	} finally {
 	    try {

@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.adminsiteperms.service.SitePermsService;
 import org.sakaiproject.util.api.FormattedText;
@@ -39,7 +39,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
  */
 public class SitePermsController extends AbstractController {
 
-    final protected Log log = LogFactory.getLog(getClass());
+    final protected Logger log = LoggerFactory.getLogger(getClass());
 
     public static String[] templates = {
         "!site.template",

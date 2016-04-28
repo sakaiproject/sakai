@@ -34,10 +34,6 @@
       	<version>${project.version}</version>
       	<scope>provided</scope>
     </dependency>
-    <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-    </dependency>
   </dependencies>
   <build>
     <resources>

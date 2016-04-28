@@ -34,8 +34,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -60,7 +60,7 @@ import org.sakaiproject.entity.api.Reference;
 public class SavePartAttachmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(SavePartAttachmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(SavePartAttachmentListener.class);
   //this is to indicate which flow
   // if it is true, that means we save the section attachment in setting page of a pending assessment (authorSettings.jsp)
   // if it is false, that means we save the section attachment in setting page of a published assessment (publishedSettings.jsp)

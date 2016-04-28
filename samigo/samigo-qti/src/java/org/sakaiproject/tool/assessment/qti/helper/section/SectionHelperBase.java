@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 abstract public class SectionHelperBase
   implements SectionHelperIfc
 {
-  private static Log log = LogFactory.getLog(SectionHelperBase.class);
+  private static Logger log = LoggerFactory.getLogger(SectionHelperBase.class);
 
   private Document doc;
 

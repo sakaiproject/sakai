@@ -95,17 +95,6 @@
       <version>1.1.2</version>
       <scope>runtime</scope>
     </dependency>
-    <!-- Sakai uses apache commons logging -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <!-- testing dependencies -->
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

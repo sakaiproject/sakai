@@ -44,6 +44,9 @@
 		.radio_group{
 			@extend .checkbox_group;
 			width: 20%;
+			@media #{$phone}{
+				width: 100%;
+			}
 		}
 	}
 
@@ -191,6 +194,14 @@
 			    margin: 0 0 0 0;
 			    padding: 3px 0 3px 6px;
 			}
+		}
+		
+		&\:alert-delete{
+			margin: 2em 0 0 0;
+		}
+		
+		&\:autoMarkThreadsRead{
+			margin-bottom: 2em;
 		}
 	}
 

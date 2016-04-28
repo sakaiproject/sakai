@@ -17,8 +17,8 @@
 package org.sakaiproject.tool.gradebook.facades.standalone;
 
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Author:Louis Majanja <louis@media.berkeley.edu>
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class EventTrackingServiceStandaloneImpl implements EventTrackingService {
 
-    private static final Log log = LogFactory.getLog(EventTrackingServiceStandaloneImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EventTrackingServiceStandaloneImpl.class);
 
     /**
      *

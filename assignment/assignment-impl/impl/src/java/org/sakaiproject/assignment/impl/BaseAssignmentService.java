@@ -26,8 +26,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -118,7 +118,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 public abstract class BaseAssignmentService implements AssignmentService, EntityTransferrer, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseAssignmentService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseAssignmentService.class);
 
 	/** the resource bundle */
 	private static ResourceLoader rb = new ResourceLoader("assignment");
@@ -3501,17 +3501,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 					}
 					else {
-						M_log.info("Assignmentt" +a.getId() + " is grouped but " + person.getId() + " is not in any of the site groups");
+						M_log.info("Assignment {} is grouped but {} is not in any of the site groups", a.getId(), person.getId());
 					}
 				}
-			} catch (IdUnusedException iue) { 
-				M_log.debug(iue);
-			} catch (PermissionException pme) { 
-				M_log.debug(pme);
+			} catch (IdUnusedException | PermissionException e) {
+				M_log.debug(e.getMessage());
 			}
 		}
 		
-		M_log.debug("No submission found for user " + person.getId() + " in assignment " + assignmentReference);
+		M_log.debug("No submission found for user {} in assignment {}", person.getId(), assignmentReference);
 
 		return submission;
 	}
@@ -3549,7 +3547,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			catch (PermissionException e)
 			{
-				M_log.debug(e);
+				M_log.debug(e.getMessage());
 				return null;
 			}
 		}
@@ -3571,12 +3569,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				for (String userId : sub.getSubmitterIds())
 				{
-						M_log.debug(this + " getSubmission(List, User) comparing aUser id : " + userId + " and chosen user id : "
-								+ person.getId());
+						M_log.debug("getSubmission(List, User) comparing aUser id : {} and chosen user id : {}",
+								userId, person.getId());
 					if (userId.equals(person.getId()))
 					{
-						
-							M_log.debug(this + " getSubmission(List, User) found a match : return value is " + sub.getId());
+						M_log.debug("getSubmission(List, User) found a match : return value is {}", sub.getId());
 						retVal = sub;
 					}
 				}
@@ -12620,7 +12617,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 				else
 				{
-					// error, assignment couldn't be found. Log the error
+					// error, assignment couldn't be found. Logger the error
 					M_log.debug(this + " BaseAssignmentSubmissionEdit postAttachment: Unable to find assignment associated with submission id= " + this.m_id + " and assignment id=" + this.m_assignment);
 				}
 			}

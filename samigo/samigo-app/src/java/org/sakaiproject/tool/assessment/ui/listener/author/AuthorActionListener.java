@@ -34,8 +34,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
@@ -72,7 +72,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 public class AuthorActionListener
     implements ActionListener
 {
-  private static final Log log = LogFactory.getLog(AuthorActionListener.class);
+  private static final Logger log = LoggerFactory.getLogger(AuthorActionListener.class);
   private HashMap<String, ArrayList<String>> groupUsersIdMap = new HashMap<String, ArrayList<String>>();
   private ArrayList<String> siteUsersIdList = new ArrayList<String>();
   private final TimeUtil tu = new TimeUtil();
@@ -126,7 +126,7 @@ public class AuthorActionListener
 	site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
     }
     catch (IdUnusedException ex) {
-		log.warn( ex );
+		log.warn(ex.getMessage());
     }
 
     // Does a site property 'samigo.editPubAssessment.restricted' exist?
@@ -136,7 +136,7 @@ public class AuthorActionListener
             // get the site properties
             siteProperties = site.getProperties();
         } catch (Exception e) {
-            log.warn( e );
+            log.warn(e.getMessage(), e);
         }
             
         if (siteProperties != null) {

@@ -178,12 +178,12 @@
 					$tlang.getString("ediacc.dismysit")
 				</label>
 			</div>
-			<p class="checkbox indnt1">
-				<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end aria-describedby="site_vis_inst" />
+			<div class="radio">
 				<label for="access_private">
+					<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end aria-describedby="site_vis_inst" />
 					$tlang.getString("ediacc.pri")
 				</label>
-			</p>
+			</div>
 		</div>
 		<div id="publicChangeableNoDiv" $publicChangeableNoDivDisplay>
 			<p>

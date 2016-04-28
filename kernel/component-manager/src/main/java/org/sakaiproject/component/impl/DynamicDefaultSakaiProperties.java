@@ -26,23 +26,23 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handle any default sakai.properties values that need to be set dynamically.
  */
 public class DynamicDefaultSakaiProperties extends Properties {
 	private static final long serialVersionUID = 1L;
-	private static Log log = LogFactory.getLog(DynamicDefaultSakaiProperties.class);
+	private static Logger log = LoggerFactory.getLogger(DynamicDefaultSakaiProperties.class);
 	
 	public void init() {
 		try {
 			String defaultServerId = InetAddress.getLocalHost().getHostName();
 			this.put("serverId", defaultServerId);
-			if (log.isDebugEnabled()) log.debug("Set serverId to " + defaultServerId);
+			log.debug("Set serverId to {}", defaultServerId);
 		} catch (UnknownHostException e) {
-			if (log.isDebugEnabled()) log.debug(e);
+			log.debug(e.getMessage(), e);
 		}
 	}
 }

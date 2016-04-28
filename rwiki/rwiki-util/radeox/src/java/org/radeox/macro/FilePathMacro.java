@@ -26,8 +26,8 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.Messages;
 import org.radeox.api.macro.MacroParameter;
 
@@ -43,7 +43,7 @@ import org.radeox.api.macro.MacroParameter;
 
 public class FilePathMacro extends LocalePreserved
 {
-	private static Log log = LogFactory.getLog(FilePathMacro.class);
+	private static Logger log = LoggerFactory.getLogger(FilePathMacro.class);
 
 	private String[] paramDescription = { Messages.getString("FilePathMacro.0") }; //$NON-NLS-1$
 

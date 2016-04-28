@@ -29,8 +29,8 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -43,7 +43,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 public class SakaiBasicDataSource extends BasicDataSource
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(SakaiBasicDataSource.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiBasicDataSource.class);
 
 	/** Configuration: to rollback each connection when returned to the pool. */
 	protected boolean m_rollbackOnReturn = false;

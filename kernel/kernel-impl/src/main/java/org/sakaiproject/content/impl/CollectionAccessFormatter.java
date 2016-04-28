@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
@@ -53,7 +53,7 @@ import org.sakaiproject.util.api.FormattedText;
  */
 public class CollectionAccessFormatter
 {
-	private static final Log M_log = LogFactory.getLog(CollectionAccessFormatter.class);
+	private static final Logger M_log = LoggerFactory.getLogger(CollectionAccessFormatter.class);
 
 	private FormattedText formattedText;
 	private ServerConfigurationService serverConfigurationService;

@@ -1,0 +1,15 @@
+.#{$namespace}sakai-siteinfo{
+	.open > .dropdown-menu{
+		left: -124px;
+		width: 160px;
+		> li > a {
+			white-space: normal;
+		}
+	}
+}
+
+#toolSelectionList{
+	ul{
+		padding: 0 0 0 0;
+	}
+}

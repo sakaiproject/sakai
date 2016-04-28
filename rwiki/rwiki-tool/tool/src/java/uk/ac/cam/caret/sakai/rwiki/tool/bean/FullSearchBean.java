@@ -25,8 +25,8 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
@@ -42,7 +42,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 public class FullSearchBean
 {
 	
-	private static Log log = LogFactory.getLog(FullSearchBean.class);
+	private static Logger log = LoggerFactory.getLogger(FullSearchBean.class);
 
 	/** Tool restriction: see RWikiEntityContentProducer.getTool() **/
 	private static final String SEARCH_SUFFIX = " +tool:wiki";

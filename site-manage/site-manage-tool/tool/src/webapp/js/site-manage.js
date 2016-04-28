@@ -563,7 +563,7 @@ utils.endDialog = function(ev, dialogTarget){
         $(frame).height(clientH);
     }
 
-    $("#" + dialogTarget).dialog('option', 'position', [100, ev.pageY + 10]);
+    $("#" + dialogTarget).dialog('option', 'position', {my: "center", at: "center", of: window });
     $("#" + dialogTarget).dialog("open");
 
 };

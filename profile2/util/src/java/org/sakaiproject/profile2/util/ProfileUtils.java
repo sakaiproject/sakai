@@ -43,7 +43,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.imgscalr.Scalr;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -51,7 +52,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class ProfileUtils {
 
-	private static final Logger log = Logger.getLogger(ProfileUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileUtils.class);
 
 
 	/**

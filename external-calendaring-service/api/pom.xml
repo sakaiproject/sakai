@@ -38,10 +38,6 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
-   		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
 		<dependency>
       		<groupId>org.mnode.ical4j</groupId>
       		<artifactId>ical4j</artifactId>

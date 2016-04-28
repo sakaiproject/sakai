@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  */
 @Deprecated
 public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver, EntityTransferrer, HandlesImportable {
-    private static final Log log = LogFactory.getLog(GradebookEntityProducer.class);
+    private static final Logger log = LoggerFactory.getLogger(GradebookEntityProducer.class);
 
     private String[] toolIdArray;
     private GradebookFrameworkService gradebookFrameworkService;
@@ -100,7 +100,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 			try {
 				gradebookFrameworkService.deleteGradebook(context);
 			} catch (GradebookNotFoundException e) {
-				if (log.isWarnEnabled()) log.warn(e);
+				log.warn(e.getMessage());
 			}
 		}
 	}

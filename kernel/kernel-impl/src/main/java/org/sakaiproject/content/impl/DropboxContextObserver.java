@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -47,7 +47,7 @@ import org.w3c.dom.Element;
 public class DropboxContextObserver implements EntityProducer, ContextObserver
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DropboxContextObserver.class);
+	private static Logger M_log = LoggerFactory.getLogger(DropboxContextObserver.class);
 	
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "dropbox";

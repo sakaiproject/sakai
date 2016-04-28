@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.ImportedGroup;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
@@ -43,7 +43,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  */
 public class GroupImportStep2Producer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter, ActionResultInterceptor {
 
-	private static Log M_log = LogFactory.getLog(GroupImportStep2Producer.class);
+	private static Logger M_log = LoggerFactory.getLogger(GroupImportStep2Producer.class);
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupImportStep2";
     public MessageLocator messageLocator;

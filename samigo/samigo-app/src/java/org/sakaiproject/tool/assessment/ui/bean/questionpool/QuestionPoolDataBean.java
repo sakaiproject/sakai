@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.util.FormattedText;
 
@@ -68,7 +68,7 @@ public class QuestionPoolDataBean
   private Date dateCreated;
 
 
-  private static Log log = LogFactory.getLog(QuestionPoolDataBean.class);
+  private static Logger log = LoggerFactory.getLogger(QuestionPoolDataBean.class);
 
   private Map parentPools = new HashMap();
   private ArrayList parentPoolsArray = new ArrayList();

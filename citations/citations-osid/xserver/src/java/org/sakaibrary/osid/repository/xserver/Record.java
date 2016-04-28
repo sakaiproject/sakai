@@ -21,17 +21,16 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class Record
 implements org.osid.repository.Record
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.Record" );
-	
     private java.util.Vector partVector = new java.util.Vector();
     private org.osid.id.IdManager idManager = null;
     private org.osid.shared.Id recordStructureId = null;
@@ -62,7 +61,7 @@ implements org.osid.repository.Record
         }
         catch (Throwable t)
         {
-            LOG.warn(t.getMessage());
+            log.warn(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -79,7 +78,7 @@ implements org.osid.repository.Record
         }
         catch (Throwable t)
         {
-            LOG.warn(t.getMessage());
+            log.warn(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -102,7 +101,7 @@ implements org.osid.repository.Record
         }
         catch (Throwable t)
         {
-            LOG.warn(t.getMessage());
+            log.warn(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }
@@ -135,7 +134,7 @@ implements org.osid.repository.Record
         }
         catch (Throwable t)
         {
-            LOG.warn(t.getMessage());
+            log.warn(t.getMessage());
             throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
         }
     }

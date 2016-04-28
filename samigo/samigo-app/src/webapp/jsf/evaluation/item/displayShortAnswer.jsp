@@ -27,9 +27,15 @@ include file for displaying short answer essay questions
 <h:outputText value="#{question.text}"  escape="false"/>
 <h:panelGroup rendered="#{questionScores.haveModelShortAnswer}">
 <h:outputText value="#{evaluationMessages.model}"  escape="false"/>
-<h:outputLink title="#{evaluationMessages.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswerQS.faces?idString=#{question.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('modelShortAnswerQS.faces?idString=#{question.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-<h:outputText  value=" #{evaluationMessages.click_here}"/>
-</h:outputLink>
+<h:dataTable value="#{question.itemTextArray}" var="itemText">
+    <h:column>
+        <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+            <h:column>
+                <h:outputText escape="false" value="#{answer.text}"/>
+            </h:column>
+        </h:dataTable>
+    </h:column>
+</h:dataTable>
 </h:panelGroup>
 </h:panelGrid>
 

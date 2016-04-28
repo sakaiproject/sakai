@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -35,7 +35,7 @@ public class MessageForumsEntityContentProducer implements
 		EntityContentProducer, PortalUrlEnabledProducer {
 
 	
-	private static Log log = LogFactory.getLog(MessageForumsEntityContentProducer.class);
+	private static Logger log = LoggerFactory.getLogger(MessageForumsEntityContentProducer.class);
 	
 	// runtime dependency
 	private List addEvents = null;
@@ -364,10 +364,7 @@ public class MessageForumsEntityContentProducer implements
 			if (toolName.equals(prefix))
 				return true;
 		} catch (Exception e) {
-			log.warn("unable to parse reference: " + reference +", " + e);
-			if (log.isDebugEnabled()) {
-				log.debug(e);
-			}
+			log.warn("unable to parse reference: {}", reference, e);
 		}
 		return false;
 	}

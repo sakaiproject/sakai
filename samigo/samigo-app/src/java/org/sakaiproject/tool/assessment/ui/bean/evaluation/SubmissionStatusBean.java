@@ -32,8 +32,8 @@ import java.util.Iterator;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
@@ -76,7 +76,7 @@ public class SubmissionStatusBean
   private String totalPeople;
   private String firstItem;
   private HashMap answeredItems;
-  private static Log log = LogFactory.getLog(SubmissionStatusBean.class);
+  private static Logger log = LoggerFactory.getLogger(SubmissionStatusBean.class);
   
   //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;

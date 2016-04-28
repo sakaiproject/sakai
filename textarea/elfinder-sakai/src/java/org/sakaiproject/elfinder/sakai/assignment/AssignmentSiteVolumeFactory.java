@@ -1,8 +1,8 @@
 package org.sakaiproject.elfinder.sakai.assignment;
 
 import cn.bluejoe.elfinder.service.FsItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
 
-    private static final Log LOG = LogFactory.getLog(AssignmentSiteVolumeFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AssignmentSiteVolumeFactory.class);
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
 

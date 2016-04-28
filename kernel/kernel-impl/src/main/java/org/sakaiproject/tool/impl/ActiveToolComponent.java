@@ -44,8 +44,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -69,7 +69,7 @@ import org.w3c.dom.NodeList;
 public abstract class ActiveToolComponent extends ToolComponent implements ActiveToolManager
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(ActiveToolComponent.class);
+	private static Logger M_log = LoggerFactory.getLogger(ActiveToolComponent.class);
 
 	public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
 	static final String TOOL_CATEGORIES_PREFIX = "tool.categories.";

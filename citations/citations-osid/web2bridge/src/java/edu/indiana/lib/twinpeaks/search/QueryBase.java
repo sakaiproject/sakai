@@ -23,6 +23,7 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
 
 /**
@@ -33,9 +34,8 @@ import org.w3c.dom.*;
  * and implement appropriate methods.  See HttpTransactionQueryBase.java
  * for an example.
  */
+@Slf4j
 public abstract class QueryBase implements QueryInterface {
-
-	private static org.apache.commons.logging.Log	_log 	= LogUtils.getLog(QueryBase.class);
   /*
    * Request parameters
    */

@@ -32,8 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
@@ -85,7 +85,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
 public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP, AuthenticationIdUDP
 {
 	/** Our log (commons). */
-	private static Log m_logger = LogFactory.getLog(FilterUserDirectoryProvider.class);
+	private static Logger m_logger = LoggerFactory.getLogger(FilterUserDirectoryProvider.class);
 
 	private static ThreadLocal authenticatedProvider = new ThreadLocal();
 

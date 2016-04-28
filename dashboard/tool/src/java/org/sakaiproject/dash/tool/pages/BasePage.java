@@ -21,7 +21,8 @@
 
 package org.sakaiproject.dash.tool.pages;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -54,7 +55,7 @@ import org.sakaiproject.dash.app.SakaiProxy;
  */
 public class BasePage extends WebPage implements IHeaderContributor {
 
-	private static final Logger logger = Logger.getLogger(BasePage.class); 
+	private static final Logger logger = LoggerFactory.getLogger(BasePage.class); 
 	
 	@SpringBean(name="org.sakaiproject.dash.app.SakaiProxy")
 	protected SakaiProxy sakaiProxy;

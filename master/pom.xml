@@ -83,7 +83,6 @@
     <!-- Standard dependency versions -->
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.4</sakai.commons.lang3.version>
-    <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.fileupload.version>1.3.1</sakai.commons.fileupload.version>
     <sakai.commons-math.version>2.2</sakai.commons-math.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
@@ -96,7 +95,7 @@
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
     <sakai.jts.version>1.13</sakai.jts.version>
-    <sakai.lombok.version>1.12.6</sakai.lombok.version>
+    <sakai.lombok.version>1.16.8</sakai.lombok.version>
     <sakai.jackson.version>2.3.5</sakai.jackson.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -120,7 +119,7 @@
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
-    <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
+    <sakai.slf4j.version>1.7.21</sakai.slf4j.version>
     <sakai.poi.version>3.14</sakai.poi.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.9.3</joda.time.version>
@@ -361,30 +360,6 @@
         <version>2.0.2</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>${sakai.log4j.version}</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.jms</groupId>
-            <artifactId>jms</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jdmk</groupId>
-            <artifactId>jmxtools</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jmx</groupId>
-            <artifactId>jmxri</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
       <!-- shared/lib -->
       <!-- 3rd party APIs/Implementations -->
       <dependency>
@@ -521,19 +496,13 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.4</version>
+        <version>2.5</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>${sakai.commons.lang.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>1.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -547,6 +516,21 @@
         <artifactId>commons-codec</artifactId>
         <version>1.8</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.7.0</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-digester</groupId>
+        <artifactId>commons-digester</artifactId>
+        <version>1.8</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-validator</groupId>
+        <artifactId>commons-validator</artifactId>
+        <version>1.5.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -585,18 +569,73 @@
         <scope>provided</scope>
       </dependency>
       <!-- needed by Ehcache (and jackrabbit) -->
+      <!-- Logging Dependencies Start -->
+      <dependency>
+        <!-- slf4j-api is required by any project that needs logging -->
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${sakai.slf4j.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- slf4j-log4j12 binds slf4j to log4j impl, this can be changed to another logging impl-->
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
+      <!-- log4j is the actual logger used by slf4j, this would be removed if using a different logging impl -->
+      <!-- change to scope runtime once all sakai log4j code is switched to slf4j -->
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${sakai.log4j.version}</version>
+        <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.jms</groupId>
+            <artifactId>jms</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.jdmk</groupId>
+            <artifactId>jmxtools</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.jmx</groupId>
+            <artifactId>jmxri</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>apache-log4j-extras</artifactId>
+        <version>${sakai.log4j.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <!-- jcl-over-slf4j is providing the redirection from jcl to slf4j -->
+      <!-- change to scope runtime once all sakai jcl code is switched to slf4j -->
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
+        <artifactId>jcl-over-slf4j</artifactId>
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
+      <!-- JCL (commons-logging) is declared here as provided, it is important to
+           know that this jar is never deployed. The contrary would be to remove this
+           declaration and find every transitive dependency and exclude jcl.
+           It also provides protection if someone included a new dependency that
+           required jcl of which there are a lot. -->
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>[1.0,1.2]</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- Logging Dependencies End -->
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -732,6 +771,14 @@
           <exclusion>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-debug-all</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -955,12 +1002,6 @@
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
         <version>${sakai.groovy.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>apache-log4j-extras</artifactId>
-        <version>${sakai.log4j.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Sakai apis -->
@@ -1552,11 +1593,10 @@
         <version>4.11</version>
       </dependency>
       <dependency>
-        <!-- To keep make it easy to update all tool versions -->
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
         <version>${sakai.lombok.version}</version>
-        <scope>provided</scope><!-- Lombok only needed at build time -->
+        <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>mysql</groupId>
@@ -1571,13 +1611,32 @@
     </dependencies>
   </dependencyManagement>
 
-  <!-- unit tests are a global dependency -->
+  <!-- Global Dependencies -->
+  <!-- should never need to override these in your project -->
   <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <!-- inherited version>4.11</version -->
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -1721,7 +1780,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
+          <version>2.19.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1813,7 +1872,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>2.18.1</version>
         </plugin>
         <plugin>
           <groupId>net.sourceforge.maven-taglib</groupId>
@@ -1904,7 +1962,7 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
+        <version>3.5.1</version>
         <configuration>
           <!-- <compilerArguments> <verbose /> </compilerArguments> -->
           <source>${sakai.jdk.version}</source>
@@ -1935,6 +1993,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
+            <!-- disable lombok during tests -->
+	    <lombok.disable>true</lombok.disable>
             <!-- Pass through important service-integration test properties. -->
             <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
             <!--suppress MavenModelInspection -->

@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -30,7 +30,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 public class AttachmentUtil {
 
-	private static Log log = LogFactory.getLog(AttachmentUtil.class);
+	private static Logger log = LoggerFactory.getLogger(AttachmentUtil.class);
 
 	public AttachmentUtil() {}
 

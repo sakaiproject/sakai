@@ -48,8 +48,8 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.exception.PodcastException;
@@ -387,7 +387,7 @@ public class podHomeBean {
 	private PodcastService podcastService;
 	private PodcastPermissionsService podcastPermissionsService;
 
-	private Log LOG = LogFactory.getLog(podHomeBean.class);
+	private Logger LOG = LoggerFactory.getLogger(podHomeBean.class);
 
 	// variables to hold miscellanous information
 	private List contents;

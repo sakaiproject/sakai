@@ -21,8 +21,8 @@
 
 package org.sakaiproject.component.privacy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -53,7 +53,7 @@ import java.util.Map.Entry;
 
 public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyManager, AuthzGroupAdvisor
 {
-	private static Log log = LogFactory.getLog(PrivacyManagerImpl.class);
+	private static Logger log = LoggerFactory.getLogger(PrivacyManagerImpl.class);
 	
 	private static final String QUERY_BY_USERID_CONTEXTID_TYPEID = "findPrivacyByUserIdContextIdType";
 	private static final String QUERY_BY_DISABLED_USERID_CONTEXTID = "findDisabledPrivacyUserIdContextIdType";

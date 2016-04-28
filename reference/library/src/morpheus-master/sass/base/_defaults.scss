@@ -103,7 +103,20 @@ input[type="checkbox"], input[type="radio"]{
 	&:checked{
 		border: 1px solid #60b3e3;
 	}
+	//SAK-30977
+	&[disabled],&[disabled="disabled"],&[disabled="true"]{
+		opacity: 0.8;
+		& + label{
+			color: lighten($text-color, 10%);
+		}
+	}
 }
+
+label.disabled{
+	color: lighten($text-color, 10%);
+	cursor: not-allowed;
+}
+
 input[type="checkbox"]{
 	@include border-radius(3px);
 	&:checked{
@@ -175,6 +188,5 @@ button[class="disabled"]:hover,
 }
 
 ul, ol {
-    list-style: none;
-    padding: 0 0 0 0;
+    padding: 0 0 0 1.5em;
 }

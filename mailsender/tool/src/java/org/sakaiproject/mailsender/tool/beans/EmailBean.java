@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.exception.IdUnusedException;
@@ -54,7 +54,7 @@ public class EmailBean
 	public static final String EMAIL_CANCELLED = "emailCancelled";
 
 	private Map<String, MultipartFile> multipartMap;
-	private final Log log = LogFactory.getLog(EmailBean.class);
+	private final Logger log = LoggerFactory.getLogger(EmailBean.class);
 	private ComposeLogic composeLogic;
 	private ConfigLogic configLogic;
 	private ExternalLogic externalLogic;
@@ -260,7 +260,7 @@ public class EmailBean
 		catch (MailsenderException me)
 		{
 			//Print this exception
-			log.warn(me);
+			log.warn(me.getMessage());
 			messages.clear();
 			List<Map<String, Object[]>> msgs = me.getMessages();
 			if (msgs != null)

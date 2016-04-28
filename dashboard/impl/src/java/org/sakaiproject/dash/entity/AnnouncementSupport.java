@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
@@ -68,7 +68,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class AnnouncementSupport{
 	
-	private Log logger = LogFactory.getLog(AnnouncementSupport.class);
+	private Logger logger = LoggerFactory.getLogger(AnnouncementSupport.class);
 	
 	private String ANNOUNCEMENT_TOOL_ID ="sakai.announcements";
 	
@@ -501,14 +501,10 @@ public class AnnouncementSupport{
 		 */
 		public void processEvent(Event event) {
 			
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement new: create news links and news item for " + event.getResource());
-			}
-			
+			logger.debug("\n\n\n============================================================\n{}\n=============================================================\n\n\n",
+					event.toString());
+			logger.debug("Announcement new: create news links and news item for {}", event.getResource());
+
 			String eventId = event.getEvent();
 			
 			Entity entity = sakaiProxy.getEntity(event.getResource());
@@ -517,12 +513,7 @@ public class AnnouncementSupport{
 				createUpdateDashboardItemLinks(event, annc);
 			
 			} else {
-				// for now, let's log the error
-				StringBuilder buf = new StringBuilder();
-				buf.append(eventId);
-				buf.append(" is not processed for entityReference ");
-				buf.append(event.getResource());
-				logger.info(buf);
+				logger.info("{} is not processed for entityReference {}", eventId, event.getResource());
 			}
 		}
 	}
@@ -545,19 +536,12 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement remove any: removing news links and news item for " + event.getResource());
-			}
+			logger.debug("\n\n\n============================================================\n{}\n=============================================================\n\n\n",
+					event.toString());
+			logger.debug("Announcement remove any: removing news links and news item for {}", event.getResource());
 			dashboardLogic.removeNewsItem(event.getResource());
 			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement remove any: removing calendar links and news item for " + event.getResource());
-			}
+			logger.debug("Announcement remove any: removing calendar links and news item for {}", event.getResource());
 			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 	}
@@ -579,19 +563,12 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement remove own: removing news links and news item for " + event.getResource());
-			}
+			logger.debug("\n\n\n============================================================\n{}\n=============================================================\n\n\n",
+					event.toString());
+			logger.debug("Announcement remove own: removing news links and news item for {}", event.getResource());
 			dashboardLogic.removeNewsItem(event.getResource());
 			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement remove own: removing calendar links and news item for " + event.getResource());
-			}
+			logger.debug("Announcement remove own: removing calendar links and news item for {}", event.getResource());
 			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 	}
@@ -613,14 +590,9 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(logger.isDebugEnabled()) {
-				logger.debug("removing calendar links and calendar item for " + event.getResource());
-			}
+			logger.debug("\n\n\n============================================================\n{}\n=============================================================\n\n\n",
+					event.toString());
+			logger.debug("removing calendar links and calendar item for {}", event.getResource());
 			// clean the threadlocal cache
 			m_threadLocalManager.set(event.getResource(), null);
 			Entity entity = sakaiProxy.getEntity(event.getResource());
@@ -644,10 +616,7 @@ public class AnnouncementSupport{
 				dashboardLogic.reviseCalendarItemsTitle(annc.getReference(), title);
 			}
 			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement update title: update news links and news item for " + event.getResource());
-			}
-
+			logger.debug("Announcement update title: update news links and news item for {}", event.getResource());
 		}
 
 	}
@@ -669,14 +638,9 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(logger.isDebugEnabled()) {
-				logger.debug("removing calendar links and calendar item for " + event.getResource());
-			}
+			logger.debug("\n\n\n============================================================\n{}\n=============================================================\n\n\n",
+					event.toString());
+			logger.debug("removing calendar links and calendar item for {}", event.getResource());
 			// clean the threadlocal cache
 			m_threadLocalManager.set(event.getResource(), null);
 			Entity entity = sakaiProxy.getEntity(event.getResource());
@@ -691,12 +655,8 @@ public class AnnouncementSupport{
 				dashboardLogic.updateCalendarLinks(anncReference);
 			}
 			
-			if(logger.isDebugEnabled()) {
-				logger.debug("removing news links and news item for " + event.getResource());
-			}
-
+			logger.debug("removing news links and news item for {}", event.getResource());
 		}
-
 	}
 	
 	/**
@@ -716,16 +676,10 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
+			logger.debug("\n\n\n============================================================\n{}\n=============================================================\n\n\n",
+					event.toString());
+			logger.debug("removing calendar links and calendar item for {}", event.getResource());
 
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-
-			if(logger.isDebugEnabled()) {
-				logger.debug("removing calendar links and calendar item for " + event.getResource());
-			}
-			
 			String entityReference = event.getResource();
 			m_threadLocalManager.set(entityReference, null);
 			Entity entity = sakaiProxy.getEntity(entityReference);
@@ -740,10 +694,7 @@ public class AnnouncementSupport{
 					createUpdateDashboardItemLinks(event, annc);
 				} 
 			}
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement update availability: update  news links and news item for " + entityReference);
-			}
+			logger.debug("Announcement update availability: update  news links and news item for {}", entityReference);
 		}
 	}
 	
@@ -764,15 +715,10 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement update own:" + event.getResource());
-			}
-			
+			logger.debug("\n\n\n============================================================\n{}\n=============================================================\n\n\n",
+					event.toString());
+			logger.debug("Announcement update own: {}", event.getResource());
+
 			// update NewsItem Title and title
 			EntitySupportUtil.updateNewsItemTimeTitle(event);
 		}
@@ -795,11 +741,8 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Announcement update any:" + event.getResource());
-			}
-			
+			logger.debug("Announcement update any: {}", event.getResource());
+
 			// update NewsItem Title and title
 			EntitySupportUtil.updateNewsItemTimeTitle(event);
 		}

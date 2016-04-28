@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -35,13 +34,13 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import au.com.bytecode.opencsv.CSVWriter;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Created by chmaurer on 1/22/15.
  */
+@CommonsLog
 public class GradeImportUploadStep extends Panel {
-
-	private static final Logger log = Logger.getLogger(GradeImportUploadStep.class);
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel",
@@ -193,6 +192,7 @@ public class GradeImportUploadStep extends Panel {
 						importWizardModel.setProcessedGradeItems(processedGradeItems);
 						final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId,
 								Model.of(importWizardModel));
+
 						newPanel.setOutputMarkupId(true);
 						GradeImportUploadStep.this.replaceWith(newPanel);
 
@@ -210,7 +210,7 @@ public class GradeImportUploadStep extends Panel {
 	/**
 	 * Create a map so that we can use the user's eid (from the imported file) to lookup their uuid (used to store the grade by the backend
 	 * service)
-	 * 
+	 *
 	 * @param grades
 	 * @return Map where the user's eid is the key and the uuid is the value
 	 */

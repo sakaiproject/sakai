@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.site.api.Group;
@@ -58,7 +58,7 @@ public class GroupDelProducer
 implements ViewComponentProducer, ActionResultInterceptor{
     
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(GroupDelProducer.class);
+	private static Logger M_log = LoggerFactory.getLogger(GroupDelProducer.class);
 	
     public static final String VIEW_ID = "GroupDel";
     public MessageLocator messageLocator;
