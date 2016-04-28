@@ -171,7 +171,7 @@
 }
 
 .roster-last-visit-time-cell {
-    font-size: 0.8em;
+    font-size: 0.9em;
 }
 
 #roster_content{
@@ -184,9 +184,6 @@
 
 /* Table display for large screen sizes */
 @media only screen and (min-width: 800px) and (max-width: 1100px) {
-	.roster-member {
-		font-size: 0.75em;
-	}
 	.roster-groups-selector {
 		max-width: 100px !important;		
 	}
@@ -194,7 +191,7 @@
 @media only screen and (min-width: 800px) {
 	.rosterPicture {
 		border:0px none;
-		max-width:95%;
+		max-width:100%;
 		max-height:auto;
 		position: relative;
   		top: 3px;
@@ -218,6 +215,13 @@
 	  	margin: 0 0 0 -21px;
 	}
 	
+	.rosterActions .icon.connection-request {
+		background-position: center right;
+	    background-repeat: no-repeat;
+	    padding-right: 18px;
+	    font-size: 0.95em;
+	}
+	
 	#roster-members {
 	    display: block;
 	}
@@ -228,8 +232,12 @@
 	    -moz-border-radius: 0px;
 	    -webkit-border-radius: 0px;
 	    border-radius: 0px;
-	    padding: 3px;
-	    margin-bottom: 3px;
+	    padding: 5px;
+	    margin-bottom: 0;
+	}
+
+	.roster-member:nth-child(even){
+		background: #F5F5F5;
 	}
 	
 	.roster-picture {
@@ -249,7 +257,8 @@
 	
 	.roster-table-row {
 	    display: inline-block;
-	    width: 9%;
+	    width: 10%;
+	    vertical-align: top;
 	}
 	
 	.roster-member:first-child .roster-table-row .roster-table-cell:first-child {
@@ -260,7 +269,13 @@
   		border-bottom: 1px solid;
   	}
 	
-	.roster-member:first-child .roster-picture, .roster-member:first-child .rosterActions {
+	.roster-member:first-child .roster-picture {
+		padding-top: 30px;
+		position: relative;
+		top: 0;
+	}
+	
+	.roster-member:first-child .rosterActions {
 		padding-top: 30px;
 		position: relative;
 		top: 4px;
@@ -269,16 +284,33 @@
 	.roster-table-cell {
 	    display: inline-block;
 	    vertical-align: middle;
-        font-size: 0.8em;
 	}
 	
 	.roster-table-cell:first-child {
 	    display: none;
+	    max-width: 100%;
+	    overflow: hidden;
+	    white-space: nowrap;
+	    text-overflow: ellipsis;
 	}
 	
 	.roster-table-row:first-child {
 	    display: inline-block;
-	    width: 40%;
+	    width: 35%;
+	}
+	.roster-table-row:nth-child(2) {
+		display: inline-block;
+		width: 17%;	
+	}
+	.roster-table-row:nth-child(2) .roster-table-cell{
+		max-width: 100%;
+	}
+	.roster-table-row:nth-child(2) a.profile{
+		display: block;
+		max-width: 100%;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 	
 	.roster-groups-selector {
@@ -288,8 +320,5 @@
 	}
     .roster-last-visit-time {
         width: 12%;
-    }
-    .roster-last-visit-time-cell {
-        font-size: 0.7em;
     }
 }
