@@ -251,6 +251,7 @@ public class GradebookPage extends BasePage {
 		cols.add(studentNameColumn);
 
 		// course grade column
+		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
 		final AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
 			@Override
 			public Component getHeader(final String componentId) {
@@ -280,6 +281,7 @@ public class GradebookPage extends BasePage {
 				modelData.put("gradebook", gradebook);
 				modelData.put("showPoints", settings.getShowPoints());
 				modelData.put("showOverride", true);
+				modelData.put("courseGradeVisible", courseGradeVisible);
 
 				cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.setOutputMarkupId(true);
