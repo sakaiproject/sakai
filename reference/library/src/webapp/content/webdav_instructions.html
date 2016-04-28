@@ -90,6 +90,9 @@
 			if (p.className=='webDavFolderUrlEncoded') {
 				p.innerHTML=getFolderUrlEncoded();
 			}
+			if (p.className=='webDavGnomeUrl') {
+				p.innerHTML=getGnomeUrl();
+			}
 		}
 	}
 	function getBaseUrlEncoded() {
@@ -122,6 +125,10 @@
 		else {
 			return swdl[2];
 		}
+	}
+	function getGnomeUrl() {
+		// replace http by dav
+		return 'dav'+$(parent.document.getElementById("webDavUrl")).val().substring(4);
 	}
 	
 		// -->
@@ -272,10 +279,27 @@
             </p>
         </div>
         <div id="instr-linux">
-            <h4>Setting up WebDAV for Linux (Gnome)</h4>
+        <h4>Setting up WebDAV for Linux (Gnome)</h4>
+
+            <ol>
+                <li>
+                    Go to <b>Files &gt; Connect to Server...</b>
+                </li>
+                <li>
+                    In <b>Server adress</b>, type (or copy and paste) the URL: <b><em><span class="webDavGnomeUrl">davs://xxxx/dav/xxxx</span></em></b>
+                </li>                
+                <li>
+                    Now click on <b>Connect</b>.
+                </li>
+                <li>
+                    Finally, you will be asked to supply your password.
+                </li>
+            </ol>
             <p>
-                <strong>Note</strong>: Some versions of Linux might have problems accessing My Workspace's resources, but the access to all other sites types will work fine (course, project, etc.).
+                You will now see a new drive under <b>Files</b>. This represents the resources in your site. It will act like any other folder on your computer. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.
             </p>
+            <h4>Setting up WebDAV for Linux (Gnome) older versions</h4>
+
             <ol>
                 <li>
                     Go to <b>Places &gt; Connect to Server...</b>
@@ -310,9 +334,7 @@
                 You will now see a new drive under <b>Places</b>. This represents the resources in your site. It will act like any other folder on your computer. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.
             </p>
             <h4>Setting up WebDAV for Linux (KDE)</h4>
-            <p>
-                <strong>Note</strong>: There are some versions of Linux that might have problems accessing My Workspace's resources, but the access to all other sites types will work fine (course, project, etc.).
-            </p>
+
             <ol>
                 <li>
                     Open the file manager <em>(Dolphin)</em>.
