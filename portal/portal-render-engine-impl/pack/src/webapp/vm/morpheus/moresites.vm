@@ -32,9 +32,9 @@
         <div id="selectSite">
             <!-- View all sites, add new site, preferences -->
             <ul class="tab-bar">
-                <li class="tab-btn active" data-tab-target="otherSitesCategorWrap">${rloader.sit_worksites}</li>
+                <li class="tab-btn active" data-tab-target="otherSitesCategorWrap"><h2 class="favorites-tab-label">${rloader.sit_worksites}</h2></li>
                 <li class="organizeFavorites tab-btn" data-tab-target="organizeFavorites">
-                    <span class="favorites-desktop">${rloader.moresite_organize_favorites}</span><span class="favorites-mobile">${rloader.moresite_favorites}</span> <span class="favoriteCount"></span></li>
+                    <h2 class="favorites-tab-label"><span class="favorites-desktop">${rloader.moresite_organize_favorites}</span><span class="favorites-mobile">${rloader.moresite_favorites}</span> <span class="favoriteCount"></span></h2></li>
             </ul>
 
             <div class="tab-pane">
@@ -70,9 +70,9 @@
                             #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
                                 <div class="fav-sites-term">
                                     #if ( !$termKey || $termKey == "" )
-                                        <h4>${rloader.sit_notermkey}</h4>
+                                        <h3 class="favorites-term-header">${rloader.sit_notermkey}</h3>
                                     #else
-                                        <h4>$termKey</h4>
+                                        <h3 class="favorites-term-header">$termKey</h3>
                                     #end
 
                                     <ul class="otherSitesCategorList favoriteSiteList">
@@ -90,7 +90,7 @@
                             #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
                                 <div class="fav-sites-term">
                                     #if ( $termKey && $termKey != "" )
-                                        <h4>$termKey</h4>
+                                        <h3 class="favorites-term-header">$termKey</h3>
 
                                         <ul class="otherSitesCategorList favoriteSiteList">
                                             <!-- anchor "my workspace" to the top of the list -->
