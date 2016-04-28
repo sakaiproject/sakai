@@ -73,10 +73,6 @@ body.active-more-sites{
 }
 
 #selectSite{
-	h4{
-		font-size: 1.8em;
-  		margin: 1.5em 0 0.6em 0;
-	}
 	.tab-pane{
 		overflow-y: auto;
 		overflow-x: hidden;
@@ -120,11 +116,24 @@ body.active-more-sites{
 		z-index: 2;
 	}
 
+
+	.tab-bar .favorites-tab-label {
+		font-weight: $default-font-weight;
+		font-size: $default-font-size;
+		margin: 0.2em;
+	}
+
+
         #selectSite-navbar{
 		overflow: hidden;
 		margin: 0;
 		padding: 0;
         }
+
+	.favorites-term-header {
+		font-size: 1.8em;
+  		margin: 1.5em 0 0.6em 0;
+	}
 }
 
 ul#otherSitesMenu{
@@ -172,7 +181,7 @@ ul#otherSitesMenu{
 			width: 100%;
 			float: none;
 		}
-		.fav-sites-term:first-child h4{
+		.fav-sites-term:first-child .favorites-term-header{
 			margin-top: 0;
 		}
 	}
@@ -184,7 +193,7 @@ ul#otherSitesMenu{
 			width: 100%;
 			float: none;
 		}
-		.fav-sites-term:first-child h4{
+		.fav-sites-term:first-child .favorites-term-header{
 			margin-top: 0;
 		}
 	}
