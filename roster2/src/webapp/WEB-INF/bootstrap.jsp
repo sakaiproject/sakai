@@ -23,9 +23,10 @@
       xml:lang="${language}"
       lang="${language}">
     <head>
-        <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
-        <link rel="stylesheet" type="text/css" href="/sakai-roster2-tool/css/roster.css" />
-        <link rel="stylesheet" type="text/css" href="/library/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" />
+        <link rel="stylesheet" media="screen, tty, tv, handheld, projection" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
+        <link rel="stylesheet" media="screen, tty, tv, handheld, projection" type="text/css" href="/sakai-roster2-tool/css/roster.css" />
+        <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css" />
+        <link rel="stylesheet" media="screen, tty, tv, handheld, projection" type="text/css" href="/library/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" />
 
         <script type="text/javascript">
 
