@@ -296,8 +296,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			UIOutput.make(tofill, "return-div");
 
 			String currentToolTitle = simplePageBean.getPageTitle();
-			String returnText = messageLocator.getMessage("simplepage.return").replace("{0}", currentToolTitle);
-			UIInternalLink.make(tofill, "return", returnText, view);
+			String returnText = messageLocator.getMessage("simplepage.return").replace("{}", currentToolTitle);  
+			UIInternalLink.make(tofill, "return", returnText, view);  
 
 			UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.index"));
 		} else {
