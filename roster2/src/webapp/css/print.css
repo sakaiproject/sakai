@@ -1,0 +1,104 @@
+#skipNav, .Mrphs-mainHeader, #toolMenuWrap, #footer, #selectSiteModal{
+	display: none !important;
+}
+
+
+.roster-groups-selector {
+	max-width: 100px !important;		
+}
+
+.rosterPicture {
+	border:0px none;
+	max-width:95%;
+	max-height:auto;
+	position: relative;
+		top: 3px;
+		right: 3px;
+	}
+
+.rosterActions {
+	display: inline;
+	float: right;
+	margin-top:0;
+}
+
+.rosterActions .connection-add a, .rosterActions .connection-self {
+	width: 24px;
+  	height: 24px;
+  	overflow: hidden;
+  	display: inline-block;
+  	text-indent: 11000px;
+  	/*background: rgba(255,0,0,0.1); */
+  	position: absolute;
+  	margin: 0 0 0 -21px;
+}
+
+#roster-members {
+    display: block;
+}
+
+.roster-member {
+    border-width: 0px;
+    border-bottom: 1px solid #F0F0F0;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+    padding: 3px;
+    margin-bottom: 3px;
+}
+
+.roster-picture {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+}
+
+.roster-info {
+    float: none;
+}
+
+.roster-table {
+    display: inline;
+}
+
+.roster-table-row {
+    display: inline-block;
+}
+
+.roster-member:first-child .roster-table-row .roster-table-cell:first-child {
+	display: block;
+	font-weight: bold;
+		margin-bottom: 5px;
+		padding-bottom: 5px;
+		border-bottom: 1px solid;
+	}
+
+.roster-member:first-child .roster-picture, .roster-member:first-child .rosterActions {
+	padding-top: 30px;
+	position: relative;
+	top: 4px;
+}
+
+.roster-table-cell {
+    display: inline-block;
+    vertical-align: middle;
+    
+}
+
+.roster-table-cell:first-child {
+    display: none;
+}
+
+.roster-table-row:first-child {
+    display: inline-block;
+}
+
+.roster-groups-selector {
+	padding: 0px;
+	max-width: 200px;
+}
+.roster-last-visit-time {
+}
+.roster-last-visit-time-cell {
+    
+}
