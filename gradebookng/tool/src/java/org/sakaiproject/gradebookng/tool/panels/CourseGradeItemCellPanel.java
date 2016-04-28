@@ -15,9 +15,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Panel that is rendered for each student's course grade
@@ -52,10 +55,16 @@ public class CourseGradeItemCellPanel extends Panel {
 		// gradebook
 		// showPoints
 		// showOverride
+		// courseGradeVisible
 		final Map<String, Object> modelData = this.model.getObject();
 		final String courseGradeDisplay = (String) modelData.get("courseGradeDisplay");
 		final String studentUuid = (String) modelData.get("studentUuid");
-		final GbRole role = this.businessService.getUserRole();
+
+		final GbRole role = (GbRole) modelData.get("currentUserRole");
+		final Gradebook gradebook = (Gradebook) modelData.get("gradebook");
+		final boolean courseGradeVisible = (boolean) modelData.get("courseGradeVisible");
+		final boolean showPoints = (boolean) modelData.get("showPoints");
+		final boolean showOverride = (boolean) modelData.get("showOverride");
 
 		// the model map contains a lot of additional info we need for the course grade label, this is passed through
 
@@ -74,7 +83,9 @@ public class CourseGradeItemCellPanel extends Panel {
 					// TODO is this check ever not satisfied now that this has been refactroed?
 					if (StringUtils.equals(studentUuid, scoreChangedEvent.getStudentUuid())) {
 
-						setDefaultModel(Model.of(refreshCourseGrade()));
+						final String newCourseGradeDisplay = refreshCourseGrade(studentUuid, gradebook, role, courseGradeVisible,
+								showPoints, showOverride);
+						setDefaultModel(Model.of(newCourseGradeDisplay));
 
 						scoreChangedEvent.getTarget().add(this);
 						scoreChangedEvent.getTarget().appendJavaScript(
@@ -85,6 +96,7 @@ public class CourseGradeItemCellPanel extends Panel {
 
 		};
 		courseGradeLabel.setOutputMarkupId(true);
+		courseGradeLabel.setEscapeModelStrings(false);
 		add(courseGradeLabel);
 
 		// menu
@@ -139,14 +151,30 @@ public class CourseGradeItemCellPanel extends Panel {
 	}
 
 	/**
+	 *
 	 * Helper to refresh the course grade
 	 *
-	 * @param score
+	 * @param studentUuid
+	 * @param gradebook
+	 * @param role
+	 * @param courseGradeVisible
+	 * @param showPoints
+	 * @param showOverride
 	 * @return
 	 */
-	private String refreshCourseGrade() {
+	private String refreshCourseGrade(final String studentUuid, final Gradebook gradebook, final GbRole role,
+			final boolean courseGradeVisible, final boolean showPoints, final boolean showOverride) {
 
-		return "steve";
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				role,
+				courseGradeVisible,
+				showPoints,
+				showOverride);
+
+		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
+
+		return courseGradeFormatter.format(courseGrade);
 	}
 
 }

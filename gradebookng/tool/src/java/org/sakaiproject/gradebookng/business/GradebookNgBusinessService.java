@@ -1966,8 +1966,4 @@ public class GradebookNgBusinessService {
 		}
 	}
 
-	private String getCourseGradeDisplay() {
-
-		return null;
-	}
 }
