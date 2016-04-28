@@ -551,12 +551,12 @@ public class GradebookNgBusinessService {
 	 * Build the matrix of assignments, students and grades for all students, with the specified sortOrder
 	 *
 	 * @param assignments list of assignments
-	 * @param settings the UI settings. Wraps sort order and group filter (sort = null for no sort, filter = null for all groups)
+	 * @param uiSettings the UI settings. Wraps sort order and group filter (sort = null for no sort, filter = null for all groups)
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final GradebookUiSettings settings) throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers(settings.getGroupFilter()), settings);
+			final GradebookUiSettings uiSettings) throws GbException {
+		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
 	}
 
 	/**
@@ -564,13 +564,16 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param assignments list of assignments
 	 * @param studentUuids student uuids
-	 * @param settings the settings from the UI that wraps up preferences
+	 * @param uiSettings the settings from the UI that wraps up preferences
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final List<String> studentUuids, final GradebookUiSettings settings) throws GbException {
+			final List<String> studentUuids, final GradebookUiSettings uiSettings) throws GbException {
 
 		// TODO move GradebookUISettings to business
+
+		// settings could be null depending on constructor so it needs to be corrected
+		final GradebookUiSettings settings = (uiSettings != null) ? uiSettings : new GradebookUiSettings();
 
 		final StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
