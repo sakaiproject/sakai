@@ -76,8 +76,25 @@
 }
 .pasystem-banner-alert-toggle-list-item {
   position: absolute;
-  left: 10px; /* javascript will move if #roleSwitch link is present */
+  left: 50%;
+  transform: translateX(-50%);
   top: 13px;
+  border: 1px solid #E0E0E0;
+  z-index: 1000;
+  display: inline-block;
+
+  -webkit-transition: background-color 0.2s, color 0.2s;
+  -moz-transition: background-color 0.2s, color 0.2s;
+  -ms-transition: background-color 0.2s, color 0.2s;
+  -o-transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
+
+  background-color: #f7e084;
+  color: #000 !important;
+  text-align: center;
+  padding: 6px 8px;
+  border-radius: 3px;
+  text-decoration: none;
 }
 .pasystem-banner-alert-toggle:before {
   font-family: 'pasystem-icons';
@@ -188,4 +205,8 @@
   padding-right: 50px;
   position: relative;
   display: block;
+}
+
+.pasystem-body .alert li {
+  list-style: none;
 }
