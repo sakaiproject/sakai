@@ -715,6 +715,24 @@ CREATE TABLE lti_memberships_jobbbs (
 
 -- LSNBLDR-500
 alter table lesson_builder_pages add folder varchar(250);
+-- LSNBLDR-622
+alter table lesson_builder_items modify column name varchar(255);
+alter table lesson_builder_pages modify column title varchar(255);
+alter table lesson_builder_p_eval_results modify column gradee varchar(99) null;                                     
+alter table lesson_builder_p_eval_results modify column row_text varchar(255) null;                                  
+alter table lesson_builder_p_eval_results add column gradee_group varchar(99) null;
+alter table lesson_builder_p_eval_results add column row_id  bigint(20) default 0;
+-- sites new with 10 will already have this but it was missing in 10 conversion scripts
+alter table lesson_builder_groups modify column groups longtext;
+create table lesson_builder_ch_status (
+        checklistId bigint(20) not null,
+        checklistItemId bigint(20) not null,
+        owner varchar(99) not null,
+        done bit(1),
+        primary key (checklistId,checklistItemId,owner)
+ );
+create index lesson_builder_p_eval_res_row on lesson_builder_p_eval_results(page_id);
+create index lesson_builder_page_folder on lesson_builder_pages(siteId, folder);
 
 -- ------------------------------
 -- DASHBOARD                -----
