@@ -50,8 +50,12 @@
 			$tlang.getString("realm.role.functions")
 		</h4>	
 		#foreach ($lock in $allLocks)
-			<p class="checkbox"><input type="checkbox" name="locks" id="lock$velocityCount" value="$lock" #if($role.AllowedFunctions.contains($lock))checked="checked"#end />
-			<label for="lock$velocityCount">$lock</label></p> 
+			<div class="checkbox">
+				<label for="lock$velocityCount">
+					<input type="checkbox" name="locks" id="lock$velocityCount" value="$lock" #if($role.AllowedFunctions.contains($lock))checked="checked"#end />
+					$lock
+				</label>
+			</div>
 		#end
 		<h4>		
 			$tlang.getString("realm.role.continue")
