@@ -48,7 +48,7 @@ public class DeleteItemPanel extends Panel {
 
 				DeleteItemPanel.this.businessService.removeAssignment(assignmentIdToDelete);
 
-				getSession().info(MessageFormat.format(getString("delete.success"), assignmentTitle));
+				getSession().success(MessageFormat.format(getString("delete.success"), assignmentTitle));
 				setResponsePage(new GradebookPage());
 			}
 
