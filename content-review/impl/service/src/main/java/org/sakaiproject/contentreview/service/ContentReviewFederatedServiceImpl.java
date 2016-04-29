@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -39,12 +40,11 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
 /* This class is passed a list of providers in the bean as references, it will use the first
  * by default unless overridden by a site property.
  */
-@CommonsLog
+@Slf4j
 public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 
 	@Setter

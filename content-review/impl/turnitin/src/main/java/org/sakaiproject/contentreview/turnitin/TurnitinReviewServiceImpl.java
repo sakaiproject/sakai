@@ -35,6 +35,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -84,9 +85,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
-@CommonsLog
+@Slf4j
 public class TurnitinReviewServiceImpl implements ContentReviewService {
 
 	public static final String TURNITIN_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -561,9 +561,9 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 			try {
 				document = turnitinConn.callTurnitinReturnDocument(params);
 			} catch (TransientSubmissionException e) {
-				log.error(e);
+				log.error(e.getMessage());
 			} catch (SubmissionException e) {
-				log.warn("SubmissionException error. " + e);
+				log.warn("SubmissionException error. " + e.getMessage());
 			}
 			Element root = document.getDocumentElement();
 			if (((CharacterData) (root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim()
