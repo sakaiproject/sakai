@@ -17,7 +17,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
@@ -25,8 +24,8 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -58,12 +57,15 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		final String userId = (String) modelData.get("userId");
 
+		final GradebookPage gradebookPage = (GradebookPage) getPage();
+
 		// build the grade matrix for the user
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 
 		// TODO catch if this is null, the get(0) will throw an exception
 		// TODO also catch the GbException
-		this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
+		this.gradeInfo = this.businessService
+				.buildGradeMatrix(assignments, Collections.singletonList(userId), gradebookPage.getUiSettings()).get(0);
 		this.categories = this.businessService.getGradebookCategories();
 
 		// get configured category type
@@ -71,7 +73,6 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
 
 		// setup
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
 
@@ -91,8 +92,8 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 		final boolean[] categoryScoreHidden = { false };
 
-		WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
-		toggleActions.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
+		toggleActions.setVisible(this.configuredCategoryType != GbCategoryType.NO_CATEGORY);
 		add(toggleActions);
 
 		add(new ListView<String>("categoriesList", categoryNames) {
@@ -104,8 +105,8 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 				final List<Assignment> categoryAssignments = categoryNamesToAssignments.get(categoryName);
 
-				WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
-				categoryRow.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+				final WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
+				categoryRow.setVisible(InstructorGradeSummaryGradesPanel.this.configuredCategoryType != GbCategoryType.NO_CATEGORY);
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
 
@@ -200,21 +201,18 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 			}
 		});
 
-		// course grade
-		// GbCourseGradeLabel takes care of all permissions, settings and formatting, we just give it the data
+		// course grade, via the formatter
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
-
 		final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-		final Map<String, Object> courseGradeModelData = new HashMap<>();
-		courseGradeModelData.put("currentUserUuid", userId);
-		courseGradeModelData.put("currentUserRole", GbRole.INSTRUCTOR);
-		courseGradeModelData.put("courseGrade", courseGrade);
-		courseGradeModelData.put("gradebook", gradebook);
-		courseGradeModelData.put("showPoints", settings.getShowPoints());
-		courseGradeModelData.put("showOverride", true);
-		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(courseGradeModelData)));
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				GbRole.INSTRUCTOR,
+				true,
+				settings.getShowPoints(),
+				true);
+		add(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
 		add(new Label("courseGradeNotReleasedFlag", "*") {
 			@Override

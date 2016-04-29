@@ -7,7 +7,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -90,31 +89,29 @@ public class GradeStatisticsPanel extends Panel {
 
 		Collections.sort(allGrades);
 
-		DefaultCategoryDataset data = new DefaultCategoryDataset();
+		final DefaultCategoryDataset data = new DefaultCategoryDataset();
 
-		SortedMap<String, Integer> counts = new TreeMap();
+		final SortedMap<String, Integer> counts = new TreeMap();
 		Integer extraCredits = 0;
 
 		// Start off with a 0-50% range
 		counts.put(String.format("%d-%d", 0, 50), 0);
 
-		int range=10;
-		for (int start=50; start < 100; start=start+range) {
-			String key = String.format("%d-%d", start, start + range);
+		final int range = 10;
+		for (int start = 50; start < 100; start = start + range) {
+			final String key = String.format("%d-%d", start, start + range);
 			counts.put(key, 0);
 		}
 
-		for (Iterator<Double> iter = allGrades.iterator(); iter.hasNext();) {
-			Double grade = iter.next();
-
+		for (final Double grade : allGrades) {
 			if (grade > assignment.getPoints()) {
 				extraCredits = extraCredits + 1;
 				continue;
 			}
 
-			double percentage = grade / assignment.getPoints() * 100;
+			final double percentage = grade / assignment.getPoints() * 100;
 
-			int total = Double.valueOf(Math.ceil(percentage) / range).intValue();
+			final int total = Double.valueOf(Math.ceil(percentage) / range).intValue();
 
 			int start = total * range;
 
@@ -131,7 +128,7 @@ public class GradeStatisticsPanel extends Panel {
 			counts.put(key, counts.get(key) + 1);
 		}
 
-		for (String label : counts.keySet()) {
+		for (final String label : counts.keySet()) {
 			data.addValue(counts.get(label), "count", label);
 		}
 		if (extraCredits > 0) {
@@ -139,22 +136,22 @@ public class GradeStatisticsPanel extends Panel {
 					getString("label.statistics.chart.extracredit"));
 		}
 
-		JFreeChart chart = ChartFactory.createBarChart(
-				null,			// the chart title
-				getString("label.statistics.chart.xaxis"),	// the label for the category axis
-				getString("label.statistics.chart.yaxis"),	// the label for the value axis
-				data,					// the dataset for the chart
-				PlotOrientation.VERTICAL,		// the plot orientation 
-				false,				// show legend
-				true,				// show tooltips
-				false);				// show urls
+		final JFreeChart chart = ChartFactory.createBarChart(
+				null, // the chart title
+				getString("label.statistics.chart.xaxis"), // the label for the category axis
+				getString("label.statistics.chart.yaxis"), // the label for the value axis
+				data, // the dataset for the chart
+				PlotOrientation.VERTICAL, // the plot orientation
+				false, // show legend
+				true, // show tooltips
+				false); // show urls
 
 		chart.setBorderVisible(false);
 
 		chart.setAntiAlias(false);
 
-		CategoryPlot categoryPlot = chart.getCategoryPlot();
-		BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
+		final CategoryPlot categoryPlot = chart.getCategoryPlot();
+		final BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
 
 		br.setItemMargin(0);
 		br.setMinimumBarLength(0.05);
@@ -162,7 +159,7 @@ public class GradeStatisticsPanel extends Panel {
 		br.setSeriesPaint(0, new Color(51, 122, 183));
 		br.setBarPainter(new StandardBarPainter());
 		br.setShadowPaint(new Color(220, 220, 220));
-		br.setDefaultShadowsVisible(true);
+		BarRenderer.setDefaultShadowsVisible(true);
 
 		br.setBaseToolTipGenerator(new StandardCategoryToolTipGenerator(
 				getString("label.statistics.chart.tooltip"), NumberFormat.getInstance()));
@@ -202,10 +199,10 @@ public class GradeStatisticsPanel extends Panel {
 	}
 
 	private String constructAverageLabel(final List<Double> allGrades, final Assignment assignment) {
-		double average = calculateAverage(allGrades);
-		String averageFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(average));
-		Double total = assignment.getPoints();
-		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (average / total.doubleValue()));
+		final double average = calculateAverage(allGrades);
+		final String averageFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(average));
+		final Double total = assignment.getPoints();
+		final String percentage = FormatHelper.formatDoubleAsPercentage(100 * (average / total.doubleValue()));
 
 		return (new StringResourceModel("label.statistics.averagevalue",
 				null,
@@ -213,10 +210,10 @@ public class GradeStatisticsPanel extends Panel {
 	}
 
 	private String constructMedianLabel(final List<Double> allGrades, final Assignment assignment) {
-		double median = calculateMedian(allGrades);
-		String medianFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(median));
-		Double total = assignment.getPoints();
-		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (median / total.doubleValue()));
+		final double median = calculateMedian(allGrades);
+		final String medianFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(median));
+		final Double total = assignment.getPoints();
+		final String percentage = FormatHelper.formatDoubleAsPercentage(100 * (median / total.doubleValue()));
 
 		return (new StringResourceModel("label.statistics.medianvalue",
 				null,
@@ -224,10 +221,10 @@ public class GradeStatisticsPanel extends Panel {
 	}
 
 	private String constructLowestLabel(final List<Double> allGrades, final Assignment assignment) {
-		double lowest = Collections.min(allGrades);
-		String lowestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(lowest));
-		Double total = assignment.getPoints();
-		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (lowest / total.doubleValue()));
+		final double lowest = Collections.min(allGrades);
+		final String lowestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(lowest));
+		final Double total = assignment.getPoints();
+		final String percentage = FormatHelper.formatDoubleAsPercentage(100 * (lowest / total.doubleValue()));
 
 		return (new StringResourceModel("label.statistics.lowestvalue",
 				null,
@@ -235,10 +232,10 @@ public class GradeStatisticsPanel extends Panel {
 	}
 
 	private String constructHighestLabel(final List<Double> allGrades, final Assignment assignment) {
-		double highest = Collections.max(allGrades);
-		String highestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(highest));
-		Double total = assignment.getPoints();
-		String percentage = FormatHelper.formatDoubleAsPercentage(100 * (highest / total.doubleValue()));
+		final double highest = Collections.max(allGrades);
+		final String highestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(highest));
+		final Double total = assignment.getPoints();
+		final String percentage = FormatHelper.formatDoubleAsPercentage(100 * (highest / total.doubleValue()));
 
 		return new StringResourceModel("label.statistics.highestvalue",
 				null,
@@ -246,7 +243,7 @@ public class GradeStatisticsPanel extends Panel {
 	}
 
 	private String constructStandardDeviationLabel(final List<Double> allGrades) {
-		double deviation = calculateStandardDeviation(allGrades);
+		final double deviation = calculateStandardDeviation(allGrades);
 
 		return FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(deviation));
 	}
@@ -286,13 +283,13 @@ public class GradeStatisticsPanel extends Panel {
 }
 
 class JFreeChartImageWithToolTip extends NonCachingImage {
-	private String imageMapId;
-	private int width;
-	private int height;
-	private ChartRenderingInfo chartRenderingInfo = new ChartRenderingInfo(new StandardEntityCollection());
+	private final String imageMapId;
+	private final int width;
+	private final int height;
+	private final ChartRenderingInfo chartRenderingInfo = new ChartRenderingInfo(new StandardEntityCollection());
 
 	public JFreeChartImageWithToolTip(final String id, final IModel<JFreeChart> model,
-																		final String imageMapId, final int width, final int height) {
+			final String imageMapId, final int width, final int height) {
 		super(id, model);
 		this.imageMapId = imageMapId;
 		this.width = width;
@@ -306,13 +303,14 @@ class JFreeChartImageWithToolTip extends NonCachingImage {
 		imageResource = new DynamicImageResource() {
 			@Override
 			protected byte[] getImageData(final Attributes attributes) {
-				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				try {
 					if (chart != null) {
-						chartRenderingInfo.clear();
-						ChartUtilities.writeChartAsPNG(stream, chart, width, height, chartRenderingInfo);
+						JFreeChartImageWithToolTip.this.chartRenderingInfo.clear();
+						ChartUtilities.writeChartAsPNG(stream, chart, JFreeChartImageWithToolTip.this.width,
+								JFreeChartImageWithToolTip.this.height, JFreeChartImageWithToolTip.this.chartRenderingInfo);
 					}
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					// TODO logging for rendering chart error
 				}
 				return stream.toByteArray();
@@ -323,19 +321,17 @@ class JFreeChartImageWithToolTip extends NonCachingImage {
 
 	@Override
 	public void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
-		JFreeChart chart = (JFreeChart) getDefaultModelObject();
+		final JFreeChart chart = (JFreeChart) getDefaultModelObject();
 		if (chart == null) {
 			return;
 		}
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
-			if (chart != null) {
-				chartRenderingInfo.clear();
-				ChartUtilities.writeChartAsPNG(stream, chart, width, height, chartRenderingInfo);
-			}
-		} catch (IOException ex) {
+			this.chartRenderingInfo.clear();
+			ChartUtilities.writeChartAsPNG(stream, chart, this.width, this.height, this.chartRenderingInfo);
+		} catch (final IOException ex) {
 			// do something
 		}
-		replaceComponentTagBody(markupStream, openTag, ChartUtilities.getImageMap(imageMapId, chartRenderingInfo));
+		replaceComponentTagBody(markupStream, openTag, ChartUtilities.getImageMap(this.imageMapId, this.chartRenderingInfo));
 	}
 }

@@ -17,15 +17,14 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -105,8 +104,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			Collections.sort(categoryNames);
 		}
 
-		WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
-		toggleActions.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
+		toggleActions.setVisible(this.configuredCategoryType != GbCategoryType.NO_CATEGORY);
 		add(toggleActions);
 
 		// output all of the categories
@@ -120,8 +119,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 				final List<Assignment> categoryAssignments = categoryNamesToAssignments.get(categoryName);
 
-				WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
-				categoryRow.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+				final WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
+				categoryRow.setVisible(StudentGradeSummaryGradesPanel.this.configuredCategoryType != GbCategoryType.NO_CATEGORY);
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
 				categoryRow.add(new Label("categoryGrade", categoryAverages.get(categoryName)));
@@ -217,18 +216,16 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		};
 		add(noAssignments);
 
-		// course grade
-		// GbCourseGradeLabel takes care of all permissions, settings and formatting, we just give it the data
+		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		final Map<String, Object> courseGradeModelData = new HashMap<>();
-		courseGradeModelData.put("currentUserUuid", userId);
-		courseGradeModelData.put("currentUserRole", GbRole.STUDENT);
-		courseGradeModelData.put("courseGrade", courseGrade);
-		courseGradeModelData.put("gradebook", gradebook);
-		courseGradeModelData.put("showPoints", true);
-		courseGradeModelData.put("showOverride", true);
-		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(courseGradeModelData)));
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				GbRole.STUDENT,
+				gradebook.isCourseGradeDisplayed(),
+				gradebook.isCoursePointsDisplayed(),
+				true);
+		add(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
