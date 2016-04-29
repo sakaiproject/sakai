@@ -141,9 +141,9 @@
             // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
             if ( secondJQuery ) {
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
-                if ( ! dollarEmpty ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
+                if ( ! dollarEmpty && !notJQuery ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
             }
-            if (notJQuery) {
+            if (notJQuery && !secondJQuery) {
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
                 //Just set jQuery to be the same thing since it didn't exist before
                 jQuery = ${d}PBJQ;
