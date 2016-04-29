@@ -135,6 +135,10 @@
 			input[type="radio"]{
 				margin: 0 0.5em 0 0;
 			}
+			
+			&[for*=forum_assignments]{
+				margin-top: 0;
+			}
 		}
 		input[type="text"], textarea{
 			width: 100%;
@@ -200,8 +204,8 @@
 			margin: 2em 0 0 0;
 		}
 		
-		&\:autoMarkThreadsRead{
-			margin-bottom: 2em;
+		& #forum_grading{
+			margin-top: 2em;
 		}
 	}
 
