@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -28,12 +29,11 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
 import au.com.bytecode.opencsv.CSVReader;
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
  */
-@CommonsLog
+@Slf4j
 public class ImportGradesHelper extends BaseImportHelper {
 
 	private static final String IMPORT_USER_ID = "Student ID";
