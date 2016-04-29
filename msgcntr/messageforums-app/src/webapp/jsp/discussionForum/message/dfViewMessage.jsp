@@ -30,10 +30,10 @@
                             var url = $(this).attr('href');
                             if (!url)
 							    url = this.href;
-							$('#permalinkHolder input').val(url);
+							$('#permalinkHolder textarea').val(url);
 							$('#permalinkHolder').css({
-								'top': event.pageY + 20,
-								'left':event.pageX - 150
+								'top': $(this).position().top,
+								'left': $(this).position().left
 							});
 							$('#permalinkHolder').fadeIn('fast');
 							$('#permalinkHolder input').focus().select();
@@ -208,9 +208,9 @@
 			</h:panelGrid>
 			
 
-			<f:verbatim><div id="permalinkHolder"><a class="closeMe" href="#" style="">x</a></f:verbatim>
+			<f:verbatim><div id="permalinkHolder"><a class="closeMe" href="#" style=""><span class="icon-sakai-delete"></span></a></f:verbatim>
 				<h:outputText value="#{msgs.cdfm_button_bar_permalink_message}" style="display:block" styleClass="textPanelFooter"/>
-				<h:inputText value="" size="35"/>
+				<h:inputTextarea value="" />
 			<f:verbatim></div></f:verbatim>
 
 
