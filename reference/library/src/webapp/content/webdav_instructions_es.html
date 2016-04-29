@@ -90,6 +90,9 @@
 				if (p.className=='webDavFolderUrlEncoded') {
 					p.innerHTML=getFolderUrlEncoded();
 				}
+				if (p.className=='webDavGnomeUrl') {
+					p.innerHTML=getGnomeUrl();
+				}
 			}
 		}
 		function getBaseUrlEncoded() {
@@ -122,6 +125,10 @@
 			else {
 				return swdl[2];
 			}
+		}
+		function getGnomeUrl() {
+			// replace http by dav
+			return 'dav'+$(parent.document.getElementById("webDavUrl")).val().substring(4);
 		}
 	</script>
 </head>
@@ -250,6 +257,22 @@
 		<div id="instr-linux">
 			<h4>Configurar WebDAV para Linux (Gnome)</h4>
 			<ol>
+				<li>Vamos a <b>Archivos &gt; Conectar con el servidor...</b></li>
+				<li>En <b>Direcci&oacute;n de servidor</b> introducimos la direcci&oacute;n: <b><em><span class="webDavGnomeUrl">davs://xxxx/dav/xxxx</span></em></b></li>				
+				<li>Pulamos el bot&oacute;n <b>Conectar</b>.</li>
+				<li>Al conectar le aparecer&aacute; una ventana pidiendo la clave de la plataforma.</li>
+			</ol>
+			
+			<p>
+				Cuando el proceso de configuraci&oacute;n est&aacute; completo, la
+				carpeta de recursos del sitio aparecera en <b>Archivos</b>, y
+				actuar&aacute; como una carpeta normal dentro de Linux. Ahora podemos
+				copiar, pegar, arrastrar todo tipo de ficheros y carpetas de nuestro
+				ordenador a esta nueva carpeta.
+			</p>
+			
+			<h4>Configurar WebDAV para Linux (Gnome) versiones anteriores</h4>
+			<ol>
 				<li>Vamos a <b>Lugares &gt; Conectar con el servidor...</b></li>
 				<li>En <b>Tipo de servicio</b> seleccionamos WebDav <span class="webDavService"></span>.</li>
 				<li>En <b>Servidor</b> ponemos: <b><span class="webDavHostName">hostname</span></b></li>
@@ -260,7 +283,7 @@
 				<li>Pulamos el bot&oacute;n <b>Conectar</b>.</li>
 				<li>Al conectar le aparecer&aacute; una ventana pidiendo la clave de la plataforma.</li>
 			</ol>
-	
+			
 			<p>
 				Cuando el proceso de configuraci&oacute;n est&aacute; completo, la
 				carpeta de recursos del sitio aparecera en <b>Lugares</b>, y
