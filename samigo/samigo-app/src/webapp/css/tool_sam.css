@@ -1050,6 +1050,8 @@ div.collapsed {
 	margin-left: 2em  !important;
 }
 
+#partialCredit_toggle .tier3,
+#mcms_credit_toggle .tier3,
 #questionpool .tier3,
 #editform .tier3{
 	margin-left: 3em  !important;
