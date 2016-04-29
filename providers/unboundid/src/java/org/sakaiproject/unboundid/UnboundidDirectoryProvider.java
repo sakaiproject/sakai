@@ -29,17 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sakaiproject.user.api.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.user.api.AuthenticationIdUDP;
-import org.sakaiproject.user.api.DisplayAdvisorUDP;
-import org.sakaiproject.user.api.ExternalUserSearchUDP;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryProvider;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserFactory;
-import org.sakaiproject.user.api.UsersShareEmailUDP;
 
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -102,7 +95,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
 
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(UnboundidDirectoryProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(UnboundidDirectoryProvider.class);
 
 	/** LDAP host address */
 	private String[] ldapHost;
@@ -1375,14 +1368,6 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			default :
 				throw new IllegalArgumentException("Invalid search scope [" + searchScope +"]");
 		}
-	}
-
-	/**
-	 * User caching is done centrally in the UserDirectoryService.callCache
-	 * @deprecated
-	**/
-	public void setMemoryService(org.sakaiproject.memory.api.MemoryService ignore) {
-		M_log.warn("DEPRECATION WARNING: memoryService is deprecated. Please remove it from your jldap-beans.xml configuration.");
 	}
 
 	/** 
