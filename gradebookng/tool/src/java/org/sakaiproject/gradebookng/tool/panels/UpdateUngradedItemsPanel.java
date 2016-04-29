@@ -159,8 +159,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 								gradableGroupIds.add(permission.getGroupReference());
 							}
 						}
-					} else if (!categoriesEnabled && permission.getCategoryId() == null
-						&& permission.getGroupReference() == null) {
+					} else if (!categoriesEnabled && permission.getGroupReference() == null) {
 						canGradeAllGroups = true;
 						break;
 					} else {
