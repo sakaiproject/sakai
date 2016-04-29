@@ -273,8 +273,12 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
             if (toAddress==null){
                 toAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
             }
-        }
-        else {
+        } else if(Constants.HELPDESK.equals(type)){
+            toAddress = sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null);
+            if(toAddress == null || toAddress.isEmpty()){
+                toAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
+            }
+        } else {
             toAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
         }
         return toAddress;

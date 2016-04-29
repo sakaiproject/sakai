@@ -57,9 +57,8 @@ public class FeedbackTool extends HttpServlet {
 
     private SiteService siteService = null;
 
-    private final String[] DYNAMIC_PROPERTIES = { "help_tooltip",  "overview", "technical_setup_instruction", "feature_suggestion_setup_instruction",
-            "report_technical_tooltip", "short_technical_description",
-            "suggest_feature_tooltip", "feature_description", "technical_instruction",  "error", "help_home"};
+    private final String[] DYNAMIC_PROPERTIES = { "help_tooltip",  "overview", "technical_setup_instruction", "report_technical_tooltip", "short_technical_description",
+            "suggest_feature_tooltip", "feature_description", "technical_instruction", "ask_instruction",  "error", "help_home"};
 
     // In entitybroker you can't have slashes in IDs so we need to escape them.
     public static final String FORWARD_SLASH = "FORWARD_SLASH";
@@ -132,16 +131,19 @@ public class FeedbackTool extends HttpServlet {
                 (sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null) == null)
                         ? false : true);
 
+        request.setAttribute("enableHelp", (sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null) == null) ? false : true);
         request.setAttribute("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
         setStringAttribute(request, "userId", (userId == null) ? "" : userId);
         setStringAttribute(request, "siteId", (siteId != null)?siteId.replaceAll("/", FORWARD_SLASH):null);
         request.setAttribute("siteExists", siteExists);
         setStringAttribute(request, "featureSuggestionUrl", sakaiProxy.getConfigString("feedback.featureSuggestionUrl", ""));
         setStringAttribute(request, "helpPagesUrl", sakaiProxy.getConfigString("feedback.helpPagesUrl", "/portal/help/main"));
+        setStringAttribute(request, "helpdeskUrl", sakaiProxy.getConfigString("feedback.helpdeskUrl", "/portal/help/main"));
         setStringAttribute(request, "helpPagesTarget", sakaiProxy.getConfigString("feedback.helpPagesTarget", "_blank"));
         setStringAttribute(request, "supplementaryInfo", sakaiProxy.getConfigString("feedback.supplementaryInfo", ""));
         request.setAttribute("maxAttachmentsMB", sakaiProxy.getAttachmentLimit());
         setStringAttribute(request, "technicalToAddress", sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null));
+        setStringAttribute(request, "helpToAddress", sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null));
         request.setAttribute("showContentPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_CONTENT_PANEL, true));
         request.setAttribute("showHelpPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_HELP_PANEL, true));
         request.setAttribute("showTechnicalPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_TECHNICAL_PANEL, true));
@@ -224,6 +226,11 @@ public class FeedbackTool extends HttpServlet {
     private void formatProperties(ResourceLoader rb, Map<String, String> bundleMap, String serviceName) {
 
         for (String property : DYNAMIC_PROPERTIES) {
+            if(property.equals("ask_instruction")) {
+                String name = sakaiProxy.getConfigString("feedback.helpdeskName", serviceName);
+                bundleMap.put(property, MessageFormat.format(rb.getString(property), new String[]{name}));
+                continue;
+            }
             bundleMap.put(property, MessageFormat.format(rb.getString(property), new String[]{serviceName}));
         }
 

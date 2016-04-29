@@ -26,10 +26,10 @@
         <div class="feedback-box" id="feedback-ask-help">
             <h3>{{translate 'ask_title'}}</h3>
             <ul>{{translate 'ask_explanation'}}</ul>
-        	{{#if enableTechnical}}
-            	<p><a id="feedback-report-helpdesk-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+        	{{#if enableHelp}}
+            	<p><a id="feedback-report-helpdesk-link" href="javascript:;">{{translate 'ask_link'}}</a></p>
             {{else}}
-            	<p class='information'>{{translate 'no_technical_address'}}</p>
+            	<p class='information'>{{translate 'no_help_address'}}</p>
             {{/if}}
             <div class="clear"></div>
         </div>

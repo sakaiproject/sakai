@@ -1,18 +1,8 @@
 <h2 id="feedback-title">{{translate 'title'}}</h2>
-<div id="feedback-overview" class="instruction">{{translate 'content_instruction'}}</div>
-<form id="feedback-form" action="/direct/feedback/{{siteId}}/reportcontent" method="POST">
+<div id="feedback-overview" class="instruction">{{translate 'ask_instruction' helpdeskUrl=helpdeskUrl}}</div>
+<form id="feedback-form" action="/direct/feedback/{{siteId}}/{{url}}" method="POST">
     <div id="feedback-mandatory-instruction" class="instruction">{{translate 'mandatory_instruction'}}</div>
     <fieldset>
-	{{#if loggedIn}}
-    <div class="feedback-form-field">
-    	<label for="feedback-siteupdaters">{{translate 'siteupdater_instruction'}}</label>
-    	<select id="feedback-siteupdaters" name="alternativerecipient">
-            {{#each siteUpdaters}}
-                <option value="{{id}}">{{displayName}}</option>
-            {{/each}}
-        </select>
-    </div>
-    {{/if}}
     <div class="feedback-form-field">
     	<label for="feedback-title">{{translate 'title_label'}}</label>
     	<input id="feedback-title" type="text" name="title" maxlength="40" size="40"/>
@@ -25,16 +15,16 @@
     	<label for="feedback-sender-address">{{translate 'sender_address_label'}}</label>
     	<input id="feedback-sender-address" type="text" name="senderaddress" size="40"/>
     </div>
-    
-    <input id="feedback-technical-email" value="{{technicalToAddress}}" hidden="hidden"/>
+
+    <input id="feedback-help-email" value="{{helpToAddress}}" hidden="hidden"/>
+    <input id="feedback-contactname" value="{{contactName}}" hidden="hidden"/>
+    <input type="hidden" name="siteExists" value="{{siteExists}}"/>
     <input name="plugins" value="{{plugins}}" type="hidden"/>
     <input name="screenWidth" value="{{screenWidth}}" type="hidden"/>
     <input name="screenHeight" value="{{screenHeight}}" type="hidden"/>
     <input name="oscpu" value="{{oscpu}}" type="hidden"/>
     <input name="windowWidth" value="{{windowWidth}}" type="hidden"/>
     <input name="windowHeight" value="{{windowHeight}}" type="hidden"/>
-    <input id="feedback-contactname" value="{{contactName}}" hidden="hidden"/>
-    <input type="hidden" name="siteExists" value="{{siteExists}}"/>
     <div id="feedback-attachments-label">
         <span>{{translate 'attachments_label'}}</span>
         <span id="feedback-max-attachments-label">

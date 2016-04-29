@@ -5,6 +5,7 @@
     /* STATES */
     var HOME = 'home';
     var CONTENT = 'content';
+    var HELPDESK = 'helpdesk';
     var TECHNICAL = 'technical';
     var REPORTTECHNICAL = 'reporttechnical';
     var REPORTHELPDESK = 'reporthelpdesk';
@@ -24,11 +25,11 @@
 
     var loggedIn = (feedback.userId != '') ? true : false;
     var siteUpdater;
-    var technicalToAddress;
+    var toAddress;
 
     feedback.switchState = function (state) {
         feedback.switchState(state, null);
-    }
+    };
 
     feedback.switchState = function (state, url) {
     	
@@ -47,7 +48,7 @@
             siteUpdater = $('#feedback-siteupdaters').find(':selected').text();
             if (siteUpdater=='') siteUpdater = $('#feedback-contactname').val();
 
-            technicalToAddress = $('#feedback-technical-email').val();
+            toAddress = $('#feedback-technical-email').val();
 
             feedback.utils.renderTemplate(HOME, { featureSuggestionUrl: feedback.featureSuggestionUrl,
                                                     supplementaryInfo: feedback.supplementaryInfo,
@@ -57,7 +58,8 @@
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
                                                     showSuggestionsPanel : feedback.showSuggestionsPanel,
-                                                    enableTechnical : feedback.enableTechnical}, 'feedback-content');
+                                                    enableTechnical : feedback.enableTechnical,
+                                                    enableHelp : feedback.enableHelp}, 'feedback-content');
 
             $(document).ready(function () {
 
@@ -75,11 +77,12 @@
                     $('#feedback-report-technical-link').click(function (e) {
                         feedback.switchState(TECHNICAL, REPORTTECHNICAL);
                     });
+                }
+
+                if(feedback.enableHelp) {
                     $('#feedback-report-helpdesk-link').click(function (e) {
-                        feedback.switchState(TECHNICAL, REPORTHELPDESK);
+                        feedback.switchState(HELPDESK, REPORTHELPDESK);
                     });
-                } else {
-                    $('#feedback-technical-setup-instruction').show();
                 }
 
                 if (feedback.supplementaryInfo.length == 0) {
@@ -99,11 +102,10 @@
                     $('#feedback-info-message-wrapper').hide();
                 });
 
-                if (siteUpdater!=null && siteUpdater!='') {
+                if(feedback.previousState === CONTENT && (siteUpdater !== null && siteUpdater !=='')) {
                     feedback.displayInfo(siteUpdater);
-                }
-                else {
-                    feedback.displayInfo(technicalToAddress);
+                } else {
+                    feedback.displayInfo(toAddress);
                 }
 
                 feedback.fitFrame();
@@ -113,6 +115,7 @@
             feedback.utils.renderTemplate(state, { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
                 windowHeight: window.outerHeight, siteExists: feedback.siteExists, siteId: feedback.siteId, contentUrl : feedback.contentUrl, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, technicalToAddress: feedback.technicalToAddress, contactName: feedback.contactName}, 'feedback-content');
 
+            feedback.previousState = state;
             $(document).ready(function () {
 
                 feedback.addMouseUpToTextArea();
@@ -135,26 +138,41 @@
 
                 if (!loggedIn) {
                     // Not logged in, show the sender email box.
-                    $('#feedback-sender-address').show();
+                    $('#feedback-sender-address-wrapper').show();
 
                     feedback.setUpRecaptcha();
+                } else {
+                    // logged in, hide the sender form address
+                    $('#feedback-sender-address-wrapper').hide();
                 }
 
             });
-        } else if (TECHNICAL === state) {
+        } else if (TECHNICAL === state || HELPDESK === state) {
+            var options = { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
+                windowHeight: window.outerHeight, siteExists: feedback.siteExists, url: url, siteId: feedback.siteId, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, contactName: feedback.contactName };
 
-            feedback.utils.renderTemplate(state, { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
-                windowHeight: window.outerHeight, siteExists: feedback.siteExists, url: url, siteId: feedback.siteId, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, technicalToAddress: feedback.technicalToAddress, contactName: feedback.contactName, helpPagesUrl: feedback.helpPagesUrl }, 'feedback-content');
+            if (TECHNICAL === state) {
+                options['technicalToAddress'] = feedback.technicalToAddress;
+                options['helpPagesUrl'] = feedback.helpPagesUrl;
+            } else {
+                options['helpToAddress'] = feedback.helpToAddress;
+                options['helpdeskUrl'] = feedback.helpdeskUrl;
+            }
+            feedback.utils.renderTemplate(state, options, 'feedback-content');
 
+            feedback.previousState = state;
             $(document).ready(function () {
 
                 feedback.addMouseUpToTextArea();
 
                 if (!loggedIn) {
                     // Not logged in, show the sender email box.
-                    $('#feedback-sender-address').show();
+                    $('#feedback-sender-address-wrapper').show();
 
                     feedback.setUpRecaptcha();
+                } else {
+                    // logged in, hide the sender form address
+                    $('#feedback-sender-address-wrapper').hide();
                 }
 
                 feedback.fitFrame();
@@ -313,9 +331,9 @@
     };
 
 
-    feedback.displayInfo = function (siteUpdater) {
-        if (siteUpdater!=null && siteUpdater!=''){
-            $('#feedback-info-message-wrapper span').html('An email with the information you entered has been sent to ' + siteUpdater);
+    feedback.displayInfo = function (destination) {
+        if (destination!=null && destination!=''){
+            $('#feedback-info-message-wrapper span').html(feedback.i18n['email_success'] + ' ' + destination);
             $('#feedback-info-message-wrapper').show();
             feedback.fitFrame();
         }
@@ -342,7 +360,7 @@
         });
 
         $('#feedback-helpdesk-item').click(function (e) {
-            return feedback.switchState(TECHNICAL, REPORTHELPDESK);
+            return feedback.switchState(HELPDESK, REPORTHELPDESK);
         });
     });
 
