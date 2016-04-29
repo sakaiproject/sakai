@@ -487,16 +487,20 @@ public class GradebookPage extends BasePage {
 		this.form.add(table);
 
 		// Populate the toolbar
-		this.form.add(constructTableSummaryLabel("studentSummary", table));
+		final WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
+		toolbar.setVisible(!assignments.isEmpty() && !grades.isEmpty());
+		this.form.add(toolbar);
+
+		toolbar.add(constructTableSummaryLabel("studentSummary", table));
 
 		final Label gradeItemSummary = new Label("gradeItemSummary",
 				new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size() + categories.size(),
 						assignments.size() + categories.size()));
 		gradeItemSummary.setEscapeModelStrings(false);
-		this.form.add(gradeItemSummary);
+		toolbar.add(gradeItemSummary);
 
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
-		this.form.add(toggleGradeItemsToolbarItem);
+		toolbar.add(toggleGradeItemsToolbarItem);
 
 		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
 			@Override
@@ -522,7 +526,7 @@ public class GradebookPage extends BasePage {
 				return categoriesEnabled && !assignments.isEmpty();
 			}
 		};
-		this.form.add(toggleCategoriesToolbarItem);
+		toolbar.add(toggleCategoriesToolbarItem);
 
 		// section and group dropdown
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
@@ -530,9 +534,9 @@ public class GradebookPage extends BasePage {
 		// if only one group, just show the title
 		// otherwise add the 'all groups' option
 		if (groups.size() == 1) {
-			this.form.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
+			toolbar.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
 		} else {
-			this.form.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
+			toolbar.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
 
 			// add the default ALL group to the list
 			String allGroupsTitle = getString("groups.all");
@@ -591,7 +595,7 @@ public class GradebookPage extends BasePage {
 			groupFilter.setVisible(false);
 		}
 
-		this.form.add(groupFilter);
+		toolbar.add(groupFilter);
 
 		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel(
 				"gradeItemsTogglePanel", Model.ofList(assignments));
