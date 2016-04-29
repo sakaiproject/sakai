@@ -114,8 +114,8 @@
   </div>
 
   <!-- partial credit vs negative marking -->
-  <div id="partialCredit_toggle" class="tier3">
-    <h:panelGroup id="partialCredit_JSF_toggle" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
+  <h:panelGroup layout="block" id="partialCredit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
+    <h:panelGroup id="partialCredit_JSF_toggle">
       <h:selectOneRadio id="partialCreadit_NegativeMarking"
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
@@ -136,11 +136,11 @@
         </h:commandLink><!-- TODO  Need to un-check all the radio buttons as well-->
       </h:panelGroup>
     </h:panelGroup>
-  </div>
+  </h:panelGroup>
 
 <!-- multiple choice, multiple selection: full or partial credit -->
-<div id="mcms_credit_toggle" class="tier3">
-  <h:panelGroup id="mcms_credit_JSF_toggle" rendered="#{itemauthor.currentItem.itemType == 2}">
+<h:panelGroup layout="block" id="mcms_credit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 2}">
+  <h:panelGroup id="mcms_credit_JSF_toggle">
     <h:selectOneRadio id="mcms_credit_partial_credit"
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
@@ -150,9 +150,9 @@
       <f:selectItem itemValue="false" itemLabel="#{commonMessages.multipl_mc_ms_full_credit}"  />
     </h:selectOneRadio>
   </h:panelGroup>
-</div>
-
-<div id="discountDiv" class="longtext">
+</h:panelGroup>
+ 
+<h:panelGroup layout="block" id="discountDiv" styleClass="longtext tier3">
   <h:panelGroup id="discountTable">
   <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
@@ -160,35 +160,8 @@
     <f:validateDoubleRange/>
   </h:inputText>
   <small><h:outputText value="#{authorMessages.negative_point_value_note}" rendered="#{itemauthor.disableNegativePoints==true}"/></small>
-  <f:verbatim> <script type="text/javascript" defer='defer'>
-  		var itemType = "${itemauthor.currentItem.itemType}";
-  		var discDiv=document.getElementById('discountDiv');
-		
-  		if(itemType == 1) {
-		  	var toggleDiv=document.getElementById('itemForm:partialCreadit_NegativeMarking');
-	    	if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
-	    		toggleDiv.rows[0].cells[0].appendChild(discDiv);
-	    	}else {
-	       	 	var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
-	       	 	QtypeTable.rows[0].cells[0].appendChild(discDiv);
-	        }   
-  		} else{
-		    	if(itemType == 12) {
-		            var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
-	        	    QtypeTable.rows[1].cells[0].appendChild(discDiv);
-			 }
-			 if(itemType == 2) {
-			     var mcmsPartialCredit = "${itemauthor.currentItem.mcmsPartialCredit}";
-   		    	     if(mcmsPartialCredit == 'false') {
-		    	          var QtypeTable=document.getElementById('itemForm:mcms_credit_partial_credit');
-			     	  QtypeTable.rows[1].cells[0].appendChild(discDiv);
-			     }
-			 }
-		}
-    </script>
-  </f:verbatim>
 </h:panelGroup>
-</div>
+</h:panelGroup>
 
 
   <!-- 2 TEXT -->
@@ -420,6 +393,40 @@
 <!-- end content -->
 </div>
 
+<f:verbatim> 
+	<script type="text/javascript" defer='defer'>
+	$(document).ready(function(){
+		var itemType = "${itemauthor.currentItem.itemType}";
+		var prefixId='#itemForm\\:';
+		var refId=prefixId+'chooseAnswerTypeForMC\\:';
+		var optionId=prefixId;
+		if(itemType == 1){
+			refId+='0';
+			var partialCredit=${itemauthor.currentItem.partialCreditEnabled==true};
+			if(partialCredit){  				
+				optionId+='partialCredit_toggle';
+				var showDiscountDiv=${itemauthor.currentItem.partialCreditFlag==false};
+				if(showDiscountDiv){
+					$(prefixId+'partialCreadit_NegativeMarking\\:0').parent().append($(prefixId+'discountDiv'));
+				}
+			}else{
+				optionId+='discountDiv';
+			}
+		}else if (itemType == 12){
+			refId+='1';
+			optionId+='discountDiv';
+		}else if (itemType == 2) {
+ 			var showSecondOption= ${itemauthor.currentItem.mcmsPartialCredit==false};
+			if(showSecondOption){
+				$(prefixId+'mcms_credit_toggle').append($(prefixId+'discountDiv'));
+			}
+			refId+='2';
+			optionId+='mcms_credit_toggle';
+		}
+		$(refId).parent().append($(optionId));
+	});
+	</script>
+</f:verbatim>
     </body>
   </html>
 </f:view>
