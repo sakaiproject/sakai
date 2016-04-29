@@ -21,21 +21,11 @@
 
 package org.sakaiproject.unboundid;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Stack;
-
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
-import org.sakaiproject.unboundid.EidDerivedEmailAddressHandler;
-import org.sakaiproject.unboundid.EidValidator;
-import org.sakaiproject.unboundid.InvalidEmailAddressException;
-import org.sakaiproject.unboundid.LdapAttributeMapper;
-import org.sakaiproject.unboundid.LdapEntryMapper;
-import org.sakaiproject.unboundid.LdapUserData;
-import org.sakaiproject.unboundid.UnboundidDirectoryProvider;
+
 import org.sakaiproject.user.api.UserEdit;
 
 import edu.amc.sakai.user.UserEditStub;
@@ -51,7 +41,6 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 	private Mock mockEidValidator;
 	private LdapAttributeMapper attributeMapper;
 	private Mock mockAttributeMapper;
-	private LDAPConnection conn;
 	private Mock mockConn;
 	private LDAPSearchResults searchResults;
 	private Mock mockSearchResults;
@@ -76,13 +65,16 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		attributeMapper = (LdapAttributeMapper)mockAttributeMapper.proxy();
 		provider.setLdapAttributeMapper(attributeMapper);
 		mockConn = mock(LDAPConnection.class);
-		conn = (LDAPConnection) mockConn.proxy();
 		mockSearchResults = mock(LDAPSearchResults.class);
 		searchResults = (LDAPSearchResults) mockSearchResults.proxy();
 		mockEntry = mock(LDAPEntry.class);
 		entry = (LDAPEntry)mockEntry.proxy();
 		
 		provider.setLdapHost(new String[]{"127.0.0.1"});
+		provider.setLdapPort(new int[]{389});
+		provider.setBasePath("dc=example,dc=edu");
+		provider.setLdapUser("admin");
+		provider.setLdapPassword("password");
 
 		provider.init();
 	}
@@ -132,9 +124,9 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		final Mock mockDoGetUserByEid = mock(VarargsMethod.class);
         final VarargsMethod doGetUserByEid = (VarargsMethod)mockDoGetUserByEid.proxy();
 		provider = new UnboundidDirectoryProvider() {
-			protected boolean getUserByEid(UserEdit userToUpdate, String eid, LDAPConnection conn) 
+			protected boolean getUserByEid(UserEdit userToUpdate, String eid) 
 			throws LDAPException {
-				return (Boolean)doGetUserByEid.call(userToUpdate, eid, conn);
+				return (Boolean)doGetUserByEid.call(userToUpdate, eid);
 			}
 		};
 		if ( providerConfigCallback != null ) {
@@ -143,7 +135,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		UserEditStub userEdit = new UserEditStub();
 		userEdit.setEid("some-eid");
 		mockDoGetUserByEid.expects(once()).method("call").
-			with(eq(new Object[] {userEdit, userEdit.getEid(), null})).
+			with(eq(new Object[] {userEdit, userEdit.getEid()})).
 			will(returnValue(Boolean.TRUE));
 		assertTrue(provider.getUser(userEdit));
 		mockDoGetUserByEid.verify();
@@ -155,9 +147,9 @@ public class UnboundidProviderTest extends MockObjectTestCase {
         final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
         final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
 		provider = new UnboundidDirectoryProvider() {
-			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
+			protected LdapUserData getUserByEid(String eid) 
 			throws LDAPException {
-				return (LdapUserData)doGetUserByEid.call(eid, conn);
+				return (LdapUserData)doGetUserByEid.call(eid);
 			}
 			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 				doMapUserDataOntoUserEdit.call(userData,userEdit);			
@@ -168,7 +160,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		LdapUserData userData = new LdapUserData();
 		userData.setEid(userEdit.getEid());
 		mockDoGetUserByEid.expects(once()).method("call")
-			.with(eq(new Object[] { userEdit.getEid(), conn }))
+			.with(eq(new Object[] { userEdit.getEid() }))
 			.will(returnValue(userData));
 		// this mapUserDataOntoUserEdit() expectation is important for 
 		// guaranteeing the validity of tests like 
@@ -201,12 +193,11 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 				return (Boolean)doIsSearchableEid.call(eid);
 			}
 			protected Object searchDirectoryForSingleEntry(String filter, 
-					LDAPConnection conn,
 					LdapEntryMapper mapper,
 					String[] searchResultPhysicalAttributeNames,
 					String searchBaseDn)
 			throws LDAPException {
-				return doSearchDirectoryForSingleEntry.call(filter,conn,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
+				return doSearchDirectoryForSingleEntry.call(filter,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
 			}
 		};
 		provider.setLdapAttributeMapper(attributeMapper);
@@ -222,7 +213,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 			with(eq(eid)).after(mockDoIsSearchableEid, "call").
 			will(returnValue(eidFilter));
 		mockDoSearchDirectoryForSingleEntry.expects(once()).method("call").
-			with(eq(new Object[] {eidFilter, conn, null, null, null})).
+			with(eq(new Object[] {eidFilter, null, null, null})).
 			after(mockAttributeMapper, "getFindUserByEidFilter").
 			will(returnValue(userData));
 		
@@ -240,12 +231,11 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		
 		provider = new UnboundidDirectoryProvider() {
 			protected Object searchDirectoryForSingleEntry(String filter, 
-					LDAPConnection conn,
 					LdapEntryMapper mapper,
 					String[] searchResultPhysicalAttributeNames,
 					String searchBaseDn)
 			throws LDAPException {
-				return doSearchDirectoryForSingleEntry.call(filter,conn,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
+				return doSearchDirectoryForSingleEntry.call(filter,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
 			}
 			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 				doMapUserDataOntoUserEdit.call(userData,userEdit);			
@@ -267,7 +257,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		mockAttributeMapper.expects(once()).method("getFindUserByEmailFilter").
 			with(eq(email)).will(returnValue(emailFilter));
 		mockDoSearchDirectoryForSingleEntry.expects(once()).method("call").
-			with(eq(new Object[] {emailFilter, null, null, null, null})).
+			with(eq(new Object[] {emailFilter, null, null, null})).
 			after(mockAttributeMapper, "getFindUserByEmailFilter").
 			will(returnValue(userData));
 		// see comments re mapUserDataOntoUserEdit() in testGetUserByEidDispatch()
@@ -295,9 +285,9 @@ public class UnboundidProviderTest extends MockObjectTestCase {
         this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
 		
 		provider = new UnboundidDirectoryProvider() {
-			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
+			protected LdapUserData getUserByEid(String eid) 
 			throws LDAPException {
-				return (LdapUserData)doGetUserByEid.call(eid, conn);
+				return (LdapUserData)doGetUserByEid.call(eid);
 			}
 			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 				doMapUserDataOntoUserEdit.call(userData,userEdit);			
@@ -316,8 +306,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		mockAttributeMapper.expects(once()).method("unpackEidFromAddress").
 			with(eq(email)).will(returnValue(eid));
 		mockDoGetUserByEid.expects(once()).method("call")
-			.with(eq(new Object[] { userEdit.getEid(), null
-					}))
+			.with(eq(new Object[] { userEdit.getEid() }))
 			.will(returnValue(userData));
 		// see comments re mapUserDataOntoUserEdit() in testGetUserByEidDispatch()
 		mockDoMapUserDataOntoUserEdit.expects(once()).method("call")
@@ -347,12 +336,11 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		
 		provider = new UnboundidDirectoryProvider() {
 			protected Object searchDirectoryForSingleEntry(String filter, 
-					LDAPConnection conn,
 					LdapEntryMapper mapper,
 					String[] searchResultPhysicalAttributeNames,
 					String searchBaseDn)
 			throws LDAPException {
-				return doSearchDirectoryForSingleEntry.call(filter,conn,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
+				return doSearchDirectoryForSingleEntry.call(filter,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
 			}
 			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 				doMapUserDataOntoUserEdit.call(userData,userEdit);			
@@ -377,7 +365,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 			with(eq(email)).after(mockAttributeMapper, "unpackEidFromAddress").
 			will(returnValue(emailFilter));
 		mockDoSearchDirectoryForSingleEntry.expects(once()).method("call").
-			with(eq(new Object[] {emailFilter, null, null, null, null})).
+			with(eq(new Object[] {emailFilter, null, null, null})).
 			after(mockAttributeMapper, "getFindUserByEmailFilter").
 			will(returnValue(userData));
 		// see comments re mapUserDataOntoUserEdit() in testGetUserByEidDispatch()
@@ -411,12 +399,11 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		
 		provider = new UnboundidDirectoryProvider() {
 			protected Object searchDirectoryForSingleEntry(String filter, 
-					LDAPConnection conn,
 					LdapEntryMapper mapper,
 					String[] searchResultPhysicalAttributeNames,
 					String searchBaseDn)
 			throws LDAPException {
-				return doSearchDirectoryForSingleEntry.call(filter,conn,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
+				return doSearchDirectoryForSingleEntry.call(filter,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
 			}
 			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 				doMapUserDataOntoUserEdit.call(userData,userEdit);			
@@ -441,7 +428,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 			with(eq(email)).after(mockAttributeMapper, "unpackEidFromAddress").
 			will(returnValue(emailFilter));
 		mockDoSearchDirectoryForSingleEntry.expects(once()).method("call").
-			with(eq(new Object[] {emailFilter, null, null, null, null})).
+			with(eq(new Object[] {emailFilter, null, null, null})).
 			after(mockAttributeMapper, "getFindUserByEmailFilter").
 			will(returnValue(userData));
 		// see comments re mapUserDataOntoUserEdit() in testGetUserByEidDispatch()
@@ -464,7 +451,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
         this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
         
         provider = new UnboundidDirectoryProvider() {
-			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
+			protected LdapUserData getUserByEid(String eid) 
 			throws LDAPException {
 				return null;
 			}
@@ -485,9 +472,9 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		final Mock mockLookupUserBindDn = mock(VarargsMethod.class);
 		final VarargsMethod doLookupUserBindDn = (VarargsMethod)mockLookupUserBindDn.proxy();
 		provider = new UnboundidDirectoryProvider() {
-			protected String lookupUserBindDn(String eid, LDAPConnection conn) 
+			protected String lookupUserBindDn(String eid) 
 			throws LDAPException {
-				return (String)doLookupUserBindDn.call(eid, conn);
+				return (String)doLookupUserBindDn.call(eid);
 			}
 		};
 		
@@ -497,7 +484,7 @@ public class UnboundidProviderTest extends MockObjectTestCase {
 		final UserEdit userEdit = new UserEditStub();
 		userEdit.setEid(eid);
 		mockLookupUserBindDn.expects(once()).method("call").
-			with(eq(new Object[] {eid, conn})).
+			with(same(new Object[] {eid})).
 			will(returnValue(dn));
 		
 		// implicitly tests that allowAuthentication defaults to true
