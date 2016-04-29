@@ -88,6 +88,8 @@ public class GradebookPage extends BasePage {
 	GbModalWindow gradeStatisticsWindow;
 	GbModalWindow updateCourseGradeDisplayWindow;
 
+	Label liveGradingFeedback;
+
 	Form<Void> form;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
@@ -797,5 +799,31 @@ public class GradebookPage extends BasePage {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onBeforeRender() {
+		super.onBeforeRender();
+
+		// add simple feedback nofication to sit above the table
+		// which is reset every time the page renders
+		this.liveGradingFeedback = new Label("liveGradingFeedback");
+		// hide by default
+		this.liveGradingFeedback.add(new AttributeModifier("style", "display: none;"));
+		this.liveGradingFeedback.setOutputMarkupId(true);
+		this.liveGradingFeedback.setOutputMarkupPlaceholderTag(true);
+
+		// add the 'saving...' message to the DOM as the JavaScript will
+		// need to be the one that displays this message (Wicket will handle
+		// the 'saved' and 'error' messages when a grade is changed
+		this.liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
+		this.form.addOrReplace(liveGradingFeedback);
+	}
+
+	public Component updateLiveGradingMessage(String message) {
+		this.liveGradingFeedback.setDefaultModel(Model.of(message));
+		this.liveGradingFeedback.add(new AttributeModifier("style", ""));
+
+		return this.liveGradingFeedback;
 	}
 }
