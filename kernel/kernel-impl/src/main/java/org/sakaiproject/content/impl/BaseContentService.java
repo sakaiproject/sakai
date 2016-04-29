@@ -12754,8 +12754,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 */
 		protected boolean requiresCopyrightAgreement()
 		{
-			// check my properties
-			return m_properties.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT) != null;
+			// check the copyright alert setting
+			// return true only if the copyright alert property is set to be true
+			String copyrightAlert = m_properties.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
+			return Boolean.TRUE.toString().equalsIgnoreCase(copyrightAlert);
 		}
 
 		/**
