@@ -48,7 +48,7 @@
             siteUpdater = $('#feedback-siteupdaters').find(':selected').text();
             if (siteUpdater=='') siteUpdater = $('#feedback-contactname').val();
 
-            toAddress = $('#feedback-technical-email').val();
+            toAddress = $('#feedback-destination-email').val();
 
             feedback.utils.renderTemplate(HOME, { featureSuggestionUrl: feedback.featureSuggestionUrl,
                                                     supplementaryInfo: feedback.supplementaryInfo,
@@ -113,7 +113,7 @@
         } else if (CONTENT === state) {
 
             feedback.utils.renderTemplate(state, { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
-                windowHeight: window.outerHeight, siteExists: feedback.siteExists, siteId: feedback.siteId, contentUrl : feedback.contentUrl, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, technicalToAddress: feedback.technicalToAddress, contactName: feedback.contactName}, 'feedback-content');
+                windowHeight: window.outerHeight, siteExists: feedback.siteExists, siteId: feedback.siteId, contentUrl : feedback.contentUrl, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, destinationAddress: feedback.technicalToAddress, contactName: feedback.contactName}, 'feedback-content');
 
             feedback.previousState = state;
             $(document).ready(function () {
@@ -152,13 +152,15 @@
                 windowHeight: window.outerHeight, siteExists: feedback.siteExists, url: url, siteId: feedback.siteId, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, contactName: feedback.contactName };
 
             if (TECHNICAL === state) {
-                options['technicalToAddress'] = feedback.technicalToAddress;
-                options['helpPagesUrl'] = feedback.helpPagesUrl;
+                options['destinationAddress'] = feedback.technicalToAddress;
+                options['instructionUrl'] = feedback.helpPagesUrl;
+                options['instructionKey'] = 'technical_instruction';
             } else {
-                options['helpToAddress'] = feedback.helpToAddress;
-                options['helpdeskUrl'] = feedback.helpdeskUrl;
+                options['destinationAddress'] = feedback.helpToAddress;
+                options['instructionUrl'] = feedback.helpdeskUrl;
+                options['instructionKey'] = 'ask_instruction';
             }
-            feedback.utils.renderTemplate(state, options, 'feedback-content');
+            feedback.utils.renderTemplate("emailForm", options, 'feedback-content');
 
             feedback.previousState = state;
             $(document).ready(function () {

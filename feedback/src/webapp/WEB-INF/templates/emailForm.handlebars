@@ -1,5 +1,5 @@
 <h2 id="feedback-title">{{translate 'title'}}</h2>
-<div id="feedback-overview" class="instruction">{{translate 'ask_instruction' helpdeskUrl=helpdeskUrl}}</div>
+<div id="feedback-overview" class="instruction">{{translate instructionKey instructionUrl=instructionUrl}}</div>
 <form id="feedback-form" action="/direct/feedback/{{siteId}}/{{url}}" method="POST">
     <div id="feedback-mandatory-instruction" class="instruction">{{translate 'mandatory_instruction'}}</div>
     <fieldset>
@@ -15,8 +15,8 @@
     	<label for="feedback-sender-address">{{translate 'sender_address_label'}}</label>
     	<input id="feedback-sender-address" type="text" name="senderaddress" size="40"/>
     </div>
-
-    <input id="feedback-help-email" value="{{helpToAddress}}" hidden="hidden"/>
+    
+    <input id="feedback-destination-email" value="{{destinationAddress}}" hidden="hidden"/>
     <input id="feedback-contactname" value="{{contactName}}" hidden="hidden"/>
     <input type="hidden" name="siteExists" value="{{siteExists}}"/>
     <input name="plugins" value="{{plugins}}" type="hidden"/>
