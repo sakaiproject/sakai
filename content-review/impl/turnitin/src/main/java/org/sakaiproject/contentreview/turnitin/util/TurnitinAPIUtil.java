@@ -48,6 +48,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +60,6 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * This is a utility class for wrapping the physical https calls to the
  * Turn It In Service.
@@ -68,7 +67,7 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author sgithens
  *
  */
-@CommonsLog
+@Slf4j
 public class TurnitinAPIUtil {
 	
 	private static final Logger apiTraceLog = LoggerFactory.getLogger("org.sakaiproject.turnitin.util.TurnitinAPIUtil.apicalltrace");

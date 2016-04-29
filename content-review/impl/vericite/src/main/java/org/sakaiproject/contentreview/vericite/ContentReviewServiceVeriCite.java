@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -80,9 +81,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
-@CommonsLog
+@Slf4j
 public class ContentReviewServiceVeriCite implements ContentReviewService {
 
 	@Setter

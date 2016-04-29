@@ -7,11 +7,10 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import lombok.extern.apachecommons.CommonsLog;
-
-@CommonsLog
+@Slf4j
 public class FormatHelper {
 
 	/**

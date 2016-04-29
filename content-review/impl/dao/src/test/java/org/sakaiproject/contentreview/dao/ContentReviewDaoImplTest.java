@@ -18,18 +18,17 @@ package org.sakaiproject.contentreview.dao;
 import java.util.Date;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * Testing for the Evaluation Data Access Layer
  */
-@CommonsLog
+@Slf4j
 @ContextConfiguration({ "/hibernate-test.xml", "/spring-hibernate.xml" })
 public class ContentReviewDaoImplTest extends AbstractTransactionalJUnit4SpringContextTests {
 

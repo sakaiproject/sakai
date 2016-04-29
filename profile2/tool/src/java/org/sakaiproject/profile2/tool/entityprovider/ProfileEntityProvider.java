@@ -24,8 +24,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -68,7 +67,7 @@ import org.sakaiproject.profile2.util.ProfileUtils;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-@CommonsLog
+@Slf4j
 public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Resolvable, Sampleable, Describeable, Redirectable, ActionsExecutable, RequestAware {
 
 	public final static String ENTITY_PREFIX = "profile";
