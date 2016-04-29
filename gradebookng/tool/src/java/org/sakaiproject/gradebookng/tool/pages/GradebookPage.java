@@ -533,7 +533,7 @@ public class GradebookPage extends BasePage {
 
 		// if only one group, just show the title
 		// otherwise add the 'all groups' option
-		if (groups.size() == 1) {
+		if (this.role == GbRole.TA && groups.size() == 1) {
 			toolbar.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
 		} else {
 			toolbar.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
