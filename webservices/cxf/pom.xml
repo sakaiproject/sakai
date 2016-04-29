@@ -108,6 +108,10 @@
             <artifactId>messageforums-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.lessonbuilder</groupId>
+            <artifactId>lessonbuilder-api</artifactId>
+        </dependency>
+        <dependency>
           <groupId>org.sakaiproject.samigo</groupId>
           <artifactId>samigo-api</artifactId>
         </dependency>
