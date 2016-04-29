@@ -21,21 +21,21 @@
 
 (function ($) {
 
-	/**
-	*	Check if there is no scroll rendered and there are more pages
-	*/
+    /**
+    *   Check if there is no scroll rendered and there are more pages
+    */
     roster.checkScroll = function () {
         // Check if body height is lower than window height (scrollbar missed, maybe you need to get more pages automatically)
         if ($("body").height() <= $(window).height()) {
             setTimeout(function () {
-            	var renderedMembers = $(".roster-member").size();
-            	// Without filter conditions get more pages if there are more members than rendered and rendered > 0
-            	// If you have an active filter maybe you could display less members than total
-            	// So get more pages only if rendered match a page size (10 is pagesize)
-            	if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
-                	$("body").data("scroll-roster", true);
-                	$(window).trigger('scroll.roster');
-            	}
+                var renderedMembers = $(".roster-member").size();
+                // Without filter conditions get more pages if there are more members than rendered and rendered > 0
+                // If you have an active filter maybe you could display less members than total
+                // So get more pages only if rendered match a page size (10 is pagesize)
+                if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
+                    $("body").data("scroll-roster", true);
+                    $(window).trigger('scroll.roster');
+                }
             }, 100);
         }
     };
@@ -154,7 +154,7 @@
                 roster.readyClearButton(state);
 
                 // We don't want parallel membership requests
-	            $('#navbar_overview_link > span > a').off('click');
+                $('#navbar_overview_link > span > a').off('click');
 
                 roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
             });
@@ -522,11 +522,14 @@
 
     roster.getRoleFragments = function (roleCounts) {
 
+        console.log( roleCounts );
+
         return Object.keys(roleCounts).map(function (key) {
 
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-            return frag.replace(/\{1\}/, key);
-        }).join();
+            console.log( frag );
+            return frag.replace(/\{1\}/, '<strong>' +key + '</strong>');
+        }).join(", ");
     };
 
     roster.formatDate = function (time) {
@@ -542,15 +545,15 @@
     // Functions and attributes added. All the code from hereon is executed
     // after load.
 
-	if (!roster.siteId) {
-		alert('The site id  MUST be supplied as a bootstrap parameter.');
-		return;
-	}
-	
-	if (!roster.userId) {
-		alert("No current user. Have you logged in?");
-		return;
-	}
+    if (!roster.siteId) {
+        alert('The site id  MUST be supplied as a bootstrap parameter.');
+        return;
+    }
+    
+    if (!roster.userId) {
+        alert("No current user. Have you logged in?");
+        return;
+    }
 
     Handlebars.registerHelper('translate', function (key) {
         return roster.i18n[key];
@@ -569,19 +572,19 @@
     });
 
     Handlebars.registerHelper('unconnected', function () {
-	    return this.connectionStatus === CONNECTION_NONE;
+        return this.connectionStatus === CONNECTION_NONE;
     });
 
     Handlebars.registerHelper('confirmed', function () {
-	    return this.connectionStatus === CONNECTION_CONFIRMED;
+        return this.connectionStatus === CONNECTION_CONFIRMED;
     });
 
     Handlebars.registerHelper('requested', function () {
-	    return this.connectionStatus === CONNECTION_REQUESTED;
+        return this.connectionStatus === CONNECTION_REQUESTED;
     });
 
     Handlebars.registerHelper('incoming', function () {
-	    return this.connectionStatus === CONNECTION_INCOMING;
+        return this.connectionStatus === CONNECTION_INCOMING;
     });
 
     Handlebars.registerHelper('roleAllowed', function (options) {
@@ -594,7 +597,7 @@
 
     roster.init = function () {
 
-	    roster.i18n = $.i18n.map;
+        roster.i18n = $.i18n.map;
 
         roster.i18n.months = roster.i18n.months.split(',');
 
