@@ -7,28 +7,30 @@
 		<p class="instruction">
 			$tlang.getString("merge.select")
 		</p>
-		<table class="listHier lines nolines merge-list" cellspacing="0" summary="$tlang.getString("merge.list.summary")">
-		  <tr> 
-			<th id="announcementSite">$tlang.getString("gen.site")</th>
-			<th id="checkbox">$tlang.getString("merge.showann")</th>
-		  </tr>
-		  #set ($siteNumber =1)
-		  #foreach ($announcementEntry in $mergedAnnouncementsCollection)
-			#if ($announcementEntry.isVisible())
-				<tr> 
-					<td headers="announcementSite"><h4><label for="site$siteNumber">$validator.escapeHtml($announcementEntry.getDisplayName())</label></h4></td>
-					<td headers="checkbox">
-						<input type="checkbox" id="site$siteNumber" name="$announcementEntry.getReference()" value="$announcementEntry.getReference()"
-						#if($announcementEntry.isMerged())
-						checked
-						#end
-					/>
-				</td>
-				 </tr>
-				 #set($siteNumber=$siteNumber + 1)
-			#end
-		  #end
-		 </table>
+		<div class="tabl-responsive">
+			<table class="table table-striped table-bordered table-hover merge-list" cellspacing="0" summary="$tlang.getString("merge.list.summary")">
+		  		<tr> 
+					<th id="announcementSite">$tlang.getString("gen.site")</th>
+					<th id="checkbox">$tlang.getString("merge.showann")</th>
+		  		</tr>
+		  		#set ($siteNumber =1)
+		  		#foreach ($announcementEntry in $mergedAnnouncementsCollection)
+					#if ($announcementEntry.isVisible())
+						<tr> 
+							<td headers="announcementSite"><h5><label for="site$siteNumber">$validator.escapeHtml($announcementEntry.getDisplayName())</label></h5></td>
+							<td headers="checkbox">
+								<input type="checkbox" id="site$siteNumber" name="$announcementEntry.getReference()" value="$announcementEntry.getReference()"
+								#if($announcementEntry.isMerged())
+								checked
+								#end
+							/>
+							</td>
+				 		</tr>
+				 	#set($siteNumber=$siteNumber + 1)
+					#end
+		  		#end
+		 	</table>
+		</div>
 		<div class="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate" value="$tlang.getString("gen.save")" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" />
