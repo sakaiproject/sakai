@@ -82,6 +82,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
+			<artifactId>jquery-ui-touch-punch</artifactId>
+			<version>0.2.3-2</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap</artifactId>
 			<version>3.3.6</version>
 			<scope>runtime</scope>
