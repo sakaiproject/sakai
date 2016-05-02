@@ -126,7 +126,7 @@ $(document).ready(function(){
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
     </h:commandLink>
 
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>
+    <h:outputText value="</span><li role='menuitem'><span class='current'>" escape="false"/>
 
     <h:outputText value="#{commonMessages.total_scores}" />
 

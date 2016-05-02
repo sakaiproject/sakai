@@ -111,7 +111,7 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" />
+    <h:outputText value="</span><li role='menuitem'><span class='current'>" escape="false" />
     <h:outputText value="#{commonMessages.export_action}" />
 
     <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.hasFileUpload}"/>
