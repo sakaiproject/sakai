@@ -240,6 +240,22 @@ a.ui-button:link, a.ui-button:visited {
     margin-right: 3px !important;
 }
 
+.ui-widget .blti-instruction {
+   margin-top:40px;
+}
+.picker-error {
+   padding: 10px 10px 0px 10px;
+   margin-top:50px;
+}
+body .error-spacingabove {
+   margin-top: 30px;
+}
+.error-spacingbelow {
+   margin-bottom: 20px;
+}
+.error-padding {
+   padding: 10px 10px 0px 10px;
+}
 /* ff2, buttons don't work */
 a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.column-merge-link:link, a.column-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
