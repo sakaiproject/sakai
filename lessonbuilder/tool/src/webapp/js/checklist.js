@@ -72,6 +72,8 @@
     function loadPreviouslySavedChecklistItems() {
 
         var attributeString = $('#attributeString').val();
+	if (attributeString === null || attributeString === '')
+	    return;
         var obj = $.parseJSON(attributeString);
         if (obj) {
             $.each(obj.checklistItems, function (index, el) {
