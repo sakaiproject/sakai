@@ -1331,7 +1331,7 @@
 		<fieldset class="extraNode" id="modelanswer-node" style="display:none">## the panel for model answer
 			<legend>$tlang.getString("modelAnswer")</legend>
 			<div class="form-group row form-required">
-				<label for="modelanswer_text" class="col-lg-4 form-control-label">
+				<label for="modelanswer_text" class="col-lg-2 form-control-label">
 					$tlang.getString("modelAnswer.instruction")
 				</label>
 				<div class="col-lg-8">
@@ -1388,7 +1388,7 @@
 
 			<div class="form-group row form-required">
 				
-				<label for="modelanswer_to" class="col-lg-4 form-control-label">
+				<label for="modelanswer_to" class="col-lg-2 form-control-label">
 					$tlang.getString("modelAnswer.show_to_student.prompt")
 				</label>
 				## show to student time option
@@ -1448,7 +1448,7 @@
 		<fieldset class="extraNode" id="note-node" style="display:none">## the panel for private note
 			<legend>$tlang.getString("note")</legend>
 			<div class="row form-group form-required " >
-				<label for="note_text" class="col-lg-4 form-control-label">
+				<label for="note_text" class="col-lg-2 form-control-label">
 					$tlang.getString("note.instruction")
 				</label>
 				<div class="col-lg-8">
@@ -1467,7 +1467,7 @@
 				</div>
 			</div>
 			<div class="row form-group form-required">
-				<label for="note_to" class="col-lg-4 form-control-label">
+				<label for="note_to" class="col-lg-2 form-control-label">
 					$tlang.getString("note.to.prompt")
 				</label>
 				<div class="col-lg-8">
@@ -1507,7 +1507,7 @@
 		<fieldset class="extraNode" id="allPurpose-node" style="display:none">## the panel for allPurpose type of object
 			<legend>$tlang.getString('allPurpose')</legend>
 			<div class="form-group row form-required">
-				<label  for="allPurpose_title" class="form-control-label col-lg-4">
+				<label  for="allPurpose_title" class="form-control-label col-lg-2">
 					$validator.escapeHtml($tlang.getString("gen.title"))
 				</label>
 				<div class="col-lg-8">
@@ -1520,7 +1520,7 @@
 			</div>
 
 			<div class="form-group row form-required">
-				<label for="allPurpose_text" class="form-control-label col-lg-4">
+				<label for="allPurpose_text" class="form-control-label col-lg-2">
 					$tlang.getString("allPurpose.instruction")
 				</label>
 				<div class="col-lg-8">
@@ -1580,7 +1580,7 @@
 			## Show This Item Checkbox
 			<div class="form-group row">
 
-				<div class="col-lg-4 col-sm-4">
+				<div class="col-lg-2 col-sm-4">
 					<label for="allPurposeHide1">
 						<input name="allPurposeHide" id="allPurposeHide1" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
 						$tlang.getString("allPurpose.show")
