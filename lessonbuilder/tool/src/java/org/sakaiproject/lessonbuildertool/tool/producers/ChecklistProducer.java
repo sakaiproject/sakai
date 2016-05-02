@@ -136,13 +136,15 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 
             UIOutput.make(tofill, "attributeString", itemAttributeString);
 
-	    String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
+	    String indentLevel = "0";
+	    if (i != null && i.getAttribute(SimplePageItem.INDENT) != null)
+		indentLevel = i.getAttribute(SimplePageItem.INDENT);
 	    String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
 	    UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentLevel);
 
-	    String customClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
-	    if (customClass == null)
-		customClass = "";
+	    String customClass = "";
+	    if (i != null && i.getAttribute(SimplePageItem.CUSTOMCSSCLASS) != null)
+		customClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
 	    // If current user is an admin show the css class input box
 	    UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}", customClass);
 	    UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
