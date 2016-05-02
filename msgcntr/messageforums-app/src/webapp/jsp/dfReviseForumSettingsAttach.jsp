@@ -242,38 +242,41 @@
 
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>
-			<table><tr><td>
-			<p class="indnt1 checkbox"><h:selectBooleanCheckbox
-				title="autoMarkThreadsRead"
-				value="#{ForumTool.selectedForum.forumAutoMarkThreadsRead}"
-				id="autoMarkThreadsRead">
-			</h:selectBooleanCheckbox> <h:outputLabel for="autoMarkThreadsRead"
-				value="#{msgs.cdfm_auto_mark_threads_read}" /></p>
-				</td></tr></table>
+			
+			<p class="checkbox">
+				<h:selectBooleanCheckbox
+					title="autoMarkThreadsRead"
+					value="#{ForumTool.selectedForum.forumAutoMarkThreadsRead}"
+					id="autoMarkThreadsRead">
+				</h:selectBooleanCheckbox>
+				<h:outputLabel for="autoMarkThreadsRead"	value="#{msgs.cdfm_auto_mark_threads_read}" />
+			</p>
 
 	      <%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignmetns to select --%>
 				<%--designNote:  How is this a "permission" item? --%>  
 				<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
 
-				<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist}" style="margin-top:.5em;clear:both" styleClass="itemSummary">
-			    <h:panelGroup style="white-space:nowrap;">
-						<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
-			      </h:panelGroup>
-				  <h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-						<h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
-			   	    <f:selectItems value="#{ForumTool.assignments}" />
-			      </h:selectOneMenu>
-						<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
-						<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
-						<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
-			    </h:panelGroup>
-						<h:panelGroup styleClass="displayMorePanel" style="display:none" >
-			    </h:panelGroup>
-					<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
-
-						<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
-			    </h:panelGroup>
-			  </h:panelGrid>
+				<div class="row form-group" id="forum_grading">
+					<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}" styleClass="col-md-2 col-sm-2"></h:outputLabel>  
+					<div class="col-md-10 col-sm-10">
+						<div class="row">
+				  		<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
+							<h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+			   	    			<f:selectItems value="#{ForumTool.assignments}" />
+			      			</h:selectOneMenu>
+							<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+							<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
+							<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
+			    		</h:panelGroup>
+			    		</div>
+			    		<div class="row">
+							<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
+							<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
+								<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
+			    			</h:panelGroup>
+			    		</div>
+					</div>
+				</div>
 
 			<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 
