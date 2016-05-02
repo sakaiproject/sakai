@@ -26,10 +26,16 @@
         <div class="feedback-box" id="feedback-ask-help">
             <h3>{{translate 'ask_title'}}</h3>
             <ul>{{translate 'ask_explanation'}}</ul>
-        	{{#if enableHelp}}
-            	<p><a id="feedback-report-helpdesk-link" href="javascript:;">{{translate 'ask_link'}}</a></p>
+            {{#if enableHelp}}
+                    <p><a id="feedback-report-helpdesk-link"
+                    {{#if helpPanelAsLink}}
+                        href="{{helpdeskUrl}}" target="_blank"
+                    {{else}}
+                        href="javascript:;"
+                    {{/if}}
+                    >{{translate 'ask_link'}}</a></p>
             {{else}}
-            	<p class='information'>{{translate 'no_help_address'}}</p>
+                <p class='information'>{{translate 'no_help_address'}}</p>
             {{/if}}
             <div class="clear"></div>
         </div>
@@ -40,7 +46,13 @@
             <h3>{{translate 'technical_title'}}</h3>
             <ul>{{translate 'technical_explanation'}}</ul>
         	{{#if enableTechnical}}
-        		<p><a id="feedback-report-technical-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+        		<p><a id="feedback-report-technical-link"
+        		{{#if technicalPanelAsLink}}
+                    href="{{technicalUrl}}" target="_blank"
+                {{else}}
+                    href="javascript:;"
+        		{{/if}}
+                >{{translate 'technical_link'}}</a></p>
             {{else}}
             	<p class='information'>{{translate 'no_technical_address'}}</p>
             {{/if}}
@@ -52,8 +64,14 @@
         <div class="feedback-box" id="feedback-improvement">
             <h3>{{translate 'suggest_title'}}</h3>
             <ul>{{translate 'suggest_explanation'}}</ul>
-            {{#if featureSuggestionUrl}}
-            	<p><a id="feedback-suggest-feature-link" href="{{featureSuggestionUrl}}" target="_blank">{{translate 'suggest_link'}}</a></p>
+            {{#if enableSuggestions}}
+            	<p><a id="feedback-suggest-feature-link"
+            	{{#if suggestionsPanelAsLink}}
+                      href="{{featureSuggestionUrl}}" target="_blank"
+                {{else}}
+                      href="javascript:;"
+                {{/if}}
+                >{{translate 'suggest_link'}}</a></p>
             {{else}}
             	<p class='information'>{{translate 'no_suggestion_url'}}</p>
             {{/if}}

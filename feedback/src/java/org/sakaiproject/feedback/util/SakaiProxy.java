@@ -229,11 +229,13 @@ public class SakaiProxy {
         final ResourceLoader rb = new ResourceLoader("org.sakaiproject.feedback");
 
         String subjectTemplate = null;
-        
+
         if (feedbackType.equals(Constants.CONTENT)) {
             subjectTemplate = rb.getString("content_email_subject_template");
         } else if (feedbackType.equals(Constants.HELPDESK)) {
             subjectTemplate = rb.getString("help_email_subject_template");
+        } else if (feedbackType.equals(Constants.SUGGESTIONS)) {
+            subjectTemplate = rb.getString("suggestion_email_subject_template");
         } else {
             subjectTemplate = rb.getString("technical_email_subject_template");
         }

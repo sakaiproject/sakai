@@ -26,11 +26,14 @@
                 featureSuggestionUrl: '${featureSuggestionUrl}',
                 technicalToAddress: '${technicalToAddress}',
                 helpToAddress: '${helpToAddress}',
+                suggestionsToAddress: '${suggestionsToAddress}',
                 contactName: '${contactName}',
                 enableTechnical: ${enableTechnical},
                 enableHelp: ${enableHelp},
+                enableSuggestions: ${enableSuggestions},
                 helpPagesUrl: '${helpPagesUrl}',
                 helpdeskUrl: '${helpdeskUrl}',
+                technicalUrl: '${technicalUrl}',
                 helpPagesTarget: '${helpPagesTarget}',
                 supplementaryInfo: '${supplementaryInfo}',
                 recaptchaPublicKey: '${recaptchaPublicKey}',
@@ -39,6 +42,9 @@
                 showHelpPanel: ${showHelpPanel},
                 showTechnicalPanel: ${showTechnicalPanel},
                 showSuggestionsPanel: ${showSuggestionsPanel},
+                helpPanelAsLink: ${helpPanelAsLink},
+                technicalPanelAsLink: ${technicalPanelAsLink},
+                suggestionsPanelAsLink: ${suggestionsPanelAsLink},
                 siteUpdaters: [
                     <c:forEach items="${siteUpdaters}" var="su" varStatus="sus">
                     {id: '${su.key}', displayName: '${su.value}'}<c:if test="${!sus.last}">,</c:if>

@@ -128,6 +128,11 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
 		return handleReport(view, params, Constants.HELPDESK);
 	}
 
+    @EntityCustomAction(action = "reportsuggestions", viewKey =  EntityView.VIEW_EDIT)
+    public String handleSuggestionsReport(EntityView view, Map<String, Object> params) {
+        return handleReport(view, params, Constants.SUGGESTIONS);
+    }
+
 	private String handleReport(final EntityView view, final Map<String, Object> params, final String type) {
 
 		final String userId = developerHelperService.getCurrentUserId();
@@ -275,9 +280,8 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
             }
         } else if(Constants.HELPDESK.equals(type)){
             toAddress = sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null);
-            if(toAddress == null || toAddress.isEmpty()){
-                toAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
-            }
+        } else if(Constants.SUGGESTIONS.equals(type)){
+            toAddress = sakaiProxy.getConfigString(Constants.PROP_SUGGESTIONS_ADDRESS, null);
         } else {
             toAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
         }

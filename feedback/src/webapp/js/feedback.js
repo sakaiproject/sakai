@@ -7,8 +7,10 @@
     var CONTENT = 'content';
     var HELPDESK = 'helpdesk';
     var TECHNICAL = 'technical';
+    var SUGGESTIONS = 'suggestions';
     var REPORTTECHNICAL = 'reporttechnical';
     var REPORTHELPDESK = 'reporthelpdesk';
+    var REPORTSUGGESTIONS = 'reportsuggestions';
 
     /* RESPONSE CODES */
     var SUCCESS = 'SUCCESS';
@@ -51,6 +53,8 @@
             toAddress = $('#feedback-destination-email').val();
 
             feedback.utils.renderTemplate(HOME, { featureSuggestionUrl: feedback.featureSuggestionUrl,
+                                                    helpdeskUrl : feedback.helpdeskUrl,
+                                                    technicalUrl : feedback.technicalUrl,
                                                     supplementaryInfo: feedback.supplementaryInfo,
                                                     helpPagesUrl: feedback.helpPagesUrl,
                                                     helpPagesTarget: feedback.helpPagesTarget,
@@ -58,7 +62,11 @@
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
                                                     showSuggestionsPanel : feedback.showSuggestionsPanel,
+                                                    helpPanelAsLink : feedback.helpPanelAsLink,
+                                                    technicalPanelAsLink : feedback.technicalPanelAsLink,
+                                                    suggestionsPanelAsLink : feedback.suggestionsPanelAsLink,
                                                     enableTechnical : feedback.enableTechnical,
+                                                    enableSuggestions : feedback.enableSuggestions,
                                                     enableHelp : feedback.enableHelp}, 'feedback-content');
 
             $(document).ready(function () {
@@ -71,7 +79,7 @@
                     feedback.switchState(CONTENT);
                 });
 
-                if (feedback.enableTechnical) {
+                if (!feedback.technicalPanelAsLink && feedback.enableTechnical) {
                     $('#feedback-technical-item').show().css('display', 'inline');
                     $('#feedback-report-technical-wrapper').show();
                     $('#feedback-report-technical-link').click(function (e) {
@@ -79,9 +87,15 @@
                     });
                 }
 
-                if(feedback.enableHelp) {
+                if(!feedback.helpPanelAsLink && feedback.enableHelp) {
                     $('#feedback-report-helpdesk-link').click(function (e) {
                         feedback.switchState(HELPDESK, REPORTHELPDESK);
+                    });
+                }
+                
+                if(!feedback.suggestionsPanelAsLink && feedback.enableSuggestions) {
+                    $('#feedback-suggest-feature-link').click(function(e) {
+                        feedback.switchState(SUGGESTIONS, REPORTSUGGESTIONS);
                     });
                 }
 
@@ -147,18 +161,22 @@
                 }
 
             });
-        } else if (TECHNICAL === state || HELPDESK === state) {
+        } else if (TECHNICAL === state || HELPDESK === state || SUGGESTIONS === state) {
             var options = { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
                 windowHeight: window.outerHeight, siteExists: feedback.siteExists, url: url, siteId: feedback.siteId, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, contactName: feedback.contactName };
 
             if (TECHNICAL === state) {
                 options['destinationAddress'] = feedback.technicalToAddress;
-                options['instructionUrl'] = feedback.helpPagesUrl;
+                options['instructionUrl'] = feedback.technicalUrl;
                 options['instructionKey'] = 'technical_instruction';
-            } else {
+            } else if (HELPDESK === state) {
                 options['destinationAddress'] = feedback.helpToAddress;
                 options['instructionUrl'] = feedback.helpdeskUrl;
                 options['instructionKey'] = 'ask_instruction';
+            } else {
+                options['destinationAddress'] = feedback.suggestionsToAddress;
+                options['instructionUrl'] = feedback.featureSuggestionUrl;
+                options['instructionKey'] = 'suggestion_instruction';
             }
             feedback.utils.renderTemplate("emailForm", options, 'feedback-content');
 

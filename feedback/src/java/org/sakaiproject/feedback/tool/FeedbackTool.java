@@ -127,23 +127,69 @@ public class FeedbackTool extends HttpServlet {
 
         setMapAttribute(request, "i18n", getBundle(serviceName));
         setStringAttribute(request, "language", rb.getLocale().getLanguage());
-        request.setAttribute("enableTechnical",
-                (sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null) == null)
-                        ? false : true);
+
+        String technicalToAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
+        setStringAttribute(request, "technicalToAddress", technicalToAddress);
+        Boolean technicalPanelAsLink = sakaiProxy.getConfigBoolean(Constants.TECHNICAL_PANEL_AS_LINK, false);
+        request.setAttribute("technicalPanelAsLink", technicalPanelAsLink);
+
+        String helpToAddress = sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null);
+        setStringAttribute(request, "helpToAddress", helpToAddress);
+        Boolean helpPanelAsLink = sakaiProxy.getConfigBoolean(Constants.HELP_PANEL_AS_LINK, false);
+        request.setAttribute("helpPanelAsLink", helpPanelAsLink);
+
+        String suggestionsToAddress = sakaiProxy.getConfigString(Constants.PROP_SUGGESTIONS_ADDRESS, null);
+        setStringAttribute(request, "suggestionsToAddress", suggestionsToAddress);
+        Boolean suggestionsPanelAsLink = sakaiProxy.getConfigBoolean(Constants.SUGGESTIONS_PANEL_AS_LINK, true);
+        request.setAttribute("suggestionsPanelAsLink", suggestionsPanelAsLink);
 
         request.setAttribute("enableHelp", (sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null) == null) ? false : true);
         request.setAttribute("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
         setStringAttribute(request, "userId", (userId == null) ? "" : userId);
         setStringAttribute(request, "siteId", (siteId != null)?siteId.replaceAll("/", FORWARD_SLASH):null);
         request.setAttribute("siteExists", siteExists);
-        setStringAttribute(request, "featureSuggestionUrl", sakaiProxy.getConfigString("feedback.featureSuggestionUrl", ""));
-        setStringAttribute(request, "helpPagesUrl", sakaiProxy.getConfigString("feedback.helpPagesUrl", "/portal/help/main"));
-        setStringAttribute(request, "helpdeskUrl", sakaiProxy.getConfigString("feedback.helpdeskUrl", "/portal/help/main"));
-        setStringAttribute(request, "helpPagesTarget", sakaiProxy.getConfigString("feedback.helpPagesTarget", "_blank"));
-        setStringAttribute(request, "supplementaryInfo", sakaiProxy.getConfigString("feedback.supplementaryInfo", ""));
+        setStringAttribute(request, "helpPagesUrl", sakaiProxy.getConfigString(Constants.PROP_HELPPAGES_URL, "/portal/help/main"));
+
+        String featureSuggestionUrl = sakaiProxy.getConfigString(Constants.PROP_SUGGESTIONS_URL, "");
+        setStringAttribute(request, "featureSuggestionUrl", featureSuggestionUrl);
+        String helpdeskUrl = sakaiProxy.getConfigString(Constants.PROP_HELPDESK_URL, "");
+        setStringAttribute(request, "helpdeskUrl", helpdeskUrl);
+        String technicalUrl = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_URL, "");
+        setStringAttribute(request, "technicalUrl", technicalUrl);
+
+        Boolean enableHelp = true;
+        if (helpPanelAsLink) {
+            if (helpdeskUrl.isEmpty()) {
+                enableHelp = false;
+            }
+        } else {
+            enableHelp = (helpToAddress == null ? false : true);
+        }
+        request.setAttribute("enableHelp", enableHelp);
+
+        Boolean enableTechnical = true;
+        if (technicalPanelAsLink) {
+            if (technicalUrl.isEmpty()) {
+                enableTechnical = false;
+            }
+        } else {
+            enableTechnical = (technicalToAddress == null ? false : true);
+        }
+        request.setAttribute("enableTechnical", enableTechnical);
+
+        Boolean enableSuggestions = true;
+        if (suggestionsPanelAsLink) {
+            if (featureSuggestionUrl.isEmpty()) {
+                enableSuggestions = false;
+            }
+        } else {
+            enableSuggestions = (suggestionsToAddress == null ? false : true);
+        }
+        request.setAttribute("enableSuggestions", enableSuggestions);
+
+        setStringAttribute(request, "helpPagesTarget", sakaiProxy.getConfigString(Constants.PROP_HELPPAGES_TARGET, "_blank"));
+        setStringAttribute(request, "supplementaryInfo", sakaiProxy.getConfigString(Constants.PROP_SUPPLEMENTARY_INFO, ""));
         request.setAttribute("maxAttachmentsMB", sakaiProxy.getAttachmentLimit());
-        setStringAttribute(request, "technicalToAddress", sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null));
-        setStringAttribute(request, "helpToAddress", sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null));
         request.setAttribute("showContentPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_CONTENT_PANEL, true));
         request.setAttribute("showHelpPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_HELP_PANEL, true));
         request.setAttribute("showTechnicalPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_TECHNICAL_PANEL, true));
