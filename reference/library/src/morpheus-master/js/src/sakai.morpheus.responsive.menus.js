@@ -20,7 +20,7 @@ $PBJQ(document).ready(function(){
   	if( $PBJQ('option:selected', this ).text() !== '' ){
   		document.location = $PBJQ('option:selected', this ).val();
   	}else{
-  		$(this)[0].selectedIndex = 0;
+  		$PBJQ(this)[0].selectedIndex = 0;
   	}
 
   });
