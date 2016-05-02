@@ -12,7 +12,7 @@ $PBJQ(document).ready(function(){
         $PBJQ('#Mrphs-xlogin').addClass('loadedByAjax');
         $PBJQ('#eid').focus();
       });
-      $('.Mrphs-portalWrapper').addClass('blurry');
+      $PBJQ('.Mrphs-portalWrapper').addClass('blurry');
 
       $PBJQ('body').append('<div id="loginPortalMask" />');
       $PBJQ('#loginPortalMask').bgiframe();
@@ -20,7 +20,7 @@ $PBJQ(document).ready(function(){
       $PBJQ('#loginPortalMask').click(function(){
         $PBJQ('#loginPortalMask').remove();
         $PBJQ('#Mrphs-xlogin-container').remove();
-        $('.Mrphs-portalWrapper').removeClass('blurry');
+        $PBJQ('.Mrphs-portalWrapper').removeClass('blurry');
       });
 
       e.preventDefault();
