@@ -191,6 +191,8 @@ public class GradeItemCellPanel extends Panel {
 				protected void onUpdate(final AjaxRequestTarget target) {
 					final String rawGrade = GradeItemCellPanel.this.gradeCell.getValue();
 
+					GradebookPage page = (GradebookPage)getPage();
+
 					clearNotifications();
 
 					// perform validation here so we can bypass the backend
@@ -199,7 +201,7 @@ public class GradeItemCellPanel extends Panel {
 					if (StringUtils.isNotBlank(rawGrade) && (!validator.isValid(rawGrade) || Double.parseDouble(rawGrade) < 0)) {
 						// show warning and revert button
 						markWarning(getComponent());
-						warn(getString("grade.notifications.error"));
+						target.add(page.updateLiveGradingMessage(getString("feedback.error")));
 					} else {
 						final String newGrade = FormatHelper.formatGrade(rawGrade);
 
@@ -213,12 +215,12 @@ public class GradeItemCellPanel extends Panel {
 								markSuccessful(GradeItemCellPanel.this.gradeCell);
 								GradeItemCellPanel.this.originalGrade = newGrade;
 								refreshCourseGradeAndCategoryAverages(target);
-								success(getString("grade.notifications.saved"));
+								target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 								break;
 							case ERROR:
 								markError(getComponent());
 								// show the error message
-								error(getString("grade.notifications.error"));
+								target.add(page.updateLiveGradingMessage(getString("feedback.error")));
 								// and the invalid score message, just to be helpful
 								GradeItemCellPanel.this.notifications.add(GradeCellNotification.INVALID);
 								break;
@@ -226,14 +228,14 @@ public class GradeItemCellPanel extends Panel {
 								markOverLimit(GradeItemCellPanel.this.gradeCell);
 								refreshCourseGradeAndCategoryAverages(target);
 								GradeItemCellPanel.this.originalGrade = newGrade;
-								success(getString("grade.notifications.saved"));
+								target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 								break;
 							case NO_CHANGE:
 								handleNoChange(GradeItemCellPanel.this.gradeCell);
 								break;
 							case CONCURRENT_EDIT:
 								markError(GradeItemCellPanel.this.gradeCell);
-								error(getString("grade.notifications.error"));
+								target.add(page.updateLiveGradingMessage(getString("feedback.error")));
 								GradeItemCellPanel.this.notifications.add(GradeCellNotification.CONCURRENT_EDIT);
 								break;
 							default:

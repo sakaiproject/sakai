@@ -1133,3 +1133,17 @@ and (max-device-width : 736px) {
 	font-weight: bold;
 	line-height: 3em;
 }
+
+/* Live feedback message container */
+.gb-live-feedback {
+  position: absolute;
+  top: 20px;
+  width: 200px;
+  margin-left: -100px;
+  left: 50%;
+  background-color: #EEE;
+  text-align: center;
+  padding: 4px;
+  font-size: 12px;
+  line-height: 14px;
+}
