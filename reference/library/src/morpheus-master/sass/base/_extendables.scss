@@ -284,3 +284,19 @@ a.noPointers, input.noPointers {
 		left: 2.5% !important;
 	}
 }
+
+label.panelGridLabel{
+	margin-right: 0.5em;
+}
+
+.inputColorContainer{
+	input{
+		@media #{$phone}{
+			display: inline-block;
+			max-width: calc( 100% - 20px);
+		}
+	}
+	td{
+		vertical-align: baseline;
+	}
+}
