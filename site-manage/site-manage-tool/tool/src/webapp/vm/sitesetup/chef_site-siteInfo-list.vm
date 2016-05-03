@@ -115,7 +115,7 @@
 	
 </script>
 
-<div class ="portletBody specialLink">
+<div class ="portletBody specialLink container-fluid">
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
@@ -438,31 +438,35 @@
 				<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.groups")#else $tlang.getString("sinfo.list.groups.student") #end</span>
 			</h4>		
 			<div class="toggledContent">
-			<ul class="defList" style="list-style: none;" id="accordion">
+			<ul class="defList groups-site" id="accordion">
 				#foreach ($g in $!groups)
 					#set ($gdesc = "")
-					<li style="margin: 1em 0 1em 0">
-						<span style="width: 80%;">
-							<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>
-							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
-								<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
-							#end
-							#if ($g.Description)
-								<br/>
-								<span class="instruction">
-									$validator.escapeHtml($g.Description)
+					<li>	
+						<div class="row">
+							<div class="col-lg-10 col-sm-10 col-xs-12">
+								<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>
+								#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
+									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+								#end
+								#if ($g.Description)
+									<br/>
+									<span class="instruction">
+										$validator.escapeHtml($g.Description)
+									</span>
+								#end					
+							</div>
+							#if ($!unjoinableGroups.contains($g.Id))
+							<div class="col-lg-2 col-sm-2 col-xs-12">
+								<span>
+									<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+										<input type="hidden" name="group-ref" value="$g.reference" />
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+										<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
+									</form>
 								</span>
-							#end					
-						</span>
-						#if ($!unjoinableGroups.contains($g.Id))
-							<span style="float: right">
-								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
-									<input type="hidden" name="group-ref" value="$g.reference" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								</form>
-							</span>
-						#end
+							</div>
+							#end
+						</div>
 					</li>
 				#end
 			</ul>
