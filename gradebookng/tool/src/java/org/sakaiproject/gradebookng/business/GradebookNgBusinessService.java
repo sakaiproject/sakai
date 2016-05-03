@@ -16,7 +16,6 @@ import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
@@ -68,6 +67,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Business service for GradebookNG
@@ -441,11 +441,30 @@ public class GradebookNgBusinessService {
 		final String storedGrade = this.gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId,
 				studentUuid);
 
-		// trim the .0 from the grades if present. UI removes it so lets
-		// standardise.
+		// get assignment config
+		final Assignment assignment = this.getAssignment(assignmentId);
+		final Double maxPoints = assignment.getPoints();
+
+		// check what grading mode we are in
+		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
+
+		// if percentage entry type, additional formatting, otherwise use points as is
+		String gradeString = null;
+		if (gradingType == GbGradingType.PERCENTAGE) {
+			// the passed in grade represents a percentage so the number needs to be adjusted back to points
+			final Double percentage = NumberUtils.toDouble(newGrade);
+			final Double pointsFromPercentage = percentage / maxPoints;
+
+			log.debug("pointsFromPercentage: " + pointsFromPercentage);
+			gradeString = pointsFromPercentage.toString();
+		} else {
+			gradeString = newGrade;
+		}
+
+		// trim the .0 from the grades if present. UI removes it so lets standardise
 		String processedStoredGrade = StringUtils.removeEnd(storedGrade, ".0");
 		String processedOldGrade = StringUtils.removeEnd(oldGrade, ".0");
-		String processedNewGrade = StringUtils.removeEnd(newGrade, ".0");
+		String processedNewGrade = StringUtils.removeEnd(gradeString, ".0");
 
 		// trim to null so we can better compare against no previous grade being
 		// recorded (as it will be null)
@@ -462,19 +481,12 @@ public class GradebookNgBusinessService {
 		}
 
 		// if comment longer than 500 chars, error.
-		// the field is a CLOB, probably by mistake. Loading this field up may
-		// cause performance issues
+		// the field is a CLOB, probably by mistake. Loading this field up may cause performance issues
 		// see SAK-29595
 		if (StringUtils.length(comment) > 500) {
 			log.error("Comment too long. Maximum 500 characters.");
 			return GradeSaveResponse.ERROR;
 		}
-
-		// over limit check, get max points for assignment and check if the
-		// newGrade is over limit
-		// we still save it but we return the warning
-		final Assignment assignment = this.getAssignment(assignmentId);
-		final Double maxPoints = assignment.getPoints();
 
 		// no change
 		if (StringUtils.equals(processedStoredGrade, processedNewGrade)) {
@@ -498,9 +510,10 @@ public class GradebookNgBusinessService {
 
 		GradeSaveResponse rval = null;
 
-		if (StringUtils.isNotBlank(newGrade)) {
+		if (StringUtils.isNotBlank(gradeString)) {
 			final Double newGradePoints = NumberUtils.toDouble(processedNewGrade);
 
+			// if over limit, still save but return the warning
 			if (newGradePoints.compareTo(maxPoints) > 0) {
 				log.debug("over limit. Max: " + maxPoints);
 				rval = GradeSaveResponse.OVER_LIMIT;
