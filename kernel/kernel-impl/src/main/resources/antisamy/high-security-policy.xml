@@ -2712,6 +2712,11 @@
         <!-- HTML5 figure and figcaption http://html5doctor.com/the-figure-figcaption-elements/ -->
         <tag name="figure" action="validate"/>
         <tag name="figcaption" action="validate"/>
+        
+        <tag name="form" action="remove"/>
+        <tag name="input" action="remove"/>
+        <tag name="select" action="remove"/>
+        <tag name="textarea" action="remove"/>
     </tag-rules>
 
 
