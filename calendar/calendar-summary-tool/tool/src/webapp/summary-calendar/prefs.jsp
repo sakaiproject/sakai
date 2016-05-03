@@ -29,15 +29,15 @@
 		<%/* Calendar display */%>
 		<h4><h:outputText value="#{msgs.prefs_section_display}"/></h4>
 		<sakai:instruction_message value="#{msgs.instructions_display}" />
-		<h:panelGrid styleClass="indnt2" columns="2">
-            	<h:outputLabel for="selectViewMode" value="#{msgs.prefs_view_mode}: "/>
-                <h:selectOneMenu
-                	id="selectViewMode"
-                    immediate="false"
-                    value="#{PrefsBean.selectedViewMode}">
-                   	<f:selectItems value="#{PrefsBean.viewModes}"/>
-				</h:selectOneMenu>
-		</h:panelGrid>
+		<div class="form-group">
+        	<h:outputLabel for="selectViewMode" value="#{msgs.prefs_view_mode}: "/>
+            <h:selectOneMenu
+            	id="selectViewMode"
+                immediate="false"
+                value="#{PrefsBean.selectedViewMode}">
+               	<f:selectItems value="#{PrefsBean.viewModes}"/>
+			</h:selectOneMenu>
+		</div>
 		
 		
 		<%/* Event priorities */%>
@@ -46,8 +46,8 @@
 		
 		<%/* Event priorities: event types */%>
 		<h5><h:outputText value="#{msgs.prefs_section_priority_eventypes}" styleClass="indnt1"/></h5>
-		<h:panelGrid styleClass="indnt2" columns="2">
-	        	<h:outputLabel for="highPriorityEvents" value="#{msgs.prefs_high_priority}: "/>
+		<h:panelGrid columns="2">
+	        	<h:outputLabel styleClass="panelGridLabel" for="highPriorityEvents" value="#{msgs.prefs_high_priority}: "/>
 	            <h:selectManyListbox id="highPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedHighPriorityEvents}">
 	            	<%--<f:selectItems value="#{PrefsBean.highPriorityEvents}" var="mapEntry" itemValue="#{mapEntry.value}" itemLabel="#{mapEntry.key}"/>--%>
@@ -62,7 +62,7 @@
                     	            action="" immediate="true" value="#{msgs.prefs_move_down}" />   
 		        </h:panelGrid>
 	            
-				<h:outputLabel for="mediumPriorityEvents" value="#{msgs.prefs_medium_priority}: "/>	            
+				<h:outputLabel styleClass="panelGridLabel" for="mediumPriorityEvents" value="#{msgs.prefs_medium_priority}: "/>	            
 	            <h:selectManyListbox id="mediumPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedMediumPriorityEvents}">
 	            	<%--<f:selectItems value="#{PrefsBean.mediumPriorityEvents}" var="mapEntry" itemValue="#{mapEntry.value}" itemLabel="#{mapEntry.key}"/>--%>
@@ -77,7 +77,7 @@
 	                                action="" immediate="true" value="#{msgs.prefs_move_down}" />
 		        </h:panelGrid>
 	            
-	        	<h:outputLabel for="lowPriorityEvents" value="#{msgs.prefs_low_priority}: "/>	            
+	        	<h:outputLabel styleClass="panelGridLabel" for="lowPriorityEvents" value="#{msgs.prefs_low_priority}: "/>	            
 	            <h:selectManyListbox id="lowPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedLowPriorityEvents}">
 	            	<%--<f:selectItems value="#{PrefsBean.lowPriorityEvents}" var="mapEntry" itemValue="#{mapEntry.value}" itemLabel="#{mapEntry.key}"/>--%>
@@ -87,7 +87,7 @@
 		
 		<%/* Event priorities: colors */%>
 		<h5><h:outputText value="#{msgs.prefs_section_priority_color}" styleClass="indnt1"/></h5>
-		<h:panelGrid styleClass="indnt2" columns="2">
+		<h:panelGrid styleClass="inputColorContainer" columns="2">
             	<h:outputLabel for="highPriorityColor" value="#{msgs.prefs_high_priority}: "/>
                 <sakai:inputColor 
                 	id="highPriorityColor"
