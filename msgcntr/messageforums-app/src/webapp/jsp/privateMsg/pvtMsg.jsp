@@ -181,7 +181,7 @@
 		  </h:column>
 		</h:dataTable>
 	</div>
-		
+	  <div class="table-responsive">	
 	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
@@ -254,6 +254,7 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
+		</div>
 		
 <%-- Added if user clicks Check All --%>
     <script language="Javascript" type="text/javascript">
