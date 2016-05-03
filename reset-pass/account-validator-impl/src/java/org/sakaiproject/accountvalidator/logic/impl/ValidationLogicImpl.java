@@ -714,7 +714,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		String templateKey = getTemplateKey(account.getAccountStatus());
 		RenderedTemplate renderedTemplate = emailTemplateService.getRenderedTemplateForUser(templateKey, userReference, replacementValues);
-		emailTemplateService.sendMessage(userIds,emailAddresses, renderedTemplate, serverConfigurationService.getString("mail.support"), serverConfigurationService.getString("mail.support.name",serverConfigurationService.getString("support.name")));
+		emailTemplateService.sendMessage(userIds,emailAddresses, renderedTemplate, serverConfigurationService.getString("mail.support","support@"+ serverConfigurationService.getServerName()), serverConfigurationService.getString("mail.support.name",serverConfigurationService.getString("support.name")));
 	}
 
 
