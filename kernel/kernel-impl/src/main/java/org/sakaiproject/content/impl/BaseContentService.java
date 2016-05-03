@@ -12755,9 +12755,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		protected boolean requiresCopyrightAgreement()
 		{
 			// check the copyright alert setting
-			// return true only if the copyright alert property is set to be true
-			String copyrightAlert = m_properties.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
-			return Boolean.TRUE.toString().equalsIgnoreCase(copyrightAlert);
+			// return true only if the copyright alert property is set and value is true
+			try
+			{
+				return m_properties.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
+			}
+			catch (Exception e)
+			{
+				// if there is no such copyright alert property, return false
+				return false;
+			}
 		}
 
 		/**
