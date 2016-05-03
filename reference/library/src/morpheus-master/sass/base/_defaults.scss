@@ -57,6 +57,15 @@ input, textarea{
 	max-width: 100%;
 }
 
+form, table{
+	textarea{
+		@media #{$phone}{
+			width: 100%;
+			max-width: 100%;
+		}
+	}
+}
+
 h1, h2, h3, h4, h5, h6{
 	font-family: $header-font-family;
 	font-weight: 700;
