@@ -288,6 +288,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 }
 
 .mainList {
+    list-style:none;
 }
 
 /* padding-top 35 for one col, 25 for multiple, 20 in narrow screen */
