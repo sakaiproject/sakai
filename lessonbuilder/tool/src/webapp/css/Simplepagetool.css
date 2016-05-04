@@ -113,10 +113,6 @@
 .nextprev {
 	font-size: 95% !important
 }
-#error {
-	left: 10px;
-	margin: 20px;
-}
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
 }
@@ -244,6 +240,9 @@ body .below-link-help, #error.below-link-help {
 }
 body .error-spacingabove {
    margin-top: 30px;
+}
+body .error-spacingabove {
+   margin-bottom: -10px;
 }
 /* ff2, buttons don't work */
 a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.column-merge-link:link, a.column-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
