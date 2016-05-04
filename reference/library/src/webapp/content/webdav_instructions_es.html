@@ -169,6 +169,14 @@
 				<li>En la ventana emergente, debe introducir su usuario y clave de la plataforma y hacer clic en Aceptar.</li>
 				<li>Ya puedes copiar y pegar o arrastrar archivos y carpetas desde tu ordenador hacia esta nueva unidad. Los archivos serán accesibles desde la herramienta recursos del sitio dentro de la plataforma.</li>
 			</ol>
+			
+			<h5>M&eacute;todo alternativo para configurar WebDAV en Windows</h5>
+	
+			<p>Si el proceso descrito anteriormente da problemas de
+				conexi&oacute;n, puedes usar el cliente de WedDAV
+				<a class="activateTab" href="#instr-other">Cyberduck</a>. 
+			</p>
+			
 		</div>
 		<div id="instr-windows7">
 			<h4>Configurar WebDAV para Windows Vista/Windows 7</h4>
@@ -202,26 +210,12 @@
 				recursos del sitio aparceran en una unidad dentro de Mi Pc o Equipo,
 				y se comportar&aacute; como cualquier disco duro dentro de Windows.</p>
 	
-			<h5>Metodo alternativo para configurar WebDAV en Windows Vista o
-				Windows 7</h5>
+			<h5>M&eacute;todo alternativo para configurar WebDAV en Windows</h5>
 	
 			<p>Si el proceso descrito anteriormente da problemas de
-				conexi&oacute;n, puedes usar un cliente de WedDAV gratuito llamado
-				AnyClient. Sigue los siguientes pasos para descargarte y configurar
-				dicho cliente.</p>
-	
-			<ol>
-				<li>Accede a la web de AnyClient: <a href="http://www.anyclient.com" target="_blank">http://www.anyclient.com</a>.</li>
-				<li>clic en el enlace <strong>Download Now</strong></li>
-				<li>Ejecuta el archivo <strong>install.exe</strong> y completa el asistente de instalaci&oacute;n.</li>
-				<li>Si la instalaci&oacute;n no arranca autom&aacute;ticamente el programa AnyClient, haz clic en <strong>Inicio &gt; Todos los programas &gt; AnyClient &gt; AnyClient</strong> para abrir AnyClient.</li>
-				<li>clic en <strong>Conectar</strong> en la parte inferior izquierda.</li>
-				<li>clic en <strong>Nuevo</strong> en la parte inferior izquierda y pon un nombre de conexi&oacute;n relacionado con tu sitio dentro de la plataforma (por ejemplo, <em>Recursos de Didactica de la educaci&oacute;n</em>) y clic en Siguiente.</li>
-				<li>En el apartado de <em>Host</em>, escriba (o copie y pegue) la URL de este sitio mostrada arriba en el paso 1 y haga clic en Finalizar. </li>
-				<li>Ahora debe introducir su usuario y clave de la plataforma.</li>
-				<li>En el apartado de <em>Tipo de conexi&oacute;n</em>, seleccione WebDAV. </li>
-				<li>Haga clic <strong>Guardar</strong> en la parte inferior de la ventana si desea recordar los datos para futuras conexiones y clic en <strong>Conectar</strong>. </li>
-			</ol>
+				conexi&oacute;n, puedes usar el cliente de WedDAV
+				<a class="activateTab" href="#instr-other">Cyberduck</a>. 
+			</p>
 	
 		</div>
 		<div id="instr-mac">
@@ -334,7 +328,7 @@
 			</p>
 		</div>
 		<div id="instr-other">
-			<h4>Configurar WebDAV para Mac usando Cyberduck</h4>
+			<h4>Configurar WebDAV para Mac/Windows usando Cyberduck</h4>
 	
 			<p>
 				<strong>Nota:</strong>: Debe haber al menos un objeto (fichero,
@@ -347,33 +341,42 @@
 			<ol>
 				<li>Descargar el cliente WebDAV Cyberduck.
 					<ul>
-						<li>Para Mac OS X versi&oacute;n 10.5 y superiores, descargar la versi&oacute;n m&aacute;s reciente en:
+						<li>Para Windows o Mac OS X versi&oacute;n 10.5 y superiores, descargar e instalar la versi&oacute;n m&aacute;s reciente en:
 							<a href="http://cyberduck.io/" target="_blank">http://cyberduck.io/</a>
 						</li>
 						<li>Para Mac OS X versiones anteriores a 10.5, descargar el	cliente WebDAV Cyberduck en: 
 							<a href="http://update.cyberduck.io/Cyberduck-2.8.5.dmg"
 							   target="_blank">http://update.cyberduck.io/Cyberduck-2.8.5.dmg</a>
+							<ul>
+								<li>Descomprima el archivo y haz doble clic en el fichero .dmg. (Dependiendo de la configuraci&oacute;n de tu descompresor, la imagen se montar&aacute; autom&aacute;ticamente en el disco).</li>
+								<li>Una imagen de disco llamada <em>Cyberduck-2.8.5</em> debe estar ahora disponible. Simplemente arrastra la imagen de disco hacia tu carpeta de Aplicaciones</li>
+							</ul>
 						</li>
 					</ul>
 				</li>
-				<li>Desc&aacute;rguese el cliente WebDAV Cyberduck en: <a href="http://cyberduck.io/" target="_blank">http://cyberduck.io</a></li>
-				<li>Descomprima el archivo y haz doble clic en el fichero .dmg. (Dependiendo de la configuraci&oacute;n de tu descompresor, la imagen se montar&aacute; autom&aacute;ticamente en el disco).</li>
-				<li>Una imagen de disco llamada <em>Cyberduck-2.8.5</em> debe estar ahora disponible. Simplemente arrastra la imagen de disco hacia tu carpeta de Aplicaciones</li>
 				<li>Abre la aplicaci&oacute;n Cyberduck desde Aplicaciones.</li>
-				<li>Haz clic en el boton <strong>Nueva Conexi&oacute;n</strong>.</li>
-				<li>Seleccione WebDAV <span class="webDavService"></span></li>
-				<li>En <b>Servidor</b> ponemos: <b><span class="webDavHostName">hostname</span></b></li>
-				<li>En <b>Puerto</b> ponemos: <span class="webDavPort">80</span></li>
-				<li>Introduce tu usuario y tu contrase&ntilde;a de la plataforma</li>
-				<li>Pulse sobre <i>Mas opciones</i> y ponga en <b>Carpeta</b> el final de la URL del paso uno: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em></li>
-				<li>Haga clic en el bot&oacute;n <b>Conectar</b>.</li>
+				<li>Haga clic en el bot&oacute;n <strong>Nueva Conexi&oacute;n</strong>.</li>
+				<li>En <b>Servidor</b> pegue la direcci&oacute;n copiada en el paso 1. Eso le rellenar&aacute; autom&aacute;ticamente todos los campos. Tambi&eacute;n lo puede rellenar manualmente:
+					<ul>
+						<li>En <b>Servidor</b> ponemos: <b><span class="webDavHostName">hostname</span></b></li>
+						<li>En <b>Puerto</b> ponemos: <span class="webDavPort">80</span></li>
+						<li>Pulse sobre <i>Mas opciones</i> y ponga en <b>Carpeta</b> el final de la URL del paso uno: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em></li>
+					</ul>
+				</li>
+				<li>Desactive la opci&oacute;n de Usuario an&oacute;nimo.</li>
+				<li>Introduce tu usuario y tu contrase&ntilde;a de la plataforma</li>				
+				<li>Haga clic en el bot&oacute;n <b>Conectar</b>.</li>				
 			</ol>
+			
+			<p>Le aparecer&aacute; una ventana con los recursos de la plataforma, desde la cual podr&aacute; arrastrar ficheros a su equipo, o bien arrastrar ficheros de su equipo.</p>
 	
-			<p>Ahora ver&aacute;s una ventana en tu Mac que representa los
-				recursos que tienes en el sitio de la plataforma. Simplemente copia y
-				pega desde tus ventanas del finder hacia esta nueva ventana para asi
-				transferir los archivos a recursos del sitio dentro de la plataforma.</p>
-
+			<p>Puede guardar esta configuraci&oacute;n para futuras conexiones:</p>
+			<ol>
+				<li>Vaya al men&uacute; superior <b>Favorito</b>.</li>
+				<li>Pulse sobre la opci&oacute; <b>Nuevo Favorito</b>.</li>
+				<li>En la ventana cambie el nombre que aparece <em>"<span class="webDavHostName">hostname</span> – WebDAV (HTTPS)"</em> por el nombre de su asignatura.</li>
+				<li>Cierre la ventana.</li>
+			</ol>
 		</div>
 	</div>
 
