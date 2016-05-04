@@ -11,7 +11,6 @@
     display: none;
 }
 #feedback-technical-setup-instruction {
-    display: none;
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -225,6 +224,34 @@
     text-decoration: inherit;
 /*--adjust as necessary--*/
     color: orange;
+    font-size: 18px;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+#feedback-supplemental-a h3:before {
+    content: "\f044"; /* fa-pencil-square-o */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: purple;
+    font-size: 18px;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+#feedback-supplemental-b h3:before {
+    content: "\f02d"; /* fa-book */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: brown;
     font-size: 18px;
     position: absolute;
     top: 10px;

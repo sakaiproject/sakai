@@ -5,12 +5,27 @@
 <div id="feedback-help-wrapper" class="instruction">
 	<span>{{translate 'help_home' helpPagesUrl=helpPagesUrl helpPagesTarget=helpPagesTarget}}</span>
 </div>
-<div id="feedback-technical-setup-instruction" class="information">
-    {{translate 'technical_setup_instruction'}}
-</div>
-<div id="feedback-supplementary-info" class="information">
-   {{translate 'feature_suggestion_setup_instruction'}}
-</div>
+{{#if showTechnicalPanel}}
+    {{#unless enableTechnical}}
+        <div id="feedback-technical-setup-instruction" class="information">
+            {{translate 'technical_setup_instruction'}}
+        </div>
+    {{/unless}}
+{{/if}}
+{{#if showHelpPanel}}
+    {{#unless enableHelp}}
+        <div id="feedback-helpdesk-setup-instruction" class="information">
+            {{translate 'ask_setup_instruction'}}
+        </div>
+    {{/unless}}
+{{/if}}
+{{#if showSuggestionsPanel}}
+    {{#unless enableSuggestions}}
+        <div id="feedback-suggestion-setup-instruction" class="information">
+            {{translate 'feature_suggestion_setup_instruction'}}
+        </div>
+    {{/unless}}
+{{/if}}
 <div id="feedback-links">
 
     {{#if showContentPanel}}
@@ -79,15 +94,57 @@
         </div>
     {{/if}}
 
+    {{#if showSupplementalAPanel}}
+        <div class="feedback-box" id="feedback-supplemental-a">
+            <h3>{{translate 'supplemental_a_title'}}</h3>
+            <ul>{{translate 'supplemental_a_explanation'}}</ul>
+            {{#if enableSupplementalA}}
+                <p><a id="feedback-report-supplemental-a-link"
+                    {{#if supplementalAPanelAsLink}}
+                      href="{{supplementalAUrl}}" target="_blank"
+                    {{else}}
+                      href="javascript:;"
+                    {{/if}}
+                >{{translate 'supplemental_a_link'}}</a></p>
+            {{else}}
+                <p class='information'>{{translate 'no_supplemental_a'}}</p>
+            {{/if}}
+            <div class="clear"></div>
+        </div>
+    {{/if}}
+
+    {{#if showSupplementalBPanel}}
+        <div class="feedback-box" id="feedback-supplemental-b">
+            <h3>{{translate 'supplemental_b_title'}}</h3>
+            <ul>{{translate 'supplemental_b_explanation'}}</ul>
+            {{#if enableSupplementalB}}
+                <p><a id="feedback-report-supplemental-b-link"
+                    {{#if supplementalBPanelAsLink}}
+                      href="{{supplementalBUrl}}" target="_blank"
+                    {{else}}
+                      href="javascript:;"
+                    {{/if}}
+                >{{translate 'supplemental_b_link'}}</a></p>
+            {{else}}
+                <p class='information'>{{translate 'no_supplemental_b'}}</p>
+            {{/if}}
+            <div class="clear"></div>
+        </div>
+    {{/if}}
+
     {{#unless showContentPanel}}
         {{#unless showHelpPanel}}
             {{#unless showTechnicalPanel}}
                 {{#unless showSuggestionsPanel}}
-                    <div class="feedback-box" id="feedback-no-panels">
-                        <h3>{{translate 'no_panels_title'}}</h3>
-                        <p>{{translate 'no_panels_explanation'}}</p>
-                        <div class="clear"></div>
-                    </div>
+                    {{#unless showSupplementalAPanel}}
+                        {{#unless showSupplementalBPanel}}
+                            <div class="feedback-box" id="feedback-no-panels">
+                                <h3>{{translate 'no_panels_title'}}</h3>
+                                <p>{{translate 'no_panels_explanation'}}</p>
+                                <div class="clear"></div>
+                            </div>
+                        {{/unless}}
+                    {{/unless}}
                 {{/unless}}
             {{/unless}}
         {{/unless}}

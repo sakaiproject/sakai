@@ -8,9 +8,13 @@
     var HELPDESK = 'helpdesk';
     var TECHNICAL = 'technical';
     var SUGGESTIONS = 'suggestions';
+    var SUPPLEMENTALA = 'supplementala';
+    var SUPPLEMENTALB = 'supplementalb';
     var REPORTTECHNICAL = 'reporttechnical';
     var REPORTHELPDESK = 'reporthelpdesk';
     var REPORTSUGGESTIONS = 'reportsuggestions';
+    var REPORTSUPPLEMENTALA = 'reportsupplementala';
+    var REPORTSUPPLEMENTALB = 'reportsupplementalb';
 
     /* RESPONSE CODES */
     var SUCCESS = 'SUCCESS';
@@ -55,6 +59,8 @@
             feedback.utils.renderTemplate(HOME, { featureSuggestionUrl: feedback.featureSuggestionUrl,
                                                     helpdeskUrl : feedback.helpdeskUrl,
                                                     technicalUrl : feedback.technicalUrl,
+                                                    supplementalAUrl : feedback.supplementalAUrl,
+                                                    supplementalBUrl : feedback.supplementalBUrl,
                                                     supplementaryInfo: feedback.supplementaryInfo,
                                                     helpPagesUrl: feedback.helpPagesUrl,
                                                     helpPagesTarget: feedback.helpPagesTarget,
@@ -62,11 +68,17 @@
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
                                                     showSuggestionsPanel : feedback.showSuggestionsPanel,
+                                                    showSupplementalAPanel : feedback.showSupplementalAPanel,
+                                                    showSupplementalBPanel : feedback.showSupplementalBPanel,
                                                     helpPanelAsLink : feedback.helpPanelAsLink,
                                                     technicalPanelAsLink : feedback.technicalPanelAsLink,
                                                     suggestionsPanelAsLink : feedback.suggestionsPanelAsLink,
+                                                    supplementalAPanelAsLink : feedback.supplementalAPanelAsLink,
+                                                    supplementalBPanelAsLink : feedback.supplementalBPanelAsLink,
                                                     enableTechnical : feedback.enableTechnical,
                                                     enableSuggestions : feedback.enableSuggestions,
+                                                    enableSupplementalA : feedback.enableSupplementalA,
+                                                    enableSupplementalB : feedback.enableSupplementalB,
                                                     enableHelp : feedback.enableHelp}, 'feedback-content');
 
             $(document).ready(function () {
@@ -99,7 +111,19 @@
                     });
                 }
 
-                if (feedback.supplementaryInfo.length == 0) {
+                if(!feedback.supplementalAPanelAsLink && feedback.enableSupplementalA) {
+                    $('#feedback-report-supplemental-a-link').click(function(e) {
+                       feedback.switchState(SUPPLEMENTALA, REPORTSUPPLEMENTALA);
+                    });
+                }
+
+                if(!feedback.supplementalBPanelAsLink && feedback.enableSupplementalB) {
+                    $('#feedback-report-supplemental-b-link').click(function(e) {
+                        feedback.switchState(SUPPLEMENTALB, REPORTSUPPLEMENTALB);
+                    });
+                }
+
+                if (feedback.supplementaryInfo.length > 0) {
                     $('#feedback-supplementary-info').show();
                 }
 
@@ -161,7 +185,7 @@
                 }
 
             });
-        } else if (TECHNICAL === state || HELPDESK === state || SUGGESTIONS === state) {
+        } else if (TECHNICAL === state || HELPDESK === state || SUGGESTIONS === state || SUPPLEMENTALA === state || SUPPLEMENTALB === state) {
             var options = { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
                 windowHeight: window.outerHeight, siteExists: feedback.siteExists, url: url, siteId: feedback.siteId, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, contactName: feedback.contactName };
 
@@ -173,10 +197,18 @@
                 options['destinationAddress'] = feedback.helpToAddress;
                 options['instructionUrl'] = feedback.helpdeskUrl;
                 options['instructionKey'] = 'ask_instruction';
-            } else {
+            } else if (SUGGESTIONS === state) {
                 options['destinationAddress'] = feedback.suggestionsToAddress;
                 options['instructionUrl'] = feedback.featureSuggestionUrl;
                 options['instructionKey'] = 'suggestion_instruction';
+            } else if (SUPPLEMENTALA === state) {
+                options['destinationAddress'] = feedback.supplementalAToAddress;
+                options['instructionUrl'] = feedback.supplementalAUrl;
+                options['instructionKey'] = 'supplemental_a_instruction';
+            } else {
+                options['destinationAddress'] = feedback.supplementalBToAddress;
+                options['instructionUrl'] = feedback.supplementalBUrl;
+                options['instructionKey'] = 'supplemental_b_instruction';
             }
             feedback.utils.renderTemplate("emailForm", options, 'feedback-content');
 

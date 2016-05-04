@@ -236,6 +236,10 @@ public class SakaiProxy {
             subjectTemplate = rb.getString("help_email_subject_template");
         } else if (feedbackType.equals(Constants.SUGGESTIONS)) {
             subjectTemplate = rb.getString("suggestion_email_subject_template");
+        } else if (feedbackType.equals(Constants.SUPPLEMENTAL_A)) {
+            subjectTemplate = rb.getString("supplemental_a_email_subject_template");
+        } else if (feedbackType.equals(Constants.SUPPLEMENTAL_B)) {
+            subjectTemplate = rb.getString("supplemental_b_email_subject_template");
         } else {
             subjectTemplate = rb.getString("technical_email_subject_template");
         }
