@@ -21,6 +21,11 @@ a.toggleAnchor {
 a.toggleAnchor > h3 {
     display: inline;
 }
+
+a.toggleAnchor > h4 {
+    display: inline;
+}
+
 .discTria > a {
     text-decoration: none !important;
 }
