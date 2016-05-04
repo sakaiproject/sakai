@@ -247,11 +247,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.2</version>
-        </dependency>
-        <dependency>
         	<groupId>joda-time</groupId>
         	<artifactId>joda-time</artifactId>
         	<version>${joda.time.version}</version>

@@ -28,35 +28,39 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.importer.impl.importables.Assessment;
 import org.sakaiproject.importer.impl.importables.HtmlDocument;
 
-import junit.framework.TestCase;
+public class CommonCartridgeTest {
+	private static ImportFileParser parser = null;
+	private InputStream archiveStream = null;
 
-public class CommonCartridgeTest extends TestCase {
-	private static ImportFileParser parser;
-	private InputStream archiveStream;
-	
+	@Before
 	public void setUp() {
-		System.out.println("doing setUp()");
 		try {
 			parser = new CommonCartridgeFileParser();
-			FileInputStream archiveStream = new FileInputStream(new File("/Users/zach/psychology.zip"));
-//			archiveData = new byte[archiveStream.available()];
-//			archiveStream.read(archiveData,0,archiveStream.available());
-//			archiveStream.close();
+			FileInputStream archiveStream = new FileInputStream(new File("psychology.zip"));
 		} catch (IOException e) {
-			
+			e.printStackTrace();
 		}
 	}
+
+	@Ignore
+	@Test
 	public void testIsValidArchive() {
-		assertTrue(parser.isValidArchive(archiveStream));
+		Assert.assertTrue(parser.isValidArchive(archiveStream));
 	}
-	
+
+	@Ignore
+	@Test
 	public void testCanGetQti() {
-		ImportDataSource ids = parser.parse(archiveStream, "/Users/zach/Desktop/psychology");
+		ImportDataSource ids = parser.parse(archiveStream, "psychology");
 		Collection importables = ids.getItemsForCategories(ids.getItemCategories());
 		int numberOfAssessments = 0;
 		int numberOfWebContent = 0;
@@ -72,7 +76,7 @@ public class CommonCartridgeTest extends TestCase {
 		System.out.println(importables.size() + " importables");
 		System.out.println(numberOfAssessments + " assessments");
 		System.out.println(numberOfWebContent + " webcontent");
-		assertTrue("Why no assessments?", numberOfAssessments > 0);
+		Assert.assertTrue("Why no assessments?", numberOfAssessments > 0);
 	}
 
 }
