@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.impl;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -3514,6 +3515,48 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return submission;
 	}
 
+	public Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment a, List<User> users)
+	{
+		Map<User, AssignmentSubmission> userSubmissionMap = new HashMap<>();
+		if (a != null && !CollectionUtils.isEmpty(users))
+		{
+			if (a.isGroup())
+			{
+				try
+				{
+					Site _site = SiteService.getSite(a.getContext());
+					for (User user : users)
+					{
+						AssignmentSubmission submission = null;
+						Collection<Group> groups = (Collection<Group>) _site.getGroupsWithMember(user.getId());
+						if (groups != null)
+						{
+							for (Group _g : groups)
+							{
+								submission = getSubmission(a.getReference(), _g.getId());
+								if (submission != null)
+								{
+									userSubmissionMap.put(user, submission);
+									break;
+								}
+							}
+						}
+					}
+				}
+				catch (IdUnusedException e)
+				{
+					M_log.error("getUserSubmissionMap invoked with an assignment whose 'context' value doesn't match any siteId in the system");
+				}
+			}
+			else
+			{
+				// SAK-31130 - get all submissions for these users with a single query
+				return m_submissionStorage.getUserSubmissionMap(a, users);
+			}
+		}
+		return userSubmissionMap;
+	}
+
 	/**
          * 
 	 * Access a Group or User's AssignmentSubmission to a particular Assignment.
@@ -4840,11 +4883,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (!rvUsers.isEmpty())
 			{
 				List<String> groupRefs = new ArrayList<String>();
+				// SAK-31130 - created getUserSubmissionMap precisely to turn this into a single query for non-group assignments
+				Map<User, AssignmentSubmission> userSubmissionMap = getUserSubmissionMap(a, rvUsers);
 				for (Iterator uIterator = rvUsers.iterator(); uIterator.hasNext();)
 				{
 					User u = (User) uIterator.next();
 
-					AssignmentSubmission uSubmission = getSubmission(aRef, u);
+					AssignmentSubmission uSubmission = userSubmissionMap.get(u);
 
 					if (uSubmission != null)
 					{
@@ -13032,6 +13077,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 * @return The AssignmentSubmission with this id, or null if not found.
 		 */
 		public AssignmentSubmission get(String assignmentId, String userId);
+
+		/**
+		 * Gets a map of users to their corresponding submission on this non-group assignment for the specified users.
+		 * NB: This method does not support gorup assignments - it's intended for perfromance in retrieving submissions for non-group assignments (e. where 1 submission has 1 submitterId)
+		 */
+		public Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment assignment, List<User> users);
 		
 		/**
 		 * Get the number of submissions which has been submitted.
