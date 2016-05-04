@@ -178,7 +178,7 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		if (forumService != null) {
 		    for (Forum forum : forumService.getSiteForums(currentSiteId, false)) {
 			for (Discussion discussion : forumService.getForumDiscussions(forum.getId(), false)) {
-				YaftTopicEntity entity = new YaftTopicEntity(TYPE_YAFT_TOPIC, discussion.getId(), 1);
+				YaftTopicEntity entity = new YaftTopicEntity(TYPE_YAFT_TOPIC, discussion.getId(), 2);
 				entity.discussion = discussion;
 				ret.add(entity);
 			}
