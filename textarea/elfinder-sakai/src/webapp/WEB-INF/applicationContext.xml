@@ -38,6 +38,7 @@
 						<bean class="org.sakaiproject.elfinder.sakai.assignment.AssignmentSiteVolumeFactory">
 							<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
 							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 						</bean>
 						<bean class="org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory">
 							<property name="publishedAssessmentService" >
