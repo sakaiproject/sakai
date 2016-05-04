@@ -240,8 +240,12 @@ body .below-link-help, #error.below-link-help {
 body .error-spacingabove {
    margin-top: 30px;
 }
-body .error-spacingabove {
-   margin-bottom: -10px;
+body .error-nospacebelow {
+   margin-bottom: 0px;
+}
+/* if two errors in a row, we don't need the spacing between them */
+body .error-spacingabove + .error-spacingabove{
+   margin-top: 15px;
 }
 /* ff2, buttons don't work */
 a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.column-merge-link:link, a.column-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
