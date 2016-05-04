@@ -19,6 +19,16 @@
   margin-right: 4px;
 }
 
+.gb-invoke-datepicker-btn .gb-clear-datepicker-btn {
+	margin-top: 0px;
+	margin-right: 0px;
+	background-color: #ccc;
+}
+
+.gb-choose-gb-item {
+	line-height: inherit;
+}
+
 /* Container */
 #gradebookSpreadsheet {
   margin-top: 10px;
