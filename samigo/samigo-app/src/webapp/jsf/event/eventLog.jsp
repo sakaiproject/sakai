@@ -27,7 +27,7 @@
     </h1>
   </div>
 
-  <h:panelGroup layout="block" styleClass="pull-right eventLogPagerContainer">
+  <h:panelGroup layout="block" styleClass="pull-right">
     <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
     </h:commandButton>
@@ -36,16 +36,16 @@
     </h:commandButton>
   </h:panelGroup>
 
- <div class="divContainer">
-   <span class="divLeft">
+ <div class="divContainer row">
+   <div class="divLeft col-lg-6 col-md-4 col-sm-5 col-xs-12">
      <h:outputLabel value="#{eventLogMessages.filterBy}"  />
      <h:selectOneMenu value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
          required="true" onchange="document.forms[0].submit();">
         <f:selectItems value="#{eventLog.assessments}"/>
         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
      </h:selectOneMenu>
-   </span>
-   <span class="divRight">
+   </div>
+   <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12">
       <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
       <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30"
          onfocus="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"
@@ -57,7 +57,7 @@
       <h:commandButton value="#{eventLogMessages.clear}" type="submit" id="clear" accesskey="#{eventLogMessages.a_clear}">
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
       </h:commandButton>
-   </span>
+   </div>
  </div>
 
  <div class="table-responsive">
