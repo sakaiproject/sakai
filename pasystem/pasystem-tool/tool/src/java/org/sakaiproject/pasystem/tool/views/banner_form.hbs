@@ -1,3 +1,4 @@
+<div class="container-fluid">
 <form class="form-horizontal" method="POST" action="{{{actionURL this 'banners' banner.uuid mode}}}">
   <div class="form-group">
     <label  class="col-sm-2 control-label" for="message">{{{t this "Message"}}}</label>
@@ -30,8 +31,8 @@
       <div class="input-group">
         <input class="form-control datepicker" type="text" name="start_time" id="start_time" data-init-date="{{banner.startTime}}"/>
         <span class="input-group-btn">
-          <button class="btn btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-          <button class="btn btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+          <button class="btn btn-primary invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+          <button class="btn btn-danger clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
         </span>
       </div>
     </div>
@@ -42,8 +43,8 @@
       <div class="input-group">
         <input class="form-control datepicker" type="text" name="end_time" id="end_time" data-init-date="{{banner.endTime}}"/>
         <span class="input-group-btn">
-          <button class="btn btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-          <button class="btn btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+          <button class="btn btn-primary invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+          <button class="btn btn-danger clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
         </span>
       </div>
     </div>
@@ -57,6 +58,7 @@
 
   <div class="col-sm-offset-2 col-sm-10">
     <input class="btn btn-primary" type="submit" name="save" value="{{{t this "Save Banner"}}}">
-    <input class="btn btn-default pasystem-cancel-btn" data-target="{{baseURL}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
+    <input class="btn btn-primary pasystem-cancel-btn" data-target="{{baseURL}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
   </div>
 </form>
+</div>
