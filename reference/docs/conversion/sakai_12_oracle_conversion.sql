@@ -87,10 +87,10 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 --
 -- KNL-1200 Oracle conversion, size increases of Samigo columns
 --
-alter table SAM_PUBLISHED_ASSESSMENT_T add tempcol clob;
-update SAM_PUBLISHED_ASSESSMENT_T set tempcol=description;
-alter table SAM_PUBLISHED_ASSESSMENT_T drop column description;
-alter table SAM_PUBLISHED_ASSESSMENT_T rename column tempcol to description;
+alter table SAM_PUBLISHEDASSESSMENT_T add tempcol clob;
+update SAM_PUBLISHEDASSESSMENT_T set tempcol=description;
+alter table SAM_PUBLISHEDASSESSMENT_T drop column description;
+alter table SAM_PUBLISHEDASSESSMENT_T rename column tempcol to description;
 
 alter table SAM_PUBLISHEDSECTION_T add tempcol clob;
 update SAM_PUBLISHEDSECTION_T set tempcol=description;
