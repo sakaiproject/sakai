@@ -521,13 +521,8 @@
     };
 
     roster.getRoleFragments = function (roleCounts) {
-
-        console.log( roleCounts );
-
         return Object.keys(roleCounts).map(function (key) {
-
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-            console.log( frag );
             return frag.replace(/\{1\}/, '<strong>' +key + '</strong>');
         }).join(", ");
     };
