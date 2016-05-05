@@ -517,7 +517,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						Area area = areaManager.getDiscussionArea(toContext, false);
 						newForum.setArea(area);
 
-						if (getImportAsDraft())
+						if (!getImportAsDraft())
 						{
 							forumManager.saveDiscussionForum(newForum, newForum.getDraft().booleanValue());
 						}
@@ -923,7 +923,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 													{
 														Area area = areaManager.getDiscussionArea(siteId);
 														dfForum.setArea(area);
-														if (getImportAsDraft())
+														if (!getImportAsDraft())
 														{
 															forumManager.saveDiscussionForum(dfForum, dfForum.getDraft().booleanValue());
 														}
@@ -944,7 +944,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										{
 											Area area = areaManager.getDiscussionArea(siteId);
 											dfForum.setArea(area);
-											if (getImportAsDraft())
+											if (!getImportAsDraft())
 											{
 												forumManager.saveDiscussionForum(dfForum, dfForum.getDraft().booleanValue());
 											}
