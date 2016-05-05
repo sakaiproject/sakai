@@ -344,9 +344,6 @@
 #gradebookGrades .gb-category-item-column-cell > div {
   line-height: 2.6em;
 }
-#gradebookGrades .gb-course-grade > div {
-  padding: 6px 0;
-}
 #gradebookGrades .gb-course-grade > div > span {
   display: block;
   line-height: 1.25em;
