@@ -523,52 +523,6 @@ a.hideDivision {
     border-top-right-radius: 4px;
     border: 1px solid #ddd;
 }
-.divContainer {
-    width: 100%;
-    background-color: #EEEEEE;
-    padding-top: 1em;
-    padding-bottom: 1em;
-    height: 1.5em;
-    margin-bottom: 0.5em;
-    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
-    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
-    display: -ms-flexbox;      /* TWEENER - IE 10 */
-    display: -webkit-flex;     /* NEW - Chrome */
-    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
-    -webkit-box-align: center; 
-    -moz-box-align: center;
-    -ms-flex-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-box-pack: justify;
-    -moz-box-pack: justify;
-    -webkit-justify-content: space-between;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-}
-
-.divLeft {
-    float: left;
-    padding-left: 0.5em;
-}
-
-.divRight {
-    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
-    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
-    display: -ms-flexbox;      /* TWEENER - IE 10 */
-    display: -webkit-flex;     /* NEW - Chrome */
-    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
-    -webkit-box-align: center; 
-    -moz-box-align: center;
-    -ms-flex-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-    float: right;
-}
-
-divRight input {
-    margin-right: 0.5em;
-}
 
 .html {
 	overflow: hidden;
@@ -1291,10 +1245,6 @@ input[type='reset'].linearButton {
 
 .hiddenArrow {
 	display: none;
-}
-
-div.eventLogPagerContainer {
-	margin: 1em 0;
 }
 
 #itemForm\3A pairs{

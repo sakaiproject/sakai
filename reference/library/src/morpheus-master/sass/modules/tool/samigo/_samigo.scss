@@ -84,9 +84,24 @@
 			padding: 0 0 0 0;
 		}
 	}
-	
+
 	#itemForm\:partialCredit_toggle.tier3,
 	#itemForm\:mcms_credit_toggle.tier3{
 		margin-left: 3em  !important;
+	}
+
+	.divContainer {
+		clear: right;
+	}
+
+	.divLeft {
+		margin-top: 0.5em;
+	}
+
+	.divRight{
+		text-align: right;
+		@media #{$phone}{
+			text-align: left;
+		}
 	}
 }
