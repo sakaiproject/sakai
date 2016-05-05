@@ -6,11 +6,12 @@
 		}
 	}
 
-	.#{$namespace}toolBody--sakai-iframe-site{
-		img{
-			max-width: 100%;
-			height: auto;
-		}
+}
+
+.#{$namespace}toolBody--sakai-iframe-site{
+	img{
+		max-width: 100%;
+		height: auto;
 	}
 }
 
