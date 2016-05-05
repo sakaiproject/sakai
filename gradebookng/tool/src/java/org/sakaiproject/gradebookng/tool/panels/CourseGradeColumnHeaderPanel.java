@@ -64,10 +64,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 					settings.setCourseGradeSortOrder(sortOrder.toggle());
 				}
 
-				// clear any category or assignment sort order to prevent conflicts in ordering
-				settings.setCategorySortOrder(null);
-				settings.setAssignmentSortOrder(null);
-
 				// save settings
 				gradebookPage.setUiSettings(settings);
 
