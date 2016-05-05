@@ -177,16 +177,16 @@
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continue" />
 		<div class="act">
-			<input type="button" name="Continue" 
+			<input type="submit" name="Continue" 
 				accesskey="s"
 				class="active"
 				value="$tlang.getString('gen.continue')" 
 				onclick="SPNR.disableControlsAndSpin( this, null );document.toolForm.option.value='continueENW';javascript:document.toolForm.submit();" />
-			<input type="button" name="Back" 
+			<input type="submit" name="Back" 
 				value="$tlang.getString('gen.back')"
 				accesskey="b"
 				onclick="SPNR.disableControlsAndSpin( this, null );document.toolForm.option.value='back';javascript:document.toolForm.submit();" />
-			<input type="button" name="Cancel" 
+			<input type="submit" name="Cancel" 
 				value="$tlang.getString('gen.cancel')"
 				accesskey="x"
 				onclick="SPNR.disableControlsAndSpin( this, null );document.toolForm.option.value='cancel';javascript:document.toolForm.submit();" />
