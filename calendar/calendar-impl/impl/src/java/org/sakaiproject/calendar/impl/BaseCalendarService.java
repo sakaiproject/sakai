@@ -401,8 +401,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 
-	Event comparator that sorts allEvents by miliseconds since midnight January 1, 1970 UTC		
-	Only works with CalendarEvent objects
+	//Event comparator that sorts allEvents by miliseconds since midnight January 1, 1970 UTC		
+	//Only works with CalendarEvent objects
 
 	private class TimeComparator implements Comparator{
 	  public int compare(TimeRange o1, TimeRange o2) {
