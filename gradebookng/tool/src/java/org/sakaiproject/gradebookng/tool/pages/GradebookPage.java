@@ -807,11 +807,8 @@ public class GradebookPage extends BasePage {
 
 		// add simple feedback nofication to sit above the table
 		// which is reset every time the page renders
-		this.liveGradingFeedback = new Label("liveGradingFeedback");
-		// hide by default
-		this.liveGradingFeedback.add(new AttributeModifier("style", "display: none;"));
+		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
 		this.liveGradingFeedback.setOutputMarkupId(true);
-		this.liveGradingFeedback.setOutputMarkupPlaceholderTag(true);
 
 		// add the 'saving...' message to the DOM as the JavaScript will
 		// need to be the one that displays this message (Wicket will handle
@@ -822,7 +819,6 @@ public class GradebookPage extends BasePage {
 
 	public Component updateLiveGradingMessage(String message) {
 		this.liveGradingFeedback.setDefaultModel(Model.of(message));
-		this.liveGradingFeedback.add(new AttributeModifier("style", ""));
 
 		return this.liveGradingFeedback;
 	}
