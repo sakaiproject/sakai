@@ -184,7 +184,8 @@
 .feedback-box-bottom-link {
     position: absolute;
     bottom: 0;
-    text-align: center
+    text-align: center;
+    padding-right: 8px;
 }
 
 .feedback-box-header {
