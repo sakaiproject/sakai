@@ -232,7 +232,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		//SAK-30712
 		String[] moresitesExternalSites = serverConfigurationService.getStrings("moresites.externalConfig.siteTypes");
 		String moresitesExternalPrefix = serverConfigurationService.getString("moresites.externalConfig.prefix","moresites_");
-		boolean moresitesExternalConfig = moresitesExternalSites.length>0;
+		boolean moresitesExternalConfig = (moresitesExternalSites!=null) && (moresitesExternalSites.length>0);
 		
 		Map<String, String> moresitesExternalSiteTypes = new HashMap<String, String>();
 		if (moresitesExternalConfig)
