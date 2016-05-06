@@ -4,15 +4,21 @@
 
 <wicket:extend>
   <form wicket:id="form" id="gradebookSpreadsheet">
-    <p>
-      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
-      	 <wicket:message key="button.addgradeitem" />
-      </button>
-    </p>
-
     <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
     <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
-    <p wicket:id="liveGradingFeedback" class="gb-live-feedback"></p>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="pull-left">
+                <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
+                    <wicket:message key="button.addgradeitem" />
+                </button>
+            </div>
+            <div class="pull-left">
+                <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
+            </div>
+        </div>
+    </div>
 
     <div wicket:id="addOrEditGradeItemWindow" />
     <div wicket:id="studentGradeSummaryWindow" />

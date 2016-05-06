@@ -312,12 +312,15 @@ public class GradeItemCellPanel extends Panel {
 			this.gradeCell.add(new AjaxEventBehavior("revertscore.sakai") {
 				@Override
 				protected void onEvent(final AjaxRequestTarget target) {
+					GradebookPage page = (GradebookPage)getPage();
+
 					getComponent().setDefaultModelObject(GradeItemCellPanel.this.originalGrade);
 					clearNotifications();
 					refreshNotifications();
 					final Component cell = getParentCellFor(getComponent());
 					handleNoChange(cell);
 					target.add(cell);
+					target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 				}
 
 				@Override
