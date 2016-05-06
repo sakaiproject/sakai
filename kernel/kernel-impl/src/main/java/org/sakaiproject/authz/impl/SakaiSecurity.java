@@ -730,32 +730,50 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
 		String roleswap = null; // define the roleswap variable
 
-		// this is the code uses in DbAuthzGroupService. It appears that in practice it's more complex than 
-		// needed.
-		if (false) {
-		if (azgs != null && userId != null && userId.equals(sessionManager().getCurrentSessionUserId())) {
-		    agzLoop:
-		    for (String azg: azgs) {
-			// must agree with code in isAllowed that checks getUserEffectiveRole
-			String[] refs = StringUtil.split(azg, Entity.SEPARATOR); // group can be anywhere in reference
-			for (int i2 = 0; i2 < refs.length; i2++) {
-			    roleswap = getUserEffectiveRole("/site/" + refs[i2]);
-			    if (roleswap != null)
-				break agzLoop;
-			}
-		    }
-		}
-		} // end of commented out code
-
 		// this version seems to be enough
 		if (azgs != null && userId != null && userId.equals(sessionManager().getCurrentSessionUserId())) {
 		    for (String azg: azgs) {
 			// must agree with code in isAllowed that checks getUserEffectiveRole
-			roleswap = getUserEffectiveRole(azg);
+			String azgCheck = azg;
+			// sometimes we get /site/NNNNN/group/NNNN; need to check just site
+			if (azg.startsWith("/site/")) {
+			    int i = azg.indexOf("/", 6);
+			    if (i > 0)
+				azgCheck = azg.substring(0, i);
+			}
+			roleswap = getUserEffectiveRole(azgCheck);
 			if (roleswap != null)
 			    break;
 		    }
 		}
+
+		// this version matches DbAuthzGroupService. set up so we can compare them
+		if (false) {
+
+		    String roleswap2 = null; // define the roleswap variable
+
+		    // this is the code uses in DbAuthzGroupService. It appears that in practice it's more complex than 
+		    // needed.
+		    if (azgs != null && userId != null && userId.equals(sessionManager().getCurrentSessionUserId())) {
+			agzLoop:
+			for (String azg: azgs) {
+			    // must agree with code in isAllowed that checks getUserEffectiveRole
+			    String[] refs = StringUtil.split(azg, Entity.SEPARATOR); // group can be anywhere in reference
+			    for (int i2 = 0; i2 < refs.length; i2++) {
+				roleswap2 = getUserEffectiveRole("/site/" + refs[i2]);
+				if (roleswap2 != null)
+				    break agzLoop;
+			    }
+			}
+		    }
+
+		    if (roleswap == null && roleswap2 != null ||
+			roleswap != null && roleswap2 == null ||
+			roleswap != null && roleswap2 != null && !roleswap.equals(roleswap2)) {
+			System.out.println("mismatch " + roleswap + " " + roleswap2 + " " + azgs);
+		    }
+		}
+		// end of testing code
 
 		// check the cache
 		String command = makeCacheKey(userId, roleswap, function, entityRef, false);
