@@ -30,25 +30,31 @@
 
     {{#if showContentPanel}}
         <div class="feedback-box" id="feedback-content-problem">
-            <h3>{{translate 'content_title'}}</h3>
-            <ul>{{translate 'content_explanation'}}</ul>
-            <p><a id="feedback-report-content-link" href="javascript:;">{{translate 'content_link'}}</a></p>
+            <div class="feedback-box-header">
+                <span class="fa fa-fw {{translate 'content_icon_no_translate'}}" aria-hidden="true"></span>
+                <h3>{{translate 'content_title'}}</h3>
+            </div>
+            <ul class="list">{{translate 'content_explanation'}}</ul>
+            <p class="feedback-box-bottom-link"><a id="feedback-report-content-link" href="javascript:;">{{translate 'content_link'}}</a></p>
             <div class="clear"></div>
         </div>
     {{/if}}
 
     {{#if showHelpPanel}}
         <div class="feedback-box" id="feedback-ask-help">
-            <h3>{{translate 'ask_title'}}</h3>
-            <ul>{{translate 'ask_explanation'}}</ul>
+            <div class="feedback-box-header">
+                <span class="fa fa-fw {{translate 'ask_icon_no_translate'}}" aria-hidden="true"></span>
+                <h3>{{translate 'ask_title'}}</h3>
+            </div>
+            <ul class="list">{{translate 'ask_explanation'}}</ul>
             {{#if enableHelp}}
-                    <p><a id="feedback-report-helpdesk-link"
-                    {{#if helpPanelAsLink}}
-                        href="{{helpdeskUrl}}" target="_blank"
-                    {{else}}
-                        href="javascript:;"
-                    {{/if}}
-                    >{{translate 'ask_link'}}</a></p>
+                <p class="feedback-box-bottom-link"><a id="feedback-report-helpdesk-link"
+                {{#if helpPanelAsLink}}
+                    href="{{helpdeskUrl}}" target="_blank"
+                {{else}}
+                    href="javascript:;"
+                {{/if}}
+                >{{translate 'ask_link'}}</a></p>
             {{else}}
                 <p class='information'>{{translate 'no_help_address'}}</p>
             {{/if}}
@@ -58,18 +64,21 @@
 
     {{#if showTechnicalPanel}}
         <div class="feedback-box" id="feedback-tech-problem">
-            <h3>{{translate 'technical_title'}}</h3>
-            <ul>{{translate 'technical_explanation'}}</ul>
-        	{{#if enableTechnical}}
-        		<p><a id="feedback-report-technical-link"
-        		{{#if technicalPanelAsLink}}
+            <div class="feedback-box-header">
+                <span class="fa fa-fw {{translate 'technical_icon_no_translate'}}" aria-hidden="true"></span>
+                <h3>{{translate 'technical_title'}}</h3>
+            </div>
+            <ul class="list">{{translate 'technical_explanation'}}</ul>
+            {{#if enableTechnical}}
+                <p class="feedback-box-bottom-link"><a id="feedback-report-technical-link"
+                {{#if technicalPanelAsLink}}
                     href="{{technicalUrl}}" target="_blank"
                 {{else}}
                     href="javascript:;"
-        		{{/if}}
+                {{/if}}
                 >{{translate 'technical_link'}}</a></p>
             {{else}}
-            	<p class='information'>{{translate 'no_technical_address'}}</p>
+                <p class='information'>{{translate 'no_technical_address'}}</p>
             {{/if}}
             <div class="clear"></div>
         </div>
@@ -77,18 +86,21 @@
 
     {{#if showSuggestionsPanel}}
         <div class="feedback-box" id="feedback-improvement">
-            <h3>{{translate 'suggest_title'}}</h3>
-            <ul>{{translate 'suggest_explanation'}}</ul>
+            <div class="feedback-box-header">
+                <span class="fa fa-fw {{translate 'suggest_icon_no_translate'}}" aria-hidden="true"></span>
+                <h3>{{translate 'suggest_title'}}</h3>
+            </div>
+            <ul class="list">{{translate 'suggest_explanation'}}</ul>
             {{#if enableSuggestions}}
-            	<p><a id="feedback-suggest-feature-link"
-            	{{#if suggestionsPanelAsLink}}
+                <p class="feedback-box-bottom-link"><a id="feedback-suggest-feature-link"
+                {{#if suggestionsPanelAsLink}}
                       href="{{featureSuggestionUrl}}" target="_blank"
                 {{else}}
                       href="javascript:;"
                 {{/if}}
                 >{{translate 'suggest_link'}}</a></p>
             {{else}}
-            	<p class='information'>{{translate 'no_suggestion_url'}}</p>
+                <p class='information'>{{translate 'no_suggestion_url'}}</p>
             {{/if}}
             <div class="clear"></div>
         </div>
@@ -96,10 +108,13 @@
 
     {{#if showSupplementalAPanel}}
         <div class="feedback-box" id="feedback-supplemental-a">
-            <h3>{{translate 'supplemental_a_title'}}</h3>
-            <ul>{{translate 'supplemental_a_explanation'}}</ul>
+            <div class="feedback-box-header">
+                <span class="fa fa-fw {{translate 'supplemental_a_icon_no_translate'}}" aria-hidden="true"></span>
+                <h3>{{translate 'supplemental_a_title'}}</h3>
+            </div>
+            <ul class="list">{{translate 'supplemental_a_explanation'}}</ul>
             {{#if enableSupplementalA}}
-                <p><a id="feedback-report-supplemental-a-link"
+                <p class="feedback-box-bottom-link"><a id="feedback-report-supplemental-a-link"
                     {{#if supplementalAPanelAsLink}}
                       href="{{supplementalAUrl}}" target="_blank"
                     {{else}}
@@ -115,10 +130,13 @@
 
     {{#if showSupplementalBPanel}}
         <div class="feedback-box" id="feedback-supplemental-b">
-            <h3>{{translate 'supplemental_b_title'}}</h3>
-            <ul>{{translate 'supplemental_b_explanation'}}</ul>
+            <div class="feedback-box-header">
+                <span class="fa fa-fw {{translate 'supplemental_b_icon_no_translate'}}" aria-hidden="true"></span>
+                <h3>{{translate 'supplemental_b_title'}}</h3>
+            </div>
+            <ul class="list">{{translate 'supplemental_b_explanation'}}</ul>
             {{#if enableSupplementalB}}
-                <p><a id="feedback-report-supplemental-b-link"
+                <p class="feedback-box-bottom-link"><a id="feedback-report-supplemental-b-link"
                     {{#if supplementalBPanelAsLink}}
                       href="{{supplementalBUrl}}" target="_blank"
                     {{else}}
@@ -139,7 +157,10 @@
                     {{#unless showSupplementalAPanel}}
                         {{#unless showSupplementalBPanel}}
                             <div class="feedback-box" id="feedback-no-panels">
-                                <h3>{{translate 'no_panels_title'}}</h3>
+                                <div class="feedback-box-header">
+                                    <span class="fa fa-fw fa-exclamation-triangle" aria-hidden="true"></span>
+                                    <h3>{{translate 'no_panels_title'}}</h3>
+                                </div>
                                 <p>{{translate 'no_panels_explanation'}}</p>
                                 <div class="clear"></div>
                             </div>

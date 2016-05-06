@@ -159,103 +159,78 @@
     float: left;
     list-style: none outside none;
     margin: 2px;
-    height: 25em;
+    height: 28em;
     padding: 2px 8px;
-    width: 175px;
+    width: 200px;
+    position: relative;
 }
 
 .feedback-box ul.list  {
     margin-left: 8px;
     padding-left: 8px;
+    list-style-type: disc;
+}
+
+.feedback-box ul.list li {
+    margin-bottom: 0.25em;
 }
 
 .feedback-box h3 {
 	padding-left: 25px;
     position:relative;
+    height: 3.5em;
 }
 
-#feedback-content-problem h3:before, #feedback-no-panels h3:before {
-    content: "\f071"; /* fa-exclamation-triangle */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
+.feedback-box-bottom-link {
+    position: absolute;
+    bottom: 0;
+    text-align: center
+}
+
+.feedback-box-header {
+    position: relative;
+}
+
+.feedback-box-header span.fa {
+    font-size: 18px;
+    position: absolute;
+    top: 5px;
+    float: left;
+}
+
+#feedback-no-panels span.fa {
 /*--adjust as necessary--*/
     color: red;
-    font-size: 18px;
-    position: absolute;
-    top: 10px;
-    left: 0;
 }
 
-#feedback-ask-help h3:before {
-    content: "\f0e5"; /* fa-comment-o */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
+#feedback-content-problem span.fa {
+/*--adjust as necessary--*/
+    color: red;
+}
+
+#feedback-ask-help span.fa {
 /*--adjust as necessary--*/
     color: blue;
-    font-size: 18px;
-    position: absolute;
-    top: 0px;
-    left: 0;
 }
 
-#feedback-tech-problem h3:before {
-    content: "\f188"; /* fa-bug */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
+#feedback-tech-problem span.fa {
 /*--adjust as necessary--*/
     color: green;
-    font-size: 18px;
-    position: absolute;
-    top: 10px;
-    left: 0;
 }
 
-#feedback-improvement h3:before {
-    content: "\f0eb"; /* fa-lightbulb-o */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
+#feedback-improvement span.fa {
 /*--adjust as necessary--*/
     color: orange;
-    font-size: 18px;
-    position: absolute;
-    top: 10px;
-    left: 0;
 }
 
-#feedback-supplemental-a h3:before {
-    content: "\f044"; /* fa-pencil-square-o */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
+#feedback-supplemental-a span.fa {
 /*--adjust as necessary--*/
     color: purple;
-    font-size: 18px;
-    position: absolute;
-    top: 10px;
-    left: 0;
 }
 
-#feedback-supplemental-b h3:before {
-    content: "\f02d"; /* fa-book */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
+#feedback-supplemental-b span.fa {
 /*--adjust as necessary--*/
     color: brown;
-    font-size: 18px;
-    position: absolute;
-    top: 10px;
-    left: 0;
 }
 
 #feedback-toolbar {
