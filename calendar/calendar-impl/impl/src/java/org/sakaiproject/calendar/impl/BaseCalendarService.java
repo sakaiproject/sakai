@@ -400,7 +400,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return calendarEventVector;
 	}
 
-	/**
+
 	Event comparator that sorts allEvents by miliseconds since midnight January 1, 1970 UTC		
 	Only works with CalendarEvent objects
 
@@ -409,7 +409,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return o1.getRange().firstTime().getTime().compareTo(o2.getRange().firstTime().getTime());
 						   }
 	}
-	*/
+
 
 	/**
 	* Form a tracking event string based on a security function string.
