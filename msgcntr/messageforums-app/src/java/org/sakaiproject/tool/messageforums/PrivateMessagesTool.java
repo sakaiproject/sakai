@@ -5004,9 +5004,9 @@ private   int   getNum(char letter,   String   a)
 			if(decoMessage.getIsSelected())
 			{
 				msgSelected = true;
-				if (readStatus) {
+				if (readStatus && !decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
-				} else {
+				} else if(!readStatus && decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsUnreadForUser(decoMessage.getMsg());
 				}
 
