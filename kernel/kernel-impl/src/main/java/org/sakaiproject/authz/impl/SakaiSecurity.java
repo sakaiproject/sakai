@@ -740,7 +740,15 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 			    int i = azg.indexOf("/", 6);
 			    if (i > 0)
 				azgCheck = azg.substring(0, i);
+			} else if (azg.startsWith("/content/group/")) {
+			    int i = azg.indexOf("/", 15);
+			    if (i > 0)
+				azgCheck = azg.substring(15, i);
+			    else
+				azgCheck = azg.substring(15);
+			    azgCheck = "/site/" + azgCheck;
 			}
+			    
 			roleswap = getUserEffectiveRole(azgCheck);
 			if (roleswap != null)
 			    break;
