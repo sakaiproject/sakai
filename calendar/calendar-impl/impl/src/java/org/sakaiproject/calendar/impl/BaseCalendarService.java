@@ -6881,7 +6881,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// Allow for daylight savings time.
 		return ((duration + MILLISECONDS_IN_HOUR) / (24 * MILLISECONDS_IN_HOUR)) + 1;
 	}
+	
+	//Event comparator that sorts allEvents by miliseconds since midnight January 1, 1970 UTC		
+	//Only works with CalendarEvent objects
 
+	private class TimeComparator implements Comparator{
+	  public int compare(TimeRange o1, TimeRange o2) {
+		return o1.getRange().firstTime().getTime().compareTo(o2.getRange().firstTime().getTime());
+						   }
+	}
+	
 	/**
 	 * Returns a list of daily time ranges for every day in a range.
 	 * 
