@@ -181,11 +181,15 @@
     height: 3.5em;
 }
 
-.feedback-box-bottom-link {
+.feedback-box-bottom {
     position: absolute;
     bottom: 0;
+    width: 100%;
+}
+
+.feedback-box-bottom-link {
     text-align: center;
-    padding-right: 8px;
+    padding-right: 15px;
 }
 
 .feedback-box-header {
