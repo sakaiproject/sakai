@@ -1,5 +1,5 @@
-/* tool-base.css  - base values - focus on positioning, margins, paddings 
-- all skins in a given instalation then can participate in these definitions 
+/* tool-base.css  - base values - focus on positioning, margins, paddings
+- all skins in a given instalation then can participate in these definitions
 - and still style things differently in tool.css*/
 /*first pass at a printable sheet - essentially omitting from the print all controls,
 and reformatting info for the print media.
@@ -100,7 +100,7 @@ code {
 }
 .helpBody {
 	padding: 0 1em 1em 1em
-	} 
+	}
 
 
 /*for web content - 2 states of the body > div that used instead of div.portletBody in web content), with toolbar, without*/
@@ -278,7 +278,7 @@ table.discTria img, .topicHeadings img,  .msgHeadings img{
 	border:1px solid #555 !important;
 	padding:.3em .6em !important;
 	background:#eee;
-	
+
 }
 .discTria .itemAction a:hover{
 	border:1px solid #555 !important;
@@ -472,15 +472,15 @@ hr.itemSeparator{
 }
 
 /* SECTION 8 FORM ELEMENTS
-	all form elements are formed by a label/input pair wrapped in a block - with JSF based tools it is another matter 
+	all form elements are formed by a label/input pair wrapped in a block - with JSF based tools it is another matter
 	.shorttext - label / input (type=text)
 	.filepicker - label / input (type=file)
 	.longtext - label / textarea
 	.checkbox - input (type=checkbox or radio)
 	*/
-	
+
 /*	see: create a resource*/
-	
+
 .shorttext{
 	clear:both;
 }
@@ -623,7 +623,7 @@ placeholder till more standard way of doing it*/
 /*
 Buttons dont have hover anymore
 .loginform td #submit:hover{
-	border: 1px solid #888; 
+	border: 1px solid #888;
 	background-color: #eee;
 }
 */
@@ -641,7 +641,7 @@ this affects jsf based tools*/
 	padding: 0;
 }
 
-/*in order to get the label/imput pair to work in jsf, they need to be wrapped up in a table in 
+/*in order to get the label/imput pair to work in jsf, they need to be wrapped up in a table in
 order to display them in the same cell they need to be wrapped in a h:panelGroup, which for some
  reason renders as a span. In order for the required star to "show" that span needs to be a block
   level element. So - if the input is required, add the "required" class to the h:panelGroup
@@ -747,10 +747,10 @@ span.nil a{
     overflow: hidden;
 }
 /*a list item - children are h3.textPanelHeader, p.textPanelFooter, div.textPanel*/
-.synopticList li{ 
+.synopticList li{
 	padding:0;
 	margin:.5em 0 ;
-} 
+}
 
 /*styles for reorderer (content, assignments, announcements)*/
 #reorder-list-sortingToolBar{
@@ -764,7 +764,7 @@ span.nil a{
 	outline:none;
 }
 #reorder-list {
-	font-size:.9em;	
+	font-size:.9em;
 	margin:0;
 	padding:0;
 }
@@ -809,8 +809,8 @@ span.nil a{
 	border:1px dashed #ccc !important
 }
 .fl-reorderer-movable-hover {
-	/*hover over a selectable item*/ 
-	cursor: move 
+	/*hover over a selectable item*/
+	cursor: move
 }
 .fl-reorderer-movable-dragging {
 	/* item left behind */
@@ -820,7 +820,7 @@ span.nil a{
 	outline:none;
 }
 .fl-reorderer-avatar {
-	/*item being dragged*/ 
+	/*item being dragged*/
 	opacity: 0.55;
 	list-style:none;
 	background: #bea !important;
@@ -853,7 +853,7 @@ blockquote {
 blockquote:before {
   color: #ccc;
   content: open-quote;
-  font-size: 3em; 
+  font-size: 3em;
   line-height: 0.1em;
   margin-right: 0.25em;
   vertical-align: -0.4em;
@@ -889,11 +889,11 @@ ul.calendarLegend li{
 
 /* Shortened version style */
 .ui-timepicker-div.ui-timepicker-oneLine { padding-right: 2px; }
-.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_time, 
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_time,
 .ui-timepicker-div.ui-timepicker-oneLine dt { display: none; }
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_time_label { display: block; padding-top: 2px; }
 .ui-timepicker-div.ui-timepicker-oneLine dl { text-align: right; }
-.ui-timepicker-div.ui-timepicker-oneLine dl dd, 
+.ui-timepicker-div.ui-timepicker-oneLine dl dd,
 .ui-timepicker-div.ui-timepicker-oneLine dl dd > div { display:inline-block; margin:0; }
 .ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_minute:before,
 .ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_second:before { content:':'; display:inline-block; }
@@ -911,7 +911,7 @@ ul.calendarLegend li{
 }
 #flashNotif {
     position:absolute;
-    top:25px;
+    top:-475px;
     left:30%;
     right:30%;
     padding:15px;
