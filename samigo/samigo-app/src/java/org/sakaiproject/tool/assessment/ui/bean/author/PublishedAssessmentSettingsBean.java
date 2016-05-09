@@ -190,6 +190,7 @@ public class PublishedAssessmentSettingsBean
   private boolean updateMostCurrentSubmission = false;
   
   private boolean isMarkForReview;
+  private boolean honorPledge;
   private List attachmentList;
   private boolean editPubAnonyGradingRestricted = false;
   private String releaseToGroupsAsString;
@@ -303,7 +304,8 @@ public class PublishedAssessmentSettingsBean
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
         this.isMarkForReview = accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview());
-        
+        if (accessControl.getHonorPledge() != null)
+          this.honorPledge = accessControl.getHonorPledge();
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
@@ -883,6 +885,10 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   public void setSecureDeliveryAvailable(boolean secureDeliveryAvailable) {
 	  this.secureDeliveryAvailable = secureDeliveryAvailable;
   }
+
+  public boolean isHonorPledge() { return honorPledge; }
+
+  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
 
   public void setValue(String key, Object value){
     this.values.put(key, value);

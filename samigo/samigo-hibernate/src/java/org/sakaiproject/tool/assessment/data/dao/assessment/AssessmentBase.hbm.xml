@@ -112,7 +112,7 @@
     <property name="password" type="string" length="255" column="PASSWORD" not-null="false" />
     <property name="finalPageUrl" type="string" length="1023" column="FINALPAGEURL" not-null="false" />
     <property name="markForReview" type="integer" column="MARKFORREVIEW" not-null="false" />
-
+    <property name="honorPledge" type="boolean" column="HONORPLEDGE" not-null="false" />
 <!--
     <property name="unlimitedSubmissions">
       <column name="UNLIMITEDSUBMISSIONS" not-null="false" sql-type="integer" />

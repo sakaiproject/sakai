@@ -203,7 +203,7 @@ public class AssessmentSettingsBean
   private String originalFeedbackDateString;
   
   private boolean isMarkForReview;
-  
+  private boolean honorPledge;
   private String releaseToGroupsAsString;
   private String blockDivs;
   
@@ -335,7 +335,8 @@ public class AssessmentSettingsBean
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
         this.isMarkForReview = accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview());
-        
+        if (accessControl.getHonorPledge() != null)
+          this.honorPledge = accessControl.getHonorPledge();
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
@@ -929,8 +930,11 @@ public class AssessmentSettingsBean
     this.scoringType = scoringType;
   }
 
+  public boolean isHonorPledge() { return honorPledge; }
 
-  public void setValue(String key, Object value){
+  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
+
+    public void setValue(String key, Object value){
     this.values.put(key, value);
   }
 

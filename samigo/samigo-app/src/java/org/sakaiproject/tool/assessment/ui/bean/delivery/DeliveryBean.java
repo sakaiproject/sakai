@@ -116,7 +116,7 @@ public class DeliveryBean
   
   private String assessmentId;
   private String assessmentTitle;
-  private Boolean honorPledge = Boolean.FALSE;
+  private boolean honorPledge;
   private ArrayList markedForReview;
   private ArrayList blankItems;
   private ArrayList markedForReviewIdents;
@@ -3959,11 +3959,11 @@ public class DeliveryBean
 	    this.redrawAnchorName = redrawAnchorName;
 	  }
 
-	public Boolean getHonorPledge() {
+	public boolean isHonorPledge() {
 		return honorPledge;
 	}
 
-	public void setHonorPledge(Boolean honorPledge) {
+	public void setHonorPledge(boolean honorPledge) {
 		this.honorPledge = honorPledge;
 	}
 	 

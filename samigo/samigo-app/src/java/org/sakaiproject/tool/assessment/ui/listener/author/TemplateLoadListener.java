@@ -122,6 +122,8 @@ public class TemplateLoadListener
           templateBean.setQuestionNumbering(aac.getItemNumbering().toString());
         if (aac.getDisplayScoreDuringAssessments() != null)
             templateBean.setDisplayScoreDuringAssessments(aac.getDisplayScoreDuringAssessments().toString());
+        if (aac.getHonorPledge() != null)
+            templateBean.setHonorPledge(aac.getHonorPledge());
         
         if (aac.getMarkForReview() != null) {
         	if (aac.getMarkForReview().equals(Integer.valueOf(1))) {
