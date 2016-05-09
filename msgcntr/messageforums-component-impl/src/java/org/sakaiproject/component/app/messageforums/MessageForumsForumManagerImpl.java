@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/msgcntr/trunk/messageforums-component-impl/src/java/org/sakaiproject/component/app/messageforums/MessageForumsForumManagerImpl.java $
- * $Id: MessageForumsForumManagerImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
+ * $URL: https://source.sakaiproject.org/svn/msgcntr/trunk/messageforums-component-impl/src/java/org/sakaiproject/component/app/messageforums/MessageForumsMessageManagerImpl.java $
+ * $Id: MessageForumsMessageManagerImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
@@ -22,139 +22,99 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.collection.PersistentSet;
-import org.sakaiproject.api.app.messageforums.ActorPermissions;
-import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsUser;
-import org.sakaiproject.api.app.messageforums.OpenForum;
-import org.sakaiproject.api.app.messageforums.OpenTopic;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.PrivateTopic;
+import org.sakaiproject.api.app.messageforums.MessageMoveHistory;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
+import org.sakaiproject.api.app.messageforums.UserStatistics;
+import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
+import org.sakaiproject.component.app.messageforums.exception.LockedException;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-/**
- * The forums are sorted by this java class.  The topics are sorted by the order-by in the hbm file.
- *
- */
-public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
+public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
 
-    private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MessageForumsMessageManagerImpl.class);    
 
-    private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
+    //private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
+    //private static final String QUERY_ATTACHMENT_BY_ID = "findAttachmentById";
+    private static final String QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS = "findMessageByIdWithAttachments";
+    private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
+    private static final String QUERY_COUNT_BY_AUTHORED = "findAuhtoredMessageCountByTopicId";
+    private static final String QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE = "findMessageCountsForMainPage";
+    private static final String QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE = "findReadMessageCountsForMainPage";
+    private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
+    private static final String QUERY_COUNT_VIEWABLE_BY_TOPIC_ID = "findViewableMessageCountByTopicIdByUserId";
+    private static final String QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID = "findReadViewableMessageCountByTopicIdByUserId";
+    private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
+    private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
+    private static final String QUERY_READ_STATUS_WITH_MSGS_USER = "findReadStatusByMsgIds";
+    private static final String QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL = "findAllPendingMsgsByContextByMembershipByPermissionLevel";
+    private static final String QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL_NAME = "findAllPendingMsgsByContextByMembershipByPermissionLevelName";
+    private static final String QUERY_FIND_PENDING_MSGS_BY_TOPICID = "findPendingMsgsByTopicId";
+    private static final String QUERY_UNDELETED_MSG_BY_TOPIC_ID = "findUndeletedMessagesByTopicId";
+    private static final String QUERY_MOVED_MESSAGES_BY_TOPICID = "findMovedMessagesByTopicId";
+    private static final String QUERY_MOVED_HISTORY_BY_MESSAGEID = "findMovedHistoryByMessageId";
+    //private static final String ID = "id";
 
-    private static final String QUERY_RECEIVED_UUID_BY_CONTEXT_ID = "findReceivedUuidByContextId";
-    
-    private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
-    
-    private static final String QUERY_BY_FORUM_OWNER_AREA = "findPrivateForumByOwnerArea";
+    // Oracle's 1000 'in' clause limit
+    private static final int MAX_IN_CLAUSE_SIZE = 1000;
 
-    private static final String QUERY_BY_FORUM_OWNER_AREA_NULL = "findPrivateForumByOwnerAreaNull";
+    private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
 
-    private static final String QUERY_BY_FORUM_ID = "findForumById";
-    
-    private static final String QUERY_BY_FORUM_ID_WITH_ATTACHMENTS = "findForumByIdWithAttachments";    
-
-    private static final String QUERY_BY_FORUM_UUID = "findForumByUuid";
-    
-    private static final String QUERY_BY_TYPE_AND_CONTEXT = "findForumByTypeAndContext";
-    private static final String QUERY_BY_FORUM_ID_AND_TOPICS = "findForumByIdWithTopics";
-    private static final String QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_INFO = "findForumByTypeAndContextWithAllInfo";
-    private static final String QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_TOPICS_MEMBERSHIP = "findForumByTypeAndContextWithTopicsMemberhips";
-
-           
-    private static final String QUERY_TOPIC_WITH_MESSAGES_AND_ATTACHMENTS = "findTopicByIdWithMessagesAndAttachments";        
-    private static final String QUERY_TOPIC_WITH_MESSAGES = "findTopicByIdWithMessages";  
-    private static final String QUERY_TOPIC_WITH_ATTACHMENTS = "findTopicWithAttachmentsById"; 
-        
-    private static final String QUERY_TOPICS_WITH_MESSAGES_FOR_FORUM = "findTopicsWithMessagesForForum";
-    private static final String QUERY_TOPICS_WITH_MESSAGES_AND_ATTACHMENTS_FOR_FORUM = "findTopicsWithMessagesAndAttachmentsForForum";
-    private static final String QUERY_TOPICS_WITH_MSGS_AND_ATTACHMENTS_AND_MEMBERSHIPS_FOR_FORUM = "findTopicsWithMessagesMembershipAndAttachmentsForForum";
-
-    private static final String QUERY_FORUMS_FOR_MAIN_PAGE = "findForumsForMainPage";
-            
-    private static final String QUERY_BY_TOPIC_ID = "findTopicById";
-    private static final String QUERY_OPEN_BY_TOPIC_AND_PARENT = "findOpenTopicAndParentById";
-    private static final String QUERY_PRIVATE_BY_TOPIC_AND_PARENT = "findPrivateTopicAndParentById";    
-
-    private static final String QUERY_BY_TOPIC_UUID = "findTopicByUuid";
-
-    private static final String QUERY_OF_SUR_KEY_BY_TOPIC = "findOFTopicSurKeyByTopicId";
-    private static final String QUERY_PF_SUR_KEY_BY_TOPIC = "findPFTopicSurKeyByTopicId";
-
-    private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachments";
-    
-    private static final String QUERY_GET_ALL_MOD_TOPICS_IN_SITE = "findAllModeratedTopicsForSite";
-    private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL = "findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelId";
-    private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME = "findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelName";
-    
-    private static final String QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS = "findForumByIdWithTopicsAndAttachmentsAndMessages";
-    
-    //public static Comparator FORUM_CREATED_DATE_COMPARATOR;
-    
-    /** Sorts the forums by the sort index and if the same index then order by the creation date */
-    public static final Comparator FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC = new ForumBySortIndexAscAndCreatedDateDesc();
-
-    private IdManager idManager;
-
-    private SessionManager sessionManager;
-
-    private ServerConfigurationService serverConfigurationService;
-    private Boolean DEFAULT_AUTO_MARK_READ = false; 
+    private IdManager idManager;                      
 
     private MessageForumsTypeManager typeManager;
 
-    public MessageForumsForumManagerImpl() {}
+    private SessionManager sessionManager;
 
     private EventTrackingService eventTrackingService;
     
+    private ContentHostingService contentHostingService;
+
     public void init() {
        LOG.info("init()");
-       DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.default.auto.mark.threads.read", false);
+        ;
     }
 
     public EventTrackingService getEventTrackingService() {
@@ -164,7 +124,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
-
+    
     public MessageForumsTypeManager getTypeManager() {
         return typeManager;
     }
@@ -172,7 +132,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void setTypeManager(MessageForumsTypeManager typeManager) {
         this.typeManager = typeManager;
     }
-
+    
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
@@ -181,12 +141,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         this.idManager = idManager;
     }
 
-    public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	public IdManager getIdManager() {
+    public IdManager getIdManager() {
         return idManager;
     }
 
@@ -194,551 +149,1739 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return sessionManager;
     }
     
-    public void initializeTopicsForForum(BaseForum forum){
-      
-      getHibernateTemplate().initialize(forum);
-      getHibernateTemplate().initialize(forum.getTopicsSet());
+    public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+ 
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site for sites with
+     * 		Forum topics that don't have membership items in the db
+     */
+    public List<Object []> findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+
+        return (List) getHibernateTemplate().execute(hcb);
     }
     
-    public List getTopicsByIdWithMessages(final Long forumId){
-      if (forumId == null) {
-        throw new IllegalArgumentException("Null Argument");
-      }   
-      
-      HibernateCallback hcb = new HibernateCallback() {
-        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-            Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MESSAGES_FOR_FORUM);
-            q.setParameter("id", forumId, Hibernate.LONG);            
-            return q.list();
-        }
-    };
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site for sites with
+     * 		Forum topics that don't have membership items in the db
+     */
+    public List<Object []> findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
 
-    Topic tempTopic = null;
-    Set resultSet = new HashSet();      
-    List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-    for (Iterator i = temp.iterator(); i.hasNext();)
-    {
-      Object[] results = (Object[]) i.next();        
-          
-      if (results != null) {
-        if (results[0] instanceof Topic) {
-          tempTopic = (Topic)results[0];
-          tempTopic.setBaseForum((BaseForum)results[1]);            
-        } else {
-          tempTopic = (Topic)results[1];
-          tempTopic.setBaseForum((BaseForum)results[0]);
-        }
-        resultSet.add(tempTopic);
-      }
+        return (List) getHibernateTemplate().execute(hcb);
     }
-    return Util.setToList(resultSet);
-  }
     
-    public List getTopicsByIdWithMessagesAndAttachments(final Long forumId){
-      if (forumId == null) {
-        throw new IllegalArgumentException("Null Argument");
-      }   
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site
+     */
+    public List findDiscussionForumMessageCountsForAllSitesByPermissionLevelId(final List siteList, final List roleList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumMessageCountsForAllSitesByPermissionLevelId failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelId");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameterList("roleList", roleList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site
+     */
+    public List findDiscussionForumMessageCountsForAllSitesByPermissionLevelName(final List siteList, final List roleList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumMessageCountsForAllSitesByPermissionLevelName failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelName");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameterList("roleList", roleList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                    q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+    
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of read discussion forum messages grouped by site
+     */
+    public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId(final List siteList, final List roleList) {
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId");
+                   q.setParameterList("siteList", siteList);
+                   q.setParameterList("roleList", roleList);
+                   q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of read discussion forum messages grouped by site
+     */
+    public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName(final List siteList, final List roleList) {
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName");
+                   q.setParameterList("siteList", siteList);
+                   q.setParameterList("roleList", roleList);
+                   q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+    
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by topics within a site
+     * 		Used by sites that are grouped
+     */
+    public List findDiscussionForumMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList) {
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForGroupedSitesByTopic");
+                   q.setParameterList("siteList", siteList);
+                   q.setParameterList("roleList", roleList);
+                   q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by topics within a site
+     * 		Used by sites that are grouped
+     */
+    public List findDiscussionForumReadMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList) {
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForGroupedSitesByTopic");
+                   q.setParameterList("siteList", siteList);
+                   q.setParameterList("roleList", roleList);
+                   	q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   	q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+
+    /**
+     * FOR STATISTICS TOOL:
+     * 		Returns the number of read messages by topic for specified user
+     */
+    
+    public int findAuhtoredMessageCountByTopicIdByUserId(final Long topicId, final String userId){
+    	if (topicId == null || userId == null) {
+            LOG.error("findAuthoredMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findAuthoredMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_BY_AUTHORED);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue(); 
+    }
+    
+    public int findAuthoredMessageCountForStudent(final String userId) {
+    	if (userId == null) {
+    		LOG.error("findAuthoredMessageCountForStudentInSite failed with a null userId");
+    		throw new IllegalArgumentException("userId cannot be null");
+    	}
+    	
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessageCountForStudentInSite executing with userId: " + userId);
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findAuthoredMessageCountForStudent");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();     	
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findAuthoredMessagesForStudent(java.lang.String)
+     */
+    public List<Message> findAuthoredMessagesForStudent(final String studentId) {
+      if (LOG.isDebugEnabled()) LOG.debug("findReadMessagesForCurrentStudent()");
       
       HibernateCallback hcb = new HibernateCallback() {
         public Object doInHibernate(Session session) throws HibernateException, SQLException {
-            Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MESSAGES_AND_ATTACHMENTS_FOR_FORUM);
-            q.setParameter("id", forumId, Hibernate.LONG);            
+            Query q = session.getNamedQuery("findAuthoredMessagesForStudent");
+            q.setParameter("contextId", getContextId(), Hibernate.STRING);
+            q.setParameter("userId", studentId, Hibernate.STRING);
             return q.list();
         }
-    };
-
-    Topic tempTopic = null;
-    Set resultSet = new HashSet();      
-    List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-    for (Iterator i = temp.iterator(); i.hasNext();)
-    {
-      Object[] results = (Object[]) i.next();        
-          
-      if (results != null) {
-        if (results[0] instanceof Topic) {
-          tempTopic = (Topic)results[0];
-          tempTopic.setBaseForum((BaseForum)results[1]);            
-        } else {
-          tempTopic = (Topic)results[1];
-          tempTopic.setBaseForum((BaseForum)results[0]);
-        }
-        resultSet.add(tempTopic);
-      }
-    }
-    return Util.setToList(resultSet);    
-  }
-  
-  public List getTopicsByIdWithMessagesMembershipAndAttachments(final Long forumId) {
-      if (forumId == null) {
-        throw new IllegalArgumentException("Null Argument");
-      }   
+      };
       
-      HibernateCallback hcb = new HibernateCallback() {
-        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-            Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MSGS_AND_ATTACHMENTS_AND_MEMBERSHIPS_FOR_FORUM);
-            q.setParameter("id", forumId, Hibernate.LONG);            
-            return q.list();
-        }
-    };
-
-    Topic tempTopic = null;
-    Set resultSet = new HashSet();      
-    List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-    for (Iterator i = temp.iterator(); i.hasNext();)
-    {
-      Object[] results = (Object[]) i.next();        
-          
-      if (results != null) {
-        if (results[0] instanceof Topic) {
-          tempTopic = (Topic)results[0];
-          tempTopic.setBaseForum((BaseForum)results[1]);            
-        } else {
-          tempTopic = (Topic)results[1];
-          tempTopic.setBaseForum((BaseForum)results[0]);
-        }
-        resultSet.add(tempTopic);
-      }
+      return (List)getHibernateTemplate().execute(hcb);
     }
-    return Util.setToList(resultSet);    
-  }
-  
-  /*
-   * (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#getForumsForMainPage()
-   */
-  public List<DiscussionForum> getForumsForMainPage() {
-    HibernateCallback hcb = new HibernateCallback() {
-      public Object doInHibernate(Session session) throws HibernateException, SQLException {
-          Query q = session.getNamedQuery(QUERY_FORUMS_FOR_MAIN_PAGE);
-          q.setParameter("typeUuid", typeManager.getDiscussionForumType(), Hibernate.STRING);
-          q.setParameter("contextId", getContextId(), Hibernate.STRING);
-          return q.list();
-      }
-    };
-    List returnList = new ArrayList();
-    returnList.addAll(new HashSet((List)getHibernateTemplate().execute(hcb)));
-    return returnList;
-  }
-      
-  public List getReceivedUuidByContextId(final List siteList) {
-      if (siteList == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }      
-
-     HibernateCallback hcb = new HibernateCallback() {
+    
+    public List<UserStatistics> findAuthoredStatsForStudent(final String studentId) {
+        if (LOG.isDebugEnabled()) LOG.debug("findAuthoredStatsForStudent()");
+        
+        HibernateCallback hcb = new HibernateCallback() {
           public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_RECEIVED_UUID_BY_CONTEXT_ID);
-              q.setParameterList("siteList", siteList);
-              q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+              Query q = session.getNamedQuery("findAuthoredStatsForStudent");
+              q.setParameter("contextId", getContextId(), Hibernate.STRING);
+              q.setParameter("userId", studentId, Hibernate.STRING);
+              return q.list();
+          }
+        };
+        List<UserStatistics> returnList = new ArrayList<UserStatistics>();
+        List<Object[]> results = (List<Object[]>)getHibernateTemplate().execute(hcb);
+        for(Object[] result : results){
+      	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
+      			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+      	  returnList.add(stat);
+        }
+        return returnList;
+      }
+    
+    public List<Message> findAuthoredMessagesForStudentByTopicId(final String studentId, final Long topicId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadMessagesForCurrentStudentByTopicId()");
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery("findAuthoredMessagesForStudentByTopicId");
+    			q.setParameter("contextId", getContextId(), Hibernate.STRING);
+    			q.setParameter("userId", studentId, Hibernate.STRING);
+    			q.setParameter("topicId", topicId, Hibernate.LONG);
+    			return q.list();
+    		}
+    	};
+
+    	return (List)getHibernateTemplate().execute(hcb);
+    }
+
+    public List<UserStatistics> findAuthoredStatsForStudentByTopicId(final String studentId, final Long topicId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredStatsForStudentByTopicId()");
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery("findAuthoredStatsForStudentByTopicId");
+    			q.setParameter("topicId", topicId, Hibernate.LONG);
+    			q.setParameter("userId", studentId, Hibernate.STRING);
+    			return q.list();
+    		}
+    	};
+    	List<UserStatistics> returnList = new ArrayList<UserStatistics>();
+    	List<Object[]> results = (List<Object[]>)getHibernateTemplate().execute(hcb);
+    	for(Object[] result : results){
+    		UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
+    				((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+    		returnList.add(stat);
+    	}
+    	return returnList;
+    }
+
+    public List<Message> findAuthoredMessagesForStudentByForumId(final String studentId, final Long forumId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessagesForStudentByForumId()");
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery("findAuthoredMessagesForStudentByForumId");
+    			q.setParameter("contextId", getContextId(), Hibernate.STRING);
+    			q.setParameter("userId", studentId, Hibernate.STRING);
+    			q.setParameter("forumId", forumId, Hibernate.LONG);
+    			return q.list();
+    		}
+    	};
+
+    	return (List)getHibernateTemplate().execute(hcb);
+    }
+    
+    public List<UserStatistics> findAuthoredStatsForStudentByForumId(final String studentId, final Long topicId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredStatsForStudentByForumId()");
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery("findAuthoredStatsForStudentByForumId");
+    			q.setParameter("forumId", topicId, Hibernate.LONG);
+    			q.setParameter("userId", studentId, Hibernate.STRING);
+    			return q.list();
+    		}
+    	};
+    	List<UserStatistics> returnList = new ArrayList<UserStatistics>();
+    	List<Object[]> results = (List<Object[]>)getHibernateTemplate().execute(hcb);
+    	for(Object[] result : results){
+    		UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
+    				((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+    		returnList.add(stat);
+    	}
+    	return returnList;
+    }
+    
+    public List<Object[]> findAuthoredMessageCountForAllStudents() {
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessageCountForAllStudents executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudents");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
+    }
+    
+    public List<Object[]> findAuthoredMessageCountForAllStudentsByTopicId(final Long topicId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessageCountForAllStudentsByTopicId executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByTopicId");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
+    }
+    
+    public List<Object[]> findAuthoredMessageCountForAllStudentsByForumId(final Long forumId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessageCountForAllStudentsByForumId executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByForumId");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("forumId", forumId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
+    }
+    
+    public int findReadMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+        if (topicId == null || userId == null) {
+            LOG.error("findReadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findReadMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_BY_READ);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    public int findReadMessageCountForStudent(final String userId) {
+    	if (userId == null) {
+    		LOG.error("findReadMessageCountForStudent failed with null userId");
+    		throw new IllegalArgumentException("userId cannot be null");
+    	}
+    	
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadMessageCountForStudent executing with userId: " + userId);
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findReadMessageCountForStudent");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findReadMessagesForStudent()
+     */
+    public List<UserStatistics> findReadStatsForStudent(final String studentId) {
+      if (LOG.isDebugEnabled()) LOG.debug("findReadStatsForStudent()");
+      
+      HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery("findReadStatsForStudent");
+            q.setParameter("contextId", getContextId(), Hibernate.STRING);
+            q.setParameter("userId", studentId, Hibernate.STRING);
+            return q.list();
+        }
+      };
+      List<UserStatistics> returnList = new ArrayList<UserStatistics>();
+      List<Object[]> results = (List<Object[]>)getHibernateTemplate().execute(hcb);
+      for(Object[] result : results){
+    	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
+    			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+    	  returnList.add(stat);
+      }
+      return returnList;
+    }
+    
+    public List<UserStatistics> findReadStatsForStudentByTopicId(final String studentId, final Long topicId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadStatsForStudentByTopicId()");
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery("findReadStatsForStudentByTopicId");
+    			q.setParameter("userId", studentId, Hibernate.STRING);
+    			q.setParameter("topicId", topicId, Hibernate.LONG);
+    			return q.list();
+    		}
+    	};
+        List<UserStatistics> returnList = new ArrayList<UserStatistics>();
+        List<Object[]> results = (List<Object[]>)getHibernateTemplate().execute(hcb);
+        for(Object[] result : results){
+      	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
+      			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+      	  returnList.add(stat);
+        }
+        return returnList;
+    }
+    
+    public List<UserStatistics> findReadStatsForStudentByForumId(final String studentId, final Long forumId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadStatsForStudentByForumId()");
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery("findReadStatsForStudentByForumId");
+    			q.setParameter("userId", studentId, Hibernate.STRING);
+    			q.setParameter("forumId", forumId, Hibernate.LONG);
+    			return q.list();
+    		}
+    	};
+        List<UserStatistics> returnList = new ArrayList<UserStatistics>();
+        List<Object[]> results = (List<Object[]>)getHibernateTemplate().execute(hcb);
+        for(Object[] result : results){
+      	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
+      			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+      	  returnList.add(stat);
+        }
+        return returnList;
+    }
+    
+    public List<Object[]> findReadMessageCountForAllStudents() {
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadMessageCountForAllStudentsInSite executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findReadMessageCountForAllStudents");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
+    }
+    
+    public List<Object[]> findReadMessageCountForAllStudentsByTopicId(final Long topicId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadMessageCountForAllStudentsByTopicId executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findReadMessageCountForAllStudentsByTopicId");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
+    }
+    
+    public List<Object[]> findReadMessageCountForAllStudentsByForumId(final Long forumId) {
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadMessageCountForAllStudentsByForumId executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findReadMessageCountForAllStudentsByForumId");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("forumId", forumId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
+    }
+    
+    /**
+     * Returns count of all messages in a topic that have been approved or were authored by given user
+     */
+    public int findViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+        if (topicId == null || userId == null) {
+            LOG.error("findViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    /**
+     * Returns count of all msgs in a topic that have been approved or were authored by curr user
+     */
+    public int findViewableMessageCountByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findViewableMessageCountByTopicId failed with topicId: null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findViewableMessageCountByTopicId executing with topicId: " + topicId);
+
+        if(getCurrentUser()!=null){
+        return findViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+        }
+        else return 0;
+    }
+
+   public int findUnreadMessageCountByTopicIdByUserId(final Long topicId, final String userId){
+	   if (topicId == null || userId == null) {
+           LOG.error("findUnreadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+        		   		" and userId: " + userId);
+ 
+           throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("findUnreadMessageCountByTopicIdByUserId executing with topicId: " + topicId);
+
+       return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicIdByUserId(topicId, userId);
+   }
+    
+   public int findUnreadMessageCountByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findUnreadMessageCountByTopicId failed with topicId: null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findUnreadMessageCountByTopicId executing with topicId: " + topicId);
+
+        return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicId(topicId);
+    }
+   
+   /**
+    * Returns count of all unread msgs for given user that have been approved or
+    * were authored by user
+    */
+   public int findUnreadViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+       if (topicId == null) {
+           LOG.error("findUnreadViewableMessageCountByTopicIdByUserId failed with topicId: null and userid: " + userId);
+           throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("findUnreadViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + " userId: " + userId);
+
+       return findViewableMessageCountByTopicIdByUserId(topicId, userId) - findReadViewableMessageCountByTopicIdByUserId(topicId, userId);
+   }
+   
+   /**
+    * Returns count of all unread msgs for current user that have been approved or
+    * were authored by current user
+    */
+   public int findUnreadViewableMessageCountByTopicId(final Long topicId) {
+       if (topicId == null) {
+           LOG.error("findUnreadViewableMessageCountByTopicId failed with topicId: null");
+           throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("findUnreadViewableMessageCountByTopicId executing with topicId: " + topicId);
+
+       if(getCurrentUser()!=null){
+       return findUnreadViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+       }
+       else return 0;
+   }
+    
+    public int findReadMessageCountByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findReadMessageCountByTopicId failed with topicId: Null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        if(getCurrentUser()!=null){
+        return findReadMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+        }else return 0;
+    }
+    
+    /**
+     * Returns count of all read msgs for given user that have been approved or
+     * were authored by user
+     * @param topicId
+     * @param userId
+     * @return
+     */
+    public int findReadViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+    	if (topicId == null || userId == null) {
+            LOG.error("findReadViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findReadViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();   
+    }
+    
+    /**
+     * Returns count of all read msgs for current user that have been approved or
+     * were authored by user
+     * @param topicId
+     * @return
+     */
+    public int findReadViewableMessageCountByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findReadViewableMessageCountByTopicId failed with topicId: null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        if(getCurrentUser()!=null){
+        return findReadViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+        }
+        else return 0;
+    }
+    
+    public List findMessagesByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findMessagesByTopicId failed with topicId: null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findMessagesByTopicId executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List) getHibernateTemplate().execute(hcb);        
+    }
+    
+    public List findUndeletedMessagesByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findUndeletedMessagesByTopicId failed with topicId: null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findUndeletedMessagesByTopicId executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_UNDELETED_MSG_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List) getHibernateTemplate().execute(hcb);        
+    }
+    
+    public int findMessageCountByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findMessageCountByTopicId failed with topicId: null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findMessageCountByTopicId executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findMessageCountByTopicId");
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    public List<Object[]> findMessageCountByForumId(final Long forumId) {
+        if (forumId == null) {
+            LOG.error("findMessageCountByForumId failed with forumId: " + forumId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findMessageCountByForumId executing with forumId: " + forumId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findMessageCountByForumId");
+                q.setParameter("forumId", forumId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List<Object[]>) getHibernateTemplate().execute(hcb);        
+    }
+    
+    /*
+    +     * (non-Javadoc)
+    +     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#findMessageCountsForMainPage(java.util.List)
+    +     */
+    public List<Object[]> findMessageCountsForMainPage(final Collection<Long> topicIds) {
+    	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			// would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
+    			Iterator<Long> itTopicIds = topicIds.iterator();
+    			int numTopics = topicIds.size();
+
+    			List<Object[]> retrievedCounts = new ArrayList<Object[]>(numTopics);
+
+    			List<Long> queryTopics = new ArrayList<Long>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    			int querySize = 0;
+    			while (itTopicIds.hasNext())
+    			{
+    				while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
+    				{
+    					queryTopics.add(itTopicIds.next());
+    					querySize++;
+    				}
+
+    				Query q = session.getNamedQuery(QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    				q.setParameterList("topicIds", queryTopics);
+    				retrievedCounts.addAll(q.list());
+
+    				queryTopics.clear();
+    				querySize = 0;
+    			}
+
+    			return retrievedCounts;
+    		}
+    	};
+
+    	return (List)getHibernateTemplate().execute(hcb);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findReadMessageCountsForMainPage(java.util.Collection)
+     */
+    public List<Object[]> findReadMessageCountsForMainPage(final Collection<Long> topicIds) {
+    	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			// would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
+    			Iterator<Long> itTopicIds = topicIds.iterator();
+    			int numTopics = topicIds.size();
+    			String userId = getCurrentUser();
+
+    			List<Object[]> retrievedCounts = new ArrayList<Object[]>(numTopics);
+
+    			List<Long> queryTopics = new ArrayList<Long>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    			int querySize = 0;
+    			while (itTopicIds.hasNext())
+    			{
+    				while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
+    				{
+    					queryTopics.add(itTopicIds.next());
+    					querySize++;
+    				}
+
+    				Query q = session.getNamedQuery(QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    				q.setParameterList("topicIds", queryTopics);
+    				q.setParameter("userId", userId);
+    				retrievedCounts.addAll(q.list());
+
+    				queryTopics.clear();
+    				querySize = 0;
+    			}
+
+    			return retrievedCounts;
+    		}
+    	};
+
+    	return (List)getHibernateTemplate().execute(hcb);
+    }
+
+
+
+    public List<Object[]> findMessageCountTotal() {
+    	HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findMessageCountTotal");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                return q.list();
+            }
+    	};
+    	
+    	return (List<Object[]>)getHibernateTemplate().execute(hcb);
+    }
+    
+    public UnreadStatus findUnreadStatusByUserId(final Long topicId, final Long messageId, final String userId){
+    	if (messageId == null || topicId == null || userId == null) {
+            LOG.error("findUnreadStatusByUserId failed with topicId: " + topicId + ", messageId: " + messageId
+            		+ ", userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_UNREAD_STATUS);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("messageId", messageId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return (UnreadStatus) getHibernateTemplate().execute(hcb);
+    }
+    
+    public UnreadStatus findUnreadStatus(final Long topicId, final Long messageId) {
+        if (messageId == null || topicId == null) {
+            LOG.error("findUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        if(getCurrentUser()!=null){
+        return findUnreadStatusByUserId(topicId, messageId, getCurrentUser()); 
+        }else return null;
+    }
+
+    public void deleteUnreadStatus(Long topicId, Long messageId) {
+        if (messageId == null || topicId == null) {
+            LOG.error("deleteUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("deleteUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId);
+
+        UnreadStatus status = findUnreadStatus(topicId, messageId);
+        if (status != null) {
+            getHibernateTemplate().delete(status);
+        }
+    }
+
+    private boolean isMessageFromForums(Message message) {
+    	return message.getTopic() != null;
+    }
+    
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read) {
+        if (messageId == null || topicId == null) {
+            LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+
+        if(getCurrentUser()!=null){
+        markMessageReadForUser(topicId, messageId, read, getCurrentUser());
+        }
+        else return;
+    }
+    
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId)
+    {
+    	markMessageReadForUser(topicId, messageId, read, userId, ToolManager.getCurrentPlacement().getContext(), ToolManager.getCurrentTool().getId());
+    }
+    
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId)
+    {
+    	// to only add to event log if not read
+    	boolean trulyUnread;
+    	boolean originalReadStatus;
+    	
+    	if (messageId == null || topicId == null || userId == null) {
+            LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+
+        UnreadStatus status = findUnreadStatusByUserId(topicId, messageId, userId);
+        if (status == null) {
+            status = new UnreadStatusImpl();
+            trulyUnread = true;
+            originalReadStatus = false;
+        }
+        else {
+        	trulyUnread = status.getRead().booleanValue();
+        	trulyUnread = !trulyUnread;
+        	originalReadStatus = status.getRead().booleanValue();
+        }
+        
+        status.setTopicId(topicId);
+        status.setMessageId(messageId);
+        status.setUserId(userId);
+        status.setRead(Boolean.valueOf(read));
+
+        Message message = (Message) getMessageById(messageId);
+        boolean isMessageFromForums = isMessageFromForums(message);
+        if (trulyUnread) {
+        	//increment the message count 	 
+            	Integer nr = message.getNumReaders(); 	 
+            	if (nr == null) 	 
+                    nr = Integer.valueOf(0); 	 
+            	nr = Integer.valueOf(nr.intValue() + 1); 	 
+            	message.setNumReaders(nr); 	 
+            	LOG.debug("set Message readers count to: " + nr); 	 
+            	//baseForum is probably null 	 
+            	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null) 	 
+                    message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum()); 	 
+	 
+            	this.saveMessage(message, false, toolId, userId, context, true);
+
+        	if (isMessageFromForums)
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message, toolId, userId, context), false));
+        	else
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(message, toolId, userId, context), false));
+        }
+        	
+        getHibernateTemplate().saveOrUpdate(status);
+       
+        
+        	
+        	if (isMessageFromForums){
+        		if(!originalReadStatus && read){
+        			//status is changing from Unread to Read, so decrement unread number for Synoptic Messages
+        			decrementForumSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        		}else if(originalReadStatus && !read){
+        			//status is changing from Read to Unread, so increment unread number for Synoptic Messages
+        			incrementForumSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+              originalReadStatus = !originalReadStatus;//correct for messaging error @SAK-31106
+        		}
+        	}else{
+        		if(!originalReadStatus && read){
+        			//status is changing from Unread to Read, so decrement unread number for Synoptic Messages
+        			decrementMessagesSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        		}else if(originalReadStatus && !read){
+        			//status is changing from Read to Unread, so increment unread number for Synoptic Messages
+        			incrementMessagesSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+              originalReadStatus=!originalReadStatus; //correct for messaging error @SAK-31106
+        		}
+        	}
+        
+    }
+
+
+    public void decrementForumSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.decrementForumSynopticToolInfo(Arrays.asList(userId), siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			decrementForumSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
+    }
+
+    public void incrementForumSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.incrementForumSynopticToolInfo(Arrays.asList(userId), siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			incrementForumSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
+    }
+
+    public void decrementMessagesSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.decrementMessagesSynopticToolInfo(Arrays.asList(userId), siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			decrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
+    }
+
+    public void incrementMessagesSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.incrementMessagesSynopticToolInfo(Arrays.asList(userId), siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			incrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
+    }
+    
+    public boolean isMessageReadForUser(final Long topicId, final Long messageId) {
+        if (messageId == null || topicId == null) {
+            LOG.error("getMessageById failed with topicId: " + topicId + ", messageId: " + messageId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getMessageById executing with topicId: " + topicId + ", messageId: " + messageId);
+
+        UnreadStatus status = findUnreadStatus(topicId, messageId);
+        if (status == null) {
+            return false; // not been saved yet, so it is unread
+        }
+        return status.getRead().booleanValue();        
+    }
+
+    public PrivateMessage createPrivateMessage() {
+        PrivateMessage message = new PrivateMessageImpl();
+        message.setUuid(getNextUuid());
+        message.setTypeUuid(typeManager.getPrivateMessageAreaType());
+        message.setCreated(new Date());
+        message.setCreatedBy(getCurrentUser());
+        message.setDraft(Boolean.FALSE);
+        message.setHasAttachments(Boolean.FALSE);
+        
+        LOG.debug("message " + message.getUuid() + " created successfully");
+        return message;        
+    }
+
+    public Message createDiscussionMessage() {
+        return createMessage(typeManager.getDiscussionForumType());
+    }
+
+    public Message createOpenMessage() {
+        return createMessage(typeManager.getOpenDiscussionForumType());
+    }
+
+    public Message createMessage(String typeId) {
+        Message message = new MessageImpl();
+        message.setUuid(getNextUuid());
+        message.setTypeUuid(typeId);
+        message.setCreated(new Date());
+        message.setCreatedBy(getCurrentUser());
+        message.setDraft(Boolean.FALSE);
+        message.setHasAttachments(Boolean.FALSE);
+
+        LOG.debug("message " + message.getUuid() + " created successfully");
+        return message;        
+    }
+
+    public Attachment createAttachment() {
+        Attachment attachment = new AttachmentImpl();
+        attachment.setUuid(getNextUuid());
+        attachment.setCreated(new Date());
+        attachment.setCreatedBy(getCurrentUser());
+        attachment.setModified(new Date());
+        attachment.setModifiedBy(getCurrentUser());
+
+        LOG.debug("attachment " + attachment.getUuid() + " created successfully");
+        return attachment;        
+    }
+
+    public void saveMessage(Message message) {
+    	saveMessage(message, true);
+    }
+
+    public void saveMessage(Message message, boolean logEvent) {
+    	saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    }
+    
+    public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
+        saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
+    }
+    
+    public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
+    	saveMessage(message, logEvent, toolId, userId, contextId, false);
+    }
+    
+    public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId, boolean ignoreLockedTopicForum){
+        boolean isNew = message.getId() == null;
+        
+        if (!ignoreLockedTopicForum && !(message instanceof PrivateMessage)){                  
+          if (isForumOrTopicLocked(message.getTopic().getBaseForum().getId(), message.getTopic().getId())) {
+              LOG.info("saveMessage executed [messageId: " + (isNew ? "new" : message.getId().toString()) + "] but forum is locked -- save aborted");
+              throw new LockedException("Message could not be saved [messageId: " + (isNew ? "new" : message.getId().toString()) + "]");
+          }
+        }
+        
+        message.setModified(new Date());
+        if(getCurrentUser()!=null){
+        message.setModifiedBy(getCurrentUser());
+        }
+        if(message.getUuid() == null || message.getCreated() == null
+        	|| message.getCreatedBy() == null || message.getModified() == null
+        	|| message.getModifiedBy() == null || message.getTitle() == null 
+        	|| message.getAuthor() == null || message.getHasAttachments() == null
+        	|| message.getTypeUuid() == null 
+        	|| message.getDraft() == null)
+        {
+        	LOG.error("null attribute(s) for saving message in MessageForumsMessageManagerImpl.saveMessage");
+        }
+
+        if (message.getNumReaders() == null)
+        	message.setNumReaders(0);
+        
+        //MSGCNTR-448 if this is a top new top level message make sure the thread date is set
+        if (logEvent) {
+        	if (isNew && message.getDateThreadlastUpdated() == null) { 	                 
+        		//we don't need to do this on non log events
+        		message.setDateThreadlastUpdated(new Date()); 	                 
+        		if (message.getInReplyTo() != null) {
+        			if (message.getInReplyTo().getThreadId() != null) {
+        				message.setThreadId(message.getInReplyTo().getThreadId());
+        			} else {
+        				message.setThreadId(message.getInReplyTo().getId());
+        			}
+        		}
+        	}
+        }
+
+
+        getHibernateTemplate().saveOrUpdate(message);
+
+        if (logEvent) {
+        	if (isNew) {
+        		if (isMessageFromForums(message))
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD, getEventMessage(message, toolId, userId, contextId), false));
+        		else
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message, toolId, userId, contextId), false));
+        	} else {
+        		if (isMessageFromForums(message))
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
+        		else
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
+        	}           
+        }
+        
+        LOG.debug("message " + message.getId() + " saved successfully");
+        
+    }
+
+    public void deleteMessage(Message message) {
+        long id = message.getId().longValue();
+        message.setInReplyTo(null);
+        
+        getHibernateTemplate().saveOrUpdate(message);
+        
+        try {
+        	getSession().flush();
+        } 
+        catch (Exception e) {
+        	e.printStackTrace();
+        }
+        
+        if (isMessageFromForums(message))
+        	eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_REMOVE, getEventMessage(message), false));
+        else
+        	eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_REMOVE, getEventMessage(message), false));
+
+        try {
+            getSession().evict(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error("could not evict message: " + message.getId(), e);
+        }
+        
+        Topic topic = message.getTopic();        
+        topic.removeMessage(message);
+        getHibernateTemplate().saveOrUpdate(topic);
+		//getHibernateTemplate().delete(message);
+
+        try {
+            getSession().flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        LOG.debug("message " + id + " deleted successfully");
+    }
+    
+    public Message getMessageById(final Long messageId) {        
+        if (messageId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getMessageById executing with messageId: " + messageId);
+        
+        return (Message) getHibernateTemplate().get(MessageImpl.class, messageId);
+    }   
+    
+    /**
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#getMessageByIdWithAttachments(java.lang.Long)
+     */
+    public Message getMessageByIdWithAttachments(final Long messageId){
+      
+      if (messageId == null) {
+        throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("getMessageByIdWithAttachments executing with messageId: " + messageId);
+        
+
+      HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS);
+          q.setParameter("id", messageId, Hibernate.LONG);
+          return q.uniqueResult();
+        }
+      };    
+
+      return (Message) getHibernateTemplate().execute(hcb);
+    }
+    
+    public Attachment getAttachmentById(final Long attachmentId) {        
+        if (attachmentId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+        
+        LOG.debug("getAttachmentById executing with attachmentId: " + attachmentId);
+        
+        return (Attachment) getHibernateTemplate().get(AttachmentImpl.class, attachmentId);
+    }
+    
+    public void getChildMsgs(final Long messageId, List returnList)
+    {
+    	List tempList;
+    	
+      HibernateCallback hcb = new HibernateCallback() 
+			{
+        public Object doInHibernate(Session session) throws HibernateException, SQLException 
+				{
+          Query q = session.getNamedQuery(QUERY_CHILD_MESSAGES);
+          Query qOrdered= session.createQuery(q.getQueryString());
+                  
+          qOrdered.setParameter("messageId", messageId, Hibernate.LONG);
+          
+          return qOrdered.list();
+        }
+      };
+      
+      tempList = (List) getHibernateTemplate().execute(hcb);
+      if(tempList != null)
+      {
+      	for(int i=0; i<tempList.size(); i++)
+      	{
+      		getChildMsgs(((Message)tempList.get(i)).getId(), returnList);
+      		returnList.add((Message) tempList.get(i));
+      	}
+      }
+    }
+    
+    /**
+     * Will set the approved status on the given message
+     */
+    public void markMessageApproval(Long messageId, boolean approved)
+    {
+    	if (messageId == null) {
+            LOG.error("markMessageApproval failed with messageId: null");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("markMessageApproval executing with messageId: " + messageId);
+        
+        Message message = (Message) getMessageById(messageId);
+        message.setApproved(Boolean.valueOf(approved));
+        
+        getHibernateTemplate().saveOrUpdate(message);
+    }
+
+
+
+    public void deleteMsgWithChild(final Long messageId)
+    {
+    	List thisList = new ArrayList();
+    	getChildMsgs(messageId, thisList);
+    	
+    	for(int i=0; i<thisList.size(); i++)
+    	{
+    		Message delMessage = getMessageById(((Message)thisList.get(i)).getId());
+    		deleteMessage(delMessage);
+    	}
+
+  		deleteMessage(getMessageById(messageId));
+    }
+    
+    public List getFirstLevelChildMsgs(final Long messageId)
+    {
+      HibernateCallback hcb = new HibernateCallback() 
+			{
+        public Object doInHibernate(Session session) throws HibernateException, SQLException 
+				{
+          Query q = session.getNamedQuery(QUERY_CHILD_MESSAGES);
+          Query qOrdered= session.createQuery(q.getQueryString());
+                  
+          qOrdered.setParameter("messageId", messageId, Hibernate.LONG);
+          
+          return qOrdered.list();
+        }
+      };
+      
+      return (List)getHibernateTemplate().executeFind(hcb);
+    }
+
+    public List sortMessageBySubject(Topic topic, boolean asc) {
+        List list = topic.getMessages();
+        if (asc) {
+            Collections.sort(list, MessageImpl.SUBJECT_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.SUBJECT_COMPARATOR_DESC);
+        }
+        topic.setMessages(list);
+        return list;
+    }
+
+    public List sortMessageByAuthor(Topic topic, boolean asc) {
+        List list = topic.getMessages();
+        if (asc) {
+            Collections.sort(list, MessageImpl.AUTHORED_BY_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.AUTHORED_BY_COMPARATOR_DESC);
+        }
+        topic.setMessages(list);
+        return list;
+    }
+
+    public List sortMessageByDate(Topic topic, boolean asc) {
+        List list = topic.getMessages();
+        if (asc) {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR_DESC);
+        }
+        topic.setMessages(list);
+        return list;
+    }
+    
+    public List sortMessageByDate(List list, boolean asc) {
+        if (list == null || list.isEmpty())
+        	return null;
+        
+        if (asc) {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR_DESC);
+        }
+
+        return list;
+    }
+    
+
+    private boolean isForumOrTopicLocked(final Long forumId, final Long topicId) {
+        if (forumId == null || topicId == null) {
+            LOG.error("isForumLocked called with null arguments");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("isForumLocked executing with forumId: " + forumId + ":: topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findForumLockedAttribute");
+                q.setParameter("id", forumId, Hibernate.LONG);
+                return q.uniqueResult();
+            }
+        };
+
+        HibernateCallback hcb2 = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findTopicLockedAttribute");
+                q.setParameter("id", topicId, Hibernate.LONG);
+                return q.uniqueResult();
+            }
+        };
+        
+        return ((Boolean) getHibernateTemplate().execute(hcb)).booleanValue() || ((Boolean) getHibernateTemplate().execute(hcb2)).booleanValue();                
+    }
+    
+    // helpers
+    
+    private String getCurrentUser() {        
+        if (TestUtil.isRunningTests()) {
+            return "test-user";
+        }
+        return sessionManager.getCurrentSessionUserId();
+    }
+    
+    private String getNextUuid() {        
+        return idManager.createUuid();
+    }
+
+    private String getEventMessage(Object object) {
+    	return getEventMessage(object, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    }
+    
+    private String getEventMessage(Object object, String toolId, String userId, String contextId) {
+    	String eventMessagePrefix = "";
+    	
+    		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
+    			eventMessagePrefix = "/messagesAndForums/site/";
+    		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
+    			eventMessagePrefix = "/messages/site/";
+    		else
+    			eventMessagePrefix = "/forums/site/";
+    	
+    	return eventMessagePrefix + contextId + "/" + object.toString() + "/" + userId;
+    }
+
+        
+    public List getAllRelatedMsgs(final Long messageId)
+    {
+    	Message rootMsg = getMessageById(messageId); 
+    	while(rootMsg.getInReplyTo() != null)
+    	{
+    		rootMsg = rootMsg.getInReplyTo();
+    	}
+    	List childList = new ArrayList();
+    	getChildMsgs(rootMsg.getId(), childList);
+    	List returnList = new ArrayList();
+    	returnList.add(rootMsg);
+    	for(int i=0; i<childList.size(); i++)
+    	{
+    		returnList.add((Message)childList.get(i));
+    	}
+
+    	return returnList;
+    }
+    
+    /**
+     * 
+     * @param topicId
+     * @param searchText
+     * @return
+     */
+    
+    public List findPvtMsgsBySearchText(final String typeUuid, final String searchText, 
+          final Date searchFromDate, final Date searchToDate, final boolean searchByText,
+          final boolean searchByAuthor, final boolean searchByBody, final boolean searchByLabel, final boolean searchByDate) {
+
+      LOG.debug("findPvtMsgsBySearchText executing with searchText: " + searchText);
+
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery("findPvtMsgsBySearchText");
+              q.setParameter("searchText", "%" + searchText + "%");
+              q.setParameter("searchByText", convertBooleanToInteger(searchByText));
+              q.setParameter("searchByAuthor", convertBooleanToInteger(searchByAuthor));
+              q.setParameter("searchByBody", convertBooleanToInteger(searchByBody));
+              q.setParameter("searchByLabel", convertBooleanToInteger(searchByLabel));
+              q.setParameter("searchByDate", convertBooleanToInteger(searchByDate));
+              q.setParameter("searchFromDate", (searchFromDate == null) ? new Date(0) : searchFromDate);
+              q.setParameter("searchToDate", (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate);
+              q.setParameter("userId", getCurrentUser());
+              q.setParameter("contextId", ToolManager.getCurrentPlacement().getContext());
+              q.setParameter("typeUuid", typeUuid);
               return q.list();
           }
       };
 
       return (List) getHibernateTemplate().execute(hcb);
-	  
+  }
+    
+    private Integer convertBooleanToInteger(boolean value) {
+       Integer retVal = (Boolean.TRUE.equals(value)) ? 1 : 0;
+       return Integer.valueOf(retVal);
+    }
+    
+    private String getContextId() {
+      if (TestUtil.isRunningTests()) {
+          return "test-context";
+      }
+      Placement placement = ToolManager.getCurrentPlacement();
+      String presentSiteId = placement.getContext();
+      return presentSiteId;
+  }
+    
+  public String getAttachmentUrl(String id)
+  {
+  	try
+  	{
+		return contentHostingService.getResource(id).getUrl(false);
+  	}
+  	catch(Exception e)
+  	{
+  		LOG.error("MessageForumsMessageManagerImpl.getAttachmentUrl" + e, e);
+  	}
+  	return null;
+  }
+  
+  public String getAttachmentRelativeUrl(String id) {
+      try
+      {
+          return contentHostingService.getResource(id).getUrl(true);
+      }
+      catch(Exception e)
+      {
+          LOG.error("MessageForumsMessageManagerImpl.getAttachmentUrl" + e, e);
+      }
+      return null;
+
   }
 
-    public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId) {
+	/**
+	 * Returns true if the tool with the id passed in exists in the
+	 * current site.
+	 * 
+	 * @param toolId
+	 * 			The tool id to search for.
+	 * 
+	 * @return
+	 * 			TRUE if tool exists, FALSE otherwise.
+	 */
+	public boolean currentToolMatch(String toolId) {
+		String curToolId = ToolManager.getCurrentTool().getId();
+		
+		if (curToolId.equals(MESSAGECENTER_HELPER_TOOL_ID)) {
+			curToolId = ToolManager.getCurrentPlacement().getTool().getId();
+		}
 
-      if (topicId == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }      
-
-     HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_TOPIC_WITH_MESSAGES_AND_ATTACHMENTS);
-              q.setParameter("id", topicId, Hibernate.LONG);              
-              return q.uniqueResult();
-          }
-      };
-     
-
-      return (Topic) getHibernateTemplate().execute(hcb);
-    }
-    
-    public Topic getTopicByIdWithMessages(final Long topicId) {
-
-      if (topicId == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }      
-
-     HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_TOPIC_WITH_MESSAGES);
-              q.setParameter("id", topicId, Hibernate.LONG);              
-              return q.uniqueResult();
-          }
-      };
-      
-      return (Topic) getHibernateTemplate().execute(hcb);
-    }
-    
-    public Topic getTopicWithAttachmentsById(final Long topicId) {
-
-        if (topicId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }      
-
-       HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_TOPIC_WITH_ATTACHMENTS);
-                q.setParameter("id", topicId, Hibernate.LONG);              
-                return q.uniqueResult();
-            }
-        };
-        
-        return (Topic) getHibernateTemplate().execute(hcb);
-      }
-
-    
-    public List<Attachment> getTopicAttachments(final Long topicId) {
-    	if (topicId == null) {
-    		throw new IllegalArgumentException("Null Argument topicId");
-    	}
-    	HibernateCallback hcb = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    			Query q = session.getNamedQuery("findTopicAttachments");
-    			q.setCacheable(true);
-    			q.setParameter("topic", topicId, Hibernate.LONG);
-    			return q.list();
-    		}
-    	};
-    	return (List<Attachment>)getHibernateTemplate().executeFind(hcb);
-    } 
-
-    
-    public BaseForum getForumByIdWithTopics(final Long forumId) {
-
-      if (forumId == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }      
-
-     HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_BY_FORUM_ID_AND_TOPICS);
-              q.setParameter("id", forumId, Hibernate.LONG);              
-              return q.uniqueResult();
-          }
-      };
-      
-      BaseForum bForum = (BaseForum) getHibernateTemplate().execute(hcb);
-      
-      if (bForum != null){
-        getHibernateTemplate().initialize(bForum.getAttachmentsSet());
-      }
-      
-      return bForum;      
-    }
-    
-    public List getForumByTypeAndContext(final String typeUuid) {
-
-      if (typeUuid == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }      
-
-     HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT);
-              q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-              q.setParameter("contextId", getContextId(), Hibernate.STRING);
-              return q.list();
-          }
-      };
-
-      BaseForum tempForum = null;
-      Set resultSet = new HashSet();
-      List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-            
-      for (Iterator i = temp.iterator(); i.hasNext();)
-      {
-        Object[] results = (Object[]) i.next();        
-            
-        if (results != null) {
-          if (results[0] instanceof BaseForum) {
-            tempForum = (BaseForum)results[0];
-            tempForum.setArea((Area)results[1]);            
-          } else {
-            tempForum = (BaseForum)results[1];
-            tempForum.setArea((Area)results[0]);
-          }
-          resultSet.add(tempForum);
-        }
-      }
-      
-      List resultList = Util.setToList(resultSet);
-      Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
-      
-      // Now that the list is sorted, lets index the forums
-      int sort_index = 1;
-      for(Iterator i = resultList.iterator(); i.hasNext(); ) {
-         tempForum = (BaseForum)i.next();
-         
-         tempForum.setSortIndex(Integer.valueOf(sort_index++));
-      }
-      
-      return resultList;      
-    }
-    
-    public List getForumByTypeAndContext(final String typeUuid, final String contextId) {
-
-        if (typeUuid == null || contextId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }      
-
-       HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT);
-                q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-                q.setParameter("contextId", contextId, Hibernate.STRING);
-                return q.list();
-            }
-        };
-
-        BaseForum tempForum = null;
-        Set resultSet = new HashSet();
-        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-              
-        for (Iterator i = temp.iterator(); i.hasNext();)
-        {
-          Object[] results = (Object[]) i.next();        
-              
-          if (results != null) {
-            if (results[0] instanceof BaseForum) {
-              tempForum = (BaseForum)results[0];
-              tempForum.setArea((Area)results[1]);            
-            } else {
-              tempForum = (BaseForum)results[1];
-              tempForum.setArea((Area)results[0]);
-            }
-            resultSet.add(tempForum);
-          }
-        }
-        
-        List resultList = Util.setToList(resultSet);
-        Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
-
-        // Now that the list is sorted, lets index the forums
-        int sort_index = 1;
-        for(Iterator i = resultList.iterator(); i.hasNext(); ) {
-           tempForum = (BaseForum)i.next();
-           
-           tempForum.setSortIndex(Integer.valueOf(sort_index++));
-        }
-        
-        return resultList;      
-      }
-
-    public Topic getTopicByIdWithAttachments(final Long topicId) {
-
-        if (topicId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        LOG.debug("getTopicByIdWithMessagesAndAttachments executing with topicId: " + topicId);
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS);
-                q.setParameter("id", topicId, Hibernate.LONG);
-                return q.uniqueResult();
-            }
-        };
-
-        return (Topic) getHibernateTemplate().execute(hcb);
-
-    }
-
-    public PrivateForum getPrivateForumByOwner(final String owner) {
-
-        if (owner == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        LOG.debug("getForumByOwner executing with owner: " + owner);
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER);
-                q.setParameter("owner", owner, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return (PrivateForum) getHibernateTemplate().execute(hcb);
-    }
-
-    
-    public PrivateForum getPrivateForumByOwnerArea(final String owner, final Area area) {
-
-      if (owner == null || area == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }
-
-      LOG.debug("getForumByOwnerArea executing with owner: " + owner + " and area:" + area);
-
-      HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA);
-              q.setParameter("owner", owner, Hibernate.STRING);
-              q.setParameter("area", area);
-              return q.uniqueResult();
-          }
-      };
-
-      return (PrivateForum) getHibernateTemplate().execute(hcb);
-    }
-
-    public PrivateForum getPrivateForumByOwnerAreaNull(final String owner) {
-
-      if (owner == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }
-
-      LOG.debug("getForumByOwnerAreaNull executing with owner: " + owner);
-
-      HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_NULL);
-              q.setParameter("owner", owner, Hibernate.STRING);
-              return q.uniqueResult();
-          }
-      };
-
-      return (PrivateForum) getHibernateTemplate().execute(hcb);
-    }
-    
-    public BaseForum getForumByIdWithAttachments(final Long forumId) {
-      
-      if (forumId == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }
-
-      LOG.debug("getForumByIdWithAttachments executing with forumId: " + forumId);
-                  
-      HibernateCallback hcb = new HibernateCallback() {
-        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-            Query q = session.getNamedQuery(QUERY_BY_FORUM_ID_WITH_ATTACHMENTS);
-            q.setParameter("id", forumId, Hibernate.LONG);
-            return q.uniqueResult();
-        }
-    };
-
-      return (BaseForum) getHibernateTemplate().execute(hcb);
-
-    }
-
-
-    public BaseForum getForumById(boolean open, final Long forumId) {
-        if (forumId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        LOG.debug("getForumById executing with forumId: " + forumId);
-
-        if (open) {
-            // open works for both open and discussion forums
-            return getForumByIdWithAttachments(forumId);
-        } else {
-            return (BaseForum) getHibernateTemplate().get(PrivateForumImpl.class, forumId);
-        }
-    }
-
-    public BaseForum getForumByUuid(final String forumId) {
-        if (forumId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        LOG.debug("getForumByUuid executing with forumId: " + forumId);
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_FORUM_UUID);
-                q.setParameter("uuid", forumId, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return (BaseForum) getHibernateTemplate().execute(hcb);
-    }
-
-    public Topic getTopicById(final boolean open, final Long topicId) {
-        if (topicId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        LOG.debug("getTopicById executing with topicId: " + topicId);
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                String query;
-                if (open) {
-                    query = QUERY_OPEN_BY_TOPIC_AND_PARENT;
-                } else {
-                    query = QUERY_PRIVATE_BY_TOPIC_AND_PARENT;
-                }
-                Query q = session.getNamedQuery(QUERY_OPEN_BY_TOPIC_AND_PARENT);
-                q.setParameter("id", topicId, Hibernate.LONG);
-                return q.list();
-            }
-        };
-
-        Topic res = null;
+		if (toolId.equals(curToolId)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Return TRUE if tool with id passed in exists in site passed in
+	 * FALSE otherwise.
+	 * 
+	 * @param thisSite
+	 * 			Site object to check
+	 * @param toolId
+	 * 			Tool id to be checked
+	 * 
+	 * @return
+	 */
+	public boolean isToolInSite(String siteId, String toolId) {
+		Site thisSite;
 		try {
-			List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-			if (temp != null && temp.size() > 0) {
+			thisSite = SiteService.getSite(siteId);
+			
+			Collection toolsInSite = thisSite.getTools(toolId);
 
-				Object[] results = (Object[]) temp.get(0);
-				if (results != null && results.length > 1) {
-					if (results[0] instanceof Topic) {
-						res = (Topic) results[0];
-						res.setBaseForum((BaseForum) results[1]);
-					} else {
-						res = (Topic) results[1];
-						res.setBaseForum((BaseForum) results[0]);
+			return ! toolsInSite.isEmpty();
+		} 
+		catch (IdUnusedException e) {
+			// Weirdness - should not happen
+			LOG.error("IdUnusedException attempting to get site for id " + siteId + " to check if tool " 
+							+ "with id " + toolId + " is in it.", e);
+		}
+		
+		return false;
+	}
+
+	public Map<Long, Boolean> getReadStatusForMessagesWithId(final List msgIds, final String userId)
+	{
+		Map<Long, Boolean> statusMap = new HashMap<Long, Boolean>();
+		if( msgIds != null && msgIds.size() > 0)
+		{
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery(QUERY_READ_STATUS_WITH_MSGS_USER);
+					q.setParameter("userId", userId, Hibernate.STRING);
+					q.setParameterList("msgIds", msgIds);
+					return q.list();
+				}
+			};
+			
+			for (Iterator msgIdIter = msgIds.iterator(); msgIdIter.hasNext();) {
+				Long msgId = (Long) msgIdIter.next();
+				statusMap.put(msgId, Boolean.FALSE);
+			}
+			List statusList = (List)getHibernateTemplate().execute(hcb);
+			if(statusList != null)
+			{
+				for(int i=0; i<statusList.size(); i++)
+				{
+					UnreadStatus status = (UnreadStatus) statusList.get(i);
+					if(status != null)
+					{
+						statusMap.put(status.getMessageId(), status.getRead());
 					}
 				}
 			}
-		} catch (Exception e) {
-			LOG.warn(e);
 		}
+		return statusMap;
+	}
 	
-        return res;
-    }
-
-    public Topic getTopicByUuid(final String uuid) {
-        if (uuid == null) {
+	public List getPendingMsgsInSiteByMembership(final List membershipList)
+	{   	
+		if (membershipList == null) {
+            LOG.error("getPendingMsgsInSiteByMembership failed with membershipList: null");
             throw new IllegalArgumentException("Null Argument");
         }
-
-        LOG.debug("getTopicByUuid executing with topicId: " + uuid);
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_TOPIC_UUID);
-                q.setParameter("uuid", uuid, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return (Topic) getHibernateTemplate().execute(hcb);
-    }
-    
-    public List getModeratedTopicsInSite(final String contextId) {
-
-        if (contextId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        LOG.debug("getModeratedTopicsInSite executing with contextId: " + contextId);
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_GET_ALL_MOD_TOPICS_IN_SITE);
-                q.setParameter("contextId", contextId, Hibernate.STRING);
-                return q.list();
-            }
-        };
-        
-        Topic tempTopic = null;
+		
+		// First, check by permissionLevel (custom permissions)
+		HibernateCallback hcb = new HibernateCallback() 
+		{
+			public Object doInHibernate(Session session) throws HibernateException, SQLException 
+			{
+				Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL);
+				q.setParameter("contextId", getContextId(), Hibernate.STRING);
+				q.setParameterList("membershipList", membershipList);
+				
+				return q.list();
+			}
+		};
+		
+		Message tempMsg = null;
         Set resultSet = new HashSet();      
         List temp = (ArrayList) getHibernateTemplate().execute(hcb);
         for (Iterator i = temp.iterator(); i.hasNext();)
@@ -746,894 +1889,197 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           Object[] results = (Object[]) i.next();        
               
           if (results != null) {
-            if (results[0] instanceof Topic) {
-              tempTopic = (Topic)results[0];
-              tempTopic.setBaseForum((BaseForum)results[1]);            
-            } else {
-              tempTopic = (Topic)results[1];
-              tempTopic.setBaseForum((BaseForum)results[0]);
+            if (results[0] instanceof Message) {
+              tempMsg = (Message)results[0];
+              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
             }
-            resultSet.add(tempTopic);
+            resultSet.add(tempMsg);
           }
         }
-        return Util.setToList(resultSet);
-    }
-
-    public DiscussionForum createDiscussionForum() {
-        DiscussionForum forum = new DiscussionForumImpl();
-        forum.setUuid(getNextUuid());
-        forum.setCreated(new Date());
-        if(getCurrentUser()!=null){
-        forum.setCreatedBy(getCurrentUser());
-        }
-        forum.setLocked(Boolean.FALSE);
-        forum.setDraft(Boolean.FALSE);
-        forum.setTypeUuid(typeManager.getDiscussionForumType());                  
-        forum.setActorPermissions(createDefaultActorPermissions());
-        forum.setModerated(Boolean.FALSE);
-        forum.setPostFirst(Boolean.FALSE);
-        forum.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
-        LOG.debug("createDiscussionForum executed");
-        return forum;
-    }
-
-    public ActorPermissions createDefaultActorPermissions()
-    {
-      ActorPermissions actorPermissions = new ActorPermissionsImpl();      
-      MessageForumsUser nonSpecifiedUser = new MessageForumsUserImpl();
-      nonSpecifiedUser.setUserId(typeManager.getNotSpecifiedType());
-      nonSpecifiedUser.setUuid(typeManager.getNotSpecifiedType());
-      nonSpecifiedUser.setTypeUuid(typeManager.getNotSpecifiedType());
-                  
-      actorPermissions.addAccesssor(nonSpecifiedUser);      
-      actorPermissions.addContributor(nonSpecifiedUser);
-      actorPermissions.addModerator(nonSpecifiedUser);
-       return actorPermissions;
-    }
-    
-    /**
-     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#createPrivateForum(java.lang.String)
-     */
-    public PrivateForum createPrivateForum(String title) {
-    	return createPrivateForum(title, getCurrentUser());
-    }
-    
-    public PrivateForum createPrivateForum(String title, String userId) {
-        /** set all non-null properties in case hibernate flushes session before explicit save */
-        PrivateForum forum = new PrivateForumImpl();        
-        forum.setTitle(title);
-        forum.setUuid(idManager.createUuid());
-        forum.setAutoForwardEmail("");
-        forum.setOwner(userId);        
-        forum.setUuid(getNextUuid());
-        forum.setCreated(new Date());
-        forum.setCreatedBy(userId);
-        forum.setSortIndex(Integer.valueOf(0));
-        forum.setShortDescription("short-desc");
-        forum.setExtendedDescription("ext desc");
-        forum.setAutoForward(Boolean.FALSE);
-        forum.setAutoForwardEmail("");
-        forum.setPreviewPaneEnabled(Boolean.FALSE);
-        forum.setModified(new Date());
-        if(userId !=null){
-        	forum.setModifiedBy(userId);
-        }
-        forum.setTypeUuid(typeManager.getPrivateMessageAreaType());
-        forum.setModerated(Boolean.FALSE);
-        forum.setPostFirst(Boolean.FALSE);
-        LOG.debug("createPrivateForum executed");
-        return forum;
-    }
-
-    /**
-     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#savePrivateForum(org.sakaiproject.api.app.messageforums.PrivateForum)
-     */
-    public void savePrivateForum(PrivateForum forum) {
-    	savePrivateForum(forum, getCurrentUser());
-    }
-    
-    public void savePrivateForum(PrivateForum forum, String userId) {
-        boolean isNew = forum.getId() == null;
-
-        if (forum.getSortIndex() == null) {
-            forum.setSortIndex(Integer.valueOf(0));
-        }
-
-        forum.setModified(new Date());
-        if(userId!=null){
-        forum.setModifiedBy(userId);
-        }
-        forum.setOwner(userId);
-        getHibernateTemplate().saveOrUpdate(forum);
-
-        LOG.debug("savePrivateForum executed with forumId: " + forum.getId());
-    }
-
-    /**
-     * Save a discussion forum
-     */
-    public void saveDiscussionForum(DiscussionForum forum) {
-        saveDiscussionForum(forum, false);
-    }
-
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft) {
-    	saveDiscussionForum(forum, draft, false);
-    }
-    
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent) {
-    	String currentUser = getCurrentUser();
-    	saveDiscussionForum(forum, draft, logEvent, currentUser);
-    }
-    
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser) {
-    
-        boolean isNew = forum.getId() == null;
-
-        if (forum.getSortIndex() == null) {
-            forum.setSortIndex(Integer.valueOf(0));
-        }
-        if (forum.getLocked() == null) {
-            forum.setLocked(Boolean.FALSE);
-        }
-        if (forum.getModerated() == null) {
-        	forum.setModerated(Boolean.FALSE);
-        }
-        if (forum.getPostFirst() == null) {
-        	forum.setPostFirst(Boolean.FALSE);
-        }
-        forum.setDraft(Boolean.valueOf(draft));
-        forum.setModified(new Date());
-        if(currentUser!=null){
-        forum.setModifiedBy(currentUser);
-        }
-        else if(currentUser==null){
-        	 forum.setModifiedBy(forum.getCreatedBy());
-        }
         
-        // If the topics were not loaded then there is no need to redo the sort index
-        //     thus if it's a hibernate persistentset and initialized
-        if( forum.getTopicsSet() != null &&
-              ((forum.getTopicsSet() instanceof PersistentSet && 
-              ((PersistentSet)forum.getTopicsSet()).wasInitialized()) || !(forum.getTopicsSet() instanceof PersistentSet) )) {
-           List topics = forum.getTopics();
-           boolean someTopicHasZeroSortIndex = false;
-           
-           for(Iterator i = topics.iterator(); i.hasNext(); ) {
-              DiscussionTopic topic = (DiscussionTopic)i.next();
-              if(topic.getSortIndex().intValue() == 0) {
-                 someTopicHasZeroSortIndex = true;
-                 break;
-              }
-           }
-           if(someTopicHasZeroSortIndex) {
-              for(Iterator i = topics.iterator(); i.hasNext(); ) {
-                 DiscussionTopic topic = (DiscussionTopic)i.next();
-                 topic.setSortIndex(Integer.valueOf(topic.getSortIndex().intValue() + 1));
-              }
-           }
-        }
-        //make sure availability flag is set properly
-        forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate()));
-        
-        getHibernateTemplate().saveOrUpdate(forum);
-        
-        //make sure that any open and close dates are scheduled:
-        ForumScheduleNotificationCover.scheduleAvailability(forum);
-        
-        if (logEvent) {
-        	if (isNew) {
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(forum), false));
-        	} else {
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REVISE, getEventMessage(forum), false));
-        	}
-        }
-
-        LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId() + ":: draft: " + draft);
-    }
-    
-    public DiscussionTopic createDiscussionForumTopic(DiscussionForum forum) {
-        DiscussionTopic topic = new DiscussionTopicImpl();
-        topic.setUuid(getNextUuid());
-        topic.setTypeUuid(typeManager.getDiscussionForumType());
-        topic.setCreated(new Date());
-        if(getCurrentUser()!=null){
-        topic.setCreatedBy(getCurrentUser());
-        }
-        topic.setBaseForum(forum);
-        topic.setLocked(Boolean.FALSE);
-        topic.setDraft(forum.getDraft());
-        topic.setModerated(Boolean.FALSE);
-        topic.setPostFirst(Boolean.FALSE);
-        topic.setPostAnonymous(Boolean.FALSE);
-        topic.setRevealIDsToRoles(Boolean.FALSE);
-        topic.setAutoMarkThreadsRead(forum.getAutoMarkThreadsRead());
-        LOG.debug("createDiscussionForumTopic executed");
-        return topic;
-    }
-    
-    
-    public void saveDiscussionForumTopic(DiscussionTopic topic) {	
-    	saveDiscussionForumTopic(topic, false);
-    }
-
-    /**
-     * Save a discussion forum topic
-     */
-    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus) {
-    	saveDiscussionForumTopic(topic, parentForumDraftStatus, getCurrentUser(), true);
-    }
-    
-    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus, String currentUser, boolean logEvent) {
-        boolean isNew = topic.getId() == null;
-
-        if (topic.getMutable() == null) {
-            topic.setMutable(Boolean.FALSE);
-        }
-        if (topic.getSortIndex() == null) {
-            topic.setSortIndex(Integer.valueOf(0));
-        }
-        topic.setModified(new Date());
-        if(currentUser!=null){
-        topic.setModifiedBy(currentUser);
-        }
-        
-        if (topic.getModerated() == null) {
-        	topic.setModerated(Boolean.FALSE);
-        }
-        
-        if (topic.getPostFirst() == null) {
-        	topic.setPostFirst(Boolean.FALSE);
-        }
-
-        if (topic.getPostAnonymous() == null) {
-        	topic.setPostAnonymous(Boolean.FALSE);
-        }
-
-        if (topic.getRevealIDsToRoles() == null) {
-        	topic.setRevealIDsToRoles(Boolean.FALSE);
-        }
-
-        //make sure availability is set properly
-        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
-        
-        if (topic.getId() == null) {
-            
-          DiscussionForum discussionForum = 
-            (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
-          discussionForum.addTopic(topic);
-                                  
-          if(topic.getDraft().equals(Boolean.TRUE))
-          {        	  
-	  	    saveDiscussionForum(discussionForum, discussionForum.getDraft().booleanValue(), logEvent, currentUser);
-          }
-          else
-            saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
-          //sak-5146 saveDiscussionForum(discussionForum, parentForumDraftStatus);
-            
-        } else {
-            getHibernateTemplate().saveOrUpdate(topic);
-        }
-        //now schedule any jobs that are needed for the open/close dates
-        //this will require having the ID of the topic (if its a new one)
-        if(topic.getId() == null){
-        	Topic topicTmp = getTopicByUuid(topic.getUuid());
-        	if(topicTmp != null){
-        		//set the ID so that the forum scheduler can schedule any needed jobs
-        		topic.setId(topicTmp.getId());
-        	}
-        }
-        if(topic.getId() != null){
-        	ForumScheduleNotificationCover.scheduleAvailability(topic);
-        }
-
-        LOG.debug("saveDiscussionForumTopic executed with topicId: " + topic.getId());
-    }
-
-    public OpenTopic createOpenForumTopic(OpenForum forum) {
-        OpenTopic topic = new OpenTopicImpl();
-        topic.setUuid(getNextUuid());
-        topic.setTypeUuid(typeManager.getOpenDiscussionForumType());
-        topic.setCreated(new Date());
-        if(getCurrentUser()!=null){
-        topic.setCreatedBy(getCurrentUser());
-        }
-        topic.setLocked(Boolean.FALSE);
-        topic.setModerated(Boolean.FALSE);
-        topic.setPostFirst(Boolean.FALSE);
-        topic.setPostAnonymous(Boolean.FALSE);
-        topic.setRevealIDsToRoles(Boolean.FALSE);
-        topic.setDraft(forum.getDraft());
-        LOG.debug("createOpenForumTopic executed");
-        return topic;
-    }
-
-    public PrivateTopic createPrivateForumTopic(String title, boolean forumIsParent, boolean topicIsMutable, String userId, Long parentId) {
-        /** set all non-null properties in case hibernate flushes session before explicit save */
-        PrivateTopic topic = new PrivateTopicImpl();
-        topic.setTitle(title);
-        topic.setUuid(getNextUuid());        
-        topic.setCreated(new Date());
-        if(userId!=null){
-        topic.setCreatedBy(userId);
-        }
-        topic.setUserId(userId);
-        topic.setShortDescription("short-desc");
-        topic.setExtendedDescription("ext-desc");
-        topic.setMutable(Boolean.valueOf(topicIsMutable));
-        topic.setSortIndex(Integer.valueOf(0));
-        topic.setModified(new Date());
-        if(userId!=null){
-        topic.setModifiedBy(userId);
-        }
-        topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
-        topic.setModerated(Boolean.FALSE);
-        topic.setPostFirst(Boolean.FALSE);
-        topic.setPostAnonymous(Boolean.FALSE);
-        topic.setRevealIDsToRoles(Boolean.FALSE);
-        topic.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
-        LOG.debug("createPrivateForumTopic executed");
-        return topic;
-    }
-
-    /**
-     * Save a private forum topic
-     */
-
-    public void savePrivateForumTopic(PrivateTopic topic){
-    	savePrivateForumTopic(topic, getCurrentUser());
-    }
-
-    public void savePrivateForumTopic(PrivateTopic topic, String userId) {
-    	savePrivateForumTopic(topic, userId, getContextId());
-    }
-
-    public void savePrivateForumTopic(PrivateTopic topic, String userId, String siteId) {
-    	boolean isNew = topic.getId() == null;
-
-    	topic.setModified(new Date());
-    	if(userId != null){
-    		topic.setModifiedBy(userId);
-    	}
-    	getHibernateTemplate().saveOrUpdate(topic);
-
-    	if (isNew) {
-    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD, getEventMessage(topic, siteId), false));
-    	} else {
-    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REVISE, getEventMessage(topic, siteId), false));
-    	}
-
-    	LOG.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
-    }
-
-    /**
-     * Save an open forum topic
-     */
-    public void saveOpenForumTopic(OpenTopic topic) {
-        boolean isNew = topic.getId() == null;
-
-        topic.setModified(new Date());
-        if(getCurrentUser()!=null){
-        topic.setModifiedBy(getCurrentUser());
-        }
-        getHibernateTemplate().saveOrUpdate(topic);
-
-        if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
-        } else {
-            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
-        }
-
-        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
-    }
-
-    /**
-     * Delete a discussion forum and all topics/messages
-     */
-    public void deleteDiscussionForum(DiscussionForum forum) {
-        long id = forum.getId().longValue();
-        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE, getEventMessage(forum), false));
-        try {
-            getSession().evict(forum);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error("could not evict forum: " + forum.getId(), e);
-        }
-        
-        // re-retrieve the forum with the area populated so we don't have to
-        // rely on "current context"
-        forum = (DiscussionForum)getForumById(true, id);
-        List<Topic> topics = getTopicsByIdWithMessages(id);
-        for (Topic topic : topics) {
-            forum.removeTopic(topic);
-        }
-        
-        //Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
-        Area area = forum.getArea();
-        area.removeDiscussionForum(forum);
-        getHibernateTemplate().saveOrUpdate(area);
-        
-       
-        //getHibernateTemplate().delete(forum);
-        LOG.debug("deleteDiscussionForum executed with forumId: " + id);
-    }
-
-    
-    public Area getAreaByContextIdAndTypeId(final String typeId) {
-        LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
-                q.setParameter("contextId", getContextId(), Hibernate.STRING);
-                q.setParameter("typeId", typeId, Hibernate.STRING);
-                return q.uniqueResult();
+        // Second, check by PermissionLevelName (non-custom permissions)
+        HibernateCallback hcb2 = new HibernateCallback() 
+		{
+			public Object doInHibernate(Session session) throws HibernateException, SQLException 
+			{
+				Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL_NAME);
+				q.setParameter("contextId", getContextId(), Hibernate.STRING);
+				q.setParameterList("membershipList", membershipList);
+				q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
+				
+				return q.list();
+			}
+		};
+		   
+        temp = (ArrayList) getHibernateTemplate().execute(hcb2);
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof Message) {
+              tempMsg = (Message)results[0];
+              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
             }
-        };
-
-        return (Area) getHibernateTemplate().execute(hcb);
-    }
-    
-    /**
-     * Delete a discussion forum topic
-     */
-    public void deleteDiscussionForumTopic(DiscussionTopic topic) {
-        long id = topic.getId().longValue();
-        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REMOVE, getEventMessage(topic), false));
-        try {
-            getSession().evict(topic);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error("could not evict topic: " + topic.getId(), e);
+            resultSet.add(tempMsg);
+          }
         }
         
-        Topic finder = getTopicById(true, topic.getId());
-        BaseForum forum = finder.getBaseForum();
-        forum.removeTopic(topic);
-        getHibernateTemplate().saveOrUpdate(forum);
-        
-        //getHibernateTemplate().delete(topic);
-        LOG.debug("deleteDiscussionForumTopic executed with topicId: " + id);
-    }
-
-    /**
-     * Delete an open forum topic
-     */
-    public void deleteOpenForumTopic(OpenTopic topic) {
-        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE, getEventMessage(topic), false));
-        getHibernateTemplate().delete(topic);
-        
-        LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
-    }
-
-    /**
-     * Delete a private forum topic
-     */
-    public void deletePrivateForumTopic(PrivateTopic topic) {
-        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REMOVE, getEventMessage(topic), false));
-        getHibernateTemplate().delete(topic);
-        
-        LOG.debug("deletePrivateForumTopic executed with forumId: " + topic.getId());
-    }
-
-    /**
-     * Returns a given number of messages if available in the time provided
-     * 
-     * @param numberMessages
-     *            the number of messages to retrieve
-     * @param numberDaysInPast
-     *            the number days to look back
-     */
-    public List getRecentPrivateMessages(int numberMessages, int numberDaysInPast) {
-        // TODO: Implement Me!
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns a given number of discussion forum messages if available in the
-     * time provided
-     * 
-     * @param numberMessages
-     *            the number of forum messages to retrieve
-     * @param numberDaysInPast
-     *            the number days to look back
-     */
-    public List getRecentDiscussionForumMessages(int numberMessages, int numberDaysInPast) {
-        // TODO: Implement Me!
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns a given number of open forum messages if available in the time
-     * provided
-     * 
-     * @param numberMessages
-     *            the number of forum messages to retrieve
-     * @param numberDaysInPast
-     *            the number days to look back
-     */
-    public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast) {
-        // TODO: Implement Me!
-        throw new UnsupportedOperationException();
-    }
-
-    private boolean isForumLocked(final Long id) {
-        if (id == null) {
-            LOG.error("isForumLocked failed with id: null");
+        return Util.setToList(resultSet); 
+	}
+	
+	public List getPendingMsgsInTopic(final Long topicId)
+	{
+		if (topicId == null) {
+            LOG.error("getPendingMsgsInTopic failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("isForumLocked executing with id: " + id);
+        LOG.debug("getPendingMsgsInTopic executing with topicId: " + topicId);
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery("findForumLockedAttribute");
-                q.setParameter("id", id, Hibernate.LONG);
-                return q.uniqueResult();
-            }
-        };
-
-        return ((Boolean) getHibernateTemplate().execute(hcb)).booleanValue();                
-    }
-    
-    
-    public List searchTopicMessages(final Long topicId, final String searchText) {
-        if (topicId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        LOG.debug("searchTopicMessages executing with topicId: " + topicId);
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery("findMessagesBySearchText");
-                q.setParameter("id", topicId, Hibernate.LONG);
-                q.setParameter("searchByText", "%" + searchText + "%", Hibernate.STRING);
+                Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_TOPICID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
                 return q.list();
             }
         };
 
-        return (List) getHibernateTemplate().execute(hcb);
-    }
-
-    
-    // helpers
-    
-    /**
-     * ContextId is present site id for now.
-     */
-    private String getContextId() {
-        if (TestUtil.isRunningTests()) {
-            return "test-context";
+        Message tempMsg = null;
+        Set resultSet = new HashSet();      
+        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof Message) {
+              tempMsg = (Message)results[0];
+              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
+            }
+            resultSet.add(tempMsg);
+          }
         }
-        String presentSiteId = null;
-        Placement placement = ToolManager.getCurrentPlacement();
-        if(placement == null){
-        	//current placement is null.. let's try another approach to getting the site id
-        	if(sessionManager.getCurrentToolSession() != null){
-        		ToolConfiguration toolConfig = SiteService.findTool(sessionManager.getCurrentToolSession().getId());
-        		if(toolConfig != null){
-        			presentSiteId = toolConfig.getSiteId();
-        		}
-        	}
-        }else{
-        	presentSiteId = placement.getContext();
+        return Util.setToList(resultSet); 
+	}
+	
+	public List<Message> getAllMessagesInSite(final String siteId) {
+        LOG.debug("getAllMessagesInSite executing with siteId: " + siteId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findDiscussionForumMessagesInSite");
+                q.setParameter("contextId", siteId, Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        Message tempMsg = null;
+        Set resultSet = new HashSet();      
+        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+        LOG.debug("got an initial list of " + temp.size());
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof Message) {
+              tempMsg = (Message)results[0];
+              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
+            }
+            resultSet.add(tempMsg);
+          }
         }
-        return presentSiteId;
-    }
+        
+        LOG.debug("about to return");
+        return Util.setToList(resultSet); 
+	}
+	
 
-    private String getCurrentUser() {
-        if (TestUtil.isRunningTests()) {
-            return "test-user";
-        }
-        return sessionManager.getCurrentSessionUserId();
-    }
+	public void saveMessageMoveHistory(Long messageId, Long desttopicId, Long sourceTopicId, boolean checkReminder){
+		if (messageId == null || desttopicId == null || sourceTopicId == null) {
+			LOG.error("saveMessageMoveHistory failed with desttopicId: " + desttopicId + ", messageId: " + messageId + ", sourceTopicId: " + sourceTopicId);
+			throw new IllegalArgumentException("Null Argument");
+}
 
-    private String getNextUuid() {
-        return idManager.createUuid();
-    }
+		if (LOG.isDebugEnabled()) LOG.debug("saveMessageMoveHistory executing with desttopicId: " + desttopicId + ", messageId: " + messageId + ", sourceTopicId: " + sourceTopicId);
 
-	private boolean isToolInSite(Site thisSite, String toolId) {
-		final Collection toolsInSite = thisSite.getTools(toolId);
 
-		return ! toolsInSite.isEmpty();		
+		List moved_history = null;
+
+		moved_history = this.findMovedHistoryByMessageId(messageId);
+
+		// if moving back to the original topic,  set reminder to false, otherwise the original topic will show a Move reminder.
+			if (LOG.isDebugEnabled()) LOG.debug("saveMessageMoveHistory (moved_messages size  " + moved_history.size()  );
+			for (Iterator histIter = moved_history.iterator(); histIter.hasNext();) {
+				MessageMoveHistory hist = (MessageMoveHistory) histIter.next();
+				if (LOG.isDebugEnabled()) LOG.debug("moved message ids = " +  hist.getId()  + "  from : " + hist.getFromTopicId()  + "   topic : " +  hist.getToTopicId() );
+				if (hist.getFromTopicId().equals(desttopicId)){
+					hist.setReminder(false);
+					hist.setModified(new Date());
+					hist.setModifiedBy(getCurrentUser());
+ 					getHibernateTemplate().update(hist);
+				}
+			}
+
+		MessageMoveHistory mhist = new MessageMoveHistoryImpl ();
+
+		mhist.setToTopicId(desttopicId);
+		mhist.setMessageId(messageId);
+		mhist.setFromTopicId(sourceTopicId);
+		mhist.setReminder(checkReminder);
+		mhist.setUuid(getNextUuid());
+		mhist.setCreated(new Date());
+		mhist.setCreatedBy(getCurrentUser());
+		mhist.setModified(new Date());
+		mhist.setModifiedBy(getCurrentUser());
+
+		getHibernateTemplate().saveOrUpdate(mhist);
+
+
 	}
 
-   private String getEventMessage(Object object) {
-	   return getEventMessage(object, getContextId());
-    }
-    
-    private String getEventMessage(Object object, String context) {
-    	String eventMessagePrefix = "";
-    	
-    	try {
-    		// TODO: How to determine what prefix to put on event message
-    		if (isToolInSite(SiteService.getSite(context), DiscussionForumService.MESSAGE_CENTER_ID))
-    			eventMessagePrefix = "/messages&forums/site/";
-    		else if (isToolInSite(SiteService.getSite(context), DiscussionForumService.MESSAGES_TOOL_ID))
-    			eventMessagePrefix = "/messages/site/";
-    		else
-    			eventMessagePrefix = "/forums/site/";
-    	}
-    	catch (IdUnusedException e) {
-    		LOG.debug("IdUnusedException attempting to get site with id: " + context);
-    		
-    		eventMessagePrefix = "/messages&forums/";
-    	}
-    	
-    	return eventMessagePrefix + context + "/" + object.toString() + "/" + getCurrentUser(); 
-    }
-    
-    public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid)
-    {
-        return getForumByTypeAndContextWithTopicsAllAttachments(typeUuid, getContextId());
-    }
+	public List findMovedMessagesByTopicId(final Long topicId) {
+		if (topicId == null) {
+			LOG.error("findMovedMessagesByTopicId failed with topicId: " + topicId);
+			throw new IllegalArgumentException("Null Argument");
+		}
 
-		public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid, final String contextId)
-		{
-			if (typeUuid == null || contextId == null) {
-				throw new IllegalArgumentException("Null typeUuid or contextId passed " +
-						"to getForumByTypeAndContextWithTopicsAllAttachments. typeUuid:" + 
-						typeUuid + " contextId:" + contextId);
-			}      
+		if (LOG.isDebugEnabled()) LOG.debug("findMovedMessagesByTopicId executing with topicId: " + topicId);
 
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_INFO);
-					q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-					q.setParameter("contextId", contextId, Hibernate.STRING);
-					return q.list();
-				}
-			};
-
-			BaseForum tempForum = null;
-			Set resultSet = new HashSet();
-			List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-
-			for (Iterator i = temp.iterator(); i.hasNext();)
-			{
-				BaseForum results = (DiscussionForumImpl) i.next();  
-				resultSet.add(results);
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery(QUERY_MOVED_MESSAGES_BY_TOPICID);
+				q.setParameter("topicId", topicId, Hibernate.LONG);
+				return q.list();
 			}
+		};
 
-			List resultList = Util.setToList(resultSet);
-			Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
+		return (List) getHibernateTemplate().execute(hcb);        
+	}
 
-			// Now that the list is sorted, lets index the forums
-			int sort_index = 1;
-			for(Iterator i = resultList.iterator(); i.hasNext(); ) {
-				tempForum = (BaseForum)i.next();
+	public List findMovedHistoryByMessageId(final Long messageid){
+		if (messageid == null) {
+			LOG.error("findMovedHistoryByMessageId failed with messageid: " + messageid);
+			throw new IllegalArgumentException("Null Argument");
+		}
 
-				tempForum.setSortIndex(Integer.valueOf(sort_index++));
+		if (LOG.isDebugEnabled()) LOG.debug("findMovedHistoryByMessageId executing with messageid: " + messageid);
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery(QUERY_MOVED_HISTORY_BY_MESSAGEID);
+				q.setParameter("messageId", messageid, Hibernate.LONG);
+				return q.list();
 			}
+		};
 
-			return resultList;      
-		}
-		
-		public List getForumByTypeAndContextWithTopicsMembership(final String typeUuid, final String contextId)
-		{
-			if (typeUuid == null || contextId == null) {
-				throw new IllegalArgumentException("Null Argument");
-			}      
+		return (List) getHibernateTemplate().execute(hcb);        
 
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_TOPICS_MEMBERSHIP);
-					q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-					q.setParameter("contextId", contextId, Hibernate.STRING);
-					return q.list();
-				}
-			};
-
-			BaseForum tempForum = null;
-			Set resultSet = new HashSet();
-			List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-
-			for (Iterator i = temp.iterator(); i.hasNext();)
-			{
-				Object[] results = (Object[]) i.next();        
-
-				if (results != null) {
-					if (results[0] instanceof BaseForum) {
-						tempForum = (BaseForum)results[0];
-						tempForum.setArea((Area)results[1]);            
-					} else {
-						tempForum = (BaseForum)results[1];
-						tempForum.setArea((Area)results[0]);
-					}
-					resultSet.add(tempForum);
-				}
-			}
-
-			List resultList = Util.setToList(resultSet);
-			Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
-
-			// Now that the list is sorted, lets index the forums
-			int sort_index = 1;
-			for(Iterator i = resultList.iterator(); i.hasNext(); ) {
-				tempForum = (BaseForum)i.next();
-
-				tempForum.setSortIndex(Integer.valueOf(sort_index++));
-			}
-
-			return resultList;      
-		}
-	
-		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List membershipList)
-		{
-			if (membershipList == null) {
-	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevel failed with membershipList: null");
-	            throw new IllegalArgumentException("Null Argument");
-	        }
-
-	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevel executing with membershipItems: " + membershipList);
-
-	        // hibernate will not like an empty list so return 0
-	        if (membershipList.isEmpty()) return 0;
-
-	        HibernateCallback hcb = new HibernateCallback() {
-	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL);
-	                q.setParameterList("membershipList", membershipList);
-	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
-	                return q.uniqueResult();
-	            }
-	        };
-
-	        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
-		}
-		
-		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(final List membershipList)
-		{
-			if (membershipList == null) {
-	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName failed with membershipList: null");
-	            throw new IllegalArgumentException("Null Argument");
-	        }
-
-	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName executing with membershipItems: " + membershipList);
-
-	        // hibernate will not like an empty list so return 0
-	        if (membershipList.isEmpty()) return 0;
-
-	        HibernateCallback hcb = new HibernateCallback() {
-	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	            	Query q = null;
-	            	if ("mysql".equals(serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService"))) {
-	                    q = session.createSQLQuery("select straight_join count(*) as NBR " +
-		                		"from MFR_AREA_T area " +
-		                		"inner join MFR_OPEN_FORUM_T openforum on openforum.surrogateKey=area.ID inner " +
-		                		"join MFR_TOPIC_T topic on topic.of_surrogateKey=openforum.ID " +
-		                		"inner join MFR_MEMBERSHIP_ITEM_T membership on topic.ID=membership.t_surrogateKey, " +
-		                		"MFR_PERMISSION_LEVEL_T permission " +
-		                		"where area.CONTEXT_ID = :contextId " +
-		                		"and topic.MODERATED = true " +
-		                		"and (membership.NAME in ( :membershipList ) " +
-		                		"and permission.MODERATE_POSTINGS = true " +
-		                		"and permission.TYPE_UUID <> :customTypeUuid " +
-		                		"and permission.NAME=membership.PERMISSION_LEVEL_NAME)")
-		                		.addScalar("NBR", Hibernate.INTEGER);
-	            	} else {
-	            		q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
-	            	}
-	                q.setParameterList("membershipList", membershipList);
-	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
-	                q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
-	                return q.uniqueResult();
-	            }
-	        };
-
-	        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
-		}
-		
-		public BaseForum getForumByIdWithTopicsAttachmentsAndMessages(final Long forumId)
-		{
-			if (forumId == null) {
-				throw new IllegalArgumentException("Null Argument");
-			}      
-
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.getNamedQuery(QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS);
-					q.setParameter("id", forumId, Hibernate.LONG); 
-					return q.uniqueResult();
-		          }
-		      };
-		      
-		      BaseForum bForum = (BaseForum) getHibernateTemplate().execute(hcb);
-		      
-		      if (bForum != null){
-		        getHibernateTemplate().initialize(bForum.getAttachmentsSet());
-		      }
-		      
-		      return bForum;      
-		}
-		
-		public Topic getTopicByIdWithMemberships(final Long topicId) {
-
-			if (topicId == null) {
-				throw new IllegalArgumentException("Null Argument");
-			}      
-
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.getNamedQuery("findTopicByIdWithMemberships");
-					q.setParameter("id", topicId, Hibernate.LONG);              
-					return q.uniqueResult();
-				}
-			};
-
-			return (Topic) getHibernateTemplate().execute(hcb);
-		}
-
-		public List<Topic> getTopicsInSite(final String contextId)
-		{
-			return getTopicsInSite(contextId, false);
-		}
-
-		public List<Topic> getTopicsInSite(final String contextId, boolean anonymousOnly)
-		{
-			if (contextId == null)
-			{
-				throw new IllegalArgumentException("Null Argument");
-			}
-
-			final String query = anonymousOnly ? "findAnonymousTopicsInSite" : "findTopicsInSite";
-
-			HibernateCallback<List<Topic>> hcb = new HibernateCallback<List<Topic>>()
-			{
-				public List<Topic> doInHibernate(Session session) throws HibernateException, SQLException
-				{
-					Query q = session.getNamedQuery(query);
-					q.setParameter("contextId", contextId, Hibernate.STRING);
-					return q.list();
-				}
-			};
-
-			List<Topic> topicList = new ArrayList<>();
-			List resultSet = (List) getHibernateTemplate().execute(hcb);
-			for (Object objResultArray : resultSet)
-			{
-				Object[] resultArray = (Object[]) objResultArray;
-				for (Object result : resultArray)
-				{
-					if (result instanceof Topic)
-					{
-						topicList.add((Topic) result);
-						break;
-					}
-				}
-			}
-			return topicList;
-		}
-
-		public List<Topic> getAnonymousTopicsInSite(final String contextId)
-		{
-			return getTopicsInSite(contextId, true);
-		}
-
-		public boolean isSiteHasAnonymousTopics(String contextId)
-		{
-			return !getAnonymousTopicsInSite(contextId).isEmpty();
-		}
-		
-		public boolean doesRoleHavePermissionInTopic(final Long topicId, final String roleName, final String permissionName) {
-
-			if (topicId == null) {
-				throw new IllegalArgumentException("Null Argument");
-			}      
-
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.getNamedQuery("findNumRoleWithPermissionInTopic");
-					q.setParameter("id", topicId, Hibernate.LONG);          
-					q.setParameter("roleName", roleName, Hibernate.STRING);
-					q.setParameter("permissionLevelName", permissionName, Hibernate.STRING);
-					return q.uniqueResult();
-				}
-			};
-			
-			int countRows = ((Integer) getHibernateTemplate().execute(hcb)).intValue();
-			return countRows > 0 ? true : false;
-		}
-
-		
-
+	}
+	   
 }
