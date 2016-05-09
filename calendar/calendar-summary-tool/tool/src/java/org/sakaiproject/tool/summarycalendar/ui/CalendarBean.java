@@ -819,7 +819,32 @@ public class CalendarBean {
 	
 	private String buildEventUrl(Site site, String eventRef) {
 		StringBuilder url = new StringBuilder();
-		ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);
+		ToolConfiguration tc = null;
+		if ("!worksite".equals(site.getId()))
+		{
+			// Institutional Calendar events are set up in "!worksite", but users can't view these events.
+			// Get the schedule tool from the current context, if none found, take them to their workspace
+			String siteId = M_tm.getCurrentPlacement().getContext();
+			try
+			{
+				Site currentSite = M_ss.getSite(siteId);
+				tc = currentSite.getToolForCommonId(SCHEDULE_TOOL_ID);
+				if (tc == null)
+				{
+					String myWorkspaceId = M_ss.getUserSiteId(getUserId());
+					Site myWorkspace = M_ss.getSite(myWorkspaceId);
+					tc = myWorkspace.getToolForCommonId(SCHEDULE_TOOL_ID);
+				}
+			}
+			catch (IdUnusedException e)
+			{
+				LOG.error("IdUnusedException: " + e.getMessage());
+			}
+		}
+		if (tc == null)
+		{
+			tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);
+		}
 		if(tc != null) {
 			url.append(ServerConfigurationService.getPortalUrl());
 			url.append("/directtool/");
