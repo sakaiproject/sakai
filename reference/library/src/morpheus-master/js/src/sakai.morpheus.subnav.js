@@ -25,6 +25,9 @@ var buildDropdownMenu = function(container, siteId, callback) {
 
       $PBJQ.each(data, function(i, item) {
 
+    	// Ignore the tool if is not available
+    	if (!item.tools || item.tools.length<=0) return;
+    	
         // Check to see if this is the current tool in the site
         var isCurrent = "";
         if (currentSite == item.tools[0].id) {
