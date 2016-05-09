@@ -741,7 +741,9 @@ public interface LTIService {
     	"SITE_TITLE:text:table=SAKAI_SITE:realname=TITLE", 
     	"SITE_CONTACT_NAME:text:table=ssp1:realname=VALUE", 
     	"SITE_CONTACT_EMAIL:text:table=ssp2:realname=VALUE", 
-    	"ATTRIBUTION:text:table=ssp3:realname=VALUE" 
+    	"ATTRIBUTION:text:table=ssp3:realname=VALUE",
+    	"URL:text:table=lti_tools:realname=launch",
+    	"searchURL:text:table=NULL" //no realname and table is NULL for this, it just exists in the select
     };
 
 	/**
@@ -918,8 +920,14 @@ public interface LTIService {
 	static final String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
 	static final String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
 	
-    public static final String LTI_SEARCH_TOKEN_SEPARATOR = "#:#";
-    public static final String LTI_SITE_ATTRIBUTION_PROPERTY_KEY = "basiclti.tool.site.attribution.key";
-    public static final String LTI_SITE_ATTRIBUTION_PROPERTY_NAME = "basiclti.tool.site.attribution.name";
+	public static final String LTI_SEARCH_TOKEN_SEPARATOR_AND = "#&#";
+	public static final String LTI_SEARCH_TOKEN_SEPARATOR_OR = "#|#";
+	public static final String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND = "\\#\\&\\#";
+	public static final String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR = "\\#\\|\\#";
+	public static final String LTI_SEARCH_TOKEN_NULL = "#null#";
+	public static final String LTI_SEARCH_TOKEN_DATE = "#date#";
+	public static final String LTI_SEARCH_INTERNAL_DATE_FORMAT = "dd/MM/yyyy H:mm:ss";
+	public static final String LTI_SITE_ATTRIBUTION_PROPERTY_KEY = "basiclti.tool.site.attribution.key";
+	public static final String LTI_SITE_ATTRIBUTION_PROPERTY_NAME = "basiclti.tool.site.attribution.name";
 
 }

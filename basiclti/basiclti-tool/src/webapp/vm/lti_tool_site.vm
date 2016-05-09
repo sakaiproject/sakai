@@ -65,7 +65,7 @@ ${includeLatestJQuery}
 		$("thead tr td select", "#tools_site").change(onInputchange);
 		
 		var doChange = function(id, val) {
-			$(location).attr("href", '#toolLinkParam("ToolSite" "doSearch" "field='+id+'&search='+val+'")'.replace(/&amp;/g, '&'));
+			$(location).attr("href", '#toolLinkParam("ToolSite" "doSearch" "field='+id+'&search='+encodeURIComponent(val)+'")'.replace(/&amp;/g, '&'));
 		};
 		
 		$(".pagesize").change(function(){
@@ -135,7 +135,9 @@ ${includeLatestJQuery}
 			<thead>
 			<tr>
 				<th id="title" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_title'))"><a>$tlang.getString("bl_title")</a></th>
-				<th id="url" data-placeholder="$tlang.getString('search.url')" >$tlang.getString("bl_url")</th>
+				<th id="searchURL"><a>$tlang.getString("bl_url")</a>
+					<input type="hidden" id="URL" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_url'))" />
+				</th>
 				#if ($isAdmin) 
 					<th id="SITE_TITLE" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitetitle'))"><a>$tlang.getString("bl_sitetitle")</a></th>
 				#end
@@ -151,11 +153,11 @@ ${includeLatestJQuery}
 			</tr>
 			<tr class="tablesorter-filter">
 				<td><input class="tablesorter-filter" id="input_title" #if($search_map && $search_map.get('title')) value="$search_map.get('title')" #end /></td>
-				<td></td>
+				<td><input class="tablesorter-filter" id="input_URL" #if($search_map && $search_map.get('URL')) value="$search_map.get('URL')" #end /></td>
 				#if ($isAdmin) 
 					<td><input class="tablesorter-filter" id="input_SITE_TITLE" #if($search_map && $search_map.get('SITE_TITLE')) value="$search_map.get('SITE_TITLE')" #end /></td>
 				#end
-					<td></td>
+					<td><input class="tablesorter-filter" id="input_created_at" #if($search_map && $search_map.get('created_at')) value="$search_map.get('created_at')" #end /></td>
 				#if ($isAdmin)
 					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($search_map && $search_map.get('SITE_CONTACT_NAME')) value="$search_map.get('SITE_CONTACT_NAME')" #end /></td>
 					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($search_map && $search_map.get('SITE_CONTACT_EMAIL')) value="$search_map.get('SITE_CONTACT_EMAIL')" #end /></td>
@@ -163,6 +165,7 @@ ${includeLatestJQuery}
 					<td>
 						#if ($attribution_values && $attribution_values.size() > 0)
 						<select class="tablesorter-filter" id="input_ATTRIBUTION">
+							<option #if($search_map && $search_map.get('ATTRIBUTION') && $search_map.get('ATTRIBUTION') == '') selected="selected" #end value="">$tlang.getString('select.showall')</option>
 							#foreach ($attribution_value in $attribution_values)
 								<option #if($search_map && $search_map.get('ATTRIBUTION') && $search_map.get('ATTRIBUTION') == $attribution_value) selected="selected" #end value="$attribution_value">$attribution_value</option>
 							#end
@@ -190,12 +193,12 @@ ${includeLatestJQuery}
 						#set($launch = $validator.escapeHtml($tool.get("launch")))
 					#end
 				#end
-				<a href="$launch">$launch</a>
+				<a target="_blank" href="$content.get("tool_url")">$launch</a>
 			</td>
 			#if ($isAdmin) 
-				<td headers="site"><a href="$!content.get("site_url")">$validator.escapeHtml($!content.get("SITE_TITLE"))</a></td>
+				<td headers="site"><a target="_blank" href="$!content.get("site_url")">$validator.escapeHtml($!content.get("SITE_TITLE"))</a></td>
 			#end
-				<td headers="createdat">$!dateTool.format($!content.get("created_at"))</td>
+				<td headers="created_at">$!dateTool.format($!content.get("created_at"))</td>
 			#if ($isAdmin)
 				<td headers="contactname"> $validator.escapeHtml($!content.get("SITE_CONTACT_NAME"))</td>
 				<td headers="contactemail"> $validator.escapeHtml($!content.get("SITE_CONTACT_EMAIL"))</td>

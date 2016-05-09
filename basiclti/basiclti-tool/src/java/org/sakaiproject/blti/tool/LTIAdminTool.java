@@ -327,6 +327,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		if (StringUtils.isNotEmpty(searchField)) {
 			if (StringUtils.isNotEmpty(searchValue)) {
+				searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND, LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND);
+				searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR, LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR);
 				searchMap.put(searchField, searchValue);			
 			}
 			else
@@ -386,7 +388,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		//check for tool filter
 		String filterId = (String)state.getAttribute(ATTR_FILTER_ID);
 		if (StringUtils.isNotEmpty(filterId)) {
-			search = "tool_id:" + filterId + ((search != null) ? ("#:#" + search) : "");
+			search = "tool_id:" + filterId + ((search != null) ? (LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND + search) : "");
 		}
 
 		//count all contents
@@ -458,6 +460,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				{
 					M_log.error("error getting url for site " + siteId);
 				}
+				
+				//get LTI url based on site id and tool id
+				content.put("tool_url", "/access/basiclti/site/"+siteId+"/content:"+content.get(LTIService.LTI_ID));
 			}
 		}
 		context.put("contents", contents);
@@ -496,7 +501,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 					
 					List<Site> list = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, propertyCriteria, org.sakaiproject.site.api.SiteService.SortType.NONE, null);			
 					if(list != null && list.size() > 0) {
-						availableAttributionValues.add("");
 						for(Site s : list) {
 							String prop = s.getProperties().getProperty(attribution_key);
 							if (StringUtils.isNotEmpty(prop)) {
@@ -506,7 +510,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 					}
 				}
 			}
-			context.put("attribution_values", availableAttributionValues);
+			context.put(ATTR_ATTRIBUTION_VALUES, availableAttributionValues);
 			state.setAttribute(ATTR_ATTRIBUTION_VALUES, availableAttributionValues);
 		}
 		
@@ -2321,7 +2325,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return "lti_top_refresh";
 	}
 	
-	//generates a search clause (SEARCH_FIELD_1:SEARCH_VALUE_1#:#SEARCH_FIELD_2:SEARCH_VALUE_2#:#...#:#SEARCH_FIELD_N:SEARCH_VALUE_N) and puts some parameters in the context
+	//generates a search clause (SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N) and puts some parameters in the context
 	private String buildSearch(RunData data, Context context) {
         SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
         StringBuilder sb = new StringBuilder();
@@ -2329,10 +2333,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
         if (searchMap != null) {
             for (String k : searchMap.keySet()) {
                 if (sb.length() > 0) {
-                    sb.append("#:#");
+                    sb.append(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND);
                 }
                 if (StringUtils.isNotEmpty(k) && StringUtils.isNotEmpty((String)searchMap.get(k))) {
-                    sb.append(k + ":" + searchMap.get(k));
+                	if("created_at".equals(k)) {
+                		sb.append(k + ":" + LTIService.LTI_SEARCH_TOKEN_DATE + searchMap.get(k));
+                	} else {
+	                    sb.append(k + ":" + searchMap.get(k));
+	                    if("URL".equals(k)) {
+	                    	sb.append(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND);
+	                    	sb.append("launch:" + LTIService.LTI_SEARCH_TOKEN_NULL);
+	                    	sb.append(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR);
+	                    	sb.append("launch:" + searchMap.get(k));
+	                    }
+                	}
                 }
             }
             context.put(ATTR_SEARCH_MAP, searchMap);

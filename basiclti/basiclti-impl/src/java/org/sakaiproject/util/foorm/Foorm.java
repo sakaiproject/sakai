@@ -21,18 +21,25 @@
 
 package org.sakaiproject.util.foorm;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.lang.Number;
 import java.sql.ResultSetMetaData;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.lti.api.LTISearchData;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -40,6 +47,11 @@ import org.sakaiproject.lti.api.LTISearchData;
 public class Foorm {
 
 	private static Logger logger = Logger.getLogger("org.sakaiproject.util.foorm.Foorm");
+	
+	/** Resource bundle using current language locale */
+	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
+	
+	private static final String LTI_SEARCH_TOKEN_SEPARATOR_REGEX = LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND+"|"+LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR.replace("|", "\\|");
 
 	/**
 	 * 
@@ -1302,7 +1314,7 @@ public class Foorm {
 			return null;
 		}
 
-		String retval = order_table+"."+order_field;
+		String retval = ((!"NULL".equals(order_table)) ? order_table+"." : "")+order_field;
 		if ( order_seq != null ) {
 			retval = retval + " " + order_seq;
 		}
@@ -1314,14 +1326,39 @@ public class Foorm {
 	 * 
 	 * We assume a valid search clause like :
 	 * 
-	 * SEARCH_FIELD_1:SEARCH_VALUE_1#:#SEARCH_FIELD_2:SEARCH_VALUE_2#:#...#:#SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
 	 * 
 	 * @param search
 	 * @return list with search tokens
 	 */
 	public List<String> getSearchTokens(String search) {
 		try {
-			return Arrays.asList(search.split("#:#"));
+			return Arrays.asList(search.split(LTI_SEARCH_TOKEN_SEPARATOR_REGEX));
+		}
+		catch (Exception ex) {
+			return new ArrayList<String>();
+		}
+	}
+	
+	/**
+	 * Get separators between tokens in a search clause
+	 * 
+	 * We assume a valid search clause like :
+	 * 
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * 
+	 * @param search
+	 * @return list with search separators
+	 */
+	public List<String> getSearchSeparators(String search) {
+		try {
+			List<String> ret = new ArrayList<String>();
+			Pattern pattern = Pattern.compile(LTI_SEARCH_TOKEN_SEPARATOR_REGEX);
+	        Matcher m = pattern.matcher(search);
+	        while (m.find()) {
+	        	ret.add(m.group());
+	        }
+	        return ret;
 		}
 		catch (Exception ex) {
 			return new ArrayList<String>();
@@ -1381,7 +1418,7 @@ public class Foorm {
 	 * 
 	 * We assume a valid search clause like :
 	 * 
-	 * SEARCH_FIELD_1:SEARCH_VALUE_1#:#SEARCH_FIELD_2:SEARCH_VALUE_2#:#...#:#SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
 	 * 
 	 * Invalid tokens will be removed from search
 	 * 
@@ -1395,11 +1432,14 @@ public class Foorm {
 			return null;
 		}
 		StringBuilder sb = new StringBuilder();
-		for (String token : getSearchTokens(search)) {
+		List<String> tokens = getSearchTokens(search);
+		List<String> separators = getSearchSeparators(search);
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);
 			String s = searchFieldCheck(token, tableName, fieldinfo);
-			if (StringUtils.isNotEmpty(s)) {
+			if (s != null) {
 				if (sb.length() > 0) {
-					sb.append("#:#");
+					sb.append(separators.get(i-1)); //too simplified but valid for our model
 				}
 				sb.append(s);
 			}
@@ -1452,7 +1492,7 @@ public class Foorm {
 	 * 
 	 * We assume a valid search clause like :
 	 * 
-	 * SEARCH_FIELD_1:SEARCH_VALUE_1#:#SEARCH_FIELD_2:SEARCH_VALUE_2#:#...#:#SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
 	 * 
 	 * Secured search (LTISearchData.search) will be something like :
 	 * 
@@ -1465,24 +1505,52 @@ public class Foorm {
 	 * @param search
 	 * @return secured search
 	 */
-	public LTISearchData secureSearch(String search) {
+	public LTISearchData secureSearch(String search, String vendor) {
 		LTISearchData ret = new LTISearchData();
 		//check if is a direct search
-		if (StringUtils.isNotEmpty(search) && search.matches("(\\w+\\.)?\\w+\\s*=\\s*\\w+")) {
+		if (StringUtils.isNotEmpty(search) && search.matches("(\\w+\\.)?\\w+\\s*=.+")) {
 			ret.setSearch(search);
 			return ret;
 		}
 		//split into tokens
 		StringBuilder sb = new StringBuilder();
-		for (String token : getSearchTokens(search)) {
+		List<String> tokens = getSearchTokens(search);
+		List<String> separators = getSearchSeparators(search);
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);			
 			String searchField = getSearchField(token);
 			String searchValue = getSearchValue(token);
 			if (StringUtils.isNotEmpty(searchField) && StringUtils.isNotEmpty(searchValue)) {
 				if (sb.length() > 0) {
-					sb.append(" AND ");
+					String separator = separators.get(i-1);
+					if(separator.equals(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND))
+						sb.append(" AND ");
+					if(separator.equals(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR))
+						sb.append(" OR ");
 				}
-				sb.append(searchField + " LIKE ?");
-				ret.addSearchValue((Object)("%" + searchValue + "%"));
+				if(LTIService.LTI_SEARCH_TOKEN_NULL.equals(searchValue)) {
+					sb.append(searchField + " IS NULL");
+				} else if(searchValue.startsWith(LTIService.LTI_SEARCH_TOKEN_DATE)) {
+					searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_DATE, "");
+					if(StringUtils.isNotEmpty(searchValue)) {
+						try {
+							DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
+							Date d = df.parse(searchValue);
+							
+							DateFormat sql_df = new SimpleDateFormat(LTIService.LTI_SEARCH_INTERNAL_DATE_FORMAT);
+							if ( "oracle".equals(vendor) ) {
+								sb.append(searchField + " = TO_DATE('"+sql_df.format(d)+"', 'DD/MM/YYYY HH24:MI:SS')");
+							} else if ( "mysql".equals(vendor) ) {
+								sb.append(searchField + " = STR_TO_DATE('"+sql_df.format(d)+"', '%d/%m/%Y %H:%i:%s')");
+							}
+						} catch(Exception ignore) {}
+					}
+				} else {
+					sb.append(searchField + " LIKE ?");
+					searchValue = searchValue.replace(LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND, LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND);
+					searchValue = searchValue.replace(LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR, LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR);
+					ret.addSearchValue((Object)("%" + searchValue + "%"));
+				}
 			}
 		}
 		ret.setSearch((sb.length() > 0) ? sb.toString() : null);
