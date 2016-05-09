@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -76,6 +77,8 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 /**
  * <p>Title: Samigo</p>2
@@ -828,7 +831,8 @@ implements ActionListener
 		}
 
 		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
-			String extendedTimeEntry = allExtendedTimeEntries[itemNum];
+			// server stores in JVM's time one, convert from user's zone to that
+			String extendedTimeEntry = ExtendedTimeService.convertZones(allExtendedTimeEntries[itemNum], TimeService.getLocalTimeZone(), TimeZone.getDefault());
 			metaKey = "extendedTime" + (itemNum + 1);
 
 			// Add in the new extended time values

@@ -25,6 +25,13 @@ function extendedTimeInitialize() {
 // We secretly store the extended time info in a hidden JSF input field. Whenever a user edits an
 // extended time value this method gets called on save and updates the hidden field with everything
 // that has been entered. When the form is submitted Java sorts it all out.
+
+// back end expects normal English format, local time
+function ISOtoEng(s) {
+    // in: 2016-05-09T00:00:00-04:00"
+    // out: 05/09/2016 00:00:00
+    return s.substring(5,7) + "/" + s.substring(8,10) + "/" + s.substring(0,4) + " " + s.substring(11,19);
+}
 function extendedTimeCombine() {
 	document.getElementById("assessmentSettingsAction\:xt1").value = "";
 	for (var itemNum = 1; itemNum <= MAXITEMS; itemNum++) { 
@@ -32,7 +39,7 @@ function extendedTimeCombine() {
 		if(target != "1"){ // don't add empties
 			var minutes = (parseInt(document.getElementById("xt_hours"+itemNum).value) * 3600) + parseInt(document.getElementById("xt_minutes"+itemNum).value) * 60;		
 			var code = target+"|" + minutes +"|"
-			+ document.getElementById("xt_open"+itemNum).value+"|" + document.getElementById("xt_due"+itemNum).value+"|" + document.getElementById("xt_retract"+itemNum).value + "^";
+			    + ISOtoEng(document.getElementById("xt_open"+itemNum+"ISO8601").value)+"|" + ISOtoEng(document.getElementById("xt_due"+itemNum+"ISO8601").value)+"|" + ISOtoEng(document.getElementById("xt_retract"+itemNum+"ISO8601").value) + "^";
 			document.getElementById("assessmentSettingsAction\:xt1").value = document.getElementById("assessmentSettingsAction\:xt1").value.concat(code);
 		} // end if(target != "0")
 	} //end for

@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -11,6 +12,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * This class will instantiate with all the proper values for the current user's
@@ -166,6 +168,33 @@ public class ExtendedTimeService {
 			return false; // this isn't a group
 		}
 		return isMember;
+	}
+
+	// convert extended time string between two time zones
+
+	public static String convertZones(String times, TimeZone fromZone, TimeZone toZone) {
+	    if (times == null || times.equals("")) {
+		return times;
+	    }
+	    String[] values = times.split("\\|");
+	    String ret = values[0] + "|" + values[1];
+	    if (values.length != 5) {
+		return times;
+	    }
+	    for (int i = 2; i < 5; i++) {
+		String timeString = values[i];
+		try {
+		    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.ENGLISH);
+		    df.setTimeZone(fromZone);
+		    Date timeDate = df.parse(timeString);
+		    df.setTimeZone(toZone);
+		    timeString = df.format(timeDate);
+		} catch (Exception e) {
+		    // leaves string alone
+		}
+		ret += "|" + timeString;
+	    }
+	    return ret;
 	}
 
 	public Integer getTimeLimit() {
