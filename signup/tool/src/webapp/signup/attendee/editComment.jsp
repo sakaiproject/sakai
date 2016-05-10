@@ -16,7 +16,7 @@
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_edit_comment_page_title}"/>
-
+				<div class="table-responsive">
 				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" style="margin-top:20px;">
 					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{EditCommentSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext"/>
@@ -55,7 +55,7 @@
 						</h:panelGroup>
 					</h:panelGrid>
 				</h:panelGrid>
-				
+				</div>
 				<sakai:button_bar>
 					<h:commandButton id="save" action="#{EditCommentSignupMBean.attendeeSaveComment}" value="#{msgs.save_button}"/> 
 					<h:commandButton id="Cancel" action="#{EditCommentSignupMBean.checkReturnUrl}" value="#{msgs.cancel_button}"  immediate="true"/>  
