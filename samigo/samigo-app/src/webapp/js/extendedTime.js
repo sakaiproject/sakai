@@ -27,10 +27,23 @@ function extendedTimeInitialize() {
 // that has been entered. When the form is submitted Java sorts it all out.
 
 // back end expects normal English format, local time
-function ISOtoEng(s) {
+function makeServerDate(s, itemNum) {
     // in: 2016-05-09T00:00:00-04:00"
     // out: 05/09/2016 00:00:00
-    return s.substring(5,7) + "/" + s.substring(8,10) + "/" + s.substring(0,4) + " " + s.substring(11,19);
+    // the format of the input fields is locale-specific, so we have to
+    // use the ISO fields. But to catch cases where the user has cleared
+    // a field, first make sure the main field isn't blank
+    var date = document.getElementById(s+itemNum).value;
+    if (date == null || date == '') {
+	return '';
+    } else {
+	date = document.getElementById(s+itemNum+"ISO8601").value;
+    }
+    if (date == '') {
+	return '';
+    } else {
+	return date.substring(5,7) + "/" + date.substring(8,10) + "/" + date.substring(0,4) + " " + date.substring(11,19);
+    }
 }
 function extendedTimeCombine() {
 	document.getElementById("assessmentSettingsAction\:xt1").value = "";
@@ -39,7 +52,7 @@ function extendedTimeCombine() {
 		if(target != "1"){ // don't add empties
 			var minutes = (parseInt(document.getElementById("xt_hours"+itemNum).value) * 3600) + parseInt(document.getElementById("xt_minutes"+itemNum).value) * 60;		
 			var code = target+"|" + minutes +"|"
-			    + ISOtoEng(document.getElementById("xt_open"+itemNum+"ISO8601").value)+"|" + ISOtoEng(document.getElementById("xt_due"+itemNum+"ISO8601").value)+"|" + ISOtoEng(document.getElementById("xt_retract"+itemNum+"ISO8601").value) + "^";
+			    + makeServerDate("xt_open", itemNum) + "|" + makeServerDate("xt_due", itemNum) + "|" + makeServerDate("xt_retract", itemNum) + "^";
 			document.getElementById("assessmentSettingsAction\:xt1").value = document.getElementById("assessmentSettingsAction\:xt1").value.concat(code);
 		} // end if(target != "0")
 	} //end for
@@ -119,18 +132,27 @@ function copyListValuesForExtTime(itemNum) {
 
 }
 
+function formatOrNull(date) {
+    if (date != null) {
+	return moment(date).format('MM/DD/YYYY HH:mm');
+    } else {
+	return '';
+    }
+}
+
 // Control to allow checkboxes to toggle whether a div displays or not.
+// This sets up data for new entries. They get reasonable default values
 function toggleExtendedTimeEntity(it, itemNum, box) { 
 	var vis = (box.checked) ? "block" : "none";
 	document.getElementById(it).style.display = vis;
 	
-	var defaultStartDate = moment($('#assessmentSettingsAction\\:startDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	var defaultStartDate = formatOrNull($('#assessmentSettingsAction\\:startDate').datetimepicker('getDate'));
 	document.getElementById("xt_open"+itemNum).value = defaultStartDate;
 	
-	var defaultDueDate = moment($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	var defaultDueDate = formatOrNull($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate'));
 	document.getElementById("xt_due"+itemNum).value = defaultDueDate;
 	
-	var defaultRetractDate = moment($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
+	var defaultRetractDate = formatOrNull($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate'));
 	document.getElementById("xt_retract"+itemNum).value = defaultRetractDate;
 
 	// They are clearing out the list
@@ -183,6 +205,8 @@ function deleteAllExtTimeEntries() {
 
 // Add scripts to DOM by creating a script tag dynamically.
 // @param {String=} itemNum itemNum
+// this sets up values for entries where we have data; if the data is '' we retain it except that
+// start always has to be defined
 function addExtDatePickers(itemNum) {
 	
 	var s = document.createElement("script");
@@ -204,13 +228,14 @@ function addExtDatePickers(itemNum) {
 	
 	var formattedDueDate;
 	if(document.getElementById("xt_due"+itemNum).value == ''){		
-		formattedDueDate = moment($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate')).format('YYYY-MM-DD HH:mm:ss');
+		formattedDueDate = '';
 	} else {
 		formattedDueDate = moment(document.getElementById("xt_due"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
 	}
 	var dueDatePickerOptions = { input: '#xt_due' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		allowEmptyDate: true,
 		val: formattedDueDate,
 		ashidden: { iso8601: 'xt_due' + itemNum + 'ISO8601' } 
 	}
@@ -218,13 +243,14 @@ function addExtDatePickers(itemNum) {
 	
 	var formattedRetractDate;
 	if(document.getElementById("xt_retract"+itemNum).value == ''){		
-		formattedRetractDate = moment($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate')).format('YYYY-MM-DD HH:mm:ss');
+		formattedRetractDate = '';
 	} else {
 		formattedRetractDate = moment(document.getElementById("xt_retract"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
 	}
 	var retractDatePickerOptions = { input: '#xt_retract' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		allowEmptyDate: true,
 		val: formattedRetractDate,
 		ashidden: { iso8601: 'xt_retract' + itemNum + 'ISO8601' } 
 	}

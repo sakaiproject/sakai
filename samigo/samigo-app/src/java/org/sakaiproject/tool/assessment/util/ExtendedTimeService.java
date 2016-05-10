@@ -176,6 +176,7 @@ public class ExtendedTimeService {
 	    if (times == null || times.equals("")) {
 		return times;
 	    }
+	    System.out.println(times);
 	    String[] values = times.split("\\|");
 	    String ret = values[0] + "|" + values[1];
 	    if (values.length != 5) {
@@ -183,14 +184,16 @@ public class ExtendedTimeService {
 	    }
 	    for (int i = 2; i < 5; i++) {
 		String timeString = values[i];
-		try {
-		    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.ENGLISH);
-		    df.setTimeZone(fromZone);
-		    Date timeDate = df.parse(timeString);
-		    df.setTimeZone(toZone);
-		    timeString = df.format(timeDate);
-		} catch (Exception e) {
-		    // leaves string alone
+		if (!timeString.equals("")) {
+		    try {
+			SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.ENGLISH);
+			df.setTimeZone(fromZone);
+			Date timeDate = df.parse(timeString);
+			df.setTimeZone(toZone);
+			timeString = df.format(timeDate);
+		    } catch (Exception e) {
+			// leaves string alone
+		    }
 		}
 		ret += "|" + timeString;
 	    }
