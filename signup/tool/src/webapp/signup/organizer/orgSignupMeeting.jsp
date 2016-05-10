@@ -265,7 +265,7 @@
 				<h:inputHidden id="selectedFirstUser"  value="#{OrganizerSignupMBean.selectedFirstUser}"/>
 			
 			 	<sakai:view_title value="#{msgs.organizer_page_title}"/>
-
+				<div class="table-responsive">
 				<h:panelGrid columns="1" styleClass="organizerToplevelTable">
 					<%-- show title only when collapsed --%>
 					<h:panelGrid id="showMeetingTitleOnly" columns="2" columnClasses="titleColumn,valueColumn" styleClass="orgShowTitleOnly">
@@ -874,7 +874,7 @@
 	                </sakai:button_bar>
 	                
 	                <h:outputText value="&nbsp;" escape="false"/>
-			</h:panelGrid>
+			</h:panelGrid></div>
 		</h:form>
 			 
   		</sakai:view_content>	
