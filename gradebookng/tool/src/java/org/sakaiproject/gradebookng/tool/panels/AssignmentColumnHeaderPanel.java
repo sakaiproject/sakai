@@ -16,9 +16,11 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
@@ -43,13 +45,15 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	private final IModel<Assignment> modelData;
+	private final GbGradingType gradingType;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	private GradebookNgBusinessService businessService;
 
-	public AssignmentColumnHeaderPanel(final String id, final IModel<Assignment> modelData) {
+	public AssignmentColumnHeaderPanel(final String id, final Model<Assignment> modelData, final GbGradingType gradingType) {
 		super(id);
 		this.modelData = modelData;
+		this.gradingType = gradingType;
 	}
 
 	@Override
@@ -113,8 +117,16 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(title);
 
-		add(new Label("totalPoints", Model.of(assignment.getPoints())).add(new AttributeModifier("data-outof-label",
-				new StringResourceModel("grade.outof", null, new Object[] { assignment.getPoints() }))));
+		// if percentage then we want that as the 'outof' label and the attribute that is used for the cell through the JS.
+		// TODO could probably be done better via setting the model afterwards, except its in an attribute modifier...
+		if (this.gradingType == GbGradingType.PERCENTAGE) {
+			add(new Label("totalPoints", new StringResourceModel("label.percentage.valued", null, new Object[] { assignment.getPoints() }))
+					.add(new AttributeModifier("data-outof-label", new ResourceModel("label.percentage.plain"))));
+		} else {
+			add(new Label("totalPoints", Model.of(assignment.getPoints())).add(new AttributeModifier("data-outof-label",
+					new StringResourceModel("grade.outof", null, new Object[] { assignment.getPoints() }))));
+		}
+
 		add(new Label("dueDate", Model.of(FormatHelper.formatDate(assignment.getDueDate(), getString("label.noduedate")))));
 
 		final WebMarkupContainer externalAppFlag = gradebookPage.buildFlagWithPopover("externalAppFlag", "");
@@ -361,9 +373,8 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		}
 	}
 
-
 	private String generateFlagPopover(final HeaderFlagPopoverPanel.Flag flag) {
-		Map<String, Object> popoverModel = new HashMap<>();
+		final Map<String, Object> popoverModel = new HashMap<>();
 		popoverModel.put("assignmentId", this.modelData.getObject().getId());
 		popoverModel.put("flag", flag);
 		return new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString();
@@ -394,21 +405,21 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		return order;
 	}
 
-	private boolean canUserEditAssignment(GbRole role, Assignment assignment) {
+	private boolean canUserEditAssignment(final GbRole role, final Assignment assignment) {
 		if (role == GbRole.INSTRUCTOR) {
 			return true;
 		} else {
 			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
 					this.businessService.getCurrentUser().getId());
 			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
-			for (PermissionDefinition permission : permissions) {
-				boolean gradePermission = permission.getFunction().equals(GraderPermission.GRADE.toString());
- 
+			for (final PermissionDefinition permission : permissions) {
+				final boolean gradePermission = permission.getFunction().equals(GraderPermission.GRADE.toString());
+
 				if (gradePermission) {
 					if (categoriesEnabled) {
 						if ((assignment.getCategoryId() == null && permission.getCategoryId() == null) ||
-							(assignment.getCategoryId() != null &&
-								assignment.getCategoryId().equals(permission.getCategoryId()))) {
+								(assignment.getCategoryId() != null &&
+										assignment.getCategoryId().equals(permission.getCategoryId()))) {
 							return true;
 						}
 					} else {
