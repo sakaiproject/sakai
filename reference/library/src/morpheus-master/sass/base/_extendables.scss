@@ -204,8 +204,20 @@
 	}
 }
 
-.button, button.ui-state-default{
+.button, button.ui-state-default, .btn.btn-default {
 	@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
+}
+
+.button.link, a.btn-link, button.btn-link {
+	@include sakai_button( #FFF, #FFF, $primary-color, #FFF );
+}
+
+.btn-group .btn {
+  margin: 0;
+}
+
+.input-group-btn .btn {
+  margin: 0 0 0 -1px;
 }
 
 a.noPointers, input.noPointers {
