@@ -448,36 +448,37 @@ public class GradebookNgBusinessService {
 		// check what grading mode we are in
 		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
 
-		// if percentage entry type, additional formatting, otherwise use points as is
-		String gradeString = null;
-		if (gradingType == GbGradingType.PERCENTAGE) {
-			// the passed in grade represents a percentage so the number needs to be adjusted back to points
-			final Double percentage = NumberUtils.toDouble(newGrade);
-			final Double pointsFromPercentage = percentage / maxPoints;
+		// if percentage entry type, reformat the grades, otherwise use points as is
+		String newGradeAdjusted = newGrade;
+		String oldGradeAdjusted = oldGrade;
+		String storedGradeAdjusted = storedGrade;
 
-			log.debug("pointsFromPercentage: " + pointsFromPercentage);
-			gradeString = pointsFromPercentage.toString();
-		} else {
-			gradeString = newGrade;
+		if (gradingType == GbGradingType.PERCENTAGE) {
+			// the passed in grades represents a percentage so the number needs to be adjusted back to points
+			final Double newGradePercentage = NumberUtils.toDouble(newGrade);
+			final Double newGradePointsFromPercentage = newGradePercentage / maxPoints;
+			newGradeAdjusted = newGradePointsFromPercentage.toString();
+
+			final Double oldGradePercentage = NumberUtils.toDouble(oldGrade);
+			final Double oldGradePointsFromPercentage = oldGradePercentage / maxPoints;
+			oldGradeAdjusted = oldGradePointsFromPercentage.toString();
+
+			final Double storedGradePercentage = NumberUtils.toDouble(storedGrade);
+			final Double storedGradePointsFromPercentage = storedGradePercentage / maxPoints;
+			storedGradeAdjusted = storedGradePointsFromPercentage.toString();
 		}
 
 		// trim the .0 from the grades if present. UI removes it so lets standardise
-		String processedStoredGrade = StringUtils.removeEnd(storedGrade, ".0");
-		String processedOldGrade = StringUtils.removeEnd(oldGrade, ".0");
-		String processedNewGrade = StringUtils.removeEnd(gradeString, ".0");
-
-		// trim to null so we can better compare against no previous grade being
-		// recorded (as it will be null)
-		// note that we also trim newGrade so that don't add the grade if the
-		// new grade is blank and there was no grade previously
-		processedStoredGrade = StringUtils.trimToNull(processedStoredGrade);
-		processedOldGrade = StringUtils.trimToNull(processedOldGrade);
-		processedNewGrade = StringUtils.trimToNull(processedNewGrade);
+		// trim to null so we can better compare against no previous grade being recorded (as it will be null)
+		// Note that we also trim newGrade so that don't add the grade if the new grade is blank and there was no grade previously
+		storedGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(storedGradeAdjusted, ".0"));
+		oldGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(oldGradeAdjusted, ".0"));
+		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ".0"));
 
 		if (log.isDebugEnabled()) {
-			log.debug("storedGrade: " + processedStoredGrade);
-			log.debug("oldGrade: " + processedOldGrade);
-			log.debug("newGrade: " + processedNewGrade);
+			log.debug("storedGrade: " + storedGradeAdjusted);
+			log.debug("oldGrade: " + oldGradeAdjusted);
+			log.debug("newGrade: " + newGradeAdjusted);
 		}
 
 		// if comment longer than 500 chars, error.
@@ -489,8 +490,8 @@ public class GradebookNgBusinessService {
 		}
 
 		// no change
-		if (StringUtils.equals(processedStoredGrade, processedNewGrade)) {
-			final Double storedGradePoints = NumberUtils.toDouble(processedStoredGrade);
+		if (StringUtils.equals(storedGradeAdjusted, newGradeAdjusted)) {
+			final Double storedGradePoints = NumberUtils.toDouble(storedGradeAdjusted);
 			if (storedGradePoints.compareTo(maxPoints) > 0) {
 				return GradeSaveResponse.OVER_LIMIT;
 			} else {
@@ -501,7 +502,7 @@ public class GradebookNgBusinessService {
 		// concurrency check, if stored grade != old grade that was passed in,
 		// someone else has edited.
 		// if oldGrade == null, ignore concurrency check
-		if (oldGrade != null && !StringUtils.equals(processedStoredGrade, processedOldGrade)) {
+		if (oldGrade != null && !StringUtils.equals(storedGradeAdjusted, oldGradeAdjusted)) {
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
 
@@ -510,8 +511,8 @@ public class GradebookNgBusinessService {
 
 		GradeSaveResponse rval = null;
 
-		if (StringUtils.isNotBlank(gradeString)) {
-			final Double newGradePoints = NumberUtils.toDouble(processedNewGrade);
+		if (StringUtils.isNotBlank(newGradeAdjusted)) {
+			final Double newGradePoints = NumberUtils.toDouble(newGradeAdjusted);
 
 			// if over limit, still save but return the warning
 			if (newGradePoints.compareTo(maxPoints) > 0) {
@@ -522,10 +523,10 @@ public class GradebookNgBusinessService {
 
 		// save
 		try {
-			// note, you must pass in the comment or it wil lbe nulled out by
-			// the GB service
+			// note, you must pass in the comment or it will be nulled out by the GB service
+			// also, must pass in the raw grade as the service does conversions between percentage etc
 			this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
-					processedNewGrade, comment);
+					newGrade, comment);
 			if (rval == null) {
 				// if we don't have some other warning, it was all OK
 				rval = GradeSaveResponse.OK;
