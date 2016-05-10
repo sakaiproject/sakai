@@ -209,7 +209,7 @@ public class GradeItemCellPanel extends Panel {
 						final GradeSaveResponse result = GradeItemCellPanel.this.businessService.saveGrade(assignmentId, studentUuid,
 								GradeItemCellPanel.this.originalGrade, newGrade, GradeItemCellPanel.this.comment);
 
-						// TODO here, add the message
+						// handle the result
 						switch (result) {
 							case OK:
 								markSuccessful(GradeItemCellPanel.this.gradeCell);

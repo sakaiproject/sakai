@@ -40,6 +40,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -189,9 +190,11 @@ public class GradebookPage extends BasePage {
 		// categories enabled?
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
+		// grading type?
+		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
+
 		// this could potentially be a sortable data provider
-		final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(
-				grades);
+		final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
 		final List<IColumn> cols = new ArrayList<IColumn>();
 
 		// add an empty column that we can use as a handle for selecting the row
@@ -214,10 +217,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public Component getHeader(final String componentId) {
-				return new StudentNameColumnHeaderPanel(componentId, Model.of(settings.getNameSortOrder())); // pass
-																												// in
-																												// the
-																												// sort
+				return new StudentNameColumnHeaderPanel(componentId, Model.of(settings.getNameSortOrder()));
 			}
 
 			@Override
@@ -230,10 +230,7 @@ public class GradebookPage extends BasePage {
 				modelData.put("firstName", studentGradeInfo.getStudentFirstName());
 				modelData.put("lastName", studentGradeInfo.getStudentLastName());
 				modelData.put("displayName", studentGradeInfo.getStudentDisplayName());
-				modelData.put("nameSortOrder", settings.getNameSortOrder()); // pass
-																				// in
-																				// the
-																				// sort
+				modelData.put("nameSortOrder", settings.getNameSortOrder());
 
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
@@ -299,7 +296,7 @@ public class GradebookPage extends BasePage {
 				@Override
 				public Component getHeader(final String componentId) {
 					final AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId,
-							new Model<Assignment>(assignment));
+							new Model<Assignment>(assignment), gradingType);
 
 					panel.add(new AttributeModifier("data-category", assignment.getCategoryName()));
 					panel.add(new AttributeModifier("data-category-id", assignment.getCategoryId()));
@@ -814,10 +811,10 @@ public class GradebookPage extends BasePage {
 		// need to be the one that displays this message (Wicket will handle
 		// the 'saved' and 'error' messages when a grade is changed
 		this.liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
-		this.form.addOrReplace(liveGradingFeedback);
+		this.form.addOrReplace(this.liveGradingFeedback);
 	}
 
-	public Component updateLiveGradingMessage(String message) {
+	public Component updateLiveGradingMessage(final String message) {
 		this.liveGradingFeedback.setDefaultModel(Model.of(message));
 
 		return this.liveGradingFeedback;
