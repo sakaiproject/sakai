@@ -460,12 +460,6 @@ table.instruction td.desc{
 	text-align: left;
 }
 
-.calendarImageIcon {
-	vertical-align: bottom;
-	margin-left: 3px;
-	margin-right: 7px;
-}
-
 .orgShowTitleOnly, .emailTable, .assingAttendeeTable {
 	width:98%;
 }
@@ -530,10 +524,4 @@ table.emailTable td.valueColumn {
 .dateExact {
 	color: #888;
 	margin-left: 10px;
-}
-
-/* control CKEditor window size*/
-.cke_contents {
-		height: 160px !important;
-		width:700px !important;
 }
