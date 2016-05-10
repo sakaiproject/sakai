@@ -26,25 +26,11 @@ function extendedTimeInitialize() {
 // extended time value this method gets called on save and updates the hidden field with everything
 // that has been entered. When the form is submitted Java sorts it all out.
 
-// back end expects normal English format, local time
+// back end expects normal English format, user's time zone
 function makeServerDate(s, itemNum) {
-    // in: 2016-05-09T00:00:00-04:00"
-    // out: 05/09/2016 00:00:00
-    // the format of the input fields is locale-specific, so we have to
-    // use the ISO fields. But to catch cases where the user has cleared
-    // a field, first make sure the main field isn't blank
-    var date = document.getElementById(s+itemNum).value;
-    if (date == null || date == '') {
-	return '';
-    } else {
-	date = document.getElementById(s+itemNum+"ISO8601").value;
-    }
-    if (date == '') {
-	return '';
-    } else {
-	return date.substring(5,7) + "/" + date.substring(8,10) + "/" + date.substring(0,4) + " " + date.substring(11,19);
-    }
+    return formatOrNull($('#'+s+itemNum).datetimepicker('getDate'));
 }
+
 function extendedTimeCombine() {
 	document.getElementById("assessmentSettingsAction\:xt1").value = "";
 	for (var itemNum = 1; itemNum <= MAXITEMS; itemNum++) { 
@@ -151,14 +137,14 @@ function toggleExtendedTimeEntity(it, itemNum, box) {
 	var vis = (box.checked) ? "block" : "none";
 	document.getElementById(it).style.display = vis;
 	
-	var defaultStartDate = formatOrNull($('#assessmentSettingsAction\\:startDate').datetimepicker('getDate'));
-	document.getElementById("xt_open"+itemNum).value = defaultStartDate;
+	var defaultStartDate = $('#assessmentSettingsAction\\:startDate').datetimepicker('getDate');
+	$('#xt_open'+itemNum).datetimepicker('setDate',defaultStartDate);
 	
-	var defaultDueDate = formatOrNull($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate'));
-	document.getElementById("xt_due"+itemNum).value = defaultDueDate;
+	var defaultDueDate = $('#assessmentSettingsAction\\:endDate').datetimepicker('getDate');
+	$('#xt_due'+itemNum).datetimepicker('setDate',defaultDueDate);
 	
-	var defaultRetractDate = formatOrNull($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate'));
-	document.getElementById("xt_retract"+itemNum).value = defaultRetractDate;
+	var defaultRetractDate = $('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate');
+	$('#xt_retract'+itemNum).datetimepicker('setDate',defaultRetractDate);
 
 	// They are clearing out the list
 	if(vis == "none" && it == "extendedTimeEntries") {
