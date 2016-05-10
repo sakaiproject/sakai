@@ -59,7 +59,9 @@
         <property name="bodyPath">                  <null/>                                     </property>
         <property name="bodyVolumes">               <null/>                                     </property>
         <property name="autoDdl">                   <value>${auto.ddl}</value>                  </property>
+        <!-- This is set via code BaseContentService
         <property name="siteQuota">                 <value>0</value>                            </property>
+        -->
         <property name="availabilityChecksEnabled"> <value>true</value>                         </property>
         <property name="prioritySortEnabled">       <value>true</value>                         </property>
         <property name="useResourceTypeRegistry">   <value>true</value>                         </property>
