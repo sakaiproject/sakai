@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -105,6 +106,7 @@ public class GradeItemCellPanel extends Panel {
 		final boolean isExternal = (boolean) this.modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) this.modelData.get("gradeInfo");
 		final GbRole role = (GbRole) this.modelData.get("role");
+		final GbGradingType gradingType = (GbGradingType) this.modelData.get("gradingType");
 
 		// Note: gradeInfo may be null
 		this.rawGrade = (gradeInfo != null) ? gradeInfo.getGrade() : "";
@@ -164,7 +166,14 @@ public class GradeItemCellPanel extends Panel {
 					parentCell.setOutputMarkupId(true);
 
 					// check if grade is over limit and mark the cell with the warning class
-					if (NumberUtils.toDouble(GradeItemCellPanel.this.formattedGrade) > assignmentPoints.doubleValue()) {
+					double pointsLimit = 0;
+					if (gradingType == GbGradingType.PERCENTAGE) {
+						pointsLimit = 100;
+					} else {
+						pointsLimit = assignmentPoints.doubleValue();
+					}
+
+					if (NumberUtils.toDouble(GradeItemCellPanel.this.formattedGrade) > pointsLimit) {
 						markOverLimit(this);
 						GradeItemCellPanel.this.notifications.add(GradeCellNotification.OVER_LIMIT);
 					}
@@ -191,7 +200,7 @@ public class GradeItemCellPanel extends Panel {
 				protected void onUpdate(final AjaxRequestTarget target) {
 					final String rawGrade = GradeItemCellPanel.this.gradeCell.getValue();
 
-					GradebookPage page = (GradebookPage)getPage();
+					final GradebookPage page = (GradebookPage) getPage();
 
 					clearNotifications();
 

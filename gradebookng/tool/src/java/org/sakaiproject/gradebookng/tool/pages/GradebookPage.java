@@ -332,6 +332,7 @@ public class GradebookPage extends BasePage {
 					modelData.put("externalAppName", assignment.getExternalAppName());
 					modelData.put("gradeInfo", gradeInfo);
 					modelData.put("role", GradebookPage.this.role);
+					modelData.put("gradingType", gradingType);
 
 					cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
 
