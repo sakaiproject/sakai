@@ -49,10 +49,15 @@ function extendedTimeCombine() {
 	document.getElementById("assessmentSettingsAction\:xt1").value = "";
 	for (var itemNum = 1; itemNum <= MAXITEMS; itemNum++) { 
 		var target = document.getElementById("xt_id"+itemNum).value;
+		var hasdates = (document.getElementById("xt_datesToggle"+itemNum).checked);
+
 		if(target != "1"){ // don't add empties
 			var minutes = (parseInt(document.getElementById("xt_hours"+itemNum).value) * 3600) + parseInt(document.getElementById("xt_minutes"+itemNum).value) * 60;		
-			var code = target+"|" + minutes +"|"
-			    + makeServerDate("xt_open", itemNum) + "|" + makeServerDate("xt_due", itemNum) + "|" + makeServerDate("xt_retract", itemNum) + "^";
+			var code = target+"|" + minutes;
+			if (hasdates)
+			    code = code + "|"
+				+ makeServerDate("xt_open", itemNum) + "|" + makeServerDate("xt_due", itemNum) + "|" + makeServerDate("xt_retract", itemNum);
+			code = code + "^";
 			document.getElementById("assessmentSettingsAction\:xt1").value = document.getElementById("assessmentSettingsAction\:xt1").value.concat(code);
 		} // end if(target != "0")
 	} //end for
@@ -94,7 +99,7 @@ function showActiveExtTimeEntities(fullExtendedTimeString,itemNum) {
 		document.getElementById("xt"+itemNum).style.display = 'block';
 		document.getElementById("xt_show").style.display = 'none';
 
-		if(document.getElementById("xt_open"+itemNum).value.length > 1) {
+		if(fullExtendedTimeString.length > 2) {
 			document.getElementById("xt_dates"+itemNum).style.display = 'block';
 			document.getElementById("xt_datesToggle"+itemNum).checked=true;
 		}

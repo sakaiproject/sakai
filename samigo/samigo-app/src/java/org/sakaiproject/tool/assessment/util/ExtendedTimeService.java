@@ -57,7 +57,7 @@ public class ExtendedTimeService {
 			this.timeLimit = extractExtendedTime();
 			this.startDate = determineDate(1, publishedAssessment.getStartDate());
 			this.dueDate = determineDate(2, publishedAssessment.getDueDate());
-			this.retractDate = determineDate(3, this.dueDate);
+			this.retractDate = determineDate(3, publishedAssessment.getRetractDate());
 		} else {
 			this.timeLimit = 0;
 			this.startDate = publishedAssessment.getStartDate();
@@ -133,17 +133,23 @@ public class ExtendedTimeService {
 	private Date determineDate(int dateType, Date defaultDate) {
 		Date xtDate = defaultDate;
 
-		String[] extendedTimeItems = metaString.split("[|]");
+		String[] extendedTimeItems = metaString.split("\\|", -1);
 
+		// no entry means user has chosen not to override, use default
 		if (extendedTimeItems.length < dateType + 2) { // check for no entry
 			return defaultDate;
 		}
 
+		// blank entry means user wants no limit, except start always has to be defined
 		String dateString = extendedTimeItems[dateType + 1];
-		if (dateString != null && !dateString.equals("")) { // check for blanks
-			xtDate = parseDate(dateString, xtDate);
+		if (dateString == null || dateString.equals("")) { // check for blanks
+			if (dateType == 1) // start
+				return defaultDate;
+			else
+				return null;
 		}
-		return xtDate;
+
+		return parseDate(dateString, xtDate);
 	}
 
 	private Date parseDate(String dateString, Date xtDate) {
@@ -176,9 +182,9 @@ public class ExtendedTimeService {
 	    if (times == null || times.equals("")) {
 		return times;
 	    }
-	    System.out.println(times);
-	    String[] values = times.split("\\|");
+	    String[] values = times.split("\\|", -1);
 	    String ret = values[0] + "|" + values[1];
+	    // if < 5, this is version with no dates, so nothing to convert
 	    if (values.length != 5) {
 		return times;
 	    }
