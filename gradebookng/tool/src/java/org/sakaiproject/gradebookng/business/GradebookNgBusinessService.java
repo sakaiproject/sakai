@@ -463,9 +463,7 @@ public class GradebookNgBusinessService {
 			final Double oldGradePointsFromPercentage = oldGradePercentage / maxPoints;
 			oldGradeAdjusted = oldGradePointsFromPercentage.toString();
 
-			final Double storedGradePercentage = NumberUtils.toDouble(storedGrade);
-			final Double storedGradePointsFromPercentage = storedGradePercentage / maxPoints;
-			storedGradeAdjusted = storedGradePointsFromPercentage.toString();
+			// we dont need processing of the stored grade as the service does that when persisting.
 		}
 
 		// trim the .0 from the grades if present. UI removes it so lets standardise
@@ -476,9 +474,9 @@ public class GradebookNgBusinessService {
 		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ".0"));
 
 		if (log.isDebugEnabled()) {
-			log.debug("storedGrade: " + storedGradeAdjusted);
-			log.debug("oldGrade: " + oldGradeAdjusted);
-			log.debug("newGrade: " + newGradeAdjusted);
+			log.debug("storedGradeAdjusted: " + storedGradeAdjusted);
+			log.debug("oldGradeAdjusted: " + oldGradeAdjusted);
+			log.debug("newGradeAdjusted: " + newGradeAdjusted);
 		}
 
 		// if comment longer than 500 chars, error.
