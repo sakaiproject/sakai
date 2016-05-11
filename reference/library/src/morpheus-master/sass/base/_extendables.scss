@@ -209,7 +209,7 @@
 }
 
 .button.link, a.btn-link, button.btn-link {
-	@include sakai_button( #FFF, #FFF, $primary-color, #FFF );
+	@include sakai_button( $link-background-color, $link-background-color, $link-color, $link-hover-background-color );
 }
 
 .btn-group .btn {

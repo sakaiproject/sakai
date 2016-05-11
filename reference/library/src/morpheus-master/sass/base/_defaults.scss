@@ -24,12 +24,19 @@ a{
 		text-decoration: none;
 	}
 	&[href]{  // This means a[href]
-		color: $primary-color;
+		color: $link-color;
+		background-color: $link-background-color;
 		&:focus, &::-moz-focus-inner{ // This would compile to -> a[href]:focus, a[href]::moz-focus-inner
 			outline-color: invert;
 		}
 		&:hover{
+			color: $link-hover-color;
+			background-color: $link-hover-background-color;
 			text-decoration:underline;
+		}
+		&:active{
+			color: $link-active-color;
+			background-color: $link-active-background-color;
 		}
 		&.btn{
 			text-decoration: none;
