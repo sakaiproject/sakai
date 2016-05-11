@@ -1764,6 +1764,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			  }
 			  
 			  // now, we can populate the grade information
+			  List<String> studentsWithGradeRec = new ArrayList<>();
 			  List<AssignmentGradeRecord> gradeRecs = getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIds);
 			  if (gradeRecs != null) {
 				  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
@@ -1779,6 +1780,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						  GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(agr, gbItem, gradebook, commentText);
 					  	  	
 						  studentGrades.add(gradeDef);
+						  studentsWithGradeRec.add(agr.getStudentId());
+					  }
+				  }
+
+				  // if student has a comment but no grade add an empty grade definition with the comment
+				  if (studentsWithGradeRec.size() < studentIds.size()) {
+					  for (String studentId : studentIdCommentTextMap.keySet()) {
+						  if (!studentsWithGradeRec.contains(studentId)) {
+							  String comment = studentIdCommentTextMap.get(studentId);
+							  AssignmentGradeRecord emptyGradeRecord = new AssignmentGradeRecord(gbItem, studentId, null);
+							  GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(emptyGradeRecord, gbItem, gradebook, comment);
+							  studentGrades.add(gradeDef);
+						  }
 					  }
 				  }
 			  }
