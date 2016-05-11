@@ -986,3 +986,36 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENT
 -- SAK-29442 Sequence LB_PEER_EVAL_RESULT_S Missing
 CREATE SEQUENCE LB_PEER_EVAL_RESULT_S;
 -- END SAK-29442
+
+--
+-- SAM-1200 Oracle conversion, size increases of Samigo columns
+--
+alter table SAM_PUBLISHEDASSESSMENT_T add tempcol clob;
+update SAM_PUBLISHEDASSESSMENT_T set tempcol=description;
+alter table SAM_PUBLISHEDASSESSMENT_T drop column description;
+alter table SAM_PUBLISHEDASSESSMENT_T rename column tempcol to description;
+ 
+alter table SAM_PUBLISHEDSECTION_T add tempcol clob;
+update SAM_PUBLISHEDSECTION_T set tempcol=description;
+alter table SAM_PUBLISHEDSECTION_T drop column description;
+alter table SAM_PUBLISHEDSECTION_T rename column tempcol to description;
+ 
+alter table SAM_ASSESSMENTBASE_T add tempcol clob;
+update SAM_ASSESSMENTBASE_T set tempcol=description;
+alter table SAM_ASSESSMENTBASE_T drop column description;
+alter table SAM_ASSESSMENTBASE_T rename column tempcol to description;
+ 
+alter table SAM_SECTION_T add tempcol clob;
+update SAM_SECTION_T set tempcol=description;
+alter table SAM_SECTION_T drop column description;
+alter table SAM_SECTION_T rename column tempcol to description;
+ 
+alter table SAM_ITEMGRADING_T add tempcol clob;
+update SAM_ITEMGRADING_T set tempcol=comments;
+alter table SAM_ITEMGRADING_T drop column comments;
+alter table SAM_ITEMGRADING_T rename column tempcol to comments;
+ 
+alter table SAM_ASSESSMENTGRADING_T add tempcol clob;
+update SAM_ASSESSMENTGRADING_T set tempcol=comments;
+alter table SAM_ASSESSMENTGRADING_T drop column comments;
+alter table SAM_ASSESSMENTGRADING_T rename column tempcol to comments;
