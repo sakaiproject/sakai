@@ -142,20 +142,19 @@
                </h4>
                </legend>
                <br />
-		<p class="checkbox indnt2">
-
-		<input 	type="checkbox"
-				name="$displayOptions.getVarNameShowAnnouncementBody()" 
-				id="${displayOptions.getVarNameShowAnnouncementBody()}Check" 
-				value="true" 
-				#if ($displayOptions.isShowAnnouncementBody()) 
-					checked="checked"
-							#end
-		/> 
-		<label for="${displayOptions.getVarNameShowAnnouncementBody()}Check">
-			$tlang.getString("custom.showbody")
-		</label>
-		</p>
+		<div class="checkbox indnt2">
+			<label for="${displayOptions.getVarNameShowAnnouncementBody()}Check">
+				<input 	type="checkbox"
+						name="$displayOptions.getVarNameShowAnnouncementBody()" 
+						id="${displayOptions.getVarNameShowAnnouncementBody()}Check" 
+						value="true" 
+						#if ($displayOptions.isShowAnnouncementBody()) 
+							checked="checked"
+						#end
+				/> 		
+				$tlang.getString("custom.showbody")
+			</label>
+		</div>
 		
 		<p class="shorttext indnt4" id="charDisplay"> 
 			<label for="changeChars">
