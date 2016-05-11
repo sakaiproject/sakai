@@ -48,6 +48,14 @@ $breadcrumbs-color:			 $text-color !default;
 $breadcrumbs-tool-color:		 #185878 !default;
 $breadcrumbs-hover-color:		 #0F4461 !default;
 
+/* Link colors */
+$link-color: $primary-color !default;
+$link-active-color: $primary-color !default;
+$link-hover-color: $primary-color !default;
+$link-background-color: transparent !default;
+$link-active-background-color: transparent !default;
+$link-hover-background-color: transparent !default;
+
 /* Linknav button colors */
 $button-text-color:	 #777 !default;
 $button-border-color: #C0C0C0 !default;
