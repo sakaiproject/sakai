@@ -24,6 +24,7 @@ import org.sakaiproject.time.cover.TimeService;
 public class ExtendedTimeService {
 
 	private static String EXTENDED_TIME_KEY = "extendedTime";
+	private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private String siteId;
 	private AuthzGroupService authzGroupService;
 
@@ -155,7 +156,7 @@ public class ExtendedTimeService {
 	private Date parseDate(String dateString, Date xtDate) {
 		try {
 			//xtDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa", Locale.ENGLISH).parse(dateString);
-			xtDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.ENGLISH).parse(dateString);
+			xtDate = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH).parse(dateString);
 			this.hasExtendedTime = true;
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -192,7 +193,7 @@ public class ExtendedTimeService {
 		String timeString = values[i];
 		if (!timeString.equals("")) {
 		    try {
-			SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.ENGLISH);
+			SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
 			df.setTimeZone(fromZone);
 			Date timeDate = df.parse(timeString);
 			df.setTimeZone(toZone);

@@ -125,7 +125,7 @@ function copyListValuesForExtTime(itemNum) {
 
 function formatOrNull(date) {
     if (date != null) {
-	return moment(date).format('MM/DD/YYYY HH:mm');
+	return moment(date).format('YYYY-MM-DD HH:mm:ss');
     } else {
 	return '';
     }
