@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,6 +184,9 @@ public class GradebookPage extends BasePage {
 
 		// get the grade matrix. It should be sorted if we have that info
 		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
+
+		// mark the current timestamp so we can use this date to check for any changes since now
+		final Date gradesTimestamp = new Date();
 
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 
@@ -473,6 +477,7 @@ public class GradebookPage extends BasePage {
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
+		table.add(new AttributeModifier("data-gradestimestamp", gradesTimestamp.getTime()));
 
 		// enable drag and drop based on user role (note: entity provider has
 		// role checks on exposed API)

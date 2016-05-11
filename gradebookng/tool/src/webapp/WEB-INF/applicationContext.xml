@@ -9,8 +9,7 @@
 
 	<bean
 		id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
-		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
-		init-method="init">
+		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService">
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="userDirectoryService"
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
@@ -22,7 +21,6 @@
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 		<property name="courseManagementService"
 			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	</bean>
 
