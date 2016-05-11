@@ -105,7 +105,7 @@
 				#set($count = 0)
 				#foreach ($ann_item in $showMessagesList)
 					#set($ann_item_props=$ann_item.getProperties())
-					<li #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) id="listitem.orderable$count" class="row">
+					<li #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft true) id="listitem.orderable$count">
 							<span style="display:none" class="grabHandle">
 							<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
 							<input type="hidden" size="3" id="holder$count"  value="$count"/>

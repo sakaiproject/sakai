@@ -70,6 +70,7 @@ public class PublishedAccessControl
   private String password;
   private Boolean unlimitedSubmissions;
   private Integer markForReview;
+  private Boolean honorPledge;
 
   /**
    * Creates a new SubmissionModel object.
@@ -144,6 +145,7 @@ public class PublishedAccessControl
     ((PublishedAccessControl)cloned).setPassword(this.password);
     ((PublishedAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((PublishedAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
+    ((PublishedAccessControl)cloned).setHonorPledge(this.honorPledge);
     return cloned;
   }
 
@@ -396,5 +398,11 @@ public class PublishedAccessControl
   public void setMarkForReview(Integer markForReview) {
 	  this.markForReview = markForReview;
   }
-  
+
+  @Override
+  public Boolean getHonorPledge() { return this.honorPledge; }
+
+  @Override
+  public void setHonorPledge(Boolean honorPledge) { this.honorPledge = honorPledge; }
+
 }

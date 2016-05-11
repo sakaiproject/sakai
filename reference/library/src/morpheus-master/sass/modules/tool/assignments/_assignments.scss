@@ -13,6 +13,10 @@
 		input {
 			margin: 0;
 		}
+
+		button{
+			margin: 0;
+		}
 	}
 
 	.form-required{
@@ -37,7 +41,7 @@
 			padding: 0.5em 0 0.5em;
 		}
 		.shorttext{
-			display: inline-block;
+			display: block;
 		}
 		.assignment-checkbox-inline{
 			display: inline-block;
@@ -47,4 +51,16 @@
 	#reorder-list-sortingToolBar, #reorder-list{
 		max-width: 1200px;
 	}
+	
+	label.innerRadio{
+		margin-left: 20px;
+	}
+	
+	#sendFeedbackPanel, #allowResubmissionPanel{
+		.discTria{
+			font-weight: bold;
+			background-color: #cef;
+		}
+	}
+
 }

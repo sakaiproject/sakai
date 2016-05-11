@@ -53,6 +53,7 @@ public class IcalendarReader extends Reader
 	private static Logger M_log = LoggerFactory.getLogger(IcalendarReader.class);
 	private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
 	
+	private static final String TITLE_PROPERTY_NAME = "Summary";
 	private static final String CONTACT_SECTION_HEADER = "Contacts";
 	private static final String TODO_SECTION_HEADER = "Todos";
 	private static final String EVENT_SECTION_HEADER = "Events";
@@ -121,7 +122,7 @@ public class IcalendarReader extends Reader
             
             if ( component.getProperty("RRULE") != null )
             {
-					M_log.warn("IcalendarReader: Re-occuring events not supported: " + summary );
+					M_log.warn("IcalendarReader: Re-occurring events not supported: " + summary );
 					continue;
             }
             else if (dtstartdate == null || dtenddate == null )
@@ -292,7 +293,7 @@ public class IcalendarReader extends Reader
 	{
 		Map<String, String> columnHeaderMap = new HashMap<String, String>();
 
-		columnHeaderMap.put(GenericCalendarImporter.TITLE_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.TITLE_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.TITLE_DEFAULT_COLUMN_HEADER, TITLE_PROPERTY_NAME);
 		columnHeaderMap.put(GenericCalendarImporter.DESCRIPTION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME);
 		columnHeaderMap.put(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DATE_PROPERTY_NAME);
 		columnHeaderMap.put(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.START_TIME_PROPERTY_NAME);

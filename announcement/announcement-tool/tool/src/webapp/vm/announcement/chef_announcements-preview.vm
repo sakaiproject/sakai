@@ -42,7 +42,9 @@
 	<h4 class="indnt1">
 		$tlang.getString("meta.message")
 	</h4>
-	<p class="indnt1">$validator.escapeHtmlFormattedText($body)</p>
+	<div class="message-body">
+		<p class="indnt1">$validator.escapeHtmlFormattedText($body)</p>
+	</div>
 	#set ($size = 0)
 	#if (!$attachments.isEmpty())
 		<h4 class="indnt1">$tlang.getString("meta.attach")</h4>

@@ -72,7 +72,7 @@
 						#if ($gradeType != 1)
 						<input type="button" name="prevungraded1" class="prevUngraded" value="$tlang.getString( "nav.prev.ungraded" )"
 							#if( !$!goPrevUngradedEnabled ) disabled="disabled" #end 
-							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded' '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						#end
 
 						<div class="small text-muted">$tlang.getString( "nav.message" )</div>

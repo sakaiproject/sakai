@@ -41,7 +41,6 @@ public class GradebookUiSettings implements Serializable {
 	 * For sorting based on assignment grades
 	 */
 	@Getter
-	@Setter
 	private GbAssignmentGradeSortOrder assignmentSortOrder;
 
 	@Getter
@@ -63,7 +62,6 @@ public class GradebookUiSettings implements Serializable {
 	 * For sorting based on category
 	 */
 	@Getter
-	@Setter
 	private GbCategoryAverageSortOrder categorySortOrder;
 
 	/**
@@ -72,7 +70,6 @@ public class GradebookUiSettings implements Serializable {
 	 * TODO this could be its own class to bring it in to line with the others
 	 */
 	@Getter
-	@Setter
 	private SortDirection courseGradeSortOrder;
 
 	/**
@@ -145,6 +142,27 @@ public class GradebookUiSettings implements Serializable {
 		final int b = rand.nextInt((max - min) + 1) + min;
 
 		return String.format("rgb(%d,%d,%d)", r, g, b);
+	}
+
+	public void setCourseGradeSortOrder(SortDirection direction) {
+		resetSortOrder();
+		this.courseGradeSortOrder = direction;
+	}
+
+	public void setCategorySortOrder(GbCategoryAverageSortOrder sortOrder) {
+		resetSortOrder();
+		this.categorySortOrder = sortOrder;
+	}
+
+	public void setAssignmentSortOrder(GbAssignmentGradeSortOrder sortOrder) {
+		resetSortOrder();
+		this.assignmentSortOrder = sortOrder;
+	}
+
+	private void resetSortOrder() {
+		this.courseGradeSortOrder = null;
+		this.categorySortOrder = null;
+		this.assignmentSortOrder = null;
 	}
 
 	@Override

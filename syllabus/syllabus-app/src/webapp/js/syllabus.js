@@ -547,9 +547,9 @@ function showConfirmAdd(msgs, mainframeId){
 				"<h6>" + msgs.syllabus_content + "</h6><div class='bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
 		.dialog({
 			position: {
-				my: 'center top',
-				at: 'center top',
-				of: $(this.top.document)
+				my: 'center',
+				at: 'center',
+				of: window
 			},
 			modal: true,
 			title: msgs.addItemTitle,

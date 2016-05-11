@@ -21,41 +21,40 @@
 
 package org.sakaiproject.importer.impl;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.sakaiproject.importer.api.ImportDataSource;
+import org.sakaiproject.importer.api.ImportFileParser;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
-import org.sakaiproject.importer.api.ImportDataSource;
-import org.sakaiproject.importer.api.ImportFileParser;
-import org.sakaiproject.importer.api.Importable;
-import org.sakaiproject.importer.impl.importables.FileResource;
-import org.sakaiproject.importer.impl.importables.Folder;
+public class SakaiArchiveTest {
+	private static ImportFileParser parser = null;
+	private FileInputStream archiveStream = null;
 
-import junit.framework.TestCase;
-
-public class SakaiArchiveTest extends TestCase {
-	private static ImportFileParser parser;
-	//private byte[] archiveData;
-	private FileInputStream archiveStream;
-	
+	@Before
 	public void setUp() throws IOException {
-		System.out.println("doing setUp()");
 		parser = new SakaiArchiveFileParser();
-		archiveStream = new FileInputStream(new File("/Users/zach/Downloads/sakai_course_export.zip"));
+		archiveStream = new FileInputStream(new File("sakai_course_export.zip"));
 	}
+
+	@Ignore
+	@Test
 	public void testCanGetDataSource() {
-		ImportDataSource dataSource = (ImportDataSource) parser.parse(archiveStream, "/Users/zach/Desktop");
-		assertNotNull(dataSource);
+		ImportDataSource dataSource = (ImportDataSource) parser.parse(archiveStream, "Desktop");
+		Assert.assertNotNull(dataSource);
 		System.out.println("There are " + dataSource.getItemCategories().size() + " categories in this archive.");
 		((SakaiArchiveDataSource)dataSource).buildSourceFolder(dataSource.getItemCategories());
 	}
-	
+
+	@Ignore
+	@Test
 	public void testArchiveIsValid() {
-		assertTrue(parser.isValidArchive(archiveStream));
+		Assert.assertTrue(parser.isValidArchive(archiveStream));
 	}
 	
 

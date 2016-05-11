@@ -187,10 +187,10 @@
 
        <!-- Honor Pledge -->
     <div class="form-group row">
-		<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.honor_pledge}"/>
+		<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         <div class="col-md-10">
-			<h:selectBooleanCheckbox id="honor_pledge" value="#{publishedSettings.valueMap.honorpledge_isInstructorEditable}"/>
-			<h:outputText value="#{assessmentSettingsMessages.honor_pledge_add}"/>
+			<h:selectBooleanCheckbox id="honor_pledge" value="#{publishedSettings.honorPledge}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
+			<h:outputText value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         </div>
     </div>
 

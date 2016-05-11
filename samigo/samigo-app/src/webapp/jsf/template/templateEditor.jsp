@@ -114,15 +114,23 @@
       
       <h:outputText value=""/>
       <h:outputText value=""/>
-       <!-- Honor Pledge -->
-	  <h:outputLabel value="#{templateMessages.honor_pledge}"/>
-      <h:panelGroup>
-		<h:selectBooleanCheckbox id="honor_pledge" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
-		<h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
-      </h:panelGroup> 
-	</div>
-     
     </h:panelGrid>
+    <h:panelGrid columns="1">
+      <!-- Honor Pledge -->
+      <h:panelGroup>
+        <h:outputText value="#{templateMessages.honor_pledge}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge_can_edit" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
+        <h:outputLabel for="honor_pledge_can_edit" value="#{templateMessages.template_canbedefault}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge" value="#{template.honorPledge}"/>
+	    <h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
+      </h:panelGroup>
+    </h:panelGrid>
+	</div>
+
     </div></div>
   </samigo:hideDivision>
 

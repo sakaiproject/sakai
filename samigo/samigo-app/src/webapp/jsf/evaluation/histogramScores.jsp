@@ -88,7 +88,7 @@ $Id$
       <h:outputText value="#{evaluationMessages.q_view}" />
     </h:commandLink>
 
-    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
+    <h:outputText value="</span><li role='menuitem'><span class='current'>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
     <h:outputText value="#{evaluationMessages.stat_view}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
 

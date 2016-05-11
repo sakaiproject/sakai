@@ -47,6 +47,9 @@
 	}
 
 	.gallery-form{
+		img{
+			cursor: pointer;
+		}
 		.sakai-wicket-iconwithtooltip{
 			position: absolute;
 			margin-top: 0em;
@@ -64,9 +67,28 @@
 		.input-file-container{
 			input[type="file"]{
 				@extend .form-control;
+				height: auto !important;
 				position: relative !important;
 				left: 0 !important;
 			}
 		}
+		.label.no-pictures{
+			color: #212121;
+			font-weight: 400;
+		}
 	}
+
+	.table-preferences{
+		max-width: 800px;
+	}
+
+	#privacy-settings{
+
+		max-width: 1200px;
+
+		.row{
+			margin-bottom: 1em;
+		}
+	}
+
 }

@@ -157,8 +157,7 @@ public class BeginDeliveryActionListener implements ActionListener
 	// set the outcome to isRetractedForEdit2 error page.
     if (DeliveryBean.REVIEW_ASSESSMENT == action && AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
     	delivery.setAssessmentTitle(pub.getTitle());
-    	delivery.setHonorPledge(pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
-    			pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
+        delivery.setHonorPledge(control.getHonorPledge());
     	delivery.setOutcome("isRetractedForEdit2");
     	return;
     }
@@ -316,8 +315,6 @@ public class BeginDeliveryActionListener implements ActionListener
     // #0 - global information
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
-    delivery.setHonorPledge(pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
-    						pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
     String instructorMessage = pubAssessment.getDescription();
     delivery.setInstructorMessage(instructorMessage);
 
@@ -352,6 +349,7 @@ public class BeginDeliveryActionListener implements ActionListener
     else {
     	delivery.setDisplayMardForReview(false);
     }
+    if (control.getHonorPledge() != null) delivery.setHonorPledge(control.getHonorPledge());
 
     // #1 - set submission remains
     populateSubmissionsRemaining(service, pubAssessment, delivery);

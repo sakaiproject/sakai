@@ -90,11 +90,15 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						categoryNames.add(categoryName);
 						categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
 
-						final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
-						if (categoryAverage == null || categoryName.equals(GradebookPage.UNCATEGORISED)) {
+						if (assignment.getCategoryId() == null) {
 							categoryAverages.put(categoryName, getString("label.nocategoryscore"));
 						} else {
-							categoryAverages.put(categoryName, FormatHelper.formatDoubleAsPercentage(categoryAverage));
+							final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
+							if (categoryAverage == null) {
+								categoryAverages.put(categoryName, getString("label.nocategoryscore"));
+							} else {
+								categoryAverages.put(categoryName, FormatHelper.formatDoubleAsPercentage(categoryAverage));
+							}
 						}
 					}
 

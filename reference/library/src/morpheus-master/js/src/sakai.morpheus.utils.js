@@ -15,8 +15,8 @@ function f_filterResults(n_win, n_docel, n_body){
 
 $PBJQ(document).ready(function(){
 	$PBJQ('input, textarea', '#content').each( function(){
-		if( $(this).prop('disabled') ){
-			$(this).parent('label').addClass('disabled');
+		if( $PBJQ(this).prop('disabled') ){
+			$PBJQ(this).parent('label').addClass('disabled');
 		}
 	});
 });

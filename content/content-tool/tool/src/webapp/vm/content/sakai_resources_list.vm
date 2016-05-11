@@ -138,7 +138,7 @@
           </li>
         #elseif($item.canRead())
           <li>
-            <a href="" 
+            <a href="#"
               onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
               title= "$tlang.getString('sh.go')">
                $validator.escapeHtml("$item.name")

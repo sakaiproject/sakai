@@ -61,9 +61,6 @@ public class CategoryColumnHeaderPanel extends Panel {
 					settings.setCategorySortOrder(sortOrder);
 				}
 
-				// clear any assignment sort order to prevent conflicts
-				settings.setAssignmentSortOrder(null);
-
 				// save settings
 				gradebookPage.setUiSettings(settings);
 

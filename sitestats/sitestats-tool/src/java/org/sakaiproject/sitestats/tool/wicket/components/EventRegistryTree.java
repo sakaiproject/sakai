@@ -127,9 +127,10 @@ public class EventRegistryTree extends Panel {
 								
 				// image, label, checkbox
 				String toolName = Locator.getFacade().getEventRegistryService().getToolName(ti.getToolId());
-				String toolIcon = Locator.getFacade().getEventRegistryService().getToolIcon(ti.getToolId());
-				if(toolIcon == null) toolIcon = StatsManager.SILK_ICONS_DIR + "application_side_boxes.png";
-				listItem.add(new ExternalImage("image", toolIcon));
+				//String toolIcon = Locator.getFacade().getEventRegistryService().getToolIcon(ti.getToolId());
+				
+				listItem.add( new Label("toolIcon", "<i class=\"icon-" + toolId.replace("_", "-") + "\"></i>").setEscapeModelStrings(false) );
+
 				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
 				AttributeModifier onclick = new AttributeModifier("onclick", new Model("selectUnselectEvents(this); updateToolSelection('#"+toolId+"');"));
@@ -148,7 +149,9 @@ public class EventRegistryTree extends Panel {
                 
 				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
-				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png"));
+				//listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png"));
+				Label imageIcon = new Label("toolIcon", new Model("") );
+				listItem.add(imageIcon);
 				String eventName = Locator.getFacade().getEventRegistryService().getEventName(ei.getEventId());
 				listItem.add(new Label("label", new Model(eventName)));
 				CheckBox eventCheckBox = new CheckBox("checkbox", new PropertyModel(ei, "selected"));
@@ -163,7 +166,9 @@ public class EventRegistryTree extends Panel {
 				listItem.setVisible(false);
 				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
-				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png").setVisible(false));
+				//listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png").setVisible(false));
+				Label imageIcon = new Label("toolIcon", new Model("") );
+				listItem.add(imageIcon);
 				listItem.add(new Label("label").setVisible(false));
 				listItem.add(new CheckBox("checkbox", new Model(Boolean.FALSE)).setVisible(false));
 				

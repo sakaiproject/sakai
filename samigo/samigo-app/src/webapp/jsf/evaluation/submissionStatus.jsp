@@ -62,7 +62,7 @@ $Id$
   </div>
   
   <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'>" escape="false"/>
-    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span>" escape="false"/>
+    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span class='current'>" escape="false"/>
     <h:outputText value="#{evaluationMessages.sub_status}" />
     
     <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>

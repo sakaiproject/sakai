@@ -39,6 +39,7 @@
   border-left-width: 5px;
   border-color: lighten($color, 25%);
   border-left-color: $color;
+  color: darken($color, 30%);
   background-color: $bgcolor;
   h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
@@ -60,7 +61,7 @@
   @include bs-callout($okcolor, lighten($okcolor, 45%));
 }
 .bs-callout-warn, .bs-callout-alert, .messageWarning, .messageConfirmation {
-  @include bs-callout(darken($warncolor, 10%), $warncolor );
+  @include bs-callout(darken($warncolor, 35%), $warncolor );
 }
 .bs-callout-danger, .bs-callout-error, .messageError {
   @include bs-callout(darken($errorcolor, 30%), $errorcolor );
@@ -203,8 +204,20 @@
 	}
 }
 
-.button, button.ui-state-default{
+.button, button.ui-state-default, .btn.btn-default {
 	@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
+}
+
+.button.link, a.btn-link, button.btn-link {
+	@include sakai_button( $link-background-color, $link-background-color, $link-color, $link-hover-background-color );
+}
+
+.btn-group .btn {
+  margin: 0;
+}
+
+.input-group-btn .btn {
+  margin: 0 0 0 -1px;
 }
 
 a.noPointers, input.noPointers {
@@ -282,5 +295,21 @@ a.noPointers, input.noPointers {
 	@media #{$phone}{
 		width: 95% !important; 
 		left: 2.5% !important;
+	}
+}
+
+label.panelGridLabel{
+	margin-right: 0.5em;
+}
+
+.inputColorContainer{
+	input{
+		@media #{$phone}{
+			display: inline-block;
+			max-width: calc( 100% - 20px);
+		}
+	}
+	td{
+		vertical-align: baseline;
 	}
 }

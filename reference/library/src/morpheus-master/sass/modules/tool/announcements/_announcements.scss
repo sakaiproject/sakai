@@ -32,5 +32,13 @@
 	
 	#reorder-list-sortingToolBar, #reorder-list{
 		max-width: 1200px;
+	}
+
+	.message-body{
+		background-color: darken( $tool-background-color, 5% );
+		padding: 15px;
+		margin-bottom: 20px;
+		border: 1px solid darken( $tool-background-color, 10% );
+		border-radius: 4px;		
 	}	
 }
