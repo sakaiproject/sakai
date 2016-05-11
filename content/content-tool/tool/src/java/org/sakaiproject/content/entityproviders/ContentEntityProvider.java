@@ -256,12 +256,10 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						// set the proper ContentItem values
 						setContentItemValues(resource, item, props);
 						
-						long len = resource.getContentLength();
 						String contentType = resource.getContentType();
 						
-						// only Web Link resource will have not-null URL returned
-						String urlString = getWebLinkResourceUrlString(resource, contentType);
-						item.url = urlString != null? urlString:item.url;
+						// only Web Link resource will have not-null webLinkUrl value assigned
+						item.webLinkUrl = getWebLinkResourceUrlString(resource, contentType);
 						
 						rv.add(item);
 					}
@@ -329,7 +327,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 					{
 						// An invalid URI format will get caught by the outermost catch block 
 						URI uri = new URI(new String(content, "UTF-8"));
-						urlString = uri.toASCIIString();
+						urlString = uri.toString();
 					}
 					catch (UnsupportedEncodingException e)
 					{
@@ -544,6 +542,10 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 
 		@Getter @Setter
 		private String url;
+		
+		// not null only for Web Link resource
+		@Getter @Setter
+		private String webLinkUrl;
 
 		@Getter @Setter
 		private String type;
