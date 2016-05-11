@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
+import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
@@ -54,16 +54,13 @@ import org.sakaiproject.calendaring.logic.SakaiProxy;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.user.api.User;
 
-
-
-
 /**
  * Implementation of {@link ExternalCalendaringService}
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-@CommonsLog
+@Slf4j
 public class ExternalCalendaringServiceImpl implements ExternalCalendaringService {
 
 	/**

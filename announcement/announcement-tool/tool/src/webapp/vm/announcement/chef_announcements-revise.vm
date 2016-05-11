@@ -80,26 +80,27 @@ function resizeFrame(){
 			
 			<input type="hidden" name="fromInterface" value="revise" />
 
-			<div class="form-group">
-			    <label for="subject">
+			<div class="form-group row">
+			    <label for="subject" class="form-control-label col-md-2">
 					<span class="reqStar">* </span>
 					$tlang.getString("revise.subject") 
 				</label>
-				#if ($new=="true")
-					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($tempSubject)" />                
-				#else
-					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" />
-				#end
-			</div>
-
-			<div class="row">
-				<div class="col-md-12">
-					<label for="body" class="block">
-						$tlang.getString("revise.announcement.star")
-					</label>
+				<div class="col-md-6">
+					#if ($new=="true")
+						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($tempSubject)" class="form-control"/>                
+					#else
+						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" class="form-control"/>
+					#end
 				</div>
 			</div>
-			<div class="row">
+
+			<div class="form-group row">
+				<div class="col-md-12">
+					<label for="body" class="block">
+						<span class="reqStar">* </span>
+						$tlang.getString("revise.announcement.body")
+					</label>
+				</div>
 				<div class="col-md-12">
 					#if ($new=="true")
 						#if ($!tempBody.length() != 0)
@@ -393,27 +394,29 @@ function resizeFrame(){
 
 			#if ($notification)
 				<hr class="itemSeparator" />
-				<p class="shorttext">
-					<label for="notify">
+				<div class="form-group row">
+					<label for="notify" class="form-control-label col-md-2">
       				$tlang.getString("revise.notify")
 					</label>
-					<select name="notify" id="notify">
-						#if ($noti)
-							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("revise.notify_high")</option>
-							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("revise.notify_low")</option>
-							<option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("revise.notify_none")</option>
-						#else	
-							<option value="r">$tlang.getString("revise.notify_high")</option>
-							<option value="o">$tlang.getString("revise.notify_low")</option>
-							<option value="n" selected="selected">$tlang.getString("revise.notify_none")</option>
-						#end
-					</select>
-				</p>	
+					<div class="col-md-10">
+						<select name="notify" id="notify">
+							#if ($noti)
+								<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("revise.notify_high")</option>
+								<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("revise.notify_low")</option>
+								<option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("revise.notify_none")</option>
+							#else	
+								<option value="r">$tlang.getString("revise.notify_high")</option>
+								<option value="o">$tlang.getString("revise.notify_low")</option>
+								<option value="n" selected="selected">$tlang.getString("revise.notify_none")</option>
+							#end
+						</select>
+					</div>
+				</div>	
 			#end
 		</div>	
 		
 		#if ($notiHistory)
-			<div class="specialLink"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>
+			<div class="specialLink act act-outer"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>
 			<div class="table-responsive">
 			<table class="table table-hover table-striped table-bordered" id="notiHistory" style="display:none" summary="$tlang.getString("revise.notify.ver_summary")">
 				<thead>

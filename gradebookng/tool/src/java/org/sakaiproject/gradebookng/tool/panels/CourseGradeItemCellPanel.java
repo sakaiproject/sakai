@@ -85,11 +85,15 @@ public class CourseGradeItemCellPanel extends Panel {
 
 						final String newCourseGradeDisplay = refreshCourseGrade(studentUuid, gradebook, role, courseGradeVisible,
 								showPoints, showOverride);
-						setDefaultModel(Model.of(newCourseGradeDisplay));
 
-						scoreChangedEvent.getTarget().add(this);
-						scoreChangedEvent.getTarget().appendJavaScript(
+						// if course grade has changed, then refresh it
+						if (!newCourseGradeDisplay.equals(getDefaultModelObject())) {
+							setDefaultModel(Model.of(newCourseGradeDisplay));
+
+							scoreChangedEvent.getTarget().add(this);
+							scoreChangedEvent.getTarget().appendJavaScript(
 								String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
+						}
 					}
 				}
 			}

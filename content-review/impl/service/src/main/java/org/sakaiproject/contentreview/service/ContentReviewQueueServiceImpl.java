@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -30,9 +31,8 @@ import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
-@CommonsLog
+@Slf4j
 public class ContentReviewQueueServiceImpl implements ContentReviewQueueService {
 
 	@Setter

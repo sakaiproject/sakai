@@ -19,17 +19,17 @@ function toggleUserNav(event){
   if (!$PBJQ('.Mrphs-userNav__subnav').hasClass('is-hidden')) {
     // Add an invisible overlay to allow clicks to close the dropdown
 
-    var overlay = $('<div class="user-dropdown-overlay" />');
+    var overlay = $PBJQ('<div class="user-dropdown-overlay" />');
     overlay.on('click', function (e) {toggleUserNav(e)});
 
-    $('body').prepend(overlay);
+    $PBJQ('body').prepend(overlay);
 
     // ESC key also closes it
-    $(document).on('keyup',userNavEscHandler);
+    $PBJQ(document).on('keyup',userNavEscHandler);
 
   } else {
-    $('.user-dropdown-overlay').remove();
-    $(document).off('keyup',userNavEscHandler);    
+    $PBJQ('.user-dropdown-overlay').remove();
+    $PBJQ(document).off('keyup',userNavEscHandler);    
   }
 }
 

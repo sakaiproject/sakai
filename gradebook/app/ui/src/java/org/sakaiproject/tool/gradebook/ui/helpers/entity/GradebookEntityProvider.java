@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -43,7 +42,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
  * This is a provider for looking up and adding/editing Gradebook Items.
  * It is actually passing along to a gradebook UI via RSF and does not provide any rest access to grades data
  */
-@CommonsLog
+@Slf4j
 public class GradebookEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, CoreEntityProvider,
 		EntityViewParamsInferrer, Describeable, Sampleable, ActionsExecutable,

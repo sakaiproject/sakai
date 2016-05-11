@@ -21,13 +21,12 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.turnitin.util.TurnitinAPIUtil;
 import org.w3c.dom.Document;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * This class contains the properties and utility methods so it can be used to
@@ -43,7 +42,7 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author sgithens
  *
  */
-@CommonsLog
+@Slf4j
 public class TurnitinAccountConnection {
 
 	private String aid = null;

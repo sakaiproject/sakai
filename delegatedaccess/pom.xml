@@ -56,11 +56,6 @@
                 <artifactId>wicket-extensions</artifactId>
                 <version>1.4.23</version>
             </dependency>
-			<dependency>
-				<groupId>commons-configuration</groupId>
-				<artifactId>commons-configuration</artifactId>
-				<version>1.6</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 </project>

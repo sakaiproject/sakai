@@ -167,18 +167,6 @@
                 <artifactId>profile2-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-                <version>1.6</version>
-            </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.5</version>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

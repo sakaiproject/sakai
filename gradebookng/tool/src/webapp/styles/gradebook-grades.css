@@ -344,9 +344,6 @@
 #gradebookGrades .gb-category-item-column-cell > div {
   line-height: 2.6em;
 }
-#gradebookGrades .gb-course-grade > div {
-  padding: 6px 0;
-}
 #gradebookGrades .gb-course-grade > div > span {
   display: block;
   line-height: 1.25em;
@@ -1132,4 +1129,13 @@ and (max-device-width : 736px) {
 .gb-group-title {
 	font-weight: bold;
 	line-height: 3em;
+}
+
+/* Live feedback message container */
+.gb-live-feedback {
+  padding: 4px;
+  font-size: 12px;
+  line-height: 35px;
+  color: #666;
+  margin: 0 0 0 10px;
 }

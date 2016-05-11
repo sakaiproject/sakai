@@ -93,7 +93,7 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 --
 -- SAM-1200 - Increase column data sizes
 --
-alter table SAM_PUBLISHED_ASSESSMENT_T change description description mediumtext null;
+alter table SAM_PUBLISHEDASSESSMENT_T change description description mediumtext null;
 alter table SAM_PUBLISHEDSECTION_T change description description mediumtext null;
 alter table SAM_ASSESSMENTBASE_T change description description mediumtext null;
 alter table SAM_SECTION_T change description description mediumtext null;

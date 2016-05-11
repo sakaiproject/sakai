@@ -3067,6 +3067,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 		
+		if (categoryId == null) {
+			log.debug("No category supplied, nothing to do.");
+			return null;
+		}
+		
 		//setup
 		int numScored = 0;
 		int numOfAssignments = 0;

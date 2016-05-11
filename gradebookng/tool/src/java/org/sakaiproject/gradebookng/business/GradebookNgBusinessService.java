@@ -16,6 +16,7 @@ import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
@@ -67,7 +68,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Business service for GradebookNG
@@ -83,7 +83,7 @@ import lombok.extern.apachecommons.CommonsLog;
 // TODO some of these methods pass in empty lists and its confusing. If we
 // aren't doing paging, remove this.
 
-@CommonsLog
+@Slf4j
 public class GradebookNgBusinessService {
 
 	@Setter
@@ -946,7 +946,7 @@ public class GradebookNgBusinessService {
 
 		if (settings.getCourseGradeSortOrder() != null) {
 			// sort
-			Collections.sort(items, new CourseGradeComparator());
+			Collections.sort(items, new CourseGradeComparator(getGradebookSettings()));
 
 			// reverse if required
 			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
@@ -1956,15 +1956,45 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Comparator class for sorting by course grade
+	 * Comparator class for sorting by course grade, first by the letter grade's
+	 * index in the gradebook's grading scale and then by the number of points
+	 * the student has earned.
 	 *
 	 */
 	class CourseGradeComparator implements Comparator<GbStudentGradeInfo> {
 
+		private List<String> ascendingGrades;
+
+		public CourseGradeComparator(GradebookInformation gradebookInformation) {
+			final Map<String, Double> gradeMap = gradebookInformation.getSelectedGradingScaleBottomPercents();
+			this.ascendingGrades = new ArrayList<>(gradeMap.keySet());
+			this.ascendingGrades.sort(new Comparator<String>() {
+				@Override
+				public int compare(final String a, final String b) {
+					return new CompareToBuilder()
+						.append(gradeMap.get(a), gradeMap.get(b))
+						.toComparison();
+				}
+			});
+		}
+
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
+			CourseGrade cg1 = g1.getCourseGrade().getCourseGrade();
+			CourseGrade cg2 = g2.getCourseGrade().getCourseGrade();
+
+			String letterGrade1 = cg1.getMappedGrade();
+			if (cg1.getEnteredGrade() != null) {
+				letterGrade1 = cg1.getEnteredGrade();
+			}
+			String letterGrade2 = cg2.getMappedGrade();
+			if (cg2.getEnteredGrade() != null) {
+				letterGrade2 = cg2.getEnteredGrade();
+			}
+
 			return new CompareToBuilder()
-					.append(g1.getCourseGrade().getDisplayString(), g2.getCourseGrade().getDisplayString())
+					.append(ascendingGrades.indexOf(letterGrade1), ascendingGrades.indexOf(letterGrade2))
+					.append(ascendingGrades.indexOf(cg1.getPointsEarned()), ascendingGrades.indexOf(cg2.getPointsEarned()))
 					.toComparison();
 		}
 	}

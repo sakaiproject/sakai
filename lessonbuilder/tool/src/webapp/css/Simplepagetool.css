@@ -112,10 +112,6 @@
 .nextprev {
 	font-size: 95% !important
 }
-#error {
-	left: 10px;
-	margin: 20px;
-}
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
 }
@@ -238,7 +234,19 @@ a.ui-button:link, a.ui-button:visited {
 .ui-buttonset .ui-button {
     margin-right: 3px !important;
 }
-
+body .below-link-help, #error.below-link-help {
+   margin-top:55px;
+}
+body .error-spacingabove {
+   margin-top: 30px;
+}
+body .error-nospacebelow {
+   margin-bottom: 0px;
+}
+/* if two errors in a row, we don't need the spacing between them */
+body .error-spacingabove + .error-spacingabove{
+   margin-top: 15px;
+}
 /* ff2, buttons don't work */
 a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.column-merge-link:link, a.column-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
@@ -281,8 +289,11 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-left: 5px solid black !important;
    margin-left: -5px;
 }
-
+.listHier .forumTopic {
+   margin-left: 1em;
+}
 .mainList {
+    list-style:none;
 }
 
 /* padding-top 35 for one col, 25 for multiple, 20 in narrow screen */
@@ -1501,7 +1512,7 @@ font-size: 90%;
   padding-right: 10px;
 }
 .startupHelp {
-  margin-top: 20px;
+  margin-top: 45px;
 }
 /* this section is to make things work when lessons is in an iframe */
 .contentButton span a {

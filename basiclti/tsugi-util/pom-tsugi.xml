@@ -64,13 +64,6 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.5</version>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 

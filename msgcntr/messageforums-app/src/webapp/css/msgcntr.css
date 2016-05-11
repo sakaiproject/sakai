@@ -292,6 +292,7 @@ table.messageActions td{
 	background:#ffe;
 	position:absolute;
 	padding:5px;
+	z-index: 1;
 }
 
 #permalinkHolder a{
@@ -299,6 +300,11 @@ table.messageActions td{
 	top:0;right:4px;
 	outline:none;padding:0;
 	display:block;position:absolute;
+}
+
+#permalinkHolder textarea{
+	width: 250px;
+	height: 200px;
 }
 .messageActions td.otherOtherActions {
 	/*rightmost column of single message action links - not used*/
@@ -413,7 +419,7 @@ td div.title{
 .permissionRow .ui-icon-triangle-1-e { background-position: -32px -16px; }
 .permissionRow .ui-accordion-content { background: #eee; border: 1px solid #ccc; }
 .permissionRow span.ui-accordion-header {
-	margin-left: 4em;
+	margin: 0 0 0.5em 4em;
 	display:inline-block;
 }
 .permissionRow .ui-accordion-header.ui-state-active {
@@ -642,4 +648,7 @@ div.msgcntr-profile-qtip {
 #msgForum\:grade-message-options label{
 	width: 25%;
 	display:inline-block;
+}
+#msgForum\:assignment{
+	margin-right: 0.5em;
 }

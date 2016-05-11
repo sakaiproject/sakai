@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>12-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>Sakai Import Common Cartridge</name>
@@ -29,11 +29,6 @@
       <artifactId>archive-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-    </dependency>
-    <dependency>
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
       <version>1.0-FCS-full</version>
@@ -54,6 +49,7 @@
         </includes>
       </resource>
     </resources>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
 <!-- other resources for the jar - properties and xml files-->
   </build>
 </project>

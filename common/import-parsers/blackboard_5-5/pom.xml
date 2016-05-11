@@ -23,39 +23,21 @@
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>import-impl</artifactId>
-		<!--	<version>${sakai.version}</version> -->
 		</dependency>
-		
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>archive-api</artifactId>
-		<!--	<version>${sakai.version}</version> -->
 		</dependency>
-		
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-		</dependency>
-	<!--	
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-import-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-	-->	
 		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 			<version>1.0-FCS-full</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>saxpath</groupId>
 			<artifactId>saxpath</artifactId>
 			<version>1.0-FCS</version>
 		</dependency>
-               
   </dependencies>
   <build>
     <resources>
@@ -69,6 +51,4 @@
     </resources>
 <!-- other resources for the jar - properties and xml files-->
   </build>
-
-
 </project>

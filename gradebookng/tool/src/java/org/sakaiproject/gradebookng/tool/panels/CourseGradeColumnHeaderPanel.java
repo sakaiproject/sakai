@@ -43,6 +43,8 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final GradebookPage gradebookPage = (GradebookPage) getPage();
+
 		getParentCellFor(this).setOutputMarkupId(true);
 
 		final Link<String> title = new Link<String>("title") {
@@ -52,7 +54,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 			public void onClick() {
 
 				// toggle the sort direction on each click
-				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
 				// if null, set a default sort, otherwise toggle, save, refresh.
@@ -63,10 +64,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 					settings.setCourseGradeSortOrder(sortOrder.toggle());
 				}
 
-				// clear any category or assignment sort order to prevent conflicts in ordering
-				settings.setCategorySortOrder(null);
-				settings.setAssignmentSortOrder(null);
-
 				// save settings
 				gradebookPage.setUiSettings(settings);
 
@@ -75,12 +72,17 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 			}
 
 		};
+
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
 		title.add(new AttributeModifier("title", new ResourceModel("column.header.coursegrade")));
 		title.add(new Label("label", new ResourceModel("column.header.coursegrade")));
+		if (settings != null && settings.getCourseGradeSortOrder() != null) {
+			title.add(
+				new AttributeModifier("class", "gb-sort-" + settings.getCourseGradeSortOrder().toString().toLowerCase()));
+		}
 		add(title);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
 		final GbRole role = this.businessService.getUserRole();
 
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());

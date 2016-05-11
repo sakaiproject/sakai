@@ -4,32 +4,7 @@
 	#if($menu && $EnabledMenuItemExists)
 		#toolbar($menu)
 	#end
-	
-	#if ($toolId == "sakai.announcements")
-	<form name="formII" action="#toolForm("$action")" method="post">
-		<div class="navPanel">
-			<div class="itemNav">
-				#if ($!goPTButton)
-					<input type="submit" name="eventSubmit_doPrev_message" class="prev" accesskey="p" value="&lt; $tlang.getString("meta.prev")" />
-				#else
-					<input type="submit" name="eventSubmit_doPrev_message" 
-						value="&lt;  $tlang.getString("meta.prev")" class="prevDis"
-						disabled="disabled" />
-				#end
-				<input type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")" class="toList" accesskey="l" />
-				#if ($!goNTButton)
-					<input type="submit" name="eventSubmit_doNext_message" value="$tlang.getString("meta.next") &gt;"  class="next" accesskey="n" />
-				#else
-					<input type="submit" name="eventSubmit_doNext_message" 
-						value="$tlang.getString("meta.next")  &gt;"
-						disabled="disabled" class="nextDis" />
-				#end
-			</div>
-		</div>
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-	</form>
-	#end
-	
+
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	
 	<div class="page-header">
@@ -98,7 +73,9 @@
 		</h4>
 	</div>
 	
-	<p>$validator.escapeHtmlFormattedText($message.body)</p>
+	<div class="message-body">
+		<p>$validator.escapeHtmlFormattedText($message.body)</p>
+	</div>
 	#set ($size = 0)
 	#if (!$message.Header.Attachments.isEmpty())
 		<h4>$tlang.getString("meta.attach")</h4>

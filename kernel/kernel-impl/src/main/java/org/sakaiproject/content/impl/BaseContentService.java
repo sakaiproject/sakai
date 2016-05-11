@@ -234,11 +234,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * The quota for content resource body bytes (in Kbytes) for any hierarchy in the /user/ or /group/ areas, or 0 if quotas are not enforced.
 	 */
-	protected long m_siteQuota = 0;
+	protected long m_siteQuota = 1048576;
     /**
      * The quota for content dropbox body bytes (in Kbytes), or 0 if quotas are not enforced.
      */
-	protected long m_dropBoxQuota = 0;
+	protected long m_dropBoxQuota = 1048576;
 
 	private boolean m_useSmartSort = true;
 
@@ -12755,9 +12755,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		protected boolean requiresCopyrightAgreement()
 		{
 			// check the copyright alert setting
-			// return true only if the copyright alert property is set to be true
-			String copyrightAlert = m_properties.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
-			return Boolean.TRUE.toString().equalsIgnoreCase(copyrightAlert);
+			// return true only if the copyright alert property is set and value is true
+			try
+			{
+				return m_properties.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
+			}
+			catch (Exception e)
+			{
+				// if there is no such copyright alert property, return false
+				return false;
+			}
 		}
 
 		/**

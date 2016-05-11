@@ -48,6 +48,14 @@ $breadcrumbs-color:			 $text-color !default;
 $breadcrumbs-tool-color:		 #185878 !default;
 $breadcrumbs-hover-color:		 #0F4461 !default;
 
+/* Link colors */
+$link-color: $primary-color !default;
+$link-active-color: $primary-color !default;
+$link-hover-color: $primary-color !default;
+$link-background-color: transparent !default;
+$link-active-background-color: transparent !default;
+$link-hover-background-color: transparent !default;
+
 /* Linknav button colors */
 $button-text-color:	 #777 !default;
 $button-border-color: #C0C0C0 !default;
@@ -62,7 +70,7 @@ $button-color-background-secondary-color: #276488 !default;
 
 $okcolor: 					 #dff0d8 !default;
 $errorcolor: 			 	 #f2dede !default;
-$warncolor: 			 	 #fcf8e3 !default;
+$warncolor: 			 	 #F6ECB7 !default;
 
 $swapped-view-primary: 		 #bf360c !default;
 $swapped-view-text-color:	 #414141 !default;

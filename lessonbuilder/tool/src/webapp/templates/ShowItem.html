@@ -125,14 +125,14 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 		
 		
 		<div rsf:id="hiddenAlert" class="ui-widget">
-			<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
+			<div class="messageError below-link-help">
 				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 				<div rsf:id="hidden-text" ></div>
 			</div>
 		</div>
 		
 		<div rsf:id="refreshAlert" class="ui-widget">
-			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;" title="Some items on this page are required.  Refreshing will update the icons next to them to reflect their current state."> 
+			<div class="instruction" title="Some items on this page are required.  Refreshing will update the icons next to them to reflect their current state."> 
 				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 				<span rsf:id="msg=simplepage.refresh_prompt"></span> <strong><a href="#" rsf:id="refreshLink"><span rsf:id="msg=simplepage.refresh"></span></a></strong> <span rsf:id="msg=simplepage.update_icons"></span></p>
 			</div>

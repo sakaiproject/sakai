@@ -50,6 +50,13 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.CharacterCodingException;
+
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
  */
@@ -89,6 +96,8 @@ public class FormattedTextImpl implements FormattedText
     private boolean showDetailedErrorToUser = false;
     private boolean returnErrorToTool = false;
     private boolean logErrors = false;
+    private boolean cleanUTF8 = true;
+    private String restrictReplacement = null;
 
     private final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
     protected final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
@@ -99,6 +108,10 @@ public class FormattedTextImpl implements FormattedText
         boolean useLegacy = false;
         if (serverConfigurationService != null) { // this keeps the tests from dying
             useLegacy = serverConfigurationService.getBoolean("content.cleaner.use.legacy.html", useLegacy);
+
+            //Filter content output to limited unicode characters KNL-1431
+            cleanUTF8 = serverConfigurationService.getBoolean("content.cleaner.filter.utf8",cleanUTF8);
+            restrictReplacement = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement",restrictReplacement);
 
             /* KNL-1075 - content.cleaner.errors.handling = none|logged|return|notify|display
              * - none - errors are completely ignored and not even stored at all
@@ -173,6 +186,24 @@ public class FormattedTextImpl implements FormattedText
             throw new IllegalStateException("Unable to startup the antisamy html code cleanup handler (cannot complete startup): " + e, e);
         }
 
+    }
+
+    /*
+        Removes surrogates from a string http://stackoverflow.com/a/12867139/3708872
+        @param str Value to process
+    */
+    public String removeSurrogates(String str) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (!Character.isSurrogate(c)) {
+                sb.append(c);
+            }
+            else if (restrictReplacement != null) {
+                sb.append(restrictReplacement);
+            }
+        }
+        return sb.toString();
     }
 
     boolean defaultAddBlankTargetToLinks = true;
@@ -335,6 +366,9 @@ public class FormattedTextImpl implements FormattedText
         }
 
         try {
+            if (cleanUTF8) {
+                val = removeSurrogates(val);
+            }
             if (replaceWhitespaceTags) {
                 // normalize all variants of the "<br>" HTML tag to be "<br />\n"
                 val = M_patternTagBr.matcher(val).replaceAll("<br />");
@@ -352,7 +386,7 @@ public class FormattedTextImpl implements FormattedText
                     as = antiSamyLow;
                 }
                 try {
-                    CleanResults cr = as.scan(strFromBrowser);
+                    CleanResults cr = as.scan(val);
                     if (cr.getNumberOfErrors() > 0) {
                         // TODO currently no way to get internationalized versions of error messages
                         for (String errorMsg : cr.getErrorMessages()) {
@@ -462,6 +496,9 @@ public class FormattedTextImpl implements FormattedText
     {
         if (value == null) return "";
         if (value.length() == 0) return "";
+        if (cleanUTF8) {
+            value = removeSurrogates(value);
+        }
 
         if (supressNewlines)
         {
