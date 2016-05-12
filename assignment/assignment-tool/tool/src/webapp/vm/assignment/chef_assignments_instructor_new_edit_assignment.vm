@@ -878,7 +878,8 @@
 						#end
 					</select>
 				</div>
-
+			#end
+			#if (!$!categoryTable.isEmpty())
 				## show the "Category list" choices or not
 				<p id="categoryList" class="checkbox  indnt4" #if($!gradebookChoice.equals("$!gradebookChoice_add"))style="display:block" #else style="display:none" #end>
 					<label for="category">
