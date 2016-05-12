@@ -1,4 +1,6 @@
 <!-- sakai_properties.vm -->
+<script type="text/javascript">includeLatestJQuery('sakai_properties');</script>
+<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 #if($calendarcounter)<!-- calendarcounter == $calendarcounter -->#else#set($calendarcounter = 0)#end
 #if($item && !$model)#set($model = $item)#end
 #if(!$item && $model)#set($item = $model)#end
@@ -436,14 +438,28 @@
 				</div>
 				<div class="form-group container-fluid">
 					<div class="row">
-						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
-							<label for="release_year${DOT}$i">$tlang.getString("label.date")</label>
-							#resources_dateselectionwidget("release" "$i" $model.releaseDate.breakdownLocal() $dateFormat )
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
-							<label for="release_hour${DOT}$i">$tlang.getString("label.time")</label>
-							#resources_timeSelectionWidget("release" "$i" $model.releaseDate)
-						</div>
+						#set($release_year = $model.getReleaseDate().breakdownLocal().year)
+						#set($release_month = $model.getReleaseDate().breakdownLocal().month)
+						#set($release_day = $model.getReleaseDate().breakdownLocal().day)
+						#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
+						#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
+						<input type="text" id="releaseDatePicker" name="releaseDatePicker" class="datepicker" value="">
+						<script type="text/javascript">
+							localDatePicker({
+								input:'#releaseDatePicker',
+								useTime:1,
+								val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
+								parseFormat: 'YYYY-MM-DD HH:mm',
+								ashidden:{
+									month:"release_month${DOT}$i",
+									day:"release_day${DOT}$i",
+									year:"release_year${DOT}$i",
+									hour:"release_hour${DOT}$i",
+									minute:"release_minute${DOT}$i",
+									ampm:"release_ampm${DOT}$i"
+								}
+							});
+						</script>
 					</div>
 				</div>
 				<div class="form-group">
@@ -454,14 +470,28 @@
 				</div>
 				<div class="form-group container-fluid">
 					<div class="row">
-						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
-							<label for="retract_year${DOT}$i">$tlang.getString("label.date")</label>
-							#resources_dateselectionwidget("retract" "$i" $model.retractDate.breakdownLocal() $dateFormat)
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-4 col-md-12 form-group">
-							<label for="retract_time${DOT}$i">$tlang.getString("label.time")</label>
-							#resources_timeSelectionWidget("retract" "$i" $model.retractDate)
-						</div>
+						#set($retract_year = $model.getRetractDate().breakdownLocal().year)
+						#set($retract_month = $model.getRetractDate().breakdownLocal().month)
+						#set($retract_day = $model.getRetractDate().breakdownLocal().day)
+						#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
+						#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
+						<input type="text" id="retractDatePicker" name="retractDatePicker" class="datepicker" value="">
+						<script type="text/javascript">
+							localDatePicker({
+								input:'#retractDatePicker',
+								useTime:1,
+								val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
+								parseFormat: 'YYYY-MM-DD HH:mm',
+								ashidden:{
+									month:"retract_month${DOT}$i",
+									day:"retract_day${DOT}$i",
+									year:"retract_year${DOT}$i",
+									hour:"retract_hour${DOT}$i",
+									minute:"retract_minute${DOT}$i",
+									ampm:"retract_ampm${DOT}$i"
+								}
+							});
+						</script>
 					</div>
 				</div>
 				#if($conditions_enabled)
