@@ -787,3 +787,17 @@ function toggleSelectAllCheck(checkbox,checkboxtargetname) {
 			return;
 	}
 }
+
+var orderUpdate = null;
+
+function enableOrderUpdate() {
+	if(orderUpdate != null) return;
+	var inputs = document.getElementsByTagName("INPUT");
+	for(var i = 0; i < inputs.length; i++) {
+		if(inputs[i].name.indexOf("orderUpdate") != -1) {
+			orderUpdate = inputs[i];
+			orderUpdate.disabled=false;
+			break;
+		}
+	}
+}
