@@ -1199,15 +1199,17 @@ public class GradebookNgBusinessService {
 		final List<Long> assignmentIds = assignments.stream().map(a -> a.getId()).collect(Collectors.toList());
 		final List<GradingEvent> events = this.gradebookService.getGradingEvents(assignmentIds, since);
 
+		// keep a hash of all users so we don't have to hit the service each time
+		final Map<String, GbUser> users = new HashMap<>();
+
 		// filter out any events made by the current user
-		final Map<String, GbUser> userCache = new HashMap<>();
 		for (final GradingEvent event : events) {
 			if (!event.getGraderId().equals(currentUser.getId())) {
 				// update cache (if required)
-				userCache.putIfAbsent(event.getGraderId(), getUser(event.getGraderId()));
+				users.putIfAbsent(event.getGraderId(), getUser(event.getGraderId()));
 
 				// pull user from the cache
-				final GbUser updatedBy = userCache.get(event.getGraderId());
+				final GbUser updatedBy = users.get(event.getGraderId());
 				rval.add(
 					new GbGradeCell(
 						event.getStudentId(),
