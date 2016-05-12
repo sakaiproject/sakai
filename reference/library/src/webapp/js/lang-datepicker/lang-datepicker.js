@@ -2239,7 +2239,11 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 				}else{
 					var stringDay = $.datepicker.formatDate($(this).datepicker("option","dateFormat"),mh.toDate());
 					var stringTime = $.datepicker.formatTime($(this).datepicker("option","timeFormat"),{hour:mh.format("HH"),minute:mh.format("mm")});
-					$(input).val(stringDay + ' ' + stringTime);
+					if(cfg.showTimepicker){
+						$(input).val(stringDay + ' ' + stringTime);
+					} else {
+						$(input).val(stringDay);
+					}
 				}
 			});
 		};
