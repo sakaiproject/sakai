@@ -3046,7 +3046,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			Collections.sort(categoryList);
 			context.put("categoryKeys", categoryList);
-			context.put("categoryTable", categoryTable());
+			context.put("categoryTable", categoryTable);
 		}
 		else
 		{
