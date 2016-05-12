@@ -17,7 +17,7 @@
 				<p>
 					$tlang.getString("sitegen.addcourse.you")
 				</p>	
-				<form name = "removeSectionForm" method="post" action="#toolForm($action)">
+				<form name = "removeSectionForm" id="removeSectionForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 					<input type="hidden" name="option" value="remove" />
 
