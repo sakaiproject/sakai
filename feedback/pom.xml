@@ -145,7 +145,7 @@
                                     <templates>
                                         <template>content</template>
                                         <template>home</template>
-                                        <template>technical</template>
+                                        <template>emailForm</template>
                                         <template>toolbar</template>
                                     </templates>
                                 </configuration>
@@ -181,7 +181,7 @@
                             <templates>
                                 <template>content</template>
                                 <template>home</template>
-                                <template>technical</template>
+                                <template>emailForm</template>
                                 <template>toolbar</template>
                             </templates>
                         </configuration>
