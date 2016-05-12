@@ -103,7 +103,6 @@
     	         <f:param name="sortColumn" value="subject"/>
     	       </h:commandLink>
 		    </f:facet>
-			  <f:verbatim><h4></f:verbatim>
 			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" title="#{rcvdItems.msg.title}" immediate="true">
 
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
@@ -111,7 +110,6 @@
 			<h:outputText styleClass="skip" value="#{msgs.pvt_openb}#{msgs.pvt_unread}#{msgs.pvt_closeb}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
-		  			<f:verbatim></h4></f:verbatim>
 		  </h:column>			
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
