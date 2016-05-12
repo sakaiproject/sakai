@@ -2006,9 +2006,15 @@ public class GradebookNgBusinessService {
 				letterGrade2 = cg2.getEnteredGrade();
 			}
 
+			int gradeIndex1 = ascendingGrades.indexOf(letterGrade1);
+			int gradeIndex2 = ascendingGrades.indexOf(letterGrade2);
+
+			Double calculatedGrade1 = Double.valueOf(cg1.getCalculatedGrade());
+			Double calculatedGrade2 = Double.valueOf(cg2.getCalculatedGrade());
+
 			return new CompareToBuilder()
-					.append(ascendingGrades.indexOf(letterGrade1), ascendingGrades.indexOf(letterGrade2))
-					.append(ascendingGrades.indexOf(cg1.getPointsEarned()), ascendingGrades.indexOf(cg2.getPointsEarned()))
+					.append(gradeIndex1, gradeIndex2)
+					.append(calculatedGrade1, calculatedGrade2)
 					.toComparison();
 		}
 	}
