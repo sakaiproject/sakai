@@ -21,12 +21,12 @@
     	<label for="feedback-description">{{translate 'description_label'}}</label>
     	<textarea id="feedback-description" name="description" cols="80" rows="5"></textarea>
     </div>
-    <div class="feedback-form-field">
+    <div id="feedback-sender-address-wrapper" class="feedback-form-field">
     	<label for="feedback-sender-address">{{translate 'sender_address_label'}}</label>
     	<input id="feedback-sender-address" type="text" name="senderaddress" size="40"/>
     </div>
     
-    <input id="feedback-technical-email" value="{{technicalToAddress}}" hidden="hidden"/>
+    <input id="feedback-destination-email" value="{{destinationAddress}}" hidden="hidden"/>
     <input name="plugins" value="{{plugins}}" type="hidden"/>
     <input name="screenWidth" value="{{screenWidth}}" type="hidden"/>
     <input name="screenHeight" value="{{screenHeight}}" type="hidden"/>
