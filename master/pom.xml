@@ -2033,16 +2033,19 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.9</version>
       </plugin>
       <plugin>
         <!-- to do and deprecated tags report -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>taglist-maven-plugin</artifactId>
+        <version>2.4</version>
       </plugin>
       <!-- taglib plugin used to generate taglib jars during release -->
       <plugin>
         <groupId>net.sourceforge.maven-taglib</groupId>
         <artifactId>maven-taglib-plugin</artifactId>
+        <version>2.4</version>
       </plugin>
       <!-- javadoc plugin requires more than 1GB to run - disabling by default -->
       <!-- Disabled since it fails on OSX -https://jira.codehaus.org/browse/MCOBERTURA-180
