@@ -81,7 +81,7 @@
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="shorttext">
       <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  styleClass="ConvertPoint">
+        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  onchange="toggleNegativePointVal(this.value);" styleClass="ConvertPoint">
           <f:validateDoubleRange />
         </h:inputText>
         <small>
@@ -116,7 +116,7 @@
   <!-- partial credit vs negative marking -->
   <h:panelGroup layout="block" id="partialCredit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
     <h:panelGroup id="partialCredit_JSF_toggle">
-      <h:selectOneRadio id="partialCreadit_NegativeMarking"
+      <h:selectOneRadio id="partialCredit_NegativeMarking"
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
 					  onkeypress="this.form.onsubmit();this.form.submit();"
@@ -153,13 +153,41 @@
 </h:panelGroup>
  
 <h:panelGroup layout="block" id="discountDiv" styleClass="longtext tier3">
-  <h:panelGroup id="discountTable">
+  <h:panelGroup id="discountTable"
+        rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
+        || itemauthor.currentItem.itemType==12 || (itemauthor.currentItem.itemType==2 && itemauthor.currentItem.mcmsPartialCredit=='false')}">
   <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
-  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint" disabled="#{itemauthor.disableNegativePoints}">
+  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint">
     <f:validateDoubleRange/>
   </h:inputText>
-  <small><h:outputText value="#{authorMessages.negative_point_value_note}" rendered="#{itemauthor.disableNegativePoints==true}"/></small>
+  <f:verbatim> <script type="text/javascript" defer='defer'>
+  		var itemType = "${itemauthor.currentItem.itemType}";
+  		var discDiv=document.getElementById('itemForm:discountDiv');
+		
+  		if(itemType == 1) {
+		  	var toggleDiv=document.getElementById('itemForm:partialCredit_NegativeMarking');
+	    	if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
+	    		toggleDiv.rows[0].cells[0].appendChild(discDiv);
+	    	}else {
+	       	 	var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+	       	 	QtypeTable.rows[0].cells[0].appendChild(discDiv);
+	        }   
+  		} else{
+		    	if(itemType == 12) {
+		            var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+	        	    QtypeTable.rows[1].cells[0].appendChild(discDiv);
+			 }
+			 if(itemType == 2) {
+			     var mcmsPartialCredit = "${itemauthor.currentItem.mcmsPartialCredit}";
+   		    	     if(mcmsPartialCredit == 'false') {
+		    	          var QtypeTable=document.getElementById('itemForm:mcms_credit_partial_credit');
+			     	  QtypeTable.rows[1].cells[0].appendChild(discDiv);
+			     }
+			 }
+		}
+    </script>
+  </f:verbatim>
 </h:panelGroup>
 </h:panelGroup>
 
@@ -407,7 +435,7 @@
 				optionId+='partialCredit_toggle';
 				var showDiscountDiv=${itemauthor.currentItem.partialCreditFlag==false};
 				if(showDiscountDiv){
-					$(prefixId+'partialCreadit_NegativeMarking\\:0').parent().append($(prefixId+'discountDiv'));
+					$(prefixId+'partialCredit_NegativeMarking\\:0').parent().append($(prefixId+'discountDiv'));
 				}
 			}else{
 				optionId+='discountDiv';
