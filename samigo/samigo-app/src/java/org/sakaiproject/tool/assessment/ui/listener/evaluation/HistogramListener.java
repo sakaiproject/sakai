@@ -2454,7 +2454,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     double[] scores = new double[array.length];
     for (int i=0; i<array.length; i++)
 {
-      scores[i] = ((Double) array[i]).doubleValue();
+      scores[i] = Double.valueOf(castingNum((Double)array[i],2)).doubleValue();
 }
 
     HashMap statMap = new HashMap();
