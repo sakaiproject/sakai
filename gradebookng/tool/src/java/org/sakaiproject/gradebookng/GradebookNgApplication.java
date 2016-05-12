@@ -7,6 +7,7 @@ import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.settings.IExceptionSettings;
+import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.gradebookng.tool.pages.ErrorPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -24,13 +25,14 @@ public class GradebookNgApplication extends WebApplication {
 		super.init();
 
 		// page mounting for bookmarkable URLs
-		// mountPage("/gradebook", GradebookPage.class);
+		// not really compatible with the ONE_PASS_RENDER as the mountpoints are always one previous to current page
+		// mountPage("/grades", GradebookPage.class);
 		// mountPage("/settings", SettingsPage.class);
 		// mountPage("/importexport", ImportExportPage.class);
 		// mountPage("/permissions", PermissionsPage.class);
 
 		// remove the version number from the URL so that browser refreshes re-render the page
-		// getRequestCycleSettings().setRenderStrategy(IRequestCycleSettings.RenderStrategy.ONE_PASS_RENDER);
+		getRequestCycleSettings().setRenderStrategy(RenderStrategy.ONE_PASS_RENDER);
 
 		// Configure for Spring injection
 		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
