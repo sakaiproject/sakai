@@ -7,11 +7,18 @@
     <version>12-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
+  <properties>
+      <!-- Either use a tag or a SHA so the version is predictable 
+           Source at https://github.com/w8tcha/CKEditor-AutoSave-Plugin
+      -->
+      <ckeditor.autosave.version>8541f541d9985cfd0859c7d8eb6be404afe95a2d</ckeditor.autosave.version>
+  </properties>
   <name>Sakai Library Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>reference-base</artifactId>
   <packaging>pom</packaging>
   <modules>
     <module>library</module>
+    <module>webjars/ckeditor-autosave</module>
   </modules>
 </project>
