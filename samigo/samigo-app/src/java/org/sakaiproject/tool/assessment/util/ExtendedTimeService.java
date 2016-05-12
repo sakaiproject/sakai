@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -11,6 +12,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * This class will instantiate with all the proper values for the current user's
@@ -22,6 +24,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 public class ExtendedTimeService {
 
 	private static String EXTENDED_TIME_KEY = "extendedTime";
+	private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private String siteId;
 	private AuthzGroupService authzGroupService;
 
@@ -55,7 +58,7 @@ public class ExtendedTimeService {
 			this.timeLimit = extractExtendedTime();
 			this.startDate = determineDate(1, publishedAssessment.getStartDate());
 			this.dueDate = determineDate(2, publishedAssessment.getDueDate());
-			this.retractDate = determineDate(3, this.dueDate);
+			this.retractDate = determineDate(3, publishedAssessment.getRetractDate());
 		} else {
 			this.timeLimit = 0;
 			this.startDate = publishedAssessment.getStartDate();
@@ -131,23 +134,29 @@ public class ExtendedTimeService {
 	private Date determineDate(int dateType, Date defaultDate) {
 		Date xtDate = defaultDate;
 
-		String[] extendedTimeItems = metaString.split("[|]");
+		String[] extendedTimeItems = metaString.split("\\|", -1);
 
+		// no entry means user has chosen not to override, use default
 		if (extendedTimeItems.length < dateType + 2) { // check for no entry
 			return defaultDate;
 		}
 
+		// blank entry means user wants no limit, except start always has to be defined
 		String dateString = extendedTimeItems[dateType + 1];
-		if (dateString != null && !dateString.equals("")) { // check for blanks
-			xtDate = parseDate(dateString, xtDate);
+		if (dateString == null || dateString.equals("")) { // check for blanks
+			if (dateType == 1) // start
+				return defaultDate;
+			else
+				return null;
 		}
-		return xtDate;
+
+		return parseDate(dateString, xtDate);
 	}
 
 	private Date parseDate(String dateString, Date xtDate) {
 		try {
 			//xtDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa", Locale.ENGLISH).parse(dateString);
-			xtDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.ENGLISH).parse(dateString);
+			xtDate = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH).parse(dateString);
 			this.hasExtendedTime = true;
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -166,6 +175,36 @@ public class ExtendedTimeService {
 			return false; // this isn't a group
 		}
 		return isMember;
+	}
+
+	// convert extended time string between two time zones
+
+	public static String convertZones(String times, TimeZone fromZone, TimeZone toZone) {
+	    if (times == null || times.equals("")) {
+		return times;
+	    }
+	    String[] values = times.split("\\|", -1);
+	    String ret = values[0] + "|" + values[1];
+	    // if < 5, this is version with no dates, so nothing to convert
+	    if (values.length != 5) {
+		return times;
+	    }
+	    for (int i = 2; i < 5; i++) {
+		String timeString = values[i];
+		if (!timeString.equals("")) {
+		    try {
+			SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
+			df.setTimeZone(fromZone);
+			Date timeDate = df.parse(timeString);
+			df.setTimeZone(toZone);
+			timeString = df.format(timeDate);
+		    } catch (Exception e) {
+			// leaves string alone
+		    }
+		}
+		ret += "|" + timeString;
+	    }
+	    return ret;
 	}
 
 	public Integer getTimeLimit() {

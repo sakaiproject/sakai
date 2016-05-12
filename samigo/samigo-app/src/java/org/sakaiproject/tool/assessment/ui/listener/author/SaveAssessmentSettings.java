@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -65,6 +66,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 /**
  * <p>Title: Samigo</p>2
@@ -587,7 +590,7 @@ public class SaveAssessmentSettings
 		}
 
 		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
-			String extendedTimeEntry = allExtendedTimeEntries[itemNum];
+			String extendedTimeEntry = ExtendedTimeService.convertZones(allExtendedTimeEntries[itemNum], TimeService.getLocalTimeZone(), TimeZone.getDefault());
 			metaKey = "extendedTime" + (itemNum + 1);
 
 			// Add in the new extended time values
