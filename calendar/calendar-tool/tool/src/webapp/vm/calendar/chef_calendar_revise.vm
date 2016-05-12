@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_revise.vm,v 1.5 2005/06/14 20:13:33 suiyy.umich.edu Exp $
 <script>includeLatestJQuery('chef_calendar_revise.vm');</script>
-
+<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <script type="text/javascript">
 focus_path = [ "activitytitle" ];
 
@@ -361,7 +361,20 @@ $(function() {
 				#set($day = $event.getRange().firstTime().breakdownLocal().day)
 				#set($year = $event.getRange().firstTime().breakdownLocal().year)
 			#end 
-			#chef_dateselectionwidget("yearSelect" "month" "day" $earliestYear $latestYear $year $month $day $dateFormat "")
+			<input type="text" id="reviseCalendarDate" name="reviseCalendarDate" class="datepicker" value="">
+			<script type="text/javascript">
+				localDatePicker({
+					input:'#reviseCalendarDate',
+					useTime:0,
+					val:"$year$H$month$H$day",
+					parseFormat: 'YYYY-MM-DD',
+					ashidden:{
+						month:"month",
+						day:"day",
+						year:"yearSelect"
+					}
+				});
+			</script>
 		</p>	
 		<p class="shorttext">
 			<span class="reqStar">*</span>
