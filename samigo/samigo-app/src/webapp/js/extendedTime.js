@@ -25,14 +25,25 @@ function extendedTimeInitialize() {
 // We secretly store the extended time info in a hidden JSF input field. Whenever a user edits an
 // extended time value this method gets called on save and updates the hidden field with everything
 // that has been entered. When the form is submitted Java sorts it all out.
+
+// back end expects normal English format, user's time zone
+function makeServerDate(s, itemNum) {
+    return formatOrNull($('#'+s+itemNum).datetimepicker('getDate'));
+}
+
 function extendedTimeCombine() {
 	document.getElementById("assessmentSettingsAction\:xt1").value = "";
 	for (var itemNum = 1; itemNum <= MAXITEMS; itemNum++) { 
 		var target = document.getElementById("xt_id"+itemNum).value;
+		var hasdates = (document.getElementById("xt_datesToggle"+itemNum).checked);
+
 		if(target != "1"){ // don't add empties
 			var minutes = (parseInt(document.getElementById("xt_hours"+itemNum).value) * 3600) + parseInt(document.getElementById("xt_minutes"+itemNum).value) * 60;		
-			var code = target+"|" + minutes +"|"
-			+ document.getElementById("xt_open"+itemNum).value+"|" + document.getElementById("xt_due"+itemNum).value+"|" + document.getElementById("xt_retract"+itemNum).value + "^";
+			var code = target+"|" + minutes;
+			if (hasdates)
+			    code = code + "|"
+				+ makeServerDate("xt_open", itemNum) + "|" + makeServerDate("xt_due", itemNum) + "|" + makeServerDate("xt_retract", itemNum);
+			code = code + "^";
 			document.getElementById("assessmentSettingsAction\:xt1").value = document.getElementById("assessmentSettingsAction\:xt1").value.concat(code);
 		} // end if(target != "0")
 	} //end for
@@ -74,7 +85,7 @@ function showActiveExtTimeEntities(fullExtendedTimeString,itemNum) {
 		document.getElementById("xt"+itemNum).style.display = 'block';
 		document.getElementById("xt_show").style.display = 'none';
 
-		if(document.getElementById("xt_open"+itemNum).value.length > 1) {
+		if(fullExtendedTimeString.length > 2) {
 			document.getElementById("xt_dates"+itemNum).style.display = 'block';
 			document.getElementById("xt_datesToggle"+itemNum).checked=true;
 		}
@@ -112,19 +123,28 @@ function copyListValuesForExtTime(itemNum) {
 
 }
 
+function formatOrNull(date) {
+    if (date != null) {
+	return moment(date).format('YYYY-MM-DD HH:mm:ss');
+    } else {
+	return '';
+    }
+}
+
 // Control to allow checkboxes to toggle whether a div displays or not.
+// This sets up data for new entries. They get reasonable default values
 function toggleExtendedTimeEntity(it, itemNum, box) { 
 	var vis = (box.checked) ? "block" : "none";
 	document.getElementById(it).style.display = vis;
 	
-	var defaultStartDate = moment($('#assessmentSettingsAction\\:startDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
-	document.getElementById("xt_open"+itemNum).value = defaultStartDate;
+	var defaultStartDate = $('#assessmentSettingsAction\\:startDate').datetimepicker('getDate');
+	$('#xt_open'+itemNum).datetimepicker('setDate',defaultStartDate);
 	
-	var defaultDueDate = moment($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
-	document.getElementById("xt_due"+itemNum).value = defaultDueDate;
+	var defaultDueDate = $('#assessmentSettingsAction\\:endDate').datetimepicker('getDate');
+	$('#xt_due'+itemNum).datetimepicker('setDate',defaultDueDate);
 	
-	var defaultRetractDate = moment($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate')).format('MM/DD/YYYY HH:mm');
-	document.getElementById("xt_retract"+itemNum).value = defaultRetractDate;
+	var defaultRetractDate = $('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate');
+	$('#xt_retract'+itemNum).datetimepicker('setDate',defaultRetractDate);
 
 	// They are clearing out the list
 	if(vis == "none" && it == "extendedTimeEntries") {
@@ -176,6 +196,8 @@ function deleteAllExtTimeEntries() {
 
 // Add scripts to DOM by creating a script tag dynamically.
 // @param {String=} itemNum itemNum
+// this sets up values for entries where we have data; if the data is '' we retain it except that
+// start always has to be defined
 function addExtDatePickers(itemNum) {
 	
 	var s = document.createElement("script");
@@ -197,13 +219,14 @@ function addExtDatePickers(itemNum) {
 	
 	var formattedDueDate;
 	if(document.getElementById("xt_due"+itemNum).value == ''){		
-		formattedDueDate = moment($('#assessmentSettingsAction\\:endDate').datetimepicker('getDate')).format('YYYY-MM-DD HH:mm:ss');
+		formattedDueDate = '';
 	} else {
 		formattedDueDate = moment(document.getElementById("xt_due"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
 	}
 	var dueDatePickerOptions = { input: '#xt_due' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		allowEmptyDate: true,
 		val: formattedDueDate,
 		ashidden: { iso8601: 'xt_due' + itemNum + 'ISO8601' } 
 	}
@@ -211,13 +234,14 @@ function addExtDatePickers(itemNum) {
 	
 	var formattedRetractDate;
 	if(document.getElementById("xt_retract"+itemNum).value == ''){		
-		formattedRetractDate = moment($('#assessmentSettingsAction\\:retractDate').datetimepicker('getDate')).format('YYYY-MM-DD HH:mm:ss');
+		formattedRetractDate = '';
 	} else {
 		formattedRetractDate = moment(document.getElementById("xt_retract"+itemNum).value).format('YYYY-MM-DD HH:mm:ss');
 	}
 	var retractDatePickerOptions = { input: '#xt_retract' + itemNum , 
 		useTime: 1,
 		parseFormat: 'YYYY-MM-DD HH:mm:ss', 
+		allowEmptyDate: true,
 		val: formattedRetractDate,
 		ashidden: { iso8601: 'xt_retract' + itemNum + 'ISO8601' } 
 	}
