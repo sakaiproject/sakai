@@ -10,10 +10,13 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -74,8 +77,8 @@ public class RepublishAssessmentListener implements ActionListener {
 		
 		EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.republish", "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
-		publishedAssessmentService.saveAssessment(assessment);
 		updateGB(assessment);
+		publishedAssessmentService.saveAssessment(assessment);
 		
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
 		
@@ -160,68 +163,87 @@ public class RepublishAssessmentListener implements ActionListener {
 				evaluation = new PublishedEvaluationModel();
 				evaluation.setAssessmentBase(assessment.getData());
 			}
-			
+
 			Integer scoringType = evaluation.getScoringType();
-			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-
-				Long categoryId = null;
-				try {
-					log.debug("before gbsHelper.removeGradebook()");
-					categoryId = gbsHelper.getExternalAssessmentCategoryId(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
-					gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
-				} catch (Exception e1) {
-					// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-					log.info("Exception thrown in updateGB():" + e1.getMessage());
-				}
-				
-				try {
-					log.debug("before gbsHelper.addToGradebook()");
-					gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), categoryId, g);
+			if (evaluation.getToGradeBook() != null){
+				if (StringUtils.equals(evaluation.getToGradeBook(), String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))
+						|| StringUtils.equals(evaluation.getToGradeBook(), String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM))) {
 					
-					// any score to copy over? get all the assessmentGradingData and copy over
-					GradingService gradingService = new GradingService();
-					// need to decide what to tell gradebook
-					List list = null;
-
-					if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-						list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-					} else {
-						list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+					if (StringUtils.equals(evaluation.getToGradeBook(), String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM))) {
+						evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM));
 					}
 					
-					log.debug("list size =" + list.size());
-					for (int i = 0; i < list.size(); i++) {
-						try {
-							AssessmentGradingData ag = (AssessmentGradingData) list.get(i);
-							log.debug("ag.scores " + ag.getTotalAutoScore());
-							// Send the average score if average was selected for multiple submissions
-							if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-								// status = 5: there is no submission but grader update something in the score page
-								if(ag.getStatus() ==5) {
-									ag.setFinalScore(ag.getFinalScore());
-								} else {
-									Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-									getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
-									ag.setFinalScore(averageScore);
-								}	
+					Long categoryId = null;
+					try {
+						// get DSs
+						GradebookService gS = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+						String gradebookUid = GradebookFacade.getGradebookUId();
+						org.sakaiproject.service.gradebook.shared.Assignment gbItem = gS.getAssignment(gradebookUid, assessment.getTitle());
+						// get the category
+						if(gbItem.getCategoryName() != null) {
+							List<CategoryDefinition> l = gS.getCategoryDefinitions(gradebookUid);
+							for(CategoryDefinition cat : l) {
+								if(StringUtils.equals(cat.getName(), gbItem.getCategoryName())) {
+									categoryId = cat.getId();
+								}
 							}
-							gbsHelper.updateExternalAssessmentScore(ag, g);
-						} catch (Exception e) {
-							log.warn("Exception occues in " + i	+ "th record. Message:" + e.getMessage());
 						}
+						// remove the item
+						gS.removeAssignment(gbItem.getId());
+
+						try {
+							log.debug("before gbsHelper.addToGradebook()");
+							gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), categoryId, g);
+
+							// any score to copy over? get all the assessmentGradingData and copy over
+							GradingService gradingService = new GradingService();
+							// need to decide what to tell gradebook
+							List<AssessmentGradingData> list = null;
+
+							if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
+								list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+							} else {
+								list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+							}
+
+							log.debug("list size =" + list.size());
+							int index = 0;
+							if(list != null) {
+								for(AssessmentGradingData ag : list) {
+									try {
+										index ++;
+										// Send the average score if average was selected for multiple submissions
+										if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {	
+											if(ag.getStatus() == 5) {
+												ag.setFinalScore(ag.getFinalScore());
+											} else {
+												Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+														getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
+												ag.setFinalScore(averageScore);
+											}
+										}
+										gbsHelper.updateExternalAssessmentScore(ag, g);	
+									} catch(Exception e) {
+										log.warn("Exception occues in " + index + "th record. Message:" + e.getMessage());
+									}
+								}
+							}
+						} catch (Exception e2) {
+							log.warn("Exception thrown while trying to create item in updateGB():" + e2.getMessage());
+						}
+					} catch (Exception e) {
+						log.warn("Exception thrown while removing item in updateGB():" + e.getMessage());
 					}
-				} catch (Exception e2) {
-					log.warn("Exception thrown in updateGB():" + e2.getMessage());
 				}
-			}
-			else{ //remove
-				try{
-					gbsHelper.removeExternalAssessment(
-							GradebookFacade.getGradebookUId(),
-							assessment.getPublishedAssessmentId().toString(), g);
-				}
-				catch(Exception e){
-					log.info("*** oh well, looks like there is nothing to remove:"+e.getMessage());
+				else{ //remove
+					try{
+						gbsHelper.removeExternalAssessment(
+								GradebookFacade.getGradebookUId(),
+								assessment.getPublishedAssessmentId().toString(), g);
+					}
+					catch(Exception e){
+						log.info("*** oh well, looks like there is nothing to remove:"+e.getMessage());
+					}
 				}
 			}
 		}
