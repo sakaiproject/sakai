@@ -43,11 +43,14 @@ import javax.faces.event.ActionListener;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -267,7 +270,7 @@ public class PublishAssessmentListener
     }
     String toGradebook = assessment.getEvaluationModel().getToGradeBook();
     try{
-      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+    	if (toGradebook!=null && StringUtils.equals(toGradebook, String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK)) &&
           gbsHelper.isAssignmentDefined(assessmentName, g)){
         error=true;
         String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
@@ -475,4 +478,21 @@ public class PublishAssessmentListener
 	  
 	  return message.toString();
   }
+  
+  /**
+   * Check if there still exist a gradebook item which has the same name as the assessment AND is not externally maitained (empty).
+   * @param pTitle
+   * @return
+   */
+  private boolean isGradebookItemAvailable(String pTitle) {
+	  GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	  String gradebookId = ToolManager.getInstance().getCurrentPlacement().getContext();
+	  List<Assignment> allGradebookItems = g.getAssignments(gradebookId);
+	  for(Assignment a : allGradebookItems) {
+		  if(!a.isExternallyMaintained() && StringUtils.equals(a.getName(), pTitle)) return true;
+	  }
+	  return false;
+  }
+
+
 }

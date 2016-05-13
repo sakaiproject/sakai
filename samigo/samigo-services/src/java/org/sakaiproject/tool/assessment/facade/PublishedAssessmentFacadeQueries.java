@@ -36,19 +36,23 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -767,13 +771,31 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory
 					.getInstance().getGradebookServiceHelper();
 
-			if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
-					&& toGradebook != null
-					&& toGradebook
-							.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK
-									.toString())) {
+			if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g) && toGradebook != null) {
 				try {
-					gbsHelper.addToGradebook(publishedAssessment, null, g);
+					if(StringUtils.equals(toGradebook, EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+						gbsHelper.addToGradebook(publishedAssessment, null, g);
+					} else if (toGradebook.equals(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM.toString())) {
+						// get DSs
+						GradebookService gS = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+						String gradebookUid = GradebookFacade.getGradebookUId();
+						org.sakaiproject.service.gradebook.shared.Assignment gbItem = gS.getAssignment(gradebookUid, assessment.getTitle());
+						// get the category
+						Long categoryId = null;
+						if(gbItem.getCategoryName() != null) {
+							List<CategoryDefinition> l = gS.getCategoryDefinitions(gradebookUid);
+							for(CategoryDefinition cat : l) {
+								if(StringUtils.equals(cat.getName(), gbItem.getCategoryName())) {
+									categoryId = cat.getId();
+								}
+							}
+						}
+						// remove the item
+						gS.removeAssignment(gbItem.getId());
+						// re add it
+						gbsHelper.addToGradebook(publishedAssessment, categoryId, g);
+						publishedAssessment.getEvaluationModel().setToGradeBook(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK));
+					}
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
 					delete(publishedAssessment);
