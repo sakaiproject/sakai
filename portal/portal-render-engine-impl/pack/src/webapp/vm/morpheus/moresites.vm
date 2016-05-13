@@ -56,10 +56,9 @@
 							
                             <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
                             	<a href="${site.siteUrl}" title="${site.siteTitleNotTruncated}">
-                            		#if (${site.isMyWorkspace})  
-	                                    <i class="fa fa-home icon-sakai"></i>
-                            		#end
-                                    #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
+                                    #if (${site.isMyWorkspace})
+                                        <i class="fa fa-home icon-sakai"></i><span class="fullTitle">${rloader.sit_mywor}</span>
+                                    #elseif ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
                                         <span class="fullTitle">${site.shortDescription}</span>
                                     #else
                                         <span class="fullTitle">${site.siteTitle}</span>

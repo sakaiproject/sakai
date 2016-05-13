@@ -720,7 +720,7 @@
 							#end
 							<td class="screenOnly">
 								#if ($participant.isRemoveable())
-									## if in My Workspace site, cannot move the site user from it
+									## if in Home site, cannot move the site user from it
 									#if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
 									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $participant.getDisplayId()</span></label><input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
 											#foreach($participantSelected in $selectedParticipants)
