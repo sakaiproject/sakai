@@ -75,13 +75,21 @@ $(function() {
 	   $(".Mrphs-siteHierarchy").append($(".action"));
            $(".Mrphs-siteHierarchy .nextprev").removeClass("nextprev usebutton returnheader");
            $(".itemHeader").show();
-	   // move hierarchy to top area -- only present for resources
-           if ($(".returnwarning").size() === 0) {
+	   // move hierarchy to top area -- resources and applications
+           if ($(".crumb-item").size() > 0) {
 	       // inline, resource mode
-	       var title = $(".title span").slice(-2).text();
-	       $(".Mrphs-siteHierarchy").append($(".title span").slice(1));
-	       // leave the file name as a title
-	       $(".title span").text(title);
+	       $(".Mrphs-siteHierarchy").append($(".title .crumb-item a,.title .crumb-item span").slice(1));
+	       // with title at the top, don't need a header for resources
+               if ($(".returnwarning").size() === 0) {
+                   $(".itemHeader").addClass("itemHeader-resource");
+	           $(".title span").text('');
+               } else { // for tests, etc need the return warning, but kill the title
+                   $(".itemTitle .title").addClass("instruction title-instruction");
+                   $(".title .crumb-item").hide();
+               }               
+           } else {
+             // call tool from picker
+                   $(".itemTitle .title").addClass("instruction title-instruction");
            }
 
          }
@@ -144,13 +152,13 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
             <div class="portletTitle itemTitle">
                 <div class="title">
                     <a href="#" rsf:id="resetbutton2" class="title-tools reset reload Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"><img rsf:id="resetimage2" src="/library/image/transparent.gif"/></a>
-                    <span rsf:id="crumb:"><a style="background:none" href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span>
+                    <span rsf:id="crumb:" class="crumb-item"><a style="background:none" href="#" rsf:id="crumb-link" class="crumb-link"></a><span rsf:id="crumb-follow" class="lessons-siteHierarchy-title"></span><span rsf:id="crumb-separator" class="Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span></span>
                     <span class="returnheader nextprev"><a style="background:none; width:auto" href="#" class="usebutton nextprev" rsf:id="return"></a></span>
                     <span rsf:id="returnwarning" class="returnwarning"></span>
                 </div>
                 <div class="action itemAction">
                     
-                    <span class="returnheader nextprev"><a style="background:none; width: auto" href="#" rsf:id="prev" class="button usebutton nextprev">prev</a><a href="#" rsf:id="next" style="background:none; width:auto" class="usebutton nextprev">next</a></span>
+                    <span class="returnheader nextprev"><a style="background:none; width: auto" href="#" rsf:id="prev" class="button usebutton ui-button-text nextprev">prev</a><a href="#" rsf:id="next" style="background:none; width:auto" class="usebutton ui-button-text nextprev">next</a></span>
                     <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
 	            </a>
