@@ -701,6 +701,8 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .showItemMorpheus .returnheader a:link, .showItemMorpheus .returnheader a:visited,
 .showItemMorpheus .returnheader a:hover,.showItemMorpheus .returnheader a:active {
 	background-color: inherit !important;
+	border: none;
+	text-decoration:underline !important;
 }
 
 /* Comments */
