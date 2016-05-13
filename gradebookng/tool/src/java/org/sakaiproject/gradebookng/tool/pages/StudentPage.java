@@ -41,6 +41,14 @@ public class StudentPage extends BasePage {
 
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
+		// tablesorted used by student grade summary
+		response.render(CssHeaderItem
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.1.17/css/theme.bootstrap.css?version=%s", version)));
+		response.render(JavaScriptHeaderItem
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.1.17/jquery.tablesorter.min.js?version=%s", version)));
+		response.render(JavaScriptHeaderItem
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.1.17/jquery.tablesorter.widgets.min.js?version=%s", version)));
+
 		// GradebookNG Grade specific styles and behaviour
 		response.render(
 				CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));

@@ -39,6 +39,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
     this.setupTabs();
     this.setupStudentNavigation();
     this.setupFixedFooter();
+    this.setupTableSorting();
     this.setupMask();
     this.setupModalPrint();
     this.bindModalClose();
@@ -228,6 +229,8 @@ GradebookGradeSummary.prototype.setupStudentView = function() {
     $("body").find(".portletBody h2:first"),
     $("body").find("#studentGradeSummary"),
     $("body"));
+
+  this.setupTableSorting();
 };
 
 
@@ -260,7 +263,24 @@ GradebookGradeSummary.prototype._setupPrint = function($button, $header, $conten
       updateIframeContentAndPrint();
     }
   });
-}
+};
+
+
+GradebookGradeSummary.prototype.setupTableSorting = function() {
+  var $table = this.$content.find(".gb-summary-grade-panel table");
+
+  $table.tablesorter({
+    theme : "bootstrap",
+    widthFixed: true,
+    headerTemplate : '{content} {icon}',
+    widgets : [ "uitheme", "zebra" ],
+    widgetOptions : {
+      zebra : ["even", "odd"],
+      filter_reset : ".reset",
+      filter_hideFilters : true
+    }
+  });
+};
 
 
 var GradebookGradeSummaryUtils = {
