@@ -29,7 +29,7 @@
 					$thelp.getString("per.lis.selectgrp")
 					</label>
 					<select id="authzGroupSelection" name="authzGroupSelection" onchange="SPNR.insertSpinnerAfter( this, null, null );document.viewForm.submit();">
-						<option value ="$siteRef" #if ($!viewRealmId.equals($!siteId)) selected = "selected" #end>$thelp.getString("per.lis.site")</option>
+						<option value ="$siteRef" #if ($!viewRealmIds.contains($!siteId)) selected = "selected" #end>$thelp.getString("per.lis.site")</option>
 						## for each group
 						#set($groupCount=0)
 						 #foreach ($group in $!groups)
