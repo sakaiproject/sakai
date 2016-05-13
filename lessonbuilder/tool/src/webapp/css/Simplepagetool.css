@@ -698,6 +698,11 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	background-color: #edd !important;
 	color:black !important;
 }
+.showItemMorpheus .returnheader a:link, .showItemMorpheus .returnheader a:visited,
+.showItemMorpheus .returnheader a:hover,.showItemMorpheus .returnheader a:active {
+	background-color: inherit !important;
+}
+
 /* Comments */
 h3.author {
 	margin-right: 10px;
@@ -905,7 +910,20 @@ ul#toolbar li em {
 .Mrphs-siteHierarchy span.nextprev {
    float:right
 }
+.lessons-siteHierarchy-title {
+   font-weight: bold;
+   margin-left: 0.5em;
+}
+.itemAction {
+  padding-top: 0px;
+  margin-top: 0px;
+  position:relative;
+  top:-4px;
+}
 span.nextprev {
+}
+.crumb-link {
+  margin-right: 0.5em;
 }
 a.nextprev {
 	margin-left: 5px;
@@ -1362,12 +1380,16 @@ font-size: 90%;
 
 /* for ShowItem */
 .itemHeader {
+}
+.itemHeader-resource {
   margin-bottom:20px; 
-  border-bottom:solid black 1px
+  border-bottom:none;
+}
+.itemTitle .title-instruction {
+  margin-bottom:0px;
 }
 .itemTitle {
   line-height:10px;
-  margin-top:35px;
   margin-bottom:5px;
 }
 /* without this it sticks up 1px into the top bar */

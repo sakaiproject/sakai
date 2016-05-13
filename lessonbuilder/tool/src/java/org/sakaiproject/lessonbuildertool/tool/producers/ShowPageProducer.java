@@ -1021,7 +1021,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (index < breadcrumbs.size() - 1) {
 						// Not the last item
 						link = UIInternalLink.make(crumb, "crumb-link", e.title, view);
-						UIOutput.make(crumb, "crumb-follow", " > ");
+						UIOutput.make(crumb, "crumb-separator");
 					} else {
 						UIOutput.make(crumb, "crumb-follow", e.title).decorate(new UIStyleDecorator("bold"));
 					}
