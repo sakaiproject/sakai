@@ -91,6 +91,12 @@
             <ref bean="org.sakaiproject.webservices.SakaiGradebook"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
+    
+    <jaxrs:server id="LessonBuilderRS" address="/rest/lessons">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.LessonBuilder"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
@@ -143,6 +149,11 @@
     <jaxws:endpoint id="SakaiGradebook"
                     implementor="#org.sakaiproject.webservices.SakaiGradebook"
                     address="/soap/gradebook"/>
+            
+    <jaxws:endpoint id="SakaiLessons"
+                    implementor="#org.sakaiproject.webservices.LessonBuilder"
+                    address="/soap/lessons"/>
+
 
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -174,6 +185,7 @@
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="questionPoolServiceImpl" ref="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"/>
+        <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI"/>
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
@@ -185,6 +197,7 @@
     <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.ShortenedUrl" class="org.sakaiproject.webservices.ShortenedUrl" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.TestsAndQuizzes" class="org.sakaiproject.webservices.TestsAndQuizzes" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.LessonBuilder" class="org.sakaiproject.webservices.LessonBuilder" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiReport" class="org.sakaiproject.webservices.SakaiReport" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" >
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
     </bean>
