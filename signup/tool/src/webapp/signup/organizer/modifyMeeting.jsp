@@ -96,8 +96,8 @@
 				
 				<div onmouseover="delayedRecalculateDateTime();" class="container-fluid">
 
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_modify_option}" escape="false" styleClass="col-lg-2 form-control-label"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_modify_option}" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-6">
 							<h:selectOneRadio  value="#{EditMeetingSignupMBean.convertToNoRecurrent}" layout="pageDirection" styleClass="rs" rendered="#{EditMeetingSignupMBean.signupMeeting.recurredMeeting}">
 								<f:selectItem id="modify_all" itemValue="#{false}" itemLabel="#{msgs.modify_all}"/>
@@ -107,8 +107,8 @@
 					</div>
 
 					<%-- Title --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_name}" for="title" escape="false" styleClass="col-lg-2 form-control-label"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_name}" for="title" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-6">
 							<h:inputText id="title" value="#{EditMeetingSignupMBean.signupMeeting.title}" required="true" size="40" 
 										styleClass="editText form-control">
@@ -130,8 +130,8 @@
 					</div>
 					
 					<%-- Location --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_location}" escape="false" styleClass="col-lg-2 form-control-label"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_location}" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-6">
 							<!-- Displays all the locations in the dropdown -->
 							<h:selectOneMenu id="selectedLocation" value="#{EditMeetingSignupMBean.selectedLocation}">
@@ -211,8 +211,8 @@
 					<h:outputText id="rescheduleWarnLabel_2" value="#{msgs.warn_reschedule_event}" styleClass="alertMessage" style="display:none;width:95%" escape="false" rendered="#{EditMeetingSignupMBean.someoneSignedUp}"/>
 
 					<%-- Start time --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_start_time}"  styleClass="col-lg-2 form-control-label" escape="false"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_start_time}"  styleClass="col-lg-2 form-control-label form-required" escape="false"/>
 						<h:panelGroup styleClass="col-lg-6" rendered="#{!EditMeetingSignupMBean.customTsType}" layout="block">
 							<t:inputDate id="startTime" type="both"  ampm="true" value="#{EditMeetingSignupMBean.signupMeeting.startTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
 										style="color:black;" popupCalendar="true" onfocus="showRescheduleWarning();" onkeyup="setEndtimeMonthDateYear(); getSignupDuration(); sakai.updateSignupBeginsExact(); return false;"
@@ -233,8 +233,8 @@
 					</div>
 
 					<%-- End time --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_end_time}" styleClass="col-lg-2 form-control-label" escape="false"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_end_time}" styleClass="col-lg-2 form-control-label form-required" escape="false"/>
 						<h:panelGroup styleClass="col-lg-6" rendered="#{!EditMeetingSignupMBean.customTsType}" layout="block">
 							<t:inputDate id="endTime" type="both" ampm="true" value="#{EditMeetingSignupMBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}" style="color:black;" popupCalendar="true" 
 										onfocus="showRescheduleWarning();" onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
@@ -258,7 +258,7 @@
 						<h:panelGroup styleClass="signupBDeadline col-lg-2" id="signup_beginDeadline_1" layout="block">
 							<h:outputLabel value="#{msgs.event_signup_start}" escape="false" styleClass="form-control-label "/>
 						</h:panelGroup>
-						<h:panelGroup styleClass="signupBDeadline col-lg-6" id="signup_beginDeadline_2" layout="block">
+						<h:panelGroup styleClass="signupBDeadline col-lg-10" id="signup_beginDeadline_2" layout="block">
 							<h:inputText id="signupBegins" value="#{EditMeetingSignupMBean.signupBegins}" size="3" required="true" onkeyup="sakai.updateSignupBeginsExact();">
 								<f:validateLongRange minimum="0" maximum="99999"/>
 							</h:inputText>
@@ -281,7 +281,7 @@
 						<h:panelGroup styleClass="signupBDeadline col-lg-2" id="signup_beginDeadline_3" layout="block">
 							<h:outputLabel value="#{msgs.event_signup_deadline}" escape="false" styleClass="form-control-label"/>
 						</h:panelGroup>
-						<h:panelGroup styleClass="signupBDeadline col-lg-6" id="signup_beginDeadline_4" layout="block">
+						<h:panelGroup styleClass="signupBDeadline col-lg-10" id="signup_beginDeadline_4" layout="block">
 							<h:inputText id="signupDeadline" value="#{EditMeetingSignupMBean.deadlineTime}" size="3" required="true" onkeyup="sakai.updateSignupEndsExact();">
 								<f:validateLongRange minimum="0" maximum="99999"/>
 							</h:inputText>
@@ -309,8 +309,8 @@
 					</h:panelGroup>
 					
 					<%-- Handle meeting types --%>
-					<h:panelGroup styleClass="form-group row form-required"  layout="block">
-						<h:outputLabel value ="#{msgs.event_type_title}"  styleClass="col-lg-2 form-control-label"/>
+					<h:panelGroup styleClass="form-group row "  layout="block">
+						<h:outputLabel value ="#{msgs.event_type_title}"  styleClass="col-lg-2 form-control-label form-required"/>
 						<h:panelGroup layout="block" styleClass="col-lg-6" rendered="#{EditMeetingSignupMBean.customTsType}">
 							<h:outputText value="#{msgs.label_custom_timeslots}"  escape="false"/>
 						</h:panelGroup>
