@@ -149,9 +149,9 @@
 				<div onmouseover="delayedRecalculateDateTime();" class="container-fluid">
 
 					<%-- Title --%>
-					<div class="form-group row form-required">
+					<div class="form-group row ">
 						<h:outputLabel value="#{msgs.event_name}" for="meetingTitle" escape="false" 
-									styleClass="col-lg-2 form-control-label"/>
+									styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-6">
 							<h:inputText id="meetingTitle" value="#{CopyMeetingSignupMBean.signupMeeting.title}" 
 								required="true" size="40" styleClass="editText form-control">
@@ -174,8 +174,8 @@
 					</div>
 
 					<%-- Location --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_location}"  escape="false" styleClass="col-lg-2 form-control-label"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_location}"  escape="false" styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-6">
 							<!-- Displays all the locations in the dropdown -->
 							<h:selectOneMenu id="selectedLocation" value="#{CopyMeetingSignupMBean.selectedLocation}">
@@ -255,8 +255,8 @@
 					</div>
 
 					<%-- Start time --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_start_time}"  styleClass="col-lg-2 form-control-label" escape="false"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_start_time}"  styleClass="col-lg-2 form-control-label form-required" escape="false"/>
 						<h:panelGroup styleClass="editText col-lg-6" rendered="#{!CopyMeetingSignupMBean.customTsType}" layout="block" >
 							<t:inputDate id="startTime" type="both"  ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
 										style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();sakai.updateSignupBeginsExact();return false;"
@@ -277,8 +277,8 @@
 					</div>
 
 					<%-- End time --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value="#{msgs.event_end_time}" escape="false" styleClass="col-lg-2 form-control-label"/>
+					<div class="form-group row ">
+						<h:outputLabel value="#{msgs.event_end_time}" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
 						<h:panelGroup styleClass="editText col-lg-6" rendered="#{!CopyMeetingSignupMBean.customTsType}" layout="block">
 							<t:inputDate id="endTime" type="both" ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}" style="color:black;" popupCalendar="true" 
 								onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
@@ -343,7 +343,7 @@
 					<div class="form-group row">
 						<h:outputLabel value="#{msgs.event_signup_start}" styleClass="form-control-label col-lg-2"
 								rendered="#{!CopyMeetingSignupMBean.announcementType}" escape="false"/>
-						<h:panelGroup layout="block" rendered="#{!CopyMeetingSignupMBean.announcementType}" styleClass="col-lg-6">
+						<h:panelGroup layout="block" rendered="#{!CopyMeetingSignupMBean.announcementType}" styleClass="col-lg-10">
 							<h:panelGroup>
 								<h:inputText id="signupBegins" value="#{CopyMeetingSignupMBean.signupBegins}" size="3" required="true" onkeyup="sakai.updateSignupBeginsExact();">
 									<f:validateLongRange minimum="0" maximum="99999"/>
@@ -368,7 +368,7 @@
 					<div class="form-group row">
 						<h:outputLabel value="#{msgs.event_signup_deadline}" styleClass="form-control-label col-lg-2"
 								rendered="#{!CopyMeetingSignupMBean.announcementType}" escape="false"/>
-						<h:panelGroup layout="block" styleClass="col-lg-6" rendered="#{!CopyMeetingSignupMBean.announcementType}">
+						<h:panelGroup layout="block" styleClass="col-lg-10" rendered="#{!CopyMeetingSignupMBean.announcementType}">
 							<h:panelGroup>
 								<h:inputText id="signupDeadline" value="#{CopyMeetingSignupMBean.deadlineTime}" size="3" required="true" onkeyup="sakai.updateSignupEndsExact();">
 									<f:validateLongRange minimum="0" maximum="99999"/>
@@ -389,8 +389,8 @@
 					</div>
 
 					<%-- Display site/groups --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value ="#{msgs.event_publish_to}" styleClass="form-control-label col-lg-2"/>
+					<div class="form-group row ">
+						<h:outputLabel value ="#{msgs.event_publish_to}" styleClass="form-control-label col-lg-2 form-required"/>
 						<div class="col-lg-6">
 							<h:panelGroup rendered="#{CopyMeetingSignupMBean.missingSitGroupWarning}" layout="block">
 								<h:panelGrid columns="1">
@@ -485,8 +485,8 @@
 					</h:panelGroup>
 
 					<%-- Handle meeting types --%>
-					<div class="form-group row form-required">
-						<h:outputLabel value ="#{msgs.event_type_title}" styleClass="col-lg-2 form-control-label"/>
+					<div class="form-group row ">
+						<h:outputLabel value ="#{msgs.event_type_title}" styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-6">
 							<h:outputText value="#{msgs.label_custom_timeslots}"  escape="false" rendered="#{CopyMeetingSignupMBean.customTsType}"/>
 							<h:panelGroup rendered="#{!CopyMeetingSignupMBean.customTsType}">                
@@ -496,7 +496,7 @@
 									</h:selectOneRadio> 
 								</h:panelGroup>
 								<div class="table-responsive">
-								<h:panelGrid columns="1" columnClasses="miCol1" styleClass="table">
+								<h:panelGrid columns="1" columnClasses="miCol1">
 									<%-- multiple: --%>
 									<h:panelGroup rendered="#{CopyMeetingSignupMBean.individualType}">            
 										<h:panelGrid columns="2" id="mutipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
