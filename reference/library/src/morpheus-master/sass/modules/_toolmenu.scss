@@ -43,6 +43,11 @@ body.#{$namespace}toolMenu-collapsed{
 						    z-index: 10;
 						}
 					}
+					&.is-invisible {
+						&:after {
+							display: none;
+						}
+					}
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					display: none;
@@ -232,6 +237,22 @@ nav#subSites{
 					text-overflow: ellipsis;
 					white-space: pre-wrap;
 					overflow: hidden;
+				}
+				&.is-invisible {
+					color: #AAAAAA;
+					font-style: italic;
+					position: relative;
+					&:after {
+						@extend .fa-lg;
+						@extend .fa;
+						content: '\f070';
+						position: absolute;
+						top: 4px;
+						right: 4px;
+					}
+					.#{$namespace}toolsNav__menuitem--icon{
+						font-style: italic;
+					}
 				}
 			}
 			&.is-current{
