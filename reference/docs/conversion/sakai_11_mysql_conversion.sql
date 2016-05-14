@@ -901,3 +901,13 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENT
       AND TYPEID='142' AND ISTEMPLATE=1),
        'instructorNotification_isInstructorEditable', 'true');
 --END SAM-2709
+
+--
+-- SAM-1200 - Increase column data sizes
+--
+alter table SAM_PUBLISHEDASSESSMENT_T change description description mediumtext null;
+alter table SAM_PUBLISHEDSECTION_T change description description mediumtext null;
+alter table SAM_ASSESSMENTBASE_T change description description mediumtext null;
+alter table SAM_SECTION_T change description description mediumtext null;
+alter table SAM_ITEMGRADING_T change comments comments mediumtext null;
+alter table SAM_ASSESSMENTGRADING_T change comments comments mediumtext null;
