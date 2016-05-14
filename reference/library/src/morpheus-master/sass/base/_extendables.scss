@@ -139,7 +139,7 @@
 @mixin sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color ){
 	background: $button-color-background-color;
 	border: 1px solid $button-color-border-color;
-	color: $button-color-text-color !important;
+	color: $button-color-text-color;
 	cursor: pointer;
 	font-family: $font-family;
 	font-size: #{$default-font-size - 2 };
