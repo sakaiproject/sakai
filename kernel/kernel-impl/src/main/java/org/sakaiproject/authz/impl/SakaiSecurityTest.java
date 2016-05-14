@@ -23,6 +23,7 @@ package org.sakaiproject.authz.impl;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MemoryService;
@@ -38,71 +39,58 @@ import org.sakaiproject.user.api.UserDirectoryService;
  */
 public class SakaiSecurityTest extends SakaiSecurity
 {
-	/**
-	 * @return the ThreadLocalManager collaborator.
-	 */
+	@Override
 	protected ThreadLocalManager threadLocalManager()
 	{
 		return null;
 	}
 
-	/**
-	 * @return the AuthzGroupService collaborator.
-	 */
+	@Override
 	protected AuthzGroupService authzGroupService()
 	{
 		return null;
 	}
 
-	/**
-	 * @return the UserDirectoryService collaborator.
-	 */
+	@Override
 	protected UserDirectoryService userDirectoryService()
 	{
 		return null;
 	}
 
-	/**
-	 * @return the MemoryService collaborator.
-	 */
+	@Override
 	protected MemoryService memoryService()
 	{
 		return null;
 	}
 
-	/**
-	 * @return the EntityManager collaborator.
-	 */
+	@Override
 	protected EntityManager entityManager()
 	{
 		return null;
 	}
-	
-	/**
-	 * @return the SessionManager collaborator.
-	 */
+
+	@Override
 	protected SessionManager sessionManager()
 	{
 		return null;
 	}
-	
-	/**
-	 * @return the EventTrackingService collaborator.
-	 */
+
+	@Override
 	protected EventTrackingService eventTrackingService()
 	{
 		return null;
 	}
 
-    @Override
+	@Override
     protected FunctionManager functionManager() {
         return null;
     }
-    
-    /**
-     * @return the SiteService collaborator
-     */
+
+	@Override
     protected SiteService siteService() {
     	return null;
     }
+
+	@Override
+	protected ServerConfigurationService serverConfigurationService() { return null; }
 }
