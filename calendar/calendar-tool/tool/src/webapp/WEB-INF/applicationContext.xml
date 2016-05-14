@@ -8,8 +8,7 @@
 		<property name="calendarService"
 			ref="org.sakaiproject.calendar.api.CalendarService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="developerHelperService"
-			ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 	</bean>
 	
 </beans>
