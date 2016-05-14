@@ -101,6 +101,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private EventTrackingService eventTrackingService;
 	
     @Override
+      
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
@@ -1336,27 +1337,113 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
-  	HibernateCallback hc = new HibernateCallback() {
-  		public Object doInHibernate(Session session) throws HibernateException {
-  			if(studentUids.size() == 0) {
-  				// If there are no enrollments, no need to execute the query.
-  				if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
-  				return new ArrayList();
-  			} else {
-  				Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
-  				"agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
-  				q.setLong("gradebookId", gradebookId.longValue());
-  				return filterGradeRecordsByStudents(q.list(), studentUids);
-  			}
-  		}
-  	};
-  	return (List)getHibernateTemplate().execute(hc);
+	  if (log.isDebugEnabled()) {
+		  log.debug("getAllAssignmentGradeRecords(" + gradebookId + " being queried for " + studentUids.size() + " users");
+	  }
+	  /* Oracle has a low limit of records in an in clause so we need to be careful here
+	   * on the other hand filtering the list after the query leads to scalability issues
+	   * 
+	   */
+	  
+	  if(studentUids.size() == 0) {
+		  // If there are no enrollments, no need to execute the query.
+		  if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
+		  return new ArrayList();
+	  } else if (MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST < studentUids.size()) {
+		  //no need  to iterate
+		  return getAllAssignmentGradeRecordsLimited(gradebookId, studentUids);
+	  } else {
+		  //we need to do this in batches
+		  int q = 0;
+		  List ret = new ArrayList();
+		  Iterator<String> it = studentUids.iterator();
+		  while (it.hasNext()) {
+			List<String> toQuery = new ArrayList<String>();
+			toQuery.add(it.next());
+			
+			if (q == MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST || !it.hasNext()) {
+				ret.addAll(getAllAssignmentGradeRecordsLimited(gradebookId, toQuery));
+				q = 0;
+			}
+			q++;
+			
+		  }
+		  log.debug("returning " + ret.size() + " gb items");
+		  return ret;
+	  }
+  }
+
+  
+  /**
+   * Get a list of all records for the list of students
+   * note for oracl safety the list of StudentUids should not exceed 1K items
+   * @param gradebookId
+   * @param studentUids
+   * @return
+   */
+  private List getAllAssignmentGradeRecordsLimited(final Long gradebookId, final Collection studentUids) {
+	  if (log.isDebugEnabled()) {
+		  log.debug("getAllAssignmentGradeRecordsLimited( " + gradebookId + " being queried for " + studentUids.size() + " records");
+	  }
+	  HibernateCallback hc = new HibernateCallback() {
+		  public Object doInHibernate(Session session) throws HibernateException {
+			  Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
+					  "agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
+			  q.setLong("gradebookId", gradebookId.longValue());
+			  q.setParameterList("studentId", studentUids);
+			  return q.list();
+		  }};
+		  return (List)getHibernateTemplate().execute(hc);
   }
   
   @SuppressWarnings({ "rawtypes", "unchecked" })
+  /**
+   * 
+   * @param gradableObjectId
+   * @param studentUids
+   * @return
+   */
   private List getAllAssignmentGradeRecordsForGbItem(final Long gradableObjectId, 
 		  final Collection studentUids) {
-	  	HibernateCallback hc = new HibernateCallback() {
+	  if (log.isDebugEnabled()) {
+		  log.debug("getAllAssignmentGradeRecordsForGbItem( " + gradableObjectId + " being queried for " + studentUids.size() + " records");
+	  }
+	  	if (MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST < studentUids.size()) {
+	  		return getAllAssignmentGradeRecordsForGbItemLimited(gradableObjectId, studentUids);
+	  	} else {
+	  	//we need to do this in batches
+			  int q = 0;
+			  List ret = new ArrayList();
+			  Iterator<String> it = studentUids.iterator();
+			  while (it.hasNext()) {
+				List<String> toQuery = new ArrayList<String>();
+				toQuery.add(it.next());
+				
+				if (q == MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST || !it.hasNext()) {
+					ret.addAll(getAllAssignmentGradeRecordsForGbItemLimited(gradableObjectId, toQuery));
+					q = 0;
+				}
+				q++;
+				
+			  }
+			  log.debug("returning " + ret.size() + " gb items");
+			  return ret;
+	  	}
+	  
+	  }
+  
+  /**
+   * Get a list of all assignment grade records filtered for students that respects the query max
+   * @param gradableObjectId
+   * @param studentUids
+   * @return
+   */
+  private List  getAllAssignmentGradeRecordsForGbItemLimited(final Long gradableObjectId, 
+		  final Collection studentUids) {
+	  if (log.isDebugEnabled()) {
+		  log.debug("getAllAssignmentGradeRecordsForGbItemLimited( " + gradableObjectId + " being queried for " + studentUids.size() + " records");
+	  }
+	  HibernateCallback hc = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException {
 	  			if(studentUids.size() == 0) {
 	  				// If there are no enrollments, no need to execute the query.
@@ -1366,12 +1453,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  				Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
 	  				"agr.gradableObject.id=:gradableObjectId order by agr.pointsEarned");
 	  				q.setLong("gradableObjectId", gradableObjectId.longValue());
-	  				return filterGradeRecordsByStudents(q.list(), studentUids);
+	  				q.setParameterList("studentId", studentUids);
+	  				return q.list();
 	  			}
 	  		}
 	  	};
 	  	return (List)getHibernateTemplate().execute(hc);
-	  }
+  
+  }
 
 	/**
 	 * Gets all AssignmentGradeRecords on the gradableObjectIds limited to students specified by studentUids

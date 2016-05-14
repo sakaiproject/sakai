@@ -203,7 +203,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	 * method filters out unwanted grade records. (Typically they're not
 	 * wanted because they're either no longer officially enrolled in the
 	 * course or they're not members of the selected section.)
+	 * @deprecated this can introduce serious scalability issues with large amounts of data being retrieved needlessly
 	 */
+	
 	protected List filterGradeRecordsByStudents(Collection gradeRecords, Collection studentUids) {
 		List filteredRecords = new ArrayList();
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
