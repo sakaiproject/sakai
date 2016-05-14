@@ -2728,6 +2728,10 @@ public class SimplePageBean {
 				SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
 				if (page != null) {
 					page.setTitle(name);
+					if (hasReleaseDate)
+						page.setReleaseDate(releaseDate);
+					else
+						page.setReleaseDate(null);
 					update(page);
 				}
 			} else {
