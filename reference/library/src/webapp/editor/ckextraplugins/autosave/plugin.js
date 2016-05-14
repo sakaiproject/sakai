@@ -10,17 +10,28 @@
     }
 
     CKEDITOR.plugins.add("autosave", {
-        lang: 'ca,cs,de,en,es,fr,ja,pl,pt-br,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
+        lang: 'ca,cs,de,en,es,fr,ja,nl,pl,pt-br,ru,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
         requires: 'notification',
-        version: 0.13,
+        version: 0.14,
         init: function(editor) {
             CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'css/autosave.min.css'));
+
+            editor.on('uiSpace', function(event) {
+                if (event.data.space == 'bottom' && event.editor.config.autosave_messageType != null && event.editor.config.autosave_messageType == "statusbar") {
+
+                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
+                        + autoSaveMessageId(event.editor)
+                        + '"class="hidden">'
+                        + event.editor.lang.autosave.autoSaveMessage
+                        + '</div></div>';
+                }
+            }, editor, null, 100);
 
             editor.on('instanceReady', function(){
                 if (typeof (jQuery) === 'undefined') {
                     CKEDITOR.scriptLoader.load('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function() {
                         jQuery.noConflict();
-
+                        
                         loadPlugin(editor);
                     });
 
@@ -40,7 +51,6 @@
         var saveDetectionSelectors =
             editorInstance.config.autosave_saveDetectionSelectors != null ? editorInstance.config.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
 
-
         CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
             GenerateAutoSaveDialog(editorInstance, autoSaveKey);
 
@@ -48,7 +58,7 @@
         });
 
         jQuery(saveDetectionSelectors).click(function() {
-            RemoveStorage(autoSaveKey);
+            RemoveStorage(autoSaveKey, editorInstance);
         });
 
         editorInstance.on('change', startTimer);
@@ -58,16 +68,21 @@
                 SaveData(autoSaveKey, editorInstance);
             }
         });
+        
+        editorInstance.config.autosave_timeOutId = 0;
     }
 
-    var timeOutId = 0,
-        savingActive = false;
+    function autoSaveMessageId(editorInstance) {
+        return 'cke_autoSaveMessage_' + editorInstance.name;
+    }
+
+    var savingActive = false;
 
     var startTimer = function(event) {
-        if (timeOutId) {
+        if (event.editor.config.autosave_timeOutId) {
         } else {
-            var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 10;
-            timeOutId = setTimeout(onTimer, delay * 1000, event);
+            var delay = event.editor.config.autosave_delay != null ? event.editor.config.autosave_delay : 10;
+            event.editor.config.autosave_timeOutId = setTimeout(onTimer, delay * 1000, event);
         }
 
     };
@@ -81,7 +96,7 @@
 
             SaveData(autoSaveKey, editor);
 
-            timeOutId = 0;
+            event.editor.config.autosave_timeOutId = 0;
             savingActive = false;
         }
     };
@@ -106,7 +121,7 @@
                 title: editorInstance.lang.autosave.title,
                 minHeight: 155,
                 height: 300,
-                width: 750,
+                width: 800,
                 onShow: function() {
                     RenderDiff(this, editorInstance, autoSaveKey);
                 },
@@ -115,11 +130,11 @@
                         var jsonSavedContent = LoadData(autoSaveKey);
                         editorInstance.loadSnapshot(jsonSavedContent.data);
 
-                        RemoveStorage(autoSaveKey);
+                        RemoveStorage(autoSaveKey, editorInstance);
                     }
                 },
                 onCancel: function() {
-                    RemoveStorage(autoSaveKey);
+                    RemoveStorage(autoSaveKey, editorInstance);
                 },
                 contents: [
                     {
@@ -189,7 +204,7 @@
 
             // Ignore if autosaved content is older then x minutes
             if (moment(new Date()).diff(new Date(autoSavedContentDate), 'minutes') > notOlderThen) {
-                RemoveStorage(autoSaveKey);
+                RemoveStorage(autoSaveKey, editorInstance);
 
                 return;
             }
@@ -199,7 +214,7 @@
                 // Open DIFF Dialog
                 editorInstance.openDialog('autosaveDialog');
             } else {
-                RemoveStorage(autoSaveKey);
+                RemoveStorage(autoSaveKey, editorInstance);
             }
         }
     }
@@ -213,13 +228,27 @@
         var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getSnapshot(), saveTime: new Date() }));
         localStorage.setItem(autoSaveKey, compressedJSON);
 
-        var notification = new CKEDITOR.plugins.notification( editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' } );
-        notification.show();
+        var messageType = editorInstance.config.autosave_messageType != null ? editorInstance.config.autosave_messageType : "notification";
+        
+        if (messageType == "statusbar") {
+                var autoSaveMessage = document.getElementById(autoSaveMessageId(editorInstance));
+
+                if (autoSaveMessage) {
+                    autoSaveMessage.className = "show";
+
+                    setTimeout(function() {
+                        autoSaveMessage.className = "hidden";
+                    }, 2000);
+                }
+        } else if (messageType == "notification") {
+            var notification = new CKEDITOR.plugins.notification(editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' });
+            notification.show();
+        }
     }
 
-    function RemoveStorage(autoSaveKey) {
-        if (timeOutId) {
-            clearTimeout(timeOutId);
+    function RemoveStorage(autoSaveKey, editor) {
+        if (editor.config.autosave_timeOutId) {
+            clearTimeout(editor.config.autosave_timeOutId);
         }
 
         localStorage.removeItem(autoSaveKey);
