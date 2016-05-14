@@ -1167,7 +1167,7 @@ GradebookSpreadsheet.prototype.refreshHiddenVisualCue = function() {
       var $cue = $("<a>").attr("href", "javascript:void(0);").addClass("gb-hidden-column-visual-cue");
       var $prevVisible = $th.prev(":visible");
       if ($prevVisible.find(".gb-hidden-column-visual-cue").length == 0) {
-        $prevVisible.find("> span:first").append($cue);
+        $prevVisible.find("> div:first").append($cue);
       }
       $cue.click(showColumns);
     }
