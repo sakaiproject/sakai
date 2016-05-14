@@ -15,7 +15,7 @@
 		<property name="firstViewed" type="timestamp" not-null="true" />
 		<property name="complete" type="boolean" not-null="true" />
 		<property name="dummy" type="boolean" not-null="true" />
-		<property name="path" type="string" length="255"/>
+		<property name="path" type="string" length="4000"/>
 		<property name="toolId" type="string" length="99" />
 		<property name="studentPageId" type="long" />
 	</class>
