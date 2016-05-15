@@ -511,7 +511,7 @@ public class SiteHandler extends WorksiteHandler
 				StringBuffer queryUrl = req.getRequestURL();
 				String queryString = req.getQueryString();
 				if ( queryString != null ) queryUrl.append('?').append(queryString);
-				log.warn("It is tacky to return markup on a POST CTI="+commonToolId+" URL="+queryUrl);
+				log.debug("It is tacky to return markup on a POST CTI="+commonToolId+" URL="+queryUrl);
 			}
 			log.debug("BufferedResponse success");
 			rcontext.put("bufferedResponse", Boolean.TRUE);
