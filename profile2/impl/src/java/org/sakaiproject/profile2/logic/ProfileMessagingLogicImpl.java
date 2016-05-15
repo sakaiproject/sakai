@@ -118,7 +118,8 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		
 		if(saveAllNewMessageParts(thread, message, participants)) {
 			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, EmailType.EMAIL_NOTIFICATION_MESSAGE_NEW);
-			
+            //post event
+            sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + uuidTo, true);
 			return true;
 		}
 		return false;
