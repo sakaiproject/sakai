@@ -502,12 +502,14 @@
 #toggleGradeItemsToolbarItem.on:after {
   content: '\f077';
 }
+#toggleCategories:before,
 #toggleCategoriesToolbarItem:before {
   font-family: 'gradebook-icons';
   content: '\f096';
   font-size: 0.9em;
   margin-right: 6px
 }
+#toggleCategories.on:before,
 #toggleCategoriesToolbarItem.on:before {
   content: '\f046';
 }
