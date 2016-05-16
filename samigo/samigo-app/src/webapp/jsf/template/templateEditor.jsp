@@ -92,7 +92,7 @@
     <div class="tier2">
        <h:selectBooleanCheckbox id="infocanbeviewed"
           value="#{template.valueMap.templateInfo_isInstructorEditable}"/>
-     <h:outputText value="#{templateMessages.template_canbeviewed}"/>
+     <h:outputLabel for="infocanbeviewed" value="#{templateMessages.template_canbeviewed}"/>
   <div class="tier3">
  <h:panelGrid columns="2" columnClasses="samigoCell"
       summary="#{templateMessages.enter_template_info_section}">
@@ -365,7 +365,7 @@
        <f:selectItem itemValue="0" itemLabel="#{templateMessages.only}"/>
     </h:selectOneRadio>
     <h:inputText value="#{template.submissionNumber}"
-       id="submissions_allowed" size="5"/> <h:outputText value=" #{templateMessages.submissions_allowed}"/>
+       id="submissions_allowed" size="5"/> <h:outputLabel for="submissions_allowed" value=" #{templateMessages.submissions_allowed}"/>
     </h:panelGroup>
     </h:panelGrid>
 </div>
