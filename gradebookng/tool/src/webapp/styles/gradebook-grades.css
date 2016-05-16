@@ -811,19 +811,6 @@ ul.feedbackPanel li span {
 }
 
 /* feedback styles for the grade saving state */
-.gb-cell-saving > div:before {
-  font-family: "gradebook-icons";
-  content: "\f0c7";
-  color: #CCC;
-  position: absolute;
-  left: 20px;
-  font-size: 1.4em;
-  height: 1.1em;
-  width: 1.1em;
-  line-height: 1.1em;
-  top: 50%;
-  margin-top: -0.55em;
-}
 .gb-score-dynamically-updated,
 .grade-save-success {
   background-color: #dff0d8 !important;
