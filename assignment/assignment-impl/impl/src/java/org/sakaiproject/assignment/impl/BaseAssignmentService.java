@@ -63,6 +63,7 @@ import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
@@ -4495,8 +4496,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									try
 									{
 										// numeric cell type?
-										String grade = submission.getGradeForUser(userId) == null ? submission.getGradeDisplay():
-                                                                                    submission.getGradeForUser(userId);
+										String grade = (StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))!=null)?
+												submission.getGradeForUserInGradeBook(userId)!=null?
+												submission.getGradeForUserInGradeBook(userId):submission.getGradeForUser(userId):submission.getGradeForUser(userId);
+										if(grade == null)
+										{
+											grade=submission.getGradeDisplay();
+										}
 										int factor = submission.getAssignment().getContent().getFactor();
 										int dec = (int)Math.log10(factor);
 
@@ -11663,50 +11669,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			else
 			{
-				// use grade from associated Gradebook
-				Assignment m = getAssignment();
-				String gAssignmentName = StringUtils.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-				if (gAssignmentName != null)
+				String gradeGB=this.getGradeForUserInGradeBook(null);
+				if(gradeGB!=null)
 				{
-					GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-					String gradebookUid = m.getContext();
-					
-					// return student score from Gradebook
-					String userId = m_submitterId;
-					SecurityAdvisor securityAdvisor = new MySecurityAdvisor(
-										SessionManager.getCurrentSessionUserId(), 
-										new ArrayList<String>(Arrays.asList("gradebook.gradeAll", "gradebook.gradeSection", "gradebook.editAssignments", "gradebook.viewOwnGrades")),
-										gradebookUid);
-					try
-					{
-						// add the grade permission ("gradebook.gradeAll", "gradebook.gradeSection", "gradebook.editAssignments", or "gradebook.viewOwnGrades") in order to use g.getAssignmentScoreString()
-						securityService.pushAdvisor(securityAdvisor);
-
-					
-						if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
-						{
-							String gString = StringUtils.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
-							if (gString != null)
-							{
-								// return grade with locale decimal separator
-								String decSeparator = FormattedText.getDecimalSeparator();
-								rv = StringUtils.replace(gString, (",".equals(decSeparator)?".":","), decSeparator);
-								NumberFormat nbFormat = FormattedText.getNumberFormat((int)Math.log10(m.getContent().getFactor()),(int)Math.log10(m.getContent().getFactor()),false);
-								DecimalFormat dcformat = (DecimalFormat) nbFormat;
-								Double dblGrade = dcformat.parse(rv).doubleValue();
-								rv = nbFormat.format(dblGrade);
-							}
-						}
-					}
-					catch (Exception e)
-					{
-						M_log.warn(" BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
-					}
-					finally
-					{
-						// remove advisor
-						securityService.popAdvisor(securityAdvisor);
-					}
+					rv=gradeGB;
 				}
 			}
 			return rv;
@@ -11811,6 +11777,42 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					return rb.getString("ungra");
 				}
 			}
+		}
+		
+		
+		
+		public String getGradeForUserInGradeBook(String userId)
+		{
+			String rv =null;
+			if (userId == null) 
+			{
+				userId = m_submitterId;
+			}
+			Assignment m = getAssignment();
+			String gAssignmentName = StringUtils.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (gAssignmentName != null)
+			{
+				String gradebookUid = m.getContext();
+				final GradeDefinition def = m_gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, m_gradebookService.getAssignment(gradebookUid, gAssignmentName).getId() , userId);
+				String gString=def.getGrade();
+				try
+				{
+					if (gString != null)
+					{
+						String decSeparator = FormattedText.getDecimalSeparator();
+						rv = StringUtils.replace(gString, (",".equals(decSeparator)?".":","), decSeparator);
+						NumberFormat nbFormat = FormattedText.getNumberFormat((int)Math.log10(m.getContent().getFactor()),(int)Math.log10(m.getContent().getFactor()),false);
+						DecimalFormat dcformat = (DecimalFormat) nbFormat;
+						Double dblGrade = dcformat.parse(rv).doubleValue();
+						rv = nbFormat.format(dblGrade);
+					}
+				}
+				catch (Exception e)
+				{
+					M_log.warn(" BaseAssignmentSubmission getGradeFromGradeBook  "+ e.getMessage()); 
+				}
+			}
+			return rv;
 		}
 
 		/**
@@ -14232,6 +14234,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return false;
 		}
 		return false;
-	}
+	} 
 } // BaseAssignmentService
 
