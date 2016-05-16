@@ -220,7 +220,7 @@
 				 		rowStyle="#{wrapper.hideStyle}"
 				 		rowClasses="oddRow,evenRow"
 				 		columnClasses="titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol, removeCol"
-				 		styleClass="signupTable">
+				 		styleClass="table table-bordered table-striped table-hover">
 	
 						<t:column>
 							<f:facet name="header">
