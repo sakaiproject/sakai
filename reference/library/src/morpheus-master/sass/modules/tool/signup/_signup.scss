@@ -51,6 +51,16 @@
 			margin-top: 0.5em;
 			margin-left: 0.5em;
 		}
+		
+		//This is for jsf labels and checkboxes
+		input[type="checkbox"],input[type="radio"]{
+			@media #{$phone}{
+				float:left;
+				& + label {
+					display:block;
+				}
+			}
+		}
 	}
 
 	#userdef-add{
@@ -66,5 +76,15 @@
 
 	#imageOpen_otherSites,#imageClose_otherSites{
 		margin-right: 0.3em;
-	}	
+	}
+	
+	.userDefineTsTable{
+		select{
+			margin-right: 1em;
+		}
+
+		input[id*='minutes']{
+				margin-left: 1em;
+		}
+	}
 }

@@ -38,26 +38,10 @@ table.signupTable td.titleCol{
 	padding-left:1.2em;
 }
 
-table.userDefineTsTable {
-	text-align: left;
-}
+
 
 table.userDefineTsTable th {
 	background-color: #ddd;
-	padding: .3em .3em;
-}
-
-table.userDefineTsTable tr.evenRow {
-	background: #f8f8f8;
-}
-
-table.userDefineTsTable td {
-	padding: .3em .3em;
-}
-
-table.userDefineTsTable td.titleCol{	
-	padding: .3em 1em;
-	padding-left:.5em;
 }
 
 .titleColumn {
