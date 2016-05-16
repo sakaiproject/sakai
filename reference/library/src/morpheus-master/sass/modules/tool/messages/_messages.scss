@@ -79,7 +79,35 @@
  			padding: 0 0 0.5em 0;
  		}
  	}
-
+ 	
+ 	#prefs_pvt_form{
+ 		&\:pvtmsgs{
+ 			max-width: 1200px;
+ 			
+ 			td.check{
+ 				width: 10%;
+ 			} 		
+ 			td.attach{
+ 				width: 1%;
+ 			}
+ 			td.reply{
+ 				width: 1%;
+ 			}
+  			td.specialLink{
+ 				width: 25%;
+ 			}
+  			td.created{
+ 				width: 25%;
+ 			}
+  			td.date{
+ 				width: 18%;
+ 			}
+  			td.bogus{
+ 				width: 17%;
+ 			}
+ 		}
+ 	}
+ 	
  	table.table-inline{
  		display: block;
  		margin: 0 0 1.5em 0;

@@ -53,7 +53,7 @@
 	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
-					 columnClasses="attach,attach,attach,specialLink,bogus,bogus,bogus">
+					 columnClasses="check,attach,reply,specialLink,created,date,bogus">
 	  	                
 		  <h:column>
 		    <f:facet name="header">
