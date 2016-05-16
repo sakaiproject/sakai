@@ -592,6 +592,10 @@ input#btnSearch {
 	font-weight: bold;
 }
 
-.listNav{
-	text-align:center;
+#removeClass{
+	max-width: 800px;
+}
+
+#removeClass #remove{
+	width: 5%;
 }
