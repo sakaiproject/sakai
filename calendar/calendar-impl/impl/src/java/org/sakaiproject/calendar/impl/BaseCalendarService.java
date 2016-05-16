@@ -7243,7 +7243,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	protected void handleAccessIcalCommon(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
 			throws EntityPermissionException, PermissionException, IOException {
-		
 		// Extract the alias name to use for the filename.
 		List alias =  m_aliasService.getAliases(calRef);
 		String aliasName = "schedule.ics";
@@ -7255,11 +7254,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// Ok so we need to check to see if we've handled this reference before.
 		// This is to prevent loops when including calendars
 		// that currently includes other calendars we only do the check in here.
-		if (getUserAgent().equals(req.getHeader("User-Agent"))) {
+		if (getUserAgent(ref.getContext()).equals(req.getHeader("User-Agent"))) {
 			res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			M_log.warn("Reject internal request for: "+ calRef);
 			return;
 		}
+
 		// update date/time reference
 		for (String curCalRef: referenceList)
 		{
@@ -7475,8 +7475,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 * Get the user agent we should use for request to get other calendars.
 	 * @return The user agent.
 	 */
-	String getUserAgent() {
-		return "Sakai/"+ m_serverConfigurationService.getString("version.sakai", "?") + " (Calendar Subscription)";
+	String getUserAgent(String context) {
+		return "Sakai/"+ m_serverConfigurationService.getString("version.sakai", "?") + "/" + context + " (Calendar Subscription)";
 	}
 	
 	// Returns the calendar tool id string.
