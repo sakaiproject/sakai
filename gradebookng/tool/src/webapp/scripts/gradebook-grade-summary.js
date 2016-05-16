@@ -278,6 +278,31 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
       zebra : ["even", "odd"],
       filter_reset : ".reset",
       filter_hideFilters : true
+    },
+    //sort by due date descending by default
+    sortList: [[3, 0]],
+    textExtraction: function(node) {
+      var $node = $(node);
+      // sort dates by data-sort-key
+      if ($node.is(".gb-summary-grade-duedate")) {
+        var time = $node.data("sort-key");
+        if (time == 0) {
+          // max integer value so assignments with no due date
+          // appear after those with due dates (to match GB1)
+          return Math.pow(2, 53)-1;
+        }
+        return time;
+      // sort grades by their raw grade
+      } else if ($node.is(".gb-summary-grade-score")) {
+        var grade = $node.find(".gb-summary-grade-score-raw").text().trim();
+        if (grade == "") {
+          return -1;
+        } else {
+          return grade;
+        }
+      }
+
+      return $(node).text().trim();
     }
   });
 };

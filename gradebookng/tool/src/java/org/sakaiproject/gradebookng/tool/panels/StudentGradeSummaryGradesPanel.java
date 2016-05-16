@@ -176,8 +176,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 								.setVisible(!assignment.isCounted()));
 						assignmentItem.add(flags);
 
-						assignmentItem.add(new Label("dueDate",
-								FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
+						Label dueDate = new Label("dueDate",
+							FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate")));
+						dueDate.add(new AttributeModifier("data-sort-key",
+							assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
+						assignmentItem.add(dueDate);
 						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
 						assignmentItem.add(new Label("outOf",
 								new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
