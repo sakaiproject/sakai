@@ -1050,6 +1050,15 @@ ul.feedbackPanel li span {
   content: '\f02f';
   padding-right: 4px;
 }
+#studentGradeSummary .table>tbody+tbody {
+  border-width: 1px;
+}
+#studentGradeSummary .table>tbody.gb-summary-assignments-tbody+tbody.gb-summary-category-tbody {
+  border-width: 2px;
+}
+.gb-summary-category-row td {
+  background-color: #F4F4F4;
+}
 /* Hidden column visual cue */
 .gb-hidden-column-visual-cue {
   position: absolute;

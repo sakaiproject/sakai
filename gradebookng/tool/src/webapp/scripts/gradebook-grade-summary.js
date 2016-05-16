@@ -87,9 +87,9 @@ GradebookGradeSummary.prototype.setupCategoryToggles = function() {
   this.$content.find(".gb-summary-category-toggle").click(function() {
     var $toggle = $(this);
     if ($toggle.is(".collapsed")) {
-      $toggle.closest("tbody").find(".gb-summary-grade-row").show();
+      $toggle.closest("tbody").next(".gb-summary-assignments-tbody").find(".gb-summary-grade-row").show();
     } else {
-      $toggle.closest("tbody").find(".gb-summary-grade-row").hide();
+      $toggle.closest("tbody").next(".gb-summary-assignments-tbody").find(".gb-summary-grade-row").hide();
     }
     $toggle.toggleClass("collapsed");
   });
@@ -303,7 +303,8 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
       }
 
       return $(node).text().trim();
-    }
+    },
+    cssInfoBlock: "gb-summary-category-tbody"
   });
 };
 

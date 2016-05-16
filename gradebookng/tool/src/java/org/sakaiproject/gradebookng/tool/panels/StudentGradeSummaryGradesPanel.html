@@ -31,7 +31,8 @@
 							<th class="col-md-3"><wicket:message key="column.header.studentsummary.comments" /></th>
 						</tr>
 					</thead>
-					<tbody wicket:id="categoriesList">
+					<wicket:container wicket:id="categoriesList">
+					<tbody class="gb-summary-category-tbody">
 						<tr wicket:id="categoryRow" class="gb-summary-category-row">
 							<td>
 								<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
@@ -42,6 +43,8 @@
 							<td></td>
 							<td></td>
 						</tr>
+					</tbody>
+					<tbody class="gb-summary-assignments-tbody">
 						<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
 							<td>
 								<span class="gb-summary-grade-flags" wicket:id="flags">
@@ -59,6 +62,7 @@
 							<td class="gb-summary-grade-comments" wicket:id="comments"></td>
 						</tr>
 					</tbody>
+					</wicket:container>
 				</table>
 			</wicket:enclosure>
 			
