@@ -41,6 +41,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.StringUtil;
 
 import java.util.*;
 
@@ -130,6 +131,9 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		m_cacheMinutes = Integer.parseInt(time);
 	}
 
+        // student view roles, i.e. those you can role swap to
+	HashSet<String> svRoles;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -151,6 +155,12 @@ public abstract class SakaiSecurity implements SecurityService, Observer
             } else {
                 cacheDebugDetailed = false;
             }
+	    String[] externalRoles = scs.getString("studentview.roles","").split(","); // get the roles that can be swapped to 
+	    svRoles = new HashSet<String>();
+	    for (String externalRole: externalRoles) {
+		svRoles.add(externalRole.trim());
+	    }
+
             m_callCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.cache");
             m_superCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.superCache");
             m_contentCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
@@ -402,19 +412,34 @@ public abstract class SakaiSecurity implements SecurityService, Observer
             if (cacheDebug) M_log.info("SScache:changed .anon:found in "+azgRef);
             for (String perm : permissions) {
                 if (perm != null) {
-                    keysToInvalidate.add(makeCacheKey(null, perm, azgRef, false));
+                    keysToInvalidate.add(makeCacheKey(null, perm, azgRef, false, false));
                 }
             }
         }
         // now handle all the real users
+	// clear both normal and swapped users
+	// start with a set of all roles to which one can swap
+	Set<String> svRolesFinal = (Set<String>)svRoles.clone();
+	svRolesFinal.retainAll(roles);  
+
         Set<Member> members = azg.getMembers();
         if (members != null && !members.isEmpty()) {
             for (Member member : members) {
                 if (member != null && member.isActive() && member.getUserId() != null) {
+		    boolean canSwap = (member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP));
                     for (String perm : permissions) {
                         if (perm != null) {
-                            keysToInvalidate.add(makeCacheKey(member.getUserId(), perm, azgRef, false));
-                        }
+                            keysToInvalidate.add(makeCacheKey(member.getUserId(), perm, azgRef, false, false));
+			    // Only invalidate swapped roles if the user can swap
+			    // This is an approximation. If a user is swapped and their permission to swap is removed
+			    // or the role they are swapped to has been removed from the site
+			    // we will not invalidate their data. Their info may wait until the expiration time to sync up
+			    if (canSwap) {
+				for (String invRole: svRolesFinal) {
+				    keysToInvalidate.add(makeCacheKey(invRole + "!" + member.getUserId(), perm, azgRef, false, false));
+				}
+			    }
+			}
                     }
                 }
             }
@@ -455,7 +480,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
      * @param isSuperKey if true this is a key for tracking super users, else generate a normal realm key
      * @return the key OR null if one cannot be properly made from these params
      */
-    String makeCacheKey(String userId, String function, String reference, boolean isSuperKey) {
+    String makeCacheKey(String userId, String function, String reference, boolean isSuperKey, boolean checkSwapped) {
         if (isSuperKey) {
             if (userId != null) {
                 return "super@" + userId;
@@ -479,6 +504,20 @@ public abstract class SakaiSecurity implements SecurityService, Observer
                 }
             }
         }
+	if (checkSwapped) {
+	boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
+	if (auth && userId.equals(sessionManager().getCurrentSessionUserId())) {
+	    String[] refs = StringUtil.split(reference, Entity.SEPARATOR); // splits the azGroups values so we can look for swapped state                                                                                                    
+	    // can be /site, /content, /realm, etc, so code in DbAuthzGroupService does the following test
+	    for (int i2 = 0; i2 < refs.length; i2++) {  // iterate through the groups to see if there is a swap ped state in the variable                                                                                                                 
+		String swappedRole = getUserEffectiveRole("/site/" + refs[i2]);
+		if (swappedRole != null) {
+		    userId = swappedRole + "!" + userId;
+		}
+	    }
+	}
+	}
+
         // NOTE: userId can be null for this, others cannot be
         return "unlock@" + userId + "@" + function + "@" + reference;
     }
@@ -571,7 +610,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		if ((userId == null) || (userId.length() == 0)) return false;
 
 		// check the cache
-		String command = makeCacheKey(userId, null, null, true);
+		String command = makeCacheKey(userId, null, null, true, false);
 		if (m_callCache != null)
 		{
 			final Boolean value = getFromCache(command, true);
@@ -688,7 +727,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection<String> azgs)
 	{
 		// check the cache
-		String command = makeCacheKey(userId, function, entityRef, false);
+		String command = makeCacheKey(userId, function, entityRef, false, true);
 		
 		if (m_callCache != null)
 		{
