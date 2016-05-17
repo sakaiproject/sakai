@@ -62,5 +62,45 @@
 			background-color: #cef;
 		}
 	}
-
+	
+	// Styles for navigators in Grading Student Screen
+	.leftColumn{
+		float: left;
+		display: table-cell;
+		width: 40%;
+		
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+	
+	.centreColumn {
+		display: table-cell;
+		width: 20%;
+		text-align: center;
+		
+		#subsOnlyContainer{
+			display: block;
+			text-align: center;
+			margin-top: 0.5em;
+		}
+	}
+	
+	.rightColumn {
+		display: table-cell;
+		width: 40%;
+		text-align: right;
+		
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+	
+	.leftColumn, .rightColumn, .centreColumn{
+		@media #{$phone}{
+			display:block;
+			width: 100%;
+			text-align:center;
+		}	
+	}
 }
