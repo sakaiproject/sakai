@@ -12,7 +12,9 @@ var dhtml_view_sites = function(){
   dhtml_view_sites = function(){
 
     var modal = $PBJQ('#selectSiteModal');
-
+    
+    modal.show();
+    
     if (modal.hasClass('outscreen') ) {
 
       $PBJQ('body').toggleClass('active-more-sites');
