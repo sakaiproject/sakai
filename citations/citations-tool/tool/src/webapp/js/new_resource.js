@@ -420,7 +420,7 @@ citations_new_resource.init = function() {
 	
 	
 	
-	$('.saveciteClient a').on('click', function(eventObject) {
+	$('.saveciteClient input').on('click', function(eventObject) {
 		$('#saveciteClientId').val($(eventObject.target).attr('id'));
 		var successObj = {
 			citationCollectionId: $('#citationCollectionId').val(),
