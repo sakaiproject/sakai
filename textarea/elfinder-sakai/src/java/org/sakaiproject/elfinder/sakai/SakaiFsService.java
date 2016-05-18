@@ -167,6 +167,10 @@ public class SakaiFsService implements FsService {
 		List<FsVolume> volumes = new ArrayList<>(sites.size());
 		for (Site site: sites) {
 			String currentSiteId = site.getId();
+			//Exclude the admin site as do not contain tools with real content
+			if("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)){
+				continue;
+			}
 			volumes.add(getSiteVolume(currentSiteId));
 		}
 		return volumes.toArray(new FsVolume[0]);
