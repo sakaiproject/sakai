@@ -318,7 +318,7 @@ public class EmailBean
 				{
 					attachment_info.append("<br/>");
 					attachment_info.append("Attachment #").append(i).append(": ").append(
-							file.getName()).append("(").append(file.getSize()).append(" Bytes)");
+							file.getOriginalFilename()).append("(").append(file.getSize()).append(" Bytes)");
 					i++;
 				}
 			}
