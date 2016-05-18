@@ -23,7 +23,10 @@
 	</class>
 	
 	<database-object>
-		<create>create index GB_GRADING_EVENT_T_STU_OBJ_ID on GB_GRADING_EVENT_T (STUDENT_ID, GRADABLE_OBJECT_ID)</create>
+		<create>
+			create index GB_GRADING_EVENT_T_STU_OBJ_ID on GB_GRADING_EVENT_T (STUDENT_ID, GRADABLE_OBJECT_ID);
+			create index GB_GRADING_EVENT_T_DATE_OBJ_ID on GB_GRADING_EVENT_T (DATE_GRADED, GRADABLE_OBJECT_ID);
+		</create>
 		<drop></drop>
 	</database-object>
 </hibernate-mapping>

@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import java.util.Set;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -863,4 +864,13 @@ public interface GradebookService {
 	 * @param order	new position of the assignment
 	 */
 	void updateAssignmentCategorizedOrder(final String gradebookUid, final Long categoryId, final Long assignmentId, Integer order);
+
+	/**
+	 * Return the grade changes made since a given time
+	 * @param assignmentIds	list of assignment ids to check
+	 * @param since	timestamp from which to check for changes
+	 * @return set of changes made
+	 */
+	List getGradingEvents(final List<Long> assignmentIds, final Date since);
+
 }
