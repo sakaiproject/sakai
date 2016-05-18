@@ -38,10 +38,10 @@ function showTutorialPage(url, opts){
 				if(response.data.dialog == 'true'){
 					response.data.selection = 'div#tutorial';
 				}
-				if(!$(response.data.selection).length 
+				if( (!$(response.data.selection).length || $(response.data.selection).offset().left < 0 || $(response.data.selection).offset().top < 0)
 						&& ((!previousClicked && response.data.nextUrl) 
 								|| (previousClicked && response.data.previousUrl))){
-					//this item doesn't exist, go to the next page if it exists
+					//This item doesn't exist or it´s outside the viewport, go to the next page if it exists
 					if(previousClicked){
 						showTutorialPage(response.data.previousUrl);
 					}else{
