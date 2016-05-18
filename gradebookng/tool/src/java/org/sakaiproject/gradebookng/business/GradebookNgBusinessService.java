@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -38,7 +40,6 @@ import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -108,28 +109,9 @@ public class GradebookNgBusinessService {
 	private CourseManagementService courseManagementService;
 
 	@Setter
-	private MemoryService memoryService;
-
-	@Setter
 	private SecurityService securityService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
-
-	private Cache cache;
-	private static final String NOTIFICATIONS_CACHE_NAME = "org.sakaiproject.gradebookng.cache.notifications";
-
-	@SuppressWarnings("unchecked")
-	public void init() {
-
-		// max entries unbounded, no TTL eviction (TODO set this to 10
-		// seconds?), TTI 10 seconds
-		// TODO this should be configured in sakai.properties so we dont have
-		// redundant config code here
-		this.cache = this.memoryService.getCache(NOTIFICATIONS_CACHE_NAME);
-		if (this.cache == null) {
-			this.cache = this.memoryService.createCache("org.sakaiproject.gradebookng.cache.notifications", null);
-		}
-	}
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -503,9 +485,6 @@ public class GradebookNgBusinessService {
 		if (oldGrade != null && !StringUtils.equals(storedGradeAdjusted, oldGradeAdjusted)) {
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
-
-		// about to edit so push a notification
-		pushEditingNotification(gradebook.getUid(), getCurrentUser(), studentUuid, assignmentId);
 
 		GradeSaveResponse rval = null;
 
@@ -1218,82 +1197,40 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Push a an notification into the cache that someone is editing this gradebook. We store one entry in the cache per gradebook. This
-	 * allows fast lookup for a given gradebookUid. Within the cached object we store a map keyed on the user (eid) that performed the edit
-	 * (ie could be several instructors editing at once) The value of the map is a map wih a special key of assignmentid+studentUuid, again
-	 * for fast lookup. We can then access the data object directly and update it. It holds the coords of a grade cell that has been edited.
-	 * So for a given user editing many cells there will be many GbGradeCells associated with that user. These have a time associated with
-	 * each so we can discard manually if desired, on lookup.
-	 *
-	 * @param gradebookUid
-	 */
-	private void pushEditingNotification(final String gradebookUid, final User currentUser, final String studentUuid,
-			final long assignmentId) {
-
-		// TODO Tie into the event system so other edits also participate in
-		// this
-
-		// get the notifications for this gradebook
-		Map<String, Map<String, GbGradeCell>> notifications = (Map<String, Map<String, GbGradeCell>>) this.cache
-				.get(gradebookUid);
-
-		Map<String, GbGradeCell> cells = null;
-
-		// get or create cell map
-		if (notifications != null) {
-			cells = notifications.get(currentUser.getId());
-		} else {
-			notifications = new HashMap<>();
-		}
-
-		if (cells == null) {
-			cells = new LinkedHashMap<>();
-		}
-
-		// push the edited cell into the map. It will add/update as required
-		cells.put(buildCellKey(studentUuid, assignmentId),
-				new GbGradeCell(studentUuid, assignmentId, currentUser.getDisplayName()));
-
-		// push the new/updated cell map into the main map
-		notifications.put(currentUser.getEid(), cells);
-
-		// update the map in the cache
-		this.cache.put(gradebookUid, notifications);
-
-	}
-
-	/**
-	 * Get a list of editing notifications for this gradebook. Excludes any notifications for the current user
+	 * Get a list of edit events for this gradebook. Excludes any events for the current user
 	 *
 	 * @param gradebookUid the gradebook that we are interested in
+	 * @param since the time to check for changes from
 	 * @return
 	 */
-	public List<GbGradeCell> getEditingNotifications(final String gradebookUid) {
+	public List<GbGradeCell> getEditingNotifications(final String gradebookUid, final Date since) {
 
-		final String currentUserId = getCurrentUser().getEid();
-
-		// get the notifications for this gradebook
-		Map<String, Map<String, GbGradeCell>> notifications = (Map<String, Map<String, GbGradeCell>>) this.cache
-				.get(gradebookUid);
+		final User currentUser = getCurrentUser();
 
 		final List<GbGradeCell> rval = new ArrayList<>();
 
-		if (notifications != null) {
-			// clone array
-			notifications = new HashMap(notifications);
-			notifications.remove(currentUserId);
+		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid, SortType.SORT_BY_SORTING);;
+		final List<Long> assignmentIds = assignments.stream().map(a -> a.getId()).collect(Collectors.toList());
+		final List<GradingEvent> events = this.gradebookService.getGradingEvents(assignmentIds, since);
 
-			// join the rest of the maps to get a flat list of GbGradeCells
-			for (final Map<String, GbGradeCell> cells : notifications.values()) {
-				rval.addAll(cells.values());
+		// keep a hash of all users so we don't have to hit the service each time
+		final Map<String, GbUser> users = new HashMap<>();
+
+		// filter out any events made by the current user
+		for (final GradingEvent event : events) {
+			if (!event.getGraderId().equals(currentUser.getId())) {
+				// update cache (if required)
+				users.putIfAbsent(event.getGraderId(), getUser(event.getGraderId()));
+
+				// pull user from the cache
+				final GbUser updatedBy = users.get(event.getGraderId());
+				rval.add(
+					new GbGradeCell(
+						event.getStudentId(),
+						event.getGradableObject().getId(),
+						updatedBy.getDisplayName()));
 			}
-
 		}
-
-		// TODO accept a timestamp and filter the list. We are only itnerested
-		// in notifications after the given timestamp
-		// this solves the problem where old editing notifications are returned
-		// even though the user has recently refreshed the list
 
 		return rval;
 	}
@@ -1907,17 +1844,6 @@ public class GradebookNgBusinessService {
 				return ao1.getCategory().compareTo(ao2.getCategory());
 			}
 		}
-	}
-
-	/**
-	 * Build the key to identify the cell. Used in the notifications cache.
-	 *
-	 * @param studentUuid
-	 * @param assignmentId
-	 * @return
-	 */
-	private String buildCellKey(final String studentUuid, final long assignmentId) {
-		return studentUuid + "-" + assignmentId;
 	}
 
 	/**

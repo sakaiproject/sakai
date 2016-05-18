@@ -1282,7 +1282,7 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
   };
 
   function performConcurrencyCheck() {
-    GradebookAPI.isAnotherUserEditing(self.$table.data("siteid"), handleConcurrencyCheck);
+    GradebookAPI.isAnotherUserEditing(self.$table.data("siteid"), self.$table.data("gradestimestamp"), handleConcurrencyCheck);
   };
 
   // Check for concurrent editors.. and again every 10 seconds
@@ -2418,9 +2418,12 @@ GradebookToolbar.prototype.setupToggleCategories = function() {
 GradebookAPI = {};
 
 
-GradebookAPI.isAnotherUserEditing = function(siteId, onSuccess, onError) {
+GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
-  GradebookAPI._GET(endpointURL, null, onSuccess, onError);
+  var params = {
+    since: timestamp
+  };
+  GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
 
 
