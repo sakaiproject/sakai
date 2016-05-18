@@ -5,9 +5,16 @@
     /* STATES */
     var HOME = 'home';
     var CONTENT = 'content';
+    var HELPDESK = 'helpdesk';
     var TECHNICAL = 'technical';
+    var SUGGESTIONS = 'suggestions';
+    var SUPPLEMENTALA = 'supplementala';
+    var SUPPLEMENTALB = 'supplementalb';
     var REPORTTECHNICAL = 'reporttechnical';
     var REPORTHELPDESK = 'reporthelpdesk';
+    var REPORTSUGGESTIONS = 'reportsuggestions';
+    var REPORTSUPPLEMENTALA = 'reportsupplementala';
+    var REPORTSUPPLEMENTALB = 'reportsupplementalb';
 
     /* RESPONSE CODES */
     var SUCCESS = 'SUCCESS';
@@ -24,11 +31,11 @@
 
     var loggedIn = (feedback.userId != '') ? true : false;
     var siteUpdater;
-    var technicalToAddress;
+    var toAddress;
 
     feedback.switchState = function (state) {
         feedback.switchState(state, null);
-    }
+    };
 
     feedback.switchState = function (state, url) {
     	
@@ -47,9 +54,13 @@
             siteUpdater = $('#feedback-siteupdaters').find(':selected').text();
             if (siteUpdater=='') siteUpdater = $('#feedback-contactname').val();
 
-            technicalToAddress = $('#feedback-technical-email').val();
+            toAddress = $('#feedback-destination-email').val();
 
             feedback.utils.renderTemplate(HOME, { featureSuggestionUrl: feedback.featureSuggestionUrl,
+                                                    helpdeskUrl : feedback.helpdeskUrl,
+                                                    technicalUrl : feedback.technicalUrl,
+                                                    supplementalAUrl : feedback.supplementalAUrl,
+                                                    supplementalBUrl : feedback.supplementalBUrl,
                                                     supplementaryInfo: feedback.supplementaryInfo,
                                                     helpPagesUrl: feedback.helpPagesUrl,
                                                     helpPagesTarget: feedback.helpPagesTarget,
@@ -57,7 +68,18 @@
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
                                                     showSuggestionsPanel : feedback.showSuggestionsPanel,
-                                                    enableTechnical : feedback.enableTechnical}, 'feedback-content');
+                                                    showSupplementalAPanel : feedback.showSupplementalAPanel,
+                                                    showSupplementalBPanel : feedback.showSupplementalBPanel,
+                                                    helpPanelAsLink : feedback.helpPanelAsLink,
+                                                    technicalPanelAsLink : feedback.technicalPanelAsLink,
+                                                    suggestionsPanelAsLink : feedback.suggestionsPanelAsLink,
+                                                    supplementalAPanelAsLink : feedback.supplementalAPanelAsLink,
+                                                    supplementalBPanelAsLink : feedback.supplementalBPanelAsLink,
+                                                    enableTechnical : feedback.enableTechnical,
+                                                    enableSuggestions : feedback.enableSuggestions,
+                                                    enableSupplementalA : feedback.enableSupplementalA,
+                                                    enableSupplementalB : feedback.enableSupplementalB,
+                                                    enableHelp : feedback.enableHelp}, 'feedback-content');
 
             $(document).ready(function () {
 
@@ -69,20 +91,39 @@
                     feedback.switchState(CONTENT);
                 });
 
-                if (feedback.enableTechnical) {
+                if (!feedback.technicalPanelAsLink && feedback.enableTechnical) {
                     $('#feedback-technical-item').show().css('display', 'inline');
                     $('#feedback-report-technical-wrapper').show();
                     $('#feedback-report-technical-link').click(function (e) {
                         feedback.switchState(TECHNICAL, REPORTTECHNICAL);
                     });
-                    $('#feedback-report-helpdesk-link').click(function (e) {
-                        feedback.switchState(TECHNICAL, REPORTHELPDESK);
-                    });
-                } else {
-                    $('#feedback-technical-setup-instruction').show();
                 }
 
-                if (feedback.supplementaryInfo.length == 0) {
+                if(!feedback.helpPanelAsLink && feedback.enableHelp) {
+                    $('#feedback-report-helpdesk-link').click(function (e) {
+                        feedback.switchState(HELPDESK, REPORTHELPDESK);
+                    });
+                }
+                
+                if(!feedback.suggestionsPanelAsLink && feedback.enableSuggestions) {
+                    $('#feedback-suggest-feature-link').click(function(e) {
+                        feedback.switchState(SUGGESTIONS, REPORTSUGGESTIONS);
+                    });
+                }
+
+                if(!feedback.supplementalAPanelAsLink && feedback.enableSupplementalA) {
+                    $('#feedback-report-supplemental-a-link').click(function(e) {
+                       feedback.switchState(SUPPLEMENTALA, REPORTSUPPLEMENTALA);
+                    });
+                }
+
+                if(!feedback.supplementalBPanelAsLink && feedback.enableSupplementalB) {
+                    $('#feedback-report-supplemental-b-link').click(function(e) {
+                        feedback.switchState(SUPPLEMENTALB, REPORTSUPPLEMENTALB);
+                    });
+                }
+
+                if (feedback.supplementaryInfo.length > 0) {
                     $('#feedback-supplementary-info').show();
                 }
 
@@ -99,11 +140,10 @@
                     $('#feedback-info-message-wrapper').hide();
                 });
 
-                if (siteUpdater!=null && siteUpdater!='') {
+                if(feedback.previousState === CONTENT && (siteUpdater !== null && siteUpdater !=='')) {
                     feedback.displayInfo(siteUpdater);
-                }
-                else {
-                    feedback.displayInfo(technicalToAddress);
+                } else {
+                    feedback.displayInfo(toAddress);
                 }
 
                 feedback.fitFrame();
@@ -111,8 +151,9 @@
         } else if (CONTENT === state) {
 
             feedback.utils.renderTemplate(state, { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
-                windowHeight: window.outerHeight, siteExists: feedback.siteExists, siteId: feedback.siteId, contentUrl : feedback.contentUrl, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, technicalToAddress: feedback.technicalToAddress, contactName: feedback.contactName}, 'feedback-content');
+                windowHeight: window.outerHeight, siteExists: feedback.siteExists, siteId: feedback.siteId, contentUrl : feedback.contentUrl, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, destinationAddress: feedback.technicalToAddress, contactName: feedback.contactName}, 'feedback-content');
 
+            feedback.previousState = state;
             $(document).ready(function () {
 
                 feedback.addMouseUpToTextArea();
@@ -135,26 +176,55 @@
 
                 if (!loggedIn) {
                     // Not logged in, show the sender email box.
-                    $('#feedback-sender-address').show();
+                    $('#feedback-sender-address-wrapper').show();
 
                     feedback.setUpRecaptcha();
+                } else {
+                    // logged in, hide the sender form address
+                    $('#feedback-sender-address-wrapper').hide();
                 }
 
             });
-        } else if (TECHNICAL === state) {
+        } else if (TECHNICAL === state || HELPDESK === state || SUGGESTIONS === state || SUPPLEMENTALA === state || SUPPLEMENTALB === state) {
+            var options = { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
+                windowHeight: window.outerHeight, siteExists: feedback.siteExists, url: url, siteId: feedback.siteId, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, contactName: feedback.contactName };
 
-            feedback.utils.renderTemplate(state, { plugins : feedback.getPluginList(), screenWidth: screen.width, screenHeight: screen.height, oscpu: navigator.oscpu, windowWidth: window.outerWidth,
-                windowHeight: window.outerHeight, siteExists: feedback.siteExists, url: url, siteId: feedback.siteId, siteUpdaters: feedback.siteUpdaters, loggedIn: loggedIn, technicalToAddress: feedback.technicalToAddress, contactName: feedback.contactName, helpPagesUrl: feedback.helpPagesUrl }, 'feedback-content');
+            if (TECHNICAL === state) {
+                options['destinationAddress'] = feedback.technicalToAddress;
+                options['instructionUrl'] = feedback.technicalUrl;
+                options['instructionKey'] = 'technical_instruction';
+            } else if (HELPDESK === state) {
+                options['destinationAddress'] = feedback.helpToAddress;
+                options['instructionUrl'] = feedback.helpdeskUrl;
+                options['instructionKey'] = 'ask_instruction';
+            } else if (SUGGESTIONS === state) {
+                options['destinationAddress'] = feedback.suggestionsToAddress;
+                options['instructionUrl'] = feedback.featureSuggestionUrl;
+                options['instructionKey'] = 'suggestion_instruction';
+            } else if (SUPPLEMENTALA === state) {
+                options['destinationAddress'] = feedback.supplementalAToAddress;
+                options['instructionUrl'] = feedback.supplementalAUrl;
+                options['instructionKey'] = 'supplemental_a_instruction';
+            } else {
+                options['destinationAddress'] = feedback.supplementalBToAddress;
+                options['instructionUrl'] = feedback.supplementalBUrl;
+                options['instructionKey'] = 'supplemental_b_instruction';
+            }
+            feedback.utils.renderTemplate("emailForm", options, 'feedback-content');
 
+            feedback.previousState = state;
             $(document).ready(function () {
 
                 feedback.addMouseUpToTextArea();
 
                 if (!loggedIn) {
                     // Not logged in, show the sender email box.
-                    $('#feedback-sender-address').show();
+                    $('#feedback-sender-address-wrapper').show();
 
                     feedback.setUpRecaptcha();
+                } else {
+                    // logged in, hide the sender form address
+                    $('#feedback-sender-address-wrapper').hide();
                 }
 
                 feedback.fitFrame();
@@ -313,9 +383,9 @@
     };
 
 
-    feedback.displayInfo = function (siteUpdater) {
-        if (siteUpdater!=null && siteUpdater!=''){
-            $('#feedback-info-message-wrapper span').html('An email with the information you entered has been sent to ' + siteUpdater);
+    feedback.displayInfo = function (destination) {
+        if (destination!=null && destination!=''){
+            $('#feedback-info-message-wrapper span').html(feedback.i18n['email_success'] + ' ' + destination);
             $('#feedback-info-message-wrapper').show();
             feedback.fitFrame();
         }
@@ -342,7 +412,7 @@
         });
 
         $('#feedback-helpdesk-item').click(function (e) {
-            return feedback.switchState(TECHNICAL, REPORTHELPDESK);
+            return feedback.switchState(HELPDESK, REPORTHELPDESK);
         });
     });
 

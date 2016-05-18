@@ -125,7 +125,7 @@
               <p class="close">&times;</p>
             </div>
             <div id="navigatePanelInner">
-              <div id="spinner" style="display:none"></div>
+              <div id="spinner" style="display:none"><i class="fa fa-circle-o-notch fa-2x fa-spin" ></i></div>
             </div>
           </div>
         </li>

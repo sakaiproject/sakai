@@ -25,34 +25,35 @@
                 <p rsf:id="msg=group.autocreate.instructions" class="instruction">Select a course roster to create a separate group for that roster.</p>
                 <div rsf:id="roster_options:">
                     <h4 rsf:id="msg=instruction.header.roster">From Rosters</h4>
-                    <table id="rosterList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines" summary="placeholder summary">
-                        <thead>
-                            <tr>
-                                <th class="attach">
-                                    <input id="rosterSelectAllNone" type="checkbox" /><span rsf:id="roster-select-header" class="skip">Select</span>
-                                </th>
-                                <th rsf:id="roster-title-header">
-                                    Course Roster
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr rsf:id="roster-row:">
-                                <td class="attach">
-                                    <input class="rostercheckbox " id="roster-checkbox" rsf:id="roster-checkbox" type="checkbox" />
-                                </td>
-                                <td>
-                                    <label rsf:id="roster-title">
-                                        Provider Title
-                                    </label>
-                                    <span rsf:id="exist-group-roster" class="highlight">
-                                        A site with this roster already exist
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
+                    <div class="table-responsive">
+                        <table id="rosterList" class="table table-striped table-bordered table-hover" summary="placeholder summary">
+                            <thead>
+                                <tr>
+                                    <th class="attach check">
+                                        <input id="rosterSelectAllNone" type="checkbox" /><span rsf:id="roster-select-header" class="skip">Select</span>
+                                    </th>
+                                    <th rsf:id="roster-title-header">
+                                        Course Roster
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr rsf:id="roster-row:">
+                                    <td class="attach check">
+                                        <input class="rostercheckbox " id="roster-checkbox" rsf:id="roster-checkbox" type="checkbox" />
+                                    </td>
+                                    <td>
+                                        <label rsf:id="roster-title">
+                                            Provider Title
+                                        </label>
+                                        <span rsf:id="exist-group-roster" class="highlight">
+                                            A site with this roster already exist
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                      <fieldset class="fieldsetVis" id="rosterOptionsFieldset" style="display:none">
                         <span rsf:id="roster-option-radios" />
                         <p class="checkbox">
@@ -131,34 +132,35 @@
                 </div>
                 <div rsf:id="role_options:" class="autoGroupsRoleContainer">
                 	<h4 rsf:id="msg=instruction.header.role">From Roles</h4>
-	                    <table id ="roleList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines labelizeMe" summary="placeholder summary">
-	                        <thead>
-	                            <tr>
-	                                <th class="attach">
-	                                    <input id="roleSelectAllNone" type="checkbox" /><span rsf:id="role-select-header" class="skip">Select</span>
-	                                </th>
-	                                <th rsf:id="role-title-header">
-	                                    Role
-	                                </th>
-	                            </tr>
-	                        </thead>
-	                        <tbody>
-	                            <tr rsf:id="role-row:">
-	                                <td class="attach">
-	                                    <input class="rolecheckbox " id="role-checkbox" rsf:id="role-checkbox" type="checkbox"/>
-	                                </td>
-	                                <td>
-	                                    <label rsf:id="role-title">
+                        <div class="table-responsive">
+                            <table id ="roleList" class="table table-bordered table-hover table-striped" summary="placeholder summary">
+                                <thead>
+                                    <tr>
+	                                   <th class="attach check">
+	                                       <input id="roleSelectAllNone" type="checkbox" /><span rsf:id="role-select-header" class="skip">Select</span>
+	                                   </th>
+	                                   <th rsf:id="role-title-header">
+	                                       Role
+	                                   </th>
+	                               </tr>
+                                </thead>
+	                           <tbody>
+	                               <tr rsf:id="role-row:">
+	                                   <td class="attach check">
+	                                       <input class="rolecheckbox " id="role-checkbox" rsf:id="role-checkbox" type="checkbox"/>
+	                                   </td>
+	                                   <td>
+                                        <label rsf:id="role-title">
 	                                        Role Title
 	                                    </label>
 	                                    <span rsf:id="exist-group-role" class="highlight">
 	                                        A group with this role already exist
 	                                    </span>
-	                                </td>
-	                            </tr>
-	                        </tbody>
-	                    </table>
-                
+	                                   </td>
+	                               </tr>
+	                           </tbody>
+	                       </table>
+                        </div>
                     <fieldset class="fieldsetVis" id="roleOptionsFieldset" style="display:none">          
 	                	<span rsf:id="option-radios" />
 	                	<p class="checkbox">

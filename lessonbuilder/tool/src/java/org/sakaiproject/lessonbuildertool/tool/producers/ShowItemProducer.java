@@ -296,11 +296,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			view.setItemId(e.pageItemId);
 			view.setPath(Integer.toString(index));
 			UIInternalLink.make(crumb, "crumb-link", e.title, view);
-			UIOutput.make(crumb, "crumb-follow", " > ");
+			UIOutput.make(crumb, "crumb-separator");
 			if (index == breadcrumbs.size() - 1) {
 			    UIBranchContainer finalcrumb = UIBranchContainer.make(tofill, "crumb:");
 
-			    UIOutput.make(finalcrumb, "crumb-follow", item.getName()).decorate(new UIStyleDecorator("bold"));
+			    UIOutput.make(finalcrumb, "crumb-follow", item.getName());
 			}
 			index++;
 		    }
@@ -315,6 +315,26 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			String returnText = messageLocator.getMessage("simplepage.return").replace("{}",currentToolTitle); 
 			UIInternalLink.make(tofill, "return",  returnText, view);  
 			UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));  
+
+		    int index = 0;
+		    for (SimplePageBean.PathEntry e : breadcrumbs) {
+			// don't show current page. We already have a title. This was too much
+			UIBranchContainer crumb = UIBranchContainer.make(tofill, "crumb:");
+			GeneralViewParameters rview = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+			rview.setSendingPage(e.pageId);
+			rview.setItemId(e.pageItemId);
+			rview.setPath(Integer.toString(index));
+			UIInternalLink.make(crumb, "crumb-link", e.title, rview);
+			UIOutput.make(crumb, "crumb-separator");
+			if (index == breadcrumbs.size() - 1) {
+			    UIBranchContainer finalcrumb = UIBranchContainer.make(tofill, "crumb:");
+
+			    UIOutput.make(finalcrumb, "crumb-follow", item.getName());
+			}
+			index++;
+		    }
+
+
 		    } else {
 			GeneralViewParameters view = new GeneralViewParameters(returnView);
 			view.setSendingPage(sendingPage);;

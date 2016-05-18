@@ -243,7 +243,7 @@
 				 		rowStyle="#{wrapper.hideStyle}"
 				 		rowClasses="oddRow,evenRow"
 				 		columnClasses="removeCol, titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol"
-				 		styleClass="signupTable">
+				 		styleClass="table table-bordered table-hover table-striped">
 	
 						<t:column defaultSorted="true" sortable="true">
 							<f:facet name="header" >

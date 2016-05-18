@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_new.vm,v 1.7 2005/06/14 20:13:13 suiyy.umich.edu Exp $
 <script>includeLatestJQuery('chef_calendar_new.vm');</script>
-
+<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <script type="text/javascript">
 <!-- For debugger safety -->
 if(!window.console) {
@@ -372,7 +372,20 @@ $(function() {
 				#set($day=$date.getDay())
 				#set($year=$todayYear)
 			#end 
-			#chef_dateselectionwidget("yearSelect" "month" "day" $earliestYear $latestYear $year $month $day $dateFormat "")
+			<input type="text" id="newCalendarDate" name="newCalendarDate" class="datepicker" value="">
+			<script type="text/javascript">
+				localDatePicker({
+					input:'#newCalendarDate',
+					useTime:0,
+					val:"$year$H$month$H$day",
+					parseFormat: 'YYYY-MM-DD',
+					ashidden:{
+						month:"month",
+						day:"day",
+						year:"yearSelect"
+					}
+				});
+			</script>
 		</p>	
 		<p class="shorttext">
 			<span class="reqStar">*</span>

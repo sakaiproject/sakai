@@ -128,6 +128,21 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
 		return handleReport(view, params, Constants.HELPDESK);
 	}
 
+    @EntityCustomAction(action = "reportsuggestions", viewKey =  EntityView.VIEW_EDIT)
+    public String handleSuggestionsReport(EntityView view, Map<String, Object> params) {
+        return handleReport(view, params, Constants.SUGGESTIONS);
+    }
+
+    @EntityCustomAction(action = "reportsupplementala", viewKey = EntityView.VIEW_EDIT)
+    public String handleSupplementalAReport(EntityView view, Map<String, Object> params) {
+        return handleReport(view, params, Constants.SUPPLEMENTAL_A);
+    }
+
+    @EntityCustomAction(action = "reportsupplementalb", viewKey = EntityView.VIEW_EDIT)
+    public String handleSupplementalBReport(EntityView view, Map<String, Object> params) {
+        return handleReport(view, params, Constants.SUPPLEMENTAL_B);
+    }
+
 	private String handleReport(final EntityView view, final Map<String, Object> params, final String type) {
 
 		final String userId = developerHelperService.getCurrentUserId();
@@ -273,8 +288,15 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
             if (toAddress==null){
                 toAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
             }
-        }
-        else {
+        } else if(Constants.HELPDESK.equals(type)){
+            toAddress = sakaiProxy.getConfigString(Constants.PROP_HELP_ADDRESS, null);
+        } else if(Constants.SUGGESTIONS.equals(type)){
+            toAddress = sakaiProxy.getConfigString(Constants.PROP_SUGGESTIONS_ADDRESS, null);
+        } else if(Constants.SUPPLEMENTAL_A.equals(type)){
+            toAddress = sakaiProxy.getConfigString(Constants.PROP_SUPPLEMENTAL_A_ADDRESS, null);
+        } else if(Constants.SUPPLEMENTAL_B.equals(type)){
+            toAddress = sakaiProxy.getConfigString(Constants.PROP_SUPPLEMENTAL_B_ADDRESS, null);
+        } else {
             toAddress = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
         }
         return toAddress;

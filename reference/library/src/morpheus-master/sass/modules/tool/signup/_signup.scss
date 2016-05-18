@@ -1,29 +1,18 @@
 .#{$namespace}sakai-signup {
 
 	.form-required{
-		label{
-			&:after{
-				content: "*";
-				color: darken($errorcolor, 30%);
-				position: relative;
-				top: 3px;
-			}
-		}
+		&:after{
+			content: "*";
+			color: darken($errorcolor, 30%);
+			position: relative;
+			top: 3px;
+		}		
 	}
 	
 	#meeting{
 		input{
 			margin-right: 0.5em;
 		}
-
-		input[type="radio"]{
-			float:left;
-			margin-right:10px !important;
-		}		
-
-		input[type="radio"] + label{
-			display:block;	
-		}	
 
 		&\:startTime\.minutes, &\:endTime\.minutes{
 			margin-left: 0.5em;
@@ -61,7 +50,17 @@
 		&\:emailAttendeeOnly{
 			margin-top: 0.5em;
 			margin-left: 0.5em;
-		}		
+		}
+		
+		//This is for jsf labels and checkboxes
+		input[type="checkbox"],input[type="radio"]{
+			@media #{$phone}{
+				float:left;
+				& + label {
+					display:block;
+				}
+			}
+		}
 	}
 
 	#userdef-add{
@@ -73,5 +72,19 @@
 		vertical-align: middle;
 		margin-left: 3px;
 		margin-right: 7px;
+	}
+
+	#imageOpen_otherSites,#imageClose_otherSites{
+		margin-right: 0.3em;
+	}
+	
+	.userDefineTsTable{
+		select{
+			margin-right: 1em;
+		}
+
+		input[id*='minutes']{
+				margin-left: 1em;
+		}
 	}
 }

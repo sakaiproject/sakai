@@ -2084,7 +2084,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     
     public String deleteOrphanPages(String siteId) {
     	SimplePageBean spb = makeSimplePageBean(siteId);
-    	return spb.deleteOrphanPages();
+    	return spb.deleteOrphanPagesInternal();
     }
 
     SimplePageBean makeSimplePageBean(String siteId) {

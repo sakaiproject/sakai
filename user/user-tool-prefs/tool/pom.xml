@@ -37,7 +37,7 @@
     <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
-      <version>1.1.10</version>
+      <version>1.1.14</version>
     </dependency>
     <!-- pull through the JSF tool dependencies -->
     <dependency>

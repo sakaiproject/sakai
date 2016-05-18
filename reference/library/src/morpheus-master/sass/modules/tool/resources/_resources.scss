@@ -1,17 +1,17 @@
 .#{$namespace}sakai-resources {
-	
+
 	input, textarea{
-		max-width: 100%;	
+		max-width: 100%;
 	}
-	
+
 	label {
 		vertical-align: top;
 	}
-	
+
 	input[type="checkbox"] + label{
         display: inline;
     }
-	
+
 	.itemSummary {
 		@media #{$phone}{
 			th, td.header{
@@ -22,7 +22,7 @@
 			}
 		}
 	}
-	
+
 	table.resourcesList{
 		tr{
 			&:first-child{
@@ -37,22 +37,22 @@
 				}
 			}
 		}
-		
+
 		@media #{$phone}{
 			display: block;
 			margin: 3em 0;
 			overflow: auto;
 		}
 	}
-	
+
 	.tableActions {
 		display: block;
 		padding-bottom: 10px;
 		float: left;
 		clear: both;
-		width: 100%;	
+		width: 100%;
 	}
-	
+
 	#navigatePanel {
 		height:388px;
 		width:auto;
@@ -67,7 +67,7 @@
 	#navigatePanel p.close{
 		margin:0 5px;
 	}
-	
+
 	.navigatePanelControls{
 		padding:0 10px 5px 5px;
 		border-bottom:1px solid #ccc;
@@ -89,12 +89,12 @@
 		text-decoration:none !important;
 	}
 	#spinner {
-		background: transparent url("../images/ajax_loader_blue_128.gif") top left no-repeat;
-		width:128px;
+		color: $primary-color;
+		width:100%;
 		height:128px;
 		position: absolute;
 		top:20%;
-		left:33%;
+		text-align: center;
 	}
 	li[data_visible="false" ] *{
 		opacity:0.7;
@@ -117,7 +117,7 @@
 	.table tr{
 		border-bottom: 1px solid #ddd;
 	}
-	
+
 	.breadCrumb .btn-group button.breadProp {
 			padding-left:25px;
 			@include border-radius( 3px );
@@ -129,9 +129,9 @@
 			border-bottom-right-radius: 25px !important;
 			margin-right: -20px !important;
 	}
-	
+
 	.dropdown-menu{
-		
+
 		@media #{$phone}{
 			position: fixed;
 			top: 2%;
@@ -152,13 +152,13 @@
 			-webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
 			box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
 			background-clip: padding-box;
-			
+
 			.close-button{
 				display:block !important;
 			}
-			
+
 		}
-		
+
 		.close-button {
 			@extend .fa;
 			@extend .fa-close;
@@ -170,7 +170,7 @@
 			}
 		}
 	}
-	
+
 	#navigate {
 		margin-right:10px !important;
 		@include border-radius( 3px );
@@ -188,7 +188,7 @@
 	.inactive .dropdown-menu a {
 		color:#000 !important;
 	}
-	
+
 	.dropzone {
 		overflow: hidden;
 		border: 2px dashed $toolMenuColor;
@@ -200,7 +200,7 @@
 		}
 	}
 
-	.dropzone .dz-message .note { 
+	.dropzone .dz-message .note {
  		font-size: 0.8em;
  		font-weight: 200;
  		display: block;

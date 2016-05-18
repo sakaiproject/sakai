@@ -17,57 +17,58 @@
 				<p>
 					$tlang.getString("sitegen.addcourse.you")
 				</p>	
-				<form name = "removeSectionForm" method="post" action="#toolForm($action)">
+				<form name = "removeSectionForm" id="removeSectionForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 					<input type="hidden" name="option" value="remove" />
-
-					<table class="listHier lines nolines" style="width:auto" summary="" cellpadding="0" cellspacing="0" border="0">
-						#foreach($item in $!selectedProviderCourseTitles.keySet())
-							<tr>
-								<td>
-									$!selectedProviderCourseTitles.get($item)
-								</td>
-								<td>
-									<!-- Remove Section -->
-									<span class="itemAction">
-										<a href="#" onclick="submitRemoveSection('$item', 'removeSectionForm');">$tlang.getString("man.remove")</a>
-										<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
-									</span>	
-								</td>
-							</tr>	
-						#end
-						#if (!$!editSite)
-							#foreach($section in $!cmRequestedSections)
+					<div class="table-responsive course-section">
+						<table class="table table-bordered table-hover table-striped" summary="">
+							#foreach($item in $!selectedProviderCourseTitles.keySet())
 								<tr>
 									<td>
-											$section.Title $tlang.getString("man.requested")
+										$!selectedProviderCourseTitles.get($item)
 									</td>
 									<td>
 										<!-- Remove Section -->
 										<span class="itemAction">
-											<a href="#" onclick="submitRemoveSection('$section.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
-											<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
+											<a href="#" onclick="submitRemoveSection('$item', 'removeSectionForm');">$tlang.getString("man.remove")</a>
+											<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
 										</span>	
 									</td>
 								</tr>	
 							#end
-						#else
-							#foreach($s in $!cmSelectedSections)
-								<tr>
-									<td>
-											$s.title $tlang.getString("man.requested")
-									</td>
-									<td>
-										<!-- Remove Section -->
-										<span class="itemAction">
-											<a href="#" onclick="submitRemoveSection('$s.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
-											<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
-										</span>	
-									</td>
-								</tr>	
+							#if (!$!editSite)
+								#foreach($section in $!cmRequestedSections)
+									<tr>
+										<td>
+												$section.Title $tlang.getString("man.requested")
+										</td>
+										<td>
+											<!-- Remove Section -->
+											<span class="itemAction">
+												<a href="#" onclick="submitRemoveSection('$section.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
+												<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
+											</span>	
+										</td>
+									</tr>	
+								#end
+							#else
+								#foreach($s in $!cmSelectedSections)
+									<tr>
+										<td>
+												$s.title $tlang.getString("man.requested")
+										</td>
+										<td>
+											<!-- Remove Section -->
+											<span class="itemAction">
+												<a href="#" onclick="submitRemoveSection('$s.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
+												<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
+											</span>	
+										</td>
+									</tr>	
+								#end
 							#end
-						#end
-					</table>
+						</table>
+					</div>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			#end

@@ -27,7 +27,7 @@
 		$tlang.getString("newsc.ifyou")
 	</p>
 	#if ($isCourseSite)
-		<p class="instruction">$tlang.getString("newsc.youare")</p>
+		<p>$tlang.getString("newsc.youare")</p>
 		<ul class="indnt2 attachList">
 			#foreach ($item in $!selectedProviderCourseTitles.keySet())
 				<li>
@@ -61,6 +61,7 @@
 	<form name="addSiteForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="eventSubmit_doAdd_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
+		<div class="table-responsive">
 		<table class ="itemSummary" cellspacing="0" summary="$tlang.getString("newsc.list.summary")" border="0">
 			<tr>
 				<th>
@@ -76,7 +77,7 @@
 					$tlang.getString("newsc.url")
 				</th>
 				<td>
-					<span class="instruction">$tlang.getString("newsc.url.none")</span>
+					<span>$tlang.getString("newsc.url.none")</span>
 				</td>
 			</tr>
 			#else
@@ -247,7 +248,7 @@
 					</th>
 					<td>
 					#if (!$!iconUrl)
-					<span class="instruction">$tlang.getString("newsc.icon.none")</span>
+					<span>$tlang.getString("newsc.icon.none")</span>
 				#else
 					$!validator.escapeHtml($!iconUrl)
 				#end
@@ -268,7 +269,7 @@
 				</th>
 				<td>
 				#if ($!siteContactEmail=="")
-					<span class="instruction">$tlang.getString("newsc.sitecont2.none")</span>
+					<span>$tlang.getString("newsc.sitecont2.none")</span>
 				#else
 					$validator.escapeHtml($!siteContactEmail)
 				#end
@@ -281,7 +282,7 @@
 				</th>
 				<td>
 				#if ($short_description =="")
-					<span class="instruction">$tlang.getString("newsc.short.none")</span>
+					<span>$tlang.getString("newsc.short.none")</span>
 				#else
 					$validator.escapeHtml($short_description)
 				#end	
@@ -297,7 +298,7 @@
 				</th>
 				<td>					
 					#if ($locale_string_selected == "")
-						<span class="instruction">$tlang.getString("newsc.language.none")</span>
+						<span>$tlang.getString("newsc.language.none")</span>
 					#else
 						$validator.escapeHtml($locale_string_selected.getDisplayName())
 					#end						
@@ -315,7 +316,7 @@
 			<tr>
 					<td colspan="2">
 						#if ($description =="")
-							<span class="instruction">$tlang.getString("newsc.descr.none")</span>
+							<span>$tlang.getString("newsc.descr.none")</span>
 						#else	
 							$description
 						#end						
@@ -328,14 +329,14 @@
 					</th>
 					<td>					
 						#if ($fromArchive =="")
-							<span class="instruction">$tlang.getString("archive.createsite.confirm.none")</span>
+							<span>$tlang.getString("archive.createsite.confirm.none")</span>
 						#else	
 							$fromArchive
 						#end						
 					</td>
 				</tr>
 			#end
-		</table>	
+		</table></div>
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="0" />
