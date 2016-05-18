@@ -811,19 +811,6 @@ ul.feedbackPanel li span {
 }
 
 /* feedback styles for the grade saving state */
-.gb-cell-saving > div:before {
-  font-family: "gradebook-icons";
-  content: "\f0c7";
-  color: #CCC;
-  position: absolute;
-  left: 20px;
-  font-size: 1.4em;
-  height: 1.1em;
-  width: 1.1em;
-  line-height: 1.1em;
-  top: 50%;
-  margin-top: -0.55em;
-}
 .gb-score-dynamically-updated,
 .grade-save-success {
   background-color: #dff0d8 !important;
@@ -1138,4 +1125,22 @@ and (max-device-width : 736px) {
   line-height: 35px;
   color: #666;
   margin: 0 0 0 10px;
+}
+
+/* Connection Poll message */
+#gbConnectionTimeoutFeedback {
+  position: fixed;
+  z-index: 99999999;
+  top: 80px;
+  padding: 5px;
+  box-shadow: 1px 1px 5px #999;
+  font-size: 12px;
+  width: 350px;
+  margin-left: -175px;
+  left: 50%;
+}
+
+#gbConnectionTimeoutFeedback:before {
+  font-family: "gradebook-icons";
+  content: "\f071";
 }

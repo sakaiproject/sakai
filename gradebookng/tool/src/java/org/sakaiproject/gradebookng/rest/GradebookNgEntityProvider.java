@@ -143,6 +143,11 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 	}
 
+	@EntityCustomAction(action = "ping", viewKey = EntityView.VIEW_LIST)
+	public String ping(final EntityView view) {
+		return "pong";
+	}
+
 	/**
 	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not. We don't currently need the value that this
 	 * produces so we don't return it.
