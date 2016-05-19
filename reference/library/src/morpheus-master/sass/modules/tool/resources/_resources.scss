@@ -132,16 +132,16 @@
 
 	.dropdown-menu{
 
+		padding: 1em 0;
+
 		@media #{$phone}{
 			position: fixed;
 			top: 2%;
 			left: 2%;
 			width: 96% !important;
-			height: 96% !important;
 			z-index: 1000;
 			float: left;
 			min-width: 160px;
-			padding: 5px 0;
 			list-style: none;
 			font-size: 1em;
 			text-align: left;
