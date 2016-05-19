@@ -35,16 +35,16 @@
 		<form action="#" rsf:id="assignment-picker">
 		<input type="hidden" rsf:id="csrf"/>
 		<span rsf:id="assignment-span"/>
-		<table id="list" border="0" role="list" class="listHier" cellpadding="0" cellspacing="0" style="width:auto">
-			<tr>
-				<th rsf:id="msg=simplepage.chooser.name"></th>
-				<th rsf:id="msg=simplepage.chooser.due"></th>
-			</tr>
-			<tr rsf:id="assignment:" role="listitem">
-				<td><input type="radio" rsf:id="select" id="select"/> <a href="#" rsf:id="link" target="_blank"></a></td>
-				<td class="duecol" rsf:id="due"></td>
-			</tr>
-		</table>
+		<div id="list" border="0" role="list" class="listHierFlex" cellpadding="0" cellspacing="0">
+			<div class="hierFlexList">
+				<div class="hierFlex1" rsf:id="msg=simplepage.chooser.name"></div> 
+				<div class="hierFlex2" rsf:id="msg=simplepage.chooser.due"></div>
+			</div>
+			<div class="hierFlexList" rsf:id="assignment:" role="listitem" style="display:flex">
+				<div class="hierFlex1" ><input style="margin-right:4px"  type="radio" rsf:id="select" id="select"/> <a href="#" rsf:id="link" target="_blank"></a></div> 
+				<div class="hierFlex2" rsf:id="due"></div>
+			</div>
+		</div>
 		
 		<input type="hidden" rsf:id="item-id" id="item-id" />
 		<input type="hidden" rsf:id="add-before" id="add-before" />
