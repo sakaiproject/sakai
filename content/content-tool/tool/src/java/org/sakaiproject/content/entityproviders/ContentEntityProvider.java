@@ -331,18 +331,18 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 					}
 					catch (UnsupportedEncodingException e)
 					{
-						log.warn(this + "getWebLinkResourceUrlString unsupportedencodingexception for " + new String(content) + " " + e.getMessage());
+						log.warn("UnsupportedEncodingException for " + new String(content) + " " + e.getMessage());
 	
 					}
 					catch (URISyntaxException e)
 					{
-						log.warn(this + "getWebLinkResourceUrlString error parsing URI for " + new String(content) + " " + e.getMessage());
+						log.warn("Error parsing URI for " + new String(content) + " " + e.getMessage());
 					}
 				}
 			}
 			catch (ServerOverloadException e)
 			{
-				log.warn(this + "getWebLinkResourceUrlString cannot get content for resource ref=" + resource.getReference() + " error: " + e.getMessage());
+				log.warn("Cannot get content for resource ref=" + resource.getReference() + " error: " + e.getMessage());
 			}
 		}
 		
