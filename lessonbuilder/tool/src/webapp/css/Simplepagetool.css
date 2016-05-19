@@ -289,6 +289,21 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-left: 5px solid black !important;
    margin-left: -5px;
 }
+.listHierFlex {
+  display:inline-block;
+}
+.hierFlexList {
+   display:flex;
+}
+.hierFlex1 {
+   display:flex;
+   width:calc(100% - 12em);
+   margin-right:2px;
+}
+.hierFlex2 {
+   display:flex;
+   width:14em;
+}
 .listHier .forumTopic {
    margin-left: 1em;
 }
@@ -1462,6 +1477,12 @@ font-size: 90%;
 }
 .col2 {
    width: calc(100% - 15px);
+}
+.hierFlex1 {
+   width:auto;
+}
+.hierFlex2 {
+   display:none;
 }
 }
 .lessonsToolButton {
