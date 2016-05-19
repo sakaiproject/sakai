@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
 
 
@@ -245,47 +246,43 @@ function mySetMainFrameHeightViewCell(id)
 		  	<f:verbatim>
 		  		</div>
 		  	</f:verbatim>
-	  		
-		 		<h:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" styleClass="listHier lines nolines tablesorter workspaceTable" columnClasses=", , rightAlignColumn, rightAlignColumn" cellspacing="0" cellpadding="0" style="margin-left:2em;width:75%;"
-		 			rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}">
-	 
-	 
-	 			<h:column>
-	       			<f:facet name="header">
-	       				<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
-	       				<f:verbatim><a href="" id="hideHeader" onclick="return false;"></a></f:verbatim>			 		
-					</f:facet>
-					<h:selectBooleanCheckbox value="#{eachSite.synopticMsgcntrItem.hideItem}"/>
-					<f:verbatim>
-						<input type="checkbox" class="unchangedValue" 
-					</f:verbatim>
+			
+			<t:div styleClass="table-responsive" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
+				<h:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" 
+						styleClass="table table-striped table-bordered table-hover tablesorter workspaceTable">
+
+					<h:column>
+						<f:facet name="header">
+							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
+							<f:verbatim><a href="" id="hideHeader" onclick="return false;"></a></f:verbatim>
+						</f:facet>
+						<h:selectBooleanCheckbox value="#{eachSite.synopticMsgcntrItem.hideItem}"/>
+						<f:verbatim>
+							<input type="checkbox" class="unchangedValue" 
+						</f:verbatim>
 						<f:subview id="checkbox" rendered="#{eachSite.synopticMsgcntrItem.hideItem}">
 							<h:outputText value="Checked"/>
 						</f:subview>
-					<f:verbatim>
-						>
-					</f:verbatim>
-				</h:column>
-	 
-	 
-	       		<h:column>
-					<f:facet name="header">
-						<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
-						<f:verbatim><a href="" id="siteHeader" onclick="return false;"></a></f:verbatim>
-					</f:facet>
-				
-				<h:outputLink value="#{eachSite.siteUrl}" target="_parent" title="#{msgs.syn_goto_site}"><h:outputText value="#{eachSite.synopticMsgcntrItem.siteTitle}"/></h:outputLink>
-		   		</h:column>
-	
-				<h:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableMessages}">
-					<f:facet name="header">
-						<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
-						<f:verbatim><a href="" id="messagesHeader" onclick="return false;"></a></f:verbatim> 					
-	 				</f:facet>
-	
-					<h:panelGroup>		
-							
-			 				<%-- === To create a link to Messages (& Forums) home page === --%>
+						<f:verbatim>
+							>
+						</f:verbatim>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
+							<f:verbatim><a href="" id="siteHeader" onclick="return false;"></a></f:verbatim>
+						</f:facet>				
+						<h:outputLink value="#{eachSite.siteUrl}" target="_parent" title="#{msgs.syn_goto_site}"><h:outputText value="#{eachSite.synopticMsgcntrItem.siteTitle}"/></h:outputLink>
+					</h:column>
+
+					<h:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableMessages}">
+						<f:facet name="header">
+							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
+							<f:verbatim><a href="" id="messagesHeader" onclick="return false;"></a></f:verbatim>
+						</f:facet>
+
+						<h:panelGroup>
+							<%-- === To create a link to Messages (& Forums) home page === --%>
 							<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newMessagesCount == 0 && !eachSite.doesMessagesExist}" />
 							<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.messagesUrl}';\">#{msgs.syn_no_messages}</a>" 
 								escape="false" title="#{msgs.syn_goto_messages}" rendered="#{eachSite.newMessagesCount == 0 && eachSite.doesMessagesExist}"/>						
@@ -296,72 +293,62 @@ function mySetMainFrameHeightViewCell(id)
 							<h:outputText value="  " rendered="#{eachSite.newMessagesCount > 0}" />
 		
 				 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newMessagesCount > 0}" />
-			<%--
-							<h:outputText value="  "/>	
+							<%--<h:outputText value="  "/>	
 									
 							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{eachSite.messagesFormattedDate}"/> --%>
-						
-					</h:panelGroup>	
-					
-				</h:column>
-				
-	
-				<h:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableMessages}">
-					<f:facet name="header">
-						<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
-						<f:verbatim><a href="" id="messagesHeader" onclick="return false;"></a></f:verbatim> 					
-	 				</f:facet>			
-					<h:panelGroup>	
-						
-							<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newMessagesCount == 0}"/>			
+						</h:panelGroup>
+					</h:column>
+
+					<h:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableMessages}">
+						<f:facet name="header">
+							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
+							<f:verbatim><a href="" id="messagesHeader" onclick="return false;"></a></f:verbatim>
+	 					</f:facet>
+						<h:panelGroup>	
+							<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newMessagesCount == 0}"/>
 							<h:outputText value="#{eachSite.newMessagesCount}" rendered="#{eachSite.newMessagesCount > 0}"/>
 							<h:outputText value="  " rendered="#{eachSite.newMessagesCount > 0}" />
 				 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newMessagesCount > 0}" />
+						</h:panelGroup>
+					</h:column>
+					<h:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableForums}">
+						<f:facet name="header">
+							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
+							<f:verbatim><a href="" id="forumsHeader" onclick="return false;"></a></f:verbatim>
+	 					</f:facet>
+
+						<h:panelGroup>
+							<%-- === To create a link to (Messages &) Forums home page === --%>
 						
-					</h:panelGroup>
-				</h:column>
-	
-				<h:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableForums}">
-					<f:facet name="header">
-						<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
-						<f:verbatim><a href="" id="forumsHeader" onclick="return false;"></a></f:verbatim>					
-	 				</f:facet>
-	 				
-					<h:panelGroup> 				
-						<%-- === To create a link to (Messages &) Forums home page === --%>
-						
-						<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newForumCount == 0 && !eachSite.doesForumsExist}" />
-						<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.forumUrl}';\">#{msgs.syn_no_messages}</a>" 
-							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.newForumCount == 0 && eachSite.doesForumsExist}"/>
-						
-						<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.forumUrl}';\">#{eachSite.newForumCount}</a>" 
-							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.newForumCount > 0}"/>
-						
-						<h:outputText value="  " rendered="#{eachSite.newForumCount > 0}" />
-	
-						<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" />
-						
-				<%-- 			<h:outputText value="  "/>
-						
-					<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{eachSite.forumFormattedDate}"/> --%>
-						
-					</h:panelGroup>
-				</h:column>
-				<h:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableForums}">
-					<f:facet name="header">
-						<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
-						<f:verbatim><a href="" id="forumsHeader" onclick="return false;"></a></f:verbatim>					
-	 				</f:facet>
-					<h:panelGroup>
-						<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newForumCount == 0}"/>			
-						<h:outputText value="#{eachSite.newForumCount}" rendered="#{eachSite.newForumCount > 0}"/>
-						<h:outputText value="  " rendered="#{eachSite.newForumCount > 0}" />
-			 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" />
-					</h:panelGroup>
-				</h:column>
-				
-	
-		 	</h:dataTable>
+							<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newForumCount == 0 && !eachSite.doesForumsExist}" />
+							<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.forumUrl}';\">#{msgs.syn_no_messages}</a>" 
+								escape="false" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.newForumCount == 0 && eachSite.doesForumsExist}"/>
+
+							<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.forumUrl}';\">#{eachSite.newForumCount}</a>" 
+								escape="false" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.newForumCount > 0}"/>
+
+							<h:outputText value="  " rendered="#{eachSite.newForumCount > 0}" />
+
+							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" />
+							<%--<h:outputText value="  "/>
+							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{eachSite.forumFormattedDate}"/> --%>
+						</h:panelGroup>
+					</h:column>
+					<h:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableForums}">
+						<f:facet name="header">
+							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
+							<f:verbatim><a href="" id="forumsHeader" onclick="return false;"></a></f:verbatim>
+	 					</f:facet>
+						<h:panelGroup>
+							<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newForumCount == 0}"/>
+							<h:outputText value="#{eachSite.newForumCount}" rendered="#{eachSite.newForumCount > 0}"/>
+							<h:outputText value="  " rendered="#{eachSite.newForumCount > 0}" />
+			 				<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" />
+						</h:panelGroup>
+					</h:column>
+		 		</h:dataTable>
+		 	</t:div>
+		 	
 	 		<f:verbatim>
 	 			<div class="optionsTable" style="display: none;"> 			
 	 			<br>
@@ -382,59 +369,54 @@ function mySetMainFrameHeightViewCell(id)
 				<h:outputText value="#{msgs.synoptic_no_activity}" styleClass="noActivity"/>  
 			</f:subview>
 		</f:subview>
-	
+
+
+		<!-- Site Home Page -->
+		<t:div styleClass="table-responsive" rendered="#{!mfSynopticBeanLite.myWorkspace && mfSynopticBeanLite.anyMFToolInSite}">
+			<h:panelGrid columns="2" styleClass="table table-bordered table-hover table-striped">
 		
-	  
-	  <!-- Site Home Page -->
-	 <h:panelGrid columns="2" styleClass="listHier lines nolines"
-		rendered="#{!mfSynopticBeanLite.myWorkspace && mfSynopticBeanLite.anyMFToolInSite}" >
-		
-		<h:panelGroup rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.messagesPageInSite}">
-			<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.messagesUrl}';\">#{msgs.syn_private_heading}</a>" 
+				<h:panelGroup rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.messagesPageInSite}">
+					<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.messagesUrl}';\">#{msgs.syn_private_heading}</a>" 
 							escape="false" title="#{msgs.syn_goto_messages}"/>
-		</h:panelGroup>
-		<h:panelGroup rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.messagesPageInSite}">
-			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount == 0}" />
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.messagesPageInSite}">
+					<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount == 0}" />
+					<h:panelGroup rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" >
+				
+						<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.messagesUrl}';\">#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount}</a>"
+							escape="false" title="#{msgs.syn_goto_messages}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
+					<h:outputText value="  " rendered="true" />
+					<h:outputText value="  " rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
+		 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
+					</h:panelGroup>
 
-			<h:panelGroup rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" >
-				<h:outputText 
-					value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.messagesUrl}';\">#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount}</a>"
-					escape="false" title="#{msgs.syn_goto_messages}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
-				<h:outputText value="  " rendered="true" />
-
-				<h:outputText value="  " rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
-
-		 		<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
-
-			</h:panelGroup>
-			
-		<%--		<h:outputText value="  "/>	
-							
-		<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{mfSynopticBeanLite.siteHomepageContent.messagesFormattedDate}"/>  --%>
-			
-		</h:panelGroup>
+					<%--<h:outputText value="  "/>
+					<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{mfSynopticBeanLite.siteHomepageContent.messagesFormattedDate}"/>  --%>
+				</h:panelGroup>
 		
-		<h:panelGroup  rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.forumsPageInSite}">
-			<h:outputText 
-				value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.forumUrl}';\">#{msgs.syn_discussion_heading}</a>"
-				escape="false" title="#{msgs.syn_goto_forums}" />
-		</h:panelGroup>
+				<h:panelGroup  rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.forumsPageInSite}">
+					<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.forumUrl}';\">#{msgs.syn_discussion_heading}</a>"
+						escape="false" title="#{msgs.syn_goto_forums}" />
+				</h:panelGroup>
 
-		<h:panelGroup  rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.forumsPageInSite}">
-			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount == 0}" />
+				<h:panelGroup  rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.forumsPageInSite}">
+					<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount == 0}" />
 			
-			<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.forumUrl}';\">#{mfSynopticBeanLite.siteHomepageContent.newForumCount}</a>" 
-							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}"/>
+					<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBeanLite.siteHomepageContent.forumUrl}';\">#{mfSynopticBeanLite.siteHomepageContent.newForumCount}</a>" 
+								escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}"/>
 			
-			<h:outputText value="  " rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}" />
+					<h:outputText value="  " rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}" />
 
-			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}" />
+					<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}" />
 					
-<%--			<h:outputText value="  "/>
+					<%--			<h:outputText value="  "/>
 					
-			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{mfSynopticBeanLite.siteHomepageContent.forumFormattedDate}"/>  --%>
-		</h:panelGroup>
-	</h:panelGrid>
+					<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{mfSynopticBeanLite.siteHomepageContent.forumFormattedDate}"/>  --%>
+				</h:panelGroup>
+			</h:panelGrid>
+		</t:div>
+		
 	<h:panelGrid columns="1" styleClass="listHier lines nolines"
 		rendered="#{!mfSynopticBeanLite.myWorkspace && !mfSynopticBeanLite.anyMFToolInSite}" >
 	  	<h:outputText value="#{msgs.synoptic_no_tools}"/>
