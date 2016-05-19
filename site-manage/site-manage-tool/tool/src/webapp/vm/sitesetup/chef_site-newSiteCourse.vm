@@ -53,7 +53,7 @@
 				<input type="text" name="userId" id="userId-id" value="$userId"/>
 				<input type="hidden" name="itemType" value="$!siteType" />
 				<input type="hidden" name="selectTerm" value="$term.eid" />
-				<input type="button" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
+				<input type="submit" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
 					onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('option').value='change_user'; document.addCourseForm.submit(); return false;"
 				 />
 				#if ($campusDirectory)
@@ -229,7 +229,7 @@
 				<input
 					class="active"
 					disabled="true"
-					type="button" 
+					type="submit" 
 					accesskey="s"
 					name="Continue" 
 					id="continueButton" 
@@ -237,7 +237,7 @@
 					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="b"
 					name="Back" 
 					id="backButton" 
@@ -245,7 +245,7 @@
 					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='back'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="x"
 					name="Cancel" 
 					id="cancelButton" 
@@ -255,7 +255,7 @@
 				## SAK-28990 controlled via sakai.property sitemanage.continueWithNoRoster.enabled
 				#if( $!contNoRosterEnabled )
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="x"
 					name="Cancel" 
 					id="cancelButton" 
@@ -276,7 +276,7 @@
 				<input type="hidden" name="option" id="option" value="x" />
 				<input
 					disabled="true"
-					type="button" 
+					type="submit" 
 					accesskey="s"
 					name="AddClass" 
 					id="addClassButton" name="addClassButton"
@@ -284,7 +284,7 @@
 					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('option').value='add'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="x"
 					name="Cancel" 
 					id="Cancel" 
