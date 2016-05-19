@@ -308,7 +308,7 @@
             }
 
             if (roster.roleToView) {
-                url += "&roleId=" + roster.roleToView;
+                url += "&roleId=" + encodeURIComponent(roster.roleToView);
             }
         }
 
