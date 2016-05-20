@@ -38,6 +38,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -75,11 +78,15 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean m_autoDdl = false;
 
+	private String serverInstance;
+	private String serverId;
+	private ScheduledExecutorService scheduler;
+
 	/*************************************************************************************************************************************************
 	 * Dependencies
 	 ************************************************************************************************************************************************/
-	/** How long to wait between checks for new events from the db. */
-	protected long m_period = 1000L * 5L;
+	/** How long to wait in seconds between checks for new events from the db. */
+	protected int m_period = 5;
 	/** contains a map of the database dependent handler. */
 	protected Map<String, ClusterEventTrackingServiceSql> databaseBeans;
 	/** contains database dependent code. */
@@ -162,7 +169,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	 */
 	public void setPeriod(String time)
 	{
-		m_period = Integer.parseInt(time) * 1000L;
+		m_period = Integer.parseInt(time);
 	}
 
 	public void setDatabaseBeans(Map databaseBeans)
@@ -192,7 +199,11 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	 */
 	public void init()
 	{
+		serverInstance = serverConfigurationService().getServerIdInstance();
+		serverId = serverConfigurationService().getServerId();
+
 		setClusterEventTrackingServiceSql(sqlService().getVendor());
+
 		try
 		{
 			// if we are auto-creating our schema, check and create
@@ -211,7 +222,16 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			// startup the event checking
 			if (m_checkDb)
 			{
-				start();
+				initLastEvent();
+
+				scheduler = Executors.newSingleThreadScheduledExecutor();
+				// schedule task for every pollDelaySeconds
+				scheduler.scheduleWithFixedDelay(
+						this,
+						60, // minimally wait 60 seconds for sakai to start
+						m_period, // run every
+						TimeUnit.SECONDS
+				);
 			}
 
 			boolean eventsSizeCheck = serverConfigurationService().getBoolean("events.size.check", true);
@@ -219,30 +239,33 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                 // do the check for event oversizing and output log warning if needed - SAK-3793
     			long totalEventsCount = getEventsCount();
                 if (totalEventsCount > WARNING_SAFE_EVENTS_TABLE_SIZE) {
-                    M_log.info("The SAKAI_EVENT table size ("+totalEventsCount+") is approaching the point at which " +
-                    		"performance will begin to degrade ("+MAX_SAFE_EVENTS_TABLE_SIZE+
-                    		"), we recommend you archive older events over to another table, " +
-                    		"remove older rows, or truncate this table before it reaches a size of "+MAX_SAFE_EVENTS_TABLE_SIZE);
+                    M_log.info("The SAKAI_EVENT table size ({}) is approaching the point at which performance will" +
+							" begin to degrade ({}), we recommend you archive older events over to another table," +
+							" remove older rows, or truncate this table before it reaches a size of {}",
+							totalEventsCount, MAX_SAFE_EVENTS_TABLE_SIZE, MAX_SAFE_EVENTS_TABLE_SIZE);
                 } else if (totalEventsCount > MAX_SAFE_EVENTS_TABLE_SIZE) {
-                    M_log.warn("The SAKAI_EVENT table size ("+totalEventsCount+") has passed the point at which " +
-                            "performance will begin to degrade ("+MAX_SAFE_EVENTS_TABLE_SIZE+
-                            "), we recommend you archive older events over to another table, " +
-                            "remove older rows, or truncate this table to ensure that performance is not affected negatively");
+                    M_log.warn("The SAKAI_EVENT table size ({}) has passed the point at which performance will begin" +
+							" to degrade ({}), we recommend you archive older events over to another table, remove" +
+							" older rows, or truncate this table to ensure that performance is not affected negatively",
+							totalEventsCount, MAX_SAFE_EVENTS_TABLE_SIZE);
     			}
 			}
 
-			M_log.info(this + ".init() - period: " + m_period / 1000 + " batch: " + m_batchWrite + " checkDb: " + m_checkDb);
+			M_log.info("period: {}, batch: {}, checkDb: {}", m_period, m_batchWrite, m_checkDb);
 
             String sakaiVersion = serverConfigurationService().getString("version.sakai", "unknown") + "/" + serverConfigurationService().getString("version.service", "unknown");
-            M_log.info("Server Start: serverId="+serverConfigurationService().getServerId()+",serverInstance="+serverConfigurationService().getServerInstance()+",serverIdInstance="+serverConfigurationService().getServerIdInstance()+",version="+sakaiVersion);
-			//this.post(this.newEvent("server.start", sakaiVersion, false));
+            M_log.info("Server Start: serverId={}, serverInstance={}, serverIdInstance={}, version={}",
+					serverConfigurationService().getServerId(),
+					serverConfigurationService().getServerInstance(),
+					serverConfigurationService().getServerIdInstance(),
+					sakaiVersion);
 
             // initialize the caching server, if enabled
             initCacheServer();
 		}
-		catch (Exception t)
+		catch (Exception e)
 		{
-			M_log.warn(this + ".init(): ", t);
+			M_log.warn(e.getMessage(), e);
 		}
 	}
 
@@ -262,7 +285,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                     try {
                         m_totalEventsCount = result.getLong(1);
                     } catch (SQLException ignore) {
-                        M_log.info("Could not get count of events table using SQL (" + eventCountStmt + ")");
+                        M_log.info("Could not get count of events table using SQL ({})", eventCountStmt);
                     }
                     return Long.valueOf(m_totalEventsCount);
                 }
@@ -280,9 +303,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	 */
 	public void destroy()
 	{
-		// stop our thread
-		stop();
-
+		scheduler.shutdown();
 		super.destroy();
 	}
 
@@ -309,7 +330,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		}
 		catch (Exception t)
 		{
-			M_log.warn("postEvent, notifyObservers(), event: " + event.toString(), t);
+			M_log.warn("postEvent, notifyObservers(), event: {}", event.toString(), t);
 		}
 
 		// batch the event if we are batching
@@ -327,7 +348,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			writeEvent(event, null);
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug(m_logId + event);
+		M_log.debug("{}{}", m_logId, event);
 	}
 
 	/**
@@ -356,8 +377,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
         } else {
             boolean ok = sqlService().dbWrite(conn, statement, fields);
             if (!ok) {
-                M_log.warn(this + ".writeEvent(): dbWrite failed: session: "
-                        + fields[3] + " event: " + event.toString());
+                M_log.warn("dbWrite failed: session: {} event: {}", fields[3], event.toString());
             }
         }
     }
@@ -409,9 +429,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                 } else {
                     boolean ok = sqlService().dbWrite(conn, statement, fields);
                     if (!ok) {
-                        M_log.warn(this
-                                + ".writeBatchEvents(): dbWrite failed: session: "
-                                + fields[3] + " event: " + event.toString());
+                        M_log.warn("dbWrite failed: session: {} event: {}", fields[3], event.toString());
                     }
                 }
             }
@@ -431,10 +449,10 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 				}
 				catch (Exception ee)
 				{
-					M_log.warn(this + ".writeBatchEvents, while rolling back: " + ee);
+					M_log.warn("while rolling back: {}", ee.getMessage(), ee);
 				}
 			}
-			M_log.warn(this + ".writeBatchEvents: " + e, e);
+			M_log.warn("{}", e.getMessage(), e);
 		}
 		finally
 		{
@@ -449,7 +467,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 				}
 				catch (Exception e)
 				{
-					M_log.warn(this + ".writeBatchEvents, while setting auto commit: " + e, e);
+					M_log.warn("while setting auto commit: {}", e.getMessage(), e);
 				}
 				sqlService().returnConnection(conn);
 			}
@@ -504,194 +522,144 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	 ************************************************************************************************************************************************/
 
 	/**
-	 * Start the clean and report thread.
-	 */
-	protected void start()
-	{
-		m_threadStop = false;
-
-		m_thread = new Thread(this, getClass().getName());
-		m_thread.setDaemon(true);
-		m_thread.start();
-	}
-
-	/**
-	 * Stop the clean and report thread.
-	 */
-	protected void stop()
-	{
-		if (m_thread == null) return;
-
-		// signal the thread to stop
-		m_threadStop = true;
-
-		// wake up the thread
-		m_thread.interrupt();
-
-		m_thread = null;
-	}
-
-	/**
 	 * Run the event checking thread.
 	 */
 	public void run()
 	{
-		// since we might be running while the component manager is still being created and populated, such as at server startup, wait here for a
-		// complete component manager
-		ComponentManager.waitTillConfigured();
-
-		// find the latest event in the db
-		initLastEvent();
-
-		// loop till told to stop
-		while ((!m_threadStop) && (!Thread.currentThread().isInterrupted()))
+		try
 		{
-			final String serverInstance = serverConfigurationService().getServerIdInstance();
-			final String serverId = serverConfigurationService().getServerId();
-
-			try
+			Thread.currentThread().setName(this.getClass().getName());
+			// write any batched events
+			Collection<Event> myEvents = new Vector<Event>();
+			if (m_batchWrite)
 			{
-				// write any batched events
-				Collection<Event> myEvents = new Vector<Event>();
-				if (m_batchWrite)
+				synchronized (m_eventQueue)
 				{
-					synchronized (m_eventQueue)
+					if (m_eventQueue.size() > 0)
 					{
-						if (m_eventQueue.size() > 0)
-						{
-							myEvents.addAll(m_eventQueue);
-							m_eventQueue.clear();
-						}
-					}
-
-					if (myEvents.size() > 0)
-					{
-						if (M_log.isDebugEnabled()) M_log.debug("writing " + myEvents.size() + " batched events");
-						writeBatchEvents(myEvents);
+						myEvents.addAll(m_eventQueue);
+						m_eventQueue.clear();
 					}
 				}
 
-				if (M_log.isDebugEnabled()) M_log.debug("checking for events > " + m_lastEventSeq);
-				// check the db for new events
-				// We do a left join which gets us records from non-sessions also (SESSION_SERVER may be null when non-session events are returned)
-				String statement = clusterEventTrackingServiceSql.getEventSql();
+				if (myEvents.size() > 0)
+				{
+					M_log.debug("writing {} batched events", myEvents.size());
+					writeBatchEvents(myEvents);
+				}
+			}
 
-				// send in the last seq number parameter
-				Object[] fields = new Object[1];
-				fields[0] = Long.valueOf(m_lastEventSeq);
+			M_log.debug("checking for events > {}", m_lastEventSeq);
+			// check the db for new events
+			// We do a left join which gets us records from non-sessions also (SESSION_SERVER may be null when non-session events are returned)
+			String statement = clusterEventTrackingServiceSql.getEventSql();
 
-                List events = new ArrayList();
-                if (cachingEnabled) { // KNL-1184
-                    // set to last event id processed + 1 since we've already processed the last event id
-                    long beginEventId = m_lastEventSeq + 1;
-                    // set m_lastEventSeq to latest key value in event cache
-                    initLastEventIdInEventCache();
-                    // only process events if there are new ones
-                    if (m_lastEventSeq >= beginEventId) {
-                        for (long i = beginEventId; i <= m_lastEventSeq; i++) {
-                            SimpleEvent event = (SimpleEvent) eventCache.get( String.valueOf(i) );
-                            if (event != null) {
-                                boolean nonSessionEvent = (event.getServerId() == null || StringUtils.startsWith(event.getSessionId(), "~"));
-                                String userId = null;
-                                boolean skipIt = false;
+			// send in the last seq number parameter
+			Object[] fields = new Object[1];
+			fields[0] = Long.valueOf(m_lastEventSeq);
 
-                                if (nonSessionEvent) {
-                                    String[] parts = StringUtils.split(event.getSessionId(), "~");
-                                    if (parts.length > 1) {
-                                        userId = parts[1];
-                                    }
+			List events = new ArrayList();
+			if (cachingEnabled) { // KNL-1184
+				// set to last event id processed + 1 since we've already processed the last event id
+				long beginEventId = m_lastEventSeq + 1;
+				// set m_lastEventSeq to latest key value in event cache
+				initLastEventIdInEventCache();
+				// only process events if there are new ones
+				if (m_lastEventSeq >= beginEventId) {
+					for (long i = beginEventId; i <= m_lastEventSeq; i++) {
+						SimpleEvent event = (SimpleEvent) eventCache.get( String.valueOf(i) );
+						if (event != null) {
+							boolean nonSessionEvent = (event.getServerId() == null || StringUtils.startsWith(event.getSessionId(), "~"));
+							String userId = null;
+							boolean skipIt = false;
 
-                                    // we skip this event if it came from our server
-                                    if (parts.length > 0) {
-                                        skipIt = serverId.equals(parts[0]);
-                                    }
-
-                                    event.setUserId(userId);
-                                } else {
-                                    skipIt = serverInstance.equals(event.getServerId());
-                                    event.setSessionId(event.getSessionId());
-                                }
-
-                                // add event to list, only if it is not a local server event
-                                if (!skipIt) {
-                                    events.add(event);
-                                }
-                            }
-                        }
-                    }
-                } else {
-					events = sqlService().dbRead(statement, fields, new SqlReader() {
-						public Object readSqlResultRecord(ResultSet result) {
-							try {
-								Long id = result.getLong(1);
-								Date date = new Date(result.getTimestamp(2, sqlService().getCal()).getTime());
-								String function = result.getString(3);
-								String ref = result.getString(4);
-								String session = result.getString(5);
-								String code = result.getString(6);
-								String context = result.getString(7);
-								String eventSessionServerId = result.getString(8); // may be null
-
-								if (id > m_lastEventSeq) {
-									m_lastEventSeq = id;
+							if (nonSessionEvent) {
+								String[] parts = StringUtils.split(event.getSessionId(), "~");
+								if (parts.length > 1) {
+									userId = parts[1];
 								}
 
-								boolean nonSessionEvent = (eventSessionServerId == null || session.startsWith("~"));
-								String userId = null;
-								boolean skipIt = false;
-
-								if (nonSessionEvent) {
-									String[] parts = StringUtils.split(session, "~");
-									if (parts.length > 1) {
-										userId = parts[1];
-									}
-
-									// we skip this event if it came from our server
-									if (parts.length > 0) {
-										skipIt = serverId.equals(parts[0]);
-									}
-								} else {
-									skipIt = serverInstance.equals(eventSessionServerId);
+								// we skip this event if it came from our server
+								if (parts.length > 0) {
+									skipIt = serverId.equals(parts[0]);
 								}
 
-								if (skipIt) {
-									return null;
-								}
+								event.setUserId(userId);
+							} else {
+								skipIt = serverInstance.equals(event.getServerId());
+								event.setSessionId(event.getSessionId());
+							}
 
-								// Note: events from outside the server don't need notification info, since notification is processed only on internal
-								// events -ggolden
-								BaseEvent event = new BaseEvent(id, function, ref, context, "m".equals(code), NotificationService.NOTI_NONE, date);
-								if (nonSessionEvent) {
-									event.setUserId(userId);
-								} else {
-									event.setSessionId(session);
-								}
-								return event;
-							} catch (Exception ignore) {
-								return null;
+							// add event to list, only if it is not a local server event
+							if (!skipIt) {
+								events.add(event);
 							}
 						}
-					});
+					}
 				}
-				// for each new event found, notify observers
-				for (int i = 0; i < events.size(); i++) {
-					Event event = (Event) events.get(i);
-					notifyObservers(event, false);
-				}
-			}
-			catch (Exception e)
-			{
-				M_log.warn("run: will continue: ", e);
-			}
+			} else {
+				events = sqlService().dbRead(statement, fields, new SqlReader() {
+					public Object readSqlResultRecord(ResultSet result) {
+						try {
+							Long id = result.getLong(1);
+							Date date = new Date(result.getTimestamp(2, sqlService().getCal()).getTime());
+							String function = result.getString(3);
+							String ref = result.getString(4);
+							String session = result.getString(5);
+							String code = result.getString(6);
+							String context = result.getString(7);
+							String eventSessionServerId = result.getString(8); // may be null
 
-			// take a small nap
-			try
-			{
-				Thread.sleep(m_period);
+							if (id > m_lastEventSeq) {
+								m_lastEventSeq = id;
+							}
+
+							boolean nonSessionEvent = (eventSessionServerId == null || session.startsWith("~"));
+							String userId = null;
+							boolean skipIt = false;
+
+							if (nonSessionEvent) {
+								String[] parts = StringUtils.split(session, "~");
+								if (parts.length > 1) {
+									userId = parts[1];
+								}
+
+								// we skip this event if it came from our server
+								if (parts.length > 0) {
+									skipIt = serverId.equals(parts[0]);
+								}
+							} else {
+								skipIt = serverInstance.equals(eventSessionServerId);
+							}
+
+							if (skipIt) {
+								return null;
+							}
+
+							// Note: events from outside the server don't need notification info, since notification is processed only on internal
+							// events -ggolden
+							BaseEvent event = new BaseEvent(id, function, ref, context, "m".equals(code), NotificationService.NOTI_NONE, date);
+							if (nonSessionEvent) {
+								event.setUserId(userId);
+							} else {
+								event.setSessionId(session);
+							}
+							return event;
+						} catch (Exception ignore) {
+							return null;
+						}
+					}
+				});
 			}
-			catch (Exception ignore)
-			{
+			// for each new event found, notify observers
+			for (int i = 0; i < events.size(); i++) {
+				Event event = (Event) events.get(i);
+				notifyObservers(event, false);
 			}
+		}
+		catch (Throwable t)
+		{
+			M_log.error("{}error during execution {}", m_logId, t.getMessage(), t);
 		}
 	}
 
@@ -718,7 +686,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			}
 		});
 
-		if (M_log.isDebugEnabled()) M_log.debug(this + " Starting (after) Event #: " + m_lastEventSeq);
+		M_log.debug("Starting (after) Event #: {}", m_lastEventSeq);
 	}
 
     /**
@@ -769,14 +737,10 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                 // update the last event id each time
                 eventLastCache.put("lastEventId", eventId);
             } else {
-                if (M_log.isDebugEnabled()) {
-                    M_log.info("Cannot store event to cache, event store not initialized.");
-                }
+				M_log.debug("Cannot store event to cache, event store not initialized.");
             }
         } else {
-            if (M_log.isDebugEnabled()) {
-                M_log.info("Cluster caching not enabled.");
-            }
+			M_log.debug("Cluster caching not enabled.");
         }
     }
 
