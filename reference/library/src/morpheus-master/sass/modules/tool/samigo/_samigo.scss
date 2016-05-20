@@ -86,7 +86,8 @@
 	}
 
 	#itemForm\:partialCredit_toggle.tier3,
-	#itemForm\:mcms_credit_toggle.tier3{
+	#itemForm\:mcms_credit_toggle.tier3,
+	#itemForm\:discountDiv.tier3{
 		margin-left: 3em  !important;
 	}
 
@@ -103,5 +104,32 @@
 		@media #{$phone}{
 			text-align: left;
 		}
+	}
+	
+	#itemForm\:answerdsc{
+		margin-left: 10px;
+		width: 45px;
+		@media #{$phone}{
+			margin-left: 0px;
+		}
+	}
+	
+	//This is for jsf labels and checkboxes
+   #itemForm\:chooseAnswerTypeForMC input[type="radio"]{
+   	   @media #{$phone}{
+           float:left;
+           & + label {
+               overflow:auto;
+               display:block;
+           }
+       }
+   }
+   
+	table{
+	   	td{
+	   		input[type="checkbox"],input[type="radio"]{
+	   			margin-right: 5px;
+	   		}
+	   	}
 	}
 }

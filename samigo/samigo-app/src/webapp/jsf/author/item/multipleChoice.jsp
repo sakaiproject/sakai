@@ -107,9 +107,9 @@
                     onkeypress="this.form.onsubmit();this.form.submit();"
                     value="#{itemauthor.currentItem.itemType}"
 	                valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
-      <f:selectItem itemValue="1" itemLabel="&#160; #{commonMessages.multiple_choice_sin}" escape="false" />  
-      <f:selectItem itemValue="12" itemLabel="&#160; #{commonMessages.multipl_mc_ss}" escape="false" /> 
-      <f:selectItem itemValue="2"   itemLabel="&#160; #{commonMessages.multipl_mc_ms}" escape="false" />
+      <f:selectItem itemValue="1" itemLabel="#{commonMessages.multiple_choice_sin}" escape="false" />  
+      <f:selectItem itemValue="12" itemLabel="#{commonMessages.multipl_mc_ss}" escape="false" /> 
+      <f:selectItem itemValue="2"   itemLabel="#{commonMessages.multipl_mc_ms}" escape="false" />
     </h:selectOneRadio>
   </div>
 
@@ -152,11 +152,10 @@
   </h:panelGroup>
 </h:panelGroup>
  
-<h:panelGroup layout="block" id="discountDiv" styleClass="longtext tier3">
+<h:panelGroup layout="block" id="discountDiv" styleClass="tier3">
   <h:panelGroup id="discountTable"
         rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
         || itemauthor.currentItem.itemType==12 || (itemauthor.currentItem.itemType==2 && itemauthor.currentItem.mcmsPartialCredit=='false')}">
-  <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint">
     <f:validateDoubleRange/>
