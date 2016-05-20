@@ -319,6 +319,25 @@ ul.favoriteSiteList{
 	}
 }
 
+	div.fav-title-myworkspace {
+		width: 264px;
+		
+		a {
+		
+			.fa-home {
+				font-size: 1.33333em;
+				padding-right: 6px;
+				
+			}
+			
+			&:hover {
+				text-decoration: none;
+			}
+		}
+		
+	}
+		
+
 .fav-title{
 	width: 240px;
 	overflow: hidden;
