@@ -1547,7 +1547,7 @@ public class ItemAuthorBean
 	  if(allowMinScore == null){
 		  allowMinScore = ServerConfigurationService.getBoolean("samigo.allowMinScore", Boolean.FALSE);
 	  }
-      log.debug("Allow min score: {}", allowMinScore);
+      log.debug("Allow min score: "+ allowMinScore);
 	  return allowMinScore;
   }
 
