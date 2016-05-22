@@ -99,7 +99,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	/**
 	 * site/siteId
 	 *
-	 * OPtion firstDate and lastDate query params in ISO-8601 date format, YYYY-MM-DD
+	 * Optional firstDate and lastDate query params in ISO-8601 date format, YYYY-MM-DD
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
 	public List<CalendarEventSummary> getCalendarEventsForSite(final EntityView view, final Map<String, Object> params) {
@@ -109,52 +109,14 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 		// get siteId
 		final String siteId = view.getPathSegment(2);
 
-		// OPTIONAL params
-		String firstDate = null;
-		String lastDate = null;
-		if (params.containsKey("firstDate")) {
-			firstDate = (String) params.get("firstDate");
-		}
-		if (params.containsKey("lastDate")) {
-			lastDate = (String) params.get("lastDate");
-		}
-
 		// check siteId supplied
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException(
 					"siteId must be set in order to get the calendar feeds for a site, via the URL /calendar/site/siteId");
 		}
 
-		// check date params are correct (length is ok)
-		if (StringUtils.isNotBlank(firstDate) && StringUtils.length(firstDate) != 10) {
-			throw new IllegalArgumentException(
-					"firstDate must be in the format yyyy-MM-dd");
-		}
-		if (StringUtils.isNotBlank(lastDate) && StringUtils.length(lastDate) != 10) {
-			throw new IllegalArgumentException(
-					"lastDate must be in the format yyyy-MM-dd");
-		}
-
-		// if we have dates, create a range for filtering
-		// these need to be converted to Time and then a TimeRange created. This is what the CalendarService uses to filter :(
-		// note that our firstDate is always the beginning of the day and the lastDate is always the end
-		// this is to ensure we get full days
-		TimeRange range = null;
-		if (StringUtils.isNotBlank(firstDate) && StringUtils.isNotBlank(lastDate)) {
-			final Time start = this.timeService.newTimeLocal(
-					Integer.valueOf(StringUtils.substring(firstDate, 0, 4)),
-					Integer.valueOf(StringUtils.substring(firstDate, 5, 7)),
-					Integer.valueOf(StringUtils.substring(firstDate, 8, 10)),
-					0, 0, 0, 0);
-
-			final Time end = this.timeService.newTimeLocal(
-					Integer.valueOf(StringUtils.substring(lastDate, 0, 4)),
-					Integer.valueOf(StringUtils.substring(lastDate, 5, 7)),
-					Integer.valueOf(StringUtils.substring(lastDate, 8, 10)),
-					23, 59, 59, 999);
-
-			range = this.timeService.newTimeRange(start, end, true, true);
-		}
+		// optional timerange
+		final TimeRange range = buildTimeRangeFromRequest(params);
 
 		// user being logged in and having access to the site is handled in the
 		// API
@@ -181,29 +143,20 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 	/**
 	 * my
+	 *
+	 * Optional firstDate and lastDate query params in ISO-8601 date format, YYYY-MM-DD
 	 */
 	@EntityCustomAction(action = "my", viewKey = EntityView.VIEW_LIST)
 	public List<CalendarEventSummary> getMyCalendarEventsForAllSite(
 			final EntityView view, final Map<String, Object> params) {
 		final List<CalendarEventSummary> rv = new ArrayList<CalendarEventSummary>();
 
+		// optional timerange
+		final TimeRange range = buildTimeRangeFromRequest(params);
+
 		// add events form my workspace
-		Calendar cal;
-		try {
-			cal = this.calendarService.getCalendar(String.format(
-					"/calendar/calendar/~%s/main",
-					this.developerHelperService.getCurrentUserId()));
-
-			for (final Object o : cal.getEvents(null, null)) {
-				final CalendarEvent event = (CalendarEvent) o;
-
-				rv.add(new CalendarEventSummary(event));
-			}
-		} catch (final IdUnusedException e) {
-			// should not happened
-		} catch (final PermissionException e) {
-			// should not happened
-		}
+		final String siteId = "~" + this.developerHelperService.getCurrentUserId();
+		rv.addAll(getEventsForSite(siteId, range));
 
 		// get list of all sites
 		final List<Site> sites = this.siteService.getSites(
@@ -214,23 +167,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 		// get all assignments from each site
 		for (final Site site : sites) {
-			final String siteId = site.getId();
-
-			try {
-				cal = this.calendarService.getCalendar(String.format(
-						"/calendar/calendar/%s/main", siteId));
-
-				for (final Object o : cal.getEvents(null, null)) {
-					final CalendarEvent event = (CalendarEvent) o;
-
-					rv.add(new CalendarEventSummary(event));
-				}
-			} catch (final IdUnusedException e) {
-				// should not happened
-			} catch (final PermissionException e) {
-				// should not happened
-			}
-
+			rv.addAll(getEventsForSite(site.getId(), range));
 		}
 		return rv;
 	}
@@ -265,6 +202,89 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 			throw new EntityNotFoundException("No access to site: " + siteId,
 					siteId);
 		}
+	}
+
+	/**
+	 * Helper to get the events for a site
+	 *
+	 * @param siteId siteId. If myworkspace, should already have the ~ prepended.
+	 * @param range {@link TimeRange} to filter by. Must be null if not sending one.
+	 * @return
+	 */
+	private List<CalendarEventSummary> getEventsForSite(final String siteId, final TimeRange range) {
+
+		final List<CalendarEventSummary> rval = new ArrayList<CalendarEventSummary>();
+
+		try {
+			final Calendar cal = this.calendarService.getCalendar(String.format(
+					"/calendar/calendar/%s/main", siteId));
+
+			for (final Object o : cal.getEvents(range, null)) {
+				final CalendarEvent event = (CalendarEvent) o;
+
+				rval.add(new CalendarEventSummary(event));
+			}
+
+			return rval;
+		} catch (final IdUnusedException e) {
+			throw new EntityNotFoundException("Invalid siteId: " + siteId,
+					siteId);
+		} catch (final PermissionException e) {
+			throw new EntityNotFoundException("No access to site: " + siteId,
+					siteId);
+		}
+	}
+
+	/**
+	 * Build a {@link TimeRange} from the supplied request parameters. If the parameters are supplied but invalid, an
+	 * {@link IllegalArgumentException} will be thrown.
+	 * 
+	 * @param params the request params
+	 * @return {@link TimeRange} if valid or null if not
+	 */
+	private TimeRange buildTimeRangeFromRequest(final Map<String, Object> params) {
+
+		// OPTIONAL params
+		String firstDate = null;
+		String lastDate = null;
+		if (params.containsKey("firstDate")) {
+			firstDate = (String) params.get("firstDate");
+		}
+		if (params.containsKey("lastDate")) {
+			lastDate = (String) params.get("lastDate");
+		}
+
+		// check date params are correct (length is ok)
+		if (StringUtils.isNotBlank(firstDate) && StringUtils.length(firstDate) != 10) {
+			throw new IllegalArgumentException(
+					"firstDate must be in the format yyyy-MM-dd");
+		}
+		if (StringUtils.isNotBlank(lastDate) && StringUtils.length(lastDate) != 10) {
+			throw new IllegalArgumentException(
+					"lastDate must be in the format yyyy-MM-dd");
+		}
+
+		// if we have dates, create a range for filtering
+		// these need to be converted to Time and then a TimeRange created. This is what the CalendarService uses to filter :(
+		// note that our firstDate is always the beginning of the day and the lastDate is always the end
+		// this is to ensure we get full days
+		TimeRange range = null;
+		if (StringUtils.isNotBlank(firstDate) && StringUtils.isNotBlank(lastDate)) {
+			final Time start = this.timeService.newTimeLocal(
+					Integer.valueOf(StringUtils.substring(firstDate, 0, 4)),
+					Integer.valueOf(StringUtils.substring(firstDate, 5, 7)),
+					Integer.valueOf(StringUtils.substring(firstDate, 8, 10)),
+					0, 0, 0, 0);
+
+			final Time end = this.timeService.newTimeLocal(
+					Integer.valueOf(StringUtils.substring(lastDate, 0, 4)),
+					Integer.valueOf(StringUtils.substring(lastDate, 5, 7)),
+					Integer.valueOf(StringUtils.substring(lastDate, 8, 10)),
+					23, 59, 59, 999);
+
+			range = this.timeService.newTimeRange(start, end, true, true);
+		}
+		return range;
 	}
 
 }
