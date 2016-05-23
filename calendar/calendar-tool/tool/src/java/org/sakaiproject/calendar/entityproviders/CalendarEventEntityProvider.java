@@ -104,7 +104,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
 	public List<CalendarEventSummary> getCalendarEventsForSite(final EntityView view, final Map<String, Object> params) {
 
-		final List<CalendarEventSummary> r = new ArrayList<CalendarEventSummary>();
+		final List<CalendarEventSummary> rv = new ArrayList<CalendarEventSummary>();
 
 		// get siteId
 		final String siteId = view.getPathSegment(2);
@@ -118,27 +118,9 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 		// optional timerange
 		final TimeRange range = buildTimeRangeFromRequest(params);
 
-		// user being logged in and having access to the site is handled in the
-		// API
-		Calendar cal;
-		try {
-			cal = this.calendarService.getCalendar(String.format(
-					"/calendar/calendar/%s/main", siteId));
-
-			for (final Object o : cal.getEvents(range, null)) {
-				final CalendarEvent event = (CalendarEvent) o;
-
-				r.add(new CalendarEventSummary(event));
-			}
-
-			return r;
-		} catch (final IdUnusedException e) {
-			throw new EntityNotFoundException("Invalid siteId: " + siteId,
-					siteId);
-		} catch (final PermissionException e) {
-			throw new EntityNotFoundException("No access to site: " + siteId,
-					siteId);
-		}
+		// user being logged in and having access to the site is handled in the API
+		rv.addAll(getEventsForSite(siteId, range));
+		return rv;
 	}
 
 	/**
