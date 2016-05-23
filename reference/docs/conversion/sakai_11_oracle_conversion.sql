@@ -763,8 +763,6 @@ CREATE TABLE lti_memberships_jobs (
 );
 -- END LTI CHANGES !!
 
--- LSNBLDR-500
-alter table lesson_builder_pages add folder varchar2(250);
 -- LSNBLDR-622
 alter table lesson_builder_items modify (name varchar2(255 char));
 alter table lesson_builder_pages modify (title varchar2(255 char));
@@ -786,7 +784,6 @@ create table lesson_builder_ch_status (
         primary key (checklistId,checklistItemId,owner)
  );
 create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
-create index lb_page_folder on lesson_builder_pages(siteId, folder);
 
 -- ------------------------------
 -- DASHBOARD                -----
