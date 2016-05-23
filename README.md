@@ -57,6 +57,12 @@ If you have any questions, please join the Sakai developer mailing list: To subs
 To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
 https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists
 
+If you want more immediate response during M-F typical business hours you could try our Slack channels.
+
+https://apereo.slack.com/signup
+
+If you can't find your  "at institution.edu" on the Apereo signup page then send an email requesting access for yourself and your institution either to sakai-qa-planners@apereo.org or sakaicoordinator@apereo.org .
+
 ## Community supported versions
 [Sakai 10](https://confluence.sakaiproject.org/display/DOC/Sakai+10+Release+Notes) is the recommended version for production use.
 
