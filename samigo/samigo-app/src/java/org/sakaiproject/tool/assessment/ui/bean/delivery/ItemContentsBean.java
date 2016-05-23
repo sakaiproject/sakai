@@ -1318,6 +1318,9 @@ public class ItemContentsBean implements Serializable {
   }
 
   public Double getUpdatedScore () {
+      if (itemData.getScore() == null)
+	  return 0.0;
+      else
 	  return MathUtils.round(itemData.getScore(), 2);
   }
 	 
