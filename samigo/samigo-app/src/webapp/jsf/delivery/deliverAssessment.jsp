@@ -290,6 +290,32 @@ for (i=0; i<document.links.length; i++) {
 }
 document.links[newindex].onclick();
 }
+
+function clickSaCharCountOnFront(field) {
+    var totalCount;
+    $(field).closest('table').siblings().each(function() {
+        var ta = $(this).find('textarea');
+        if (ta.length > 0) {
+            $(ta).each(function() {
+                if ($(this).attr('id').indexOf('textinput') > -1) {
+                    if (!$(this).is(":visible")) {
+                        $(this).siblings('div').each(function() {
+                            var frame = $(this).find('iframe');
+                            if (frame.length > 0) {
+                                totalCount = frame.contents().find(".cke_editable").html().length;
+                            }
+                        });
+                    } else {
+                        totalCount = $(this).val().length;
+                    }
+                }
+
+            });
+        }
+    });
+    $(field).siblings('input').val(totalCount);
+}
+
 </script>
 
 
