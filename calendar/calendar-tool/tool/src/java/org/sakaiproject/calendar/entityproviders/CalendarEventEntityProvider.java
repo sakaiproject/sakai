@@ -176,7 +176,10 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 			cal = this.calendarService.getCalendar(String.format(
 					"/calendar/calendar/%s/main", siteId));
 
-			return new CalendarEventDetails(cal.getEvent(eventId));
+			final CalendarEvent event = cal.getEvent(eventId);
+			final CalendarEventDetails rval = new CalendarEventDetails(event);
+			rval.setSiteId(siteId);
+			return rval;
 		} catch (final IdUnusedException e) {
 			throw new EntityNotFoundException("Invalid siteId: " + siteId,
 					siteId);
@@ -204,7 +207,9 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 			for (final Object o : cal.getEvents(range, null)) {
 				final CalendarEvent event = (CalendarEvent) o;
 
-				rval.add(new CalendarEventSummary(event));
+				final CalendarEventSummary summary = new CalendarEventSummary(event);
+				summary.setSiteId(siteId);
+				rval.add(summary);
 			}
 		} catch (final IdUnusedException e) {
 			// may not have a calendar, skip it
