@@ -162,28 +162,49 @@
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
   <div class="tier2" id="assessment-intro">
+    <div class="form-group row">
+        <h:outputLabel for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}" 
+                            styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:inputText id="assessment_title" size="80" maxlength="255" value="#{publishedSettings.title}" />
+        </div>
+    </div>
+        
+    <div class="form-group row">
+        <h:outputLabel value="#{assessmentSettingsMessages.published_assessment_url}: " 
+                        styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:outputText value="#{publishedSettings.publishedUrl}" />
+        </div>
+    </div>
 
-        <h:outputLabel for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}"/>
-        <h:inputText id="assessment_title" size="80" maxlength="255" value="#{publishedSettings.title}" />
+    <div class="form-group row">
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"
+                        styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:outputText value="#{publishedSettings.creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        </div>
+    </div>
 
-        <h:outputLabel value="#{assessmentSettingsMessages.published_assessment_url}: " />
-        <h:outputText value="#{publishedSettings.publishedUrl}" />
+    <div class="form-group row">
+        <h:outputLabel for="assessment_author" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"
+                styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:inputText id="assessment_author" size="80" maxlength="255" value="#{publishedSettings.authors}" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        </div>
+    </div>
 
-        <h:outputLabel value="#{assessmentSettingsMessages.assessment_creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-
-        <h:outputText value="#{publishedSettings.creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-
-        <h:outputLabel for="assessment_author" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"/>
-
-        <h:inputText id="assessment_author" size="80" maxlength="255" value="#{publishedSettings.authors}" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-
-        <h:outputLabel value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}"/>
-
-        <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
-           <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" >
-           <f:validateLength maximum="60000"/>
-         </samigo:wysiwyg>
-        </h:panelGrid>
+    <div class="form-group row">
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}"
+            styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
+                <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" >
+                    <f:validateLength maximum="60000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
+        </div>
+    </div>
 
        <!-- Honor Pledge -->
     <div class="form-group row">
@@ -195,9 +216,7 @@
     </div>
 
     <!-- ASSESSMENT ATTACHMENTS -->
-    <div class="form-group row">
-        <%@ include file="/jsf/author/publishedSettings_attachment.jsp" %>
-    </div>
+    <%@ include file="/jsf/author/publishedSettings_attachment.jsp" %>
        
   </div>
   
