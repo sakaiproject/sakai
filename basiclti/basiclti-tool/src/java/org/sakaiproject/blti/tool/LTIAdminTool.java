@@ -1609,9 +1609,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				"imscert": "launch\u00bbWtSsVIge"
 			}
 		} */
+
 		String title = getString(item,"title");
 		String text = getString(item,"text");
 		String url = getString(item,"url");
+		// If the URL is empty, assume it is the same as the launch URL
+		if ( url == null ) {
+			url = (String) tool.get(LTIService.LTI_LAUNCH);
+		}
+
 		JSONObject lineItem = getObject(item,"lineItem");
 		JSONObject custom = getObject(item,"custom");
 		String custom_str = "";

@@ -118,6 +118,13 @@ public class SakaiBLTIUtil {
 
 	// Turns off extensions
 	public static final String LTI_STRICT = "basiclti.strict";
+	// Compensate for incoherent choices in the certification tests
+	// Search for the "getStrictVersion()" string to find code that works around 
+	// bad choices in certifications tests that are un-negotiable
+	public static final String LTI_STRICT_VERSION = "basiclti.strict.version";
+	// Change this as we release versions of Sakai that need to certify
+	// with versions of LTI.
+	public static final String LTI_STRICT_VERSION_DEFAULT = "02.00.00"; // 2.0
 
 	public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
 	public static final String BASICLTI_OUTCOMES_ENABLED_DEFAULT = "true";
@@ -316,7 +323,14 @@ public class SakaiBLTIUtil {
 			if ( courseRoster != null ) 
 			{
 				setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,courseRoster);
+				setProperty(props,BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID,courseRoster);
 				setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,courseRoster);
+				setProperty(lti2subst,LTI2Vars.COURSEOFFERING_SOURCEDID,courseRoster);
+			} else {
+				setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,site.getId());
+				setProperty(props,BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID,site.getId());
+				setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,site.getId());
+				setProperty(lti2subst,LTI2Vars.COURSEOFFERING_SOURCEDID,site.getId());
 			}
 		}
 
@@ -343,7 +357,6 @@ public class SakaiBLTIUtil {
 	{
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
-
 		User user = UserDirectoryService.getCurrentUser();
 		if ( user != null )
 		{
@@ -351,6 +364,8 @@ public class SakaiBLTIUtil {
 			setProperty(lti2subst,LTI2Vars.USER_ID,user.getId());
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
 			setProperty(lti2subst,LTI2Vars.USER_USERNAME,user.getEid());
+			setProperty(lti2subst,LTI2Vars.PERSON_SOURCEDID,user.getEid());
+
 			if ( releasename == 1 ) {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
@@ -620,7 +635,11 @@ public class SakaiBLTIUtil {
 
 	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb)
 	{
-		if ( rb != null ) setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE,rb.getLocale().toString()); 
+		if ( rb != null ) {
+			String locale = rb.getLocale().toString(); 
+			setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE,locale);
+			setProperty(custom,LTI2Vars.MESSAGE_LOCALE,locale);
+		}
 
 		// Add information about the Tool Consumer for LTI 1.x
 		LTI2Config cnf = new SakaiLTI2Config();
@@ -745,6 +764,36 @@ public class SakaiBLTIUtil {
 			}
 		}
 
+		// LTI 2.0 certification fails these:
+		//    5.8: Send a lis_person_sourcedid
+		//    6.9: Send a lis_course_offering_sourcedid
+		//    6.10: Send a lis_course_section_sourcedid
+		// Unless we include the fields below (generally needed by consumers)
+
+		// LTI 2.1 fails "12.5: Launch parameters are consistent with tool proxy" 
+		// If we do include them or any of the "launch_presentation_*" fields
+
+		// The normal case is to include these fields to help out the provider
+		// The special certification case is for LTI 2.1 (unless we can get the
+		// certification fixed by the time it is final).
+
+		if ( enabledCapabilities != null && ! checkStrictVersion("02.01.00","02.01.00") ) {
+			addEnabledCapability(enabledCapabilities, LTI2Vars.PERSON_SOURCEDID);
+			addEnabledCapability(enabledCapabilities, LTI2Vars.RESULT_SOURCEDID);
+			addEnabledCapability(enabledCapabilities, LTI2Vars.BASICOUTCOME_SOURCEDID);
+			addEnabledCapability(enabledCapabilities, LTI2Vars.COURSEOFFERING_SOURCEDID);
+			addEnabledCapability(enabledCapabilities, LTI2Vars.COURSESECTION_SOURCEDID);
+
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_DOCUMENT_TARGET);
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_HEIGHT);
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_WIDTH);
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL);
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID);
+			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID);
+		}
+
 		// Start building up the properties
 		Properties ltiProps = new Properties();
 		Properties toolProps = new Properties();
@@ -757,6 +806,8 @@ public class SakaiBLTIUtil {
 		addGlobalData(site, ltiProps, lti2subst, rb);
 		addSiteInfo(ltiProps, lti2subst, site);
 		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
+		addUserInfo(ltiProps, lti2subst, tool);
+
 
 		// This is for 1.2 - Not likely to be used
 		// http://www.imsglobal.org/lti/ltiv1p2/ltiIMGv1p2.html
@@ -805,34 +856,7 @@ public class SakaiBLTIUtil {
 			setProperty(lti2subst,LTI2Vars.RESOURCELINK_DESCRIPTION,title);
 		}
 
-		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
-		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
-
 		User user = UserDirectoryService.getCurrentUser();
-		if ( user != null )
-		{
-			setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
-			setProperty(lti2subst,LTI2Vars.USER_ID,user.getId());
-			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
-			setProperty(lti2subst,LTI2Vars.USER_USERNAME,user.getEid());
-			if ( releasename == 1 ) {
-				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
-				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
-				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FULL,user.getDisplayName());
-				setProperty(lti2subst,LTI2Vars.PERSON_NAME_GIVEN,user.getFirstName());
-				setProperty(lti2subst,LTI2Vars.PERSON_NAME_FAMILY,user.getLastName());
-				setProperty(lti2subst,LTI2Vars.PERSON_NAME_FULL,user.getDisplayName());
-			}
-			if ( releaseemail == 1 ) {
-				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
-				setProperty(lti2subst,LTI2Vars.PERSON_EMAIL_PRIMARY,user.getEmail());
-				// Only send the display ID if it's different to the EID.
-				// the anonymous user has a null EID.
-				if (user.getEid() != null && !user.getEid().equals(user.getDisplayId())) {
-					setProperty(ltiProps,BasicLTIConstants.EXT_SAKAI_PROVIDER_DISPLAYID,user.getDisplayId());
-				}
-			}
-		}
 
 		int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 		int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
@@ -907,17 +931,14 @@ public class SakaiBLTIUtil {
 
 		LTI2Util.mergeLTI1Custom(custom, (String) tool.get(LTIService.LTI_CUSTOM));
 
-		// System.out.println("ltiProps="+ltiProps);
 		if ( isLTI2 ) {
+			M_log.debug("before ltiProps="+ltiProps);
+			M_log.debug("enabledCapabilities="+enabledCapabilities);
 			boolean allowExt = enabledCapabilities.contains(SAKAI_EXTENSIONS_ALL);
 			LTI2Util.filterLTI1LaunchProperties(ltiProps, enabledCapabilities, allowExt);
-			// System.out.println("filtered ltiProps="+ltiProps);
 		}
 
-		// System.out.println("toolProps="+toolProps);
-		// System.out.println("custom="+custom);
-		// System.out.println("lti2subst="+lti2subst);
-
+		M_log.debug("ltiProps="+ltiProps);
 		M_log.debug("lti2subst="+lti2subst);
 		M_log.debug("before custom="+custom);
 		LTI2Util.substituteCustom(custom, lti2subst);
@@ -1235,10 +1256,17 @@ public class SakaiBLTIUtil {
 		addGlobalData(site, ltiProps, lti2subst, rb);
 		addSiteInfo(ltiProps, lti2subst, site);
 		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
+
+		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		addUserInfo(ltiProps, lti2subst, tool);
 
-		// Don't sent the normal return URL - Certification
-		ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+		// Don't sent the normal return URL when we are doing ContentItem launch 
+		// Certification Issue
+                if( LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
+
+			ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+		}
 
 		String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM) );
 		parseCustom(ltiProps, customstr);
@@ -1910,4 +1938,27 @@ public class SakaiBLTIUtil {
 		}
 		return roleMap;
 	}
+
+	/**
+	 * Check the strict version we are complying with because of strange anomalies of
+	 * the certification tests as they evolve over time.  The biggest problem is that
+	 * as the LTI 2.1 certification tests are developed, some 2.1 features sneak back
+	 * into later versions of the LTI 2.0 certification tests making it impossible. 
+	 * to comply with multiple versions at the same time.  It is 100% sad that this
+	 * is necessary.
+	 */
+	public static boolean checkStrictVersion(String low, String high) {
+		String sver = ServerConfigurationService.getString(LTI_STRICT_VERSION, LTI_STRICT_VERSION_DEFAULT);
+		if ( sver == null ) return false;
+		return (sver.compareTo(low) >= 0 && sver.compareTo(high) <= 0 );
+	}
+
+	/**
+	 * Add an enabledCapability if it does not exist
+	 */
+	public static void addEnabledCapability(JSONArray enabledCapabilities, String cap)
+	{
+		if ( ! enabledCapabilities.contains(cap) ) enabledCapabilities.add(cap);
+	}
+
 }
