@@ -575,6 +575,7 @@ public class LTI2Service extends HttpServlet {
 		if ( "PUT".equals(request.getMethod()) ) {
 			try {
 				jsonRequest = new IMSJSONRequest(request);
+				M_log.debug("Settings PUT "+jsonRequest.getPostBody());
 				requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 			} catch (Exception e) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
