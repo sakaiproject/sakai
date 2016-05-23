@@ -48,6 +48,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
  * Handler to process directtool urls including storing destination state
@@ -60,6 +62,8 @@ import org.sakaiproject.util.Web;
 public class DirectToolHandler extends BasePortalHandler
 {
 	private static Logger M_log = LoggerFactory.getLogger(DirectToolHandler.class);
+
+	private static ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class);
 
 	public static final String URL_FRAGMENT = "directtool";
 
@@ -154,6 +158,14 @@ public class DirectToolHandler extends BasePortalHandler
 		{
 			portal.doError(req, res, session, Portal.ERROR_WORKSITE);
 			return END;
+		}
+
+		// toolContextPath will may be /portal/directtool/tttt.
+		// we need /portal/site/NNN/tool/tttt in order to get full markup
+		// storedstate will replace directool with tool, so we just insert site
+		String portalPath = serverConfigurationService.getString("portalPath", "/portal");
+		if (toolContextPath.startsWith(portalPath + "/directtool/")) {
+		    toolContextPath = portalPath + "/site/" + siteTool.getSiteId() + toolContextPath.substring(portalPath.length());
 		}
 
 		// permission check - visit the site (unless the tool is configured to
