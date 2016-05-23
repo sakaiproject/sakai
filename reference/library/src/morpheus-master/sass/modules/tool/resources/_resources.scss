@@ -188,22 +188,4 @@
 	.inactive .dropdown-menu a {
 		color:#000 !important;
 	}
-
-	.dropzone {
-		overflow: hidden;
-		border: 2px dashed $toolMenuColor;
-		border-radius: 5px;
-		background-color: $toolMenuBGColor;
-		&:hover {
-			border-color: lighten( $toolMenuColor, 5% );
-			background-color: lighten( $toolMenuBGColor, 5% );
-		}
-	}
-
-	.dropzone .dz-message .note {
- 		font-size: 0.8em;
- 		font-weight: 200;
- 		display: block;
- 		margin-top: 1.4rem;
- 	}
 }
