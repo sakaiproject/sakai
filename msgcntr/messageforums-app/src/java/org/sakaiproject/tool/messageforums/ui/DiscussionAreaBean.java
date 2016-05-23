@@ -33,6 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.api.app.messageforums.Area;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.TimeService;
+
+
 /**
  * 
  * @author <a href="mailto:wagnermr@iupui.edu">Michelle Wagner</a>
@@ -41,11 +45,18 @@ import org.sakaiproject.api.app.messageforums.Area;
 public class DiscussionAreaBean 
 {
 	 private static final Logger LOG = LoggerFactory.getLogger(DiscussionAreaBean.class);
-	 
+	 private static TimeService timeService = (TimeService)ComponentManager.get(TimeService.class);
+
 	 private Area area;
 	 private int numPendingMsgs;
-	 private SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	 
+	 private SimpleDateFormat datetimeFormat = ourDateFormat();
+
+	 private SimpleDateFormat ourDateFormat() {
+	     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	     df.setTimeZone(timeService.getLocalTimeZone());
+	     return df;
+	 }
+
 	 public DiscussionAreaBean(Area area)
 	 {
 	    if(LOG.isDebugEnabled())
