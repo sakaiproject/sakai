@@ -224,21 +224,19 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 				rval.add(new CalendarEventSummary(event));
 			}
-
-			return rval;
 		} catch (final IdUnusedException e) {
-			throw new EntityNotFoundException("Invalid siteId: " + siteId,
-					siteId);
+			// may not have a calendar, skip it
 		} catch (final PermissionException e) {
-			throw new EntityNotFoundException("No access to site: " + siteId,
-					siteId);
+			// may not have access, skip it
 		}
+
+		return rval;
 	}
 
 	/**
 	 * Build a {@link TimeRange} from the supplied request parameters. If the parameters are supplied but invalid, an
 	 * {@link IllegalArgumentException} will be thrown.
-	 * 
+	 *
 	 * @param params the request params
 	 * @return {@link TimeRange} if valid or null if not
 	 */
