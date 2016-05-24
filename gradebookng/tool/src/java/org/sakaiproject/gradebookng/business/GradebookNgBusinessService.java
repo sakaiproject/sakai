@@ -589,12 +589,18 @@ public class GradebookNgBusinessService {
 		// this gives us our base list and will be sorted as per our desired
 		// sort method
 		final List<User> students = getUsers(studentUuids);
-		if (settings.getNameSortOrder() != null) {
+		if (settings.getStudentSortOrder() != null || settings.getNameSortOrder() != null) {
 
-			if (settings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME) {
-				Collections.sort(students, new LastNameComparator());
-			} else {
+			if (settings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME) {
 				Collections.sort(students, new FirstNameComparator());
+			} else {
+				Collections.sort(students, new LastNameComparator());
+			}
+
+			if (settings.getStudentSortOrder() != null &&
+				settings.getStudentSortOrder().equals(SortDirection.DESCENDING)) {
+
+				Collections.reverse(students);
 			}
 		}
 
