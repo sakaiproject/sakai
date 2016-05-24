@@ -769,21 +769,34 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void updateAssignment(final String gradebookUid, final Long assignmentId, final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {		
+	public void updateAssignment(final String gradebookUid, final Long assignmentId,
+			final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
-			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the definition of assignment " + assignmentId);
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid
+					+ " attempted to change the definition of assignment " + assignmentId);
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
-		
+
+		final Gradebook gradebook = this.getGradebook(gradebookUid);
+
 		getHibernateTemplate().execute(new HibernateCallback() {
 			@Override
-			public Object doInHibernate(Session session) throws HibernateException {
+			public Object doInHibernate(final Session session) throws HibernateException {
 				final Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 				if (assignment == null) {
-					throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
+					throw new AssessmentNotFoundException(
+							"There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
 				}
-				
-				//external assessments are supported, but not these fields
+
+				// check if we need to scale the grades
+				// this will be if we have percentage grading and we change the points possible
+				boolean scaleGrades = false;
+				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE
+						&& assignment.getPointsPossible() != assignmentDefinition.getPoints()) {
+					scaleGrades = true;
+				}
+
+				// external assessments are supported, but not these fields
 				if (!assignmentDefinition.isExternallyMaintained()) {
 					assignment.setName(assignmentDefinition.getName().trim());
 					assignment.setPointsPossible(assignmentDefinition.getPoints());
@@ -792,17 +805,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setExtraCredit(assignmentDefinition.isExtraCredit());
 				assignment.setCounted(assignmentDefinition.isCounted());
 				assignment.setReleased(assignmentDefinition.isReleased());
-				
-				//if we have a category, get it and set it
-				//otherwise clear it fully
+
+				// if we have a category, get it and set it
+				// otherwise clear it fully
 				if (assignmentDefinition.getCategoryId() != null) {
-					Category cat = (Category) session.load(Category.class, assignmentDefinition.getCategoryId());
+					final Category cat = (Category) session.load(Category.class, assignmentDefinition.getCategoryId());
 					assignment.setCategory(cat);
 				} else {
 					assignment.setCategory(null);
 				}
-				
+
 				updateAssignment(assignment, session);
+
+				if (scaleGrades) {
+					convertGradePointsForUpdatedTotalPoints(gradebook, assignment);
+				}
+
 				return null;
 			}
 		});
@@ -3555,5 +3573,72 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		rval = (List)getHibernateTemplate().execute(hc);
 		return rval;
+	}
+	
+	/**
+	 * Update the persistent grade points for an assignment when the total points is changed.
+	 *
+	 * @param gradebook the gradebook
+	 * @param assignment assignment with original total point value
+	 */
+	private void convertGradePointsForUpdatedTotalPoints(final Gradebook gradebook, final Assignment assignment) {
+		if (gradebook == null || assignment == null || assignment.getPointsPossible() == null) {
+			throw new IllegalArgumentException("null values found in convertGradePointsForUpdatedTotalPoints.");
+		}
+
+		final List<String> studentUids = getStudentsForGradebook(gradebook);
+		final List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItem(assignment.getId(), studentUids);
+
+		// scale for total points changed when on percentage grading
+		// TODO could quite easily scale for total points changed when on a points grading as well...
+		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+
+			// Calculate the new points value that we should be persisting based on the new total points
+			if (assignment.getPointsPossible() != null) {
+				gradeRecords.forEach(gr -> gr.setPointsEarned(
+						calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), gr.getPointsEarned())));
+			}
+		}
+
+		// save all
+		batchPersistEntities(gradeRecords);
+	}
+
+	/**
+	 * Get the list of students for the given gradebook
+	 *
+	 * @param gradebook the gradebook for the site
+	 * @return a list of uuids for the students
+	 */
+	private List<String> getStudentsForGradebook(final Gradebook gradebook) {
+		final List<EnrollmentRecord> enrolments = getSectionAwareness().getSiteMembersInRole(gradebook.getUid(), Role.STUDENT);
+
+		final List<String> rval = enrolments.stream()
+				.map(EnrollmentRecord::getUser)
+				.map(User::getUserUid)
+				.collect(Collectors.toList());
+
+		return rval;
+	}
+
+	/**
+	 * Helper to batch persist entities
+	 *
+	 * @param entities a list of entities.
+	 */
+	private void batchPersistEntities(final List<?> entities) {
+
+		final Session session = getSessionFactory().openSession();
+
+		for (int i = 0; i < entities.size(); i++) {
+			session.saveOrUpdate(entities.get(i));
+			if (i % 20 == 0) {
+				session.flush();
+				session.clear();
+			}
+		}
+
+		// Sakai auto commits the session
+		session.close();
 	}
 }
