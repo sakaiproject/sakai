@@ -113,7 +113,7 @@ public class GradeImportConfirmationStep extends Panel {
 				}
 
 				if (!errors) {
-					getSession().info(getString("importExport.confirmation.success"));
+					getSession().success(getString("importExport.confirmation.success"));
 					setResponsePage(new GradebookPage());
 				} else {
 					getSession().error(getString("importExport.confirmation.failure"));
