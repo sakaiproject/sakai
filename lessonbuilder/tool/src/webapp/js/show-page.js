@@ -20,6 +20,11 @@ $(window).load(function () {
 	if($('.collapsibleSectionHeader').length) {
 		$('#expandCollapseButtons').show();
 	}
+	$('.defaultClosed').each(function() {
+		var header = $(this).prev();
+		setCollapsedStatus(header, true);
+	    });
+
 });
 
 function msg(s) {
@@ -89,8 +94,7 @@ $(document).ready(function() {
 		var section = $(this).next("div.section");
 		if (section.hasClass("collapsible")) {
 			section.slideToggle();
-			$(this).toggleClass("closedSectionHeader");
-			$(this).toggleClass("openSectionHeader");
+			setCollapsedStatus($(this), null); // toggle
 		}
 	});
 
@@ -119,8 +123,7 @@ $(document).ready(function() {
 			var section = $(this).next("div.section");
 			if (section.hasClass("collapsible")) {
 				section.slideDown();
-				$(this).removeClass("closedSectionHeader");
-				$(this).addClass("openSectionHeader");
+				setCollapsedStatus($(this), false);
 			}
 		});
 		$("#expandAllSections").hide();
@@ -132,8 +135,7 @@ $(document).ready(function() {
 			var section = $(this).next("div.section");
 			if (section.hasClass("collapsible")) {
 				section.slideUp();
-				$(this).addClass("closedSectionHeader");
-				$(this).removeClass("openSectionHeader");
+				setCollapsedStatus($(this), true);
 			}
 		});
 		$("#collapseAllSections").hide();
@@ -2075,7 +2077,7 @@ $(document).ready(function() {
 		var tail_uls = addAboveLI.parent().nextAll();
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
-		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-toggle-up fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2083,8 +2085,7 @@ $(document).ready(function() {
 			var section = $(this).next("div.section");
 			if (section.hasClass("collapsible")) {
 				section.slideToggle();
-				$(this).toggleClass("closedSectionHeader");
-				$(this).toggleClass("openSectionHeader");
+				setCollapsedStatus($(this), null);
 			}
 		});
 
@@ -2114,7 +2115,7 @@ $(document).ready(function() {
 		// current section DIV
 		var tail_uls = addAboveLI.parent().nextAll();
 		var column = addAboveLI.parent().parent();
-		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-toggle-up fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
 		// now go to new section
 		column = column.next();
 		// and move current item and following into the first col of the new section
@@ -2195,7 +2196,7 @@ $(document).ready(function() {
 	    $('#columnyellow').prop('selected', col.hasClass('colyellow'));
 	    $('#collapsible').prop('checked', col.parent('.section').hasClass('collapsible'));
 	    $('#defaultClosed').prop('checked', col.parent('.section').hasClass('defaultClosed'));
-	    $('#sectionTitle').val(col.parent('.section').prev('.sectionHeader').html());
+	    $('#sectionTitle').val(col.parent('.section').prev().find('.sectionHeaderText').text());
 		if(!$("#sectionTitle").val()) {
 			$("#collapsible").prop('checked', false);
 			$("#collapsible").prop("disabled", true);
@@ -2253,7 +2254,7 @@ $(document).ready(function() {
 		fixupColAttrs();
 		fixupHeights();
 		setSectionCollapsible(itemid, collapsible, sectionTitle, defaultClosed);
-		header.html(sectionTitle);
+		header.find('.sectionHeaderText').text(sectionTitle);
 		if (sectionTitle === '') {
 			header.addClass('skip');
 		} else {
@@ -2262,13 +2263,11 @@ $(document).ready(function() {
 		if (collapsible) {
 			section.addClass('collapsible');
 			header.addClass('collapsibleSectionHeader');
-			header.addClass('openSectionHeader');
-			header.removeClass('closedSectionHeader');
+			setCollapsedStatus($(this), false);
 		} else {
 			section.removeClass('collapsible');
 			header.removeClass('collapsibleSectionHeader');
-			header.removeClass('openSectionHeader');
-			header.removeClass('closedSectionHeader');
+			setCollapsedStatus($(this), false);
 		}
 		if (defaultClosed) {
 			section.addClass('defaultClosed');
@@ -2418,6 +2417,24 @@ $(document).ready(function() {
 
 	return false;
 });
+
+function setCollapsedStatus(header, collapse) {
+    if (collapse === null) {
+	// toggle
+	collapse = header.find('.collapseIcon').hasClass("fa-toggle-up");
+    }
+    if (collapse) {
+	header.find('.collapseIcon').addClass("fa-toggle-down");
+	header.find('.collapseIcon').removeClass("fa-toggle-up");
+	header.find('.sectionCollapsedIcon').show();
+	header.find('.toggleCollapse').text(msg('simplepage.clickToExpand'));
+    } else {
+	header.find('.collapseIcon').removeClass("fa-toggle-down");
+	header.find('.collapseIcon').addClass("fa-toggle-up");
+	header.find('.sectionCollapsedIcon').hide();
+	header.find('.toggleCollapse').text(msg('simplepage.clickToCollapse'));
+    }
+}
 
 function closeSubpageDialog() {
 	$("#subpage-dialog").dialog("close");

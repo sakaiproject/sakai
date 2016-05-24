@@ -76,6 +76,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 
 /**
  * <p>
@@ -102,6 +103,7 @@ public class AjaxServer extends HttpServlet
    private static SiteService siteService;
    private static AuthzGroupService authzGroupService;
    private static SimplePageToolDao simplePageToolDao;
+   private static LessonsAccess lessonsAccess;
 
    public void setSimplePageToolDao(Object dao) {
        log.info("setdao " + dao);
@@ -516,8 +518,7 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
-	String ref = "/site/" + siteId;
-	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 	    log.error("Ajax insertBreakBefore passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
@@ -651,8 +652,7 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
-	String ref = "/site/" + siteId;
-	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 	    log.error("Ajax setcolumnproperties passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
@@ -716,8 +716,7 @@ public class AjaxServer extends HttpServlet
 			return null;
 		}
 
-		String ref = "/site/" + siteId;
-		if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+		if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 			log.error("Ajax setSectionCollapsible passed itemid " + itemId + " but user doesn't have permission");
 			return null;
 		}
@@ -794,8 +793,7 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
-	String ref = "/site/" + siteId;
-	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 	    log.error("Ajax deleteBreak passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
@@ -907,6 +905,10 @@ public class AjaxServer extends HttpServlet
 
     public void setAuthzGroupService(AuthzGroupService s) {
         authzGroupService = s;
+    }
+
+    public void setLessonsAccess(LessonsAccess s) {
+        lessonsAccess = s;
     }
 
 }

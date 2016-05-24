@@ -1128,7 +1128,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
 					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
 					boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
-					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader", i.getName() == null ? "" : i.getName());
+					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
+					UIOutput.make(sectionWrapper, "sectionHeaderText", i.getName() == null ? "" : i.getName());
 					sectionHeader.decorate(new UIStyleDecorator(i.getName() == null || i.getName().isEmpty() ? "skip" : ""));
 					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
 					if (collapsible) {

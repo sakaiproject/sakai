@@ -1163,7 +1163,7 @@ div[role="dialog"] {
   float:right !important;
 }
 .action {
-  margin-top:5px;
+  margin-top: 5px;
 }			      
 .Mrphs-siteHierarchy {
     height: auto !important;
@@ -1308,18 +1308,15 @@ color: #666;
     padding: .5em;
 }
 
-.closedSectionHeader:before {
-    content: "\f065"; /* fa-expand */
+.sectionHeader .collapseIcon {
     font-family: FontAwesome;
-    float: right;
+    float:right;
 }
 
-.openSectionHeader:before {
-    content: "\f066";  /* fa-compress */
+.sectionCollapsedIcon {
     font-family: FontAwesome;
-    float: right;
+    margin-left: 1em;
 }
-
 #expandCollapseButtons {
     width: 100%;
     text-align: right;
@@ -1333,13 +1330,19 @@ color: #666;
     position: relative;
 }
 
-.collapsibleSectionHeader:after {
-    content: 'Click to expand/collapse';
+.toggleCollapse, .collapseIcon {
+    display: none;
+}
+.collapsibleSectionHeader .collapseIcon {
+    display: block;
+}
+.collapsibleSectionHeader .toggleCollapse {
+    display: block;
     position: absolute;
     opacity: 0;
     z-index: 1000000;
-    -webkit-transition: 0.3s ease;
-    -moz-transition: 0.3s ease;
+    webkit-transition: 0.3s ease;
+    moz-transition: 0.3s ease;
     pointer-events: none;
     background: rgba(0, 0, 0, 0.8);
     color: white;
@@ -1357,7 +1360,7 @@ color: #666;
     background-color: #eee;
 }
 
-.collapsibleSectionHeader:hover:after {
+.collapsibleSectionHeader:hover .toggleCollapse {
     opacity: 1;
     margin-top: 6px;
 }
