@@ -84,6 +84,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.' + elfinderBuild +
             '.html?connector=elfinder-connector/elfinder-servlet/connector';
 
+        // Add tilde to userId in order to avoid permission error while getting resources from user workspace
+        collentionId = collectionId.replace('/user/','/user/~');
+
         var filebrowser = {
             browseUrl :      elfinderUrl + '&startdir=' + collectionId,
             imageBrowseUrl : elfinderUrl + '&startdir=' + collectionId + '&type=images',
