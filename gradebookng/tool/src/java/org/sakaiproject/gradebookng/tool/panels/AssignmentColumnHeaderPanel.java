@@ -114,15 +114,20 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(title);
 
-		// if percentage then we want that as the 'outof' label and the attribute that is used for the cell through the JS.
-		// TODO could probably be done better via setting the model afterwards, except its in an attribute modifier...
+		// if percentage then we want that as the 'outof' label
+		// we also set the attribute here that is used for the cell by the JS
+		final Label totalLabel = new Label("totalLabel");
+		final Label totalPoints = new Label("totalPoints", Model.of(assignment.getPoints()));
 		if (this.gradingType == GbGradingType.PERCENTAGE) {
-			add(new Label("totalPoints", new StringResourceModel("label.percentage.valued", null, new Object[] { assignment.getPoints() }))
-					.add(new AttributeModifier("data-outof-label", new ResourceModel("label.percentage.plain"))));
+			totalLabel.setDefaultModel(new ResourceModel("label.relativeweight"));
+			totalPoints.add(new AttributeModifier("data-outof-label", new ResourceModel("label.percentage.plain")));
 		} else {
-			add(new Label("totalPoints", Model.of(assignment.getPoints())).add(new AttributeModifier("data-outof-label",
-					new StringResourceModel("grade.outof", null, new Object[] { assignment.getPoints() }))));
+			totalLabel.setDefaultModel(new ResourceModel("label.total"));
+			totalPoints.add(new AttributeModifier("data-outof-label",
+					new StringResourceModel("grade.outof", null, new Object[] { assignment.getPoints() })));
 		}
+		add(totalLabel);
+		add(totalPoints);
 
 		add(new Label("dueDate", Model.of(FormatHelper.formatDate(assignment.getDueDate(), getString("label.noduedate")))));
 
