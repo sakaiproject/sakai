@@ -124,6 +124,7 @@ public class IFrameToolRenderService implements ToolRenderService
 						"	width=\"100%\"").append("\n").append("	frameborder=\"0\"")
 				.append("\n").append("	marginwidth=\"0\"").append("\n").append(
 						"	marginheight=\"0\"").append("\n").append("	scrolling=\"auto\"")
+				.append(" allowfullscreen=\"allowfullscreen\"")
 				.append("\n").append("	src=\"").append(toolUrl);
 		if ( sakaiAction != null ) 
 		{
