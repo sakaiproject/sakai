@@ -98,6 +98,19 @@ public class LTI2Util {
 			}
 		}
 
+		// These are likely needed in 2.1 but cause LTI 2.0 cert to fail the test - sigh
+		// if (binding_settings != null ) binding_settings.put(LTI2Constants.JSONLD_ID,binding_url+"/custom");
+		// if (link_settings != null ) link_settings.put(LTI2Constants.JSONLD_ID,link_url+"/custom");
+		// if (proxy_settings != null ) proxy_settings.put(LTI2Constants.JSONLD_ID,proxy_url+"/custom");
+
+		// These cause LTI 2.0 cert to fail the test
+		if (binding_settings != null ) binding_settings.remove(LTI2Constants.JSONLD_ID);
+		if (link_settings != null ) link_settings.remove(LTI2Constants.JSONLD_ID);
+		if (proxy_settings != null ) proxy_settings.remove(LTI2Constants.JSONLD_ID);
+		M_log.fine("link_settings="+link_settings);
+		M_log.fine("proxy_settings="+proxy_settings);
+		M_log.fine("binding_settings="+binding_settings);
+
 		// Lets get this party started...
 		JSONObject jsonResponse = null;
 		if ( (distinct || bubbleAll) && acceptComplex ) { 
@@ -247,19 +260,14 @@ public class LTI2Util {
 		return (JSONObject) JSONValue.parse(settings);
 	}
 
-	/* Two possible formats:
-		
-		key=val
-		key2=val2
-
-		key=val;key2=val2;
+	/**
+	 * For LTI 2.x launches we do not support the semicolon-separated launches
 	*/
 	public static boolean mergeLTI1Custom(Properties custom, String customstr) 
 	{
 		if ( customstr == null || customstr.length() < 1 ) return true;
 
 		String splitChar = "\n";
-		if ( customstr.trim().indexOf("\n") == -1 ) splitChar = ";";
 		String [] params = customstr.split(splitChar);
 		for (int i = 0 ; i < params.length; i++ ) {
 			String param = params[i];
@@ -427,7 +435,9 @@ public class LTI2Util {
 
 			String capStr = property2Capability(keyStr);
 			String mapStr = mapping.getProperty(keyStr, null);
-			if ( enabledCapabilities.contains(capStr) || enabledCapabilities.contains(mapStr) ) {
+			if ( enabledCapabilities.contains(keyStr) || 
+			     enabledCapabilities.contains(capStr) || 
+			     enabledCapabilities.contains(mapStr) ) {
 				// Allowed to stay...
 			} else {
 				ltiProps.remove(keyStr);
@@ -489,6 +499,7 @@ public class LTI2Util {
 		mapping.setProperty("lis_person_sourcedid", "Person.sourcedId");
 		mapping.setProperty("lis_result_sourcedid", LTI2Vars.BASICOUTCOME_SOURCEDID);
 		mapping.setProperty("lis_outcome_service_url", LTI2Vars.BASICOUTCOME_URL);
+		mapping.setProperty("launch_presentation_locale", LTI2Vars.MESSAGE_LOCALE);
 		mapping.setProperty("roles", "Membership.role");
 		return mapping;
 	}
