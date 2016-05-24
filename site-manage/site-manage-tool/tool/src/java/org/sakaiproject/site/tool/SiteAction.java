@@ -3846,7 +3846,12 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	protected Map<String, AdditionalRole> loadAdditionalRoles() {
 		Map<String, AdditionalRole> additionalRoles = new HashMap<String, AdditionalRole>();
-		for (String roleId : authzGroupService.getAdditionalRoles()) {			
+		for (String roleId : authzGroupService.getAdditionalRoles()) {
+				// Check if the role is allowed to be granted in the realm
+				boolean allowedRoleId = ServerConfigurationService.getBoolean("sitemanage.grant"+roleId, false);
+				if(!allowedRoleId){
+					continue;
+				}
 				AdditionalRole role = new AdditionalRole();
 				role.id = roleId;
 				role.name = authzGroupService.getRoleName(role.id);
