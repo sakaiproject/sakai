@@ -569,7 +569,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		Collection<String> viewAuthzIds = Collections.singletonList(viewAuthzId);
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		// reset attributes
-		state.setAttribute(STATE_REALM_ROLES_IDS, viewAuthzId);
+		state.setAttribute(STATE_REALM_ROLES_IDS, Collections.singletonList(viewAuthzId));
 		state.removeAttribute(STATE_VIEW_REALM_EDIT);
 		state.removeAttribute(STATE_ABILITIES);
 		state.removeAttribute(STATE_ROLES);

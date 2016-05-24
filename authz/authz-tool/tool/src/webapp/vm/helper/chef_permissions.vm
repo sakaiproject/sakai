@@ -23,6 +23,7 @@
 		<div class="viewNav" id="groupSelector">
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm($action)">
 				<input type="hidden" name="eventSubmit_doView_permission_option" value="view" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				<div class="spinnerBesideContainer">
 					<label for="groupSelection">
 					$thelp.getString("per.lis.selectgrp")
