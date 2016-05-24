@@ -50,7 +50,7 @@
 
     };
 
-    roster.switchState = function (state, arg, searchQuery) {
+    roster.switchState = function (state, arg) {
 
         roster.currentState = state;
 
@@ -449,7 +449,9 @@
 
         if (query !== roster.i18n.roster_search_text && query !== "") {
             var userId = roster.searchIndex[query];
-            roster.renderMembership({ forceOfficialPicture: false, replace: true, userId: userId });
+            roster.renderMembership({ forceOfficialPicture: roster.rosterOfficialPictureMode,
+                                        replace: true,
+                                        userId: userId });
         }
     };
 
