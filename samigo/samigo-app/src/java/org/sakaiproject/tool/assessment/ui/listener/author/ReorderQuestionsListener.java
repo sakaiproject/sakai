@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 
+@Deprecated
 public class ReorderQuestionsListener implements ValueChangeListener
 {
 
