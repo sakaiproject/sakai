@@ -58,6 +58,12 @@
 		    margin-left: 5px;
 		    padding: 0;
 		    font-size: 0.8em;
+		    #footerAppPresence & {
+		    	margin-right: 0;
+		    	position: relative;
+		    	top: -1.4em;
+		    	margin-left: 25px;
+		    }
 		  }
 		  &--count.empty{
 		  	display: none;
@@ -91,6 +97,11 @@
 		    width: 175px;
 		    bottom: 30px;
 		    right: 20px;
+		    z-index: 21;
+		    display: block !important;
+			&.is-hidden{
+				display: none !important;
+			}
 
 		    &--wrapper {
 		        width: 100%;
