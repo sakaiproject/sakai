@@ -30,8 +30,13 @@ should be included in file importing DeliveryMessages
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
 <h:panelGrid rendered="#{!(delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment')}">
-<f:verbatim><br/></f:verbatim>
-<h:outputText value="#{deliveryMessages.maxSAText}"/>
+<br/>
+<h:panelGroup>
+        <h:outputText value='<br/>
+        <button type="button" id="getAaCharCount" class="active" onclick="clickSaCharCountOnFront(this);">#{deliveryMessages.count_characters}</button>
+        &#160;' escape='false' />
+        <h:inputText value="#{question.saCharCount}" size="8" readonly="true" style="text-align:right;"/>
+</h:panelGroup>
 </h:panelGrid>
 
 <h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="messageSamigo3"/>
