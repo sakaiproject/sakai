@@ -57,7 +57,7 @@
                 <%-- Title --%>
                 <div class="form-group row">
                     <h:outputLabel value="#{msgs.event_name}" for="name" styleClass="col-lg-2 form-control-label form-required"/>
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                         <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.signupMeeting.title}" 
                                     styleClass="editText form-control" required="true"  >
                             <f:validator validatorId="Signup.EmptyStringValidator"/>
@@ -70,7 +70,7 @@
                 <%-- Organiser --%>
                 <div class="form-group row">
                     <h:outputLabel value="#{msgs.event_owner}" styleClass="col-lg-2 form-control-label" for="creatorUserId"/>
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                         <h:selectOneMenu id="creatorUserId" value="#{NewSignupMeetingBean.creatorUserId}">
                             <f:selectItems value="#{NewSignupMeetingBean.instructors}"/>
                         </h:selectOneMenu>
@@ -81,7 +81,7 @@
                 <div class="form-group row ">
                         <h:outputLabel value="#{msgs.event_location}" styleClass="col-lg-2 form-control-label form-required"/>
                         
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                         <!-- Displays all the locations in the dropdown -->
                         <h:selectOneMenu id="selectedLocation" value="#{NewSignupMeetingBean.selectedLocation}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
                             <f:validator validatorId="Signup.EmptyStringValidator"/>
@@ -107,7 +107,7 @@
                 <%-- category --%>
                 <div class="form-group row">
                     <h:outputLabel value="#{msgs.event_category}" styleClass="col-lg-2 form-control-label"/>
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                         <!-- Displays all the categories in the dropdown -->
                         <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}"  rendered="#{NewSignupMeetingBean.categoriesExist}">
                             <f:selectItems value="#{NewSignupMeetingBean.allCategories}"/>
@@ -164,7 +164,7 @@
                 <%-- Start time --%>
                 <div class="form-group row ">
                     <h:outputLabel value="#{msgs.event_start_time}" for="startTime"  escape="false" styleClass="col-lg-2 form-control-label form-required"/>
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                        <t:inputDate id="startTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.startTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
                            style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear(); getSignupDuration(); sakai.updateSignupBeginsExact(); return false;" onchange="sakai.updateSignupBeginsExact();">
                        </t:inputDate>
@@ -175,7 +175,7 @@
                 <%-- End time --%>
                 <div class="form-group row ">
                     <h:outputLabel value="#{msgs.event_end_time}" for="endTime" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                         <t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
                             style="color:black;" popupCalendar="true" onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();">
                             </t:inputDate>
@@ -187,7 +187,7 @@
                 <div class="form-group row ">
                     <h:outputLabel value="#{msgs.event_recurrence}" for="recurSelector" styleClass="col-lg-2 form-control-label form-required"/>
 
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                         <h:selectOneMenu id="recurSelector" value="#{NewSignupMeetingBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); sakai.toggleExactDateVisibility(); return false;">
                             <f:selectItem itemValue="no_repeat" itemLabel="#{msgs.label_once}"/>
                                <f:selectItem itemValue="daily" itemLabel="#{msgs.label_daily}"/>
@@ -270,7 +270,7 @@
                 <div class="form-group row">
                     <h:outputLabel value="#{msgs.event_signup_attendance}" escape="false" for="attendanceSelection" styleClass="titleText col-lg-2 form-control-label" 
                                    rendered="#{NewSignupMeetingBean.attendanceOn}"/>
-                    <h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}" layout="block" styleClass="col-lg-6">
+                    <h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}" layout="block" styleClass="col-lg-10">
                         <h:selectBooleanCheckbox id="attendanceSelection" value="#{NewSignupMeetingBean.signupMeeting.allowAttendance}" />
                         <h:outputLabel value="#{msgs.attend_taken}" for="attendanceSelection" styleClass="titleText"/>
                         <h:outputText value="#{msgs.attend_track_selected}" escape="false" styleClass="textPanelFooter"/>
@@ -282,7 +282,7 @@
 
                     <h:outputLabel value ="#{msgs.event_publish_to}" styleClass="col-lg-2 form-control-label form-required"/>
 
-                    <div class="col-lg-6" >
+                    <div class="col-lg-10" >
                         <h:panelGroup>
                             <h:selectBooleanCheckbox id="siteSelection" value="#{NewSignupMeetingBean.currentSite.selected}" disabled="#{!NewSignupMeetingBean.currentSite.allowedToCreate}"
                                 onclick="currentSiteSelection();"/>
@@ -333,7 +333,7 @@
                 <div class="form-group row ">
                     <h:outputLabel value ="#{msgs.event_type_title}" styleClass="col-lg-2 form-control-label form-required"/>
 
-                    <div class="col-lg-6" >
+                    <div class="col-lg-10" >
                         <h:panelGroup id="radios" styleClass="rs">
                             <h:selectOneRadio id="meetingType" value="#{NewSignupMeetingBean.signupMeeting.meetingType}"  valueChangeListener="#{NewSignupMeetingBean.processSelectedType}" onclick="switMeetingType(value);" layout="pageDirection" styleClass="rs" >
                             <f:selectItems value="#{NewSignupMeetingBean.meetingTypeRadioBttns}"/>
@@ -387,7 +387,7 @@
                 <%-- User defined timeslots --%>
                 <div class="form-group row" id="userdef-add">
                     <h:outputLabel id="userDefTsChoice_1" value="" style="display:none;" styleClass="col-lg-2 form-control-label"/>
-                    <h:panelGroup id="userDefTsChoice_2" style="display:none;" styleClass="col-lg-6" layout="block">
+                    <h:panelGroup id="userDefTsChoice_2" style="display:none;" styleClass="col-lg-10" layout="block">
                         <h:panelGrid>
                             <h:panelGroup>
                                 <h:selectBooleanCheckbox id="userDefTsChoice" value="#{NewSignupMeetingBean.userDefinedTS}" onclick="userDefinedTsChoice();" />
