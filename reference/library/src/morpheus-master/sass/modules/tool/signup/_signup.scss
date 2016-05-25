@@ -8,6 +8,20 @@
 			top: 3px;
 		}		
 	}
+
+	.toggleMeetings{
+		cursor:pointer;
+		&.toggleDownload{
+			left: 5px;
+			top: -2px;
+			position: relative;
+			margin: 0 0 0 0;
+		}
+	}
+
+	table#items\:eventlist th input[type="checkbox"] {
+		margin-right: 5px;
+	}
 	
 	#meeting{
 		input{
