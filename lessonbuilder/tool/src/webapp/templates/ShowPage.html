@@ -118,6 +118,11 @@
 			   </h2>
 		       </div>
 	     <div class="action">
+                 <span id="expandCollapseButtons" style="display:none;">
+                   <a href="#" id="expandAllSections"><span class="fa fa-toggle-down" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.expand.all"></span></a>
+                   <a href="#" id="collapseAllSections" style="display:none;"><span class="fa fa-toggle-up" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.collapse.all"></span></a>
+		 </span>
+
 		 <a href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false"></a>
 		 <a href="#" rsf:id="show-pages" id="show-pages"></a>
 
@@ -339,14 +344,17 @@
 		</ul>
 
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
-			<div style="display:none" rsf:id="current-item-id"></div>
+
+            <div style="display:none" rsf:id="current-item-id"></div>
 			
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
 <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
+			<div rsf:id="sectionWrapper:"><!-- start section wrapper -->
+			<h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader"><span rsf:id="sectionHeaderText" class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3>
 			<div rsf:id="section:" class="section">
 			<div rsf:id="column:" class="column">
 			  <div class="editsection">
-			  <span rsf:id="section-td" class="sectionedit"><h3 class="offscreen" rsf:id="break-msg"></h3><a rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span>
+			  <span rsf:id="section-td" class="sectionedit"><h3 class="offscreen" rsf:id="break-msg"></h3><a rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon"></span></a></span>
 			  <span rsf:id="section2" class="sectionedit sectionedit2"><a rsf:id="section3" href="#" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span>
 			  </div>
 			<span rsf:id="addbottom" class="sectionedit addbottom"><a rsf:id="addbottom2" class="add-bottom" href="#" ><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span>
@@ -777,7 +785,8 @@
 		    $('.usebutton').button({text:true});
 		    </script>
 	    </div>	
-	    </div>			
+	    </div>
+                <!-- end section wrapper --></div>
 	    <script type="text/javascript">
 	      // to avoid flickering, process indent here
 	      doIndents();
@@ -815,6 +824,8 @@
 			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
 			<p rsf:id="msg=simplepage.save_message" id="simplepage.save_message"></p>
 			<p rsf:id="msg=simplepage.ckeditor" id="simplepage.ckeditor"></p>
+			<p rsf:id="msg=simplepage.clickToExpand" id="simplepage.clickToExpand"></p>
+			<p rsf:id="msg=simplepage.clickToCollapse" id="simplepage.clickToCollapse"></p>
 		</div>
 
 		<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
@@ -1924,7 +1935,18 @@
 		      <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
 		      <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
 		    </select>
-                    <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label>
+                    <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label><br />
+
+                    <br />
+                    <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
+                    <input type="text" id="sectionTitle" /><br />
+
+                    <input type="checkbox" id="collapsible" />
+                    <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label><br />
+
+                    <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
+                    <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label></span>
+
                   </span>
 		</div>
 		<p class="act">

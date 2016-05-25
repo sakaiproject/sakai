@@ -1110,6 +1110,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			int cols = 0;
 			int colnum = 0;
 
+			UIBranchContainer sectionWrapper = null;
 			UIBranchContainer sectionContainer = null;
 			UIBranchContainer columnContainer = null;
 			UIBranchContainer tableContainer = null;
@@ -1124,7 +1125,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (first || i.getType() == SimplePageItem.BREAK) {
 				    boolean sectionbreak = false;
 				    if (first || "section".equals(i.getFormat())) {
-					sectionContainer = UIBranchContainer.make(container, "section:");
+					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
+					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
+					boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
+					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
+					UIOutput.make(sectionWrapper, "sectionHeaderText", i.getName() == null ? "" : i.getName());
+					sectionHeader.decorate(new UIStyleDecorator(i.getName() == null || i.getName().isEmpty() ? "skip" : ""));
+					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
+					if (collapsible) {
+						sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
+						sectionContainer.decorate(new UIStyleDecorator("collapsible"));
+						if (defaultClosed ) {
+							sectionHeader.decorate(new UIStyleDecorator("closedSectionHeader"));
+							sectionContainer.decorate(new UIStyleDecorator("defaultClosed"));
+						} else {
+							sectionHeader.decorate(new UIStyleDecorator("openSectionHeader"));
+						}
+					}
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
 					colnum = 0;
