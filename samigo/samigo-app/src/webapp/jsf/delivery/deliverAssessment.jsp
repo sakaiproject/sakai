@@ -293,6 +293,42 @@ for (i=0; i<document.links.length; i++) {
 }
 document.links[newindex].onclick();
 }
+
+function clickSaCharCountOnFront(field) {
+    var totalCount;
+    var rich = false;
+    $(field).closest('table').siblings().each(function() {
+        var ta = $(this).find('textarea');
+        if (ta.length > 0) {
+            $(ta).each(function() {
+                if ($(this).attr('id') && $(this).attr('id').indexOf('textinput') > -1) {
+                    if (!$(this).is(":visible")) {
+                        rich = true;
+                        $(this).siblings('div').each(function() {
+                            var frame = $(this).find('iframe,textarea');
+                            // take into account whether ckeditor is in rich-text or source mode.
+                            for(var i = 0; i < frame.length; i++) {
+                                if($(frame[i]).is('iframe')) {
+                                        totalCount = frame.contents().find('.cke_editable').html().length;
+                                } else if ($(frame[i]).is('textarea')) {
+                                        totalCount = $(frame[i]).val().length;
+                                }
+                            }
+                        });
+                    } else {
+                        totalCount = $(this).val().length;
+                    }
+                }
+
+            });
+        }
+    });
+    var t = $(field).siblings('input');
+    t.val(totalCount);
+    if(rich && $(t).nextAll().length == 0)
+        $(t).after('&nbsp;<span>Including HTML elements</span>');
+}
+
 </script>
 
 
