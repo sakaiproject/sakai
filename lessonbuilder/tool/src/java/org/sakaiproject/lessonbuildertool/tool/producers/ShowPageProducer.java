@@ -1420,7 +1420,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					boolean entityDeleted = false;
 					boolean notPublished = false;
 					if (canEditPage) {
-						UIOutput.make(tableRow, "edit-td");
+						UIOutput.make(tableRow, "edit-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.generic").replace("{}", i.getName())));
 						UILink.make(tableRow, "edit-link", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.generic").replace("{}", i.getName())));
 
 						// the following information is displayed using <INPUT
@@ -1800,7 +1800,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "current-item-id4", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq3", String.valueOf(i.isPrerequisite()));
 							UIVerbatim.make(tableRow, "item-path3", getItemPath(i));
-							UIOutput.make(tableRow, "editimage-td");
+							UIOutput.make(tableRow, "editimage-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 							UILink.make(tableRow, "image-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
@@ -1855,7 +1855,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "current-item-id5", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq4", String.valueOf(i.isPrerequisite()));
 							UIVerbatim.make(tableRow, "item-path4", getItemPath(i));
-							UIOutput.make(tableRow, "youtube-td");
+							UIOutput.make(tableRow, "youtube-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 							UILink.make(tableRow, "youtube-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 						}
 
@@ -2105,7 +2105,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "prerequisite", (i.isPrerequisite()) ? "true" : "false");
 							UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
 							UIVerbatim.make(tableRow, "item-path5", getItemPath(i));
-							UIOutput.make(tableRow, "movie-td");
+							UIOutput.make(tableRow, "movie-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 							UILink.make(tableRow, "edit-movie", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
@@ -2174,7 +2174,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "embedtype", mmDisplayType);
 							UIOutput.make(tableRow, "current-item-id3", Long.toString(i.getId()));
 							UIVerbatim.make(tableRow, "item-path2", getItemPath(i));
-							UIOutput.make(tableRow, "editmm-td");
+							UIOutput.make(tableRow, "editmm-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 							UILink.make(tableRow, "iframe-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
@@ -2248,7 +2248,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-comments")));
 							}
 
-							UIOutput.make(tableRow, "comments-td");
+							UIOutput.make(tableRow, "comments-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.comments")));
 						
 							if (i.getSequence() > 0) {
 							    UILink.make(tableRow, "edit-comments", (String)null, "")
@@ -2671,7 +2671,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-content")));
 							}
 							
-							UIOutput.make(tableRow, "student-td");
+							UIOutput.make(tableRow, "student-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
 							UILink.make(tableRow, "edit-student", (String)null, "")
 									.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
 							
@@ -2876,7 +2876,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					
 					if(canEditPage) {
-						UIOutput.make(tableRow, "question-td");
+						UIOutput.make(tableRow, "question-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.question")));
 						
 						// always show grading panel. Currently this is the only way to get feedback
 						if( !cameFromGradingPane) {
@@ -2986,7 +2986,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						UIOutput.make(tableRow, "item-groups-titles-checklist", itemGroupTitles);
 
-						UIOutput.make(tableRow, "editchecklist-td");
+						UIOutput.make(tableRow, "editchecklist-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-checklist").replace("{}", i.getName())));
 
 						GeneralViewParameters eParams = new GeneralViewParameters();
 						eParams.setSendingPage(currentPage.getPageId());
@@ -3029,7 +3029,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						eParams.setSendingPage(currentPage.getPageId());
 						eParams.setItemId(i.getId());
 						eParams.viewID = EditPageProducer.VIEW_ID;
-						UIOutput.make(tableRow, "edittext-td");
+						UIOutput.make(tableRow, "edittext-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.textbox").replace("{}", Integer.toString(textboxcount))));
 						UIInternalLink.make(tableRow, "edit-link", (String)null, eParams).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.textbox").replace("{}", Integer.toString(textboxcount))));
 						textboxcount++;
 					}
