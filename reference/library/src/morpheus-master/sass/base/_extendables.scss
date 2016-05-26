@@ -136,42 +136,6 @@
 	}
 }
 
-@mixin sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color ){
-	background: $button-color-background-color;
-	border: 1px solid $button-color-border-color;
-	color: $button-color-text-color !important;
-	cursor: pointer;
-	font-family: $font-family;
-	font-size: #{$default-font-size - 2 };
-	letter-spacing: 0.8px;
-	line-height: 18px;
-	margin: 0.5em 0.8em 0.5em 0;
-	padding: 6px 10px 7px 12px;
-	position: relative;
-	text-decoration: none !important;
-	@include appearance(none);
-	@include border-radius(3px);
-	&:hover{
-		text-decoration: none;
-		background: linear-gradient( $button-color-background-color, $button-color-background-secondary-color );
-	}
-	&:active{
-		text-decoration: none;
-		outline: 0;
-		background: linear-gradient( $button-color-background-secondary-color, $button-color-background-color );
-	}
-	&[disabled="disabled"],&[disabled],&[disabled="true"]{
-		background: $button-color-background-color;
-		color: darken($button-background-color, 30% );
-		cursor: not-allowed;
-		opacity: 0.7;
-	}
-}
-
-.button_color, button {
-	@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
-}
-
 @mixin sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color ){
 	background: $button-background-color;
 	border: 1px solid $button-border-color;
@@ -202,6 +166,21 @@
 		cursor: not-allowed;
 		opacity: 0.7;
 	}
+}
+
+@mixin sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color ){
+	@include sakai_button( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
+	position: relative;
+	&:hover{
+		background: linear-gradient( $button-color-background-color, $button-color-background-secondary-color );
+	}
+	&:active{
+		background: linear-gradient( $button-color-background-secondary-color, $button-color-background-color );
+	}
+}
+
+.button_color, button, button.btn-primary {
+	@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
 }
 
 .button, button.ui-state-default, .btn.btn-default {
@@ -312,4 +291,23 @@ label.panelGridLabel{
 	td{
 		vertical-align: baseline;
 	}
+}
+
+/*** Drop files bar for Resources & Dropbox ***/
+.dropzone {
+	overflow: hidden;
+	border: 2px dashed $toolMenuColor !important;
+	border-radius: 5px;
+	background-color: $toolMenuBGColor !important;
+	&:hover {
+		border-color: lighten( $toolMenuColor, 5% ) !important;
+		background-color: lighten( $toolMenuBGColor, 5% ) !important;
+	}
+}
+
+.dropzone .dz-message .note {
+	font-size: 0.8em;
+	font-weight: 200;
+	display: block;
+	margin-top: 1.4rem;
 }

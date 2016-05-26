@@ -621,6 +621,8 @@ ALTER TABLE SAKAI_SESSION MODIFY SESSION_END NULL;
 
 -- 1389 GradebookNG sortable assignments within categories, add CATEGORIZED_SORT_ORDER to GB_GRADABLE_OBJECT_T
 ALTER TABLE GB_GRADABLE_OBJECT_T ADD COLUMN CATEGORIZED_SORT_ORDER int NULL;
+-- 1840 Allow quick queries of grading events by date graded
+CREATE INDEX GB_GRADING_EVENT_T_DATE_OBJ_ID ON GB_GRADING_EVENT_T (DATE_GRADED, GRADABLE_OBJECT_ID);
 --
 -- SAM-1117 - Option to not show score
 --
@@ -713,8 +715,6 @@ CREATE TABLE lti_memberships_jobbbs (
 );
 -- END LTI CHANGES !!
 
--- LSNBLDR-500
-alter table lesson_builder_pages add folder varchar(250);
 -- LSNBLDR-622
 alter table lesson_builder_items modify column name varchar(255);
 alter table lesson_builder_pages modify column title varchar(255);
@@ -732,7 +732,6 @@ create table lesson_builder_ch_status (
         primary key (checklistId,checklistItemId,owner)
  );
 create index lesson_builder_p_eval_res_row on lesson_builder_p_eval_results(page_id);
-create index lesson_builder_page_folder on lesson_builder_pages(siteId, folder);
 
 -- ------------------------------
 -- DASHBOARD                -----
@@ -921,3 +920,19 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY)
        FROM SAM_ASSESSMETADATA_T WHERE ASSESSMENTID NOT IN
          (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable');
 -- END SAM-2751
+
+CREATE TABLE SST_LESSONBUILDER (
+  ID bigint(20) NOT NULL AUTO_INCREMENT,
+  USER_ID varchar(99) NOT NULL,
+  SITE_ID varchar(99) NOT NULL,
+  PAGE_REF varchar(255) NOT NULL,
+  PAGE_ID bigint(20) NOT NULL,
+  PAGE_ACTION varchar(12) NOT NULL,
+  PAGE_DATE date NOT NULL,
+  PAGE_COUNT bigint(20) NOT NULL,
+  PRIMARY KEY (ID),
+  KEY SST_LESSONBUILDER_PAGE_ACT_IDX (PAGE_ACTION),
+  KEY SST_LESSONBUILDER_DATE_IX (PAGE_DATE),
+  KEY SST_LESSONBUILDER_SITE_ID_IX (SITE_ID),
+  KEY SST_LESSONBUILDER_USER_ID_IX (USER_ID)
+);

@@ -23,7 +23,7 @@ $(function () {
         var term = $('<div class="term-section" />');
 
         var title_elt = $('<div class="manage-hidden-entry term-entry" />');
-        title_elt.append($('<h2 class="title" />').text(title.text()));
+        title_elt.append($('<h3 class="title" />').text(title.text()));
         title_elt.append($('<input type="checkbox" class="term-hidden hidden-checkbox">'));
         term.append(title_elt);
 

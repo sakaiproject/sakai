@@ -57,13 +57,24 @@ If you have any questions, please join the Sakai developer mailing list: To subs
 To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
 https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists
 
+If you want more immediate response during M-F typical business hours you could try our Slack channels.
+
+https://apereo.slack.com/signup
+
+If you can't find your  "at institution.edu" on the Apereo signup page then send an email requesting access for yourself and your institution either to sakai-qa-planners@apereo.org or sakaicoordinator@apereo.org .
+
 ## Community supported versions
 [Sakai 10](https://confluence.sakaiproject.org/display/DOC/Sakai+10+Release+Notes) is the recommended version for production use.
 
 [Sakai 2.9](https://confluence.sakaiproject.org/display/DOC/Sakai+2.9+release+notes) is still supported, almost solely for security patches at this point in time.
 
 ## Under Development
-[Sakai 11] (https://docs.google.com/presentation/d/1OaF04Kli51nYtsLw_0plmU829NarYUDtQkBnFJtB250/edit#slide=id.p4) is under development. Expected release is first half of 2016. Some of the key features include Responsive Design (code name Morpheus); spreadsheet entry Gradebook; improved Assessment (test and quizzes) delivery options to accommodate special needs; PA system for managing system-wide announcements; a Dashboard summary of activities and assignments for more efficient student access to content; user interface enhancements to Lessons, a community favorite tool that allows instructors to organize their course activities the way they would like, by leveraging other Sakai tools and adding workflow and adaptive release options.
+[Sakai 11] (https://docs.google.com/presentation/d/1OaF04Kli51nYtsLw_0plmU829NarYUDtQkBnFJtB250/edit#slide=id.p4) is under development. Expected release is first half of 2016. Some of the key features include Responsive Design (code name Morpheus); spreadsheet entry Gradebook; improved Assessment (test and quizzes) delivery options to accommodate special needs; PA system for managing system-wide announcements; user interface enhancements to Lessons, a community favorite tool that allows instructors to organize their course activities the way they would like, by leveraging other Sakai tools and adding workflow and adaptive release options.
+
+## Accessibility
+[The Sakai Accessibility Working Group] (https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan] (https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
+
+CKSource has created a GPL licensed open source version of their [Accessibility Checker] (https://cksource.com/ckeditor/services#accessibility-checker) that lets you inspect the accessibility level of content created in CKEditor and immediately solve any accessibility issues that are found. CK Editor is the open source rich text editor used throughout Sakai. Whlie the Accessibility Checker, due to the GPL license, can not be bundled with Sakai, it can be used with Sakai and the A11y group has created [instructions] (https://confluence.sakaiproject.org/display/2ACC/CKEditor+Accessibility+Checker) to help you.
 
 ## Community (contrib) tools
 A number of institutions have written additional tools for Sakai that they use in their local installations, but are not yet in an official release of Sakai. These are being collected at https://github.com/sakaicontrib where you will find information about each one. You might find just the thing you are after!

@@ -171,7 +171,8 @@
 	<form id="sitesForm" name="sitesForm" action="#toolForm("SiteAction")" method="post">
 		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
 		#if ($sites.size() > 0)
-			<table class ="listHier lines nolines" summary ="$tlang.getString('list.summary')" border ="0" id ="siteList" cellpadding="0" cellspacing="0">
+			<div class="table-responsive">
+			<table class ="table table-striped table-hover table-bordered" summary ="$tlang.getString('list.summary')" id ="siteList" >
 				<tr>
 					<th id="checkbox" class="screenOnly attach" scope="col">
 						<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected"  title="$tlang.getString('check.all')" />
@@ -324,7 +325,7 @@
 						</tr>
 					#end
 				#end
-			</table>
+			</table></div>
 			<div class="actionsContainer">
 				<input type="button" id="btnEdit2" name="btnEdit2" class="actionButton" value="$tlang.getString("java.revise")" disabled="disabled" 
 					onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" />

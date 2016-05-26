@@ -14,7 +14,7 @@ UPDATE sakai_site_tool SET registration = 'sakai.simple.rss' WHERE registration 
 -- New permissions
 
 -- KNL-1350 / SAK-11647
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'dropbox.maintain.own.groups');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.nextval, 'dropbox.maintain.own.groups');
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
 -- END KNL-1350 / SAK-11647
@@ -272,7 +272,7 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 -- ------------------------------
 
 -- KNL-1336 - Add status for all nodes in a cluster.
-ALTER TABLE SAKAI_CLUSTER COLUMN STATUS VARCHAR(8);
+ALTER TABLE SAKAI_CLUSTER ADD STATUS VARCHAR(8);
 -- We rename the column so we don't have update the primary key index
 ALTER TABLE SAKAI_CLUSTER RENAME COLUMN SERVER_ID TO SERVER_ID_INSTANCE;
 ALTER TABLE SAKAI_CLUSTER ADD SERVER_ID VARCHAR (64);
@@ -663,6 +663,8 @@ ALTER TABLE SAKAI_SESSION MODIFY SESSION_END NULL;
 
 -- 1389 GradebookNG sortable assignments within categories, add CATEGORIZED_SORT_ORDER to GB_GRADABLE_OBJECT_T
 ALTER TABLE GB_GRADABLE_OBJECT_T ADD CATEGORIZED_SORT_ORDER number;
+-- 1840 Allow quick queries of grading events by date graded
+CREATE INDEX GB_GRADING_EVENT_T_DATE_OBJ_ID ON GB_GRADING_EVENT_T (DATE_GRADED, GRADABLE_OBJECT_ID);
 -- 
 -- SAM-1117 - Option to not display scores
 --
@@ -761,8 +763,6 @@ CREATE TABLE lti_memberships_jobs (
 );
 -- END LTI CHANGES !!
 
--- LSNBLDR-500
-alter table lesson_builder_pages add folder varchar2(250);
 -- LSNBLDR-622
 alter table lesson_builder_items modify (name varchar2(255 char));
 alter table lesson_builder_pages modify (title varchar2(255 char));
@@ -784,7 +784,6 @@ create table lesson_builder_ch_status (
         primary key (checklistId,checklistItemId,owner)
  );
 create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
-create index lb_page_folder on lesson_builder_pages(siteId, folder);
 
 -- ------------------------------
 -- DASHBOARD                -----
@@ -999,8 +998,30 @@ CREATE SEQUENCE LB_PEER_EVAL_RESULT_S;
 -- SAM-2751
 ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD HONORPLEDGE NUMBER(1,0);
 ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD HONORPLEDGE NUMBER(1,0);
-INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY)
-     SELECT DISTINCT ASSESSMENTID, 'honorpledge_isInstructorEditable' as LABEL, 'true' as ENTRY
-       FROM SAM_ASSESSMETADATA_T WHERE ASSESSMENTID NOT IN
-         (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+    SELECT SAM_ASSESSMETADATA_ID_S.nextval, ASSESSMENTID, LABEL, ENTRY
+     FROM (SELECT DISTINCT ASSESSMENTID, 'honorpledge_isInstructorEditable' as LABEL, 'true' as ENTRY
+            FROM SAM_ASSESSMETADATA_T WHERE ASSESSMENTID NOT IN
+            (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable'));
 -- END SAM-2751
+
+CREATE TABLE SST_LESSONBUILDER
+(ID             NUMBER(19) PRIMARY KEY,
+ USER_ID        VARCHAR2(99) NOT NULL,
+ SITE_ID        VARCHAR2(99) NOT NULL,
+ PAGE_REF       VARCHAR2(255) NOT NULL,
+ PAGE_ID        NUMBER(19) NOT NULL,
+ PAGE_ACTION    VARCHAR2(12) NOT NULL,
+ PAGE_DATE      DATE NOT NULL,
+ PAGE_COUNT     NUMBER(19) NOT NULL
+);
+
+CREATE SEQUENCE SST_LESSONBUILDER_ID;
+
+CREATE INDEX SST_LESSONBUILDER_PAGE_ACT_IDX ON SST_LESSONBUILDER (PAGE_ACTION);
+
+CREATE INDEX SST_LESSONBUILDER_DATE_IX ON SST_LESSONBUILDER (PAGE_DATE);
+
+CREATE INDEX SST_LESSONBUILDER_SITE_ID_IX ON SST_LESSONBUILDER (SITE_ID);
+
+CREATE INDEX SST_LESSONBUILDER_USER_ID_IX ON SST_LESSONBUILDER (USER_ID);

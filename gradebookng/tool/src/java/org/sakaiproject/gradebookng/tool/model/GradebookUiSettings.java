@@ -52,7 +52,7 @@ public class GradebookUiSettings implements Serializable {
 	private final Map<String, String> categoryColors;
 
 	/**
-	 * For sorting based on first name / last name
+	 * For sorting of student based on first name / last name
 	 */
 	@Getter
 	@Setter
@@ -63,6 +63,12 @@ public class GradebookUiSettings implements Serializable {
 	 */
 	@Getter
 	private GbCategoryAverageSortOrder categorySortOrder;
+
+	/**
+	 * The direction to sort the student column
+	 */
+	@Getter
+	private SortDirection studentSortOrder;
 
 	/**
 	 * For sorting based on coursegrade
@@ -85,7 +91,11 @@ public class GradebookUiSettings implements Serializable {
 		this.categoriesEnabled = false;
 		this.assignmentVisibility = new HashMap<Long, Boolean>();
 		this.categoryScoreVisibility = new HashMap<String, Boolean>();
+
+		// default sort order to student
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
+		this.studentSortOrder = SortDirection.ASCENDING;
+
 		this.categoryColors = new HashMap<String, String>();
 		this.showPoints = false;
 	}
@@ -159,10 +169,16 @@ public class GradebookUiSettings implements Serializable {
 		this.assignmentSortOrder = sortOrder;
 	}
 
+	public void setStudentSortOrder(SortDirection sortOrder) {
+		resetSortOrder();
+		this.studentSortOrder = sortOrder;
+	}
+
 	private void resetSortOrder() {
 		this.courseGradeSortOrder = null;
 		this.categorySortOrder = null;
 		this.assignmentSortOrder = null;
+		this.studentSortOrder = null;
 	}
 
 	@Override

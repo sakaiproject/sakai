@@ -3525,4 +3525,35 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 	}
+
+
+	/**
+	 * Return the grade changes made since a given time
+	 * @param assignmentIds	ids of assignments to check
+	 * @param since	timestamp from which to check for changes
+	 * @return set of changes made
+	 */
+	@Override
+	public List<GradingEvent> getGradingEvents(final List<Long> assignmentIds, final Date since) {
+		List<GradingEvent> rval = new ArrayList<>();
+
+		if (since == null) {
+			log.debug("No `since` timestamp was specified.  Returning null");
+			return null;
+		}
+
+		HibernateCallback hc = new HibernateCallback() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("from GradingEvent as ge where ge.dateGraded >= :since" +
+					" and ge.gradableObject.id in (:assignmentIds)");
+				q.setParameter("since", since);
+				q.setParameterList("assignmentIds", assignmentIds);
+				return q.list();
+			}
+		};
+
+		rval = (List)getHibernateTemplate().execute(hc);
+		return rval;
+	}
 }

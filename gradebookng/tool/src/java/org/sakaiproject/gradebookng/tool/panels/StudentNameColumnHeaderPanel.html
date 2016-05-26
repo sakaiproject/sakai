@@ -4,7 +4,9 @@
 <body>
 <wicket:panel>
 	
-	<div wicket:id="title" class="gb-title"></div>
+	<div class="gb-title">
+		<a wicket:id="title"><wicket:container wicket:id="label" /></a>
+	</div>
 	
 	<div class="gb-student-filter">
 	  <label for="studentFilterInput" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>

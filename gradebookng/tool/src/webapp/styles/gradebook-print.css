@@ -4,6 +4,7 @@
  
  .gb-summary-expand-all,
  .gb-summary-collapse-all,
- .gb-summary-category-toggle {
+ .gb-summary-category-toggle,
+ #toggleCategories {
   display: none;
  }

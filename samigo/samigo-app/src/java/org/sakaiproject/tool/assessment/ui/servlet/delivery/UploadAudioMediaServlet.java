@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
@@ -404,12 +405,12 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
     GradingService gradingService = new GradingService();
     // 1. create a media record
     File media = new File(mediaLocation);
-    byte[] mediaByte = getMediaStream(mediaLocation);
     log.debug("**** SAVETODB=" + SAVETODB);
     MediaData mediaData = null;
 
     if (SAVETODB)
     { // put the byte[] in
+      byte[] mediaByte = getMediaStream(mediaLocation);
       mediaData = new MediaData(itemGrading, mediaByte,
                                 Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", null,
@@ -420,7 +421,7 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
     else
     { // put the location in
       mediaData = new MediaData(itemGrading, null,
-                                Long.valueOf(mediaByte.length + ""),
+                                Long.valueOf(media.length() + ""),
                                 mimeType, "description", mediaLocation,
                                 media.getName(), false, false, Integer.valueOf(1),
                                 agent, new Date(),
@@ -453,59 +454,21 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
 
   private byte[] getMediaStream(String mediaLocation)
   {
-    FileInputStream mediaStream = null;
-    FileInputStream mediaStream2 = null;
     byte[] mediaByte = new byte[0];
+    
     try
     {
-      //int i = 0;
-      int size = 0;
-      mediaStream = new FileInputStream(mediaLocation);
-      if (mediaStream != null)
-      {
-        //while ( (i = mediaStream.read()) != -1)
-        while (mediaStream.read() != -1)
-        {
-          size++;
-        }
-      }
-      mediaStream2 = new FileInputStream(mediaLocation);
-      mediaByte = new byte[size];
-      if (mediaStream2 != null) {
-    	  mediaStream2.read(mediaByte, 0, size);
-      }
+      mediaByte = Files.readAllBytes(new File(mediaLocation).toPath());
     }
     catch (FileNotFoundException ex)
     {
-      log.debug("file not found=" + ex.getMessage());
+      log.error("File not found in UploadAudioMediaServlet.getMediaStream(): " + ex.getMessage());
     }
     catch (IOException ex)
     {
-      log.debug("io exception=" + ex.getMessage());
+      log.error("IO Exception in UploadAudioMediaServlet.getMediaStream(): " + ex.getMessage());
     }
-    finally
-    {
-      if (mediaStream != null) {
-    	  try
-    	  {
-    		  mediaStream.close();
-    	  }
-    	  catch (IOException ex1)
-    	  {
-    		  log.warn(ex1.getMessage());
-    	  }
-      }
-      if (mediaStream2 != null) {
-    	  try
-    	  {
-    		  mediaStream2.close();
-    	  }
-    	  catch (IOException ex1)
-    	  {
-    		  log.warn(ex1.getMessage());
-    	  }
-      }
-    }
+    
     return mediaByte;
   }
 

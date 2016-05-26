@@ -112,15 +112,18 @@
 				 </h:panelGroup>
 				 
 				 <h:panelGroup styleClass="itemNav">
-				   <h:outputText   value="#{msgs.cdfm_previous_thread}"  rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" />
-					 <h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
+				 	<h:panelGroup styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" >
+						<h:outputText  value="#{msgs.cdfm_previous_thread}"/>
+					</h:panelGroup>
+					 <h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
 						 <f:param value="#{ForumTool.selectedThreadHead.preThreadId}" name="messageId"/>
 						 <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
-					 <f:verbatim><h:outputText  id="blankSpace1" value=" #{msgs.cdfm_toolbar_separator} " /></f:verbatim>				
-					 <h:outputText   value="#{msgs.cdfm_next_thread}" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" />
-					 <h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
+					 <h:panelGroup styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}">
+					 	<h:outputText value="#{msgs.cdfm_next_thread}"/>
+					 </h:panelGroup>
+					 <h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
 						<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
 						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>

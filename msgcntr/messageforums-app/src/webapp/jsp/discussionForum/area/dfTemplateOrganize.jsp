@@ -130,7 +130,7 @@
 		 		<div class="instruction">
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_organize_instruction}"/>
 				</div>
-			<h:dataTable id="forums" binding="#{ForumTool.forumTable}" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="table table-hover table-striped table-bordered">
+			<h:dataTable id="forums" binding="#{ForumTool.forumTable}" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" >
     <h:column rendered="#{! forum.nonePermission}">
 					<h:panelGroup style="display:block;width:90%;padding:.5em" styleClass="forumHeader">
 					<h:selectOneMenu id="forumIndex" value="#{forum.forum.sortIndex}" onchange="updateForums(this);" style="margin-right:1em">
