@@ -106,7 +106,18 @@
 				font-size: 0.95em;
 				vertical-align: 15%;
 			}
+			&:hover{
+				color: $background-color;
+			}			
 		}
+		.#{$namespace}hierarchy--siteName a:hover{
+			text-decoration: underline;
+		}
+		
+		a.#{$namespace}hierarchy--toolName:hover{
+			border-bottom: 1px solid  $background-color;
+		}
+		
 		.#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{
 			display: none;
 		}
