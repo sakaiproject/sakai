@@ -2112,10 +2112,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			  String studentId = gradeDef.getStudentUid();
 
-              // use the grader ID from the definition if it is not null, otherwise use the current user ID
-              String graderUid = gradeDef.getGraderUid() != null ? gradeDef.getGraderUid() : graderId;
-              // use the grade date from the definition if it is not null, otherwise use the current date
-              Date gradedDate = gradeDef.getDateRecorded() != null ? gradeDef.getDateRecorded() : now;
+			  // use the grader ID from the definition if it is not null, otherwise use the current user ID
+			  String graderUid = gradeDef.getGraderUid() != null ? gradeDef.getGraderUid() : graderId;
+			  // use the grade date from the definition if it is not null, otherwise use the current date
+			  Date gradedDate = gradeDef.getDateRecorded() != null ? gradeDef.getDateRecorded() : now;
 
 			  // check specific grading privileges if user does not have
 			  // grade all perm
