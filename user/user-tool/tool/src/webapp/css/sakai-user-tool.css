@@ -19,8 +19,8 @@
 {
     display: inline-block;
     float: none;
-    text-align: right;
-    width: 12em;
+    text-align: left;
+    min-width: 17em;
 }
 
 #user-create_edit .reqStar, #useredit .reqStar
@@ -126,14 +126,20 @@
     color: rgb(85, 85, 85);
     display: inline-block;
     float: none;
-    text-align: right;
+    text-align: left;
     margin-right: 1em;
-    width: 9em;
+    min-width: 9em;
+}
+
+@media only screen and (max-width : 800px){
+    #userViewForm label, #useredit .shorttext label{
+        display: block;
+    }
 }
 
 #userViewForm .act, #user-create_edit .act, #useredit .act
 {
-    text-align: right;
+    text-align: left; /* SAK-31159 - Consistency with the rest of the tools */
 }
 
 #user-create_edit fieldset, #useredit fieldset, #userViewForm fieldset
@@ -147,10 +153,9 @@
     margin: 0 0 0.8em 0;
 }
 
-#userViewForm fieldset
-{
-    width: 25em;
-}
+form .shorttext{
+    margin: 0 0 0.5em 0;
+} 
 
 #user-create_edit fieldset
 {
@@ -167,11 +172,6 @@
 .createBlurb p
 {
     margin: 10px 0;
-}
-
-#useredit fieldset
-{
-    width: 36em;
 }
 
 #userViewForm fieldset legend, #user-create_edit fieldset legend, #useredit fieldset legend
