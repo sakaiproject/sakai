@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 
+@Deprecated
 public class ReorderPartsListener implements ValueChangeListener {
 	private static Log log = LogFactory.getLog(ReorderPartsListener.class);
 
