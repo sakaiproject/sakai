@@ -50,7 +50,7 @@ body.active-more-sites{
 	&.outscreen{
 		left: 110%;
 		max-width: 100%;
-		display: none;
+		display: none !important; //Important added by SAK-31260
 		@media #{$phone}{
 			display: none;
 		}
@@ -368,6 +368,9 @@ ul.favoriteSiteList{
 	}
 	.favorites-mobile{
 		display: none;
+	}
+	.favoriteCount{
+		display: inline-block;
 	}
 
 	@media #{$phone}{
