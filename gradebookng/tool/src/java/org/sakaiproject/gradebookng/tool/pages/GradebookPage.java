@@ -263,7 +263,12 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public String getCssClass() {
-				return "gb-course-grade";
+				String cssClass = "gb-course-grade";
+				if (settings.getShowPoints()) {
+					return cssClass + " points";
+				} else {
+					return cssClass;
+				}
 			}
 
 			@Override
