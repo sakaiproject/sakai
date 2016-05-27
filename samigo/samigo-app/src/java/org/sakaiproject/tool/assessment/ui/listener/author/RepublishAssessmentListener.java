@@ -10,6 +10,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -162,7 +163,7 @@ public class RepublishAssessmentListener implements ActionListener {
 			}
 			
 			Integer scoringType = evaluation.getScoringType();
-			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+			if (evaluation.getToGradeBook() != null	&& StringUtils.equals(evaluation.getToGradeBook(), String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
 
 				Long categoryId = null;
 				try {

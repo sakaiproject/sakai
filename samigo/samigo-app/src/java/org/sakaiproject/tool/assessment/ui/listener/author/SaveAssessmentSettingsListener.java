@@ -33,6 +33,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
@@ -146,21 +147,26 @@ public class SaveAssessmentSettingsListener
         error=true;
     }
     
-    String ipString = assessmentSettings.getIpAddresses().trim();  
-     String[]arraysIp=(ipString.split("\n"));
-     boolean ipErr=false;
-     for(int a=0;a<arraysIp.length;a++){
-	 String currentString=arraysIp[a];
-	 if(!currentString.trim().equals("")){
-	     if(a<(arraysIp.length-1))
-		 currentString=currentString.substring(0,currentString.length()-1);           
-	     if(!s.isIpValid(currentString)){
-		 ipErr=true;
-		 break;
-	     }
-	 }
-	
-     }
+    boolean ipErr=false;
+    try {
+    	String ipString = assessmentSettings.getIpAddresses().trim();  
+    	String[]arraysIp=(ipString.split("\n"));
+    	for(int a=0;a<arraysIp.length;a++){
+    		String currentString=arraysIp[a];
+    		if(!StringUtils.equals(currentString.trim(), "")){
+    			if(a<(arraysIp.length-1))
+    				currentString=currentString.substring(0,currentString.length()-1);           
+    			if(!s.isIpValid(currentString)){
+    				ipErr=true;
+    				break;
+    			}
+    		}
+    	}
+    } catch (Exception e) {
+    	System.out.println("SaveAssessmentSettingsListener - 165 - error while retreiving possible ipString");
+    }
+
+
 	if(ipErr){
 	    error=true;
 	    String  ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");

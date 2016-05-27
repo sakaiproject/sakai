@@ -53,6 +53,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
@@ -289,8 +290,10 @@ public class SaveAssessmentSettings
 		else {
 			evaluation.setAnonymousGrading(2);
 		}
-		if (assessmentSettings.getToDefaultGradebook()) {
+		if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
 			evaluation.setToGradeBook("1");
+		} else if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM))) {
+			evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM));
 		}
 		else {
 			evaluation.setToGradeBook("2");
