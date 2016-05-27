@@ -9,8 +9,13 @@ import org.sakaiproject.elfinder.sakai.content.ContentFsItem;
 import org.sakaiproject.elfinder.sakai.content.ContentSiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.site.SiteFsItem;
 import org.sakaiproject.elfinder.sakai.site.SiteFsVolume;
+import org.sakaiproject.elfinder.sakai.samigo.SamFsItem;
+import org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory;
+import org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory.SamSiteVolume;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -112,6 +117,10 @@ public class SakaiFsService implements FsService {
 			path.append("/").append(((SiteVolume)volume).getSiteId());
 			// Need prefix but don't want volumes to be able to screw it up.
 			path.append("/").append(((SiteVolume)volume).getSiteVolumeFactory().getPrefix());
+		} else if (volume instanceof SamSiteVolume) {
+			path.append("/").append(((SamSiteVolume)volume).getSiteId());
+			// Need prefix but don't want volumes to be able to screw it up.
+			path.append("/").append(((SiteVolume)volume).getSiteVolumeFactory().getPrefix());
 		} else {
 			throw new IllegalArgumentException("Expected different type of FsItem: "+ volume.getClass());
 		}
@@ -145,6 +154,9 @@ public class SakaiFsService implements FsService {
 		} else if (volume instanceof SiteFsVolume) {
 			// Will return the site ID
 			return ((SiteFsVolume)volume).getSiteId();
+		} else if (volume instanceof SamSiteVolume) {
+			// Will return the site ID
+			return ((SamSiteVolume)volume).getSiteId();
 		} else {
 			throw new IllegalArgumentException("Passed argument isn't SakaiFsVolume");
 		}
@@ -188,6 +200,8 @@ public class SakaiFsService implements FsService {
 			return ((ContentFsItem) fsItem).getId();
 		} else if (fsItem instanceof SiteFsItem) {
 			return ((SiteFsItem)fsItem).getId();
+		} else if (fsItem instanceof SamFsItem) {
+			return ((SamFsItem)fsItem).getId();
 		} else {
 			throw new IllegalArgumentException("Passed FsItem must be a SakaiFsItem.");
 		}

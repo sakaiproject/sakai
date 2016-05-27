@@ -199,35 +199,31 @@
 				</h:panelGrid>
 				
 				
-				<h:panelGrid columns="3">
+				<div class="form-group row">
 					<!-- view range dropdown -->
-					<h:panelGroup>
-						<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" />
+					<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" styleClass="form-control-label col-lg-1 col-md-1"/>
+					<div class="col-lg-3 col-md-3">
 						<h:selectOneMenu id="viewByRange" value="#{SignupMeetingsBean.viewDateRang}" valueChangeListener="#{SignupMeetingsBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{SignupMeetingsBean.viewDropDownList}"/>
 						</h:selectOneMenu>
-					</h:panelGroup>
-					
+					</div>
 					<!-- filter by category dropdown -->
-					<h:panelGroup>
-						<h:panelGroup styleClass="padLeft"> 
-							<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" />
-							<h:selectOneMenu id="viewByCategory" value="#{SignupMeetingsBean.categoryFilter}" valueChangeListener="#{SignupMeetingsBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
-								<f:selectItems value="#{SignupMeetingsBean.allCategoriesForFilter}"/>
-							</h:selectOneMenu>
-						</h:panelGroup>
-					</h:panelGroup>
-					
+					<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" styleClass="form-control-label col-lg-2 col-md-2"/>
+					<div class="col-lg-2 col-md-2">
+						<h:selectOneMenu id="viewByCategory" value="#{SignupMeetingsBean.categoryFilter}" valueChangeListener="#{SignupMeetingsBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
+							<f:selectItems value="#{SignupMeetingsBean.allCategoriesForFilter}"/>
+						</h:selectOneMenu>
+					</div>
 					<!--  expand all recurring meetings -->
-					<h:panelGroup>
-						<h:panelGroup styleClass="padLeft" rendered="#{SignupMeetingsBean.enableExpandOption && SignupMeetingsBean.meetingsAvailable}">
-							<h:selectBooleanCheckbox value="#{SignupMeetingsBean.showAllRecurMeetings}" valueChangeListener="#{SignupMeetingsBean.processExpandAllRcurEvents}" onclick="submit();"/>
-							<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
+					<h:panelGroup layout="block" styleClass="col-lg-4 col-md-4" rendered="#{SignupMeetingsBean.enableExpandOption && SignupMeetingsBean.meetingsAvailable}">
+						<h:panelGroup >
+								<h:selectBooleanCheckbox value="#{SignupMeetingsBean.showAllRecurMeetings}" valueChangeListener="#{SignupMeetingsBean.processExpandAllRcurEvents}" onclick="submit();"/>
+								<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
 						</h:panelGroup>
 						<h:outputText value="&nbsp;" escape="false" rendered="#{!SignupMeetingsBean.enableExpandOption}"/>
 					</h:panelGroup>
-				</h:panelGrid>
-				
+				</div>
+
 				<h:panelGrid columns="1" styleClass="noMeetingsWarn" rendered="#{!SignupMeetingsBean.meetingsAvailable}" >
 					<h:panelGroup>
 						<h:outputText value="#{SignupMeetingsBean.meetingUnavailableMessages}" escape="false" rendered="#{SignupMeetingsBean.userLoggedInStatus}"/>
@@ -235,7 +231,7 @@
 					</h:panelGroup>
 				</h:panelGrid>	
 				<h:panelGroup rendered="#{SignupMeetingsBean.meetingsAvailable}">
-								 	
+					<div class="table-responsive">
 				 	<t:dataTable 
 				 		id="meetinglist"
 				 		value="#{SignupMeetingsBean.signupMeetings}"
@@ -247,7 +243,7 @@
 				 		rowStyle="#{wrapper.hideStyle}"
 				 		rowClasses="oddRow,evenRow"
 				 		columnClasses="removeCol, titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol"
-				 		styleClass="signupTable">
+				 		styleClass="table table-bordered table-hover table-striped">
 	
 						<t:column defaultSorted="true" sortable="true">
 							<f:facet name="header" >
@@ -255,7 +251,7 @@
 									<h:outputText value="#{msgs.tab_event_name}" escape="false"/>
 								</t:commandSortHeader>
 							</f:facet>
-							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" style="margin-left:-13px; cursor:pointer;">
+							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" styleClass="toggleMeetings">
 								<h:outputText value="<span id='imageOpen_RM_#{wrapper.recurId}' style='display:none'>"  escape="false"/>
 		   	    					<h:graphicImage value="/images/minusSmall.gif"  alt="open" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_collapse_recur_meeting}" style="border:none" onclick="showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{SignupMeetingsBean.iframeId}');" />
 		   	    				<h:outputText value="</span>" escape="false" />
@@ -378,7 +374,7 @@
 							<h:selectBooleanCheckbox value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
 						</t:column>				
 						
-					</t:dataTable>
+					</t:dataTable></div>
 					
 					<h:panelGrid columns="1">
 						<h:outputText value="&nbsp;" escape="false"/>

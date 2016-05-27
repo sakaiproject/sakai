@@ -156,42 +156,61 @@
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
   <div class="tier2" id="assessment-intro">
+    <div class="form-group row">
+        <h:outputLabel for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}" 
+                            styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:inputText id="assessment_title" size="80" maxlength="255" value="#{publishedSettings.title}" />
+        </div>
+    </div>
+        
+    <div class="form-group row">
+        <h:outputLabel value="#{assessmentSettingsMessages.published_assessment_url}: " 
+                        styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:outputText value="#{publishedSettings.publishedUrl}" />
+        </div>
+    </div>
 
-        <h:outputLabel for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}"/>
-        <h:inputText id="assessment_title" size="80" maxlength="255" value="#{publishedSettings.title}" />
+    <div class="form-group row">
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"
+                        styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:outputText value="#{publishedSettings.creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        </div>
+    </div>
 
-        <h:outputLabel value="#{assessmentSettingsMessages.published_assessment_url}: " />
-        <h:outputText value="#{publishedSettings.publishedUrl}" />
+    <div class="form-group row">
+        <h:outputLabel for="assessment_author" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"
+                styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:inputText id="assessment_author" size="80" maxlength="255" value="#{publishedSettings.authors}" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        </div>
+    </div>
 
-        <h:outputLabel value="#{assessmentSettingsMessages.assessment_creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-
-        <h:outputText value="#{publishedSettings.creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-
-        <h:outputLabel for="assessment_author" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"/>
-
-        <h:inputText id="assessment_author" size="80" maxlength="255" value="#{publishedSettings.authors}" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-
-        <h:outputLabel value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}"/>
-
-        <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
-           <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" >
-           <f:validateLength maximum="60000"/>
-         </samigo:wysiwyg>
-        </h:panelGrid>
+    <div class="form-group row">
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}"
+            styleClass="form-control-label col-md-2"/>
+        <div class=" col-md-10">
+            <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
+                <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" >
+                    <f:validateLength maximum="60000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
+        </div>
+    </div>
 
        <!-- Honor Pledge -->
     <div class="form-group row">
-		<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.honor_pledge}"/>
+		<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         <div class="col-md-10">
-			<h:selectBooleanCheckbox id="honor_pledge" value="#{publishedSettings.valueMap.honorpledge_isInstructorEditable}"/>
-			<h:outputText value="#{assessmentSettingsMessages.honor_pledge_add}"/>
+			<h:selectBooleanCheckbox id="honor_pledge" value="#{publishedSettings.honorPledge}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
+			<h:outputText value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         </div>
     </div>
 
     <!-- ASSESSMENT ATTACHMENTS -->
-    <div class="form-group row">
-        <%@ include file="/jsf/author/publishedSettings_attachment.jsp" %>
-    </div>
+    <%@ include file="/jsf/author/publishedSettings_attachment.jsp" %>
        
   </div>
   
@@ -387,8 +406,6 @@
       </h:panelGroup>
       <h:outputText value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
       <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel for="username" value="#{assessmentSettingsMessages.high_security_username}"/>
-        <h:inputText id="username" size="20" value="#{publishedSettings.username}"/>
         <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
         <h:inputText id="password" size="20" value="#{publishedSettings.password}"/>
       </h:panelGrid>

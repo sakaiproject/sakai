@@ -81,7 +81,7 @@
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="shorttext">
       <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  styleClass="ConvertPoint">
+        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  onchange="toggleNegativePointVal(this.value);" styleClass="ConvertPoint">
           <f:validateDoubleRange />
         </h:inputText>
         <small>
@@ -107,16 +107,16 @@
                     onkeypress="this.form.onsubmit();this.form.submit();"
                     value="#{itemauthor.currentItem.itemType}"
 	                valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
-      <f:selectItem itemValue="1" itemLabel="&#160; #{commonMessages.multiple_choice_sin}" escape="false" />  
-      <f:selectItem itemValue="12" itemLabel="&#160; #{commonMessages.multipl_mc_ss}" escape="false" /> 
-      <f:selectItem itemValue="2"   itemLabel="&#160; #{commonMessages.multipl_mc_ms}" escape="false" />
+      <f:selectItem itemValue="1" itemLabel="#{commonMessages.multiple_choice_sin}" escape="false" />  
+      <f:selectItem itemValue="12" itemLabel="#{commonMessages.multipl_mc_ss}" escape="false" /> 
+      <f:selectItem itemValue="2"   itemLabel="#{commonMessages.multipl_mc_ms}" escape="false" />
     </h:selectOneRadio>
   </div>
 
   <!-- partial credit vs negative marking -->
-  <div id="partialCredit_toggle" class="tier3">
-    <h:panelGroup id="partialCredit_JSF_toggle" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
-      <h:selectOneRadio id="partialCreadit_NegativeMarking"
+  <h:panelGroup layout="block" id="partialCredit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
+    <h:panelGroup id="partialCredit_JSF_toggle">
+      <h:selectOneRadio id="partialCredit_NegativeMarking"
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
 					  onkeypress="this.form.onsubmit();this.form.submit();"
@@ -136,11 +136,11 @@
         </h:commandLink><!-- TODO  Need to un-check all the radio buttons as well-->
       </h:panelGroup>
     </h:panelGroup>
-  </div>
+  </h:panelGroup>
 
 <!-- multiple choice, multiple selection: full or partial credit -->
-<div id="mcms_credit_toggle" class="tier3">
-  <h:panelGroup id="mcms_credit_JSF_toggle" rendered="#{itemauthor.currentItem.itemType == 2}">
+<h:panelGroup layout="block" id="mcms_credit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 2}">
+  <h:panelGroup id="mcms_credit_JSF_toggle">
     <h:selectOneRadio id="mcms_credit_partial_credit"
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
@@ -150,22 +150,22 @@
       <f:selectItem itemValue="false" itemLabel="#{commonMessages.multipl_mc_ms_full_credit}"  />
     </h:selectOneRadio>
   </h:panelGroup>
-</div>
-
-<div id="discountDiv" class="longtext">
-  <h:panelGroup id="discountTable">
-  <h:outputText value="&nbsp;&nbsp;" escape="false" />
+</h:panelGroup>
+ 
+<h:panelGroup layout="block" id="discountDiv" styleClass="tier3">
+  <h:panelGroup id="discountTable"
+        rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
+        || itemauthor.currentItem.itemType==12 || (itemauthor.currentItem.itemType==2 && itemauthor.currentItem.mcmsPartialCredit=='false')}">
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
-  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint" disabled="#{itemauthor.disableNegativePoints}">
+  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint">
     <f:validateDoubleRange/>
   </h:inputText>
-  <small><h:outputText value="#{authorMessages.negative_point_value_note}" rendered="#{itemauthor.disableNegativePoints==true}"/></small>
   <f:verbatim> <script type="text/javascript" defer='defer'>
   		var itemType = "${itemauthor.currentItem.itemType}";
-  		var discDiv=document.getElementById('discountDiv');
+  		var discDiv=document.getElementById('itemForm:discountDiv');
 		
   		if(itemType == 1) {
-		  	var toggleDiv=document.getElementById('itemForm:partialCreadit_NegativeMarking');
+		  	var toggleDiv=document.getElementById('itemForm:partialCredit_NegativeMarking');
 	    	if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
 	    		toggleDiv.rows[0].cells[0].appendChild(discDiv);
 	    	}else {
@@ -188,7 +188,7 @@
     </script>
   </f:verbatim>
 </h:panelGroup>
-</div>
+</h:panelGroup>
 
 
   <!-- 2 TEXT -->
@@ -420,6 +420,40 @@
 <!-- end content -->
 </div>
 
+<f:verbatim> 
+	<script type="text/javascript" defer='defer'>
+	$(document).ready(function(){
+		var itemType = "${itemauthor.currentItem.itemType}";
+		var prefixId='#itemForm\\:';
+		var refId=prefixId+'chooseAnswerTypeForMC\\:';
+		var optionId=prefixId;
+		if(itemType == 1){
+			refId+='0';
+			var partialCredit=${itemauthor.currentItem.partialCreditEnabled==true};
+			if(partialCredit){  				
+				optionId+='partialCredit_toggle';
+				var showDiscountDiv=${itemauthor.currentItem.partialCreditFlag==false};
+				if(showDiscountDiv){
+					$(prefixId+'partialCredit_NegativeMarking\\:0').parent().append($(prefixId+'discountDiv'));
+				}
+			}else{
+				optionId+='discountDiv';
+			}
+		}else if (itemType == 12){
+			refId+='1';
+			optionId+='discountDiv';
+		}else if (itemType == 2) {
+ 			var showSecondOption= ${itemauthor.currentItem.mcmsPartialCredit==false};
+			if(showSecondOption){
+				$(prefixId+'mcms_credit_toggle').append($(prefixId+'discountDiv'));
+			}
+			refId+='2';
+			optionId+='mcms_credit_toggle';
+		}
+		$(refId).parent().append($(optionId));
+	});
+	</script>
+</f:verbatim>
     </body>
   </html>
 </f:view>

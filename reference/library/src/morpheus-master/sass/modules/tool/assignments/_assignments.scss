@@ -13,6 +13,10 @@
 		input {
 			margin: 0;
 		}
+
+		button{
+			margin: 0;
+		}
 	}
 
 	.form-required{
@@ -37,7 +41,7 @@
 			padding: 0.5em 0 0.5em;
 		}
 		.shorttext{
-			display: inline-block;
+			display: block;
 		}
 		.assignment-checkbox-inline{
 			display: inline-block;
@@ -46,5 +50,68 @@
 	
 	#reorder-list-sortingToolBar, #reorder-list{
 		max-width: 1200px;
+	}
+	
+	label.innerRadio{
+		margin-left: 20px;
+	}
+	
+	#sendFeedbackPanel, #allowResubmissionPanel{
+		.discTria{
+			font-weight: bold;
+			background-color: #cef;
+		}
+	}
+	
+	// Styles for navigators in Grading Student Screen
+	.leftColumn{
+		float: left;
+		display: table-cell;
+		width: 40%;
+		
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+	
+	.centreColumn {
+		display: table-cell;
+		width: 20%;
+		text-align: center;
+		
+		#subsOnlyContainer{
+			display: block;
+			text-align: center;
+			margin-top: 0.5em;
+		}
+	}
+	
+	.rightColumn {
+		display: table-cell;
+		width: 40%;
+		text-align: right;
+		
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+	
+	.leftColumn, .rightColumn, .centreColumn{
+		@media #{$phone}{
+			display:block;
+			width: 100%;
+			text-align:center;
+		}	
+	}
+
+	.table{
+		h5{
+			margin: 0 0 0.5em 0;
+		}
+		.peer-header{
+			font-size: 0.9em;
+			line-height: 1;
+			padding: 0.5em 0 0.5em 2.5em;
+		}
 	}
 }

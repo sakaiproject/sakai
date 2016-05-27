@@ -201,11 +201,10 @@
 
     <!-- Honor Pledge -->
     <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" />
+        <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         <div class="col-md-10">
-            <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable}"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputText  value="#{assessmentSettingsMessages.honor_pledge_add}" />
+            <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.honorPledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
+            <h:outputText  value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         </div>
     </div>
 
@@ -408,8 +407,6 @@
      </h:panelGroup>
       <h:outputText value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
       <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel for="username" value="#{assessmentSettingsMessages.high_security_username}"/>
-        <h:inputText id="username" size="20" value="#{assessmentSettings.username}"/>
         <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
         <h:inputText id="password" size="20" value="#{assessmentSettings.password}"/>
       </h:panelGrid>

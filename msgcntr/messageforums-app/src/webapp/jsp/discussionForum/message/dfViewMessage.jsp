@@ -30,10 +30,10 @@
                             var url = $(this).attr('href');
                             if (!url)
 							    url = this.href;
-							$('#permalinkHolder input').val(url);
+							$('#permalinkHolder textarea').val(url);
 							$('#permalinkHolder').css({
-								'top': event.pageY + 20,
-								'left':event.pageX - 150
+								'top': $(this).position().top,
+								'left': $(this).position().left
 							});
 							$('#permalinkHolder').fadeIn('fast');
 							$('#permalinkHolder input').focus().select();
@@ -50,8 +50,8 @@
 			</script>
 
 			<%--breadcrumb and thread nav grid--%>
-			<h:panelGrid columns="2" width="100%" styleClass="navPanel">
-				<h:panelGroup>
+			<div class="navPanel row">
+				<div class="col-md-12">
 					<f:verbatim><h3></f:verbatim>
 						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 							rendered="#{ForumTool.messagesandForums}" />
@@ -80,24 +80,29 @@
 							<h:outputText value="#{ForumTool.selectedThreadHead.message.title}"/>
 						</h:commandLink>
 					<f:verbatim></h3></f:verbatim>
-				</h:panelGroup>
-				<h:panelGroup styleClass="itemNav">
-					<h:outputText   value="#{msgs.cdfm_previous_thread}"  rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" />
-					<h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-offset-6 col-md-6 view-message-nav">
+					<h:panelGroup  styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasPreThread}">
+						<h:outputText value="#{msgs.cdfm_previous_thread}"  />
+					</h:panelGroup>
+					<h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
 						<f:param value="#{ForumTool.selectedThreadHead.preThreadId}" name="messageId"/>
 						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink>
-					<f:verbatim><h:outputText  id="blankSpace1" value=" |  " /></f:verbatim>				
-					<h:outputText   value="#{msgs.cdfm_next_thread}" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" />
-					<h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
+					<h:panelGroup styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}">
+						<h:outputText value="#{msgs.cdfm_next_thread}"  />
+					</h:panelGroup>
+					<h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
 						<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
 						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink>
-
-				 </h:panelGroup>
-			</h:panelGrid>
+				 </div>
+			</div>
 			<%-- topic short description and long description --%>
 			<div class="topicBloc" style="width:80%;padding:0 .5em;margin:0;">
 				<p class="textPanel">
@@ -208,17 +213,40 @@
 			</h:panelGrid>
 			
 
-			<f:verbatim><div id="permalinkHolder"><a class="closeMe" href="#" style="">x</a></f:verbatim>
+			<f:verbatim><div id="permalinkHolder"><a class="closeMe" href="#" style=""><span class="icon-sakai-delete"></span></a></f:verbatim>
 				<h:outputText value="#{msgs.cdfm_button_bar_permalink_message}" style="display:block" styleClass="textPanelFooter"/>
-				<h:inputText value="" size="35"/>
+				<h:inputTextarea value="" />
 			<f:verbatim></div></f:verbatim>
 
-
-
+			<%--navigation cell --%>
+			<div class="row view-message-nav">
+				<div class="col-md-offset-6 col-md-6">
+					<h:commandLink styleClass="button"
+						action="#{ForumTool.processDisplayPreviousMsg}"
+						rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}"
+						title=" #{msgs.cdfm_prev_msg}">
+						<h:outputText value="#{msgs.cdfm_prev_msg}" />
+					</h:commandLink>
+					<h:panelGroup styleClass="button formButtonDisabled"
+						rendered="#{!ForumTool.selectedMessage.hasPre}">
+						<h:outputText value="#{msgs.cdfm_prev_msg}" />
+					</h:panelGroup>
+					<h:commandLink styleClass="button"
+						action="#{ForumTool.processDfDisplayNextMsg}"
+						rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasNext}"
+						title=" #{msgs.cdfm_next_msg}">
+						<h:outputText value="#{msgs.cdfm_next_msg}" />
+					</h:commandLink>
+					<h:panelGroup styleClass="button formButtonDisabled"
+						rendered="#{!ForumTool.selectedMessage.hasNext}">
+						<h:outputText value="#{msgs.cdfm_next_msg}" />
+					</h:panelGroup>
+				</div>
+			</div>
 			<f:verbatim><div class="singleMessage">
 			</f:verbatim>
 				<%--title, metadata and navigation --%>
-				<h:panelGrid columns="2"  style="width: 100%;" border="0">
+				<h:panelGrid columns="1"  style="width: 100%;" border="0">
 					<h:outputText rendered="#{ForumTool.selectedMessage.message.deleted && !ForumTool.needToPostFirst}"  value="#{msgs.cdfm_msg_deleted_label}" styleClass="instruction"/>
 					<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" style="display:block">
@@ -244,20 +272,7 @@
 						</h:outputText>
 						<h:outputText value=" #{msgs.cdfm_closeb}"  styleClass="textPanelFooter" />
 					</h:panelGroup>                                                                                            
-					<%--navigation cell --%>
-					<h:panelGroup styleClass="itemNav">
-						<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}" 
-								title=" #{msgs.cdfm_prev_msg}">
-							<h:outputText value="#{msgs.cdfm_prev_msg}" />
-						</h:commandLink>
-						<h:outputText value="#{msgs.cdfm_prev_msg}"  rendered="#{!ForumTool.selectedMessage.hasPre}" />
-						<f:verbatim><h:outputText value=" | " /></f:verbatim>
-						<h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasNext}" 
-								title=" #{msgs.cdfm_next_msg}">
-							<h:outputText value="#{msgs.cdfm_next_msg}" />
-						</h:commandLink>
-						<h:outputText value="#{msgs.cdfm_next_msg}" rendered="#{!ForumTool.selectedMessage.hasNext}" />
-					</h:panelGroup>
+
 				</h:panelGrid>
 
 				<%-- Rank --%>
@@ -307,37 +322,46 @@
 			</p>
 	
 			<f:verbatim><br/><br/></f:verbatim>		
-			<h:panelGroup styleClass="itemNav">
-				<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}" 
-						title=" #{msgs.cdfm_prev_msg}">
-					<h:outputText value="#{msgs.cdfm_prev_msg}" />
-				</h:commandLink>
-				<h:outputText value="#{msgs.cdfm_prev_msg}"  rendered="#{!ForumTool.selectedMessage.hasPre}" />
-				<f:verbatim><h:outputText value=" | " /></f:verbatim>
-				<h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasNext}" 
-						title=" #{msgs.cdfm_next_msg}">
-					<h:outputText value="#{msgs.cdfm_next_msg}" />
-				</h:commandLink>
-				<h:outputText value="#{msgs.cdfm_next_msg}" rendered="#{!ForumTool.selectedMessage.hasNext}" />
-			</h:panelGroup>
+			<div class="row view-message-nav">
+				<div class="col-md-offset-6 col-md-6">
+					<h:commandLink styleClass="button" action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}" 
+							title=" #{msgs.cdfm_prev_msg}">
+						<h:outputText value="#{msgs.cdfm_prev_msg}" />
+					</h:commandLink>
+					<h:panelGroup rendered="#{!ForumTool.selectedMessage.hasPre}" styleClass="button formButtonDisabled">
+						<h:outputText value="#{msgs.cdfm_prev_msg}"  />
+					</h:panelGroup>
+					<h:commandLink styleClass="button" action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasNext}" 
+							title=" #{msgs.cdfm_next_msg}">
+						<h:outputText value="#{msgs.cdfm_next_msg}" />
+					</h:commandLink>
+					<h:panelGroup rendered="#{!ForumTool.selectedMessage.hasNext}"  styleClass="button formButtonDisabled">
+						<h:outputText value="#{msgs.cdfm_next_msg}" />
+					</h:panelGroup>
+				</div>
+			</div>
 
 			<f:verbatim><br/><br/></f:verbatim>
-			<h:panelGroup styleClass="itemNav">
-				<h:outputText   value="#{msgs.cdfm_previous_thread}"  rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" />
-				<h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
-					<f:param value="#{ForumTool.selectedThreadHead.preThreadId}" name="messageId"/>
-					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-				</h:commandLink>
-				<f:verbatim><h:outputText  id="blankSpace2" value=" |  " /></f:verbatim>				
-				<h:outputText   value="#{msgs.cdfm_next_thread}" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" />
-				<h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
-					<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
-					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-				</h:commandLink>
-
-			 </h:panelGroup>
+			<div class="row view-message-nav">
+				<div class="col-md-offset-6 col-md-6">
+					<h:panelGroup rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" >
+						<h:outputText value="#{msgs.cdfm_previous_thread}"  styleClass="button formButtonDisabled" />
+					</h:panelGroup>
+					<h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
+						<f:param value="#{ForumTool.selectedThreadHead.preThreadId}" name="messageId"/>
+						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+					</h:commandLink>
+					<h:panelGroup rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" styleClass="button formButtonDisabled" >
+						<h:outputText   value="#{msgs.cdfm_next_thread}"  />
+					</h:panelGroup>				
+					<h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
+						<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
+						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+					</h:commandLink>
+				</div>
+			 </div>
 		</h:form>
 	</sakai:view>
 </f:view>

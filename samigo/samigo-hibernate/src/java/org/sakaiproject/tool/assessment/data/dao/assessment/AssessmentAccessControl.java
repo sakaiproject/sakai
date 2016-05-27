@@ -106,9 +106,9 @@ public class AssessmentAccessControl
   private String submissionMessage;
   private String finalPageUrl;
   private String releaseTo;
-  private String username;
   private String password;
   private Integer markForReview;
+  private Boolean honorPledge;
 
   /**
    * Creates a new SubmissionModel object.
@@ -168,11 +168,11 @@ public class AssessmentAccessControl
     ((AssessmentAccessControl)cloned).setItemNumbering(this.itemNumbering);
     ((AssessmentAccessControl)cloned).setDisplayScoreDuringAssessments(this.displayScoreDuringAssessments);
     ((AssessmentAccessControl)cloned).setSubmissionMessage(this.submissionMessage);
-    ((AssessmentAccessControl)cloned).setUsername(this.username);
     ((AssessmentAccessControl)cloned).setPassword(this.password);
     ((AssessmentAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((AssessmentAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
     ((AssessmentAccessControl)cloned).setMarkForReview(this.markForReview);
+    ((AssessmentAccessControl)cloned).setHonorPledge(this.honorPledge);
     return cloned;
   }
 
@@ -395,13 +395,6 @@ public class AssessmentAccessControl
     this.releaseTo = releaseTo;
   }
 
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
   public String getPassword() {
     return this.password;
   }
@@ -426,5 +419,11 @@ public class AssessmentAccessControl
   public void setMarkForReview(Integer markForReview) {
 	this.markForReview = markForReview;
   }
-   
+
+  @Override
+  public Boolean getHonorPledge() { return this.honorPledge; }
+
+  @Override
+  public void setHonorPledge(Boolean honorPledge) { this.honorPledge = honorPledge; }
+
 }

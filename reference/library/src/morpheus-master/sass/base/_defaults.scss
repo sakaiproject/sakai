@@ -24,18 +24,25 @@ a{
 		text-decoration: none;
 	}
 	&[href]{  // This means a[href]
-		color: $primary-color;
+		color: $link-color;
+		background-color: $link-background-color;
 		&:focus, &::-moz-focus-inner{ // This would compile to -> a[href]:focus, a[href]::moz-focus-inner
 			outline-color: invert;
 		}
 		&:hover{
+			color: $link-hover-color;
+			background-color: $link-hover-background-color;
 			text-decoration:underline;
+		}
+		&:active{
+			color: $link-active-color;
+			background-color: $link-active-background-color;
 		}
 		&.btn{
 			text-decoration: none;
 		}
 		&.btn-primary{
-			color: #FFF;
+			@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
 		}
 		text-decoration:underline;	
 	}
@@ -55,6 +62,15 @@ input, textarea{
 	font-family: $font-family;
 	font-size: 	 $default-font-size;
 	max-width: 100%;
+}
+
+form, table{
+	textarea{
+		@media #{$phone}{
+			width: 100%;
+			max-width: 100%;
+		}
+	}
 }
 
 h1, h2, h3, h4, h5, h6{
@@ -188,6 +204,5 @@ button[class="disabled"]:hover,
 }
 
 ul, ol {
-    list-style: none;
-    padding: 0 0 0 0;
+    padding: 0 0 0 1.5em;
 }

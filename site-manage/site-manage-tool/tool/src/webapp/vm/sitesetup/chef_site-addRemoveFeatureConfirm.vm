@@ -207,13 +207,13 @@
 		<input type="hidden" name="eventSubmit_doAddRemoveFeatureConfirm_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
 		<p class="act">
-			<input type="button" id="revise" name="review" accesskey="s" class="active" value="$tlang.getString('gen.finish')" 
+			<input type="submit" id="revise" name="review" accesskey="s" class="active" value="$tlang.getString('gen.finish')" 
 				onclick="SPNR.disableControlsAndSpin( this, null ); document.addRemoveFeaturnConfirmForm.option.value='revise'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
 			/>
-			<input type="button" id="back" name="back" accesskey="b" value="$tlang.getString('gen.back')" 
+			<input type="submit" id="back" name="back" accesskey="b" value="$tlang.getString('gen.back')" 
 				onclick="SPNR.disableControlsAndSpin( this, null ); document.addRemoveFeaturnConfirmForm.option.value='back'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
 			/>
-			<input type="button" id="cancel" name="cancel" accesskey="x" value="$tlang.getString('gen.cancel')" 
+			<input type="submit" id="cancel" name="cancel" accesskey="x" value="$tlang.getString('gen.cancel')" 
 				onclick="SPNR.disableControlsAndSpin( this, null ); document.addRemoveFeaturnConfirmForm.option.value='cancel'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
 			/>
 		</p>

@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
@@ -57,6 +58,7 @@ public class TemplateBean implements Serializable
   private String questionNumbering = "1";
   private String displayScoreDuringAssessments = "1";
   private Boolean markForReview = Boolean.TRUE;
+  private boolean honorPledge;
   private String submissionModel = "1";
   private String submissionNumber;
   private String lateHandling = "2";
@@ -106,6 +108,7 @@ public class TemplateBean implements Serializable
     values.put("anonymousRelease_isInstructorEditable", Boolean.TRUE);
     values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);
     values.put("instructorNotification_isInstructorEditable", Boolean.TRUE);
+    values.put("honorpledge_isInstructorEditable", Boolean.TRUE);
   }
 
     public void setOutcome(String outcome){
@@ -445,6 +448,10 @@ public class TemplateBean implements Serializable
   {
     return markForReview;
   }
+
+  public boolean isHonorPledge() { return honorPledge; }
+
+  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
 
   /**
    * submission model

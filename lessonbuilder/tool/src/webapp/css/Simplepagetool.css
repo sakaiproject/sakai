@@ -113,10 +113,6 @@
 .nextprev {
 	font-size: 95% !important
 }
-#error {
-	left: 10px;
-	margin: 20px;
-}
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
 }
@@ -239,7 +235,19 @@ a.ui-button:link, a.ui-button:visited {
 .ui-buttonset .ui-button {
     margin-right: 3px !important;
 }
-
+body .below-link-help, #error.below-link-help {
+   margin-top:55px;
+}
+body .error-spacingabove {
+   margin-top: 30px;
+}
+body .error-nospacebelow {
+   margin-bottom: 0px;
+}
+/* if two errors in a row, we don't need the spacing between them */
+body .error-spacingabove + .error-spacingabove{
+   margin-top: 15px;
+}
 /* ff2, buttons don't work */
 a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.column-merge-link:link, a.column-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
@@ -282,7 +290,24 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-left: 5px solid black !important;
    margin-left: -5px;
 }
-
+.listHierFlex {
+  display:inline-block;
+}
+.hierFlexList {
+   display:flex;
+}
+.hierFlex1 {
+   display:flex;
+   width:calc(100% - 12em);
+   margin-right:2px;
+}
+.hierFlex2 {
+   display:flex;
+   width:14em;
+}
+.listHier .forumTopic {
+   margin-left: 1em;
+}
 .mainList {
     list-style:none;
 }
@@ -686,6 +711,13 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	background-color: #edd !important;
 	color:black !important;
 }
+.showItemMorpheus .returnheader a:link, .showItemMorpheus .returnheader a:visited,
+.showItemMorpheus .returnheader a:hover,.showItemMorpheus .returnheader a:active {
+	background-color: inherit !important;
+	border: none;
+	text-decoration:underline !important;
+}
+
 /* Comments */
 h3.author {
 	margin-right: 10px;
@@ -893,7 +925,20 @@ ul#toolbar li em {
 .Mrphs-siteHierarchy span.nextprev {
    float:right
 }
+.lessons-siteHierarchy-title {
+   font-weight: bold;
+   margin-left: 0.5em;
+}
+.itemAction {
+  padding-top: 0px;
+  margin-top: 0px;
+  position:relative;
+  top:-4px;
+}
 span.nextprev {
+}
+.crumb-link {
+  margin-right: 0.5em;
 }
 a.nextprev {
 	margin-left: 5px;
@@ -1348,12 +1393,16 @@ font-size: 90%;
 
 /* for ShowItem */
 .itemHeader {
+}
+.itemHeader-resource {
   margin-bottom:20px; 
-  border-bottom:solid black 1px
+  border-bottom:none;
+}
+.itemTitle .title-instruction {
+  margin-bottom:0px;
 }
 .itemTitle {
   line-height:10px;
-  margin-top:35px;
   margin-bottom:5px;
 }
 /* without this it sticks up 1px into the top bar */
@@ -1424,6 +1473,12 @@ font-size: 90%;
 }
 .col2 {
    width: calc(100% - 15px);
+}
+.hierFlex1 {
+   width:auto;
+}
+.hierFlex2 {
+   display:none;
 }
 }
 .lessonsToolButton {

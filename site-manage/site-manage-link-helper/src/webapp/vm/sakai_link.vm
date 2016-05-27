@@ -1,5 +1,6 @@
 <script type="text/javascript" src="/library/js/spinner.js"></script>
 <div class="portletBody">
+<h3>$tlang.getString('title')</h3>
 #if ($alertMessage)
     <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both" ></div>
 #end

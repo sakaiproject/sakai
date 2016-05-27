@@ -2,7 +2,7 @@
 <emailTemplates>
     <emailTemplate>
         <subject>Notification for assessment submission: ${siteName} - ${assessmentTitle}</subject>
-        <message>The following assessment submission was recorded by Isidore:
+        <message>The following assessment submission was recorded by ${localSakaiName}:
 
     Site Title          : ${siteName}
     Assessment          : ${assessmentTitle}
@@ -20,7 +20,7 @@ This automatic notification message was sent by ${localSakaiName} (${localSakaiU
 ${changeSettingInstructions}
         </message>
         <messagehtml>&lt;pre&gt;
-The following assessment submission was recorded by Isidore:
+The following assessment submission was recorded by ${localSakaiName}:
 
     Site Title          : ${siteName}
     Assessment          : ${assessmentTitle}
@@ -41,7 +41,7 @@ ${changeSettingInstructions}
         <version>1</version>
         <owner>admin</owner>
         <key>sam.assessmentSubmitted</key>
-        <locale>en_US</locale>
-        <localeLangTag>en-US</localeLangTag>
+        <locale></locale>
+        <localeLangTag></localeLangTag>
     </emailTemplate>
 </emailTemplates>

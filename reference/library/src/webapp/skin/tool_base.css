@@ -911,7 +911,7 @@ ul.calendarLegend li{
 }
 #flashNotif {
     position:absolute;
-    top:25px;
+    top:-475px;
     left:30%;
     right:30%;
     padding:15px;

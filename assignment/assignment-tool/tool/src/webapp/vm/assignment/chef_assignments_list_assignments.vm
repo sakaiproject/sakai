@@ -45,7 +45,7 @@
 			$tlang.getString("gen.thearecur1")
 		</p>
 	#else
-	<div class="navPanel">
+	<div class="navPanel row">
 		#if ($allowAddAssignment)
 			#if (!$!view.equals('stuvie'))
 			<div class="col-md-8">
@@ -65,12 +65,12 @@
 				</form>
 			</div>
 			#else
-				<div class="col-md-8">
+				<div class="col-md-12">
 				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div>
 			</div>
 			#end
 		#else
-			<div class="col-md-8">
+			<div class="col-md-12">
 				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
 			</div>
 		#end
@@ -534,10 +534,9 @@
 								<!-- attachments col -->
 								<td></td>
 								<!-- title col -->
-								<td>
-									<span class="indnt1">
-										$tlang.getString("peerAssessmentName")
-									</span>
+								<td class="peer-header">
+									<h5><i class="fa fa-caret-square-o-right" aria-hidden="true"></i> $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</h5>
+									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
 								#if ($!groups && $!allowGradeSubmission)
 									<!-- groups col -->

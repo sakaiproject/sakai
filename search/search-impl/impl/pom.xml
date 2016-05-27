@@ -81,7 +81,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <forkMode>pertest</forkMode>
+          <reuseFork>false</reuseFork>
           <argLine>${maven.test.jvmargs}</argLine>
           <!-- This test randomly has errors at present SAK-13616 -->
           <excludes>

@@ -727,7 +727,7 @@ public class ItemAddListener
       item.setDiscount(Double.valueOf(bean.getItemDiscount()));
       //default should be "true", so anything other than "false" is a true value
       item.setScoreDisplayFlag(!"false".equals(bean.getItemScoreDisplayFlag()));
-      item.setMinScore(Double.valueOf(bean.getItemMinScore()));
+      item.setMinScore(bean.getItemMinScore());
       item.setHint("");
 
       item.setStatus(ItemDataIfc.ACTIVE_STATUS);

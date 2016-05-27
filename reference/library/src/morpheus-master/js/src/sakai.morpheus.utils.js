@@ -15,8 +15,32 @@ function f_filterResults(n_win, n_docel, n_body){
 
 $PBJQ(document).ready(function(){
 	$PBJQ('input, textarea', '#content').each( function(){
-		if( $(this).prop('disabled') ){
-			$(this).parent('label').addClass('disabled');
+		if( $PBJQ(this).prop('disabled') ){
+			$PBJQ(this).parent('label').addClass('disabled');
+		}
+	});
+	
+// SAK-29494: Escape key maps to keycode `27`
+	$PBJQ(document).keyup(function(e) {
+		if (e.keyCode == 27) {
+			
+			//Close More Sites
+			if (!$PBJQ('#selectSiteModal').hasClass('outscreen') ){
+				$PBJQ('#otherSitesMenu .otherSitesMenuClose').trigger('click');
+			}
+			
+			//Close DirectUrl dialogs
+			$PBJQ('.Mrphs-directUrl__dropDown').each(function(){
+				if($PBJQ(this).hasClass('active')){
+					$PBJQ(this).find('.dropDown_close').trigger('click');
+				}
+			});
+			
+			//Close Icon Selector in customization of Web Contents
+			$PBJQ('.fip-icon-up-dir').trigger('click');				
+			
+			//Close All sites dialog in Resources
+			$PBJQ('.navigatePanelControls .close').trigger('click');
 		}
 	});
 });

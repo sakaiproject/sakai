@@ -158,10 +158,6 @@ public interface AssessmentAccessControlIfc
 
   void setReleaseTo(String releaseTo);
 
-  String getUsername();
-
-  void setUsername(String username);
-
   String getPassword();
 
   void setPassword(String password);
@@ -177,5 +173,9 @@ public interface AssessmentAccessControlIfc
   Integer getMarkForReview();
 
   void setMarkForReview(Integer markForReview);
+
+  Boolean getHonorPledge();
+
+  void setHonorPledge(Boolean honorPledge);
 
 }

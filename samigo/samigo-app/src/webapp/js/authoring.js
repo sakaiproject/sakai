@@ -246,14 +246,47 @@ $( document ).ready( function() {
         }
     });
 
-    // validation for minPoints 
+    // validation for points
+    $( "#itemForm\\:answerptr" ).change( function() {
+        var pointValue = parseFloat( $( this ).val() );
+        var negField = $( "#itemForm\\:answerdsc" );
+        var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
+        // do not allow negative points for point value
+        if (pointValue < 0) {
+            validationWarningSetDefault($( this ), "0");
+            validationWarningSetDefault(negField, "0");
+            validationWarningSetDefault(minField, "");
+        } else {
+            // negValue should be less than pointValue
+            var negValue = parseFloat(negField.val());
+            if (negValue < 0 || negValue > pointValue) {
+                validationWarningSetDefault(negField, "0");
+            }
+            // minField may not be on the page if disabled
+            if (minField) {
+                var minValue = parseFloat(minField.val());
+                if (minValue < 0 || minValue >= pointValue) {
+                    validationWarningSetDefault(minField, "");
+                }
+            }
+        }
+    });
+
+    // validation for minPoints
     $( "#itemForm\\:minPoints\\:answerminptr" ).change( function() {
         var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
-        var minValue = parseFloat ( $( this ).val() );
-        if (!pointValue.isNaN && !minValue.isNaN) {
-            // minValue should not be equal to or greater than pointValue
-            if (minValue < 0 || minValue >= pointValue) {
-                validationWarningSetDefault($( this ), "0")
+        var minValue = parseFloat( $( this ).val() );
+        // minValue should not be equal to or greater than pointValue
+        if (minValue < 0 || minValue >= pointValue) {
+            validationWarningSetDefault($( this ), "0")
+        } else {
+            // minValue is valid disable negative points
+            var negField = $( "#itemForm\\:answerdsc" );
+            if (negField) {
+                var negValue = parseFloat(negField.val());
+                if (negValue > 0) {
+                    validationWarningSetDefault(negField, "0");
+                }
             }
         }
     });
@@ -261,13 +294,43 @@ $( document ).ready( function() {
     // validation for negative points
     $( "#itemForm\\:answerdsc" ).change( function() {
         var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
-        var negativeValue = parseFloat ( $( this ).val() );
-        if (!pointValue.isNaN && !negativeValue.isNaN) {
-            // minValue should not be equal to or greater than pointValue
-            if (negativeValue < 0 || negativeValue > pointValue) {
-                validationWarningSetDefault($( this ), "0")
+        var negValue = parseFloat ( $( this ).val() );
+        // minValue should not be equal to or greater than pointValue
+        if (negValue < 0 || negValue > pointValue) {
+            validationWarningSetDefault($( this ), "0")
+        } else {
+            // negValue should 0 if using minPoints
+            var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
+            if (minField) {
+                var minValue = parseFloat(minField.val());
+                if (minValue > 0) {
+                    validationWarningSetDefault(minField, "");
+                }
             }
         }
+    });
+
+    $( function() {
+        // negValue should be 0 and minValue should be empty if using partial credit
+        var pcValue = $( "input[name='itemForm\\:partialCredit_NegativeMarking']:checked", "#itemForm" ).val();
+        if (pcValue == "true") {
+            var negField = $( "#itemForm\\:answerdsc" );
+            if (negField) {
+                var negValue = parseFloat(negField.val());
+                if (negValue > 0) {
+                    validationWarningSetDefault(negField, "0");
+                }
+            }
+
+            var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
+            if (minField) {
+                var minValue = parseFloat(minField.val());
+                if (minValue > 0) {
+                    validationWarningSetDefault(minField, "");
+                }
+            }
+        }
+
     });
 
 });
@@ -707,3 +770,4 @@ function clickInsertLink(field){
   var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
   $(hiddenSelector).click();
 }
+

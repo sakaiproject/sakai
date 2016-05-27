@@ -27,15 +27,24 @@
                             <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
                             <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 						</bean>
-						<!--
-						  This is disabled because it isn't doing permission checks but it's been useful in development
-						  to have multiple tools working.-->
 						<bean class="org.sakaiproject.elfinder.sakai.msgcntr.MsgCntrSiteVolumeFactory">
 							<property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
 							<property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
 							<property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
 							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+						</bean>
+
+						<bean class="org.sakaiproject.elfinder.sakai.assignment.AssignmentSiteVolumeFactory">
+							<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+						</bean>
+						<bean class="org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory">
+							<property name="publishedAssessmentService" >
+								<bean class="org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService"/>
+							</property>
+
 						</bean>
 					</set>
 				</property>

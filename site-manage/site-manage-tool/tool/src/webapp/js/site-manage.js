@@ -1290,7 +1290,6 @@ function submitRemoveSection(index, formID)
     id = "removeSection"+index;
     removeSection = document.getElementById(id);
     removeSection.value="true";
-    document.getElementById("option").value="removeSection";
     document.getElementById( formID ).submit();
     return false;
 }

@@ -62,7 +62,10 @@
       </style>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-      <script type='text/javascript' src='/library/js/headscripts.js'></script><script type='text/javascript'>var sakai = sakai || {}; sakai.editor = sakai.editor || {};sakai.editor.enableResourceSearch = false;</script><script type='text/javascript'>var CKEDITOR_BASEPATH='/library/editor/ckeditor/';</script><script type='text/javascript' src='/library/editor/ckeditor/ckeditor.js'></script><script type='text/javascript' src='/library/editor/ckeditor.launch.js'></script>
+      <script type='text/javascript' src='/library/js/headscripts.js'></script>
+      <script type='text/javascript' src="/sakai-editor/editor-bootstrap.js"></script>
+      <script type="text/javascript" src="/sakai-editor/editor.js"></script>
+      <script type="text/javascript" src="/sakai-editor/editor-launch.js"></script>
 	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>	  	  
       <script type="text/javascript">
 		
@@ -176,7 +179,7 @@
 				<br /><br />
 		</div>
  
-<div class="portletBody">
+<div class="portletBody Mrphs-sakai-samigo">
  <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
 <!-- content... -->

@@ -139,7 +139,7 @@
           <div id="tabs" style="font-size:95%">
         <ul>
             <li>
-                <a href="#instr-windows8">Windows 8</a>
+                <a href="#instr-windows8">Windows 8/10</a>
             </li>
 
             <li>
@@ -156,12 +156,10 @@
             </li>
         </ul>
         <div id="instr-windows8">
-            <h4>Setting up WebDAV for Windows 8</h4> 
-            <p><strong>Note:</strong> There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.</p>
+            <h4>Setting up WebDAV for Windows 8/10</h4>
              <ol>
-                <li>First you need to navigate to the Desktop: after logging into Windows 8, click the Desktop icon (see the screenshot below).
-                <p><img src="win8img1.png" alt ="Picture of Windows 8 desktop"/></p></li> 
-                <li>From the Desktop, click File Explorer.
+                <li>First you need to navigate to the Desktop: after logging into Windows 8/10, click the Desktop icon.
+                <li>From the Desktop, click File Explorer and make sure 'This PC' is selected in the left-hand pane.
                 <p><img src="win8img2.png" alt ="Picture of Windows 8 file explorer" /></p></li>
                 <li>At the top of the File Explorer window, click Computer &gt; Map Network Drive &gt; Map network drive.
                 <p><img src="win8img3.png" alt ="Picture of Windows 8 Mapping Netword Drive Interface" /></p></li>
@@ -171,14 +169,15 @@
                 <li>When prompted, enter your username and password and click OK.</li>
                 <li>You can now drag files and folders to and from your computer and the site Resources folder.</li>
             </ol>
+            <h5>Alternate method of setting up WebDAV on Windows</h5>
+            <p>
+				If the process above yields connections errors, you may be able to utilize the WebDAV functionality to access your files using a free third-party client called <a class="activateTab" href="#instr-other">Cyberduck</a>. 
+			</p>
         </div>
         <div id="instr-windows7">
             <h4>Setting up WebDAV for Windows Vista/Windows 7</h4>
             <p>
-                <strong>Note 1</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.
-            </p>
-            <p>
-                <strong>Note 2</strong>: Use of WebDAV functionality on <em>Windows Vista</em>
+                <strong>Note</strong>: Use of WebDAV functionality on <em>Windows Vista</em>
                 requires that you have Vista Service Pack 2 installed. If you do not yet have Service Pack 2 installed, please run Windows Update by clicking <strong>Start &gt; All Programs &gt; Windows Update</strong>.
             </p>
             <ol>
@@ -206,54 +205,15 @@
             <p>
                 When the setup process is complete, the course or project resources folder will appear under Computer as a drive, where it will act just like any other drive in Windows Explorer. You can now drag files and folders to and from your computer and the site's Resources folder.
             </p>
-            <h5>Alternate method of setting up WebDAV on Windows Vista/Windows 7</h5>
+            <h5>Alternate method of setting up WebDAV on Windows</h5>
             <p>
-                If the process above yields connections errors, you may be able to utilize the WebDAV functionality to access your files using a free third-party client called <strong>AnyClient</strong>.  Follow this process to download, install, and configure AnyClient.
-            </p>
-            <ol>
-                <li>
-                    Download the AnyClient WebDAV client from: <a href="http://www.anyclient.com" target="_blank">http://www.anyclient.com</a>.
-                </li>
-                <li>
-                    Run the <strong>install.exe</strong>
-                    file and complete the setup wizard.
-                </li>
-                <li>
-                    If the installer did not automatically launch AnyClient, click <strong>Start &gt; All Programs &gt; AnyClient &gt; AnyClient</strong>
-                    to open AnyClient.
-                </li>
-                <li>
-                    Click <strong>Connect</strong>
-                    at the bottom-left corner.
-                </li>
-                <li>
-                    Click <strong>New</strong>
-                    at the bottom-left corner and give this connection a meaningful name on the left menu (e.g., <em>History 101 Resources</em>).
-                </li>
-                <li>
-                    In the <em>Host</em>
-                    dialog box, type (or copy and paste) the path as shown above in <b>step 1</b>.
-                </li>
-                <li>
-                    Type in your username and password.
-                </li>
-                <li>
-                    In the <em>Connection type</em>
-                    drop box, select WebDAV.
-                </li>
-                <li>
-                    Click <strong>Save</strong>
-                    at the bottom of the window to save this connection for future use and click <strong>Connect</strong>.
-                </li>
-            </ol>
+                If the process above yields connections errors, you may be able to utilize the WebDAV functionality to access your files using a free third-party client called <a class="activateTab" href="#instr-other">Cyberduck</a>.
+			</p>
         </div>
         <div id="instr-mac">
             <h4>Setting up WebDAV for Mac (OS X)</h4>
             <p>
-                <strong>Note 1</strong>. Depending upon the exact update of OS X, The Webdav support in the Macintosh Finder may well be too buggy to use. If you have problems with this approach, consider using <a class="activateTab" href="#instr-other">Cyberduck</a>.
-            </p>
-            <p>
-                <strong>Note 2</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.
+                <strong>Note</strong>: Depending upon the exact update of OS X, The Webdav support in the Macintosh Finder may well be too buggy to use. If you have problems with this approach, consider using <a class="activateTab" href="#instr-other">Cyberduck</a>.
             </p>
             <ol>
                 <li>
@@ -404,61 +364,86 @@
             </p>
         </div>
         <div id="instr-other">
-            <h4>Setting up WebDAV for Mac using Cyberduck</h4>
-            <p>
-                <strong>Note</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.
-            </p>
+            <h4>Setting up WebDAV for Mac/Windows using Cyberduck</h4>
             <ol>
                 <li>
                     Download the Cyberduck WebDAV client.
                     <ul>
                         <li>
-                            For OS X version 10.5 and later, download the most recent software at: <a href="http://cyberduck.ch/" target="_blank">http://cyberduck.ch/</a>
+                            For Windows or OS X version 10.5 and later, download and install the most recent software at: <a href="http://cyberduck.io/" target="_blank">http://cyberduck.io/</a>
                         </li>
                         <li>
-                            OS X versions before 10.5, download the Cyberduck WebDAV client at: <a href="http://update.cyberduck.ch/Cyberduck-2.8.5.dmg" target="_blank">http://update.cyberduck.ch/Cyberduck-2.8.5.dmg</a>
+                            OS X versions before 10.5, download the Cyberduck WebDAV client at: <a href="http://update.cyberduck.io/Cyberduck-2.8.5.dmg" target="_blank">http://update.cyberduck.io/Cyberduck-2.8.5.dmg</a>
+                        	<ul>
+                        		<li>
+									Decompress the file and double-click on the .dmg file. (Depending on the configuration of your decompression software, the disk image may automatically mount.)
+                				</li>
+                				<li>
+                    				A disk image with a name similar to <em>Cyberduck-2.8.5</em>
+                    				should now be available. Simply drag and drop the folder from the disk image to your Applications folder.
+                				</li>
+                        	</ul>
                         </li>
                     </ul>
-                    download the most recent software at: <a href="http://cyberduck.ch/" target="_blank">http://cyberduck.ch/</a>
-                </li>
-                <li>
-                    Decompress the file and double-click on the .dmg file. (Depending on the configuration of your decompression software, the disk image may automatically mount.)
-                </li>
-                <li>
-                    A disk image with a name similar to <em>Cyberduck-2.8.5</em>
-                    should now be available. Simply drag and drop the folder from the disk image to your Applications folder.
                 </li>
                 <li>
                     Open the Cyberduck application in your Applications folder.
                 </li>
                 <li>
-                    Click the <strong>Open Connection</strong>
-                    button.
+                    Click the <strong>Open Connection</strong> button.
                 </li>
                 <li>
-                    Select WebDAV <span class="webDavService"></span>
-                </li>
-                <li>
-                    In <b>Server</b>, type (or copy and paste): <b><span class="webDavHostName">hostname</span></b>
-                </li>
-                <li>
-                    In <b>Port</b>, type (or copy and paste): <span class="webDavPort">80</span>
-                </li>
-                <li>
+                	In <b>Server</b>, copy and paste the "Step 1" URL. 
+                	This will autofill all needed fields. 
+                	Also, you can manually introduce the requested information:
+					<ul>
+						<li>
+		                    Select WebDAV <span class="webDavService"></span>
+		                </li>
+						<li>
+		                    In <b>Server</b>, type: <b><span class="webDavHostName">hostname</span></b>
+		                </li>
+		                <li>
+		                    In <b>Port</b>, type: <span class="webDavPort">80</span>
+		                </li>
+						<li>
+		                    Click on <i>More options</i>
+		                    and type (or copy and paste) in <b>Folder</b>
+		                    the last part of the "Step 1" URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>
+		                </li>
+					</ul>
+				</li>
+				<li>
+					Disable the Anonymous Login option.</li>
+				<li>
                     Type in your username and password
-                </li>
-                <li>
-                    Click on <i>More options</i>
-                    and type (or copy and paste) in <b>Folder</b>
-                    the last part of the "Step 1" URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>
                 </li>
                 <li>
                     Now click on <b>Connect</b>.
                 </li>
             </ol>
             <p>
-                You will now see a window on your Mac screen that represents the resources that are in your site.  Simply drag and drop between this window and other Finder windows on your Mac to transfer files to and from your site's resources folder.
+                You will now see a window on your screen that represents the resources that are in your site.  Simply drag and drop between this window and other folders on your computer to transfer files to and from your site's resources folder.
             </p>
+			<p>
+				You can save these settings for future connections:
+			</p>
+			<ol>
+				<li>
+					Click on <b>Bookmark</b> in top menu bar.
+				</li>
+				<li>
+					Click on <b>New bookmark</b> option.
+				</li>
+				<li>
+					In the pop-up window, change the nickname. 
+					Remove <em>"<span class="webDavHostName">hostname</span> – WebDAV (HTTPS)"</em>
+					and type the name for this connection.
+				</li>
+				<li>
+					Close this window.
+				</li>
+			</ol>
         </div>
 	</div>
         

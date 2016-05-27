@@ -815,7 +815,6 @@ h6 {
 	list-style-type: none
 }
 /* wiki lists */
-ul {padding:.5em;list-style-position:inside;}
 .rwikiRenderedContent ul,.rwiki_renderedContent ul{
 	padding: 0 0 0 2em;
 }

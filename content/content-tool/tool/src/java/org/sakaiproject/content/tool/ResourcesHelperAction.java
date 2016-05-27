@@ -1960,14 +1960,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			boolean siteQuotaUnlimited = siteQuota == 0;
 			
 			// If the file size exceeds the max uploaded file size, post error message
+			Long fileSizeKB = fileSize / 1024L;
 			Long fileSizeMB = fileSize / 1024L / 1024L;
 			if( fileSizeMB > uploadMax )
 			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			}
-			
 			// If the file size exceeds the max quota for the site, post error message
-			else if( !siteQuotaUnlimited && fileSizeMB > siteQuota )
+			else if( !siteQuotaUnlimited && fileSizeKB > siteQuota )
 			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-site-upload-quota", new Object[]{siteQuota}));
 			}

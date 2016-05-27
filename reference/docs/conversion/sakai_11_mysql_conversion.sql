@@ -11,7 +11,16 @@ UPDATE SAKAI_SITE_TOOL_PROPERTY SET name = 'javax.portlet-feed_url' WHERE name =
 UPDATE SAKAI_SITE_TOOL SET registration = 'sakai.simple.rss' WHERE registration = 'sakai.news';
 -- End SAK-25784
 
+
+
 -- New permissions
+
+-- KNL-1350 / SAK-11647
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'dropbox.maintain.own.groups');
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
+-- END KNL-1350 / SAK-11647
+
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.myGroupMembers');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.myGroups');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.users');
@@ -170,6 +179,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 -- msg.permissions.allowToField.myGroups
 -- msg.permissions.allowToField.users
 -- msg.permissions.viewHidden.groups
+-- dropbox.maintain.own.groups (Just for Teaching Assistant)
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
@@ -197,6 +207,7 @@ INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','msg.permissions.a
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','msg.permissions.allowToField.myGroups');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','msg.permissions.allowToField.users');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','msg.permissions.viewHidden.groups');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','dropbox.maintain.own.groups');
 
 -- Student
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','msg.permissions.allowToField.myGroupMembers');
@@ -505,9 +516,7 @@ UPDATE QRTZ_JOB_DETAILS SET IS_NONCONCURRENT = IS_STATEFUL;
 UPDATE QRTZ_JOB_DETAILS SET IS_UPDATE_DATA = IS_STATEFUL;
 ALTER TABLE QRTZ_JOB_DETAILS DROP COLUMN IS_STATEFUL;
 ALTER TABLE QRTZ_FIRED_TRIGGERS ADD COLUMN IS_NONCONCURRENT BOOL;
-ALTER TABLE QRTZ_FIRED_TRIGGERS ADD COLUMN IS_UPDATE_DATA BOOL;
 UPDATE QRTZ_FIRED_TRIGGERS SET IS_NONCONCURRENT = IS_STATEFUL;
-UPDATE QRTZ_FIRED_TRIGGERS SET IS_UPDATE_DATA = IS_STATEFUL;
 ALTER TABLE QRTZ_FIRED_TRIGGERS DROP COLUMN IS_STATEFUL;
 --
 -- add new 'sched_name' column to all tables
@@ -706,6 +715,24 @@ CREATE TABLE lti_memberships_jobbbs (
 
 -- LSNBLDR-500
 alter table lesson_builder_pages add folder varchar(250);
+-- LSNBLDR-622
+alter table lesson_builder_items modify column name varchar(255);
+alter table lesson_builder_pages modify column title varchar(255);
+alter table lesson_builder_p_eval_results modify column gradee varchar(99) null;                                     
+alter table lesson_builder_p_eval_results modify column row_text varchar(255) null;                                  
+alter table lesson_builder_p_eval_results add column gradee_group varchar(99) null;
+alter table lesson_builder_p_eval_results add column row_id  bigint(20) default 0;
+-- sites new with 10 will already have this but it was missing in 10 conversion scripts
+alter table lesson_builder_groups modify column groups longtext;
+create table lesson_builder_ch_status (
+        checklistId bigint(20) not null,
+        checklistItemId bigint(20) not null,
+        owner varchar(99) not null,
+        done bit(1),
+        primary key (checklistId,checklistItemId,owner)
+ );
+create index lesson_builder_p_eval_res_row on lesson_builder_p_eval_results(page_id);
+create index lesson_builder_page_folder on lesson_builder_pages(siteId, folder);
 
 -- ------------------------------
 -- DASHBOARD                -----
@@ -885,3 +912,12 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENT
       AND TYPEID='142' AND ISTEMPLATE=1),
        'instructorNotification_isInstructorEditable', 'true');
 --END SAM-2709
+
+-- SAM-2751
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD HONORPLEDGE BIT;
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD HONORPLEDGE BIT;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY)
+     SELECT DISTINCT ASSESSMENTID, 'honorpledge_isInstructorEditable' as LABEL, 'true' as ENTRY
+       FROM SAM_ASSESSMETADATA_T WHERE ASSESSMENTID NOT IN
+         (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable');
+-- END SAM-2751

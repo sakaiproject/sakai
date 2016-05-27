@@ -179,8 +179,6 @@
 <h:panelGrid columns="2" border="0">
     <h:outputText value=" "/>
     <h:outputText value=" "/>
-    <h:outputLabel for="baUserName"  value="#{deliveryMessages.username}" rendered="#{delivery.settings.username ne ''}" />
-    <h:inputText id="baUserName" value="#{delivery.username}" size="20" rendered="#{delivery.settings.username ne ''}" />
 
     <h:outputLabel for="baPassword" value="#{deliveryMessages.password}" rendered="#{delivery.settings.password ne ''}" />
     <h:inputSecret id="baPassword" value="#{delivery.password}" size="20" rendered="#{delivery.settings.password ne ''}" />
@@ -190,7 +188,6 @@
  
  <h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.honorPledge && delivery.firstTimeTaking}">
 	<h:selectBooleanCheckbox id="honor_pledge" />
-	<h:outputText value="&#160;" escape="false" />
 	<h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}"/>
 	<h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_required}" styleClass="alertMessage" style="display:none"/>
 </h:panelGroup>

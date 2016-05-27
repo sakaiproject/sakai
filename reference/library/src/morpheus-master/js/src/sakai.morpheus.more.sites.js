@@ -12,7 +12,9 @@ var dhtml_view_sites = function(){
   dhtml_view_sites = function(){
 
     var modal = $PBJQ('#selectSiteModal');
-
+    
+    modal.show();
+    
     if (modal.hasClass('outscreen') ) {
 
       $PBJQ('body').toggleClass('active-more-sites');
@@ -23,7 +25,7 @@ var dhtml_view_sites = function(){
       }
 
       // Align with the bottom of the main header in desktop mode
-      var allSitesButton = $('.view-all-sites-btn:visible');
+      var allSitesButton = $PBJQ('.view-all-sites-btn:visible');
 
       var topPadding = 10;
 
@@ -71,7 +73,7 @@ var dhtml_view_sites = function(){
       $PBJQ('#selectSiteModal').toggleClass('outscreen'); //hide the box
 
       // Restore the button's zIndex so it doesn't hover over other overlays
-      var allSitesButton = $('.view-all-sites-btn');
+      var allSitesButton = $PBJQ('.view-all-sites-btn');
       allSitesButton.css('z-index', 'auto');
 
       $PBJQ('#selectSite').attr('tabindex', '-1');
@@ -231,7 +233,7 @@ $PBJQ(document).ready(function(){
       $PBJQ('.fav-sites-term, .fav-sites-entry').hide();
 
       var matched_sites = $PBJQ('.fav-sites-entry').filter(function (idx, entry) {
-          return ($('.fav-title a', entry).attr('title').toLowerCase().indexOf(queryString) >= 0);
+          return ($PBJQ('.fav-title a', entry).attr('title').toLowerCase().indexOf(queryString) >= 0);
       });
 
       matched_sites.show();
@@ -256,7 +258,7 @@ $PBJQ(document).ready(function(){
     $PBJQ('#txtSearch').focus();
   }
 
-  $('#otherSiteSearchClear').on('click', function () {
+  $PBJQ('#otherSiteSearchClear').on('click', function () {
       resetSearch();
   });
 
@@ -311,15 +313,15 @@ $PBJQ(document).ready(function($){
   // the user gets in too quickly
   var favoritesLoaded = false;
 
-  var container = $('#selectSite');
-  var favoritesPane = $('#otherSitesCategorWrap');
-  var organizePane = $('#organizeFavorites');
+  var container = $PBJQ('#selectSite');
+  var favoritesPane = $PBJQ('#otherSitesCategorWrap');
+  var organizePane = $PBJQ('#organizeFavorites');
 
   // Build up a map of siteid => list item.  Do this instead of an ID
   // selector to cope with Site IDs containing strange characters.
   var itemsBySiteId = {};
-  $('.site-favorite-btn', favoritesPane).each(function (i, e) {
-    itemsBySiteId[$(e).data('site-id')] = $(e).parent();
+  $PBJQ('.site-favorite-btn', favoritesPane).each(function (i, e) {
+    itemsBySiteId[$PBJQ(e).data('site-id')] = $PBJQ(e).parent();
   });
 
   var button_states = {
@@ -335,7 +337,7 @@ $PBJQ(document).ready(function($){
   };
 
   var getUserFavorites = function (callback) {
-    $.ajax({
+    $PBJQ.ajax({
       url: '/portal/favorites/list',
       method: 'GET',
       dataType: 'text',
@@ -352,40 +354,39 @@ $PBJQ(document).ready(function($){
   var setButton = function (btn, state) {
     var entry = button_states[state];
 
-    $(btn).data('favorite-state', state);
+    $PBJQ(btn).data('favorite-state', state);
 
     if (state === 'favorite') {
-      $(btn).attr('title', $('#removeFromFavoritesText').text());
+      $PBJQ(btn).attr('title', $PBJQ('#removeFromFavoritesText').text());
     } else if (state === 'nonfavorite') {
-      $(btn).attr('title', $('#addToFavoritesText').text());
+      $PBJQ(btn).attr('title', $PBJQ('#addToFavoritesText').text());
     } else {
-      $(btn).attr('title', null);
+      $PBJQ(btn).attr('title', null);
     }
 
-    $(btn).empty().append($(entry.markup));
+    $PBJQ(btn).empty().append($PBJQ(entry.markup));
   };
 
   var renderFavoriteCount = function () {
-    // Subtract 1 from the count to avoid counting "My Workspace", which can't be moved anyway.
-    var favoriteCount = $('.site-favorite', favoritesPane).length - 1;
+    var favoriteCount = $PBJQ('.site-favorite', favoritesPane).length;
 
-    $('.favoriteCount', container).text('(' + favoriteCount + ')');
+    $PBJQ('.favoriteCount', container).text('(' + favoriteCount + ')');
 
     if (favoriteCount < 2) {
-      $('.organizeFavorites', container).addClass('tab-disabled');
+      $PBJQ('.organizeFavorites', container).addClass('tab-disabled');
     } else {
-      $('.organizeFavorites', container).removeClass('tab-disabled');
+      $PBJQ('.organizeFavorites', container).removeClass('tab-disabled');
     }
   };
 
   var renderFavorites = function (favorites) {
-    $('.site-favorite-btn', favoritesPane).each(function (idx, btn) {
-      var buttonSiteId = $(btn).data('site-id');
+    $PBJQ('.site-favorite-btn', favoritesPane).each(function (idx, btn) {
+      var buttonSiteId = $PBJQ(btn).data('site-id');
 
-      if ($(btn).closest('.my-workspace').length > 0) {
+      if ($PBJQ(btn).closest('.my-workspace').length > 0) {
         setButton(btn, 'myworkspace');
       } else {
-        if ($.inArray(buttonSiteId, favorites) >= 0) {
+        if ($PBJQ.inArray(buttonSiteId, favorites) >= 0) {
           setButton(btn, 'favorite');
         } else {
           setButton(btn, 'nonfavorite');
@@ -400,8 +401,8 @@ $PBJQ(document).ready(function($){
 
   var listFavorites = function () {
     // Any favorite button with the 'site-favorite' class has been starred.
-    return $('.site-favorite-btn', favoritesPane).has('.site-favorite').map(function () {
-      return $(this).data('site-id');
+    return $PBJQ('.site-favorite-btn', favoritesPane).has('.site-favorite').map(function () {
+      return $PBJQ(this).data('site-id');
     }).toArray();
   }
 
@@ -410,17 +411,17 @@ $PBJQ(document).ready(function($){
   }
 
   var showRefreshNotification = function () {
-    if ($('.moresites-refresh-notification').length > 0) {
+    if ($PBJQ('.moresites-refresh-notification').length > 0) {
       // Already got it
       return;
     }
 
-    var notification = $('<div class="moresites-refresh-notification" />')
-        .html($('#refreshNotificationText').html());
+    var notification = $PBJQ('<div class="moresites-refresh-notification" />')
+        .html($PBJQ('#refreshNotificationText').html());
 
-    $("#loginLinks").prepend(notification);
+    $PBJQ("#loginLinks").prepend(notification);
 
-    notification.css('top', ($('.Mrphs-siteHierarchy').offset().top) + 'px');
+    notification.css('top', ($PBJQ('.Mrphs-siteHierarchy').offset().top) + 'px');
   };
 
   var syncWithServer = function (onError) {
@@ -446,7 +447,7 @@ $PBJQ(document).ready(function($){
       }
     });
 
-    $.ajax({
+    $PBJQ.ajax({
       url: '/portal/favorites/update',
       method: 'POST',
       data: {
@@ -460,11 +461,11 @@ $PBJQ(document).ready(function($){
     showRefreshNotification();
   };
 
-  $(favoritesPane).on('click', '.site-favorite-btn', function () {
+  $PBJQ(favoritesPane).on('click', '.site-favorite-btn', function () {
     var self = this;
 
-    var siteId = $(self).data('site-id');
-    var originalState = $(self).data('favorite-state');
+    var siteId = $PBJQ(self).data('site-id');
+    var originalState = $PBJQ(self).data('favorite-state');
 
     if (originalState === 'myworkspace') {
       // No unfavoriting your workspace!
@@ -488,38 +489,38 @@ $PBJQ(document).ready(function($){
     });
   });
 
-  $(container).on('click', '.tab-btn', function () {
-    if ($(this).hasClass('tab-disabled')) {
+  $PBJQ(container).on('click', '.tab-btn', function () {
+    if ($PBJQ(this).hasClass('tab-disabled')) {
       return false;
     }
 
-    $('.tab-btn', container).removeClass('active');
-    $(this).addClass('active');
+    $PBJQ('.tab-btn', container).removeClass('active');
+    $PBJQ(this).addClass('active');
 
-    var panel = $(this).data('tab-target');
+    var panel = $PBJQ(this).data('tab-target');
 
-    $('.tab-box').hide();
-    $(container).trigger('tab-shown', panel);
-    $('#' + panel).show();
+    $PBJQ('.tab-box').hide();
+    $PBJQ(container).trigger('tab-shown', panel);
+    $PBJQ('#' + panel).show();
   });
 
-  $(document).on('view-sites-shown', function () {
+  $PBJQ(document).on('view-sites-shown', function () {
     loadFromServer();
   });
 
-  $(container).on('tab-shown', function (e, panelId) {
+  $PBJQ(container).on('tab-shown', function (e, panelId) {
     if (panelId === 'organizeFavorites') {
       // Build our organize favorites screen based on the current set of
       // favorites
-      var list = $('#organizeFavoritesList');
+      var list = $PBJQ('#organizeFavoritesList');
       list.empty();
 
       // Collapse any visible tool menus
-      $('#otherSiteTools').remove();
+      $PBJQ('#otherSiteTools').remove();
 
-      $('#organizeFavoritesPurgatoryList').empty();
+      $PBJQ('#organizeFavoritesPurgatoryList').empty();
 
-      $.each(favoritesList, function (idx, siteid) {
+      $PBJQ.each(favoritesList, function (idx, siteid) {
         if (!itemsBySiteId[siteid]) {
           // Skip any favorite site that wasn't properly found for some reason
           // (this might happen if the user's favorites list contains sites that
@@ -527,7 +528,7 @@ $PBJQ(document).ready(function($){
           return;
         }
 
-        if ($(itemsBySiteId[siteid]).hasClass('my-workspace')) {
+        if ($PBJQ(itemsBySiteId[siteid]).hasClass('my-workspace')) {
           // Don't show an entry for the user's workspace since it can't be rearranged anyway.
           return;
         }
@@ -535,17 +536,17 @@ $PBJQ(document).ready(function($){
         var favoriteItem = itemsBySiteId[siteid].clone(false);
 
         favoriteItem.addClass('organize-favorite-item').data('site-id', siteid);
-        var dragHandle = $('<i class="fa fa-bars fav-drag-handle"></i>');
+        var dragHandle = $PBJQ('<i class="fa fa-bars fav-drag-handle"></i>');
 
         // Hide the tool dropdown
-        $('.toolMenus', favoriteItem).remove();
+        $PBJQ('.toolMenus', favoriteItem).remove();
 
         // Show a drag handle
         favoriteItem.append(dragHandle);
 
         // And disable the link to site so we don't accidentally hit it while
         // dragging
-        $(favoriteItem).find('.fav-title a').attr('href', null);
+        $PBJQ(favoriteItem).find('.fav-title a').attr('href', null);
 
         list.append(favoriteItem);
 
@@ -557,7 +558,7 @@ $PBJQ(document).ready(function($){
         stop: function () {
           // Update our ordering based on the new selection
           favoritesList = list.find('.organize-favorite-item').map(function () {
-            return $(this).data('site-id');
+            return $PBJQ(this).data('site-id');
           }).toArray();
 
           // and send it all to the server
@@ -569,40 +570,40 @@ $PBJQ(document).ready(function($){
     }
   });
 
-  $(favoritesPane).on('click', '.toolMenus', function (e) {
+  $PBJQ(favoritesPane).on('click', '.toolMenus', function (e) {
     e.preventDefault();
-    showToolMenu($(this));
+    showToolMenu($PBJQ(this));
     return false;
   });
 
-  $(organizePane).on('click', '.site-favorite-btn', function () {
+  $PBJQ(organizePane).on('click', '.site-favorite-btn', function () {
     var self = this;
 
-    if ($(self).closest('.my-workspace').length > 0) {
+    if ($PBJQ(self).closest('.my-workspace').length > 0) {
       // No unfavoriting your workspace!
       return;
     }
 
-    var li = $(self).parent();
+    var li = $PBJQ(self).parent();
 
     var buttonState;
 
-    if ($(self).closest('#organizeFavoritesList').length == 0) {
+    if ($PBJQ(self).closest('#organizeFavoritesList').length == 0) {
       // The clicked item was currently in "purgatory", having been unfavorited
       // in the process of organizing favorites.  This click will promote it
       // back to a favorite
-      $('#organizeFavoritesList').append(li);
+      $PBJQ('#organizeFavoritesList').append(li);
       buttonState = 'favorite';
     } else {
       // This item has just been unfavorited.  To purgatory!
-      $('#organizeFavoritesPurgatoryList').append(li);
+      $PBJQ('#organizeFavoritesPurgatoryList').append(li);
       buttonState = 'nonfavorite';
     }
 
     // Set the favorite state for both the entry under "Organize" and the
     // original entry under "Sites"
     setButton(self, buttonState);
-    setButton(itemsBySiteId[$(self).data('site-id')].find('.site-favorite-btn'),
+    setButton(itemsBySiteId[$PBJQ(self).data('site-id')].find('.site-favorite-btn'),
               buttonState);
 
     renderFavoriteCount();
@@ -613,7 +614,7 @@ $PBJQ(document).ready(function($){
     });
   });
 
-  $('.otherSitesMenuClose').on('click', function () {
+  $PBJQ('.otherSitesMenuClose').on('click', function () {
     // Close the pane
     dhtml_view_sites();
   });

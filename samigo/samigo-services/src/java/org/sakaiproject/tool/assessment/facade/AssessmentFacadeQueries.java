@@ -2117,12 +2117,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 						.getAutoSubmit(), a.getItemNavigation(), a
 						.getItemNumbering(), a.getDisplayScoreDuringAssessments(), a.getSubmissionMessage(), a
 						.getReleaseTo());
-		newAccessControl.setUsername(a.getUsername());
 		newAccessControl.setPassword(a.getPassword());
 		newAccessControl.setFinalPageUrl(a.getFinalPageUrl());
 		newAccessControl.setUnlimitedSubmissions(a.getUnlimitedSubmissions());
 		newAccessControl.setAssessmentBase(p);
 		newAccessControl.setMarkForReview(a.getMarkForReview());
+		newAccessControl.setHonorPledge(a.getHonorPledge());
 		return newAccessControl;
 	}
 

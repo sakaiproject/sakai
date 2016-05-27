@@ -34,24 +34,21 @@
                 }
             });
         },
-        getCurrentUserPermissions: function (siteId) {
+        setCurrentUserPermissions: function (siteId, callback) {
 
-            var permissions = null;
-            
             $.ajax( {
                 url: "/direct/site/" + siteId + "/userPerms.json",
                 dataType: "json",
-                async: false,
                 cache: false,
                 success: function (perms, status) {
-                    permissions = perms.data;
+
+                    roster.currentUserPermissions = new roster.RosterPermissions(perms.data);
+                    callback();
                 },
                 error : function(xmlHttpRequest, stat, error) {
                     alert("Failed to get the current user permissions. Status: " + stat + ". Error: " + error);
                 }
             });
-            
-            return permissions;
         },
         getSitePermissionMatrix: function (siteId, callback) {
 

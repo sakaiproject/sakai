@@ -53,7 +53,6 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -94,8 +93,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
-import uk.org.ponder.rsf.state.support.TMLFixer;
-
 import org.apache.commons.lang.StringUtils;
 /**
  *
@@ -119,7 +116,7 @@ public class DeliveryBean
   
   private String assessmentId;
   private String assessmentTitle;
-  private Boolean honorPledge = Boolean.FALSE;
+  private boolean honorPledge;
   private ArrayList markedForReview;
   private ArrayList blankItems;
   private ArrayList markedForReviewIdents;
@@ -138,7 +135,6 @@ public class DeliveryBean
   private String timeOutSubmission;
   private String submissionTicket;
   private String timeElapse;
-  private String username;
   private int sectionIndex;
   private boolean previous;
   private String duration;
@@ -669,26 +665,6 @@ public class DeliveryBean
   public int getDisplayIndex()
   {
     return this.itemIndex + 1;
-  }
-
-  /**
-   *
-   *
-   * @return
-   */
-  public String getUsername()
-  {
-    return username;
-  }
-
-  /**
-   *
-   *
-   * @param username
-   */
-  public void setUsername(String username)
-  {
-    this.username = username;
   }
 
   /**
@@ -2140,21 +2116,12 @@ public class DeliveryBean
 
   public String validatePassword()
   {
-    log.debug("**** username=" + username);
     log.debug("**** password=" + password);
-    log.debug("**** setting username=" + getSettings().getUsername());
     log.debug("**** setting password=" + getSettings().getPassword());
     
-    if (StringUtils.isBlank(password) && StringUtils.isBlank(username))
+    if (StringUtils.isBlank(password))
     {
     	return "passwordAccessError";
-    }
-    if(StringUtils.isNotBlank(getSettings().getUsername()))
-    {
-    	if (!StringUtils.equals(StringUtils.trim(username), StringUtils.trim(getSettings().getUsername())))
-    	{
-    		return "passwordAccessError";
-    	}
     }
     if(StringUtils.isNotBlank(getSettings().getPassword()))
     {
@@ -2207,7 +2174,7 @@ public class DeliveryBean
       EventLogData eventLogData = new EventLogData();
       
       // #1. check password
-      if (!getSettings().getUsername().equals("") || !getSettings().getPassword().equals(""))
+      if (!getSettings().getPassword().equals(""))
       {
         results = validatePassword();
         log.debug("*** checked password="+results);
@@ -3992,11 +3959,11 @@ public class DeliveryBean
 	    this.redrawAnchorName = redrawAnchorName;
 	  }
 
-	public Boolean getHonorPledge() {
+	public boolean isHonorPledge() {
 		return honorPledge;
 	}
 
-	public void setHonorPledge(Boolean honorPledge) {
+	public void setHonorPledge(boolean honorPledge) {
 		this.honorPledge = honorPledge;
 	}
 	 

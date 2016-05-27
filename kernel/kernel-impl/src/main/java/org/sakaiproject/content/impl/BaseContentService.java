@@ -237,11 +237,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * The quota for content resource body bytes (in Kbytes) for any hierarchy in the /user/ or /group/ areas, or 0 if quotas are not enforced.
 	 */
-	protected long m_siteQuota = 0;
+	protected long m_siteQuota = 1048576;
     /**
      * The quota for content dropbox body bytes (in Kbytes), or 0 if quotas are not enforced.
      */
-	protected long m_dropBoxQuota = 0;
+	protected long m_dropBoxQuota = 1048576;
 
 	private boolean m_useSmartSort = true;
 
