@@ -278,8 +278,8 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
       filter_reset : ".reset",
       filter_hideFilters : true
     },
-    //sort by due date descending by default
-    sortList: [[3, 0]],
+    //sort by due date descending and secondarily by assignment title
+    sortList: [[3, 0], [0, 0]],
     textExtraction: function(node) {
       var $node = $(node);
       // sort dates by data-sort-key
