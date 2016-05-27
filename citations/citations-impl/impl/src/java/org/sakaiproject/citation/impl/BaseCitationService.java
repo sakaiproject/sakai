@@ -4815,7 +4815,7 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
 
-	    registry.register(typedef);
+	    registry.register(typedef, new CitationContentChangeHandler());
     }
 
 	/**

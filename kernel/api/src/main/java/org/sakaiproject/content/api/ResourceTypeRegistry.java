@@ -103,7 +103,20 @@ public interface ResourceTypeRegistry
 	 * @param type
 	 */
 	public void register(ResourceType type);
-	
+	/**
+	 * Register a ResourceType object to indicate that resources of that type can be defined in
+	 * the Resources tool ; and register a ContentChangeHandler with the ResourceType to deal with
+	 * changing content for that type.  If the InteractionAction object is null or if the type object's getId()
+	 * method returns a null value, no type is registered.
+	 * @param type
+	 */
+	public void register(ResourceType type, ContentChangeHandler cch);
+	/**
+	 *  Returns the ContentChangeHandler of a particular resource type.
+	 * @param resourceType The resource type.
+	 * @return The ContentChangeHandler object associated with that type or null if the type is not defined.
+	 */
+	public ContentChangeHandler getContentChangeHandler(String resourceType);
 	/**
 	 * @param context
 	 * @param enabled

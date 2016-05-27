@@ -8308,6 +8308,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								nUrl = edit.getUrl();
 								transversalMap.put(oResource.getId(), nId);
 								transversalMap.put(oResource.getUrl(), nUrl);
+
+								ContentChangeHandler cch = m_resourceTypeRegistry.getContentChangeHandler(((ContentResource) oResource).getResourceType());
+								if (cch!=null){
+									cch.copy(((ContentResource) oResource));
+								}
 							}
 							catch (PermissionException e)
 							{

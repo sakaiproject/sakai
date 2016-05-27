@@ -135,6 +135,8 @@
         <property name="mimeTypes"> <list/>              </property>
 	</bean>
 
+	<bean id="org.sakaiproject.content.api.ContentChangeHandler" class="org.sakaiproject.content.api.ContentChangeHandlerImpl" />
+
 	<bean id="lockManagerHibernateMappings"
 			class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
