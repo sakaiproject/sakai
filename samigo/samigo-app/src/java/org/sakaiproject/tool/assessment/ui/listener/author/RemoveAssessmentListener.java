@@ -72,7 +72,7 @@ public class RemoveAssessmentListener implements ActionListener
     // #2 - even if assessment is set to dead, we intend to remove any resources
     // s.deleteResources(resourceIdList);
 
-    //#3 - goto authorIndex.jsp so fix the assessment List in author bean by
+    //#3 - goto authorIndex_content.jsp so fix the assessment List in author bean by
     // removing an assessment from the list
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
