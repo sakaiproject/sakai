@@ -1087,7 +1087,7 @@ public class ItemAuthorBean
 	  assessmentBean.setAssessment(assessment);
 	  assessdelegate.updateAssessmentLastModifiedInfo(assessment);
   	  //Assessment has been revised
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.asessment.revise", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId + "from assessmentId=" + assessmentBean.getAssessmentId(), true));
+	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId + "from assessmentId=" + assessmentBean.getAssessmentId(), true));
 	  return "editAssessment";
   }
 

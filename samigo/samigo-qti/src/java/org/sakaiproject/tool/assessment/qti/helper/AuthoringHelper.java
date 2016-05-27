@@ -335,7 +335,7 @@ public class AuthoringHelper
   }
 
   /**
-   * Get an object bank of asessments (asi) in Document form.
+   * Get an object bank of assessments (asi) in Document form.
    *
    * @param assessmentIds array of the the assessment ids
    * @return the Document with the item bank data
