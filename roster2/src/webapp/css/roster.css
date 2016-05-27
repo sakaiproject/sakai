@@ -182,11 +182,6 @@
 	margin-left: 2px;
 }
 
-#roster-information {
-    font-weight: bold;
-    margin-left: 15px;
-}
-
 /* Table display for large screen sizes */
 @media only screen and (min-width: 800px) and (max-width: 1100px) {
 	.roster-groups-selector {
@@ -301,7 +296,7 @@
 	
 	.roster-table-row:first-child {
 	    display: inline-block;
-	    width: 35%;
+	    width: 32%;
 	}
 	.roster-table-row:nth-child(2) {
 		display: inline-block;
@@ -319,8 +314,6 @@
 	}
 	
 	.roster-groups-selector {
-		padding: 0px;
-		max-width: 200px;
 		width: 175%;
 	}
     .roster-last-visit-time {
