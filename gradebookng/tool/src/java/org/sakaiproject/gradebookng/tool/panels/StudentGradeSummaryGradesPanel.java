@@ -161,6 +161,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			}
 		};
 		toggleActions.add(toggleCategoriesLink);
+		toggleActions.addOrReplace(new WebMarkupContainer("expandCategoriesLink").setVisible(isGroupedByCategory));
+		toggleActions.addOrReplace(new WebMarkupContainer("collapseCategoriesLink").setVisible(isGroupedByCategory));
 		addOrReplace(toggleActions);
 
 		addOrReplace(new WebMarkupContainer("categoryColumnHeader").
