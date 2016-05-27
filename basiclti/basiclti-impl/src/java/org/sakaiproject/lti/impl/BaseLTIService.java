@@ -28,11 +28,13 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
@@ -132,6 +134,10 @@ public abstract class BaseLTIService implements LTIService {
 	 * 
 	 */
 	protected ToolManager toolManager = null;
+	/**
+	 * 
+	 */
+	protected ServerConfigurationService serverConfigurationService;
 
 	/**
 	 * Pull in any necessary services using factory pattern
@@ -146,6 +152,9 @@ public abstract class BaseLTIService implements LTIService {
 		if (toolManager == null)
 			toolManager = (ToolManager) ComponentManager
 				.get("org.sakaiproject.tool.api.ToolManager");
+		if (serverConfigurationService == null)
+            serverConfigurationService = (ServerConfigurationService) ComponentManager
+            	.get("org.sakaiproject.component.api.ServerConfigurationService");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -276,6 +285,19 @@ public abstract class BaseLTIService implements LTIService {
 			return null;
 		return LAUNCH_PREFIX + siteId + "/tool:" + key;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#getExportUrl(java.lang.String, java.lang.String, org.sakaiproject.lti.api.LTIExportService.ExportType)
+	 */
+	public String getExportUrl(String siteId, String filterId, ExportType exportType) {
+        if (siteId == null) {
+            return null;
+        }
+        return "/access/basiclti/site/" + siteId + "/export:" + exportType + ((filterId != null && !"".equals(filterId)) ? (":" + filterId) : "");
+    }
 
 	/**
 	 * 
@@ -660,6 +682,10 @@ public abstract class BaseLTIService implements LTIService {
 
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId) {
 		return getContentsDao(search, order, first, last, siteId, true);
+	}
+	
+	public int countContents(final String search) {
+		return countContentsDao(search, getContext(), isAdmin());
 	}
 
 	public Object insertToolContent(String id, String toolId, Properties reqProps)

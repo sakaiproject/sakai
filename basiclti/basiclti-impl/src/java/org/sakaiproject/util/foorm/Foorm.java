@@ -21,15 +21,25 @@
 
 package org.sakaiproject.util.foorm;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.Properties;
 import java.util.logging.Logger;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.lang.Number;
 import java.sql.ResultSetMetaData;
+
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.lti.api.LTISearchData;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -37,6 +47,11 @@ import java.sql.ResultSetMetaData;
 public class Foorm {
 
 	private static Logger logger = Logger.getLogger("org.sakaiproject.util.foorm.Foorm");
+	
+	/** Resource bundle using current language locale */
+	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
+	
+	private static final String LTI_SEARCH_TOKEN_SEPARATOR_REGEX = LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND+"|"+LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR.replace("|", "\\|");
 
 	/**
 	 * 
@@ -1281,6 +1296,17 @@ public class Foorm {
 			if ( "header".equals(type) ) continue;
 			if ( field.equals(order_field) ) {
 				found = true;
+				
+				//maybe the field in the model has defined a table
+				String table = info.getProperty("table");
+				if (StringUtils.isNotEmpty(table)) {
+					order_table = table;
+				}
+				//maybe the field in the model has defined a real name
+				String realname = info.getProperty("realname");
+				if (StringUtils.isNotEmpty(realname)) {
+					order_field = realname;
+				}
 				break;
 			}
 		}
@@ -1288,11 +1314,247 @@ public class Foorm {
 			return null;
 		}
 
-		String retval = order_table+"."+order_field;
+		String retval = ((!"NULL".equals(order_table)) ? order_table+"." : "")+order_field;
 		if ( order_seq != null ) {
 			retval = retval + " " + order_seq;
 		}
 		return retval;
+	}
+	
+	/**
+	 * Split given search clause into valid tokens
+	 * 
+	 * We assume a valid search clause like :
+	 * 
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * 
+	 * @param search
+	 * @return list with search tokens
+	 */
+	public List<String> getSearchTokens(String search) {
+		try {
+			return Arrays.asList(search.split(LTI_SEARCH_TOKEN_SEPARATOR_REGEX));
+		}
+		catch (Exception ex) {
+			return new ArrayList<String>();
+		}
+	}
+	
+	/**
+	 * Get separators between tokens in a search clause
+	 * 
+	 * We assume a valid search clause like :
+	 * 
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * 
+	 * @param search
+	 * @return list with search separators
+	 */
+	public List<String> getSearchSeparators(String search) {
+		try {
+			List<String> ret = new ArrayList<String>();
+			Pattern pattern = Pattern.compile(LTI_SEARCH_TOKEN_SEPARATOR_REGEX);
+	        Matcher m = pattern.matcher(search);
+	        while (m.find()) {
+	        	ret.add(m.group());
+	        }
+	        return ret;
+		}
+		catch (Exception ex) {
+			return new ArrayList<String>();
+		}
+	}
+
+	/**
+	 * Split given search clause and get search fields
+	 * 
+	 * @param search
+	 * @return list with search fields
+	 */
+	public List<String> getSearchFields(String search) {
+		List<String> ret = new ArrayList<String>();
+		for (String token : getSearchTokens(search)) {
+			ret.add(getSearchField(token));
+		}
+		return ret;
+	}
+
+	/**
+	 * Get search field from a search token
+	 * 
+	 * We assume a valid search token like :
+	 * 
+	 * SEARCH_FIELD:SEARCH_VALUE
+	 * 
+	 * @param search
+	 * @return search field
+	 */
+	public String getSearchField(String search) {
+		if (search != null) {
+			return search.substring(0, search.indexOf(":"));
+		}
+		return "";
+	}
+
+	/**
+	 * Get search value from a search token
+	 * 
+	 * We assume a valid search token like :
+	 * 
+	 * SEARCH_FIELD:SEARCH_VALUE
+	 * 
+	 * @param search
+	 * @return search value
+	 */
+	public String getSearchValue(String search) {
+		if (search != null && search.indexOf(":") >= 0) {
+			return search.substring(search.indexOf(":") + 1);
+		}
+		return "";
+	}
+
+	/**
+	 * Check if all tokens in a search clause are valid
+	 * 
+	 * We assume a valid search clause like :
+	 * 
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * 
+	 * Invalid tokens will be removed from search
+	 * 
+	 * @param search
+	 * @param tableName
+	 * @param fieldinfo
+	 * @return checked search
+	 */
+	public String searchCheck(String search, String tableName, String[] fieldinfo) {
+		if (search == null) {
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		List<String> tokens = getSearchTokens(search);
+		List<String> separators = getSearchSeparators(search);
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);
+			String s = searchFieldCheck(token, tableName, fieldinfo);
+			if (s != null) {
+				if (sb.length() > 0) {
+					sb.append(separators.get(i-1)); //too simplified but valid for our model
+				}
+				sb.append(s);
+			}
+		}
+		return (sb.length() > 0) ? sb.toString() : null;
+	}
+
+	/**
+	 * Check if a search token is valid 
+	 * 
+	 * We assume a valid search token like :
+	 * 
+	 * SEARCH_FIELD:SEARCH_VALUE
+	 * 
+	 * @param search
+	 * @param tableName
+	 * @param fieldinfo
+	 * @return checked search
+	 */
+	public String searchFieldCheck(String search, String tableName, String[] fieldinfo) {
+		String searchField = getSearchField(search);
+		String searchValue = getSearchValue(search);
+		//check if token contains field and value
+		if (StringUtils.isNotEmpty(searchField) && StringUtils.isNotEmpty(searchValue)) {
+			//look for the field in the given model
+			for (String line : fieldinfo) {
+				Properties info = parseFormString(line);
+				String field = info.getProperty("field");
+				if (searchField.equals(field)) {
+					//maybe the field in the model has defined a table
+					String table = info.getProperty("table");
+					if (StringUtils.isNotEmpty(table)) {
+						tableName = table;
+					}
+					//maybe the field in the model has defined a real name
+					String realname = info.getProperty("realname");
+					if (StringUtils.isNotEmpty(realname)) {
+						searchField = realname;
+					}
+					return tableName + "." + searchField + ":" + searchValue;
+				}
+			}
+		}
+		return null;
+	}
+
+
+	/**
+	 * Generates a secured search clause+values based on the given search clause
+	 * 
+	 * We assume a valid search clause like :
+	 * 
+	 * SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N
+	 * 
+	 * Secured search (LTISearchData.search) will be something like :
+	 * 
+	 * SEARCH_FIELD_1 LIKE ? AND SEARCH_FIELD_2 LIKE ? AND ... AND SEARCH_FIELD_N LIKE ?
+	 * 
+	 * Also returns a list with all values (LTISearchData.values)
+	 * 
+	 * Also accepts a search clause like [TABLENAME.]SEARCH_FIELD=SEARCH_VALUE
+	 * 
+	 * @param search
+	 * @return secured search
+	 */
+	public LTISearchData secureSearch(String search, String vendor) {
+		LTISearchData ret = new LTISearchData();
+		//check if is a direct search
+		if (StringUtils.isNotEmpty(search) && search.matches("(\\w+\\.)?\\w+\\s*=.+")) {
+			ret.setSearch(search);
+			return ret;
+		}
+		//split into tokens
+		StringBuilder sb = new StringBuilder();
+		List<String> tokens = getSearchTokens(search);
+		List<String> separators = getSearchSeparators(search);
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);			
+			String searchField = getSearchField(token);
+			String searchValue = getSearchValue(token);
+			if (StringUtils.isNotEmpty(searchField) && StringUtils.isNotEmpty(searchValue)) {
+				if (sb.length() > 0) {
+					String separator = separators.get(i-1);
+					if(separator.equals(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND))
+						sb.append(" AND ");
+					if(separator.equals(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR))
+						sb.append(" OR ");
+				}
+				if(LTIService.LTI_SEARCH_TOKEN_NULL.equals(searchValue)) {
+					sb.append(searchField + " IS NULL");
+				} else if(searchValue.startsWith(LTIService.LTI_SEARCH_TOKEN_DATE)) {
+					searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_DATE, "");
+					if(StringUtils.isNotEmpty(searchValue)) {
+						try {
+							DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
+							Date d = df.parse(searchValue);
+							
+							DateFormat sql_df = new SimpleDateFormat(LTIService.LTI_SEARCH_INTERNAL_DATE_FORMAT);
+							if ( "oracle".equals(vendor) ) {
+								sb.append(searchField + " = TO_DATE('"+sql_df.format(d)+"', 'DD/MM/YYYY HH24:MI:SS')");
+							} else if ( "mysql".equals(vendor) ) {
+								sb.append(searchField + " = STR_TO_DATE('"+sql_df.format(d)+"', '%d/%m/%Y %H:%i:%s')");
+							}
+						} catch(Exception ignore) {}
+					}
+				} else {
+					sb.append(searchField + " LIKE ?");
+					searchValue = searchValue.replace(LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND, LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND);
+					searchValue = searchValue.replace(LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR, LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR);
+					ret.addSearchValue((Object)("%" + searchValue + "%"));
+				}
+			}
+		}
+		ret.setSearch((sb.length() > 0) ? sb.toString() : null);
+		return ret;
 	}
 
 	/**

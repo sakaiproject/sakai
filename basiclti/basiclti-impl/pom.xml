@@ -96,6 +96,12 @@
             <type>jar</type>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${sakai.poi.version}</version>
+        </dependency>
 
     </dependencies>
 

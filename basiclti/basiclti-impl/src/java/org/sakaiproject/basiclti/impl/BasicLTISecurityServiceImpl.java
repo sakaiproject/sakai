@@ -19,6 +19,7 @@
 
 package org.sakaiproject.basiclti.impl;
 
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.lti.api.LTIExportService;
+import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -135,6 +138,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	 *******************************************************************************/
 	/** A service */
 	protected static LTIService ltiService = null; 
+	
+	protected static LTIExportService ltiExportService;
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -158,6 +163,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			logger.warn("init(): ", t);
 		}
 		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		if ( ltiExportService == null ) ltiExportService = (LTIExportService)ComponentManager.get("org.sakaiproject.lti.api.LTIExportService");
 	}
 
 	/**
@@ -376,6 +382,59 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							return;
 					}
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, ltiService, rb);
+				} 
+				else if (refId.startsWith("export:") && refId.length() > 7) 
+				{
+					final String[] tokens = refId.split(":");
+					try 
+					{
+						ExportType exportType = ExportType.valueOf(tokens[1]);
+
+						String filterId = null;
+						if (tokens.length == 3) 
+						{
+							filterId = tokens[2];
+						}
+						if (exportType == ExportType.CSV) 
+						{
+							res.setContentType("text/csv");
+							res.setHeader("Content-Disposition", "attachment; filename = export_tool_links.csv");
+						}
+						if (exportType == ExportType.EXCEL) 
+						{
+							res.setContentType("application/vnd.ms-excel");
+							res.setHeader("Content-Disposition", "attachment; filename = export_tool_links.xls");
+						}
+						OutputStream out = null;
+						try 
+						{
+							out = (OutputStream)res.getOutputStream();
+							ltiExportService.export(out, ref.getContext(), exportType, filterId);							
+						}
+						catch(Exception ignore)
+						{
+							logger.warn(": lti export " + ignore.getMessage());
+						}					
+						finally 
+						{
+							if (out != null) 
+							{
+								try 
+								{
+									out.flush();
+									out.close();
+								}
+								catch (Throwable ignore) 
+								{
+									logger.warn(": lti export " + ignore.getMessage());
+								}
+							}
+						}
+					}
+					catch (java.lang.IllegalArgumentException ex)
+					{
+						logger.warn(": lti export invalid export type");
+					}
 				}
 				else
 				{
@@ -421,9 +480,11 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 				try
 				{
-					sendHTMLPage(res, retval[0]);
+					if (retval != null) {
+						sendHTMLPage(res, retval[0]);
+					}
 					String refstring = ref.getReference();
-					if ( retval.length > 1 ) refstring = retval[1];
+					if ( retval != null && retval.length > 1 ) refstring = retval[1];
 					Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
 					// SAK-24069 - Extend Sakai session lifetime on LTI tool launch
 					Session session = SessionManager.getCurrentSession(); 

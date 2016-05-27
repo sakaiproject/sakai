@@ -20,6 +20,16 @@ table.tablesorter th {
 	font: 12px/18px Arial, Sans-serif;
 	padding: 4px;
 }
+
+table.tablesorter th a{
+	text-decoration: none;
+	color: #000;
+}
+
+table.tablesorter th a:hover{
+	text-decoration: none;
+}
+
 table.tablesorter .header,
 table.tablesorter .tablesorter-header {
 	/* black double arrow */
