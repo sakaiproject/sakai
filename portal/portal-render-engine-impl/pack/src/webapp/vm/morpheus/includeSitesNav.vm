@@ -10,7 +10,7 @@
                     <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace #if (${site.isCurrentSite}) is-selected #end">
                         <a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
                             <i class="fa fa-home"></i>
-                            <span>${rloader.sit_mywor}</span>
+                            <span class="Mrphs-sitesNav__menuitem--myworkspace-label">${rloader.sit_mywor}</span>
                             <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
                         </a>
                     </li>           

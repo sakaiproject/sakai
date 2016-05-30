@@ -66,8 +66,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 		this.setOutputMarkupId(true);
 
+		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
+		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
+
 		this.configuredCategoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
-		this.isGroupedByCategory = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
+		this.isGroupedByCategory =  groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.isAssignmentsDisplayed = gradebook.isAssignmentsDisplayed();
 
@@ -161,6 +164,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			}
 		};
 		toggleActions.add(toggleCategoriesLink);
+		toggleActions.addOrReplace(new WebMarkupContainer("expandCategoriesLink").setVisible(isGroupedByCategory));
+		toggleActions.addOrReplace(new WebMarkupContainer("collapseCategoriesLink").setVisible(isGroupedByCategory));
 		addOrReplace(toggleActions);
 
 		addOrReplace(new WebMarkupContainer("categoryColumnHeader").

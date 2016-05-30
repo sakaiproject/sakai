@@ -16,7 +16,7 @@
 				AuthorActionListener authorListener = new AuthorActionListener();
 				authorListener.processAction(null);
 			%>
-			<%@ include file="../author/authorIndex_noHeader.jsp"%>
+			<%@ include file="../author/authorIndex_content.jsp"%>
 		</h:panelGroup>
 		
 		<h:panelGroup rendered="#{!authorization.adminPrivilege}">

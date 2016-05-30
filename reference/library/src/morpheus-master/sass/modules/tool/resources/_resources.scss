@@ -10,6 +10,9 @@
 
 	input[type="checkbox"] + label{
         display: inline;
+        strong{
+        	vertical-align: text-bottom;
+        }
     }
 
 	.itemSummary {

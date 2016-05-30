@@ -12,7 +12,7 @@
 	2) Login using:
 		User Id: 	${userEid}
 		password: 	${newPassword} 
- You can change your password after you have logged in, using the Account tool in your My Workspace.
+ You can change your password after you have logged in, using the Account tool in your Home.
  
  (This is an automated message from ${localSakaiName}.)
 </message>
@@ -189,7 +189,7 @@ Mais tarde voc\u00ea pode ir a ferramenta Conta em seu &quot;Meu site&quot; para
 	2) Доорхийг ашиглан нэвтэрнэ:
 		Хэрэглэгчийн Id: 	${userEid}
 		Нууц үг: 	${newPassword} 
- Та нэвтэрснийхээ дараа My Workspace дахь бүртгэлийн хэрэгслийг ашиглан нууц үгээ өөрчилж болно.
+ Та нэвтэрснийхээ дараа Home дахь бүртгэлийн хэрэгслийг ашиглан нууц үгээ өөрчилж болно.
  
  (Энэ нь ${localSakaiName}-аас ирсэн автомат мессеж байна.)
 </message>

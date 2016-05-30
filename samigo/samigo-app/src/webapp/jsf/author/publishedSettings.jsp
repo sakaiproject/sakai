@@ -226,30 +226,38 @@
  <!-- *** META *** -->
 <h:panelGroup rendered="#{publishedSettings.valueMap.metadataAssess_isInstructorEditable==true}">
   <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_metadata} </a> </h3>" /> 
-   <div class="tier2">
-     <div class="samigo-subheading">
-      <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
-     </div>
-    <div class="tier3">
-    <h:panelGrid columns="2" columnClasses="samigoCell">
-      <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"/>
-      <h:inputText id="keywords" size="80" value="#{publishedSettings.keywords}"/>
+    <div class="tier2">
+        <div class="samigo-subheading">
+            <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
+        </div>
+    
+        <div class="form-group row">
+            <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:inputText id="keywords" size="80" value="#{publishedSettings.keywords}" styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="objectives" value="#{assessmentSettingsMessages.metadata_objectives}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:inputText id="objectives" value="#{publishedSettings.objectives}" styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="rubrics" value="#{assessmentSettingsMessages.metadata_rubrics}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:inputText id="rubrics" value="#{publishedSettings.rubrics}" styleClass="form-control"/>
+            </div>
+        </div>
 
-    <h:outputLabel for="objectives" value="#{assessmentSettingsMessages.metadata_objectives}"/>
-      <h:inputText id="objectives" value="#{publishedSettings.objectives}"/>
-
-      <h:outputLabel for="rubrics" value="#{assessmentSettingsMessages.metadata_rubrics}"/>
-      <h:inputText id="rubrics" value="#{publishedSettings.rubrics}"/>
-    </h:panelGrid>
-    </div>
-    <div class="samigo-subheading">
-      <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
-    </div>
-    <div class="tier3">
-     <h:selectBooleanCheckbox rendered="#{publishedSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
-       value="#{publishedSettings.valueMap.hasMetaDataForQuestions}"/>
-     <h:outputText value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{publishedSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
-    </div>
+        <div class="samigo-subheading">
+            <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
+        </div>
+        <div class="samigo-checkbox">
+            <h:selectBooleanCheckbox rendered="#{publishedSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
+            value="#{publishedSettings.valueMap.hasMetaDataForQuestions}"/>
+            <h:outputLabel value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{publishedSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
+        </div>
     </div>
   </h:panelGroup>
   </div><!-- This is the end of the sub-accordion -->
@@ -492,7 +500,7 @@
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true && publishedSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
-      <div class="col-md-10">
+      <div class="col-md-10 samigo-checkbox">
 	      <!-- <h:selectBooleanCheckbox value="#{publishedSettings.toDefaultGradebook}" disabled="#{publishedSettings.firstTargetSelected == 'Anonymous Users'}"/> -->
 	      <f:verbatim><br /></f:verbatim>
 	      <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options}"/>
@@ -567,52 +575,51 @@
     <!-- FEEDBACK COMPONENTS -->
     <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
 
-      <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="feedbackComponentOption" value="#{assessmentSettingsMessages.feedback_components}"/>
-        <div class="col-md-10">
-          <t:selectOneRadio id="feedbackComponentOption" value="#{publishedSettings.feedbackComponentOption}" onclick="setBlockDivs();disableOtherFeedbackComponentOption(this);"  layout="spread">
-            <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}"/>
-            <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
-          </t:selectOneRadio>
-          <ul class="feedback-component">
-            <li><t:radio for="feedbackComponentOption" index="0" /></li>
-            <li><t:radio for="feedbackComponentOption" index="1" /></li>
-          </ul>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox id="feedbackCheckbox11" value="#{publishedSettings.showStudentResponse}"/>
-            <h:outputLabel for="feedbackCheckbox11" value="#{commonMessages.student_response}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-          <h:selectBooleanCheckbox id="feedbackCheckbox13" value="#{publishedSettings.showCorrectResponse}"/>
-          <h:outputLabel for="feedbackCheckbox13" value="#{commonMessages.correct_response}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-          <h:selectBooleanCheckbox id="feedbackCheckbox12" value="#{publishedSettings.showQuestionLevelFeedback}"/>
-          <h:outputLabel for="feedbackCheckbox12" value="#{commonMessages.question_level_feedback}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-          <h:selectBooleanCheckbox id="feedbackCheckbox14" value="#{publishedSettings.showSelectionLevelFeedback}"/>
-          <h:outputLabel for="feedbackCheckbox14" value="#{commonMessages.selection_level_feedback}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-          <h:selectBooleanCheckbox id="feedbackCheckbox16" value="#{publishedSettings.showGraderComments}"/>
-          <h:outputLabel for="feedbackCheckbox16" value="#{assessmentSettingsMessages.grader_comments}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-          <h:selectBooleanCheckbox id="feedbackCheckbox17" value="#{publishedSettings.showStudentQuestionScore}"/>
-          <h:outputLabel for="feedbackCheckbox17" value="#{assessmentSettingsMessages.student_question_score}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-          <h:selectBooleanCheckbox id="feedbackCheckbox15" value="#{publishedSettings.showStudentScore}"/>
-          <h:outputLabel for="feedbackCheckbox15" value="#{assessmentSettingsMessages.student_assessment_score}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-          <h:selectBooleanCheckbox id="feedbackCheckbox18" value="#{publishedSettings.showStatistics}"/>
-          <h:outputLabel for="feedbackCheckbox18" value="#{commonMessages.statistics_and_histogram}" />
-        </h:panelGroup>
+        <div class="form-group row">
+            <h:outputLabel styleClass="col-md-2" for="feedbackComponentOption" value="#{assessmentSettingsMessages.feedback_components}"/>
+            <div class="col-md-10">
+                <t:selectOneRadio id="feedbackComponentOption" value="#{publishedSettings.feedbackComponentOption}" onclick="setBlockDivs();disableOtherFeedbackComponentOption(this);"  layout="pageDirection">
+                    <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}"/>
+                    <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
+                </t:selectOneRadio>
+                <div class="respChoice indent1">
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox11" value="#{publishedSettings.showStudentResponse}"/>
+                        <h:outputLabel for="feedbackCheckbox11" value="#{commonMessages.student_response}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox13" value="#{publishedSettings.showCorrectResponse}"/>
+                        <h:outputLabel for="feedbackCheckbox13" value="#{commonMessages.correct_response}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox12" value="#{publishedSettings.showQuestionLevelFeedback}"/>
+                        <h:outputLabel for="feedbackCheckbox12" value="#{commonMessages.question_level_feedback}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox14" value="#{publishedSettings.showSelectionLevelFeedback}"/>
+                        <h:outputLabel for="feedbackCheckbox14" value="#{commonMessages.selection_level_feedback}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox16" value="#{publishedSettings.showGraderComments}"/>
+                        <h:outputLabel for="feedbackCheckbox16" value="#{assessmentSettingsMessages.grader_comments}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox17" value="#{publishedSettings.showStudentQuestionScore}"/>
+                        <h:outputLabel for="feedbackCheckbox17" value="#{assessmentSettingsMessages.student_question_score}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox15" value="#{publishedSettings.showStudentScore}"/>
+                        <h:outputLabel for="feedbackCheckbox15" value="#{assessmentSettingsMessages.student_assessment_score}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="form-inline" layout="block">
+                        <h:selectBooleanCheckbox id="feedbackCheckbox18" value="#{publishedSettings.showStatistics}"/>
+                        <h:outputLabel for="feedbackCheckbox18" value="#{commonMessages.statistics_and_histogram}" />
+                    </h:panelGroup>
+                </div>
+            </div>
+        </div>
     </h:panelGroup>
-	</div>
-	</div>
+
   </h:panelGroup>
 
   </samigo:hideDivision>

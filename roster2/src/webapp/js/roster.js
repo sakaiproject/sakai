@@ -348,12 +348,12 @@
 
                 members.forEach(function (m) {
 
-                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + roster.siteId;
+                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + encodeURIComponent(roster.siteId);
                     m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
                     if (options.forceOfficialPicture) {
                         m.profileImageUrl += "/official";
                     }
-                    m.profileImageUrl += "?siteId=" + roster.siteId;
+                    m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
                     var groupIds = Object.keys(m.groups);
                     m.hasGroups = groupIds.length > 0;
 
