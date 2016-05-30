@@ -1241,7 +1241,7 @@ public class DeliveryActionListener
     }
     
     //If the value close enough to the maximum value just set it to the maximum value (precision issue)
-    if (MathUtils.equalsIncludingNaN(itemBean.getExactPoints(),itemBean.getMaxPoints(),0.001d)) {
+    if (MathUtils.equals(itemBean.getExactPoints(),itemBean.getMaxPoints(),0.001d)) {
       itemBean.setPoints(itemBean.getMaxPoints());
     }
     
