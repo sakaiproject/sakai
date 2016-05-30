@@ -39,6 +39,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
     this.setupTabs();
     this.setupStudentNavigation();
     this.setupFixedFooter();
+    this.setupTableSorting();
     this.setupMask();
     this.setupModalPrint();
     this.bindModalClose();
@@ -86,9 +87,9 @@ GradebookGradeSummary.prototype.setupCategoryToggles = function() {
   this.$content.find(".gb-summary-category-toggle").click(function() {
     var $toggle = $(this);
     if ($toggle.is(".collapsed")) {
-      $toggle.closest("tbody").find(".gb-summary-grade-row").show();
+      $toggle.closest("tbody").next(".gb-summary-assignments-tbody").find(".gb-summary-grade-row").show();
     } else {
-      $toggle.closest("tbody").find(".gb-summary-grade-row").hide();
+      $toggle.closest("tbody").next(".gb-summary-assignments-tbody").find(".gb-summary-grade-row").hide();
     }
     $toggle.toggleClass("collapsed");
   });
@@ -228,6 +229,8 @@ GradebookGradeSummary.prototype.setupStudentView = function() {
     $("body").find(".portletBody h2:first"),
     $("body").find("#studentGradeSummary"),
     $("body"));
+
+  this.setupTableSorting();
 };
 
 
@@ -260,7 +263,50 @@ GradebookGradeSummary.prototype._setupPrint = function($button, $header, $conten
       updateIframeContentAndPrint();
     }
   });
-}
+};
+
+
+GradebookGradeSummary.prototype.setupTableSorting = function() {
+  var $table = this.$content.find(".gb-summary-grade-panel table");
+
+  $table.tablesorter({
+    theme : "bootstrap",
+    widthFixed: true,
+    headerTemplate : '{content} {icon}',
+    widgets : [ "uitheme", "zebra" ],
+    widgetOptions : {
+      zebra : ["even", "odd"],
+      filter_reset : ".reset",
+      filter_hideFilters : true
+    },
+    //sort by due date descending by default
+    sortList: [[3, 0]],
+    textExtraction: function(node) {
+      var $node = $(node);
+      // sort dates by data-sort-key
+      if ($node.is(".gb-summary-grade-duedate")) {
+        var time = $node.data("sort-key");
+        if (time == 0) {
+          // max integer value so assignments with no due date
+          // appear after those with due dates (to match GB1)
+          return Math.pow(2, 53)-1;
+        }
+        return time;
+      // sort grades by their raw grade
+      } else if ($node.is(".gb-summary-grade-score")) {
+        var grade = $node.find(".gb-summary-grade-score-raw").text().trim();
+        if (grade == "") {
+          return -1;
+        } else {
+          return grade;
+        }
+      }
+
+      return $(node).text().trim();
+    },
+    cssInfoBlock: "gb-summary-category-tbody"
+  });
+};
 
 
 var GradebookGradeSummaryUtils = {

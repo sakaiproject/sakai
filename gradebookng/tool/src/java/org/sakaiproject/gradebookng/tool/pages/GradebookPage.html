@@ -4,12 +4,25 @@
 
 <wicket:extend>
   <form wicket:id="form" id="gradebookSpreadsheet">
-    <p>
-      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
-      	 <wicket:message key="button.addgradeitem" />
-      </button>
-    </p>
-    
+    <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
+    <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
+    <div id="gbConnectionTimeoutFeedback" class="messageWarning" style="display:none;">
+        <wicket:message key="feedback.connectiontimeout" />
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="pull-left">
+                <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
+                    <wicket:message key="button.addgradeitem" />
+                </button>
+            </div>
+            <div class="pull-left">
+                <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
+            </div>
+        </div>
+    </div>
+
     <div wicket:id="addOrEditGradeItemWindow" />
     <div wicket:id="studentGradeSummaryWindow" />
     <div wicket:id="updateUngradedItemsWindow" />
@@ -19,7 +32,7 @@
 	<div wicket:id="gradeStatisticsWindow" />
 	<div wicket:id="updateCourseGradeDisplayWindow" />
 
-    <div id="gradebookGradesToolbar">
+    <div wicket:id="toolbar" id="gradebookGradesToolbar">
       <ul class="gb-toolbar-left">
         <li>
           <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
@@ -49,8 +62,6 @@
               <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
           </div>
       </div>
-	  <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
-	  <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
     </div>
   </form>
 

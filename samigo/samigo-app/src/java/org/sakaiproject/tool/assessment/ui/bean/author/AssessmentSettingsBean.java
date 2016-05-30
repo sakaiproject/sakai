@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TimeZone;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -84,6 +85,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 /**
  *
@@ -287,7 +290,8 @@ public class AssessmentSettingsBean
 			this.extendedTimes = "";
 			while ((assessment.getAssessmentMetaDataByLabel(extendedTimeLabel) != null)
 					&& (!assessment.getAssessmentMetaDataByLabel(extendedTimeLabel).equals(""))) {
-				String extendedTimeValue = assessment.getAssessmentMetaDataByLabel(extendedTimeLabel);
+				// server stores in JVM's time zone, convert to user's time zone
+				String extendedTimeValue = ExtendedTimeService.convertZones(assessment.getAssessmentMetaDataByLabel(extendedTimeLabel), TimeZone.getDefault(), TimeService.getLocalTimeZone());
 				this.extendedTimes = this.extendedTimes.concat(extendedTimeValue + "^");
 				extendedTimeCount++;
 				extendedTimeLabel = "extendedTime" + extendedTimeCount;

@@ -23,14 +23,15 @@
 			<table class="table table-bordered table-striped table-hover table-condensed">
 				<thead>
 				<tr>
-					<th class="col-md-5"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+					<th class="col-md-4"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
 					<th class="col-md-2"><wicket:message key="column.header.studentsummary.grade" /></th>
 					<th class="col-md-1 weight-col"><wicket:message key="column.header.studentsummary.weight" /></th>
-					<th class="col-md-1"><wicket:message key="column.header.studentsummary.duedate" /></th>
-					<th><wicket:message key="column.header.studentsummary.comments" /></th>
+					<th class="col-md-2"><wicket:message key="column.header.studentsummary.duedate" /></th>
+					<th class="col-md-3"><wicket:message key="column.header.studentsummary.comments" /></th>
 				</tr>
 				</thead>
-				<tbody wicket:id="categoriesList">
+				<wicket:container wicket:id="categoriesList">
+				<tbody class="gb-summary-category-tbody">
 				<tr wicket:id="categoryRow" class="gb-summary-category-row">
 					<td>
 						<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
@@ -41,6 +42,8 @@
 					<td></td>
 					<td></td>
 				</tr>
+				</tbody>
+				<tbody class="gb-summary-assignments-tbody">
 				<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
 					<td>
 						<span class="gb-summary-grade-flags" wicket:id="flags">
@@ -59,6 +62,7 @@
 					<td class="gb-summary-grade-comments" wicket:id="comments"></td>
 				</tr>
 				</tbody>
+				</wicket:container>
 			</table>
 			<div class="col-md-12">
 				<p><small wicket:id="categoryScoreNotReleased"></small></p>

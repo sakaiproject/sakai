@@ -99,7 +99,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 					final boolean success = AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
 
 					if (success) {
-						getSession().info(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
+						getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
 						setResponsePage(getPage().getPageClass());
 					} else {
 						error(new ResourceModel("message.edititem.error").getObject());
@@ -127,7 +127,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 						success = false;
 					}
 					if (success) {
-						getSession().info(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
+						getSession().success(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
 						setResponsePage(getPage().getPageClass(),
 								new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
 					} else {

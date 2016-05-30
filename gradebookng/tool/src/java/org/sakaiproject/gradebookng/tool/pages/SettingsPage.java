@@ -148,7 +148,7 @@ public class SettingsPage extends BasePage {
 				// update settings
 				try {
 					SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
-					getSession().info(getString("settingspage.update.success"));
+					getSession().success(getString("settingspage.update.success"));
 				} catch (final ConflictingCategoryNameException e) {
 					getSession().error(getString("settingspage.update.failure.categorynameconflict"));
 					responsePage = getPage();

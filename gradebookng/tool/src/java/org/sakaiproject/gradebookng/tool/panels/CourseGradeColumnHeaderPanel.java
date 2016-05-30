@@ -1,11 +1,16 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -14,13 +19,11 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class CourseGradeColumnHeaderPanel extends Panel {
 
@@ -40,12 +43,46 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final GradebookPage gradebookPage = (GradebookPage) getPage();
+
 		getParentCellFor(this).setOutputMarkupId(true);
 
-		add(new Label("title", new ResourceModel("column.header.coursegrade")));
+		final Link<String> title = new Link<String>("title") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+
+				// toggle the sort direction on each click
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+				// if null, set a default sort, otherwise toggle, save, refresh.
+				if (settings.getCourseGradeSortOrder() == null) {
+					settings.setCourseGradeSortOrder(SortDirection.getDefault());
+				} else {
+					final SortDirection sortOrder = settings.getCourseGradeSortOrder();
+					settings.setCourseGradeSortOrder(sortOrder.toggle());
+				}
+
+				// save settings
+				gradebookPage.setUiSettings(settings);
+
+				// refresh
+				setResponsePage(new GradebookPage());
+			}
+
+		};
+
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
+		title.add(new AttributeModifier("title", new ResourceModel("column.header.coursegrade")));
+		title.add(new Label("label", new ResourceModel("column.header.coursegrade")));
+		if (settings != null && settings.getCourseGradeSortOrder() != null) {
+			title.add(
+				new AttributeModifier("class", "gb-sort-" + settings.getCourseGradeSortOrder().toString().toLowerCase()));
+		}
+		add(title);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
 		final GbRole role = this.businessService.getUserRole();
 
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
@@ -54,7 +91,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		final Boolean showPoints = this.model.getObject();
 
 		// icons
-		Map<String, Object> popoverModel = new HashMap<>();
+		final Map<String, Object> popoverModel = new HashMap<>();
 		popoverModel.put("role", role);
 		popoverModel.put("flag", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_RELEASED);
 		add(gradebookPage.buildFlagWithPopover("isReleasedFlag",
@@ -63,7 +100,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		popoverModel.put("flag", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_NOT_RELEASED);
 		add(gradebookPage.buildFlagWithPopover("notReleasedFlag",
 				new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString())
-			.setVisible(!gradebook.isCourseGradeDisplayed()));
+				.setVisible(!gradebook.isCourseGradeDisplayed()));
 
 		// menu
 		final WebMarkupContainer menu = new WebMarkupContainer("menu") {

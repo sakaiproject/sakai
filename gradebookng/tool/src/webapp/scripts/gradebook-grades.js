@@ -52,6 +52,7 @@ function GradebookSpreadsheet($spreadsheet) {
 
   this.onReady(function() {
     self.setupScrollHandling();
+    self.setupConnectionPoll();
   })
 
   this.ready();
@@ -1167,7 +1168,7 @@ GradebookSpreadsheet.prototype.refreshHiddenVisualCue = function() {
       var $cue = $("<a>").attr("href", "javascript:void(0);").addClass("gb-hidden-column-visual-cue");
       var $prevVisible = $th.prev(":visible");
       if ($prevVisible.find(".gb-hidden-column-visual-cue").length == 0) {
-        $prevVisible.find("> span:first").append($cue);
+        $prevVisible.find("> div:first").append($cue);
       }
       $cue.click(showColumns);
     }
@@ -1282,7 +1283,7 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
   };
 
   function performConcurrencyCheck() {
-    GradebookAPI.isAnotherUserEditing(self.$table.data("siteid"), handleConcurrencyCheck);
+    GradebookAPI.isAnotherUserEditing(self.$table.data("siteid"), self.$table.data("gradestimestamp"), handleConcurrencyCheck);
   };
 
   // Check for concurrent editors.. and again every 10 seconds
@@ -1593,6 +1594,14 @@ GradebookSpreadsheet.prototype.positionModalAtTop = function($modal) {
   $modal.css('top', 30 + $(window).scrollTop() + "px");
 };
 
+
+GradebookSpreadsheet.prototype.setLiveFeedbackAsSaving = function() {
+  var $liveFeedback = this.$spreadsheet.closest("#gradebookSpreadsheet").find(".gb-live-feedback");
+  $liveFeedback.html($liveFeedback.data("saving-message"));
+  $liveFeedback.show()
+};
+
+
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
  */
@@ -1632,6 +1641,10 @@ GradebookSpreadsheet.prototype.refreshWidth = function() {
   return this.width;
 };
 
+
+GradebookSpreadsheet.prototype.setupConnectionPoll = function() {
+  this.ping = new ConnectionPoll($("#gbConnectionTimeoutFeedback"));
+};
 
 /*************************************************************************************
  * GradebookEditableCell - behaviour for editable cells
@@ -1803,6 +1816,7 @@ GradebookEditableCell.prototype.getStudentName = function() {
 
 GradebookEditableCell.prototype.handleBeforeSave = function() {
   this.$cell.addClass("gb-cell-saving");
+  this.gradebookSpreadsheet.setLiveFeedbackAsSaving();
 };
 
 
@@ -2409,9 +2423,12 @@ GradebookToolbar.prototype.setupToggleCategories = function() {
 GradebookAPI = {};
 
 
-GradebookAPI.isAnotherUserEditing = function(siteId, onSuccess, onError) {
+GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
-  GradebookAPI._GET(endpointURL, null, onSuccess, onError);
+  var params = {
+    since: timestamp
+  };
+  GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
 
 
@@ -2511,6 +2528,48 @@ GradebookWicketEventProxy = {
 
 })( jQuery );
 
+
+/**************************************************************************************
+ *                    Connection Poll Javascript                                       
+ *************************************************************************************/
+function ConnectionPoll($message) {
+    this.PING_INTERVAL = 1000*5; // 5 seconds
+    this.PING_TIMEOUT = 1000*10; // 10 seconds
+    this.PING_URL = "/direct/gbng/ping";
+
+    this.$message = $message;
+
+    this.poll();
+};
+
+
+ConnectionPoll.prototype.poll = function() {
+  var self = this;
+
+  self._interval = setInterval(function() {
+    self.ping();
+  }, self.PING_INTERVAL);
+};
+
+
+ConnectionPoll.prototype.ping = function() {
+  $.ajax({
+    type: "GET",
+    url: this.PING_URL,
+    timeout: this.PING_TIMEOUT,
+    cache: false,
+    success: $.proxy(this.onSuccess, this),
+    error: $.proxy(this.onTimeout, this)
+  });
+};
+
+ConnectionPoll.prototype.onTimeout = function() {
+  this.$message.show();
+};
+
+ConnectionPoll.prototype.onSuccess = function() {
+  this.$message.hide();
+};
 
 
 /**************************************************************************************

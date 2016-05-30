@@ -1764,6 +1764,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			  }
 			  
 			  // now, we can populate the grade information
+			  List<String> studentsWithGradeRec = new ArrayList<>();
 			  List<AssignmentGradeRecord> gradeRecs = getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIds);
 			  if (gradeRecs != null) {
 				  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
@@ -1779,6 +1780,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						  GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(agr, gbItem, gradebook, commentText);
 					  	  	
 						  studentGrades.add(gradeDef);
+						  studentsWithGradeRec.add(agr.getStudentId());
+					  }
+				  }
+
+				  // if student has a comment but no grade add an empty grade definition with the comment
+				  if (studentsWithGradeRec.size() < studentIds.size()) {
+					  for (String studentId : studentIdCommentTextMap.keySet()) {
+						  if (!studentsWithGradeRec.contains(studentId)) {
+							  String comment = studentIdCommentTextMap.get(studentId);
+							  AssignmentGradeRecord emptyGradeRecord = new AssignmentGradeRecord(gbItem, studentId, null);
+							  GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(emptyGradeRecord, gbItem, gradebook, comment);
+							  studentGrades.add(gradeDef);
+						  }
 					  }
 				  }
 			  }
@@ -3067,6 +3081,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 		
+		if (categoryId == null) {
+			log.debug("No category supplied, nothing to do.");
+			return null;
+		}
+		
 		//setup
 		int numScored = 0;
 		int numOfAssignments = 0;
@@ -3505,5 +3524,36 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			});
 		}
 
+	}
+
+
+	/**
+	 * Return the grade changes made since a given time
+	 * @param assignmentIds	ids of assignments to check
+	 * @param since	timestamp from which to check for changes
+	 * @return set of changes made
+	 */
+	@Override
+	public List<GradingEvent> getGradingEvents(final List<Long> assignmentIds, final Date since) {
+		List<GradingEvent> rval = new ArrayList<>();
+
+		if (since == null) {
+			log.debug("No `since` timestamp was specified.  Returning null");
+			return null;
+		}
+
+		HibernateCallback hc = new HibernateCallback() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("from GradingEvent as ge where ge.dateGraded >= :since" +
+					" and ge.gradableObject.id in (:assignmentIds)");
+				q.setParameter("since", since);
+				q.setParameterList("assignmentIds", assignmentIds);
+				return q.list();
+			}
+		};
+
+		rval = (List)getHibernateTemplate().execute(hc);
+		return rval;
 	}
 }

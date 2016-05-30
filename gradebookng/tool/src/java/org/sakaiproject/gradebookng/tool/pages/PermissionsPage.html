@@ -11,7 +11,7 @@
 		<h3><wicket:message key="permissionspage.instructions.choose" /></h3>
 	
 		<div class="form-inline">
-			<select wicket:id="ta" class="form-control">
+			<select wicket:id="ta" class="select">
 				<option>TA 1</option>
 			</select>
 		</div>
@@ -33,12 +33,12 @@
 		<div class="gb-permissions-rules">
 			<div wicket:id="permissions" class="gb-permissions-rule">
 				<span wicket:id="can">Can</span>
-				<select wicket:id="function" class="form-control"/>
-				<select wicket:id="category" class="form-control"/>
+				<select wicket:id="function" class="select"/>
+				<select wicket:id="category" class="select"/>
 				<span wicket:id="allGradeItems"><wicket:message key="permissionspage.allgradeitems"/></span>
 				<span wicket:id="in">in</span>
-				<select wicket:id="group" class="form-control"/>
-				<button wicket:id="remove" class="btn btn-link"><wicket:message key="button.remove" /></button>
+				<select wicket:id="group" class="select"/>
+				<button wicket:id="remove" class="btn btn-default"><wicket:message key="button.remove" /></button>
 			</div>
 		</div>
 
@@ -48,7 +48,7 @@
 
 		<div>
 			<button wicket:id="submit" class="btn btn-primary"><wicket:message key="button.savechanges" /></button>
-			<button wicket:id="clear" class="btn btn-link"><wicket:message key="button.clear" /></button>
+			<button wicket:id="clear" class="btn btn-default"><wicket:message key="button.clear" /></button>
 		</div>
 	</form>
 

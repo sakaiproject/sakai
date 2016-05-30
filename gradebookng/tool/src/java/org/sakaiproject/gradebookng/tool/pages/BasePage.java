@@ -22,7 +22,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
-import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 /**
  * Base page for our app
@@ -96,23 +95,6 @@ public class BasePage extends WebPage {
 		this.gradebookPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.gradebookPageLink);
 
-		// settings page
-		this.settingsPageLink = new Link<Void>("settingsPageLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new SettingsPage());
-			}
-
-			@Override
-			public boolean isVisible() {
-				return (BasePage.this.role == GbRole.INSTRUCTOR);
-			}
-		};
-		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
-		nav.add(this.settingsPageLink);
-
 		// import/export page
 		this.importExportPageLink = new Link<Void>("importExportPageLink") {
 			private static final long serialVersionUID = 1L;
@@ -147,6 +129,23 @@ public class BasePage extends WebPage {
 		this.permissionsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.permissionsPageLink);
 
+		// settings page
+		this.settingsPageLink = new Link<Void>("settingsPageLink") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SettingsPage());
+			}
+
+			@Override
+			public boolean isVisible() {
+				return (BasePage.this.role == GbRole.INSTRUCTOR);
+			}
+		};
+		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(this.settingsPageLink);
+
 		add(nav);
 
 		// Add a FeedbackPanel for displaying our messages
@@ -158,7 +157,8 @@ public class BasePage extends WebPage {
 	/**
 	 * Helper to clear the feedbackpanel display.
 	 *
-	 * @param f FeedBackPanel
+	 * @param f
+	 *            FeedBackPanel
 	 */
 	public void clearFeedback(final FeedbackPanel f) {
 		if (!f.hasFeedbackMessage()) {
@@ -167,8 +167,8 @@ public class BasePage extends WebPage {
 	}
 
 	/**
-	 * This block adds the required wrapper markup to style it like a Sakai tool. Add to this any additional CSS or JS references that you
-	 * need.
+	 * This block adds the required wrapper markup to style it like a Sakai
+	 * tool. Add to this any additional CSS or JS references that you need.
 	 *
 	 */
 	@Override
@@ -178,14 +178,15 @@ public class BasePage extends WebPage {
 		// get the Sakai skin header fragment from the request attribute
 		final HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
 
-		response.render(new PriorityHeaderItem(
-				JavaScriptHeaderItem.forReference(getApplication().getJavaScriptLibrarySettings().getJQueryReference())));
+		response.render(new PriorityHeaderItem(JavaScriptHeaderItem
+				.forReference(getApplication().getJavaScriptLibrarySettings().getJQueryReference())));
 
 		response.render(StringHeaderItem.forString((String) request.getAttribute("sakai.html.head")));
 		response.render(OnLoadHeaderItem.forScript("setMainFrameHeight( window.name )"));
 
 		// Tool additions (at end so we can override if required)
-		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
+		response.render(StringHeaderItem
+				.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
 
 	}
 

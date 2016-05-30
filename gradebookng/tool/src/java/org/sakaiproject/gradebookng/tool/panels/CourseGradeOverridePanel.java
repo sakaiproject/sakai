@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,7 +21,7 @@ import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -55,12 +54,20 @@ public class CourseGradeOverridePanel extends Panel {
 		final String studentUuid = (String) getDefaultModelObject();
 
 		// get the rest of the data we need
-		// TODO some of this could be passed in through the model if it was a map...
+		// TODO this could all be passed in through the model if it was changed to a map, as per CourseGradeItemCellPanel...
 		final GbUser studentUser = this.businessService.getUser(studentUuid);
 		final String currentUserUuid = this.businessService.getCurrentUser().getId();
 		final GbRole currentUserRole = this.businessService.getUserRole();
-		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
 		final Gradebook gradebook = this.businessService.getGradebook();
+		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentUserUuid);
+
+		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				currentUserRole,
+				courseGradeVisible,
+				false,
+				false);
 
 		// heading
 		CourseGradeOverridePanel.this.window.setTitle(
@@ -77,16 +84,7 @@ public class CourseGradeOverridePanel extends Panel {
 		form.add(new Label("studentName", studentUser.getDisplayName()));
 		form.add(new Label("studentEid", studentUser.getDisplayId()));
 		form.add(new Label("points", formatPoints(courseGrade, gradebook)));
-
-		// setup a map of data for the course grade label
-		final Map<String, Object> modelData = new HashMap<>();
-		modelData.put("currentUserUuid", currentUserUuid);
-		modelData.put("currentUserRole", currentUserRole);
-		modelData.put("courseGrade", courseGrade);
-		modelData.put("gradebook", gradebook);
-		modelData.put("showPoints", false);
-		modelData.put("showOverride", false);
-		form.add(new GbCourseGradeLabel("calculated", Model.ofMap(modelData)));
+		form.add(new Label("calculated", courseGradeFormatter.format(courseGrade)));
 
 		final TextField<String> overrideField = new TextField<>("overrideGrade", formModel);
 		overrideField.setOutputMarkupId(true);
@@ -116,7 +114,7 @@ public class CourseGradeOverridePanel extends Panel {
 				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade);
 
 				if (success) {
-					getSession().info(getString("message.addcoursegradeoverride.success"));
+					getSession().success(getString("message.addcoursegradeoverride.success"));
 					setResponsePage(getPage().getPageClass());
 				} else {
 					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());
@@ -150,7 +148,7 @@ public class CourseGradeOverridePanel extends Panel {
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
 				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, null);
 				if (success) {
-					getSession().info(getString("message.addcoursegradeoverride.success"));
+					getSession().success(getString("message.addcoursegradeoverride.success"));
 					setResponsePage(getPage().getPageClass());
 				} else {
 					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());
@@ -185,13 +183,8 @@ public class CourseGradeOverridePanel extends Panel {
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
-			if (gradebook.isCoursePointsDisplayed()) {
-				return new StringResourceModel("coursegrade.display.points-first", null,
-						new Object[] { pointsEarned, totalPointsPossible }).getString();
-			} else {
-				return new StringResourceModel("coursegrade.display.points-second", null,
-						new Object[] { pointsEarned, totalPointsPossible }).getString();
-			}
+			return new StringResourceModel("coursegrade.display.points-first", null,
+					new Object[] { pointsEarned, totalPointsPossible }).getString();
 		} else {
 			return getString("coursegrade.display.points-none");
 		}

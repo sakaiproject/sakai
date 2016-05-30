@@ -2,7 +2,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.Map;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
@@ -61,14 +60,17 @@ public class CategoryColumnCellPanel extends Panel {
 
 						final String newCategoryAverage = (categoryAverage == null) ? getString("label.nocategoryscore")
 								: FormatHelper.formatDoubleAsPercentage(categoryAverage);
-						((Model<String>) getDefaultModel()).setObject(newCategoryAverage);
 
-						getParent().add(new AttributeAppender("class", "gb-score-dynamically-updated"));
+						if (!newCategoryAverage.equals(getDefaultModelObject())) {
+							setDefaultModel(Model.of(newCategoryAverage));
 
-						scoreChangedEvent.getTarget().add(this);
-						scoreChangedEvent.getTarget().appendJavaScript(
+							getParent().add(new AttributeAppender("class", "gb-score-dynamically-updated"));
+
+							scoreChangedEvent.getTarget().add(this);
+							scoreChangedEvent.getTarget().appendJavaScript(
 								String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');",
-										this.getMarkupId()));
+									this.getMarkupId()));
+						}
 					}
 				}
 			}
