@@ -1754,17 +1754,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  }
 			  }
 			  
-			  for (Iterator stIter = studentIds.iterator(); stIter.hasNext();) {
-				  String studentId = (String) stIter.next();
-				  if (studentId != null) {
-					  if (!studentIdEnrRecMap.containsKey(studentId)) {
-						  throw new SecurityException("User " + authn.getUserUid() + 
-						  " attempted to access grade information for student " + studentId + 
-						  " without permission in gb " + gradebook.getUid() + 
-						  " using gradebookService.getGradesForStudentsForItem");
-					  }
+			  //filter the provided studentIds if user doesn't have permissions
+			  studentIds.removeIf(studentId -> {
+				  if (!studentIdEnrRecMap.containsKey(studentId)) {
+					  return true;
 				  }
-			  }
+				  return false;
+			  });
 			  
 			  // retrieve the grading comments for all of the students
 			  List<Comment> commentRecs = getComments(gbItem, studentIds);
