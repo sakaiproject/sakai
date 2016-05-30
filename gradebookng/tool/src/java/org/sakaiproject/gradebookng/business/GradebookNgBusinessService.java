@@ -1830,6 +1830,30 @@ public class GradebookNgBusinessService {
 		final ResourceLoader rl = new ResourceLoader();
 		return rl.getLocale();
 	}
+	
+	/**
+	 * Helper to check if a user is roleswapped
+	 * 
+	 * @return true if ja, false if nay.
+	 */
+	public boolean isUserRoleSwapped() {
+		
+		final String siteId = getCurrentSiteId();
+		
+		try {
+			Site site = this.siteService.getSite(siteId);
+				
+			//they are roleswapped if they have an 'effective role'
+			String effectiveRole = this.securityService.getUserEffectiveRole(site.getReference());
+			if(StringUtils.isNotBlank(effectiveRole)) {
+				return true;
+			}
+		} catch (IdUnusedException e) {
+			//something has happened between getting the siteId and getting the site.
+			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
+		}
+		return false;
+	}
 
 	/**
 	 * Comparator class for sorting a list of AssignmentOrders
