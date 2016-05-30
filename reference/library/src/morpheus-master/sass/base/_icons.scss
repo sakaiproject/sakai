@@ -14,8 +14,15 @@
 		@extend .fa;
 	}
 
-	.icon-sakai-iframe-site{ 				@extend .fa-university;}
-	.icon-sakai-motd{ 					@extend .fa-university;}
+	.icon-sakai-iframe-site{ 				@extend .fa-list-ul;}
+	.icon-sakai-motd{ 					@extend .fa-list-ul;}
+
+	/* when we're showing the motd tool as "Welcome" on the gateway page,
+	   use a different icon. */
+	a.Mrphs-hierarchy-item.Mrphs-hierarchy--toolName[href*="!gateway"] .icon-sakai-motd, a.Mrphs-toolsNav__menuitem--link[href*="!gateway"] .icon-sakai-motd{
+		@extend .fa-sign-in;
+	}
+
 	.icon-sakai-syllabus{					@extend .fa-map-o;}
 	.icon-sakai-schedule{					@extend .fa-calendar;}
 	.icon-sakai-signup{					@extend .fa-calendar-check-o ;}

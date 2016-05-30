@@ -120,7 +120,7 @@
   </bean>
   <bean id="myWorkspaceInstructorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
-      <value>My Workspace</value>
+      <value>Home</value>
     </property>
     <property name="resources">
       <list>
@@ -144,7 +144,7 @@
       <value>whatisMyWorkspace</value>
     </property>
     <property name="name">
-      <value>What is My Workspace?</value>
+      <value>What is Home?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-My-Workspace-.html</value>
@@ -169,7 +169,7 @@
       <value>whatistheMyWorkspaceToolMenu</value>
     </property>
     <property name="name">
-      <value>What is the My Workspace Tool Menu?</value>
+      <value>What is the Home Tool Menu?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-the-My-Workspace-Tool-Menu-.html</value>
@@ -180,7 +180,7 @@
       <value>whatistheMyWorkspaceMessageoftheDay</value>
     </property>
     <property name="name">
-      <value>What is the My Workspace Message of the Day? </value>
+      <value>What is the Home Message of the Day? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-the-My-Workspace-Message-of-the-Day-.html</value>
@@ -194,7 +194,7 @@
       <value>whatistheMyWorkspaceCalendar</value>
     </property>
     <property name="name">
-      <value>What is the My Workspace Calendar?</value>
+      <value>What is the Home Calendar?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-the-My-Workspace-Calendar-.html</value>
@@ -208,7 +208,7 @@
       <value>whataretheMyWorkspaceRecentAnnouncements</value>
     </property>
     <property name="name">
-      <value>What are the My Workspace Recent Announcements?</value>
+      <value>What are the Home Recent Announcements?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-are-the-My-Workspace-Recent-Announcements-.html</value>
@@ -222,7 +222,7 @@
       <value>whataretheMyWorkspaceMessageCenterNotifications</value>
     </property>
     <property name="name">
-      <value>What are the My Workspace Message Center Notifications?</value>
+      <value>What are the Home Message Center Notifications?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-are-the-My-Workspace-Message-Center-Notifications-.html</value>
@@ -280,7 +280,7 @@
       <value>whataretheResourcesinMyWorkspace</value>
     </property>
     <property name="name">
-      <value>What are the Resources in My Workspace?</value>
+      <value>What are the Resources in Home?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-are-the-Resources-in-My-Workspace-.html</value>
@@ -4138,7 +4138,7 @@
   </bean>
   <bean id="myWorkspaceStudentGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
-      <value>My Workspace</value>
+      <value>Home</value>
     </property>
     <property name="resources">
       <list>

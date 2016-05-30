@@ -8,7 +8,7 @@ ${connectionLink}
 
 ---
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
-Control what email notifications you receive from connections at My Workspace > ${toolName} > Preferences
+Control what email notifications you receive from connections at Home > ${toolName} > Preferences
 	</message>
 	<htmlMessage>${senderDisplayName} added you as a connection on ${localSakaiName}
 &lt;p&gt;
@@ -18,7 +18,7 @@ To confirm ${senderDisplayName}&apos;s connection request, follow the url below:
 &lt;p&gt;
 ---
 &lt;br /&gt;This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
-&lt;br /&gt;Control what email notifications you receive from connections at My Workspace &gt; ${toolName} &gt; Preferences
+&lt;br /&gt;Control what email notifications you receive from connections at Home &gt; ${toolName} &gt; Preferences
 &lt;/p&gt;
 	</htmlMessage>
 	<version>2</version>
