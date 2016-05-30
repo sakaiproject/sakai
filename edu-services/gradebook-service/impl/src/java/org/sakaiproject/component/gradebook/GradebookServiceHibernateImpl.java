@@ -3343,11 +3343,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 	}
 
-	
-	
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
     
 	public Authz getAuthz() {
 		return authz;
