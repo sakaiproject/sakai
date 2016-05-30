@@ -1245,7 +1245,7 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
       var $notification = model.$cell.find(".gb-cell-notification-out-of-date");
       if ($notification.length == 0) {
         $notification = $("<span>").addClass("gb-cell-notification").addClass("gb-cell-notification-out-of-date");
-        model.$cell.find(".btn-group").before($notification);
+        model.$cell.find("> div").prepend($notification);
       
         var $message = $("#gradeItemsConcurrentUserWarning").clone();
         $message.find(".gb-concurrent-edit-user").html(conflict.lastUpdatedBy);
