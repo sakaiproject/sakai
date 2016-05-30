@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -8,9 +9,11 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -52,8 +55,12 @@ public class StudentNameCellPanel extends Panel {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-				final Component content = new StudentGradeSummaryPanel(window.getContentId(), StudentNameCellPanel.this.model, window);
+				final Map<String, Object> windowModel = new HashMap<>(StudentNameCellPanel.this.model.getObject());
+				windowModel.put("groupedByCategoryByDefault", settings.isCategoriesEnabled());
+
+				final Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(windowModel), window);
 
 				if (window.isShown() && window.isVisible()) {
 					window.replace(content);

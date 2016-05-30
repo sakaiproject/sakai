@@ -30,6 +30,7 @@ public class StudentPage extends BasePage {
 
 		final Map<String, Object> userData = new HashMap<>();
 		userData.put("userId", u.getId());
+		userData.put("groupedByCategoryByDefault", true);
 
 		add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[] { u.getDisplayName() })));
 		add(new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData)));
