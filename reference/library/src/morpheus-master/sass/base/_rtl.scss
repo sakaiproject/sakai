@@ -2,7 +2,15 @@
 
 html[dir="rtl"]{
 
+	overflow-x: hidden;
+
 	.#{$namespace}siteHierarchy{
+		.#{$namespace}hierarchy--separator{
+			transform: rotate(180deg);
+			position: relative;
+			top: 0;
+			left: -4px;
+		}
 		&:after{
 			content: " ";
 			clear: both;
@@ -56,8 +64,19 @@ html[dir="rtl"]{
 	    float: left;
 	}
 
-	#mastLogin #loginLinks ul, #linkNav ul li.#{$namespace}sitesNav__menuitem ul {
+	#mastLogin #loginLinks ul{
 	    left: 0;
+	    right: auto;
+	    text-align: right;
+		@media #{$phone}{
+			left: 9.8em;
+			> * {
+				position: relative;
+			}
+		}
+	}
+	#linkNav ul li.#{$namespace}sitesNav__menuitem ul {
+	    left: auto;
 	    right: auto;
 	    text-align: right;
 		@media #{$phone}{
@@ -80,6 +99,15 @@ html[dir="rtl"]{
 			position: absolute;
 			left: 0.7em;
 			top: 0.3em;
+		}
+	}
+
+	.#{$namespace}sakai-profile2 {
+
+		@media (min-width: 992px){
+			.col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+			    float: right;
+			}
 		}
 	}
 

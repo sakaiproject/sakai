@@ -2829,13 +2829,14 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     {	
       ranges[0] = (int) min + " - " + (int) (min + interval);
       int i = 1;
+      Integer nextVal = null;
       while(i < ranges.length)
       {
-        if((((i + 1) * interval) + min) < max)
+        nextVal = new Integer((int) (((i + 1) * interval) + min));  
+        if(nextVal.doubleValue() < max)
         {
           ranges[i] =
-            ">" + (int) ((i * interval) + min) + " - " +
-            (int) (((i + 1) * interval) + min);
+            ">" + (int) ((i * interval) + min) + " - " + nextVal;
         }
         else
         {

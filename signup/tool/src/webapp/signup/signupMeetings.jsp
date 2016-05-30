@@ -251,7 +251,7 @@
 									<h:outputText value="#{msgs.tab_event_name}" escape="false"/>
 								</t:commandSortHeader>
 							</f:facet>
-							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" style="margin-left:-13px; cursor:pointer;">
+							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" styleClass="toggleMeetings">
 								<h:outputText value="<span id='imageOpen_RM_#{wrapper.recurId}' style='display:none'>"  escape="false"/>
 		   	    					<h:graphicImage value="/images/minusSmall.gif"  alt="open" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_collapse_recur_meeting}" style="border:none" onclick="showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{SignupMeetingsBean.iframeId}');" />
 		   	    				<h:outputText value="</span>" escape="false" />

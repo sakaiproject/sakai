@@ -96,9 +96,24 @@
 		top:20%;
 		text-align: center;
 	}
-	li[data_visible="false" ] *{
-		opacity:0.7;
-		color:#555 !important;
+	li[data_visible="false" ]{
+		.jstree-anchor{
+			font-style: oblique;
+			.jstree-icon{
+				@extend .fa;
+				@extend .fa-eye-slash;
+				margin: 0 20px 0 0;
+				&:before{
+					position: relative;
+					top: 5px;
+					color: $text-color;
+					padding: 0 0 0 26px;
+				}
+			}
+		}
+		* {
+			color:#999 !important;
+		}
 	}
 	/* move this one to tool-base.css as it goes along*/
 	.table th h3, .table th h4, .table th h5, .table th h6, .table td h3, .table td h4, .table td h5, .table td h6 {

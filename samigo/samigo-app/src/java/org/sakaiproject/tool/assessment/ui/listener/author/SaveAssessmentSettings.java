@@ -310,8 +310,8 @@ public class SaveAssessmentSettings
     // hasRetractDate, hasAnonymous, hasAuthenticatedUser, hasIpAddress,
     // hasUsernamePassword,
     // hasTimeAssessment,hasAutoSubmit, hasPartMetaData, hasQuestionMetaData
-    HashMap h;
-    h = addExtendedTimeValuesToMetaData(assessment, assessmentSettings);
+    HashMap <String, String> h = assessmentSettings.getValueMap();
+    addExtendedTimeValuesToMetaData(assessment, assessmentSettings, h);
     updateMetaWithValueMap(assessment, h);
 
     // i. set Graphics
@@ -572,10 +572,9 @@ public class SaveAssessmentSettings
 	 * @return
 	 */
 	private HashMap addExtendedTimeValuesToMetaData(AssessmentFacade assessment,
-			AssessmentSettingsBean assessmentSettings) {
+			AssessmentSettingsBean assessmentSettings, HashMap metaDataMap) {
 
 		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");
-		HashMap<String, String> metaDataMap = assessment.getAssessmentMetaDataMap();
 		String metaKey;
 
 		// clear out the old extended Time values

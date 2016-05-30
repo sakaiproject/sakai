@@ -16,6 +16,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.io.IOException;
 import java.util.*;
@@ -38,6 +39,7 @@ public class SakaiFsService implements FsService {
 
 	private ContentHostingService contentHostingService;
 	private SiteService siteService;
+	private UserDirectoryService userDirectoryService;
 
 	private FsSecurityChecker securityChecker;
 
@@ -164,6 +166,12 @@ public class SakaiFsService implements FsService {
 
 	public FsVolume[] getVolumes() {
 		List<Site> sites  = siteService.getSites(ACCESS, null, null, null, null, null);
+		// Add the user workspace as volume.
+		try {
+			String userId = userDirectoryService.getCurrentUser().getId();
+			Site myWorkspace = siteService.getSiteVisit(siteService.getUserSiteId(userId));
+			sites.add(0,myWorkspace);
+		} catch (Exception e) {}
 		List<FsVolume> volumes = new ArrayList<>(sites.size());
 		for (Site site: sites) {
 			String currentSiteId = site.getId();
@@ -217,6 +225,10 @@ public class SakaiFsService implements FsService {
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
 	}
 
 }

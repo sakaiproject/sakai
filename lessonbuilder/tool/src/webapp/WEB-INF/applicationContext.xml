@@ -435,6 +435,7 @@ simplePageBean.peerEvalAllowSelfGrade
       <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
       <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
       <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+      <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
     </bean>
 
  </beans>

@@ -1602,6 +1602,7 @@ public class SimplePageBean {
 	 *
 	 **/
 
+        // There's a copy in LessonsAccess for use by services. Keep them in sync
 	public boolean isPageOwner(SimplePage page) {
 	    String owner = page.getOwner();
 	    String group = page.getGroup();
@@ -1636,6 +1637,7 @@ public class SimplePageBean {
 	 * Returns 2 otherwise
 	 * @return
 	 */
+        // There's a copy of canEditPage in LessonsAccess for use by services. Keep them in sync
 	public int getEditPrivs() {
 		if(editPrivs != null) {
 			return editPrivs;

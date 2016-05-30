@@ -1,4 +1,3 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
@@ -29,7 +28,7 @@
 **********************************************************************************/
 --%>
 -->
-  <f:view>
+
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorFrontDoorMessages.auth_front_door}" /></title>
@@ -468,4 +467,3 @@ $(document).ready(function() {
 	  </div>
       </body>
     </html>
-  </f:view>
