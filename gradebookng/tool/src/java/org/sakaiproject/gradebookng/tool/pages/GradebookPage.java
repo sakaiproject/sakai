@@ -108,6 +108,14 @@ public class GradebookPage extends BasePage {
 		//TAs with no permissions or in a roleswap situation
 		if(this.role == GbRole.TA){
 			
+			//roleswapped?
+			if(this.businessService.isUserRoleSwapped()) {
+				PageParameters params = new PageParameters();
+				params.add("message", getString("ta.roleswapped"));
+				throw new RestartResponseException(AccessDeniedPage.class, params);
+			}
+			
+			// no perms
 			List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
 			if(permissions.isEmpty()) {
 				PageParameters params = new PageParameters();
