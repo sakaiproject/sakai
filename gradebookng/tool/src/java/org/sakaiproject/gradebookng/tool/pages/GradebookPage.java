@@ -39,6 +39,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbGradingType;
@@ -62,6 +63,7 @@ import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -98,9 +100,20 @@ public class GradebookPage extends BasePage {
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
-		// students cannot access this page
+		// students cannot access this page, they have their own
 		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
+		}
+				
+		//TAs with no permissions or in a roleswap situation
+		if(this.role == GbRole.TA){
+			
+			List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
+			if(permissions.isEmpty()) {
+				PageParameters params = new PageParameters();
+				params.add("message", getString("ta.nopermission"));
+				throw new RestartResponseException(AccessDeniedPage.class, params);
+			}
 		}
 
 		final StopWatch stopwatch = new StopWatch();
