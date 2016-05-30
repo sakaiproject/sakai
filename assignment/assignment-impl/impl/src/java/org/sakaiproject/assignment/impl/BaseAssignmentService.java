@@ -68,6 +68,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
@@ -14234,6 +14235,67 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return false;
 		}
 		return false;
-	} 
+	}
+
+	public String getDeepLink(String context, String assignmentId) throws Exception {
+
+		Assignment a = getAssignment(assignmentId);
+
+		boolean allowReadAssignment = allowGetAssignment(context);
+		boolean allowAddAssignment = allowAddAssignment(context);
+		boolean allowSubmitAssignment = allowAddSubmission(context);
+
+		return getDeepLinkWithPermissions(context, assignmentId
+											, allowReadAssignment, allowAddAssignment, allowSubmitAssignment);
+	}
+
+	public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment
+					, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception {
+
+		Assignment a = getAssignment(assignmentId);
+
+		String assignmentContext = a.getContext(); // assignment context
+		if (allowReadAssignment
+				&& a.getOpenTime().before(TimeService.newTime())) {
+			// this checks if we want to display an assignment link
+			try {
+				Site site = SiteService.getSite(assignmentContext);
+				// site id
+				ToolConfiguration fromTool = site
+						.getToolForCommonId("sakai.assignment.grades");
+				// Three different urls to be rendered depending on the
+				// user's permission
+				if (allowAddAssignment) {
+					return m_serverConfigurationService.getPortalUrl()
+												+ "/directtool/"
+												+ fromTool.getId()
+												+ "?assignmentId=" + assignmentId + "&assignmentReference="
+												+ a.getReference()
+												+ "&panel=Main&sakai_action=doView_assignment";
+				} else if (allowSubmitAssignment) {
+					return m_serverConfigurationService.getPortalUrl()
+											+ "/directtool/"
+											+ fromTool.getId()
+											+ "?assignmentId=" + assignmentId + "&assignmentReference="
+											+ a.getReference()
+											+ "&panel=Main&sakai_action=doView_submission";
+				} else {
+					// user can read the assignment, but not submit, so
+					// render the appropriate url
+					return m_serverConfigurationService.getPortalUrl()
+											+ "/directtool/"
+											+ fromTool.getId()
+											+ "?assignmentId=" + assignmentId + "&assignmentReference="
+											+ a.getReference()
+											+ "&panel=Main&sakai_action=doView_assignment_as_student";
+				}
+			} catch (IdUnusedException e) {
+				// No site found
+				throw new IdUnusedException(
+						"No site found while creating assignment url");
+			}
+		}
+		return "";
+	}
 } // BaseAssignmentService
 
