@@ -40,7 +40,6 @@ import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -1825,6 +1824,30 @@ public class GradebookNgBusinessService {
 	public Locale getUserPreferredLocale() {
 		final ResourceLoader rl = new ResourceLoader();
 		return rl.getLocale();
+	}
+	
+	/**
+	 * Helper to check if a user is roleswapped
+	 * 
+	 * @return true if ja, false if nay.
+	 */
+	public boolean isUserRoleSwapped() {
+		
+		final String siteId = getCurrentSiteId();
+		
+		try {
+			Site site = this.siteService.getSite(siteId);
+				
+			//they are roleswapped if they have an 'effective role'
+			String effectiveRole = this.securityService.getUserEffectiveRole(site.getReference());
+			if(StringUtils.isNotBlank(effectiveRole)) {
+				return true;
+			}
+		} catch (IdUnusedException e) {
+			//something has happened between getting the siteId and getting the site.
+			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
+		}
+		return false;
 	}
 
 	/**
