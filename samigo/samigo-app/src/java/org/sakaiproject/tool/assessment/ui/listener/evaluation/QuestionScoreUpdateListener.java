@@ -39,7 +39,7 @@ import javax.faces.event.ActionListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -191,7 +191,7 @@ public class QuestionScoreUpdateListener
           logString.append(data.getItemGradingId());
           
           // if newAutoScore != oldAutoScore
-          if (!(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001))) {
+          if (!(Precision.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001))) {
         	data.setAutoScore(Double.valueOf(newAutoScore));
         	logString.append(", newAutoScore=");
             logString.append(newAutoScore);
@@ -207,7 +207,7 @@ public class QuestionScoreUpdateListener
           }
           
           // if newAutoScore != oldAutoScore or newComments != oldComments
-          if (!(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001)) || !newComments.equals(oldComments)){
+          if (!(Precision.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001)) || !newComments.equals(oldComments)){
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
             String targetString = "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString();
