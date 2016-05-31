@@ -35,7 +35,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -252,7 +252,7 @@ public class ItemContentsBean implements Serializable {
 	 * @return String representation of the points.
 	 */
 	public double getPoints() {
-		return MathUtils.round(points, 2);
+		return Precision.round(points, 2);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class ItemContentsBean implements Serializable {
      * @return String representation of the discount.
      */
     public double getDiscount() {
-    	 return MathUtils.round(discount, 2);
+    	 return Precision.round(discount, 2);
     }
 
     /**
@@ -475,7 +475,7 @@ public class ItemContentsBean implements Serializable {
 	 * @return String representation of the max points.
 	 */
 	public double getRoundedMaxPoints() {
-		return MathUtils.round(maxPoints, 2);
+		return Precision.round(maxPoints, 2);
 	}
 
 	/**
@@ -1271,7 +1271,7 @@ public class ItemContentsBean implements Serializable {
 	public String getPointsDisplayString() {
 		String pointsDisplayString = "";
 		if (showStudentQuestionScore) {
-			pointsDisplayString = MathUtils.round(points, 2) + "/";
+			pointsDisplayString = Precision.round(points, 2) + "/";
 		}
 		return pointsDisplayString;
 	}
@@ -1321,7 +1321,7 @@ public class ItemContentsBean implements Serializable {
       if (itemData.getScore() == null)
 	  return 0.0;
       else
-	  return MathUtils.round(itemData.getScore(), 2);
+	  return Precision.round(itemData.getScore(), 2);
   }
 	 
   public void setUpdatedScore(Double score) {

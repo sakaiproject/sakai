@@ -244,8 +244,8 @@
         <!-- Samigo shared dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math</artifactId>
-            <version>${sakai.commons-math.version}</version>
+            <artifactId>commons-math3</artifactId>
+            <version>${sakai.commons-math3.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
