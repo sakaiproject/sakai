@@ -12,14 +12,17 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -49,6 +52,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		super(id, assignmentModel);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
+		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
 
 		final Assignment assignment = assignmentModel.getObject();
 
@@ -70,6 +74,13 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		add(title);
 
 		// points
+		final Label pointsLabel = new Label("pointsLabel");
+		if (gradingType == GbGradingType.PERCENTAGE) {
+			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
+		} else {
+			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
+		}
+		add(pointsLabel);
 		final TextField<Double> points = new TextField<Double>("points",
 				new PropertyModel<Double>(assignmentModel, "points")) {
 			private static final long serialVersionUID = 1L;
