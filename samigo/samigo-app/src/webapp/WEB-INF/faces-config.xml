@@ -1117,6 +1117,10 @@
       <to-view-id>/jsf/questionpool/sharePool.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>previewPool</from-outcome>
+      <to-view-id>/jsf/questionpool/previewPool.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>importPool</from-outcome>
       <to-view-id>/jsf/qti/importPool.jsp</to-view-id>
     </navigation-case>
