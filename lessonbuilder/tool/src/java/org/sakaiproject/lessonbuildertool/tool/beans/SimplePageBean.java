@@ -5247,6 +5247,11 @@ public class SimplePageBean {
 
 	public String getYoutubeKey(SimplePageItem i) {
 		String sakaiId = i.getSakaiId();
+		String URL = null;
+
+		URL = i.getAttribute("multimediaUrl");
+		if (URL != null)
+		    return getYoutubeKeyFromUrl(URL);
 
 		// this is called only from contexts where we know it's OK to get the data.
 		// indeed if I were doing it over I'd put it in the item, not resources
@@ -5283,7 +5288,6 @@ public class SimplePageBean {
 			}
 			
 			// 	get the actual URL
-			String URL = null;
 			try {
 				URL = new String(resource.getContent());
 			} catch (Exception ignore) {
