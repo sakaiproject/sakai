@@ -80,6 +80,14 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
+        $("li.multimediaType iframe").each(function() {
+		var width = $(this).attr("width");
+		var height = $(this).attr("height");
+                if (typeof width !== 'undefined' && width !== '' &&
+                    (typeof height === 'undefined' || height ==''))
+                    $(this).height($(this).width() * 0.75);
+            });
+
 	$("input[type=checkbox].checklist-checkbox").on("change", function(){
 
 		$(this).next("span").addClass("savingChecklistItem");
