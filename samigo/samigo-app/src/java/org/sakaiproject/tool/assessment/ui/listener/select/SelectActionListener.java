@@ -36,6 +36,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -391,7 +393,9 @@ public class SelectActionListener
     		recorded.setScoringOption(beanie.getScoringOption());
 
     		// check if assessment allows multiple submissions or if this user has been allowed to submit multiple times
-    		boolean multiple = beanie.isMultipleSubmissions() || (Integer) h.get(Long.parseLong(beanie.getAssessmentId())) > 1;
+    		Long assessId = NumberUtils.toLong(beanie.getAssessmentId(), -1L);
+    		int numSubmissions = (Integer) ObjectUtils.defaultIfNull(h.get(assessId), 0);
+    		boolean multiple = beanie.isMultipleSubmissions() || numSubmissions > 1;
     		recorded.setMultipleSubmissions(multiple);
     		
     		if (processRecordedAvg)
