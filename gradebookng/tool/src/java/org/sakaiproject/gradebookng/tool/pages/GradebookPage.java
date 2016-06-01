@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -39,6 +40,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbGradingType;
@@ -62,6 +64,8 @@ import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -93,14 +97,36 @@ public class GradebookPage extends BasePage {
 	Label liveGradingFeedback;
 
 	Form<Void> form;
+	
+	List<PermissionDefinition> permissions = new ArrayList<>();
+	boolean showGroupFilter = true;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
-		// students cannot access this page
+		// students cannot access this page, they have their own
 		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
+		}
+				
+		//TAs with no permissions or in a roleswap situation
+		if(this.role == GbRole.TA){
+			
+			//roleswapped?
+			if(this.businessService.isUserRoleSwapped()) {
+				PageParameters params = new PageParameters();
+				params.add("message", getString("ta.roleswapped"));
+				throw new RestartResponseException(AccessDeniedPage.class, params);
+			}
+			
+			// no perms
+			permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
+			if(permissions.isEmpty()) {
+				PageParameters params = new PageParameters();
+				params.add("message", getString("ta.nopermission"));
+				throw new RestartResponseException(AccessDeniedPage.class, params);
+			}
 		}
 
 		final StopWatch stopwatch = new StopWatch();
@@ -543,7 +569,23 @@ public class GradebookPage extends BasePage {
 
 		// if only one group, just show the title
 		// otherwise add the 'all groups' option
-		if (this.role == GbRole.TA && groups.size() == 1) {
+		// cater for the case where there is only one group visible to TA but they can see everyone.		
+		if (this.role == GbRole.TA) {
+
+			//if only one group, hide the filter
+			if (groups.size() == 1) {
+				showGroupFilter = false;
+			
+				// but need to double check permissions to see if we have any permissions with no group reference
+				permissions.forEach(p -> {					
+					if (!StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString()) && StringUtils.isBlank(p.getGroupReference())) {
+						showGroupFilter = true;
+					}
+				});
+			}
+		}
+		
+		if(!showGroupFilter) {
 			toolbar.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
 		} else {
 			toolbar.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
@@ -554,12 +596,11 @@ public class GradebookPage extends BasePage {
 
 				// does the TA have any permissions set?
 				// we can assume that if they have any then there is probably some sort of group restriction so we can change the label
-				if (!this.businessService.getPermissionsForUser(this.currentUserUuid).isEmpty()) {
+				if (!this.permissions.isEmpty()) {
 					allGroupsTitle = getString("groups.available");
 				}
 			}
 			groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL));
-
 		}
 
 		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(),

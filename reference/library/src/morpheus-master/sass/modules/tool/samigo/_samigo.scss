@@ -78,7 +78,7 @@
 		text-decoration: line-through;
 	}
 
-	form{
+	#assessmentSettingsAction,#itemForm,.mcscFixUp{
 		ul{
 			list-style: none;
 			padding: 0 0 0 0;
@@ -114,17 +114,33 @@
 		}
 	}
 	
-	//This is for jsf labels and checkboxes
-   #itemForm\:chooseAnswerTypeForMC input[type="radio"]{
-   	   @media #{$phone}{
-           float:left;
-           & + label {
-               overflow:auto;
-               display:block;
-           }
-       }
-   }
-   
+	.indent1{
+		margin-left: 2em;
+	}
+	
+	//This is for jsf labels and checkboxes	
+	#itemForm\:chooseAnswerTypeForMC input[type="radio"]{
+		@media #{$phone}{
+			float:left;
+			& + label {
+				overflow:auto;
+				display:block;
+			}
+		}
+	}
+	
+	#assessmentSettingsAction .layout-navigation input[type="radio"],
+	#assessmentSettingsAction\:toDefaultGradebook{
+		@media #{$nonPhone}{
+			float:left;
+			& + label {
+				overflow:auto;
+				display:block;
+				margin-left: 1.5em;
+			}
+		}
+	}
+
 	table{
 	   	td{
 	   		input[type="checkbox"],input[type="radio"]{
