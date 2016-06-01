@@ -20,6 +20,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -118,39 +119,46 @@ public class GradeItemImportSelectionStep extends Panel {
         group.add(new Button("nextbutton"));
 
         group.add(new CheckGroupSelector("groupselector"));
-        ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades",
-                importWizardModel.getProcessedGradeItems())
-        {
-            /**
-             * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
-             */
+        ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades", importWizardModel.getProcessedGradeItems()){
+            
             @Override
-            protected void populateItem(ListItem<ProcessedGradeItem> item)
-            {
+            protected void populateItem(ListItem<ProcessedGradeItem> item) {
 
                 item.add(new Check<ProcessedGradeItem>("checkbox", item.getModel()));
-                item.add(new Label("itemTitle",
-                        new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
-                item.add(new Label("itemPointValue", new PropertyModel<String>(item.getDefaultModel(),
-                        "itemPointValue")));
-
+                Label itemTitle = new Label("itemTitle",new PropertyModel<String>(item.getDefaultModel(), "itemTitle"));
+                Label itemPointValue = new Label("itemPointValue", new PropertyModel<String>(item.getDefaultModel(),"itemPointValue"));
+                Label itemStatus = new Label("itemStatus");
+                
+                item.add(itemTitle);
+                item.add(itemPointValue);
+                item.add(itemStatus);
+                
                 //Use the status code to look up the text representation
                 PropertyModel<ProcessedGradeItemStatus> statusProp = new PropertyModel<ProcessedGradeItemStatus>(item.getDefaultModel(), "status");
                 ProcessedGradeItemStatus status = statusProp.getObject();
 
                 //For external items, set a different label and disable the control
                 if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
-                    item.add(new Label("status", new StringResourceModel("importExport.status." + status.getStatusCode(), statusProp, null, status.getStatusValue())));
+                	itemStatus.setDefaultModel(new StringResourceModel("importExport.status." + status.getStatusCode(), statusProp, null, status.getStatusValue()));
                     item.setEnabled(false);
                     item.add(new AttributeModifier("class", "external"));
                 } else {
-                    item.add(new Label("status", getString("importExport.status." + status.getStatusCode())));
+                	
+                	itemStatus.setDefaultModel(new ResourceModel("importExport.status." + status.getStatusCode()));
+                	
+                	//if no changes, grey it out
+                	if(status.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
+                		item.add(new AttributeAppender("class", Model.of("no_changes"), " "));
+                	}
+                	
                 }
 
                 final String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
-                if (naString.equals(item.getModelObject().getItemPointValue()))
-                    item.add(new AttributeAppender("class", new Model<String>("comment"), " "));
+                if (naString.equals(item.getModelObject().getItemPointValue())) {
+                    item.add(new AttributeAppender("class", Model.of("comment"), " "));
+                }
 
+                //add an additional row for the comments for each
                 PropertyModel<String> commentLabelProp = new PropertyModel<String>(item.getDefaultModel(), "commentLabel");
                 final PropertyModel<ProcessedGradeItemStatus> commentStatusProp = new PropertyModel<ProcessedGradeItemStatus>(item.getDefaultModel(), "commentStatus");
                 final String commentLabel = commentLabelProp.getObject();
@@ -168,13 +176,16 @@ public class GradeItemImportSelectionStep extends Panel {
                                 statusValue = new StringResourceModel("importExport.status." + commentStatus.getStatusCode(),
                                         commentStatusProp, null, commentStatus.getStatusValue()).getString();
                             }
+                            if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
+                                rowClass += " no_changes";
+                            }
 
                             component.getResponse().write(
                                     "<tr class=\"" + rowClass + "\">" +
                                         "<td></td>" +
-                                        "<td class=\"item_title\"><span>" + commentLabel + "</span></td>" +
-                                        "<td><span>" + naString + "</span></td>" +
-                                        "<td class=\"item_status\"><span>" + statusValue + "</span></td>" +
+                                        "<td class=\"item_title\">" + commentLabel + "</td>" +
+                                        "<td class=\"item_points\">" + naString + "</td>" +
+                                        "<td class=\"item_status\">" + statusValue + "</td>" +
                                     "</tr>"
 
                             );
