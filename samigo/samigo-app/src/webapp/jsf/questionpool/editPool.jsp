@@ -47,12 +47,18 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
           <script type="text/javascript">
               function flagFolders() {
                   collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);
                   flagRows();
               }
-              window.onload = flagFolders;
+              function initPage()
+              {
+                  disableIt();checkUpdate();document.getElementById('editform:import').disabled=true;
+                  flagFolders();
+              }
+              window.onload = initPage;
           </script>
       </head>
 
@@ -237,17 +243,15 @@ function textCounter(field, maxlimit) {
 <!-- disable copy button once clicked.  show processing... -->
 
   <h:commandButton id="import" rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
-   onclick="disableImport(); showNotif('submitnotif',this.name,'editform');" onkeypress="disableImport(); showNotif('submitnotif',this.name,'editform');"
-        value="#{questionPoolMessages.copy}">
+   onclick="SPNR.disableControlsAndSpin(this, null);" value="#{questionPoolMessages.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
-	<h:commandButton style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}">
+	<h:commandButton style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" onclick="SPNR.disableControlsAndSpin(this, null);">
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
 		<f:attribute name="returnToParentPool" value="true"/>
 	</h:commandButton>
 
- <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> #{deliveryMessages.processing}</span>"/>
  </div>
 
 </h:form>

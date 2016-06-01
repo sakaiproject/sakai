@@ -33,49 +33,27 @@
       <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
-
-	function checkUpdate() {
-	 	var tables= document.getElementsByTagName("INPUT");
-	 	for (var i = 0; i < tables.length; i++) {
-	    	if (tables[i].name.indexOf("revokeCheckbox") >= 0 ||
-	    			tables[i].name.indexOf("grantCheckbox") >= 0) {
-
-	         	if(tables[i].checked) {   
-	            	abledButton();
-	             	break;
-	         	}
-	         	else disabledButton();
-	    	}
-	 	}
-	}
-
-	function disabledButton() {
-	  	var inputs= document.getElementsByTagName("INPUT");
-	  	for (var i = 0; i < inputs.length; i++){
-	    	if (inputs[i].name.indexOf("Submit") >=0) {
-	      		inputs[i].disabled=true;
-		  		inputs[i].className='disabled';
-			}
-	  	}
-	}
 	
-	function abledButton() {
-	  	var inputs= document.getElementsByTagName("INPUT");
-	  	for (var i = 0; i < inputs.length; i++) {
-	    	if (inputs[i].name.indexOf("Submit") >=0) {
-	      		inputs[i].disabled=false;
-		  		inputs[i].className='enabled';
-			}
-	  	}
-	}
+function flagFolders() {
+    collapseAllRows();
+    flagRows();
+}
 
-              function flagFolders() {
-	          collapseAllRows();
-                  flagRows();
-		  disabledButton()
-              }
-              window.onload = flagFolders;
+function initPage()
+{
+    document.getElementById('questionpoolshare:Submit').disabled=true;
+    flagFolders();
+}
+
+window.onload = initPage;
+
+function checkUpdate()
+{
+    updateButtonStatusOnCheck(document.getElementById('questionpoolshare:Submit'), document.getElementById('questionpoolshare'));
+}
+
 </script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
       </head>
 <body onload="collapseAllRows();flagRows();disabledButton();<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
@@ -289,10 +267,12 @@
 
 <p class="act">
  
-  <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.t_sharePool}" action="#{questionpoolshare.sharePool}" >
+  <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.t_updateSharedPoolAccess}"
+                   action="#{questionpoolshare.sharePool}" onclick="SPNR.disableControlsAndSpin(this, null);">
   </h:commandButton>
 
-  <h:commandButton type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}" action="poolList"  >
+  <h:commandButton type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}"
+                   action="poolList" onclick="SPNR.disableControlsAndSpin(this, null);">
   </h:commandButton>
 </p>
 

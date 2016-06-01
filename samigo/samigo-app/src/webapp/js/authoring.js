@@ -219,21 +219,6 @@ function initCalcQuestion() {
  });
 }
 
-// this is to disable the 'copy' button when importing questions from pool to assessement. itemtype =10
-
-var disabledImport= 'false';
-function disableImport(){
-  if (disabledImport== 'false'){
-    disabledImport= 'true'
-  }
-  else{ // any subsequent click disable button & action
-    if (document.forms[0].elements['editform:import'])
-    {
-      document.forms[0].elements['editform:import'].disabled=true;
-    }
-  }
-}
-
 $( document ).ready( function() {
 
     // inputText with class ConvertPoint changes
