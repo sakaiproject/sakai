@@ -5881,7 +5881,10 @@ public class SimplePageBean {
 			if (itemId == -1 && isMultimedia) {
 			    item = appendItem(sakaiId, name, SimplePageItem.MULTIMEDIA);
 			} else if(itemId == -1 && isWebsite) {
-			    String websiteName = name.substring(0,name.indexOf("."));
+			    String websiteName = name;
+			    int i = websiteName.indexOf(".");
+			    if (i > 0) 
+				websiteName = name.substring(0,i);
 			    item = appendItem(sakaiId, websiteName, SimplePageItem.RESOURCE);
 			} else if (itemId == -1) {
 			    item = appendItem(sakaiId, name, SimplePageItem.RESOURCE);
