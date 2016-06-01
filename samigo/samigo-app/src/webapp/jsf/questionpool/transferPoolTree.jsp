@@ -27,7 +27,7 @@
         </f:facet>
         <h:panelGroup id="firstcolumn">
             <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
-            <h:selectManyCheckbox onclick="checkChildrenCheckboxes(this);" id="radiobtn"
+            <h:selectManyCheckbox onclick="checkChildrenCheckboxes(this);updateButtonStatusOnCheck(document.getElementById('transferPool:transferpoolSubmit'), document.getElementById('transferPool'));" id="radiobtn"
                 value="#{questionpool.transferPools}" styleClass="tier#{questionpool.tree.currentLevel}" disabled="false">
                 <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel="#{pool.displayName}" />
             </h:selectManyCheckbox>
