@@ -36,6 +36,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +80,11 @@ public class SelectActionListener
   private static BeanSort bs2;
   private static ExtendedTimeService extendedTimeService = null;
   private static String EXTENDED_TIME_KEY = "extendedTime";
+
+  private static final String AVG_SCORE = EvaluationModelIfc.AVERAGE_SCORE.toString();
+  private static final String HIGH_SCORE = EvaluationModelIfc.HIGHEST_SCORE.toString();
+  private static final String LAST_SCORE = EvaluationModelIfc.LAST_SCORE.toString();
+
   public SelectActionListener() {
   }
 
@@ -358,8 +365,13 @@ public class SelectActionListener
     while(it.hasNext()){
     	DeliveryBeanie beanie=(DeliveryBeanie)it.next();
     	String assessmentIdOld= beanie.getAssessmentId();
-    	if(beanie.getScoringOption().equals(EvaluationModelIfc.AVERAGE_SCORE.toString()) && !assessmentIdNew.equals(assessmentIdOld) ){
-    		assessmentIdNew= beanie.getAssessmentId();
+
+    	String scoring = beanie.getScoringOption();
+    	boolean processRecordedAvg = AVG_SCORE.equals(scoring) && !assessmentIdNew.equals(assessmentIdOld);
+    	boolean processRecordedHighestOrLast = (HIGH_SCORE.equals(scoring) || LAST_SCORE.equals(scoring)) && beanie.getIsRecordedAssessment();
+
+    	if (processRecordedAvg || processRecordedHighestOrLast)
+    	{
     		beanie.setIsRecordedAssessment(false);
     		DeliveryBeanie recorded=new DeliveryBeanie();
     		recorded.setStatistics(beanie.getStatistics());
@@ -374,54 +386,35 @@ public class SelectActionListener
     		recorded.setAssessmentTitle(beanie.getAssessmentTitle());
     		recorded.setAssessmentId(beanie.getAssessmentId());
     		recorded.setFeedback(beanie.getFeedback());
-    		// recorded.setFeedback("-");
     		recorded.setFeedbackDate(beanie.getFeedbackDate());
     		recorded.setFeedbackDelivery(beanie.getFeedbackDelivery());
     		recorded.setFeedbackComponentOption(beanie.getFeedbackComponentOption());
-    		recorded.setFinalScore(averageScoreMap.get(assessmentIdNew).toString());
-    		recorded.setGrade(averageScoreMap.get(assessmentIdNew).toString());
-    		recorded.setRawScore(averageScoreMap.get(assessmentIdNew).toString());
-    		recorded.setMultipleSubmissions(beanie.isMultipleSubmissions());
     		recorded.setIsRecordedAssessment(true);
     		recorded.setScoringOption(beanie.getScoringOption());
+
+    		// check if assessment allows multiple submissions or if this user has been allowed to submit multiple times
+    		Long assessId = NumberUtils.toLong(beanie.getAssessmentId(), -1L);
+    		int numSubmissions = (Integer) ObjectUtils.defaultIfNull(h.get(assessId), 0);
+    		boolean multiple = beanie.isMultipleSubmissions() || numSubmissions > 1;
+    		recorded.setMultipleSubmissions(multiple);
+    		
+    		if (processRecordedAvg)
+    		{
+    			assessmentIdNew = beanie.getAssessmentId();
+    			recorded.setFinalScore(averageScoreMap.get(assessmentIdNew).toString());
+    			recorded.setGrade(averageScoreMap.get(assessmentIdNew).toString());
+    			recorded.setRawScore(averageScoreMap.get(assessmentIdNew).toString());
+    		}
+    		else  // highest or last
+    		{
+    			recorded.setFinalScore(beanie.getFinalScore());
+    			recorded.setGrade(beanie.getGrade());
+    			recorded.setRawScore(beanie.getRawScore());
+    		}
+
     		recordedList.add(recorded);
     		reviewableList.add(recorded);
     		reviewableList.add(beanie);  
-    		// select.setHasAverageMultipleSubmissions(true); 
-    	}
-    	else if(
-    			( beanie.getScoringOption().equals(EvaluationModelIfc.HIGHEST_SCORE.toString()) ||
-    					beanie.getScoringOption().equals(EvaluationModelIfc.LAST_SCORE.toString()))&& 
-    					beanie.getIsRecordedAssessment()){
-
-    		beanie.setIsRecordedAssessment(false);
-    		DeliveryBeanie recorded=new DeliveryBeanie();
-    		recorded.setStatistics(beanie.getStatistics());
-    		recorded.setHasRandomDrawPart(beanie.getHasRandomDrawPart());
-    		recorded.setDueDate(beanie.getDueDate());
-    		recorded.setHasAssessmentBeenModified(beanie.getHasAssessmentBeenModified());
-    		recorded.setIsAssessmentRetractForEdit(beanie.getIsAssessmentRetractForEdit());
-    		recorded.setPastDue(beanie.getPastDue());
-    		recorded.setShowScore(beanie.getShowScore());
-    		recorded.setSubTime(beanie.getSubTime()); 
-    		recorded.setAssessmentGradingId(beanie.getAssessmentGradingId());
-    		recorded.setAssessmentTitle(beanie.getAssessmentTitle());  
-    		recorded.setAssessmentId(beanie.getAssessmentId());
-    		recorded.setFeedback(beanie.getFeedback());
-    		// recorded.setFeedback("-");
-    		recorded.setFeedbackDate(beanie.getFeedbackDate());
-    		recorded.setFeedbackDelivery(beanie.getFeedbackDelivery());
-    		recorded.setFeedbackComponentOption(beanie.getFeedbackComponentOption());
-    		recorded.setFinalScore(beanie.getFinalScore());
-    		recorded.setGrade(beanie.getGrade());
-    		recorded.setRawScore(beanie.getRawScore());
-    		recorded.setMultipleSubmissions(beanie.isMultipleSubmissions());
-    		recorded.setIsRecordedAssessment(true);
-    		recorded.setScoringOption(beanie.getScoringOption());
-    		recordedList.add(recorded);
-    		reviewableList.add(recorded);
-    		reviewableList.add(beanie);  
-
     	}
     	else if ("2".equals(select.getDisplayAllAssessments())) { 
     		reviewableList.add(beanie);
