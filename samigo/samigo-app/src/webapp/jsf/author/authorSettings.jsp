@@ -509,7 +509,7 @@
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
-      <div class="col-md-10">
+      <div class="col-md-10 samigo-checkbox">
         <!-- <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"/> -->
 	      <f:verbatim><br /></f:verbatim>
 	      <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options}"/>
@@ -526,7 +526,7 @@
 		        	</c:otherwise>
 		       	</c:choose>
 	        </h:selectOneRadio>
-        <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.gradebook_options_help}" />
+        <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
       </div>
     </h:panelGroup>
 
