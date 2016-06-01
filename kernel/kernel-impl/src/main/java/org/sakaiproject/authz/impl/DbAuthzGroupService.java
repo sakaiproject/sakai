@@ -685,10 +685,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					long time = 0;
 					long start = System.currentTimeMillis();
 					try {
-						// only remove from the cache if the realm was updated during the refresh
-						if (((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup)) {
-							m_realmRoleGRCache.remove(azGroupId);
-						}
+						((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
 					} catch (Throwable e) {
 						M_log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroupId, e);
 					} finally {
@@ -749,7 +746,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 * Configure whether or not users with same status and role will be "promoted" to
 		 * being provided.
 		 *
-		 * @param autoPromoteNonProvidedUsers Whether or not to promote non-provided users
+		 * @param promoteUsersToProvided Whether or not to promote non-provided users
 		 */
 		public void setPromoteUsersToProvided(boolean promoteUsersToProvided) {
 			this.promoteUsersToProvided = promoteUsersToProvided;
@@ -2616,14 +2613,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 * Update the realm with info from the provider
 		 * 
 		 * @param realm the realm to be refreshed
-		 * @return true if there were changes to the realm as a result of the refresh otherwise false
 		 */
-		protected boolean refreshAuthzGroupInternal(BaseAuthzGroup realm)
+		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
-			if ((realm == null) || (m_provider == null)) return false;
+			if ((realm == null) || (m_provider == null)) return;
 			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroupInternal() refreshing " + realm.getId());
 
-			boolean realmUpdated = false;
 			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
 
 			// check to see whether this is of group realm or not
@@ -2854,7 +2849,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// if any, do it
 			if ((toDelete.size() > 0) || (toInsert.size() > 0))
 			{
-				realmUpdated = true;
 				// do these each in their own transaction, to avoid possible deadlock
 				// caused by transactions modifying more than one row at a time.
 
@@ -2882,12 +2876,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 					m_sql.dbWrite(sql, fields);
 				}
+				eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_AUTHZ_GROUP, realm.getReference(), true));
 			}
 			if (M_log.isDebugEnabled()) {
 				M_log.debug("refreshAuthzGroupInternal() deleted: "+ toDelete.size()+ " inserted: "+ toInsert.size()+ " provided: "+ existing.size()+ " nonProvider: "+ nonProvider.size());
 			}
-
-			return realmUpdated;
 		}
 
 		private List<UserAndRole> getGrants(AuthzGroup realm) {
