@@ -124,11 +124,12 @@ public class GradeItemImportSelectionStep extends Panel {
             @Override
             protected void populateItem(ListItem<ProcessedGradeItem> item) {
 
-                item.add(new Check<ProcessedGradeItem>("checkbox", item.getModel()));
+                Check<ProcessedGradeItem> checkbox = new Check<>("checkbox", item.getModel());
                 Label itemTitle = new Label("itemTitle",new PropertyModel<String>(item.getDefaultModel(), "itemTitle"));
                 Label itemPointValue = new Label("itemPointValue", new PropertyModel<String>(item.getDefaultModel(),"itemPointValue"));
                 Label itemStatus = new Label("itemStatus");
                 
+                item.add(checkbox);
                 item.add(itemTitle);
                 item.add(itemPointValue);
                 item.add(itemStatus);
@@ -146,8 +147,9 @@ public class GradeItemImportSelectionStep extends Panel {
                 	
                 	itemStatus.setDefaultModel(new ResourceModel("importExport.status." + status.getStatusCode()));
                 	
-                	//if no changes, grey it out
+                	//if no changes, grey it out and remove checkbox
                 	if(status.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
+                		checkbox.setVisible(false);
                 		item.add(new AttributeAppender("class", Model.of("no_changes"), " "));
                 	}
                 	
