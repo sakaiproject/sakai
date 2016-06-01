@@ -124,6 +124,7 @@ public class GradeItemImportSelectionStep extends Panel {
             @Override
             protected void populateItem(ListItem<ProcessedGradeItem> item) {
 
+
                 Check<ProcessedGradeItem> checkbox = new Check<>("checkbox", item.getModel());
                 Label itemTitle = new Label("itemTitle",new PropertyModel<String>(item.getDefaultModel(), "itemTitle"));
                 Label itemPointValue = new Label("itemPointValue", new PropertyModel<String>(item.getDefaultModel(),"itemPointValue"));

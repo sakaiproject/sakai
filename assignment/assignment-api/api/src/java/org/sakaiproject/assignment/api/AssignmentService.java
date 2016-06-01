@@ -932,4 +932,28 @@ public interface AssignmentService extends EntityProducer
 	 * Params: AssignmentSubmission s
 	 */
 	public boolean hasBeenSubmitted(AssignmentSubmission s);
+
+	/**
+	 * Get a link directly into an assignment itself, supplying the permissions to use when
+	 * generating the link. Depending on your status, you get a different view on the assignment.
+	 *
+	 * @param context The site id
+	 * @param assignmentId The assignment id
+	 * @param allowReadAssignment Is the curent user allowed to read?
+	 * @param allowAddAssignment Is the curent user allowed to add assignments?
+	 * @param allowSubmitAssignment Is the curent user allowed to submit assignments?
+	 * @return The url as a String
+	 */
+	public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment
+					, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception;
+
+	/**
+	 * Get a link directly into an assignment itself. Depending on your status, you
+	 * get a different view on the assignment.
+	 *
+	 * @param context The site id
+	 * @param assignmentId The assignment id
+	 * @return The url as a String
+	 */
+	public String getDeepLink(String context, String assignmentId) throws Exception;
 }

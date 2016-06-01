@@ -1510,7 +1510,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// session and reinstance it
 
 		// generate the forward to the tool page placement
-		String portalPlacementUrl = portalPath + getPortalPageUrl(p);
+		String portalPlacementUrl = portalPath + getPortalPageUrl(p) + "?" + req.getQueryString();
 		res.sendRedirect(portalPlacementUrl);
 		return;
 	}

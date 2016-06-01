@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -281,7 +281,7 @@ public void removeExternalAssessment(String gradebookUId,
     String points = null;
     if(ag.getFinalScore() != null) {
         //SAM-1562 We need to round the double score and covert to a double -DH
-        double fScore = MathUtils.round(ag.getFinalScore(), 2);
+        double fScore = Precision.round(ag.getFinalScore(), 2);
         Double score = Double.valueOf(fScore).doubleValue();
         points = score.toString();
         log.info("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
