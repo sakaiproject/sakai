@@ -5,9 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +32,7 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.user.api.User;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import lombok.extern.apachecommons.CommonsLog;
@@ -50,8 +51,6 @@ public class GradeImportUploadStep extends Panel {
 	private static final String[] CSV_MIME_TYPES = { "text/csv" };
 
 	private final String panelId;
-	private List<Assignment> assignments;
-	private List<GbStudentGradeInfo> grades;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -92,10 +91,10 @@ public class GradeImportUploadStep extends Panel {
 			header.add("Student Name");
 			
 			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-			this.assignments = this.businessService.getGradebookAssignments();
+			List<Assignment> assignments = this.businessService.getGradebookAssignments();
 
 			//build column header
-			this.assignments.forEach(assignment -> {
+			assignments.forEach(assignment -> {
 				final String assignmentPoints = assignment.getPoints().toString();
 				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
 				header.add("*/ " + assignment.getName() + " Comments */");
@@ -104,16 +103,16 @@ public class GradeImportUploadStep extends Panel {
 			csvWriter.writeNext(header.toArray(new String[] {}));
 			
 			// get the grade matrix
-			this.grades = this.businessService.buildGradeMatrix(this.assignments);
+			List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments);
 
 			//add grades
-			this.grades.forEach(studentGradeInfo -> {
+			grades.forEach(studentGradeInfo -> {
 				final List<String> line = new ArrayList<String>();
 				line.add(studentGradeInfo.getStudentEid());
 				line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
 				if (includeGrades) {
 					
-					this.assignments.forEach(assignment -> {
+					assignments.forEach(assignment -> {
 						final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
 						if (gradeInfo != null) {
 							line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
@@ -174,15 +173,20 @@ public class GradeImportUploadStep extends Panel {
 
 				try {
 					log.debug("file upload success");
+					
 					// get all users
-					final Map<String, String> userMap = makeUserMap(GradeImportUploadStep.this.grades);
+					final Map<String, String> userMap = getUserMap();
 
 					// turn file into list
 					final ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(),
 							upload.getContentType(), userMap);
+					
+					//get existing data
+					List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
+					List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
 
-					final List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,
-							GradeImportUploadStep.this.assignments, GradeImportUploadStep.this.grades);
+					//process file
+					final List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,assignments, grades);
 
 					// if null, the file was of the incorrect type
 					// if empty there are no users
@@ -216,15 +220,16 @@ public class GradeImportUploadStep extends Panel {
 	 * Create a map so that we can use the user's eid (from the imported file) to lookup their uuid (used to store the grade by the backend
 	 * service)
 	 *
-	 * @param grades
 	 * @return Map where the user's eid is the key and the uuid is the value
 	 */
-	private Map<String, String> makeUserMap(final List<GbStudentGradeInfo> grades) {
-		final Map<String, String> userMap = new HashMap<String, String>();
+	private Map<String, String> getUserMap() {
 
-		grades.forEach(studentGradeInfo -> userMap.put(studentGradeInfo.getStudentEid(), studentGradeInfo.getStudentUuid()));
+		List<User> users = this.businessService.getUsers(this.businessService.getGradeableUsers());
+				
+		final Map<String, String> rval = users.stream().collect(
+                Collectors.toMap(User::getEid, User::getId));
 	
-		return userMap;
+		return rval;
 	}
 
 	public ImportedGradeWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) {
