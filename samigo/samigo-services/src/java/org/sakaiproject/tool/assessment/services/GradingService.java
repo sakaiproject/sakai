@@ -48,11 +48,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexFormat;
+import org.apache.commons.math3.exception.MathParseException;
+import org.apache.commons.math3.util.Precision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.math.complex.Complex;
-import org.apache.commons.math.complex.ComplexFormat;
-import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -1568,7 +1569,7 @@ public class GradingService
 
     // change the final score back to the original score since it may set to average score.
     // if we're deleting the last submission, the score might be null bugid 5440
-    if(originalFinalScore != null && data.getFinalScore() != null && !(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
+    if(originalFinalScore != null && data.getFinalScore() != null && !(Precision.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
     	data.setFinalScore(originalFinalScore);
     }
     
@@ -1917,7 +1918,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
 			  try {
 				  answerComplex = complexFormat.parse(answer);
-			  } catch(ParseException ex) {
+			  } catch(MathParseException ex) {
 				  log.debug("Number is not Complex: " + answer);
 			  }
 

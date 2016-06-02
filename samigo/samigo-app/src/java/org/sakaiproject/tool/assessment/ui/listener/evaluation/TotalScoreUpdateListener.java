@@ -40,9 +40,9 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.math3.util.Precision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -331,7 +331,7 @@ public class TotalScoreUpdateListener
       log.debug("***newIsLate = " + newIsLate);
       log.debug("***oldComments = " + oldComments);
       log.debug("***newComments = " + newComments);
-      if (MathUtils.equalsIncludingNaN(oldScore, newScore, 0.0001) && newIsLate.equals(oldIsLate) && 
+      if (Precision.equalsIncludingNaN(oldScore, newScore, 0.0001) && newIsLate.equals(oldIsLate) && 
     		  ((newComments!=null && newComments.equals(oldComments)) 
         		   || (newComments==null && oldComments==null)
         		   // following condition will happen when there is no comments (null) and user clicks on SubmissionId.
