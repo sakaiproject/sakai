@@ -961,6 +961,13 @@ public class LTI2Vars {
 	public static final String USER_USERNAME = "User.username";
 
 	/**
+	 * MESSAGE_LOCALE
+	 *
+	 *  The locale of this launch
+	 */
+	public static final String MESSAGE_LOCALE = "Message.locale";
+
+	/**
 	 * ALL_VARIABLES - A list of all of the subsitution variables
 	 */
 	public static final String ALL_VARIABLES [] = {

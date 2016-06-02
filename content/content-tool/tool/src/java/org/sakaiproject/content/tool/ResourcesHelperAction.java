@@ -2075,7 +2075,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				if (collection!=null)
 				{
 					logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
-					resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),5);
+					resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				}
 				else
 				{
@@ -2086,7 +2086,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					//String resourceName = getUniqueFileName(uploadFileName, resourceGroup);
 					
 					logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
-					resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
+					resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				}
 
 				if (resource != null)

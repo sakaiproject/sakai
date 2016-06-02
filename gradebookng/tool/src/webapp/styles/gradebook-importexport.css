@@ -37,3 +37,7 @@
 #gradebookImportExport .gb-import-export-section form {
   margin: 1em 0 0;
 }
+
+.no_changes {
+	color: grey;
+}

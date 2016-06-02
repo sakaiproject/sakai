@@ -50,7 +50,7 @@
 
     };
 
-    roster.switchState = function (state, arg, searchQuery) {
+    roster.switchState = function (state, arg) {
 
         roster.currentState = state;
 
@@ -294,8 +294,8 @@
 
         var url = "/direct/roster-membership/" + roster.siteId;
         
-        if (options.userId) {
-            url += "/get-user.json?userId=" + options.userId;
+        if (options.userIds) {
+            url += "/get-users.json?userIds=" + options.userIds.join(',');
             if (roster.enrollmentSetToView) {
                 url += "&enrollmentSetId=" + roster.enrollmentSetToView;
             }
@@ -308,7 +308,7 @@
             }
 
             if (roster.roleToView) {
-                url += "&roleId=" + roster.roleToView;
+                url += "&roleId=" + encodeURIComponent(roster.roleToView);
             }
         }
 
@@ -348,12 +348,12 @@
 
                 members.forEach(function (m) {
 
-                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + roster.siteId;
+                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + encodeURIComponent(roster.siteId);
                     m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
                     if (options.forceOfficialPicture) {
                         m.profileImageUrl += "/official";
                     }
-                    m.profileImageUrl += "?siteId=" + roster.siteId;
+                    m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
                     var groupIds = Object.keys(m.groups);
                     m.hasGroups = groupIds.length > 0;
 
@@ -423,9 +423,12 @@
                     }
                 }
 
-                roster.nextPage += 1;
-
-                $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
+                if (options.userIds) {
+                    $(window).off('scroll.roster');
+                } else {
+                    roster.nextPage += 1;
+                    $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
+                }
 
                 loadImage.hide();
             },
@@ -448,8 +451,35 @@
     roster.search = function (query) {
 
         if (query !== roster.i18n.roster_search_text && query !== "") {
+            var userIds = [];
             var userId = roster.searchIndex[query];
-            roster.renderMembership({ forceOfficialPicture: false, replace: true, userId: userId });
+            if (!userId) {
+                roster.searchIndexKeys.forEach(function (displayName) {
+
+                    var regex = new RegExp(query, 'i');
+                    if (regex.test(displayName)) {
+                        userIds.push(roster.searchIndex[displayName]);
+                    }
+                });
+
+                if (userIds.length > 5) {
+                    // Limit to 5 users
+                    userIds = userIds.slice(0, 5);
+                }
+            } else {
+                userIds.push(userId);
+            }
+
+            if (userIds.length > 0) {
+                roster.renderMembership({ showOfficialPictures: roster.rosterOfficialPictureMode,
+                                            replace: true,
+                                            userIds: userIds });
+            } else {
+                $('#roster-members').html('<div id="roster-information">' + roster.i18n.no_participants + '</div>');
+                $('#roster-members-total').hide();
+                $('#roster_type_selector').hide();
+                $('#summary').hide();
+            }
         }
     };
 

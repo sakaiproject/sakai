@@ -513,7 +513,7 @@
                         </div>
 					</td>
 					#if($item.depth > 0)
-						<td headers="access" class="hidden-sm hidden-xs access" title="$item.getShortAccessLabel()">
+						<td headers="access" class="hidden-sm hidden-xs access" title="$item.getLongAccessLabel()">
 							$item.getShortAccessLabel()
 						</td>
 						<td headers="creator" class="creator hidden-sm hidden-xs">

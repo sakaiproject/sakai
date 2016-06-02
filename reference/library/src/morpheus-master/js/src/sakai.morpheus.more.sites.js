@@ -368,8 +368,7 @@ $PBJQ(document).ready(function($){
   };
 
   var renderFavoriteCount = function () {
-    // Subtract 1 from the count to avoid counting "My Workspace", which can't be moved anyway.
-    var favoriteCount = $PBJQ('.site-favorite', favoritesPane).length - 1;
+    var favoriteCount = $PBJQ('.site-favorite', favoritesPane).length;
 
     $PBJQ('.favoriteCount', container).text('(' + favoriteCount + ')');
 

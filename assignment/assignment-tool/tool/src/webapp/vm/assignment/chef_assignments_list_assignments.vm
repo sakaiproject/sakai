@@ -534,10 +534,9 @@
 								<!-- attachments col -->
 								<td></td>
 								<!-- title col -->
-								<td>
-									<span class="indnt1">
-										$tlang.getString("peerAssessmentName")
-									</span>
+								<td class="peer-header">
+									<h5><i class="fa fa-caret-square-o-right" aria-hidden="true"></i> $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</h5>
+									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
 								#if ($!groups && $!allowGradeSubmission)
 									<!-- groups col -->

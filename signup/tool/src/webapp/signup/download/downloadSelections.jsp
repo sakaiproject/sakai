@@ -235,16 +235,7 @@
 							</h:panelGroup>
 							<%-- normal checkbox --%>
 							<h:selectBooleanCheckbox id="selectItem" value="#{wrapper.toDownload}" rendered="#{wrapper.recurEventsSize < 1}" styleClass="#{wrapper.recurId}"/>
-							
-						</t:column>		
-						
-						<t:column defaultSorted="true" sortable="true">
-							<f:facet name="header" >
-								<t:commandSortHeader columnName="#{DownloadEventBean.signupSorter.titleColumn}" immediate="true" arrow="true">
-									<h:outputText value="#{msgs.tab_event_name}" escape="false"/>
-								</t:commandSortHeader>
-							</f:facet>
-							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" style="margin-left:-13px; cursor:pointer;">
+							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" styleClass="toggleMeetings toggleDownload">
 								<h:outputText value="<span id='imageOpen_RM_#{wrapper.recurId}' style='display:none'>"  escape="false"/>
 		   	    					<h:graphicImage value="/images/minusSmall.gif"  alt="open" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_collapse_recur_meeting}" style="border:none" onclick="showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{DownloadEventBean.iframeId}');" />
 		   	    				<h:outputText value="</span>" escape="false" />
@@ -255,7 +246,14 @@
 		   	    				
 		   	    				<h:outputText value="&nbsp;" escape="false"/>
 		   	    			</h:panelGroup>
-							
+						</t:column>		
+						
+						<t:column defaultSorted="true" sortable="true">
+							<f:facet name="header" >
+								<t:commandSortHeader columnName="#{DownloadEventBean.signupSorter.titleColumn}" immediate="true" arrow="true">
+									<h:outputText value="#{msgs.tab_event_name}" escape="false"/>
+								</t:commandSortHeader>
+							</f:facet>							
 							<h:outputText  value="#{wrapper.meeting.title}" />
 							
 						</t:column>

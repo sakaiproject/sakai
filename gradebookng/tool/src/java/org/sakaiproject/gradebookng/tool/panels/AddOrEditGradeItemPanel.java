@@ -127,7 +127,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 						success = false;
 					}
 					if (success) {
-						getSession().info(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
+						getSession().success(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
 						setResponsePage(getPage().getPageClass(),
 								new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
 					} else {

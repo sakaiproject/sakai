@@ -1,10 +1,13 @@
 package org.sakaiproject.content.entityproviders;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +37,7 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -252,6 +256,11 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						// set the proper ContentItem values
 						setContentItemValues(resource, item, props);
 						
+						String contentType = resource.getContentType();
+						
+						// only Web Link resource will have not-null webLinkUrl value assigned
+						item.webLinkUrl = getWebLinkResourceUrlString(resource, contentType);
+						
 						rv.add(item);
 					}
 					catch (IdUnusedException e)
@@ -294,6 +303,50 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 			}
         }
 		return rv;
+	}
+
+	/**
+	 * return the original URL string based on Web Link resource content 
+	 * @param resource
+	 * @param contentType
+	 * @return
+	 */
+	private String getWebLinkResourceUrlString(ContentResource resource, String contentType) {
+		String urlString = null;
+		
+		// for Web Link resources
+		// return the original URL link, instead of access URL
+		if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
+		{
+			try
+			{
+				byte[] content = resource.getContent();
+				if (content != null && content.length > 0)
+				{
+					try
+					{
+						// An invalid URI format will get caught by the outermost catch block 
+						URI uri = new URI(new String(content, "UTF-8"));
+						urlString = uri.toString();
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						log.warn("UnsupportedEncodingException for " + new String(content) + " " + e.getMessage());
+	
+					}
+					catch (URISyntaxException e)
+					{
+						log.warn("Error parsing URI for " + new String(content) + " " + e.getMessage());
+					}
+				}
+			}
+			catch (ServerOverloadException e)
+			{
+				log.warn("Cannot get content for resource ref=" + resource.getReference() + " error: " + e.getMessage());
+			}
+		}
+		
+		return urlString;
 	}
 	
 	/**
@@ -489,6 +542,10 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 
 		@Getter @Setter
 		private String url;
+		
+		// not null only for Web Link resource
+		@Getter @Setter
+		private String webLinkUrl;
 
 		@Getter @Setter
 		private String type;

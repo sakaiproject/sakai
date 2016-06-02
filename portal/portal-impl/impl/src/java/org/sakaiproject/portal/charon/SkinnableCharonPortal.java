@@ -1182,7 +1182,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * processing and return null to the caller.
 	 *
 	 * If the reference is to the magical, indexical MyWorkspace site ('~')
-	 * then replace ~ by their My Workspace.  Give them a chance to login
+	 * then replace ~ by their Home.  Give them a chance to login
 	 * if necessary.
 	 */
 
@@ -1510,7 +1510,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// session and reinstance it
 
 		// generate the forward to the tool page placement
-		String portalPlacementUrl = portalPath + getPortalPageUrl(p);
+		String portalPlacementUrl = portalPath + getPortalPageUrl(p) + "?" + req.getQueryString();
 		res.sendRedirect(portalPlacementUrl);
 		return;
 	}

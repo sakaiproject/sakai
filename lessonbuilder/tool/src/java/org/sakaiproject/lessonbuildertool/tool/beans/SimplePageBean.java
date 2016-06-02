@@ -1602,6 +1602,7 @@ public class SimplePageBean {
 	 *
 	 **/
 
+        // There's a copy in LessonsAccess for use by services. Keep them in sync
 	public boolean isPageOwner(SimplePage page) {
 	    String owner = page.getOwner();
 	    String group = page.getGroup();
@@ -1636,6 +1637,7 @@ public class SimplePageBean {
 	 * Returns 2 otherwise
 	 * @return
 	 */
+        // There's a copy of canEditPage in LessonsAccess for use by services. Keep them in sync
 	public int getEditPrivs() {
 		if(editPrivs != null) {
 			return editPrivs;
@@ -5454,6 +5456,11 @@ public class SimplePageBean {
 
 	public String getYoutubeKey(SimplePageItem i) {
 		String sakaiId = i.getSakaiId();
+		String URL = null;
+
+		URL = i.getAttribute("multimediaUrl");
+		if (URL != null)
+		    return getYoutubeKeyFromUrl(URL);
 
 		// this is called only from contexts where we know it's OK to get the data.
 		// indeed if I were doing it over I'd put it in the item, not resources
@@ -5490,7 +5497,6 @@ public class SimplePageBean {
 			}
 			
 			// 	get the actual URL
-			String URL = null;
 			try {
 				URL = new String(resource.getContent());
 			} catch (Exception ignore) {
@@ -6062,9 +6068,6 @@ public class SimplePageBean {
 			SimplePageItem item = null;
 			if (itemId == -1 && isMultimedia) {
 			    item = appendItem(sakaiId, name, SimplePageItem.MULTIMEDIA);
-			} else if(itemId == -1 && isWebsite) {
-			    String websiteName = name.substring(0,name.indexOf("."));
-			    item = appendItem(sakaiId, websiteName, SimplePageItem.RESOURCE);
 			} else if (itemId == -1) {
 			    item = appendItem(sakaiId, name, SimplePageItem.RESOURCE);
 			} else if (isCaption) {

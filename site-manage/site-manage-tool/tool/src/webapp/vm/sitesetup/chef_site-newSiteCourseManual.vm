@@ -224,6 +224,16 @@
 						value="$tlang.getString('gen.cancel')"
 						accesskey="x"
 						onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='cancel'; document.requestCourseForm.submit(); return false;" />
+				#if( $!contNoRosterEnabled )
+				<input
+					type="button" 
+					accesskey="x"
+					name="Cancel" 
+					id="cancelButton" 
+					value="$tlang.getString('nscourse.no_rosters')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='norosters'; document.requestCourseForm.submit(); return false;"
+					/>
+				#end
 			</p>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
@@ -250,6 +260,16 @@
 				onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='back'; document.requestCourseForm.submit(); return false;" />
 			<input type="button" name="Cancel" value="$tlang.getString('gen.cancel')" accesskey="x"
 				onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='cancel'; document.requestCourseForm.submit(); return false;" />
+			#if( $!contNoRosterEnabled )
+				<input
+					type="button" 
+					accesskey="x"
+					name="Cancel" 
+					id="cancelButton" 
+					value="$tlang.getString('nscourse.no_rosters')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='norosters'; document.requestCourseForm.submit(); return false;"
+				/>
+			#end	
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#end

@@ -50,7 +50,7 @@ body.active-more-sites{
 	&.outscreen{
 		left: 110%;
 		max-width: 100%;
-		display: none;
+		display: none !important; //Important added by SAK-31260
 		@media #{$phone}{
 			display: none;
 		}
@@ -319,6 +319,25 @@ ul.favoriteSiteList{
 	}
 }
 
+	div.fav-title-myworkspace {
+		width: 264px;
+		
+		a {
+		
+			.fa-home {
+				font-size: 1.33333em;
+				padding-right: 6px;
+				
+			}
+			
+			&:hover {
+				text-decoration: none;
+			}
+		}
+		
+	}
+		
+
 .fav-title{
 	width: 240px;
 	overflow: hidden;
@@ -349,6 +368,9 @@ ul.favoriteSiteList{
 	}
 	.favorites-mobile{
 		display: none;
+	}
+	.favoriteCount{
+		display: inline-block;
 	}
 
 	@media #{$phone}{

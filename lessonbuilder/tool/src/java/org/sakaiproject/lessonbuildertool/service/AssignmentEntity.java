@@ -752,8 +752,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	// i is start of title
 	String title = objectid.substring(i+1);
 
-	Iterator aIter = AssignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext());
-
+	Iterator aIter = AssignmentService.getAssignmentsForContext(siteid);
+	
 	// security. assume this is only used in places where it's OK, so skip security checks
 	while (aIter.hasNext()) {
 	    Assignment a = (Assignment) aIter.next();

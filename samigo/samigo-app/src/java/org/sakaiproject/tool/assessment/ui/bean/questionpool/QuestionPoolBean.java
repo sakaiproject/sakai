@@ -114,7 +114,7 @@ public class QuestionPoolBean implements Serializable
   private String[] destPools = {  }; // for multibox
   private String[] destItems = {  }; // items to delete
   private String sourcePart = null; // copy all questions from part
-  private String destPool=""; // for Move Pool Destination
+  private String destPool="0"; // for Move Pool Destination
   private FormFile filename; // for import /export
   private int htmlIdLevel; // pass this to javascript:collapseAll()
   private String questionType; // the question type to add
@@ -2115,20 +2115,17 @@ String poolId = ContextUtil.lookupParam("qpid");
 
   public boolean getSelfOrDescendant(){
   // check if currentPool is ancester of tree.getCurrentObject
-    boolean isDescendant  = false;
-    boolean isSelf= false;
 
-    isDescendant = tree.isDescendantOf(tree.getCurrentId(), this.getCurrentPool().getId());
-    if (tree.getCurrentId().equals(this.getCurrentPool().getId())){
-      isSelf= true;
-    }
-    if (isSelf || isDescendant) {
-      return true ;
-    }
-    else {
-      return false;
+    QuestionPoolDataBean curPool = getCurrentPool();
+    if (tree == null || tree.getCurrentId() == null || curPool == null)
+    {
+        return false;
     }
 
+    boolean isDescendant = tree.isDescendantOf(tree.getCurrentId(), curPool.getId());
+    boolean isSelf = tree.getCurrentId().equals(curPool.getId());
+
+    return isSelf || isDescendant;
   }
 
   private HashMap buildHash(Collection objects){

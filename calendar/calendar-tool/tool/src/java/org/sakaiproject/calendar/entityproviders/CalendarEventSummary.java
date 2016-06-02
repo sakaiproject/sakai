@@ -20,9 +20,14 @@ public class CalendarEventSummary {
 	private RecurrenceRule recurrenceRule;
 
 	/**
-	 * This field will only bet set if the event is an assignment and can be used to reconstrut the deepLink
+	 * This field will only be set if the event is an assignment and can be used to reconstrut the deepLink
 	 */
 	private String assignmentId;
+
+	/**
+	 * Set externally after object creation, signals the site the event came from (not part of CalendarEvent)
+	 */
+	private String siteId;
 
 	public CalendarEventSummary() {
 	}
