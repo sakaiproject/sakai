@@ -3487,23 +3487,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			try {
 				Assignment a = getAssignment(assignmentReference);
 				if (a.isGroup()) {
-					M_log.debug(a.getTitle() + " is a group, getting groups");     
-					Site _site = SiteService.getSite( a.getContext() );
-					Collection groups = _site.getGroupsWithMember(person.getId());
-					if (groups != null) {
-						Iterator<Group> itgroup = groups.iterator();
-						while (itgroup.hasNext()) {
-							Group _g = itgroup.next();
-							M_log.debug("Checking submission for group:"+_g.getTitle());
-							submission = getSubmission(assignmentReference, _g.getId());
-							if (submission != null && allowGetSubmission(submission.getReference())) {
-								return submission;
-							}
-						}
-					}
-					else {
-						M_log.info("Assignment {} is grouped but {} is not in any of the site groups", a.getId(), person.getId());
-					}
+					return getUserGroupSubmissionMap(a, Collections.singletonList(person)).get(person);
 				}
 			} catch (IdUnusedException | PermissionException e) {
 				M_log.debug(e.getMessage());
@@ -3515,6 +3499,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return submission;
 	}
 
+	/** 
+	 * Gets a map of users to their submissions for the specified assignment
+	 * @param a the assignment in question
+	 * @param users the users making up the key set
+	 */
 	public Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment a, List<User> users)
 	{
 		Map<User, AssignmentSubmission> userSubmissionMap = new HashMap<>();
@@ -3522,31 +3511,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			if (a.isGroup())
 			{
-				try
-				{
-					Site _site = SiteService.getSite(a.getContext());
-					for (User user : users)
-					{
-						AssignmentSubmission submission = null;
-						Collection<Group> groups = (Collection<Group>) _site.getGroupsWithMember(user.getId());
-						if (groups != null)
-						{
-							for (Group _g : groups)
-							{
-								submission = getSubmission(a.getReference(), _g.getId());
-								if (submission != null)
-								{
-									userSubmissionMap.put(user, submission);
-									break;
-								}
-							}
-						}
-					}
-				}
-				catch (IdUnusedException e)
-				{
-					M_log.error("getUserSubmissionMap invoked with an assignment whose 'context' value doesn't match any siteId in the system");
-				}
+				userSubmissionMap.putAll(getUserGroupSubmissionMap(a, users));
 			}
 			else
 			{
@@ -3554,6 +3519,53 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				return m_submissionStorage.getUserSubmissionMap(a, users);
 			}
 		}
+		return userSubmissionMap;
+	}
+
+	/**
+	 * Gets a map of users to their submissions for the specified group assignment.
+	 * @param a the group assignment in question
+	 * @param users the users making up the key set
+	 */
+	private Map<User, AssignmentSubmission> getUserGroupSubmissionMap(Assignment a, List<User> users)
+	{
+		Map<User, AssignmentSubmission> userSubmissionMap = new HashMap<>();
+		if (a == null || !a.isGroup())
+		{
+			throw new IllegalArgumentException("'a' must be a group assignment");
+		}
+
+		try
+		{
+			Site _site = SiteService.getSite(a.getContext());
+			for (User user : users)
+			{
+				AssignmentSubmission submission = null;
+				Collection<Group> groups = (Collection<Group>) _site.getGroupsWithMember(user.getId());
+				if (groups != null)
+				{
+					for (Group _g : groups)
+					{
+						M_log.debug("Checking submission for group: " + _g.getTitle());
+						submission = getSubmission(a.getReference(), _g.getId());
+						if (submission != null && allowGetSubmission(submission.getReference()))
+						{
+							userSubmissionMap.put(user, submission);
+							break;
+						}
+					}
+				}
+				else
+				{
+					M_log.info("Assignment {} is grouped but {} is not in any of the site groups", a.getId(), user.getId());
+				}
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.error("getUserGroupSubmissionMap invoked with an argument whose 'context' value doesn't match any siteId in the system");
+		}
+
 		return userSubmissionMap;
 	}
 
