@@ -1,6 +1,10 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <!-- $Id$
 <%--
 ***********************************************************************************
@@ -84,13 +88,16 @@ function disableLinks(clickedLink){
   </div>
 
   <h:form id="selectIndexForm">
-    <!-- SELECT -->
-    <div class="submission-container">
-      <div class="lead">
-        <h:outputText rendered="#{select.isThereAssessmentToTake eq 'true'}" value="#{selectIndexMessages.take_assessment_notes}" />
-        <h:outputText rendered="#{select.isThereAssessmentToTake eq 'false'}" value="#{selectIndexMessages.take_assessment_notAvailable}" />
-      </div>
+  <!-- SELECT -->
+  <div class="submission-container">
+    <h2>
+      <h:outputText value="#{selectIndexMessages.take_assessment}" />
+    </h2>
 
+    <div>
+      <h:outputText rendered="#{select.isThereAssessmentToTake eq 'true'}" value="#{selectIndexMessages.take_assessment_notes}" />
+      <h:outputText rendered="#{select.isThereAssessmentToTake eq 'false'}" value="#{selectIndexMessages.take_assessment_notAvailable}" />
+    </div>
 
 <%--
 sorting actions for table:
@@ -131,7 +138,7 @@ sorting actions for table:
    </h:column>
     <h:column headerClass="assessmentDueDateHeader">
       <f:facet name="header">
-        <h:outputText value="#{selectIndexMessages.date_due} " />
+          <h:outputText value="#{selectIndexMessages.date_due} " />
       </f:facet>
       <h:outputText value="#{selectIndexMessages.na}" rendered="#{takeable.dueDate == null}" />
       <h:outputText value="#{takeable.dueDateString}" style="color: red;" rendered="#{takeable.pastDue}">
@@ -143,11 +150,11 @@ sorting actions for table:
   </div></div>
   
 <!-- SUBMITTED ASSESMENTS -->
-  <h2>
+  <h2> 
     <h:outputText value="#{selectIndexMessages.submitted_assessments}" />
   </h2>
   <div class="info-text">
-	<h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
+	  <h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
   </div>
 	  
 <div class="panel panel-default">
@@ -158,10 +165,9 @@ sorting actions for table:
 			<f:param name="selectSubmissions" value="2" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
-		<h:outputText value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 2}" />
-		
     <h:outputText value="&#160; | &#160;" escape="false" />
-		
+		<h:outputText value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 2}" />
+    <h:outputText value="&#160; | &#160;" escape="false" />
 		<h:commandLink 
 			id="some"
 			value="#{selectIndexMessages.review_assessment_recorded}"
@@ -171,7 +177,7 @@ sorting actions for table:
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
 		<h:outputText value="#{selectIndexMessages.review_assessment_recorded}" rendered="#{select.displayAllAssessments == 1}" />
-      </div>
+  </div>
 
   <!-- REVIEW TABLE -->
 <%--
@@ -196,7 +202,7 @@ sorting actions for table:
       </f:facet>
 	
 	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false"/>
-	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 
+	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/> 
 	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" styleClass="validate" />
 	
    </h:column>
@@ -310,7 +316,7 @@ sorting actions for table:
   <br/>
   
   <h:panelGrid>
-  <h:outputText value="#{selectIndexMessages.asterisk} #{selectIndexMessages.has_been_modified}" rendered="#{select.hasAnyAssessmentBeenModified}" styleClass="validate"/> 
+  <h:outputText value="#{selectIndexMessages.asterisk} #{selectIndexMessages.has_been_modified}" rendered="#{select.hasAnyAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/> 
   <h:outputText value="#{selectIndexMessages.asterisk_2} #{selectIndexMessages.currently_being_edited}" rendered="#{select.hasAnyAssessmentRetractForEdit}" styleClass="validate"/>
   </h:panelGrid>
 
@@ -320,4 +326,3 @@ sorting actions for table:
   <!-- end content -->
       </body>
     </html>
-
