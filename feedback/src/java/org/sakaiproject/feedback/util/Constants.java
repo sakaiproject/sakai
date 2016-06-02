@@ -31,6 +31,7 @@ public class Constants {
 	public final static String SUPPLEMENTAL_B = "supplementalb";
 
     public final static String PROP_TECHNICAL_ADDRESS = "feedback.technicalAddress";
+    public final static String MAIL_SUPPORT = "mail.support";
 	public final static String PROP_HELP_ADDRESS = "feedback.helpAddress";
 	public final static String PROP_SUGGESTIONS_ADDRESS = "feedback.suggestionsAddress";
 	public final static String PROP_SUPPLEMENTAL_A_ADDRESS = "feedback.supplementalAAddress";

@@ -64,6 +64,7 @@
                                                     supplementaryInfo: feedback.supplementaryInfo,
                                                     helpPagesUrl: feedback.helpPagesUrl,
                                                     helpPagesTarget: feedback.helpPagesTarget,
+                                                    mailSupport: feedback.mailSupport,
                                                     loggedIn: loggedIn, showContentPanel : feedback.showContentPanel,
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
@@ -123,7 +124,7 @@
                     });
                 }
 
-                if (feedback.supplementaryInfo.length > 0) {
+                if (feedback.supplementaryInfo.length == 0 && feedback.mailSupport==null) {
                     $('#feedback-supplementary-info').show();
                 }
 

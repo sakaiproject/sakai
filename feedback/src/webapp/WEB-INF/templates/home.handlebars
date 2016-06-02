@@ -44,6 +44,17 @@
 
     {{#if showHelpPanel}}
         <div class="feedback-box" id="feedback-ask-help">
+            <h3>{{translate 'ask_title'}}</h3>
+            <ul>{{translate 'ask_explanation'}}</ul>
+        	{{#if enableTechnical}}
+            	<p><a id="feedback-report-helpdesk-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+            {{else}}
+                {{#if mailSupport}}
+                    <p><a id="feedback-report-helpdesk-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+                {{else}}
+                    <p class='information'>{{translate 'no_technical_address'}}</p>
+                {{/if}}
+            {{/if}}
             <div class="feedback-box-header">
                 <span class="fa fa-fw {{translate 'ask_icon_no_translate'}}" aria-hidden="true"></span>
                 <h3>{{translate 'ask_title'}}</h3>
@@ -68,6 +79,17 @@
 
     {{#if showTechnicalPanel}}
         <div class="feedback-box" id="feedback-tech-problem">
+            <h3>{{translate 'technical_title'}}</h3>
+            <ul>{{translate 'technical_explanation'}}</ul>
+        	{{#if enableTechnical}}
+        		<p><a id="feedback-report-technical-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+            {{else}}
+                {{#if mailSupport}}
+                    <p><a id="feedback-report-technical-link" href="javascript:;">{{translate 'technical_link'}}</a></p>
+                {{else}}
+                    <p class='information'>{{translate 'no_technical_address'}}</p>
+                {{/if}}
+            {{/if}}
             <div class="feedback-box-header">
                 <span class="fa fa-fw {{translate 'technical_icon_no_translate'}}" aria-hidden="true"></span>
                 <h3>{{translate 'technical_title'}}</h3>
