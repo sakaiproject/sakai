@@ -897,7 +897,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 -- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill new permissions into existing realms
 --
--- msg.permissions.allowToField.myGroupMembers
+-- syllabus.add.item
 -- syllabus.bulk.add.item
 -- syllabus.bulk.edit.item
 -- syllabus.redirect

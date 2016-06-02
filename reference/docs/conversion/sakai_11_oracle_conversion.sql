@@ -1035,11 +1035,8 @@ FROM
 -- clean up the temp tables
 DROP TABLE PERMISSIONS_TEMP;
 DROP TABLE PERMISSIONS_SRC_TEMP;
-
-
 -- ------------------------------
 --  END permission backfill -----
 -- ------------------------------
 
 -- END SAK-30141
-
