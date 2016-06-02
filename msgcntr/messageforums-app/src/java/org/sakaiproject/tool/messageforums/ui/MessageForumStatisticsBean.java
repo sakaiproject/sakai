@@ -324,7 +324,7 @@ public class MessageForumStatisticsBean {
 	public DecoratedCompiledMessageStatistics userInfo = null;
 	public UserStatistics userAuthoredInfo = null;
 	
-	private Map courseMemberMap;
+	private Map<String, MembershipItem> courseMemberMap;
 	protected boolean ascending = true;
 	protected boolean ascendingForUser = false;
 	protected boolean ascendingForUser2 = false;
@@ -452,15 +452,6 @@ public class MessageForumStatisticsBean {
 
 	private boolean m_displayAnonIds; // this will be true in a pure-anon scenario
 
-	
-	public Map getCourseMemberMap(){
-		return this.courseMemberMap;
-	}
-	
-	public void setCourseMemberMap(Map newValue){
-		this.courseMemberMap = newValue;
-	}
-	
 	/** to get accces to log file */
 	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBean.class);
 	
@@ -601,7 +592,7 @@ public class MessageForumStatisticsBean {
 		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
 
 		if(courseMemberMap == null){
-			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 		}
 		List members = membershipManager.convertMemberMapToList(courseMemberMap);
 		
@@ -801,7 +792,7 @@ public class MessageForumStatisticsBean {
 
 			// now process the users from the list of site members to add display information
 			// this will also prune the list of members so only the papropriate ones are displayed
-			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 			Map convertedMap = convertMemberMapToUserIdMap(courseMemberMap);
 			Map<String, DecoratedGradebookAssignment> studentGradesMap = getGradebookAssignment();
 			List<DecoratedUser> dUsers = new ArrayList();
@@ -2248,7 +2239,7 @@ public class MessageForumStatisticsBean {
 	public Map<String, String> getUserIdName() {
 		Map<String, String> idNameMap = new LinkedHashMap<String, String>();
 		
-		Map courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+		Map courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 		List<MembershipItem> members;
 		if (m_displayAnonIds)
 		{
@@ -3047,7 +3038,7 @@ public class MessageForumStatisticsBean {
 	public Map<String, Boolean> getOverridingPermissionsMap(){
 		Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
 		if(courseMemberMap == null){
-			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 		}
 		List members = membershipManager.convertMemberMapToList(courseMemberMap);
 		for (Iterator i = members.iterator(); i.hasNext();) {
