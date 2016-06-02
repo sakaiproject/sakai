@@ -894,6 +894,38 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENT
             (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable'));
 -- END SAM-2751
 
+-- SAM-1200 Oracle conversion, size increases of Samigo columns
+alter table SAM_PUBLISHEDASSESSMENT_T add tempcol clob;
+update SAM_PUBLISHEDASSESSMENT_T set tempcol=description;
+alter table SAM_PUBLISHEDASSESSMENT_T drop column description;
+alter table SAM_PUBLISHEDASSESSMENT_T rename column tempcol to description;
+
+alter table SAM_PUBLISHEDSECTION_T add tempcol clob;
+update SAM_PUBLISHEDSECTION_T set tempcol=description;
+alter table SAM_PUBLISHEDSECTION_T drop column description;
+alter table SAM_PUBLISHEDSECTION_T rename column tempcol to description;
+
+alter table SAM_ASSESSMENTBASE_T add tempcol clob;
+update SAM_ASSESSMENTBASE_T set tempcol=description;
+alter table SAM_ASSESSMENTBASE_T drop column description;
+alter table SAM_ASSESSMENTBASE_T rename column tempcol to description;
+
+alter table SAM_SECTION_T add tempcol clob;
+update SAM_SECTION_T set tempcol=description;
+alter table SAM_SECTION_T drop column description;
+alter table SAM_SECTION_T rename column tempcol to description;
+
+alter table SAM_ITEMGRADING_T add tempcol clob;
+update SAM_ITEMGRADING_T set tempcol=comments;
+alter table SAM_ITEMGRADING_T drop column comments;
+alter table SAM_ITEMGRADING_T rename column tempcol to comments;
+
+alter table SAM_ASSESSMENTGRADING_T add tempcol clob;
+update SAM_ASSESSMENTGRADING_T set tempcol=comments;
+alter table SAM_ASSESSMENTGRADING_T drop column comments;
+alter table SAM_ASSESSMENTGRADING_T rename column tempcol to comments;
+-- END SAM-1200
+
 CREATE TABLE SST_LESSONBUILDER
 (ID             NUMBER(19) PRIMARY KEY,
  USER_ID        VARCHAR2(99) NOT NULL,

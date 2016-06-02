@@ -824,6 +824,15 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY)
          (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable');
 -- END SAM-2751
 
+-- SAM-1200 - Increase column data sizes
+alter table SAM_PUBLISHEDASSESSMENT_T change description description mediumtext null;
+alter table SAM_PUBLISHEDSECTION_T change description description mediumtext null;
+alter table SAM_ASSESSMENTBASE_T change description description mediumtext null;
+alter table SAM_SECTION_T change description description mediumtext null;
+alter table SAM_ITEMGRADING_T change comments comments mediumtext null;
+alter table SAM_ASSESSMENTGRADING_T change comments comments mediumtext null;
+-- END SAM-1200
+
 CREATE TABLE SST_LESSONBUILDER (
   ID bigint(20) NOT NULL AUTO_INCREMENT,
   USER_ID varchar(99) NOT NULL,
