@@ -141,7 +141,7 @@
     <!-- 3 ANSWER -->
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.answer} " styleClass="col-md-4 form-control-label"/>
-        <div class="col-md-2 samigo-inline-radio">
+        <div class="col-md-8 samigo-inline-radio">
             <h:selectOneRadio layout="lineDirection" id="TF" border="0"
                               value="#{itemauthor.currentItem.corrAnswer}">
                 <f:selectItems value="#{itemauthor.trueFalseAnswerSelectList}" />
