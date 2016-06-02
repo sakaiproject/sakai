@@ -37,11 +37,13 @@ import au.com.bytecode.opencsv.CSVWriter;
 import lombok.extern.apachecommons.CommonsLog;
 
 /**
- * Created by chmaurer on 1/22/15.
+ * Upload/Download page
  */
 @CommonsLog
 public class GradeImportUploadStep extends Panel {
 
+	private static final long serialVersionUID = 1L;
+	
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel",
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
@@ -62,15 +64,9 @@ public class GradeImportUploadStep extends Panel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
-		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from
-		// the map
-		this.assignments = this.businessService.getGradebookAssignments();
-
-		// get the grade matrix
-		this.grades = this.businessService.buildGradeMatrix(this.assignments);
-
+		
 		add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected File load() {
@@ -94,21 +90,30 @@ public class GradeImportUploadStep extends Panel {
 			final List<String> header = new ArrayList<String>();
 			header.add("Student ID");
 			header.add("Student Name");
+			
+			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
+			this.assignments = this.businessService.getGradebookAssignments();
 
-			for (final Assignment assignment : this.assignments) {
+			//build column header
+			this.assignments.forEach(assignment -> {
 				final String assignmentPoints = assignment.getPoints().toString();
 				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
 				header.add("*/ " + assignment.getName() + " Comments */");
-			}
+			});
 
 			csvWriter.writeNext(header.toArray(new String[] {}));
+			
+			// get the grade matrix
+			this.grades = this.businessService.buildGradeMatrix(this.assignments);
 
-			for (final GbStudentGradeInfo studentGradeInfo : this.grades) {
+			//add grades
+			this.grades.forEach(studentGradeInfo -> {
 				final List<String> line = new ArrayList<String>();
 				line.add(studentGradeInfo.getStudentEid());
 				line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
 				if (includeGrades) {
-					for (final Assignment assignment : this.assignments) {
+					
+					this.assignments.forEach(assignment -> {
 						final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
 						if (gradeInfo != null) {
 							line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
@@ -118,10 +123,11 @@ public class GradeImportUploadStep extends Panel {
 							line.add(null);
 							line.add(null);
 						}
-					}
+					});
 				}
 				csvWriter.writeNext(line.toArray(new String[] {}));
-			}
+				
+			});
 
 			csvWriter.close();
 			fw.close();
@@ -153,7 +159,6 @@ public class GradeImportUploadStep extends Panel {
 			final Button cancel = new Button("cancelbutton") {
 				@Override
 				public void onSubmit() {
-					// info("Cancel was pressed!");
 					setResponsePage(new GradebookPage());
 				}
 			};
@@ -217,9 +222,8 @@ public class GradeImportUploadStep extends Panel {
 	private Map<String, String> makeUserMap(final List<GbStudentGradeInfo> grades) {
 		final Map<String, String> userMap = new HashMap<String, String>();
 
-		for (final GbStudentGradeInfo studentGradeInfo : grades) {
-			userMap.put(studentGradeInfo.getStudentEid(), studentGradeInfo.getStudentUuid());
-		}
+		grades.forEach(studentGradeInfo -> userMap.put(studentGradeInfo.getStudentEid(), studentGradeInfo.getStudentUuid()));
+	
 		return userMap;
 	}
 
