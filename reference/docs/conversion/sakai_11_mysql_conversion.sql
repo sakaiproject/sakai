@@ -393,10 +393,6 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1600', 'sitePage.c
 drop index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T;
 -- END SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 
--- LSNBLDR-646
-drop index lesson_builder_qr_questionId on lesson_builder_q_responses;
--- END LSNBLDR-646
-
 -- SAK-29546 Add site visit totals per user
 CREATE TABLE SST_PRESENCE_TOTALS (
                 ID int(20) NOT NULL auto_increment,
@@ -927,3 +923,7 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY)
        FROM SAM_ASSESSMETADATA_T WHERE ASSESSMENTID NOT IN
          (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable');
 -- END SAM-2751
+
+-- LSNBLDR-646
+DROP INDEX lesson_builder_qr_questionId on lesson_builder_q_responses;
+-- END LSNBLDR-646
