@@ -90,15 +90,6 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 -- ------------------------------
 
 -- End permissions for SAK-30141
---
--- SAM-1200 - Increase column data sizes
---
-alter table SAM_PUBLISHEDASSESSMENT_T change description description mediumtext null;
-alter table SAM_PUBLISHEDSECTION_T change description description mediumtext null;
-alter table SAM_ASSESSMENTBASE_T change description description mediumtext null;
-alter table SAM_SECTION_T change description description mediumtext null;
-alter table SAM_ITEMGRADING_T change comments comments mediumtext null;
-alter table SAM_ASSESSMENTGRADING_T change comments comments mediumtext null;
 
 -- SAK-30207
 CREATE TABLE IF NOT EXISTS CONTENTREVIEW_ITEM (
