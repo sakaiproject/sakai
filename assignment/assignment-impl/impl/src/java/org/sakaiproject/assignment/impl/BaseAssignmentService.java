@@ -3515,7 +3515,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			else
 			{
-				// SAK-31130 - get all submissions for these users with a single query
+				// Get all submissions for these users with a single query
 				return m_submissionStorage.getUserSubmissionMap(a, users);
 			}
 		}
@@ -4895,7 +4895,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (!rvUsers.isEmpty())
 			{
 				List<String> groupRefs = new ArrayList<String>();
-				// SAK-31130 - created getUserSubmissionMap precisely to turn this into a single query for non-group assignments
 				Map<User, AssignmentSubmission> userSubmissionMap = getUserSubmissionMap(a, rvUsers);
 				for (Iterator uIterator = rvUsers.iterator(); uIterator.hasNext();)
 				{
