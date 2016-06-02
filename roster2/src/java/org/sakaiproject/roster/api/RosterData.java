@@ -9,7 +9,8 @@ import lombok.Setter;
 public class RosterData {
 
     private List<RosterMember> members;
-	private int membersTotal;
-	private Map<String, Integer> roleCounts;
+    private int membersTotal;
+    private Map<String, Integer> roleCounts;
+    private String status;
 }
 

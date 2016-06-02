@@ -441,51 +441,6 @@ body.is-logged-out{
 	padding: 0 0 0 0;
 	margin-bottom:0px;
 }
-.#{$namespace}sitesNav__menuitem--myworkspace{
-	font-size: 0.95em;
-	@media #{$phone}{
-		background: $primary-color;
-		border-right: 1px solid darken( $primary-color, 5% );
-	 	height:3.1em;
-		position: fixed;
-		top: 0;
-		z-index: 1000;
-		@include transition( top 0.25s linear 0s );
-		&.moving{
-			top: -4.5em;
-		}
-	}
-	span{
-		display: none;
-	}
-	.#{namespace}sitesNav__drop{
-		display: none;
-	}
-	&.is-selected{
-		@media #{$phone}{
-			background: $primary-color;
-		}
-		a{
-			color: $primary-color;
-		}
-	}
-	a{
-		display: inline-block;
-		border-right: 0px none;
-		color: $background-color;
-		@media #{$phone}{
-			color: $background-color-secondary;
-		}
-		padding: 0.6em 0.8em;
-		i{
-			font-size: 1.7em;
-		}
-		&:hover{
-			/*color: $background-color-secondary;*/
-			box-shadow: inset 0 9px 10px rgba(0,0,0,0.25);
-		}
-	}
-}
 
 .view-all-sites-btn{
 	position: relative;
@@ -610,27 +565,22 @@ body.is-logged-out{
 					background: $primary-color;
 				}
 			}
+
 			&.#{$namespace}sitesNav__menuitem--myworkspace{
-				font-size: 0.95em;
-				margin: 0 0 0 0;
-				span{
+				.#{$namespace}sitesNav__drop{
 					display: none;
 				}
-				.#{namespace}sitesNav__drop{
-					display: none;
-				}
-				&.is-selected{
+
+				&:not(.is-selected){
 					a{
-						color: $primary-color;
+						background-color: transparent;
+						color: $background-color;
 					}
 				}
+
 				a{
-					background: transparent;
-					border-right: 0px none;
-					color: $background-color;
-					top: 0;
 					i{
-						font-size: 1.7em;
+						font-size: 1.3em;
 					}
 				}
 			}

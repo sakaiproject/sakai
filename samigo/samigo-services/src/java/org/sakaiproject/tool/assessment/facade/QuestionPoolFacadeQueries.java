@@ -1321,7 +1321,6 @@ public class QuestionPoolFacadeQueries
       item.setCreatedDate(new Date());
       item.setLastModifiedBy(AgentFacade.getAgentString());
       item.setLastModifiedDate(new Date());
-      item.setInstruction(itemData.getInstruction());
       item.setHasRationale(itemData.getHasRationale());
       item.setTriesAllowed(itemData.getTriesAllowed());
       item.setDuration(itemData.getDuration());
@@ -1332,15 +1331,16 @@ public class QuestionPoolFacadeQueries
       item.setItemTextSet(copyItemText(item.getData(), itemData));
       item.setItemMetaDataSet(copyMetaData(item.getData(), itemData));
       item.setItemAttachmentSet(copyAttachment(item.getData(), itemData));
+      item.setInstruction(AssessmentService.copyStringAttachment(itemData.getInstruction()));
 
       if (itemData.getCorrectItemFeedback() != null && !itemData.getCorrectItemFeedback().equals("")) {
-    	  item.setCorrectItemFeedback(itemData.getCorrectItemFeedback());
+    	  item.setCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getCorrectItemFeedback()));
       }
       if (itemData.getInCorrectItemFeedback() != null && !itemData.getInCorrectItemFeedback().equals("")) {
-    	  item.setInCorrectItemFeedback(itemData.getInCorrectItemFeedback());
+    	  item.setInCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getInCorrectItemFeedback()));
       }
       if (itemData.getGeneralItemFeedback() != null && !itemData.getGeneralItemFeedback().equals("")) {
-    	  item.setGeneralItemFeedback(itemData.getGeneralItemFeedback());
+    	  item.setGeneralItemFeedback(AssessmentService.copyStringAttachment(itemData.getGeneralItemFeedback()));
       }
       
       return item;

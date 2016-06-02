@@ -177,9 +177,6 @@ public class ComposeNewMessage extends Panel {
 				//save it, it will be abstracted into its proper parts and email notifications sent
 				if(messagingLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
 					
-					//post event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + newMessage.getTo(), true);
-					
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));

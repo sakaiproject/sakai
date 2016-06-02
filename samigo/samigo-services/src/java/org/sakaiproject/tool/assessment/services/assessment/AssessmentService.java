@@ -1117,4 +1117,9 @@ public class AssessmentService {
 			}
 			return text;
 		}
+
+	public static String copyStringAttachment(String stringWithAttachment) {
+		AssessmentService assessmentService = new AssessmentService();
+		return assessmentService.copyContentHostingAttachments(stringWithAttachment, AgentFacade.getCurrentSiteId());
+	}
 }

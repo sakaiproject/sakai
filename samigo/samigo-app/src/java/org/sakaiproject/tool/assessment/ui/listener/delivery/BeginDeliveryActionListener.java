@@ -374,8 +374,7 @@ public class BeginDeliveryActionListener implements ActionListener
     }
 
     // #3 - if this is a timed assessment, set the time limit in hr, min & sec.
-//    setTimedAssessment(delivery, pubAssessment, extTimeService);
-//    delivery.setDeadline();
+    delivery.setDeadline();
   }
 
   private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment, ExtendedTimeService extTimeService, AssessmentGradingData unSubmittedAssessmentGrading){
@@ -383,7 +382,6 @@ public class BeginDeliveryActionListener implements ActionListener
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     // check if we need to time the assessment, i.e.hasTimeassessment="true"
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
-    hasTimeLimit="true"; //TODO: figure out why this isn't giving me the right value
     if (hasTimeLimit!=null && hasTimeLimit.equals("true") && control.getTimeLimit() != null){
 
     	delivery.setHasTimeLimit(true);

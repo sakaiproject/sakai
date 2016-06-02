@@ -68,7 +68,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	// key passed as parameters
 	public final static String KEY_GROUP_ID						= "groupId";
 	public final static String KEY_ROLE_ID						= "roleId";
-	public final static String KEY_USER_ID						= "userId";
+	public final static String KEY_USER_IDS					    = "userIds";
 	public final static String KEY_PAGE                         = "page";
 	public final static String KEY_ENROLLMENT_SET_ID			= "enrollmentSetId";
 	public final static String KEY_ENROLLMENT_STATUS			= "enrollmentStatus";
@@ -205,22 +205,22 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         }
 	}
 
-    @EntityCustomAction(action = "get-user", viewKey = EntityView.VIEW_SHOW)
-	public Object getUser(EntityReference reference, Map<String, Object> parameters) {
+    @EntityCustomAction(action = "get-users", viewKey = EntityView.VIEW_SHOW)
+	public Object getUsers(EntityReference reference, Map<String, Object> parameters) {
 
-        String siteId = reference.getId();
+		String siteId = reference.getId();
 
 		if (null == siteId || DEFAULT_ID.equals(siteId)) {
 			throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
 		}
 
-		String userId = null;
-		if (parameters.containsKey(KEY_USER_ID)) {
-			userId = parameters.get(KEY_USER_ID).toString();
+		String[] userIds = null;
+		if (parameters.containsKey(KEY_USER_IDS)) {
+			userIds = parameters.get(KEY_USER_IDS).toString().split(",");
 		}
 
-		if (null == userId) {
-			throw new EntityException("No user id supplied", reference.getReference());
+		if (null == userIds) {
+			throw new EntityException("No user ids supplied", reference.getReference());
 		}
 
 		String enrollmentSetId = null;
@@ -229,25 +229,33 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		}
 
 		List<RosterMember> membership = new ArrayList<RosterMember>();
+		Map<String, Integer> roleCounts = new HashMap<String, Integer>(1);
 
-        RosterMember member = sakaiProxy.getMember(siteId, userId, enrollmentSetId);
-		
-		if (null == member) {
-			throw new EntityException("Unable to retrieve membership", reference.getReference());
+		for (String userId : userIds) {
+			RosterMember member = sakaiProxy.getMember(siteId, userId, enrollmentSetId);
+
+			if (null == member) {
+				throw new EntityException("Unable to retrieve membership", reference.getReference());
+			}
+
+			membership.add(member);
+
+			String role = member.getRole();
+			if (!roleCounts.containsKey(role)) {
+				roleCounts.put(role, 1);
+			} else {
+				roleCounts.put(role, roleCounts.get(role) + 1);
+			}
 		}
 
-        membership.add(member);
+		RosterData data = new RosterData();
+		data.setMembers(membership);
+		data.setMembersTotal(membership.size());
+		data.setRoleCounts(roleCounts);
 
-        RosterData data = new RosterData();
-        data.setMembers(membership);
-        data.setMembersTotal(1);
-        Map<String, Integer> roleCounts = new HashMap<String, Integer>(1);
-        roleCounts.put(member.getRole(), 1);
-        data.setRoleCounts(roleCounts);
-
-        return data;
+		return data;
 	}
-			
+
 	@EntityCustomAction(action = "get-site", viewKey = EntityView.VIEW_SHOW)
 	public Object getSite(EntityReference reference) {
 		
@@ -260,7 +268,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 
 	@EntityCustomAction(action = "get-search-index", viewKey = EntityView.VIEW_SHOW)
 	public Object getSearchIndex(EntityReference reference) {
-		
+
         String siteId = reference.getId();
 
 		if (null == siteId || DEFAULT_ID.equals(siteId)) {
@@ -269,7 +277,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 
         return sakaiProxy.getSearchIndex(siteId);
 	}
-		
+
     /*
 	@EntityCustomAction(action = "get-enrollment", viewKey = EntityView.VIEW_SHOW)
 	public Object getEnrollment(EntityReference reference, Map<String, Object> parameters) {
