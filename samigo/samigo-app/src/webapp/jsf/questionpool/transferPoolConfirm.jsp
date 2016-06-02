@@ -15,7 +15,7 @@
             <script language="javascript" type="text/JavaScript">
                 <%@ include file="/js/samigotree.js" %>
             </script>
-
+            <script src="/library/js/spinner.js" type="text/javascript"></script>
 
             <samigo:stylesheet path="/css/tool_sam.css" />
         </head>
@@ -96,12 +96,14 @@
                     </h:dataTable>
 
                     <p class="act">
-                        <h:commandButton accesskey="#{questionPoolMessages.a_transfer}" id="transferpoolSubmit" immediate="true" onclick="disableButtons();" 
-                            value="#{questionPoolMessages.transfer_pool_ownership}" action="#{questionpool.transferPoolOwnership}" styleClass="active" />
-                        <h:commandButton accesskey="#{questionPoolMessages.a_transfer_back}" id="transferpoolSubmit2" immediate="true" onclick="disableButtons();" 
-                            value="#{questionPoolMessages.transfer_pool_back}" action="#{questionpool.transferPoolConfirmBack}" styleClass="active" />
+                        <h:commandButton accesskey="#{questionPoolMessages.a_transfer}" id="transferpoolSubmit" immediate="true"
+                            value="#{questionPoolMessages.transfer_pool_ownership}" action="#{questionpool.transferPoolOwnership}" styleClass="active"
+                            onclick="SPNR.disableControlsAndSpin(this, null);"/>
+                        <h:commandButton accesskey="#{questionPoolMessages.a_transfer_back}" id="transferpoolSubmit2" immediate="true"
+                            value="#{questionPoolMessages.transfer_pool_back}" action="#{questionpool.transferPoolConfirmBack}" styleClass="active"
+                            onclick="SPNR.disableControlsAndSpin(this, null);"/>
                         <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" id="transferpoolCancel" value="#{questionPoolMessages.transfer_pool_cancel}" 
-                            action="#{questionpool.cancelTransferPool}" immediate="true" onclick="disableButtons();" />
+                            action="#{questionpool.cancelTransferPool}" immediate="true" onclick="SPNR.disableControlsAndSpin(this, null);"/>
                     </p>
                 </h:form>
             </div>

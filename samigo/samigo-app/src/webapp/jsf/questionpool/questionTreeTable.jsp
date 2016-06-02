@@ -99,15 +99,15 @@
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
       <f:facet name="header">
         <h:panelGroup>
-        	<h:outputText value="#{questionPoolMessages.impToAuthor} "/>
-			<h:outputText value="#{questionPoolMessages.select_all}"/>
-        	<h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');" value="" />
-      	</h:panelGroup>
+            <h:outputText value="#{questionPoolMessages.impToAuthor} "/>
+            <h:outputText value="#{questionPoolMessages.select_all}"/>
+            <h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));" value="" />
+        </h:panelGroup>
       </f:facet>
- 	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');">
+      <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));">
         <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
- 	  </h:selectManyCheckbox>
-     </h:column>
+      </h:selectManyCheckbox>
+    </h:column>
 
 
   </t:dataTable>

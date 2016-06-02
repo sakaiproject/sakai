@@ -130,6 +130,10 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		m_cacheMinutes = Integer.parseInt(time);
 	}
 
+    
+	// student view roles, i.e. those you can role swap to
+	HashSet<String> svRoles;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -151,6 +155,13 @@ public abstract class SakaiSecurity implements SecurityService, Observer
             } else {
                 cacheDebugDetailed = false;
             }
+
+	    String[] externalRoles = scs.getString("studentview.roles","").split(","); // get the roles that can be swapped to 
+	    svRoles = new HashSet<String>();
+	    for (String externalRole: externalRoles) {
+		svRoles.add(externalRole.trim());
+	    }
+
             m_callCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.cache");
             m_superCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.superCache");
             m_contentCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
@@ -402,18 +413,33 @@ public abstract class SakaiSecurity implements SecurityService, Observer
             if (cacheDebug) M_log.info("SScache:changed .anon:found in "+azgRef);
             for (String perm : permissions) {
                 if (perm != null) {
-                    keysToInvalidate.add(makeCacheKey(null, perm, azgRef, false));
+                    keysToInvalidate.add(makeCacheKey(null, null, perm, azgRef, false));
                 }
             }
         }
         // now handle all the real users
+	// clear both normal and swapped users
+	// start with a set of all roles to which one can swap
+	Set<String> svRolesFinal = (Set<String>)svRoles.clone();
+	svRolesFinal.retainAll(roles);  
+
         Set<Member> members = azg.getMembers();
         if (members != null && !members.isEmpty()) {
             for (Member member : members) {
                 if (member != null && member.isActive() && member.getUserId() != null) {
+		    boolean canSwap = (member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP));
                     for (String perm : permissions) {
                         if (perm != null) {
-                            keysToInvalidate.add(makeCacheKey(member.getUserId(), perm, azgRef, false));
+                            keysToInvalidate.add(makeCacheKey(member.getUserId(), null, perm, azgRef, false));
+			    // Only invalidate swapped roles if the user can swap
+			    // This is an approximation. If a user is swapped and their permission to swap is removed
+			    // or the role they are swapped to has been removed from the site
+			    // we will not invalidate their data. Their info may wait until the expiration time to sync up
+			    if (canSwap) {
+				for (String invRole: svRolesFinal) {
+				    keysToInvalidate.add(makeCacheKey(member.getUserId(), invRole, perm, azgRef, false));
+				}
+			    }
                         }
                     }
                 }
@@ -455,7 +481,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
      * @param isSuperKey if true this is a key for tracking super users, else generate a normal realm key
      * @return the key OR null if one cannot be properly made from these params
      */
-    String makeCacheKey(String userId, String function, String reference, boolean isSuperKey) {
+    String makeCacheKey(String userId, String role, String function, String reference, boolean isSuperKey) {
         if (isSuperKey) {
             if (userId != null) {
                 return "super@" + userId;
@@ -466,6 +492,8 @@ public abstract class SakaiSecurity implements SecurityService, Observer
         if (function == null || reference == null) {
             return null;
         }
+	if (role == null)
+	    role = "";
         // SPECIAL conversion to reduce duplicate caching data
         if (!reference.startsWith("/site") && !reference.startsWith("/content")) {
             // try to convert this from a special reference down to the authzgroup ref
@@ -480,7 +508,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
             }
         }
         // NOTE: userId can be null for this, others cannot be
-        return "unlock@" + userId + "@" + function + "@" + reference;
+        return "unlock@" + userId +"@" + role + "@" + function + "@" + reference;
     }
 
     // KNL-1230 added to assist with debugging caching issues
@@ -571,7 +599,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		if ((userId == null) || (userId.length() == 0)) return false;
 
 		// check the cache
-		String command = makeCacheKey(userId, null, null, true);
+		String command = makeCacheKey(userId, null, null, null, true);
 		if (m_callCache != null)
 		{
 			final Boolean value = getFromCache(command, true);
@@ -687,15 +715,6 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	 */
 	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection<String> azgs)
 	{
-		// check the cache
-		String command = makeCacheKey(userId, function, entityRef, false);
-		
-		if (m_callCache != null)
-		{
-			final Boolean value = getFromCache(command, false);
-			if(value != null) return value.booleanValue();
-		}
-
 		// get this entity's AuthzGroups if needed
 		if (azgs == null)
 		{
@@ -704,6 +723,52 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
 			azgs = ref.getAuthzGroups(userId);
 		}
+
+		// need to know whether role swap is in effect, since we can't share the cache entry between sessions
+		// that are swapped and not swapped
+
+		String siteRef = null;
+		String roleswap = null;
+
+		// Actual code in DbAuthzGroupService will not roleswap if there's a user site ref in the list and
+		// it is acceptable. However we can't tell that without doing a database access, so be conservative
+		// and cache it separately as a role swap
+		// This code does not handle delegated access
+		if (azgs != null && userId != null && userId.equals(sessionManager().getCurrentSessionUserId())) {
+		    // These checks for roleswap assume there is at most one of each type of site in the realms collection,
+		    // i.e. one ordinary site and one user site
+		    for (String azg: azgs) {
+			if (azg.startsWith(SiteService.REFERENCE_ROOT + Entity.SEPARATOR)) {  // Starts with /site/
+			    if (userId.equals(siteService().getSiteUserId(azg))) {
+				; // reference to a user site
+			    } else {
+				siteRef = azg; // set this variable for potential use later
+			    }
+			}
+		    }
+
+		    Reference ref = entityManager().newReference(siteRef);
+		    if (SiteService.GROUP_SUBTYPE.equals(ref.getSubType())) {
+			String containerSiteRef = siteService().siteReference(ref.getContainer());
+			roleswap = getUserEffectiveRole(containerSiteRef);
+			if (roleswap != null) {
+			    siteRef = containerSiteRef;
+			}
+		    } else {
+			roleswap = getUserEffectiveRole(siteRef);
+		    }
+
+		}
+
+		// check the cache
+		String command = makeCacheKey(userId, roleswap, function, entityRef, false);
+		
+		if (m_callCache != null)
+		{
+			final Boolean value = getFromCache(command, false);
+			if(value != null) return value.booleanValue();
+		}
+
 
 		boolean rv = authzGroupService().isAllowed(userId, function, azgs);
 
