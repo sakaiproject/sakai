@@ -77,7 +77,8 @@
     </bean>
 
     <bean id="org.sakaiproject.content.api.FileSystemHandler.file" class="org.sakaiproject.content.impl.DefaultFileSystemHandler">
-        <property name="useIdForFilePath" value="true" />
+        <!-- For the default implementation we need it to use the basePath rather than the id -->
+        <property name="useIdForFilePath" value="false" />
     </bean>
 
     <!-- Alias the default filesystem-backed handler to be used by ContentHosting; override the alias to plug in an alternative -->
