@@ -55,7 +55,7 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 		<div id="modal-iframe-div" style="display:none">
-			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="height:300px"></iframe>
+			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="height:400px"></iframe>
 		</div>
 	</div>
 
@@ -72,7 +72,7 @@ function showIframe(title) {
 		modal: true,
 		draggable: false,
 		open: function() {
-			$('#sakai-basiclti-admin-iframe').width('100%');
+			$('#sakai-basiclti-admin-iframe').attr('width', '100%');
 		},
 		close: function() {
 			$('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
@@ -81,9 +81,27 @@ function showIframe(title) {
 
 	$(window).resize(function() {
 		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
-		$('#sakai-basiclti-admin-iframe').width('100%');
+		$('#sakai-basiclti-admin-iframe').attr('width', '100%');
 	});
 }
+
+// Make sure to be careful to use .style.height or .height sepending on the iframe 
+// tag you are working with.
+window.addEventListener('message', function(e) {
+	try {
+		var message = JSON.parse(e.data);
+		var idval = 'sakai-basiclti-admin-iframe';
+		if ( message.subject == 'lti.frameResize' ) {
+		var height = message.height;
+			document.getElementById(idval).style.height = height;
+			document.getElementById(idval).style.width = '100%';
+			console.log('BltiPicker received lti.frameResize height='+height);
+		}
+	} catch (error) {
+		console.log('BltiPicker lti.frameResize of '+idval+' failed height='+height);
+		console.log(e.data);
+	}
+});
 //]]>
 </script>
 
