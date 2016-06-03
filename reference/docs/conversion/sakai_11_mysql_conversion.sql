@@ -725,6 +725,7 @@ create table lesson_builder_ch_status (
         primary key (checklistId,checklistItemId,owner)
  );
 create index lesson_builder_p_eval_res_row on lesson_builder_p_eval_results(page_id);
+drop index lesson_builder_qr_questionId on  lesson_builder_q_responses ;
 
 -- ---------------------------------------------------------------------------
 -- SAKAI_CONFIG_ITEM - KNL-1063 - MYSQL

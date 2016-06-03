@@ -776,6 +776,7 @@ create table lesson_builder_ch_status (
         primary key (checklistId,checklistItemId,owner)
  );
 create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
+drop index lb_qr_questionId;
 
 -----------------------------------------------------------------------------
 -- SAKAI_CONFIG_ITEM - KNL-1063 - ORACLE
