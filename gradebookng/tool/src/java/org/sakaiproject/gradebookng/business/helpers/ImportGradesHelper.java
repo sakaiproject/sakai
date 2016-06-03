@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,9 +28,10 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
 import au.com.bytecode.opencsv.CSVReader;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * Created by chmaurer on 1/21/15.
+ * Helper to handling parsing and processing of an imported gradebook file
  */
 @Slf4j
 public class ImportGradesHelper extends BaseImportHelper {
@@ -205,7 +205,7 @@ public class ImportGradesHelper extends BaseImportHelper {
 
 		for (final ImportColumn column : importedGradeWrapper.getColumns()) {
 			boolean needsAdded = false;
-			final String assignmentName = column.getColumnTitle();
+			final String assignmentName = StringUtils.trim(column.getColumnTitle()); //trim whitespace so we can match properly
 
 			ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(assignmentName);
 			if (processedGradeItem == null) {
