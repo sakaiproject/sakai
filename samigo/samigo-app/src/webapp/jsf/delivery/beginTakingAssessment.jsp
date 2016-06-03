@@ -57,7 +57,7 @@
 
   <h1>
     <h:outputText value="#{deliveryMessages.begin_assessment_}" rendered="#{delivery.firstTimeTaking}"/>
-    <h:outputText value="#{deliveryMessages.continue_assessment_}" rendered="#{!delivery.firstTimeTaking}"/>
+    <h:outputText value="#{deliveryMessages.continue_assessment_}" rendered="#{!delivery.firstTimeTaking && !delivery.timeExpired}"/>
   </h1>
 
   <div class="lead">
@@ -102,6 +102,8 @@
                 <f:param value="#{delivery.beginTimeString}"/>
                 <f:param value="#{delivery.adjustedTimedAssesmentDueDateString}"/>
     </h:outputFormat>
+    
+    <h:outputFormat value="#{deliveryMessages.time_expired2}" escape="false" rendered="#{delivery.hasTimeLimit && !delivery.firstTimeTaking && delivery.timeExpired}" />
     
     <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_time_limit}" rendered="#{!delivery.hasTimeLimit}" escape="false"/>
     
@@ -220,7 +222,7 @@
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
-			 && delivery.navigation != 1 && !delivery.firstTimeTaking}"
+			 && delivery.navigation != 1 && !delivery.firstTimeTaking && !delivery.timeExpired}"
 	>
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
@@ -229,7 +231,7 @@
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
-			 && delivery.navigation == 1 && !delivery.firstTimeTaking}"
+			 && delivery.navigation == 1 && !delivery.firstTimeTaking && !delivery.timeExpired}"
 	>
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
