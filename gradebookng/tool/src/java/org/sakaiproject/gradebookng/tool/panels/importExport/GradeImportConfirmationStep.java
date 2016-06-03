@@ -29,9 +29,11 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
- * Created by chmaurer on 2/10/15.
+ * Confirmation page for what is going to be imported
  */
 public class GradeImportConfirmationStep extends Panel {
+	
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOG = Logger.getLogger(GradeImportConfirmationStep.class);
 
@@ -59,46 +61,56 @@ public class GradeImportConfirmationStep extends Panel {
 		final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
 		final Form<?> form = new Form("form") {
+			private static final long serialVersionUID = 1L;
+
+			boolean errors = false;
+			
 			@Override
 			protected void onSubmit() {
-				boolean errors = false;
+				
 				final Map<String, Long> assignmentMap = new HashMap<>();
+				
 				// Create new GB items
-				for (final Assignment assignment : assignmentsToCreate) {
+				assignmentsToCreate.forEach(assignment -> {
 					final Long assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
-					assignmentMap.put(assignment.getName(), assignmentId);
-				}
+					assignmentMap.put(StringUtils.trim(assignment.getName()), assignmentId);
+				});
 
 				final List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
 				itemsToSave.addAll(itemsToUpdate);
 				itemsToSave.addAll(itemsToCreate);
-				for (final ProcessedGradeItem processedGradeItem : itemsToSave) {
+				
+				itemsToSave.forEach(processedGradeItem -> {
 					LOG.debug("Looping through items to save");
-					for (final ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
+					
+					List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
+					
+					processedGradeItemDetails.forEach(processedGradeItemDetail -> {
 						LOG.debug("Looping through detail items to save");
+						
+						//get data
 						Long assignmentId = processedGradeItem.getItemId();
+						String assignmentTitle = StringUtils.trim(processedGradeItem.getItemTitle()); //trim to match the gbservice behaviour
+						
 						if (assignmentId == null) {
-							// Should be a newly created gn item
-							assignmentId = assignmentMap.get(processedGradeItem.getItemTitle());
+							// Should be a newly created GB item
+							assignmentId = assignmentMap.get(assignmentTitle);
 						}
+						
 						final GradeSaveResponse saved = GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
 								processedGradeItemDetail.getStudentUuid(),
 								processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
 
+						//if no change, try just the comment
 						if (saved == GradeSaveResponse.NO_CHANGE) {
+							
 							// Check for changed comments
-							String currentComment = GradeImportConfirmationStep.this.businessService.getAssignmentGradeComment(assignmentId,
-									processedGradeItemDetail.getStudentUuid());
-
-							currentComment = StringUtils.trimToNull(currentComment);
+							final String currentComment = StringUtils.trimToNull(GradeImportConfirmationStep.this.businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid()));
 							final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
+							
 							if (!StringUtils.equals(currentComment, newComment)) {
-								final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(
-										assignmentId,
-										processedGradeItemDetail.getStudentUuid(), newComment);
-								LOG.info("Saving comment: " + success + ", " + assignmentId + ", "
-										+ processedGradeItemDetail.getStudentEid() + ", " +
-										processedGradeItemDetail.getComment());
+								final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid(), newComment);
+								LOG.info("Saving comment: " + success + ", " + assignmentId + ", "+ processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getComment());
 								if (!success) {
 									errors = true;
 								}
@@ -107,10 +119,9 @@ public class GradeImportConfirmationStep extends Panel {
 							// Anything other than OK is bad
 							errors = true;
 						}
-						LOG.info("Saving grade: " + saved + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " +
-								processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
-					}
-				}
+						LOG.info("Saving grade: " + saved + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
+					});
+				});
 
 				if (!errors) {
 					getSession().success(getString("importExport.confirmation.success"));
@@ -122,7 +133,10 @@ public class GradeImportConfirmationStep extends Panel {
 		};
 		add(form);
 
+		// back button
 		final Button backButton = new Button("backbutton") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onSubmit() {
 				LOG.debug("Clicking back button...");
@@ -140,10 +154,14 @@ public class GradeImportConfirmationStep extends Panel {
 		backButton.setDefaultFormProcessing(false);
 		form.add(backButton);
 
+		// finish button
 		form.add(new Button("finishbutton"));
 
+		// items to be updated
 		final boolean hasItemsToUpdate = !itemsToUpdate.isEmpty();
 		final WebMarkupContainer gradesUpdateContainer = new WebMarkupContainer("grades_update_container") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean isVisible() {
 				return hasItemsToUpdate;
@@ -158,8 +176,11 @@ public class GradeImportConfirmationStep extends Panel {
 			gradesUpdateContainer.add(updateList);
 		}
 
+		// items to be created
 		final boolean hasItemsToCreate = !itemsToCreate.isEmpty();
 		final WebMarkupContainer gradesCreateContainer = new WebMarkupContainer("grades_create_container") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean isVisible() {
 				return hasItemsToCreate;
@@ -175,11 +196,17 @@ public class GradeImportConfirmationStep extends Panel {
 		}
 	}
 
-	private ListView<ProcessedGradeItem> makeListView(final String componentName, final List<ProcessedGradeItem> itemList) {
-		return new ListView<ProcessedGradeItem>(componentName, itemList) {
-			/**
-			 * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
-			 */
+	/**
+	 * Helper to create a listview for what needs to be shown
+	 * @param markupId wicket markup id
+	 * @param itemList ist of stuff
+	 * @return
+	 */
+	private ListView<ProcessedGradeItem> makeListView(final String markupId, final List<ProcessedGradeItem> itemList) {
+		
+		ListView<ProcessedGradeItem> rval = new ListView<ProcessedGradeItem>(markupId, itemList) {
+			private static final long serialVersionUID = 1L;
+			
 			@Override
 			protected void populateItem(final ListItem<ProcessedGradeItem> item) {
 				item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
@@ -187,18 +214,23 @@ public class GradeImportConfirmationStep extends Panel {
 				final PropertyModel<String> commentLabelProp = new PropertyModel<String>(item.getDefaultModel(), "commentLabel");
 				final String commentLabel = commentLabelProp.getObject();
 
-				item.add(new Behavior() {
-					@Override
-					public void afterRender(final Component component) {
-						super.afterRender(component);
-						if (commentLabel != null) {
-							component.getResponse().write(
-									"<tr class=\"comment\"><td class=\"item_title\"><span>" + commentLabel + "</span></td></tr>");
+				//if comment label, add additional row
+				if (commentLabel != null) {
+					
+					item.add(new Behavior() {
+						private static final long serialVersionUID = 1L;
+	
+						@Override
+						public void afterRender(final Component component) {
+							super.afterRender(component);
+							component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\"><span>" + commentLabel + "</span></td></tr>");
 						}
-					}
-				});
+					});
+				}
 			}
 		};
+		
+		return rval;
 	}
 
 }

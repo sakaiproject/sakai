@@ -117,7 +117,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return a list of users as uuids or null if none
 	 */
-	private List<String> getGradeableUsers() {
+	public List<String> getGradeableUsers() {
 		return this.getGradeableUsers(null);
 	}
 
@@ -128,7 +128,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return a list of users as uuids or null if none
 	 */
-	private List<String> getGradeableUsers(final GbGroup groupFilter) {
+	public List<String> getGradeableUsers(final GbGroup groupFilter) {
 
 		try {
 			final String siteId = getCurrentSiteId();
@@ -207,7 +207,7 @@ public class GradebookNgBusinessService {
 	 * @param userUuids list of user uuids
 	 * @return
 	 */
-	private List<User> getUsers(final List<String> userUuids) throws GbException {
+	public List<User> getUsers(final List<String> userUuids) throws GbException {
 		try {
 			final List<User> users = this.userDirectoryService.getUsers(userUuids);
 			Collections.sort(users, new LastNameComparator()); // default sort
@@ -416,6 +416,11 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = this.getGradebook();
 		if (gradebook == null) {
 			return GradeSaveResponse.ERROR;
+		}
+		
+		//if newGrade is null, no change
+		if(newGrade == null) {
+			return GradeSaveResponse.NO_CHANGE;
 		}
 
 		// get current grade

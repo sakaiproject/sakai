@@ -29,13 +29,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by chmaurer on 1/22/15.
+ * Page to allow the user to select which items in the imported file ar to be imported
  */
 public class GradeItemImportSelectionStep extends Panel {
-
-    private static final Logger log = Logger.getLogger(GradeItemImportSelectionStep.class);
-
-    private String panelId;
+	private static final Logger log = Logger.getLogger(GradeItemImportSelectionStep.class);
+	private static final long serialVersionUID = 1L;
+	
+	private String panelId;
     private IModel<ImportWizardModel> model;
 
     public GradeItemImportSelectionStep(String id, IModel<ImportWizardModel> importWizardModel) {
@@ -53,11 +53,10 @@ public class GradeItemImportSelectionStep extends Panel {
 
         final CheckGroup<ImportedGrade> group = new CheckGroup<ImportedGrade>("group", new ArrayList<ImportedGrade>());
 
-        Form<?> form = new Form("form")
-        {
-            @Override
-            protected void onSubmit()
-            {
+        Form<?> form = new Form("form"){
+            
+        	@Override
+            protected void onSubmit(){
                 info("selected grade(s): " + group.getDefaultModelObjectAsString());
 
                 List<ProcessedGradeItem> selectedGradeItems = (List<ProcessedGradeItem>)group.getDefaultModelObject();
@@ -74,12 +73,12 @@ public class GradeItemImportSelectionStep extends Panel {
                 log.debug("Filtered Create items: " + itemsToCreate.size());
 
                 List<ProcessedGradeItem> gbItemsToCreate = new ArrayList<ProcessedGradeItem>();
-                for (ProcessedGradeItem item : itemsToCreate) {
-                    //Don't want comment items here
+                itemsToCreate.forEach(item -> {
+                	//Don't want comment items here
                     if (!"N/A".equals(item.getItemPointValue())) {
                         gbItemsToCreate.add(item);
                     }
-                }
+                });
 
                 log.debug("Actual items to create: " + gbItemsToCreate.size());
 
