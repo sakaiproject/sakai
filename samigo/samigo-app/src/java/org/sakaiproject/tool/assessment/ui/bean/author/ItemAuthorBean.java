@@ -1270,12 +1270,11 @@ public class ItemAuthorBean
 			try {
 				ResourcePropertiesEdit resourceProperties = AssessmentService.getContentHostingService().newResourceProperties();
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, ToolManager.getCurrentPlacement().getContext());
-				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
+				resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 				
 				ContentCollectionEdit edit = (ContentCollectionEdit)AssessmentService.getContentHostingService().addCollection(collectionId, resourceProperties);
 				
-				edit.setPublicAccess();
-				AssessmentService.getContentHostingService().commitCollection(edit);
+				AssessmentService.getContentHostingService().setPubView(collectionId,true);
 			}catch(Exception ee){
 				log.warn(ee.getMessage());
 			}
@@ -1285,15 +1284,14 @@ public class ItemAuthorBean
 		}
 
 		try {
-			if(/*!"true".equals(AssessmentService.getContentHostingService().getProperties(Entity.SEPARATOR + "private"+ Entity.SEPARATOR).get(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT)) || */!AssessmentService.getContentHostingService().isPubView(collectionId))
+			if(!"true".equals(AssessmentService.getContentHostingService().getProperties(Entity.SEPARATOR + "private"+ Entity.SEPARATOR).get(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT)) || !AssessmentService.getContentHostingService().isPubView(collectionId))
 			{
 			
 				ContentCollectionEdit edit = AssessmentService.getContentHostingService().editCollection(collectionId);
 				ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
-				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
-
+				resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 				edit.setPublicAccess();
-				
+
 				AssessmentService.getContentHostingService().commitCollection(edit);
 				
 			}
