@@ -24,7 +24,6 @@ package org.sakaiproject.portal.charon.handlers;
 import java.io.IOException;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,8 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -157,13 +154,6 @@ public class ToolHandler extends BasePortalHandler
 		{
 			try
 			{
-				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
-				if (advisors != null) {
-					for (SecurityAdvisor advisor:advisors) {
-						SecurityService.pushAdvisor(advisor);
-						//session.removeAttribute("sitevisit.security.advisor");
-					}
-				}
 				site = SiteService.getSiteVisit(siteTool.getSiteId());
 			}
 			catch (IdUnusedException e)
