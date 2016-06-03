@@ -1161,7 +1161,6 @@ alter table lesson_builder_items modify altGradebook varchar2(100 char);
 
 create index lb_qr_questionId_userId on lesson_builder_q_responses(questionId, userId);
 create index lb_qr_total_qi on lesson_builder_qr_totals(questionId);
-create index lb_qr_questionId on lesson_builder_q_responses(questionId);
 -- END LSNBLDR-329
 
 -- BEGIN LSNBLDR-376
