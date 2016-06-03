@@ -106,6 +106,7 @@ public class ItemAddListener
   private boolean error = false;
   private boolean isPendingOrPool = false;
   private boolean isEditPendingAssessmentFlow = true;
+  AssessmentService assessdelegate;
 
   /**
    * Standard process action method.
@@ -114,12 +115,12 @@ public class ItemAddListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException {
 
-    //boolean correct=false;
-
-    log.debug("ItemAdd LISTENER.");
+	log.debug("ItemAdd LISTENER.");
+	assessdelegate = isEditPendingAssessmentFlow ? new AssessmentService() : new PublishedAssessmentService();
 
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     ItemBean item = itemauthorbean.getCurrentItem();
+    
     item.setEmiVisibleItems("0");
     String iText = ContextUtil.stringWYSIWYG(item.getItemText());
     String iInstruction = ContextUtil.stringWYSIWYG(item.getInstruction());
@@ -139,20 +140,23 @@ public class ItemAddListener
     	}
     }   
 
-    if(iType.equals(TypeFacade.EXTENDED_MATCHING_ITEMS.toString()))
+    if(iType.equals(TypeFacade.EXTENDED_MATCHING_ITEMS.toString())) {
     	checkEMI();
+    }
     
-    if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString()))
-	checkMC(true);
+    if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString())) {
+    	checkMC(true);
+    }
 
-    if(iType.equals(TypeFacade.MULTIPLE_CORRECT.toString()))
-	checkMC(false);
+    if(iType.equals(TypeFacade.MULTIPLE_CORRECT.toString())) {
+    	checkMC(false);
+    }
     
-    if(iType.equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.toString()))
-    checkMC(false);
+    if(iType.equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())) {
+    	checkMC(false);
+    }
     
-    if(iType.equals(TypeFacade.MATCHING.toString()))
-        {   
+    if(iType.equals(TypeFacade.MATCHING.toString())) {   
             ArrayList l=item.getMatchItemBeanList();
 	    if (l==null || l.size()==0){
 		String noPairMatching_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
@@ -160,8 +164,10 @@ public class ItemAddListener
 		error=true;
 	    }
 	}
-    if(error)
-	return;
+    
+    if(error) { 
+    	return;
+    }
     
     if(iType.equals(TypeFacade.MULTIPLE_CHOICE_SURVEY.toString()))
     {   
@@ -306,7 +312,7 @@ public class ItemAddListener
 
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
-    itemauthorbean.setItemTypeString("");
+    itemauthorbean = null;
   }
     
 	private void checkEMI() {
@@ -677,13 +683,14 @@ public class ItemAddListener
     	String text=item.getColumnChoices();
     	String[] columns;
     	columns = text.split(System.getProperty("line.separator"));
-    	if(columns.length < 2)
+    	if(columns.length < 2) {
     		return true;	
+    	}
     	return false;
     }
 
   public void saveItem(ItemAuthorBean itemauthor) throws FinFormatException{
-    boolean update = false;
+	  boolean update = false;
       ItemBean bean = itemauthor.getCurrentItem();
       ItemFacade item;
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -892,18 +899,12 @@ public class ItemAddListener
 		itemauthor.setItemNo(item.getItemId().toString());
       }
       else {
-        // Came from Assessment Authoring
-
-        AssessmentService assessdelegate;
-        if (isEditPendingAssessmentFlow) {
-        	assessdelegate = new AssessmentService();
-        }
-        else {
-        	assessdelegate = new PublishedAssessmentService();
-        }
-        // add the item to the specified part, otherwise add to default
+    	  
+    	  if(assessdelegate == null) {
+    		  assessdelegate = isEditPendingAssessmentFlow ? new AssessmentService() : new PublishedAssessmentService();
+    	  }
+    	  
         if (bean.getSelectedSection() != null) {
-// need to do  add a temp part first if assigned to a temp part SAK-2109
  
           SectionFacade section;
 
@@ -1048,7 +1049,8 @@ public class ItemAddListener
         itemauthor.setOutcome("editAssessment");
 
       }
-      // sorry, i need this for item attachment, used by SaveItemAttachmentListener. 
+      // sorry, i need this for item attachment, used by SaveItemAttachmentListener.
+      bean.setItemId(item.getItemId().toString());
       itemauthor.setItemId(item.getItemId().toString());
   }
   
@@ -2930,21 +2932,18 @@ public class ItemAddListener
       }
     }      
     // save new ones
-    AssessmentService service;
-    if (pendingOrPool) {
-    	service = new AssessmentService();
+    if(assessdelegate == null) {
+    	assessdelegate = pendingOrPool ? new AssessmentService() : new PublishedAssessmentService();
     }
-    else {
-    	service = new PublishedAssessmentService();
-    }
-    service.saveOrUpdateAttachments(list);
+    
+    assessdelegate.saveOrUpdateAttachments(list);
 
     // remove old ones
     Set set = map.keySet();
     Iterator iter = set.iterator();
     while (iter.hasNext()){
       Long attachmentId = (Long)iter.next();
-      service.removeItemAttachment(attachmentId.toString());
+      assessdelegate.removeItemAttachment(attachmentId.toString());
     }
   }
 
@@ -2959,14 +2958,12 @@ public class ItemAddListener
 	      list.add(a);
 	    }      
 	    // save new ones
-	    AssessmentService service;
-	    if (pendingOrPool) {
-	    	service = new AssessmentService();
+	    
+	    if(assessdelegate == null) {
+	    	assessdelegate = pendingOrPool ? new AssessmentService() : new PublishedAssessmentService();
 	    }
-	    else {
-	    	service = new PublishedAssessmentService();
-	    }
-	    service.saveOrUpdateAttachments(list);
+	    
+	    assessdelegate.saveOrUpdateAttachments(list);
   }
   
   private HashMap getAttachmentIdHash(List list){
