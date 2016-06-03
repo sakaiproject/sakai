@@ -779,6 +779,7 @@ create table lesson_builder_ch_status (
  );
 create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
 create index lb_page_folder on lesson_builder_pages(siteId, folder);
+drop index lb_qr_questionId;
 
 -----------------------------------------------------------------------------
 -- SAKAI_CONFIG_ITEM - KNL-1063 - ORACLE
