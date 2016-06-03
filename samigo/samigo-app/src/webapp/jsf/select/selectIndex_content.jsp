@@ -218,7 +218,7 @@ sorting actions for table:
 	  </f:facet> 
 	  <h:panelGroup>
 	    <h:commandLink title="#{selectIndexMessages.t_histogram}" id="histogram"  action="#{delivery.getOutcome}" immediate="true"  
-	        rendered="#{reviewable.feedback eq 'show' && reviewable.feedbackComponentOption == '2' && reviewable.statistics && !reviewable.hasRandomDrawPart && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment}" onmouseup="disableLinks(this);">
+	        rendered="#{reviewable.feedback eq 'show' && reviewable.feedbackComponentOption == '2' && reviewable.statistics && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment}" onmouseup="disableLinks(this);">
           <f:param name="publishedAssessmentId" value="#{reviewable.assessmentId}" />
           <f:param name="hasNav" value="false"/>
           <f:param name="allSubmissions" value="true" />
