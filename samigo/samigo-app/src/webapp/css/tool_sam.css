@@ -1236,3 +1236,43 @@ input[type='reset'].linearButton {
 	max-width: 1200px;
 }
 
+.sam-leftSep
+{
+	border-left: 1px solid #000000;
+	padding-left: 10px;
+	margin-left: 10px;
+}
+
+.sam-reviewHeaderTabs
+{
+	display: -webkit-flex;
+	display: flex;
+	line-height: 1;
+}
+
+.sam-reviewHeaderTabs span, .sam-reviewHeaderTabs a
+{
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.submission-container
+{
+	margin-bottom: 20px;
+}
+
+.sam-asterisks-row
+{
+	padding: 0.5em 1em;
+	border-top: 1px solid #dddddd;
+}
+
+.sam-asterisks-row span
+{
+	display: block;
+}
+
+.sam-submittedPanel
+{
+	margin-top: 10px;
+}
