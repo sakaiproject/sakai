@@ -397,6 +397,10 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1600', 'sitePage.c
 drop index MFR_MESSAGE_DELETED_I;
 -- END SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 
+-- LSNBLDR-646
+drop index lesson_builder_qr_questionId;
+-- END LSNBLDR-646
+
 -- SAK-29546 Add site visit totals per user
 CREATE TABLE SST_PRESENCE_TOTALS (
                 ID NUMBER(19,0) NOT NULL,
@@ -779,7 +783,6 @@ create table lesson_builder_ch_status (
  );
 create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
 create index lb_page_folder on lesson_builder_pages(siteId, folder);
-drop index lb_qr_questionId;
 
 -----------------------------------------------------------------------------
 -- SAKAI_CONFIG_ITEM - KNL-1063 - ORACLE
