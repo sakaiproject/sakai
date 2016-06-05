@@ -123,9 +123,7 @@ public class IFrameToolRenderService implements ToolRenderService
 		sb.append("\">") .append("\n").append("</iframe>");
 		
 		RenderResult result = new RenderResult() {
-			
-			private String content = sb.toString();
-			
+						
 			public String getHead() {
 				return "";
 			}
@@ -136,12 +134,12 @@ public class IFrameToolRenderService implements ToolRenderService
 
 			public String getContent()
 			{
-				return content;
+				return sb.toString();
 			}
 
 			public void setContent(String content)
 			{
-				this.content = content;
+				return; // Not allowed
 			}
 
 			public String getJSR168EditUrl()
