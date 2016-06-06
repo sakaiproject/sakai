@@ -86,6 +86,10 @@
             <groupId>OKI</groupId>
             <artifactId>OkiOSID</artifactId>
         </dependency>
+        <dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>import-impl</artifactId>
+        </dependency>
 	</dependencies>
 	<build>
 		<resources />
