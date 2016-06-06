@@ -76,7 +76,7 @@ $(window).load( function() {
 <!-- some back end stuff stubbed -->
 <h:form id="assessmentForm">
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="bs-callout-danger">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
@@ -513,7 +513,7 @@ $(window).load( function() {
 	    <f:param value="#{author.editPoolName}" />
 	</h:outputFormat>
 </h:panelGrid>
-<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="bs-callout-danger">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
