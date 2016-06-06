@@ -49,6 +49,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -68,6 +69,9 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
@@ -94,6 +98,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
+    protected SiteService siteService;
 	
     @Override
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
@@ -247,7 +252,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("Null paraemter passed to getGradeDefinitionForStudentForItem");	
 		}
 		
-		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
+		//studentId can be a groupId (from Assignments)
+		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid) || isCurrentUserFromGroup(gradebookUid, studentUid);
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
@@ -3358,6 +3364,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void setGradebookPermissionService(GradebookPermissionService gradebookPermissionService) {
 		this.gradebookPermissionService = gradebookPermissionService;
 	}
+	
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public SiteService getSiteService() {
+		return siteService;
+	}
 
 	@Override
 	public Set getGradebookGradeMappings(final Long gradebookId) {
@@ -3631,5 +3645,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// Sakai auto commits the session
 		session.close();
+	}
+	
+	private boolean isCurrentUserFromGroup(final String gradebookUid, final String studentId)
+	{
+		boolean isFromGroup=false;
+		try {
+			Site s = siteService.getSite(gradebookUid);
+			Group g = s.getGroup(studentId);
+			isFromGroup = (g != null) && (g.getMember(authn.getUserUid()) != null);
+		} catch (Exception e) {
+			// Id not found
+			log.error("Error in isCurrentUserFromGroup: ", e);
+		} 
+		return isFromGroup;
 	}
 }
