@@ -236,7 +236,7 @@ public class DeliveryBean
   // esmiley added to track JavaScript
   private String javaScriptEnabledCheck;
 
-  //cwen
+  //cwent
   private String siteId;
 
   private boolean beginAssessment;
@@ -288,6 +288,7 @@ public class DeliveryBean
   private Date deadline;
   
   private boolean  firstTimeTaking;
+  boolean timeExpired = false;
   
   private static String ACCESSBASE = ServerConfigurationService.getAccessUrl();
   private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path"); 
@@ -2394,7 +2395,7 @@ public class DeliveryBean
    */
   public void addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
   {
-    if (isTimeRunning() && timeExpired())
+    if (isTimeRunning() && getTimeExpired())
       setOutcome("timeExpired");
 
     String mediaLocation = (String) e.getNewValue();
@@ -2978,29 +2979,15 @@ public class DeliveryBean
     this.beginAssessment = beginAssessment;
   }
 
-  public boolean timeExpired(){
+  public boolean getTimeExpired(){
     if (adata == null) {
     	return false;
     }
-    boolean timeExpired = false;
-    TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-    TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
-                                             get(adata.getAssessmentGradingId());
-    if (timedAG != null){ 
-      // if server already submit the assessment, this happen if JScript latency is very long
-      // and assessment passed the time left + latency buffer
-      // in this case, we will display the time expired message.
-      if (timedAG.getSubmittedForGrade()){
-        timeExpired = true;
-        queue.remove(timedAG);
-      } 
-    }
-    else{ 
-      // null => not only does the assessment miss the latency buffer, it also missed the
-      // transaction buffer
-      timeExpired = true;
-    }
     return timeExpired;
+  }
+  
+  public void setTimeExpired(Boolean timeExpired) {
+	  this.timeExpired = timeExpired;
   }
 
   private void removeTimedAssessmentFromQueue(){
@@ -3341,7 +3328,7 @@ public class DeliveryBean
     
     log.debug("check9");
     // check 9: is timed assessment? and time has expired?
-    if (isTimeRunning() && timeExpired() && !turnIntoTimedAssessment){ 
+    if (isTimeRunning() && getTimeExpired() && !turnIntoTimedAssessment){ 
       return "timeExpired";
     }
     
