@@ -66,7 +66,7 @@
                                        
 <f:verbatim></span></li></f:verbatim>
 <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
-<f:verbatim><li role="menuitem" ><span></f:verbatim>
+<li role="menuitem" ><span>
  
    <h:commandLink title="#{generalMessages.t_template}" rendered="#{questionpool.importToAuthoring == 'false'}" action="template" immediate="true">
         <h:outputText value="#{generalMessages.template}"/>
@@ -79,9 +79,9 @@
          type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
    </h:commandLink>
 
-<f:verbatim></span></li></f:verbatim>
+</span></li>
 </h:panelGroup>
-<f:verbatim><li role="menuitem" ><span class="current"></f:verbatim>
+<li role="menuitem" ><span class="current">
 
         <h:outputText value="#{questionPoolMessages.qps}"/>
 
