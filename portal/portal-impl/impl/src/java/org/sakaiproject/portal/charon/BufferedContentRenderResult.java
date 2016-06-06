@@ -12,12 +12,13 @@ import org.sakaiproject.site.api.ToolConfiguration;
 public class BufferedContentRenderResult implements RenderResult {
 
 	ToolConfiguration config;
-	String content;
+	String head;
 	String body;
 	
-	public BufferedContentRenderResult(final ToolConfiguration config, final String content) {
+	public BufferedContentRenderResult(final ToolConfiguration config, final String head, final String body) {
 		this.config = config;
-		this.content = content;
+		this.head = head;
+		this.body = body;
 	}
 	
 	@Override
@@ -27,7 +28,7 @@ public class BufferedContentRenderResult implements RenderResult {
 
 	@Override
 	public String getContent() throws ToolRenderException {
-		return this.content;
+		return this.body;
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class BufferedContentRenderResult implements RenderResult {
 
 	@Override
 	public String getHead() {
-		return null;
+		return this.head;
 	}
 
 }

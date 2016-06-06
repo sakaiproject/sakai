@@ -618,7 +618,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					bufferMap = (Map<String,String>) buffer;
 					toolInline = true;
 				}
-				
 			}
 		}
 		
@@ -733,8 +732,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		RenderResult result;
 		
 		if(bufferMap != null) {
+			// use the inlined content
 			M_log.debug("Using buffered content rendering");
-			result = new BufferedContentRenderResult(placement, bufferMap.get("responseBody"));
+			//this could do  with a bit of reorganisation...
+			result = new BufferedContentRenderResult(placement, bufferMap.get("responseHead"), bufferMap.get("responseBody"));
 		} else {
 			//standard iframe
 			M_log.debug("Using standard iframe rendering");
