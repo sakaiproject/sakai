@@ -33,6 +33,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
@@ -151,7 +152,7 @@ public class SaveAssessmentSettingsListener
      boolean ipErr=false;
      for(int a=0;a<arraysIp.length;a++){
 	 String currentString=arraysIp[a];
-	 if(!currentString.trim().equals("")){
+	 if(!StringUtils.equals(currentString.trim(), "")){
 	     if(a<(arraysIp.length-1))
 		 currentString=currentString.substring(0,currentString.length()-1);           
 	     if(!s.isIpValid(currentString)){
