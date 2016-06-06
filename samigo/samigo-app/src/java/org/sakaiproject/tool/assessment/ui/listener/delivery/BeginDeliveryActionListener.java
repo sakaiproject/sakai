@@ -71,6 +71,8 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
@@ -407,7 +409,7 @@ public class BeginDeliveryActionListener implements ActionListener
     				}
     				delivery.setTimeLimit_hour(hour);
     				delivery.setTimeLimit_minute(minute);
-
+    				delivery.setTimeExpired(false);
     				StringBuilder sb = new StringBuilder();
     				ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
     				if (hour == 0) {
@@ -453,10 +455,22 @@ public class BeginDeliveryActionListener implements ActionListener
     		if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0) {
     			control.setTimeLimit(extTimeService.getTimeLimit());
     		}
-    		String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
     		Date attemptDate = unSubmittedAssessmentGrading.getAttemptDate();
+    		long timeLimitInSetting = control.getTimeLimit();
+    		Long now = new Date().getTime();
+    		Long start = attemptDate.getTime();
+    		if((now - start) > (timeLimitInSetting*1000)) {
+    			// check if the queue is ahead and already submitted it
+    			TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+    			TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
+    					get(unSubmittedAssessmentGrading.getAssessmentGradingId());
+    			// if it was submitted (race condition) while checking, unblock it - sam will synch soon
+    			if(timedAG != null && !timedAG.getSubmittedForGrade()) {
+    				delivery.setTimeExpired(true);
+    			}
+    		}
     		delivery.setBeginTime(attemptDate);
-    		String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(timeLimitInSetting);
+    		String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(control.getTimeLimit() == null ? "0" : String.valueOf(control.getTimeLimit()));
     		delivery.setTimeLimit(timeBeforeDueRetract);
     		long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + Long.parseLong(timeBeforeDueRetract) * 1000;
     		delivery.setAdjustedTimedAssesmentDueDate(new Date(adjustedTimedAssesmentDueDateLong));

@@ -91,7 +91,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
             ag.setTimeElapsed(timedAG.getTimeLimit());
             ag.setStatus(AssessmentGradingData.SUBMITTED); // this will change status 0 -> 1
             ag.setIsLate(islate(ag.getPublishedAssessmentId()));
-	    Date submitDate = new Date();
+            Date submitDate = new Date();
             ag.setSubmittedDate(submitDate);
             // SAK-7302, users taking a timed assessment may exit without completing the assessment
             // set these two scores to 0 instaed of null
@@ -119,7 +119,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
 
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
-
+            
             EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
             Map<String, Object> notiValues = new HashMap<>();
