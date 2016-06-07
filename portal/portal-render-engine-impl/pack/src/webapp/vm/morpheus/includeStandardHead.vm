@@ -56,17 +56,17 @@
             };
         </script>
         
-		<!-- inlined tool header contribution -->
+        <!-- inlined tool header contribution -->
         ## if any of the tools requested an inline render, their header content gets aggregated here
         #foreach ( $tool in $pageColumn0Tools )
-       		#if (${tool.hasRenderResult})
-       			${tool.toolRenderResult.getHead()}
-       		#end
+        	#if (${tool.hasRenderResult})
+        		${tool.toolRenderResult.getHead()}
+        	#end
         #end
         #foreach ( $tool in $pageColumn1Tools )
         	#if (${tool.hasRenderResult})
-				${tool.toolRenderResult.getHead()}
-       		#end
+        		${tool.toolRenderResult.getHead()}
+        	#end
         #end
-		<!-- end inlined tool header contribution -->
+        <!-- end inlined tool header contribution -->
     </head>
