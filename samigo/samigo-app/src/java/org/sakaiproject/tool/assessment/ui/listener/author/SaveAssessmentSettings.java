@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -66,7 +65,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 /**
@@ -79,8 +77,6 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 public class SaveAssessmentSettings
 {
   private static final Logger LOG = LoggerFactory.getLogger(SaveAssessmentSettings.class);
-  
-  private static final String EXTENDED_TIME_KEY = "extendedTime";
 
   public AssessmentFacade save(AssessmentSettingsBean assessmentSettings, boolean isFromConfirmPublishAssessmentListener)
   {
@@ -567,36 +563,14 @@ public class SaveAssessmentSettings
 	 * This will clear out the old extended time values and update them with new
 	 * ones.
 	 * 
-	 * @param assessment
-	 * @param assessmentSettings
-	 * @return
+	 * @param assessment AssessmentFacade
+	 * @param assessmentSettings AssessmentSettingsBean settings
+     * @param metaDataMap MetaDataMap
 	 */
-	private HashMap addExtendedTimeValuesToMetaData(AssessmentFacade assessment,
+	private void addExtendedTimeValuesToMetaData(AssessmentFacade assessment,
 			AssessmentSettingsBean assessmentSettings, HashMap metaDataMap) {
 
-		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");
-		String metaKey;
-
-		// clear out the old extended Time values
-		int itemNum = 1;
-		String extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-		while ((extendedTimeData != null) && (!extendedTimeData.equals(""))) {
-			metaKey = EXTENDED_TIME_KEY + itemNum;
-			metaDataMap.put(metaKey, ""); // set to empty string TODO: actually
-											// delete it.
-			extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-			itemNum++;
-		}
-
-		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
-			String extendedTimeEntry = ExtendedTimeService.convertZones(allExtendedTimeEntries[itemNum], TimeService.getLocalTimeZone(), TimeZone.getDefault());
-			metaKey = "extendedTime" + (itemNum + 1);
-
-			// Add in the new extended time values
-			metaDataMap.put(metaKey, extendedTimeEntry);
-		}
-
-		return metaDataMap;
+		ExtendedTimeService.addExtendedTimeValuesToMetaData(assessmentSettings.getExtendedTimes(), metaDataMap, assessment, null);
 	}
 
 }

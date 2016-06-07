@@ -43,7 +43,7 @@
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback"
       cascade="all" />
 
-    <set name="assessmentMetaDataSet" table="SAM_PUBLISHEDMETADATA_T" cascade="all"
+    <set name="assessmentMetaDataSet" table="SAM_PUBLISHEDMETADATA_T" cascade="all-delete-orphan"
       inverse="true" lazy="false">
       <key column="ASSESSMENTID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData"/>

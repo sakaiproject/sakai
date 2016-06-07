@@ -3,6 +3,7 @@ package org.sakaiproject.tool.assessment.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -10,6 +11,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.time.cover.TimeService;
@@ -245,5 +247,84 @@ public class ExtendedTimeService {
 
 	public void setHasExtendedTime(boolean hasExtendedTime) {
 		this.hasExtendedTime = hasExtendedTime;
+	}
+
+	/**
+	 * Handle adding extendedTimeEntries for an assessment / published Assessment. Both Facades may not be null.
+	 * @param extendedTimeEntries the extendedTimeEntry strings
+	 * @param metaDataMap map of metaData
+	 * @param assessmentFacade may be null
+	 * @param publishedAssessmentFacade may be null
+     */
+	public static void addExtendedTimeValuesToMetaData(String extendedTimeEntries, HashMap<String, String> metaDataMap, AssessmentFacade assessmentFacade, PublishedAssessmentFacade publishedAssessmentFacade) {
+		String metaKey;
+		String extendedTimeData;
+		String[] allExtendedTimeEntries = extendedTimeEntries.split("\\^");
+
+		int itemNum = 1;
+		extendedTimeData = getExtendedTimeData(assessmentFacade, publishedAssessmentFacade, itemNum);
+		while ((extendedTimeData != null) && !extendedTimeData.isEmpty()) {
+			metaKey = EXTENDED_TIME_KEY + itemNum;
+			metaDataMap.remove(metaKey);
+			extendedTimeData = getExtendedTimeData(assessmentFacade, publishedAssessmentFacade, itemNum);
+			itemNum++;
+		}
+
+		String extendedTimeEntry;
+		int i = 0;
+		for (; i < allExtendedTimeEntries.length; i++) {
+			extendedTimeEntry = convertZones(allExtendedTimeEntries[i], TimeService.getLocalTimeZone(), TimeZone.getDefault());
+			metaKey = EXTENDED_TIME_KEY + (i + 1); //itemNum starts at 1
+
+			metaDataMap.put(metaKey, extendedTimeEntry);
+		}
+
+		removeExtraEntries(itemNum, i, assessmentFacade, publishedAssessmentFacade);
+	}
+
+	/**
+	 * returns the extendedTimeData from a singular supplied Facade (both Facades may not be null)
+	 * @param assessmentFacade AssessmentFacade, may be null
+	 * @param publishedAssessmentFacade PublishedAssessmentFacade, may be null
+	 * @param itemNum, the sequence being used
+     * @return extendedTimeData
+     */
+	private static String getExtendedTimeData(AssessmentFacade assessmentFacade, PublishedAssessmentFacade publishedAssessmentFacade, int itemNum)
+			throws IllegalArgumentException {
+		if(assessmentFacade == null && publishedAssessmentFacade == null) {
+			throw new IllegalArgumentException("Both facade's may not be null.");
+		}
+
+		if (assessmentFacade == null) {
+			return publishedAssessmentFacade.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
+		} else {
+			return assessmentFacade.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
+		}
+	}
+
+	/**
+	 * This method removes any extra extended time entries
+	 * Both Facades may not be null. Only one facade may be null.
+	 * @param oldMax the old maximum extended time entry
+	 * @param newMax the new maximum extended time entry
+	 * @param assessmentFacade assessment interface may be null
+	 * @param publishedAssessmentFacade published assessment interface, may be null
+     */
+	private static void removeExtraEntries(int oldMax, int newMax, AssessmentFacade assessmentFacade, PublishedAssessmentFacade publishedAssessmentFacade) {
+		if( assessmentFacade == null && publishedAssessmentFacade == null) {
+			throw new IllegalArgumentException("Both facade's may not be null");
+		}
+
+		if(newMax < oldMax) {
+			if(assessmentFacade != null) {
+				for(int j = newMax + 1; j <= oldMax; j++) {
+					assessmentFacade.removeAssessmentMetaData(EXTENDED_TIME_KEY + j);
+				}
+			} else {
+				for(int j = newMax + 1; j <= oldMax; j++) {
+					publishedAssessmentFacade.removeAssessmentMetaData(EXTENDED_TIME_KEY + j);
+				}
+			}
+		}
 	}
 }
