@@ -66,6 +66,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -81,7 +82,6 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
-
 import org.sakaiproject.tool.cover.ToolManager;
 
 /**
@@ -1117,6 +1117,218 @@ public class AssessmentService {
 			}
 			return text;
 		}
+
+
+	/**
+	 * Exports an assessment to mark up text
+	 * 
+	 * @param assessment
+	 * @param bundle
+	 * @return
+	 */
+	public String exportAssessmentToMarkupText(AssessmentFacade assessment, Map<String,String> bundle) {
+		StringBuilder markupText = new StringBuilder(); 
+		int nQuestion = 1;
+		
+		for (Object sectionObj : assessment.getSectionArray()) {
+			SectionFacade section = (SectionFacade)sectionObj;
+			List<ItemDataIfc> items = null;
+			boolean hasRandomPartScore = false;
+			Double score = null;
+			boolean hasRandomPartDiscount = false;
+			Double discount = null;
+			
+			if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+  			{
+				items = section.getItemArray();
+  			}
+			else 
+			{
+				String requestedScore = StringUtils.trimToEmpty(section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION));
+						                 
+				if (StringUtils.isNotEmpty(requestedScore)) {
+					hasRandomPartScore = true;
+					try {
+						score = new Double(requestedScore);
+					} catch (NumberFormatException e) {
+						log.error("NumberFormatException converting to Double: " + requestedScore);
+					}
+				}
+				
+				String requestedDiscount = StringUtils.trimToEmpty(section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION));
+
+				if (StringUtils.isNotEmpty(requestedDiscount)) {
+					hasRandomPartDiscount = true;
+					try {
+						discount = new Double(requestedDiscount);
+					} catch (NumberFormatException e) {
+						log.error("NumberFormatException converting to Double: " + requestedDiscount);
+					}
+				}
+				
+				QuestionPoolService qpService = new QuestionPoolService();
+				try {
+					Long sectionId = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+					items = qpService.getAllItems(sectionId);
+				} catch (NumberFormatException e) {
+					log.error("NumberFormatException converting to Long: " + section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+				}
+			}
+  				
+			for (ItemDataIfc item : items) 
+			{
+				// only exports these questions types
+				if (!isQuestionTypeExportable2MarkupText(item.getTypeId())) {
+					continue;
+				}
+				
+				markupText.append(nQuestion).append(". ");
+				if (hasRandomPartScore) {
+					markupText.append("(").append(score).append(" ").append(bundle.get("points")).append(")");
+				}
+				else {
+					markupText.append("(").append(item.getScore()).append(" ").append(bundle.get("points")).append(")");
+				}
+				if (hasRandomPartDiscount && discount != null && discount > 0) {
+					markupText.append(" (").append(discount).append(" ").append(bundle.get("discount")).append(")");
+				}
+				else if (!hasRandomPartDiscount && item.getDiscount() != null && item.getDiscount() > 0) {
+					markupText.append(" (").append(item.getDiscount()).append(" ").append(bundle.get("discount")).append(")");
+				}
+				
+				for (ItemTextIfc itemText : item.getItemTextArray()) {
+					markupText.append("\n");
+					if (TypeIfc.FILL_IN_BLANK.intValue() == item.getTypeId() 
+							|| TypeIfc.FILL_IN_NUMERIC.intValue() == item.getTypeId()) {
+						markupText.append(itemText.getText().replaceAll("\\{\\}", ""));
+					}
+					else {
+						markupText.append(itemText.getText());
+					}
+					
+					// Answer in Essay question's doesn't need to be exported  
+					if (TypeIfc.ESSAY_QUESTION.intValue() == item.getTypeId()) {
+						continue;
+					}
+
+					for (AnswerIfc answer : itemText.getAnswerArray()) {
+						markupText.append("\n");
+						
+						if (answer.getIsCorrect()) {
+							markupText.append("*");
+						}
+    					if (TypeIfc.MULTIPLE_CHOICE.intValue() == item.getTypeId() 
+    							|| TypeIfc.MULTIPLE_CORRECT.intValue() == item.getTypeId()) {
+    						markupText.append(answer.getLabel()).append(". ");
+    					}
+    					
+    					if (TypeIfc.FILL_IN_NUMERIC.intValue() == item.getTypeId()) {
+    						markupText.append("{").append(answer.getText()).append("}");
+    					}
+    					else if (TypeIfc.TRUE_FALSE.intValue() == item.getTypeId()) {
+    						String boolText = bundle.get("false");
+    						if (Boolean.parseBoolean(answer.getText())) {
+    							boolText = bundle.get("true");
+    						}
+    						markupText.append(boolText);
+    					}
+    					else {
+    						markupText.append(answer.getText());
+    					}
+					}
+				}
+				
+				String randomized = item.getItemMetaDataByLabel(ItemMetaDataIfc.RANDOMIZE);
+				if (randomized != null && Boolean.valueOf(randomized)) {
+					markupText.append("\n");
+					markupText.append(bundle.get("randomize"));
+				}
+				
+				if (item.getHasRationale() != null && item.getHasRationale()) {
+					markupText.append("\n");
+					markupText.append(bundle.get("rationale"));
+				}
+				
+				if (StringUtils.isNotEmpty(item.getCorrectItemFeedback())) {
+					markupText.append("\n");
+					markupText.append("#FBOK:").append(item.getCorrectItemFeedback());
+				}
+				
+				if (StringUtils.isNotEmpty(item.getInCorrectItemFeedback())) {
+					markupText.append("\n");
+					markupText.append("#FBNOK:").append(item.getInCorrectItemFeedback());
+				}
+				markupText.append("\n");
+				
+				nQuestion++;
+			}
+		}
+		
+		return markupText.toString();
+	}	  
+    
+	/**
+	 * Check if there are questions not exportable to markup text
+	 * 
+	 * @param assessment
+	 * @return
+	 */
+	public boolean isExportable(AssessmentFacade assessment) {
+		boolean exportToMarkupText = false;
+		
+		for (Object sectionObj : assessment.getSectionArray()) {
+			SectionFacade section = (SectionFacade)sectionObj;
+			List<ItemDataIfc> items = null;
+						
+			if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+  			{
+				items = section.getItemArray();
+  			}
+			else 
+			{
+				QuestionPoolService qpService = new QuestionPoolService();
+				try {
+					Long qpId = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+					items = qpService.getAllItems(qpId);
+				} catch (NumberFormatException e) {
+					log.error("NumberFormatException converting to Long: " + section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+				}
+			}
+  				
+			for (ItemDataIfc item : items) 
+			{
+				// only exports these questions types
+				if (isQuestionTypeExportable2MarkupText(item.getTypeId())) {
+					exportToMarkupText = true;
+					break;
+				}
+			}
+			if (exportToMarkupText) {
+				break;
+			}
+		}
+		
+		return exportToMarkupText;
+	}
+	
+	/**
+	 * Return true if the item can be exportable to mark up text
+	 * 
+	 * @param itemTypeId
+	 * @return
+	 */
+	public boolean isQuestionTypeExportable2MarkupText(Long itemTypeId) {
+		boolean exportable = false;
+		
+		exportable = exportable || (TypeIfc.MULTIPLE_CHOICE.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.MULTIPLE_CORRECT.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.FILL_IN_BLANK.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.FILL_IN_NUMERIC.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.TRUE_FALSE.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.ESSAY_QUESTION.intValue() == itemTypeId.intValue());
+				
+		return exportable;
+	}
 
 	public static String copyStringAttachment(String stringWithAttachment) {
 		AssessmentService assessmentService = new AssessmentService();
