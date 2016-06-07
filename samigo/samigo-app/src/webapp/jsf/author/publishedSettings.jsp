@@ -499,15 +499,25 @@
       </div>
     </h:panelGroup>
     
-    <!-- GRADEBOOK OPTION -->
+    <f:verbatim><br /><br /></f:verbatim>
+    
+   <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true && publishedSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10 samigo-checkbox">
-        <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{publishedSettings.toDefaultGradebook}" disabled="#{publishedSettings.firstTargetSelected == 'Anonymous Users'}"/>
-        <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook" />
+	      	<h:selectOneRadio id="toDefaultGradebook1" value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection" rendered="#{publishedSettings.gradebookLinkeable == true}">
+	      	 	<f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+	       		<f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.to_associate_existing_gradebook_item}"/>
+	        </h:selectOneRadio>
+	        <h:selectOneRadio id="toDefaultGradebook2" value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection" rendered="#{publishedSettings.gradebookLinkeable == false}">
+	   			<f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+	       		<f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
+	        </h:selectOneRadio>
+          <f:verbatim><br /></f:verbatim>
+          <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.gradebook_options_help}" />
       </div>
     </h:panelGroup>
-
+    
     </div>
 
     <!-- *** FEEDBACK *** -->

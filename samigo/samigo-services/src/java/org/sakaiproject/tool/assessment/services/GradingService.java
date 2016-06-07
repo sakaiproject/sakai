@@ -54,9 +54,14 @@ import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -73,6 +78,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIf
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -80,6 +86,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
+import org.sakaiproject.tool.cover.ToolManager;
 
 
 /**
@@ -123,6 +130,76 @@ public class GradingService
 
   private Logger log = LoggerFactory.getLogger(GradingService.class);
 
+  /**
+   * Check if there still exist a gradebook item which has the same name as the assessment AND is not externally maitained (empty).
+   * @param pTitle
+   * @return
+   */
+  public boolean isGradebookItemAvailable(String pTitle) {
+	  GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	  String gradebookId = ToolManager.getInstance().getCurrentPlacement().getContext();
+	  List<Assignment> allGradebookItems = g.getAssignments(gradebookId);
+	  for(Assignment a : allGradebookItems) {
+		  if(!a.isExternallyMaintained() && StringUtils.equals(a.getName(), pTitle)) { 
+			  return true;
+		  }
+	  }
+	  return false;
+  }
+  
+  
+  /**
+   * Record all submission to a specific gradebook item of an assessment.
+   * @param SCORING_TYPE
+   * @param ASSESSMENT
+   */
+  public void linkAssessmentWithGradebook(Integer scoringType,PublishedAssessmentFacade assessment) throws Exception {
+	  GradebookService gService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	  GradebookExternalAssessmentService g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean(
+			  "org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+	  GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+	  Long categoryId = null;
+	  String gbId = GradebookFacade.getGradebookUId();
+	  Assignment gbItem = gService.getAssignment(gbId, assessment.getTitle());
+	  // should an items exists (empty and non externally maintained), obtain its category, if any, and remove it.
+	  if(gbItem != null) {
+		  if(gbItem.getCategoryName() != null) {
+			  List<CategoryDefinition> l = gService.getCategoryDefinitions(gbId);
+			  for(CategoryDefinition cat : l) {
+				  if(StringUtils.equals(cat.getName(), gbItem.getCategoryName())) {
+					  categoryId = cat.getId();
+				  }
+			  }
+		  }
+		  gService.removeAssignment(gbItem.getId());
+	  }
+	  // re add it
+	  gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), categoryId, g);
+	  // record any grading data, if available - taking into account which score type is to be selected
+	  List<AssessmentGradingData> gradesList = scoringType.equals(EvaluationModelIfc.HIGHEST_SCORE) ? 
+			  getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId())
+			  : getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+	  if(gradesList != null) {
+		  for(AssessmentGradingData ag : gradesList) {
+			  try {
+				  // Send the average score if average was selected for multiple submissions
+				  if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {	
+					  if(ag.getStatus() == AssessmentGradingData.NO_SUBMISSION) {
+						  ag.setFinalScore(ag.getFinalScore());
+					  } else {
+						  Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+								  getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
+						  ag.setFinalScore(averageScore);
+					  }
+				  }
+				  gbsHelper.updateExternalAssessmentScore(ag, g);	
+			  } catch(Exception e) {
+				  log.warn("Exception occured while recording existing grades. Message:" + e.getMessage());
+			  }
+		  }
+	  }
+  }
+  
   /**
    * Get all scores for a published assessment from the back end.
    */
@@ -3553,7 +3630,7 @@ class EMIScore implements Comparable<EMIScore>{
 			return correct?-1:1;
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
@@ -282,26 +283,32 @@ public class SaveAssessmentSettings
     
     String firstTargetSelected = assessmentSettings.getFirstTargetSelected();
 	if ("Anonymous Users".equals(firstTargetSelected)) {
-		evaluation.setAnonymousGrading(Integer.valueOf("1"));
-		evaluation.setToGradeBook("2");
+		evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
+		evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.NON_ANONYMOUS_GRADING));
 	}
 	else {
 		if (assessmentSettings.getAnonymousGrading()) {
-		      evaluation.setAnonymousGrading(1);
+		      evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
 		}
 		else {
-			evaluation.setAnonymousGrading(2);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
-		if (assessmentSettings.getToDefaultGradebook()) {
-			evaluation.setToGradeBook("1");
+		String toDefaultGradebook = String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK);
+	    String toExistingGradebookItem = String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM);
+		if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), toDefaultGradebook)) {
+			evaluation.setToGradeBook(toDefaultGradebook);
+		} else if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), toExistingGradebookItem)) {
+			evaluation.setToGradeBook(toExistingGradebookItem);
 		}
 		else {
-			evaluation.setToGradeBook("2");
+			evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 		}
 	}
     
-    if (assessmentSettings.getScoringType()!=null)
+    if (assessmentSettings.getScoringType()!=null) {
       evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
+    }
+    
     assessment.setEvaluationModel(evaluation);
 
 
