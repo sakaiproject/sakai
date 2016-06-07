@@ -1036,7 +1036,6 @@ $(document).ready(function(){
 							</ul>
 						#end	
 					#end
-					</div>	
 				#end
 				#if ($withGrade)
 					#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
