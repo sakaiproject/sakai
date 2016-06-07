@@ -14,6 +14,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -42,6 +43,8 @@ public class ExportPanel extends Panel {
 
 	// default export options
 	ExportFormat exportFormat = ExportFormat.CSV;
+	boolean includeGradeItemScores = true;
+	boolean includeGradeItemComments = true;
 	boolean includeStudentName = true;
 	boolean includePoints = false;
 	boolean includeLastLogDate = false;
@@ -87,11 +90,39 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(includeStudentName);
 			}
 		});
+		add(new AjaxCheckBox("includeStudentId", Model.of(includeStudentId)) {
+			@Override
+			protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
+				includeStudentId = !includeStudentId;
+				setDefaultModelObject(includeStudentId);
+			}
+		});
+		add(new AjaxCheckBox("includeGradeItemScores", Model.of(includeGradeItemScores)) {
+			@Override
+			protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
+				includeGradeItemScores = !includeGradeItemScores;
+				setDefaultModelObject(includeGradeItemScores);
+			}
+		});
+		add(new AjaxCheckBox("includeGradeItemComments", Model.of(includeGradeItemComments)) {
+			@Override
+			protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
+				includeGradeItemComments = !includeGradeItemComments;
+				setDefaultModelObject(includeGradeItemComments);
+			}
+		});
 		add(new AjaxCheckBox("includePoints", Model.of(includePoints)) {
 			@Override
 			protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
 				includePoints = !includePoints;
 				setDefaultModelObject(includePoints);
+			}
+
+			@Override
+			public boolean isVisible() {
+				// only allow option if categories are not weighted
+				GbCategoryType categoryType = ExportPanel.this.businessService.getGradebookCategoryType();
+				return categoryType != GbCategoryType.WEIGHTED_CATEGORY;
 			}
 		});
 		add(new AjaxCheckBox("includeLastLogDate", Model.of(includeLastLogDate)) {
@@ -106,13 +137,6 @@ public class ExportPanel extends Panel {
 			protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
 				includeCourseGrade = !includeCourseGrade;
 				setDefaultModelObject(includeCourseGrade);
-			}
-		});
-		add(new AjaxCheckBox("includeStudentId", Model.of(includeStudentId)) {
-			@Override
-			protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
-				includeStudentId = !includeStudentId;
-				setDefaultModelObject(includeStudentId);
 			}
 		});
 		add(new AjaxCheckBox("includeCalculatedGrade", Model.of(includeCalculatedGrade)) {
@@ -164,8 +188,12 @@ public class ExportPanel extends Panel {
 			//build column header
 			assignments.forEach(assignment -> {
 				final String assignmentPoints = assignment.getPoints().toString();
-				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
-				header.add("*/ " + assignment.getName() + " Comments */");
+				if (includeGradeItemScores) {
+					header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+				}
+				if (includeGradeItemComments) {
+					header.add("*/ " + assignment.getName() + " Comments */");
+				}
 			});
 
 			if (includePoints) {
@@ -202,12 +230,20 @@ public class ExportPanel extends Panel {
 					assignments.forEach(assignment -> {
 						final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
 						if (gradeInfo != null) {
-							line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
-							line.add(gradeInfo.getGradeComment());
+							if (includeGradeItemScores) {
+								line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
+							}
+							if (includeGradeItemComments) {
+								line.add(gradeInfo.getGradeComment());
+							}
 						} else {
 							// Need to account for no grades
-							line.add(null);
-							line.add(null);
+							if (includeGradeItemScores) {
+								line.add(null);
+							}
+							if (includeGradeItemComments) {
+								line.add(null);
+							}
 						}
 					});
 				}
