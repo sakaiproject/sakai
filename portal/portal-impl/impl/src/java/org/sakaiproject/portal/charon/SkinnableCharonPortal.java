@@ -590,37 +590,22 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	// This will be called twice in the buffered scenario since we need to set
-	@Override
 	// the session for neo tools with the sessio reset, helpurl and reseturl
+	@Override
 	@SuppressWarnings("unchecked")
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
 			ToolConfiguration placement, boolean toolInline) throws IOException {
 		
-		Map<String,String> bufferMap = null;
+		RenderResult renderResult = null;
 		if(!toolInline) {
-			
-			// allow a final chance for a tool to be inlined, based on it's tool configuration
-			// set renderInline = true to enable this
-			boolean renderInline = BooleanUtils.toBoolean(placement.getConfig().getProperty("renderInline"));
-				
-			if(renderInline) {
-				String[] parts = getParts(req);
-				
-				//build tool context path directly to the tool
-				String toolContextPath = req.getContextPath() + req.getServletPath() + "/site/" + parts[2] + "/tool/" + placement.getId();
-				
-				String toolPathInfo = Web.makePath(parts, 5, parts.length);
-				Session session = SessionManager.getCurrentSession();
-
-				Object buffer = this.siteHandler.bufferContent(req, res, session, placement.getId(), toolContextPath, toolPathInfo, placement);
-				
-				if (buffer instanceof Map) {
-					bufferMap = (Map<String,String>) buffer;
-					toolInline = true;
-				}
+			// if not already inlined, allow a final chance for a tool to be inlined, based on its tool configuration
+			// set renderInline = true to enable this, in the tool config
+			renderResult = this.getInlineRenderingForTool(res, req, placement);
+			if(renderResult != null) {
+				M_log.debug("Using buffered content rendering");
+				toolInline = true;
 			}
 		}
-		
 		
 		// find the tool registered for this
 		ActiveTool tool = ActiveToolManager.getActiveTool(placement.getToolId());
@@ -729,37 +714,31 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// For JSR-168 portlets - this gets the content
 		// For legacy tools, this returns the "<iframe" bit
 		// For buffered legacy tools - the buffering is done outside of this
-		RenderResult result;
 		
-		if(bufferMap != null) {
-			// use the inlined content
-			M_log.debug("Using buffered content rendering");
-			//this could do  with a bit of reorganisation...
-			result = new BufferedContentRenderResult(placement, bufferMap.get("responseHead"), bufferMap.get("responseBody"));
-		} else {
+		if(renderResult == null) {
 			//standard iframe
 			M_log.debug("Using standard iframe rendering");
-			result = ToolRenderService.render(this, placement, req, res, getServletContext());
+			renderResult = ToolRenderService.render(this, placement, req, res, getServletContext());
 		}
 				
-		if (result.getJSR168HelpUrl() != null)
+		if (renderResult.getJSR168HelpUrl() != null)
 		{
-			toolMap.put("toolJSR168Help", Web.serverUrl(req) + result.getJSR168HelpUrl());
+			toolMap.put("toolJSR168Help", Web.serverUrl(req) + renderResult.getJSR168HelpUrl());
 		}
 
 		// Must have site.upd to see the Edit button
-		if (result.getJSR168EditUrl() != null && site != null)
+		if (renderResult.getJSR168EditUrl() != null && site != null)
 		{
 			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
-				String editUrl = Web.serverUrl(req) + result.getJSR168EditUrl();
+				String editUrl = Web.serverUrl(req) + renderResult.getJSR168EditUrl();
 				toolMap.put("toolJSR168Edit", editUrl);
 				toolMap.put("toolJSR168EditEncode", URLUtils.encodeUrl(editUrl));
 			}
 		}
 
-		toolMap.put("toolRenderResult", result);
+		toolMap.put("toolRenderResult", renderResult);
 		toolMap.put("hasRenderResult", Boolean.TRUE);
 		toolMap.put("toolUrl", toolUrl);
 
@@ -773,11 +752,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if ( ! "false".equals(doPreFetch) ) 
 			{
 				try {
-					result.getContent();
+					renderResult.getContent();
 				} catch (Throwable t) {
 					ErrorReporter err = new ErrorReporter();
 					String str = err.reportFragment(req, res, t);
-					result.setContent(str);
+					renderResult.setContent(str);
 				}
 			}
 
@@ -2313,6 +2292,43 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	protected String getSkin(String skin)
 	{
 		return CSSUtils.adjustCssSkinFolder(skin);
+	}
+	
+	/**
+	 * Renders the content of a tool into a {@link BufferedContentRenderResult}
+	 * @param res {@link HttpServletResponse}
+	 * @param req {@link HttpServletRequest} 
+	 * @param placement {@link ToolConfiguration}
+	 * @return {@link BufferedContentRenderResult} with a head and body representing the appropriate bits for the tool or null if unable to render.
+	 */
+	RenderResult getInlineRenderingForTool(HttpServletResponse res, HttpServletRequest req, ToolConfiguration placement) {
+		
+		RenderResult rval = null;
+			
+		// allow a final chance for a tool to be inlined, based on it's tool configuration
+		// set renderInline = true to enable this
+		boolean renderInline = BooleanUtils.toBoolean(placement.getConfig().getProperty("renderInline"));
+			
+		if(renderInline) {
+			
+			//build tool context path directly to the tool
+			String toolContextPath = req.getContextPath() + req.getServletPath() + "/site/" + placement.getSiteId() + "/tool/" + placement.getId();
+			
+			// setup the rest of the params
+			String[] parts = getParts(req);
+			String toolPathInfo = Web.makePath(parts, 5, parts.length);
+			Session session = SessionManager.getCurrentSession();
+
+			// get the buffered content
+			Object buffer = this.siteHandler.bufferContent(req, res, session, placement.getId(), toolContextPath, toolPathInfo, placement);
+			
+			if (buffer instanceof Map) {
+				Map<String,String> bufferMap = (Map<String,String>) buffer;
+				rval = new BufferedContentRenderResult(placement, bufferMap.get("responseHead"), bufferMap.get("responseBody"));
+			}
+		}
+		
+		return rval;
 	}
 
 }
