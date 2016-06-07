@@ -4,6 +4,7 @@ import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.gradebookng.tool.panels.importExport.ExportPanel;
 import org.sakaiproject.gradebookng.tool.panels.importExport.GradeImportUploadStep;
 
 /**
@@ -19,6 +20,7 @@ public class ImportExportPage extends BasePage {
 	public ImportExportPage() {
 		disableLink(this.importExportPageLink);
 
+		add(new ExportPanel("export"));
 		add(new GradeImportUploadStep("wizard"));
 	}
 
