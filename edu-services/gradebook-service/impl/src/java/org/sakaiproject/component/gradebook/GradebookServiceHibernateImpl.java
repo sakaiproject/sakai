@@ -3185,6 +3185,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				//set entered grade
 				cg.setEnteredGrade(gr.getEnteredGrade());
 				
+				//set date recorded
+				cg.setDateRecorded(gr.getDateRecorded());
+				
 				if(!assignments.isEmpty()) {
 					
 					//calculated grade

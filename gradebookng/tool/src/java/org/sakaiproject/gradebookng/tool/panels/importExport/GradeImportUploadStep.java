@@ -62,78 +62,8 @@ public class GradeImportUploadStep extends Panel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
-		add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected File load() {
-				return buildFile(true);
-
-			}
-		}).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
 		add(new UploadForm("form"));
-	}
-
-	private File buildFile(final boolean includeGrades) {
-		File tempFile;
-		try {
-			// TODO - add the site name to the file?
-			tempFile = File.createTempFile("gradebookTemplate", ".csv");
-			final FileWriter fw = new FileWriter(tempFile);
-			final CSVWriter csvWriter = new CSVWriter(fw);
-
-			// Create csv header
-			final List<String> header = new ArrayList<String>();
-			header.add("Student ID");
-			header.add("Student Name");
-			
-			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-			List<Assignment> assignments = this.businessService.getGradebookAssignments();
-
-			//build column header
-			assignments.forEach(assignment -> {
-				final String assignmentPoints = assignment.getPoints().toString();
-				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
-				header.add("*/ " + assignment.getName() + " Comments */");
-			});
-
-			csvWriter.writeNext(header.toArray(new String[] {}));
-			
-			// get the grade matrix
-			List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments);
-
-			//add grades
-			grades.forEach(studentGradeInfo -> {
-				final List<String> line = new ArrayList<String>();
-				line.add(studentGradeInfo.getStudentEid());
-				line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
-				if (includeGrades) {
-					
-					assignments.forEach(assignment -> {
-						final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
-						if (gradeInfo != null) {
-							line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
-							line.add(gradeInfo.getGradeComment());
-						} else {
-							// Need to account for no grades
-							line.add(null);
-							line.add(null);
-						}
-					});
-				}
-				csvWriter.writeNext(line.toArray(new String[] {}));
-				
-			});
-
-			csvWriter.close();
-			fw.close();
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
-		return tempFile;
-
 	}
 
 	/*
