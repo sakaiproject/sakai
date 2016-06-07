@@ -122,7 +122,7 @@
     <sakai.slf4j.version>1.7.21</sakai.slf4j.version>
     <sakai.poi.version>3.14</sakai.poi.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.9.3</joda.time.version>
+    <joda.time.version>2.9.4</joda.time.version>
     <sakai.genericdao.version>0.10.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
