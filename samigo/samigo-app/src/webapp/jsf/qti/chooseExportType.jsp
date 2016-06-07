@@ -29,12 +29,21 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></title>
 <script type="text/JavaScript">
-function getSelectedType(qtiUrl, cpUrl){
+function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
   if ( $("#exportAssessmentForm\\:exportType\\:0").prop("checked") ) {
     window.open( qtiUrl, '_qti_export', 'toolbar=yes,menubar=yes,personalbar=no,width=600,height=500,scrollbars=yes,resizable=yes');
   }
-  else {
+  else if ($("#exportAssessmentForm\\:exportType\\:1").prop("checked")) {
     window.location = cpUrl;
+  }
+  else {
+	//alert("emtUrl.....");
+	if (e2mt === 'false') {
+		window.location = emtUrl;
+	} 
+	else if (confirm('<h:outputText value="#{authorImportExport.export_confirm}" />')) {
+		window.location = emtUrl;	
+	}
   }
 }
 </script>
@@ -62,13 +71,16 @@ function getSelectedType(qtiUrl, cpUrl){
           <h:outputText value="#{authorImportExport.ims_qti}"/>
         </h:outputLink>
         <h:outputText value="&#160;" escape="false" />
-        <h:outputText value="#{authorImportExport.choose_type_2}" escape="true" />
+        <h:outputText value="," escape="true" />
         <h:outputText value="&#160;" escape="false" />
         <h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/content/packaging/')" onkeypress="window.open('http://www.imsglobal.org/content/packaging/')">
           <h:outputText value="#{authorImportExport.ims_cp}"/>
         </h:outputLink>
-        <h:outputText value="&#160;" escape="false" />
+        <h:outputText value=" #{authorImportExport.choose_type_2} " escape="true" />
+		<h:outputText value="#{authorImportExport.markup_text}" escape="true" />
         <h:outputText value="#{authorImportExport.choose_type_3}" escape="true" />
+        <h:outputText value="#{authorImportExport.markup_text_note}" escape="true" />
+		<br />
       </p>
       <p class="text-warning">
         <h:outputText value="#{authorImportExport.export_imagemap_message}" escape="false" />
@@ -80,10 +92,12 @@ function getSelectedType(qtiUrl, cpUrl){
      <t:selectOneRadio id="exportType" layout="spread" value="1">
        <f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1"/>
        <f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2"/>
+       <f:selectItem itemLabel="#{authorImportExport.markup_text}" itemValue="3"/>
      </t:selectOneRadio>
      <ul class="export-type">
        <li><t:radio for="exportType" index="0" /></li>
        <li><t:radio for="exportType" index="1" /></li>
+       <li><t:radio for="exportType" index="2" /></li>
      </ul>
      <!-- For formatting -->
      <div class="text-warning">
@@ -95,7 +109,9 @@ function getSelectedType(qtiUrl, cpUrl){
     <br/>
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.export}" type="submit"
-       style="act" onclick="getSelectedType( '../qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}','/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}'); return false;" />
+       style="act" onclick="getSelectedType( '../qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
+       '/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}', 
+       '/samigo-app/servlet/ExportMarkupText?&assessmentId=#{assessmentBean.assessmentId}', '#{assessmentBean.exportable2MarkupText}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>

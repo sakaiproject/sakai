@@ -334,4 +334,14 @@ public class AssessmentBean  implements Serializable {
   public void setShowPrintAssessment(Boolean showPrintAssessment) {
 	  this.showPrintAssessment= showPrintAssessment;
   }
+  
+  public boolean getExportable2MarkupText() {
+	  AssessmentService assessmentService = new AssessmentService();
+	  boolean result = false;
+	  if (assessmentId != null) {
+		  AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+		  result =  assessmentService.isExportable(assessment);
+	  }
+	  return result;
+  }
 }

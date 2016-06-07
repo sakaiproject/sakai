@@ -55,4 +55,27 @@ public class SamigoConstants {
     public static final     int         NOTI_EVENT_ASSESSMENT_SUBMITTED                     = NotificationService.NOTI_OPTIONAL;
     public static final     int         NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED               = NotificationService.NOTI_OPTIONAL;
     public static final     int         NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT                  = NotificationService.PREF_IGNORE;
+    
+    /*
+     * Authorization 
+     */
+    public static final		String		AUTHZ_TAKE_ASSESSMENT								= "assessment.takeAssessment";
+    public static final		String		AUTHZ_SUBMIT_ASSESSMENT								= "assessment.submitAssessmentForGrade";
+    public static final		String		AUTHZ_CREATE_ASSESSMENT								= "assessment.createAssessment";
+    public static final		String		AUTHZ_EDIT_ASSESSMENT_ANY							= "assessment.editAssessment.any";
+    public static final		String		AUTHZ_EDIT_ASSESSMENT_OWN							= "assessment.editAssessment.own";
+    public static final		String		AUTHZ_DELETE_ASSESSMENT_ANY							= "assessment.deleteAssessment.any";
+    public static final		String		AUTHZ_DELETE_ASSESSMENT_OWN							= "assessment.deleteAssessment.own";
+    public static final		String		AUTHZ_PUBLISH_ASSESSMENT_ANY						= "assessment.publishAssessment.any";
+    public static final		String		AUTHZ_PUBLISH_ASSESSMENT_OWN						= "assessment.publishAssessment.own";
+    public static final		String		AUTHZ_GRADE_ASSESSMENT_ANY							= "assessment.gradeAssessment.any";
+    public static final		String		AUTHZ_GRADE_ASSESSMENT_OWN							= "assessment.gradeAssessment.own";
+    public static final		String		AUTHZ_QUESTIONPOOL_CREATE							= "assessment.questionpool.create";
+    public static final		String		AUTHZ_QUESTIONPOOL_EDIT_OWN							= "assessment.questionpool.edit.own";
+    public static final		String		AUTHZ_QUESTIONPOOL_DELETE_OWN						= "assessment.questionpool.delete.own";
+    public static final		String		AUTHZ_QUESTIONPOOL_COPY_OWN							= "assessment.questionpool.copy.own";
+    public static final		String		AUTHZ_TEMPLATE_CREATE								= "assessment.template.create";
+    public static final		String		AUTHZ_TEMPLATE_EDIT_OWN								= "assessment.template.edit.own";
+    public static final		String		AUTHZ_TEMPLATE_DELETE_OWN							= "assessment.template.delete.own";
+    
 }
