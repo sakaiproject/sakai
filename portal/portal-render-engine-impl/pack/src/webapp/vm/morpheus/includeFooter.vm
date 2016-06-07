@@ -21,7 +21,7 @@
 
                     #foreach ( $pb in $bottomNavPoweredBy )
 
-                        <a href="${pb.poweredByUrl}" class="external__link"><span class="Mrphs-footer--nav__project--poweredby">${pb.poweredByAltText}</span><span class="skip external">(${rloader.site_newwindow})</span>
+                        <a href="${pb.poweredByUrl}" target="_blank" class="external__link"><span class="Mrphs-footer--nav__project--poweredby">${pb.poweredByAltText}</span><span class="skip external">(${rloader.site_newwindow})</span>
                         </a>
 
                     #end ## END of FOREACH ( $pb in $bottomNavPoweredBy )
