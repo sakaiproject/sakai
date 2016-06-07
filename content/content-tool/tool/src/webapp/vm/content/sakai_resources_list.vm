@@ -387,12 +387,14 @@
 
               #if ($item.canRead())
 								#if($item.isCollection()) 
-									<span class="skip">$newNote</span><span class="$iconDecor">
+									<span class="skip">$newNote</span>
 									#if($item.isEmpty() || $item.isTooBig() || $item.depth < 1 || $item.isTooBigNav())
+										<span class="$iconDecor">
 										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
 									#else
-                    <img class="visible-sm-inline visible-xs-inline" src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
-										<a class="hidden-sm hidden-xs" href="#"
+										<span class="$iconDecor visible-sm-inline visible-xs-inline">
+										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
+										<a class="hidden-sm hidden-xs $iconDecor" href="#"
 											#if($item.isExpanded())
 												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#else
