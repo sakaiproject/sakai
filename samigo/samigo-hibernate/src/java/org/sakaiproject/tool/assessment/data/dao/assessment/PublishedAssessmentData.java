@@ -703,7 +703,9 @@ public class PublishedAssessmentData
 
       while (iter2.hasNext()){
         PublishedItemData item = (PublishedItemData)iter2.next();
-        total = total.add(BigDecimal.valueOf(item.getScore().doubleValue()));
+        if( item.getIsExtraCredit() == null || !item.getIsExtraCredit().booleanValue()) {
+            total = total.add(BigDecimal.valueOf(item.getScore().doubleValue()));
+        }
       }
     }
     return  Double.valueOf(total.doubleValue());

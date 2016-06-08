@@ -279,6 +279,12 @@ $Id$
       </h2>
     </div>
   </t:dataList>
+     <h:panelGroup rendered="#{question.isExtraCredit == true}">
+        <h:outputText styleClass="extraCreditLabel" value=" #{deliveryMessages.extra_credit_preview}" />
+     </h:panelGroup>
+      </h2>
+    </div>
+  </t:dataList>
 
   <div class="samigo-question-callout">
   <t:dataList value="#{questionScores.deliveryItem}" var="question">

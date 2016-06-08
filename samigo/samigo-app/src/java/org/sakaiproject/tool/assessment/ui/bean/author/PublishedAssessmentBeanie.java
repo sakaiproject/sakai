@@ -136,7 +136,8 @@ public class PublishedAssessmentBeanie
       this.questionSize += items.size();
       for (ItemContentsBean item : items) {
         if (item.getItemData().getScore()!=null){
-          this.totalScore += item.getItemData().getScore().doubleValue();
+          if(item.getItemData().getIsExtraCredit() == null || !item.getItemData().getIsExtraCredit().booleanValue())
+            this.totalScore += item.getItemData().getScore().doubleValue();
         }
       }
     }

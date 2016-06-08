@@ -126,6 +126,9 @@
 				</h:selectOneRadio>
 			</div>
 
+			<!-- Extra Credit -->
+			<%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+
 			<!-- 2 QUESTION THEME TEXT -->
 			<h3>
 				<h:outputText value="#{authorMessages.question_theme_text}" />

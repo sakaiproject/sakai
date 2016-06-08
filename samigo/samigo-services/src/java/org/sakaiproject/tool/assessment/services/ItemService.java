@@ -297,6 +297,8 @@ public class ItemService
     cloned.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
     cloned.setInstruction(newItemInstruction);
 
+    cloned.setIsExtraCredit(item.getIsExtraCredit());
+
     return cloned;
   }
 

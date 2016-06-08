@@ -36,6 +36,7 @@
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
     <property name="hash" type="string" column="HASH" not-null="false" />
     <property name="itemHash" type="string" column="ITEMHASH" not-null="false" />
+    <property name="isExtraCredit" type="boolean" column="ISEXTRACREDIT" not-null="false" />
     <set name="itemTextSet" table="SAM_PUBLISHEDITEMTEXT_T" cascade="all" order-by="sequence asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"/>

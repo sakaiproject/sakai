@@ -102,6 +102,7 @@ public class ItemBean
   
   private int totalMCAsnwers;
   private CalculatedQuestionBean calculatedQuestion;
+  private boolean isExtraCredit;
   
   private String requireAllOk = "false";
   private String imageMapSrc="";
@@ -1977,4 +1978,12 @@ public class ItemBean
 	public List<ItemTagBean> getItemTags() { return itemTags; }
 
 	public void setItemTags(List<ItemTagBean> itemTags) { this.itemTags = itemTags; }
+
+    public boolean getIsExtraCredit() {
+        return isExtraCredit;
+    }
+
+    public void setIsExtraCredit(boolean isExtraCredit) {
+        this.isExtraCredit = isExtraCredit;
+    }
 }

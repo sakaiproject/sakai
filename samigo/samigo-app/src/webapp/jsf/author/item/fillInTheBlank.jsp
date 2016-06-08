@@ -111,6 +111,9 @@
         </div>
     </f:subview>
 
+    <!-- Extra Credit -->
+    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+
     <%-- 2 QUESTION TEXT --%> 
     <h:outputLabel value="#{authorMessages.q_text}" /><br/>
     <h:outputText value="#{authorMessages.defining_answers}<br/>" escape="false"/>  

@@ -116,6 +116,9 @@
     </div>
   </f:subview>
 
+    <!-- Extra Credit -->
+    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+
   <h2 class="answer-subsection">
     <h:outputText value="#{authorMessages.answer} " />  
     <small>
