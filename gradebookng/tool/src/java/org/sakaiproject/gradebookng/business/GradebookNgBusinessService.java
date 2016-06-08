@@ -1542,10 +1542,9 @@ public class GradebookNgBusinessService {
 	 * Get a map of grades for the given student. Safe to call when logged in as a student.
 	 *
 	 * @param studentUuid
-	 * @param assignments list of assignments the user can
 	 * @return map of assignment to GbGradeInfo
 	 */
-	public Map<Assignment, GbGradeInfo> getGradesForStudent(final String studentUuid) {
+	public Map<Long, GbGradeInfo> getGradesForStudent(final String studentUuid) {
 
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
@@ -1553,7 +1552,7 @@ public class GradebookNgBusinessService {
 		// will apply permissions and only return those the student can view
 		final List<Assignment> assignments = this.getGradebookAssignments(siteId);
 
-		final Map<Assignment, GbGradeInfo> rval = new LinkedHashMap<>();
+		final Map<Long, GbGradeInfo> rval = new LinkedHashMap<>();
 
 		// iterate all assignments and get the grades
 		// if student, only proceed if grades are released for the site
@@ -1572,7 +1571,7 @@ public class GradebookNgBusinessService {
 		for (final Assignment assignment : assignments) {
 			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(),
 					assignment.getId(), studentUuid);
-			rval.put(assignment, new GbGradeInfo(def));
+			rval.put(assignment.getId(), new GbGradeInfo(def));
 		}
 
 		return rval;
