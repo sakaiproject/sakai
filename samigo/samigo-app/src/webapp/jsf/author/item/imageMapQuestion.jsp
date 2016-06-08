@@ -84,7 +84,7 @@
       <body onload="javascript:initEditors('<%=request.getContextPath()%>');;<%= request.getAttribute("html.body.onload") %>" >
 --%>
 
-<div class="portletBody">
+<div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
 
@@ -124,153 +124,163 @@
   <h:inputTextarea id="ed0" cols="10" rows="10" value="            " />
   </div>
 
-  <!-- 1 POINTS -->
-  <div class="tier2">
-   <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="ConvertPoint">
-<f:validateDoubleRange minimum="0.00"/>
-</h:inputText>
-<br/><h:message for="answerptr" styleClass="validate"/>
-  </div>
-<br/>
-  <!-- 2 TEXT -->
-  <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text_image_map}" />
-  <br/><br/>
-  <!-- WYSIWYG -->
-  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}" hasToggle="yes">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
 
-  </h:panelGrid>
-  </div>
+    <!-- 1 POINTS -->
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_point_value}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-2">
+            <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
+                required="true" disabled="#{author.isEditPoolFlow}" styleClass="ConvertPoint form-control">
+                <f:validateDoubleRange minimum="0.00"/>
+            </h:inputText>
+            <h:message for="answerptr" styleClass="validate"/>
+        </div>
+    </div>
 
-  <!-- 2a ATTACHMENTS -->
-  <%@ include file="/jsf/author/item/attachment.jsp" %>
+    <!-- 2 TEXT -->
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.q_text_image_map}" styleClass="col-md-12 form-control-label"/> 
+        <!-- WYSIWYG -->
+        <div class="col-md-12">
+            <h:panelGrid>
+                <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}" hasToggle="yes">
+                    <f:validateLength maximum="60000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
+        </div>
+    </div>
+
+    <!-- 2a ATTACHMENTS -->
+    <%@ include file="/jsf/author/item/attachment.jsp" %>
   
-  <hr class="itemSeparator" />
-  <br />
+    <hr class="itemSeparator" />
+    <br />
   
-  <!-- IMAGE SRC -->
-   <div class="longtext">  <h:outputText value="#{authorMessages.image_map_src}" />
-    <corejsf:upload
-		target="jsf/upload_tmp/assessment#{assessmentBean.assessmentId}/question#{itemauthor.currentItem.itemId}/#{person.eid}"
-		valueChangeListener="#{itemauthor.addImageToQuestion}" />
-	<f:verbatim>&nbsp;&nbsp;</f:verbatim>
-	<h:commandButton id="upl" action="imageMapItem" value="#{deliveryMessages.upload}" onclick='resetList()'/>
-
-  </div>
+    <!-- IMAGE SRC -->
+    <div class="form-group row"> 
+        <h:outputLabel value="#{authorMessages.image_map_src}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <corejsf:upload
+                target="jsf/upload_tmp/assessment#{assessmentBean.assessmentId}/question#{itemauthor.currentItem.itemId}/#{person.eid}"
+                valueChangeListener="#{itemauthor.addImageToQuestion}" />
+            <h:commandButton id="upl" action="imageMapItem" value="#{deliveryMessages.upload}" onclick='resetList()'/>
+        </div>
+    </div>
   
-  <!-- 3 ANSWER -->
-  <div class="longtext"> <h:outputLabel value="#{authorMessages.create_IM_pairing} " /></div>
-<h:inputHidden id="serialized" value="#{itemauthor.currentItem.serializedImageMap}" /> 
+    <!-- 3 ANSWER -->
+    <div class="longtext"> 
+        <h:outputLabel value="#{authorMessages.create_IM_pairing} " />
+    </div>
+    <h:inputHidden id="serialized" value="#{itemauthor.currentItem.serializedImageMap}" /> 
 
-<f:verbatim> 
-	<div>		
-		<input type='button' onclick="dynamicList.addElement('</f:verbatim><h:outputText value="#{authorMessages.im_description}" escape="false" /><f:verbatim>', true)" value="+" style="margin-left: 45px" />
-		<div id='template' style='display:none'>	
-		<span name='position_'></span>
-			<span>
-				<div id='btnSelect_'></div>
-			</span>
-			<span>
-				<input type='text' name='value_' style='width : 200px'/>
-			</span>
-			<span>
-				<input type='button' name='btnRemove_' onclick="dynamicList.removeElement(this)" value="-" />
-			</span>
-		</div>
-		<h:outputLabel value="#{authorMessages.im_add_item} " />
-	</div> <br />
-</f:verbatim>  
-<f:verbatim> 
-	<div onmousedown="return false" id="imageContainer" class='authorImageContainer'>
-		<img id='img' src='</f:verbatim><h:outputText value="#{itemauthor.currentItem.imageMapSrc}" /><f:verbatim>' style='visibility:hidden' />
-	</div>
-</f:verbatim>    
- <!-- Match FEEDBACK -->
-
-
-
- <!-- REQUIRE ALL OK -->
-   <div class="longtext">  <h:outputText value="#{authorMessages.require_all_ok}" />
-    <h:selectOneRadio value="#{itemauthor.currentItem.requireAllOk}" >
-     <f:selectItem itemValue="false"
-       itemLabel="#{authorMessages.yes}" />
-     <f:selectItem itemValue="true"
-       itemLabel="#{authorMessages.no}" />
-    </h:selectOneRadio>
-  </div>
+    <div>
+        <input type='button' onclick="dynamicList.addElement('<h:outputText value="#{authorMessages.im_description}" escape="false" />', true)" value="+" style="margin-left: 45px" />
+        <div id='template' style='display:none'>	
+            <span name='position_'></span>
+            <span>
+                <div id='btnSelect_'></div>
+            </span>
+            <span>
+                <input type='text' name='value_' style='width : 200px'/>
+            </span>
+            <span>
+                <input type='button' name='btnRemove_' onclick="dynamicList.removeElement(this)" value="-" />
+            </span>
+        </div>
+        <h:outputLabel value="#{authorMessages.im_add_item} " />
+    </div> <br />
   
-  <hr class="itemSeparator" />
+ 
+    <div onmousedown="return false" id="imageContainer" class='authorImageContainer'>
+        <img id='img' src='<h:outputText value="#{itemauthor.currentItem.imageMapSrc}" />' style='visibility:hidden' />
+    </div>
+
+    <!-- Match FEEDBACK -->
+    <br/>
+    <!-- REQUIRE ALL OK -->
+    <div class="form-group row">   
+        <h:outputLabel value="#{authorMessages.require_all_ok}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10 samigo-inline-radio">
+            <h:selectOneRadio value="#{itemauthor.currentItem.requireAllOk}" >
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.yes}" />
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.no}" />
+            </h:selectOneRadio>
+        </div>
+    </div>
+
+    <hr class="itemSeparator" />
 
     <!-- 6 PART -->
-
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-<f:verbatim>&nbsp;</f:verbatim>
-<h:outputLabel value="#{authorMessages.assign_to_p}" />
-  <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
-     <f:selectItems  value="#{itemauthor.sectionSelectList}" />
-  </h:selectOneMenu>
-
-  </h:panelGrid>
+    <h:panelGroup rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}" layout="block" styleClass="form-group row">
+        <h:outputLabel value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
+                <f:selectItems  value="#{itemauthor.sectionSelectList}" />
+            </h:selectOneMenu>
+        </div>
+    </h:panelGroup>
 
     <!-- 7 POOL -->
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-<f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{authorMessages.assign_to_question_p}" />
-<%-- stub debug --%>
-  <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
-     <f:selectItems value="#{itemauthor.poolSelectList}" />
-  </h:selectOneMenu>
+    <h:panelGroup rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}" layout="block" styleClass="form-group row">
+        <h:outputLabel value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-control-label"/>
+        <%-- stub debug --%>
+        <div class="col-md-10">
+            <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
+                <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
+                <f:selectItems value="#{itemauthor.poolSelectList}" />
+            </h:selectOneMenu>
+        </div>
+    </h:panelGroup>
 
-  </h:panelGrid><br/>
+    <!-- 8 FEEDBACK -->
+    <h:panelGroup  layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+        <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.correct_answer_opti}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+                </h:panelGrid>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:panelGrid>
+                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" >
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+                </h:panelGrid>
+            </div>
+        </div>
+    </h:panelGroup>
 
 
- <!-- 8 FEEDBACK -->
-  <f:verbatim></f:verbatim>
-<f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}"/>
-<f:verbatim><br/></br/></div><div class="tier2"></f:verbatim>
+    <!-- METADATA -->
+    <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext" layout="block">
+        <h:outputLabel value="Metadata"/>
+        <div class="form-group row">
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-6">
+                <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}"  styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-6">
+                <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}"  styleClass="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-6">
+                <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
+            </div>
+        </div>
+    </h:panelGroup>
 
-<h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputText value="#{authorMessages.correct_answer_opti}" />
-  <f:verbatim><br/></f:verbatim>
-  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
- </h:panelGrid>
-
-<f:verbatim><br/></f:verbatim>
-
- <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputText value="#{authorMessages.incorrect_answer_op}"/>
-  <f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" >
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
- </h:panelGrid>
-
-<f:verbatim><br/></div></f:verbatim>
-
-<!-- METADATA -->
-
-<h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim></f:verbatim>
-<h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="tier2"></f:verbatim>
-
-<h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputText value="#{authorMessages.objective}" />
-  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputText value="#{authorMessages.keyword}" />
-  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputText value="#{authorMessages.rubric_colon}" />
-  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
-</h:panelGrid>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
-</div>
 
 
 
