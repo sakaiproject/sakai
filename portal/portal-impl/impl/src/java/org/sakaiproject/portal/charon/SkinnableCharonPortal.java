@@ -22,6 +22,7 @@ package org.sakaiproject.portal.charon;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -41,11 +41,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -62,6 +61,7 @@ import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
@@ -79,6 +79,7 @@ import org.sakaiproject.portal.charon.handlers.LogoutHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.OpmlHandler;
 import org.sakaiproject.portal.charon.handlers.PageHandler;
+import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
 import org.sakaiproject.portal.charon.handlers.RoleSwitchHandler;
@@ -91,18 +92,18 @@ import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.TimeoutDialogHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
-import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
-import org.sakaiproject.portal.util.ErrorReporter;
-import org.sakaiproject.portal.util.ToolURLManagerImpl;
-import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.CSSUtils;
-import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.portal.util.ToolURLManagerImpl;
+import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -129,10 +130,8 @@ import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -586,15 +585,28 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
 			ToolConfiguration placement) throws IOException
 	{
-		boolean toolInline = "true".equals(ThreadLocalManager.get("sakai:inline-tool"));
+		boolean toolInline = "true".equals(ThreadLocalManager.get("sakai:inline-tool"));		
 		return includeTool(res, req, placement, toolInline);
 	}
 
 	// This will be called twice in the buffered scenario since we need to set
 	// the session for neo tools with the sessio reset, helpurl and reseturl
+	@Override
+	@SuppressWarnings("unchecked")
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
-			ToolConfiguration placement, boolean toolInline) throws IOException
-	{
+			ToolConfiguration placement, boolean toolInline) throws IOException {
+		
+		RenderResult renderResult = null;
+		if(!toolInline) {
+			// if not already inlined, allow a final chance for a tool to be inlined, based on its tool configuration
+			// set renderInline = true to enable this, in the tool config
+			renderResult = this.getInlineRenderingForTool(res, req, placement);
+			if(renderResult != null) {
+				M_log.debug("Using buffered content rendering");
+				toolInline = true;
+			}
+		}
+		
 		// find the tool registered for this
 		ActiveTool tool = ActiveToolManager.getActiveTool(placement.getToolId());
 		if (tool == null)
@@ -702,28 +714,32 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// For JSR-168 portlets - this gets the content
 		// For legacy tools, this returns the "<iframe" bit
 		// For buffered legacy tools - the buffering is done outside of this
-		RenderResult result = ToolRenderService.render(this, placement, req, res,
-				getServletContext());
-
-		if (result.getJSR168HelpUrl() != null)
+		
+		if(renderResult == null) {
+			//standard iframe
+			M_log.debug("Using standard iframe rendering");
+			renderResult = ToolRenderService.render(this, placement, req, res, getServletContext());
+		}
+				
+		if (renderResult.getJSR168HelpUrl() != null)
 		{
-			toolMap.put("toolJSR168Help", Web.serverUrl(req) + result.getJSR168HelpUrl());
+			toolMap.put("toolJSR168Help", Web.serverUrl(req) + renderResult.getJSR168HelpUrl());
 		}
 
 		// Must have site.upd to see the Edit button
-		if (result.getJSR168EditUrl() != null && site != null)
+		if (renderResult.getJSR168EditUrl() != null && site != null)
 		{
 			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
-				String editUrl = Web.serverUrl(req) + result.getJSR168EditUrl();
+				String editUrl = Web.serverUrl(req) + renderResult.getJSR168EditUrl();
 				toolMap.put("toolJSR168Edit", editUrl);
 				toolMap.put("toolJSR168EditEncode", URLUtils.encodeUrl(editUrl));
 			}
 		}
 
-		toolMap.put("toolRenderResult", result);
-		toolMap.put("hasRenderResult", Boolean.valueOf(true));
+		toolMap.put("toolRenderResult", renderResult);
+		toolMap.put("hasRenderResult", Boolean.TRUE);
 		toolMap.put("toolUrl", toolUrl);
 
 		Session s = SessionManager.getCurrentSession();
@@ -736,11 +752,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if ( ! "false".equals(doPreFetch) ) 
 			{
 				try {
-					result.getContent();
+					renderResult.getContent();
 				} catch (Throwable t) {
 					ErrorReporter err = new ErrorReporter();
 					String str = err.reportFragment(req, res, t);
-					result.setContent(str);
+					renderResult.setContent(str);
 				}
 			}
 
@@ -2276,6 +2292,43 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	protected String getSkin(String skin)
 	{
 		return CSSUtils.adjustCssSkinFolder(skin);
+	}
+	
+	/**
+	 * Renders the content of a tool into a {@link BufferedContentRenderResult}
+	 * @param res {@link HttpServletResponse}
+	 * @param req {@link HttpServletRequest} 
+	 * @param placement {@link ToolConfiguration}
+	 * @return {@link BufferedContentRenderResult} with a head and body representing the appropriate bits for the tool or null if unable to render.
+	 */
+	RenderResult getInlineRenderingForTool(HttpServletResponse res, HttpServletRequest req, ToolConfiguration placement) {
+		
+		RenderResult rval = null;
+			
+		// allow a final chance for a tool to be inlined, based on it's tool configuration
+		// set renderInline = true to enable this
+		boolean renderInline = BooleanUtils.toBoolean(placement.getConfig().getProperty("renderInline"));
+			
+		if(renderInline) {
+			
+			//build tool context path directly to the tool
+			String toolContextPath = req.getContextPath() + req.getServletPath() + "/site/" + placement.getSiteId() + "/tool/" + placement.getId();
+			
+			// setup the rest of the params
+			String[] parts = getParts(req);
+			String toolPathInfo = Web.makePath(parts, 5, parts.length);
+			Session session = SessionManager.getCurrentSession();
+
+			// get the buffered content
+			Object buffer = this.siteHandler.bufferContent(req, res, session, placement.getId(), toolContextPath, toolPathInfo, placement);
+			
+			if (buffer instanceof Map) {
+				Map<String,String> bufferMap = (Map<String,String>) buffer;
+				rval = new BufferedContentRenderResult(placement, bufferMap.get("responseHead"), bufferMap.get("responseBody"));
+			}
+		}
+		
+		return rval;
 	}
 
 }
