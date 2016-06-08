@@ -299,11 +299,12 @@ table.messageActions td{
 	font-weight:bold;
 	top:0;right:4px;
 	outline:none;padding:0;
-	display:block;position:absolute;
+	display:block;
+	float:right;
 }
 
 #permalinkHolder textarea{
-	width: 250px;
+	width: 100%;
 	height: 200px;
 }
 .messageActions td.otherOtherActions {
