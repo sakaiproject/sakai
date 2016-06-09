@@ -61,28 +61,6 @@ public class ExportPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		add(new DropDownChoice("exportFormat", Model.of(exportFormat), Arrays.asList(ExportFormat.values()), new IChoiceRenderer<ExportFormat>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Object getDisplayValue(final ExportFormat value) {
-				return getString(String.format("importExport.export.format.%s", value.toString().toLowerCase()));
-			}
-
-			@Override
-			public String getIdValue(final ExportFormat object, final int index) {
-				return object.toString();
-			}
-
-		}).add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				exportFormat = (ExportFormat)getComponent().getDefaultModelObject();
-			}
-		}));
 		add(new AjaxCheckBox("includeStudentName", Model.of(includeStudentName)) {
 			@Override
 			protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
