@@ -1780,6 +1780,21 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
+			
+			//get expanded groups
+			List<String> expandedGroups_lst = new ArrayList<String>();
+			String[] tokens = ServerConfigurationService.getStrings("sitemanage.tools.groups.expanded");
+			if(tokens != null) {
+				for(String token : tokens) {
+					if(StringUtils.isNotEmpty(token)) {
+						String groupName = getGroupName(token);
+						if(StringUtils.isNotEmpty(groupName)) {
+							expandedGroups_lst.add(groupName);
+						}
+					}
+				}
+			}
+			context.put("expandedGroups", expandedGroups_lst);
 
 			return (String) getContext(data).get("template") + TEMPLATE[4];
 
