@@ -6,6 +6,9 @@
 	<!-- ENTITY PROVIDERS START -->
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.portal.entityprovider.PortalEntityProvider">
+	        <property name="portalService" ref="org.sakaiproject.portal.api.PortalService" />
+	        <property name="profileConnectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+	        <property name="profileLinkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
 	        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 	<!-- ENTITY PROVIDERS END -->

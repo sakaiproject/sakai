@@ -14,6 +14,8 @@
 		@extend .fa;
 	}
 
+	.icon-sakai-academic-bullhorn{			@extend .fa-bullhorn; padding-right: 5px;}
+	.icon-sakai-social-bullhorn{			@extend .fa-users;}
 	.icon-sakai-iframe-site{ 				@extend .fa-list-ul;}
 	.icon-sakai-motd{ 					@extend .fa-list-ul;}
 
