@@ -129,7 +129,7 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 		String js = null;
 
 		if (newEditor || "ckeditor".equals(editor)) {
-		    js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { toevolve.getFullID(), null, "800px", "200px"});
+		    js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { "\"" + toevolve.getFullID() + "\"", "{baseFloatZIndex: 100010}", "\"800px\"", "\"200px\""}, false);
 		} else {
 		    String collectionID = context.equals("") ? "" : contentHostingService.getSiteCollection(context);
 		    js = HTMLUtil.emitJavascriptCall("SakaiProject.fckeditor.initializeEditor", new String[] { toevolve.getFullID(), collectionID, height, width });
