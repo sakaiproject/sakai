@@ -1147,6 +1147,9 @@ div[role="dialog"] {
     margin-top:0.5em;
     margin-bottom:1.0em;
 }
+#mm-test-prototype, #mm-test-link, .oembedall-closehide {
+    display: none !important;
+}
 .neoPortletTitleWrap {
     border-radius:0
 }

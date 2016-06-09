@@ -439,6 +439,7 @@ $(document).ready(function() {
 				
 				// create the test link from prototype, because oembed will remove it
 				var testlink = $('#mm-test-prototype').clone();
+				testlink.attr('id', 'mm-test-link');
 				$('#mm-test-prototype').after(testlink);
 				testlink.attr('href', url);
 				$('#mm-test-oembed-results').show();
