@@ -165,8 +165,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 		add(new AttributeModifier("data-category", assignment.getCategoryName()));
-		add(new AttributeModifier("data-sort-order", assignment.getSortOrder()));
-		add(new AttributeModifier("data-categorized-sort-order", assignment.getCategorizedSortOrder()));
 		if (GbCategoryType.WEIGHTED_CATEGORY.equals(this.businessService.getGradebookCategoryType()) && assignment.getWeight() != null) {
 			add(new AttributeModifier("data-category-weight", String.format("%s%%", Math.round(assignment.getWeight() * 100))));
 		}
