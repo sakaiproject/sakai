@@ -957,3 +957,6 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 -- ------------------------------
 
 -- End permissions for SAK-30141
+
+-- SAK-30144: Add the new 'EID' column to the VALIDATIONACCOUNT_ITEM table
+ALTER TABLE VALIDATIONACCOUNT_ITEM ADD COLUMN EID VARCHAR(255);
