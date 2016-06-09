@@ -172,6 +172,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         templates: 'customtemplates'
     };
 
+    if (config != null && config.baseFloatZIndex) {
+	ckconfig.baseFloatZIndex = config.baseFloatZIndex;
+    }
+
     //To add extra plugins outside the plugins directory, add them here! (And in the variable)
     (function() {
         // SAK-30370 present a nice and simple editor without plugins to the user on a tiny screen.
