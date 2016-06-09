@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -54,6 +55,8 @@ public class GradeItemCellPanel extends Panel {
 
 	TextField<String> gradeCell;
 	private String originalGrade;
+	
+	private Label persistentPercent;
 
 	String rawGrade;
 	String formattedGrade;
@@ -125,6 +128,8 @@ public class GradeItemCellPanel extends Panel {
 
 			add(new Label("readonlyGrade", Model.of(this.formattedGrade)));
 			add(new Label("editableGrade") {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public boolean isVisible() {
 					return false;
@@ -145,6 +150,8 @@ public class GradeItemCellPanel extends Panel {
 
 		} else {
 			add(new Label("readonlyGrade") {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public boolean isVisible() {
 					return false;
@@ -224,6 +231,7 @@ public class GradeItemCellPanel extends Panel {
 								markSuccessful(GradeItemCellPanel.this.gradeCell);
 								GradeItemCellPanel.this.originalGrade = newGrade;
 								refreshCourseGradeAndCategoryAverages(target);
+								refreshCellFormat(target);
 								target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 								break;
 							case ERROR:
@@ -232,11 +240,13 @@ public class GradeItemCellPanel extends Panel {
 								target.add(page.updateLiveGradingMessage(getString("feedback.error")));
 								// and the invalid score message, just to be helpful
 								GradeItemCellPanel.this.notifications.add(GradeCellNotification.INVALID);
+								refreshCellFormat(target);
 								break;
 							case OVER_LIMIT:
 								markOverLimit(GradeItemCellPanel.this.gradeCell);
-								refreshCourseGradeAndCategoryAverages(target);
 								GradeItemCellPanel.this.originalGrade = newGrade;
+								refreshCourseGradeAndCategoryAverages(target);
+								refreshCellFormat(target);
 								target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 								break;
 							case NO_CHANGE:
@@ -259,6 +269,7 @@ public class GradeItemCellPanel extends Panel {
 					target.add(getParentCellFor(getComponent()));
 				}
 
+				// TODO can this be moved out of this block?
 				private void refreshCourseGradeAndCategoryAverages(final AjaxRequestTarget target) {
 					// trigger async event that score has been updated and now displayed
 					target.appendJavaScript(
@@ -274,6 +285,8 @@ public class GradeItemCellPanel extends Panel {
 					extraParameters.put("studentUuid", studentUuid);
 
 					final AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+						private static final long serialVersionUID = 1L;
+
 						@Override
 						public CharSequence getPrecondition(final Component component) {
 							return "return GradebookWicketEventProxy.updateGradeItem.handlePrecondition('"
@@ -310,6 +323,8 @@ public class GradeItemCellPanel extends Panel {
 
 			this.gradeCell.setType(String.class);
 			this.gradeCell.add(new AjaxEventBehavior("scoreupdated.sakai") {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				protected void onEvent(final AjaxRequestTarget target) {
 					send(getPage(), Broadcast.BREADTH, new ScoreChangedEvent(studentUuid, categoryId, target));
@@ -319,6 +334,8 @@ public class GradeItemCellPanel extends Panel {
 			});
 
 			this.gradeCell.add(new AjaxEventBehavior("revertscore.sakai") {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				protected void onEvent(final AjaxRequestTarget target) {
 					GradebookPage page = (GradebookPage)getPage();
@@ -341,6 +358,8 @@ public class GradeItemCellPanel extends Panel {
 					extraParameters.put("studentUuid", studentUuid);
 
 					final AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+						private static final long serialVersionUID = 1L;
+
 						@Override
 						public CharSequence getCompleteHandler(final Component component) {
 							return "GradebookWicketEventProxy.revertGradeItem.handleComplete('" + getParentCellFor(component).getMarkupId()
@@ -352,6 +371,8 @@ public class GradeItemCellPanel extends Panel {
 			});
 
 			this.gradeCell.add(new AjaxEventBehavior("viewlog.sakai") {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				protected void onEvent(final AjaxRequestTarget target) {
 					final GradebookPage gradebookPage = (GradebookPage) getPage();
@@ -363,6 +384,8 @@ public class GradeItemCellPanel extends Panel {
 				}
 			});
 			this.gradeCell.add(new AjaxEventBehavior("editcomment.sakai") {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				protected void onEvent(final AjaxRequestTarget target) {
 					final GradebookPage gradebookPage = (GradebookPage) getPage();
@@ -399,6 +422,19 @@ public class GradeItemCellPanel extends Panel {
 			this.gradeCell.setOutputMarkupId(true);
 			add(this.gradeCell);
 		}
+		
+		//persistent % symbol
+		persistentPercent = new Label("persistentPercent", new ResourceModel("label.percentage.plain")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return gradingType == GbGradingType.PERCENTAGE && !originalGrade.isEmpty();
+			}
+			
+		};
+		persistentPercent.setOutputMarkupId(true);
+		add(persistentPercent);
 
 		// always add these
 		getParent().add(new AttributeModifier("role", "gridcell"));
@@ -558,5 +594,14 @@ public class GradeItemCellPanel extends Panel {
 		component.add(new AttributeModifier("data-container", "#gradebookGrades"));
 		component.add(new AttributeModifier("data-content", popoverString));
 		component.add(new AttributeModifier("tabindex", "0"));
+	}
+	
+	
+	/**
+	 * Refresh the cell formatting. Currently only deals with the percent
+	 * @param target {@link AjaxRequestTarget}
+	 */
+	private void refreshCellFormat(final AjaxRequestTarget target) {
+		target.add(this.persistentPercent);
 	}
 }

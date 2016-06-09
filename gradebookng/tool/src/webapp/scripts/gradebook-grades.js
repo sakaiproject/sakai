@@ -1740,6 +1740,10 @@ GradebookEditableCell.prototype.setupInput = function() {
     } else {
       self.$input.select();
     }
+    
+    // hide the persistent percent when editing
+    var $percent = self.$input.next(".gb-persistent-percent");
+    $percent.hide();
 
     // add the "out of XXX marks" label
     var $outOf = $("<span class='gb-out-of'></span>");
@@ -1765,6 +1769,10 @@ GradebookEditableCell.prototype.setupInput = function() {
       self.$cell.data("_pendingReplacement", true);
       self.$input.trigger("scorechange.sakai");
     }
+    
+    // show the persistent percent when finished editing
+    var $percent = self.$input.next(".gb-persistent-percent");
+    $percent.show();
   }
 
   self.$input.off("focus", prepareForEdit).on("focus", prepareForEdit);
