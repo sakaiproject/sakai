@@ -215,6 +215,12 @@
 
                         <!-- start include tool -->
                         <!-- start Tool Col2 -->
+                        
+                        <!-- start Tool Header -->
+
+                      #if (${tool.suppressTitle}) 
+                   		<!-- Tool has requested the title be suppressed -->
+                      #else
 
                         #if (${tool.hasRenderResult})
                             <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
@@ -299,19 +305,22 @@
                             </nav><!-- End of nav.portlet portlet-title wrapper -->
                             
                         #end ## END of IF (${tool.hasRenderResult})
+                      
+                      #end ## END of IF ( ${tool.suppressTitle} )
 
-                        <!-- end Tool Col2 -->
-                        <!-- start Tool Body -->
-
-                        #parse("/vm/morpheus/snippets/toolBody-snippet.vm")
-
-                        <!-- end Tool Body -->
-
-                        <!-- end include tool -->
-
-                        </div>
+	                  <!-- end Tool Col2 -->
+	                  <!-- start Tool Body -->
+	
+	                  #parse("/vm/morpheus/snippets/toolBody-snippet.vm")
+	
+	                  <!-- end Tool Body -->
+	
+	                  <!-- end include tool -->
+	
+	                  </div>
+	                    
+	                  <!-- end Tool Container -->
                         
-                        <!-- end Tool Container -->
 
                     #end ## END of IF ($tool)
 
