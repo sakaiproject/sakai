@@ -22,13 +22,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -41,7 +42,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -60,6 +68,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import javax.activation.DataSource;
 
 /**
  * @author chall
@@ -95,6 +105,10 @@ public class ExternalLogicImplTest {
     ServerConfigurationService configService;
     @Mock
     EventTrackingService eventService;
+    @Mock
+    EntityManager entityManager;
+    @Mock
+    ContentHostingService contentHostingService;
 
 	static final String LOCATION_ID = "locationId";
 	static final String LOCATION_TITLE = "Location Title";
@@ -128,6 +142,8 @@ public class ExternalLogicImplTest {
 		impl.setUserDirectoryService(userDirectoryService);
 		impl.setServerConfigurationService(configService);
 		impl.setEventTrackingService(eventService);
+		impl.setEntityManager(entityManager);
+		impl.setContentHostingService(contentHostingService);
 
 		impl.init();
 	}
@@ -309,16 +325,57 @@ public class ExternalLogicImplTest {
 
 		// #1
 		assertFalse("Permission exception from getMailArchiveChannel() should return false",
-				impl.addToArchive(null, "channel", null, null, null));
+				impl.addToArchive(null, "channel", null, null, null, null));
 		// #2
 		assertFalse("Need a non-null channel",
-				impl.addToArchive(null, "channel", null, null, null));
+				impl.addToArchive(null, "channel", null, null, null, null));
 		// #3
 		assertFalse("Permission exception from addMessage() should return false",
-				impl.addToArchive(null, "channel", null, null, null));
+				impl.addToArchive(null, "channel", null, null, null, null));
 		// #4
-		assertTrue(impl.addToArchive(null, "channel", null, null, null));
+		assertTrue(impl.addToArchive(null, "channel", null, null, null, null));
 
 		verify(channel).commitMessage(eq(msg), eq(NotificationService.NOTI_NONE));
+	}
+
+	@Test
+	public void sendEmailToArchiveWithAttachments() throws Exception {
+		// Simple test of adding email to archive.
+		MailArchiveChannel channel = mock(MailArchiveChannel.class);
+		MailArchiveMessageEdit message = mock(MailArchiveMessageEdit.class);
+		MailArchiveMessageHeaderEdit headers = mock(MailArchiveMessageHeaderEdit.class);
+
+		when(channel.addMessage()).thenReturn(message);
+		when(message.getMailArchiveHeaderEdit()).thenReturn(headers);
+		when(message.getId()).thenReturn("messageId");
+
+		when(channel.getContext()).thenReturn("siteId");
+
+		ContentResource resource = mock(ContentResource.class);
+		ResourcePropertiesEdit attachmentProperties = mock(ResourcePropertiesEdit.class);
+
+		when(contentHostingService.newResourceProperties()).thenReturn(attachmentProperties);
+		when(contentHostingService.addAttachmentResource(
+				anyString(), anyString(), anyString(), anyString(), any(InputStream.class), any(ResourceProperties.class)
+		)).thenReturn(resource);
+		when(resource.getReference()).thenReturn("attachmentReference");
+
+		Reference ref = mock(Reference.class);
+		when(entityManager.newReference("attachmentReference")).thenReturn(ref);
+
+		when(mailArchiveService.getMailArchiveChannel("channel")).thenReturn(channel);
+
+		DataSource dataSource = mock(DataSource.class);
+		when(dataSource.getInputStream()).thenReturn(new ByteArrayInputStream("Hello World".getBytes("UTF-8")));
+		Attachment attachment = mock(Attachment.class);
+		when(attachment.getContentTypeHeader()).thenReturn("text/plain");
+		when(attachment.getFilename()).thenReturn("test.txt");
+		when(attachment.getDataSource()).thenReturn(dataSource);
+
+		impl.addToArchive(null, "channel", "sender@example.com", "Subject", "Body Message",
+				Collections.singletonList(attachment));
+
+		verify(channel).commitMessage(message, NotificationService.NOTI_NONE);
+		verify(headers).addAttachment(ref);
 	}
 }
