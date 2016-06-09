@@ -674,6 +674,8 @@
 .gb-popover-notifications {
   min-width: 200px;
   max-width: 300px;
+  list-style: none;
+  padding: 0;
 }
 .gb-popover-notifications li {
   clear: both;
