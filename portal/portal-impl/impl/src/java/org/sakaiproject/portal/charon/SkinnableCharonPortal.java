@@ -741,6 +741,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolRenderResult", renderResult);
 		toolMap.put("hasRenderResult", Boolean.TRUE);
 		toolMap.put("toolUrl", toolUrl);
+		
+		// Allow a tool to suppress the rendering of its title nav. Defaults to false if not specified, and title nav is rendered.
+		// Set suppressTitle = true to suppress
+		boolean suppressTitle = BooleanUtils.toBoolean(placement.getConfig().getProperty("suppressTitle"));
+		toolMap.put("suppressTitle", suppressTitle);
 
 		Session s = SessionManager.getCurrentSession();
 		ToolSession ts = s.getToolSession(placement.getId());
