@@ -222,6 +222,7 @@ function mySetMainFrameHeightViewCell(id)
  </f:verbatim>
 <sakai:script contextBase="/messageforums-tool" path="/js/synopticLite.js"/>
 <link rel="stylesheet" type="text/css" href="css/TableSorter.css" />
+<link rel="stylesheet" type="text/css" href="css/msgcntr.css" />
 
 	<h:form id="synopticForm">
 		
@@ -248,10 +249,10 @@ function mySetMainFrameHeightViewCell(id)
 		  	</f:verbatim>
 			
 			<t:div styleClass="table-responsive" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
-				<h:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" 
+				<t:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" 
 						styleClass="table table-striped table-bordered table-hover tablesorter workspaceTable">
 
-					<h:column>
+					<t:column headerstyleClass="hideHeader">
 						<f:facet name="header">
 							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
 							<f:verbatim><a href="" id="hideHeader" onclick="return false;"></a></f:verbatim>
@@ -266,16 +267,10 @@ function mySetMainFrameHeightViewCell(id)
 						<f:verbatim>
 							>
 						</f:verbatim>
-					</h:column>
-					<h:column>
-						<f:facet name="header">
-							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
-							<f:verbatim><a href="" id="siteHeader" onclick="return false;"></a></f:verbatim>
-						</f:facet>				
-						<h:outputLink value="#{eachSite.siteUrl}" target="_parent" title="#{msgs.syn_goto_site}"><h:outputText value="#{eachSite.synopticMsgcntrItem.siteTitle}"/></h:outputLink>
-					</h:column>
+					</t:column>
 
-					<h:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableMessages}">
+
+					<t:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableMessages}" headerstyleClass="messagesHeader">
 						<f:facet name="header">
 							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
 							<f:verbatim><a href="" id="messagesHeader" onclick="return false;"></a></f:verbatim>
@@ -297,9 +292,9 @@ function mySetMainFrameHeightViewCell(id)
 									
 							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{eachSite.messagesFormattedDate}"/> --%>
 						</h:panelGroup>
-					</h:column>
+					</t:column>
 
-					<h:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableMessages}">
+					<t:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableMessages}" headerstyleClass="messagesHeader">
 						<f:facet name="header">
 							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
 							<f:verbatim><a href="" id="messagesHeader" onclick="return false;"></a></f:verbatim>
@@ -310,8 +305,8 @@ function mySetMainFrameHeightViewCell(id)
 							<h:outputText value="  " rendered="#{eachSite.newMessagesCount > 0}" />
 				 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newMessagesCount > 0}" />
 						</h:panelGroup>
-					</h:column>
-					<h:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableForums}">
+					</t:column>
+					<t:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableForums}" headerstyleClass="forumsHeader">
 						<f:facet name="header">
 							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
 							<f:verbatim><a href="" id="forumsHeader" onclick="return false;"></a></f:verbatim>
@@ -333,8 +328,8 @@ function mySetMainFrameHeightViewCell(id)
 							<%--<h:outputText value="  "/>
 							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{eachSite.forumFormattedDate}"/> --%>
 						</h:panelGroup>
-					</h:column>
-					<h:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableForums}">
+					</t:column>
+					<t:column rendered="#{mfSynopticBeanLite.performance == '2' && !mfSynopticBeanLite.disableForums}" headerstyleClass="forumsHeader">
 						<f:facet name="header">
 							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
 							<f:verbatim><a href="" id="forumsHeader" onclick="return false;"></a></f:verbatim>
@@ -345,8 +340,15 @@ function mySetMainFrameHeightViewCell(id)
 							<h:outputText value="  " rendered="#{eachSite.newForumCount > 0}" />
 			 				<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" />
 						</h:panelGroup>
-					</h:column>
-		 		</h:dataTable>
+					</t:column>
+					<t:column headerstyleClass="siteHeader">
+						<f:facet name="header">
+							<%-- Consult SynMainLite.setupTableHeaders for header text  --%>
+							<f:verbatim><a href="" id="siteHeader" onclick="return false;"></a></f:verbatim>
+						</f:facet>				
+						<h:outputLink value="#{eachSite.siteUrl}" target="_parent" title="#{msgs.syn_goto_site}"><h:outputText value="#{eachSite.synopticMsgcntrItem.siteTitle}"/></h:outputLink>
+					</t:column>					
+		 		</t:dataTable>
 		 	</t:div>
 		 	
 	 		<f:verbatim>
