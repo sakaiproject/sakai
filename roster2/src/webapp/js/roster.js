@@ -250,7 +250,7 @@
                         return {name: role};
                     });
             
-                roster.render('permissions', { siteTitle: roster.site.title, roles: roles }, 'roster_content');
+                roster.render('permissions', { siteTitle: roster.site.title, showVisits: roster.showVisits, roles: roles }, 'roster_content');
                 
                 $(document).ready(function () {
 
@@ -365,10 +365,12 @@
 
                     m.enrollmentStatusText = roster.site.enrollmentStatusCodes[m.enrollmentStatusId];
 
-                    if (m.totalSiteVisits > 0) {
-                        m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
-                    } else {
-                        m.formattedLastVisitTime = roster.i18n.no_visits_yet;
+                    if (roster.showVisits) {
+                        if (m.totalSiteVisits > 0) {
+                            m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
+                        } else {
+                            m.formattedLastVisitTime = roster.i18n.no_visits_yet;
+                        }
                     }
                 });
 
@@ -520,7 +522,8 @@
                 'currentUserId': roster.userId,
                 'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
                 'viewSiteVisits': roster.currentUserPermissions.viewSiteVisits,
-                'viewConnections': ((undefined != window.friendStatus) && roster.viewConnections)
+                'viewConnections': ((undefined != window.friendStatus) && roster.viewConnections),
+                'showVisits': roster.showVisits
             };
 
         var templateName = (enrollmentsMode) ? 'enrollments' : 'members';
