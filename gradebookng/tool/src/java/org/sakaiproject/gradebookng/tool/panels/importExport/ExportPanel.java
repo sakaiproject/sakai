@@ -37,6 +37,8 @@ public class ExportPanel extends Panel {
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
+	private static final String CUSTOM_EXPORT_COLUMN_PREFIX = "# ";
+
 	enum ExportFormat {
 		CSV
 	}
@@ -185,19 +187,27 @@ public class ExportPanel extends Panel {
 			});
 
 			if (isCustomExport && includePoints) {
-				header.add(getString("importExport.export.csv.headers.points"));
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.points")));
 			}
 			if (isCustomExport && includeCalculatedGrade) {
-				header.add(getString("importExport.export.csv.headers.calculatedGrade"));
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.calculatedGrade")));
 			}
-			if (isCustomExport && includeCourseGrade) {
+			if (!isCustomExport || includeCourseGrade) {
 				header.add(getString("importExport.export.csv.headers.courseGrade"));
 			}
 			if (isCustomExport && includeGradeOverride) {
-				header.add(getString("importExport.export.csv.headers.gradeOverride"));
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.gradeOverride")));
 			}
 			if (isCustomExport && includeLastLogDate) {
-				header.add(getString("importExport.export.csv.headers.lastLogDate"));
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.lastLogDate")));
 			}
 
 			csvWriter.writeNext(header.toArray(new String[] {}));
