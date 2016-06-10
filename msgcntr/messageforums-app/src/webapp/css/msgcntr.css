@@ -653,3 +653,26 @@ div.msgcntr-profile-qtip {
 #msgForum\:assignment{
 	margin-right: 0.5em;
 }
+
+ /* Styles for synoptic */
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable{
+	width:auto;
+	table-layout:fixed;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable th{
+	white-space: normal;
+	vertical-align: initial;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .messagesHeader{
+	width:20%;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .forumsHeader{
+	width:20%;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .siteHeader{
+	width:60%;
+}
