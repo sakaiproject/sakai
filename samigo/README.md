@@ -1,6 +1,6 @@
 Starting a README.md for Samigo
 
-# H1 Auto Submit
+# Auto Submit
 This feature forces the submission of saved assessments for students who have NO previous submissions (Please also refer to SAK-14474).
 
 This is not a OOTB feature. To turn this on, add
