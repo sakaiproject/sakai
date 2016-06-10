@@ -484,7 +484,7 @@ implements ActionListener
 		if (assessmentSettings.getItemNumbering() != null) {
 			control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
 		}
-		if (assessmentSettings.getDisplayScoreDuringAssessments() != null) {
+		if (StringUtils.isNotBlank(assessmentSettings.getDisplayScoreDuringAssessments())) {
 			control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
 		}
 		
