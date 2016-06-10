@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +66,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		// TODO catch if this is null, the get(0) will throw an exception
 		// TODO also catch the GbException
 		this.gradeInfo = this.businessService
-				.buildGradeMatrix(assignments, Collections.singletonList(userId), gradebookPage.getUiSettings()).get(0);
+				.buildGradeMatrix(assignments, Arrays.asList(userId), gradebookPage.getUiSettings()).get(0);
 		this.categories = this.businessService.getGradebookCategories();
 
 		// get configured category type
