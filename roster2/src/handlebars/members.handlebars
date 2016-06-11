@@ -50,18 +50,20 @@
                 <div class="roster-table-cell">{{role}}</div>
             </div>
 
-            {{#if ../viewSiteVisits}}
+            {{#if ../showVisits}}
+                {{#if ../../viewSiteVisits}}
             <div class="roster-table-row">
                 <div class="roster-table-cell">{{translate 'total_visits'}}</div>
                 <div class="roster-table-cell">{{totalSiteVisits}}</div>
             </div>
 
-            {{#if formattedLastVisitTime}}
+                    {{#if formattedLastVisitTime}}
             <div class="roster-table-row roster-last-visit-time">
                 <div class="roster-table-cell">{{translate 'last_visit'}}</div>
                 <div class="roster-table-cell roster-last-visit-time-cell">{{formattedLastVisitTime}}</div>
             </div>
-            {{/if}}
+                    {{/if}}
+                {{/if}}
             {{/if}}
 
             {{#if hasGroups}}
