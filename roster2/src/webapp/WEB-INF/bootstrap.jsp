@@ -44,7 +44,8 @@
                 viewConnections: ${viewConnections},
                 superUser: ${superUser},
                 siteMaintainer: ${siteMaintainer},
-                i18n: {}
+                i18n: {},
+                showVisits: ${showVisits}
             };
     
         </script>
