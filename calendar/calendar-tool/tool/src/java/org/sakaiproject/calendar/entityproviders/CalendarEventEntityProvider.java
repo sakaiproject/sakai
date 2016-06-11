@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -33,9 +33,10 @@ import lombok.Setter;
  * The sakai entity used to access calendar events.
  *
  * @author Denny
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
 public class CalendarEventEntityProvider extends AbstractEntityProvider
-		implements AutoRegisterEntityProvider, Describeable, EntityProvider,
+		implements AutoRegisterEntityProvider, Describeable,
 		ActionsExecutable, Outputable, Sampleable {
 
 	String ENTITY_PREFIX = "calendar";
@@ -100,11 +101,13 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	 * site/siteId
 	 *
 	 * Optional firstDate and lastDate query params in ISO-8601 date format, YYYY-MM-DD
+	 * Optional detailed query param, true/false, defaults to false. Gets the results in a detailed format rather than summary
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
-	public List<CalendarEventSummary> getCalendarEventsForSite(final EntityView view, final Map<String, Object> params) {
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public List<?> getCalendarEventsForSite(final EntityView view, final Map<String, Object> params) {
 
-		final List<CalendarEventSummary> rv = new ArrayList<CalendarEventSummary>();
+		final List rv = new ArrayList<>();
 
 		// get siteId
 		final String siteId = view.getPathSegment(2);
@@ -117,9 +120,15 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 		// optional timerange
 		final TimeRange range = buildTimeRangeFromRequest(params);
+		
+		// optional detailed param
+		boolean detailed = false;
+		if (params.containsKey("detailed")) {
+			detailed = BooleanUtils.toBoolean((String) params.get("detailed"));
+		}
 
 		// user being logged in and having access to the site is handled in the API
-		rv.addAll(getEventsForSite(siteId, range));
+		rv.addAll(getEventsForSite(siteId, range, detailed));
 		return rv;
 	}
 
@@ -129,16 +138,23 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	 * Optional firstDate and lastDate query params in ISO-8601 date format, YYYY-MM-DD
 	 */
 	@EntityCustomAction(action = "my", viewKey = EntityView.VIEW_LIST)
-	public List<CalendarEventSummary> getMyCalendarEventsForAllSite(
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public List<?> getMyCalendarEventsForAllSite(
 			final EntityView view, final Map<String, Object> params) {
-		final List<CalendarEventSummary> rv = new ArrayList<CalendarEventSummary>();
+		
+		final List rv = new ArrayList<>();
 
 		// optional timerange
 		final TimeRange range = buildTimeRangeFromRequest(params);
+		
+		boolean detailed = false;
+		if (params.containsKey("detailed")) {
+			detailed = BooleanUtils.toBoolean((String) params.get("detailed"));
+		}
 
 		// add events form my workspace
 		final String siteId = "~" + this.developerHelperService.getCurrentUserId();
-		rv.addAll(getEventsForSite(siteId, range));
+		rv.addAll(getEventsForSite(siteId, range, detailed));
 
 		// get list of all sites
 		final List<Site> sites = this.siteService.getSites(
@@ -149,7 +165,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 		// get all assignments from each site
 		for (final Site site : sites) {
-			rv.addAll(getEventsForSite(site.getId(), range));
+			rv.addAll(getEventsForSite(site.getId(), range, detailed));
 		}
 		return rv;
 	}
@@ -194,11 +210,13 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	 *
 	 * @param siteId siteId. If myworkspace, should already have the ~ prepended.
 	 * @param range {@link TimeRange} to filter by. Must be null if not sending one.
-	 * @return
+	 * @param detailed if we want the results in a detailed format or a summary
+	 * @return List of {@link CalendarEventSummary} if not detailed, or {@link CalendarEventDetails} if detailed
 	 */
-	private List<CalendarEventSummary> getEventsForSite(final String siteId, final TimeRange range) {
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private List getEventsForSite(final String siteId, final TimeRange range, final boolean detailed) {
 
-		final List<CalendarEventSummary> rval = new ArrayList<CalendarEventSummary>();
+		final List rval = new ArrayList<>();
 
 		try {
 			final Calendar cal = this.calendarService.getCalendar(String.format(
@@ -207,9 +225,15 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 			for (final Object o : cal.getEvents(range, null)) {
 				final CalendarEvent event = (CalendarEvent) o;
 
-				final CalendarEventSummary summary = new CalendarEventSummary(event);
-				summary.setSiteId(siteId);
-				rval.add(summary);
+				if(detailed) {
+					final CalendarEventDetails details = new CalendarEventDetails(event);
+					details.setSiteId(siteId);
+					rval.add(details);
+				} else {
+					final CalendarEventSummary summary = new CalendarEventSummary(event);
+					summary.setSiteId(siteId);
+					rval.add(summary);
+				}
 			}
 		} catch (final IdUnusedException e) {
 			// may not have a calendar, skip it
@@ -227,6 +251,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	 * @param params the request params
 	 * @return {@link TimeRange} if valid or null if not
 	 */
+	@SuppressWarnings("deprecation")
 	private TimeRange buildTimeRangeFromRequest(final Map<String, Object> params) {
 
 		// OPTIONAL params
