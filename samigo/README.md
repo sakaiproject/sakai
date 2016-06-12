@@ -16,4 +16,4 @@ LOGIC:
 - If attempt date is after due date, mark LATE as normal 
 
 
-After this feature enabled, please run auto_submit_oracle.sql or auto_submit_mysql.sql to make it show up in the pre-populated assessment types.
+After this feature enabled, please run [auto_submit_oracle.sql or auto_submit_mysql.sql](https://github.com/sakaiproject/sakai/tree/master/samigo/docs/auto_submit) to make it show up in the pre-populated assessment types.
