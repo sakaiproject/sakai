@@ -144,17 +144,25 @@ public class CourseGradeFormatter {
 			// don't display points for weighted category type
 			final GbCategoryType categoryType = GbCategoryType.valueOf(this.gradebook.getCategory_type());
 			if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
-
-				final Double pointsEarned = courseGrade.getPointsEarned();
-				final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
+				
+				Double pointsEarned = courseGrade.getPointsEarned();
+				Double totalPointsPossible = courseGrade.getTotalPointsPossible();
+				
+				// handle the special case in the gradebook service where totalPointsPossible = -1
+				if(totalPointsPossible != null && totalPointsPossible == -1) {
+					pointsEarned = null;
+					totalPointsPossible = null;
+				}
 
 				// if instructor, show the points if requested
 				// otherwise check the settings
 				if (this.currentUserRole == GbRole.INSTRUCTOR || this.gradebook.isCoursePointsDisplayed()) {
-					if (parts.isEmpty()) {
-						parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarned, totalPointsPossible));
-					} else {
-						parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarned, totalPointsPossible));
+					if(pointsEarned != null && totalPointsPossible != null) {
+						if (parts.isEmpty()) {
+							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarned, totalPointsPossible));
+						} else {
+							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarned, totalPointsPossible));
+						}
 					}
 				}
 			}
