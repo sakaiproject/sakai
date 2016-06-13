@@ -4,6 +4,10 @@ before_install:
   # To get some build progress you could have -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.event.ExecutionEventLogger=info
   # but this results in more than 10,000 lines of build output
   - echo "MAVEN_OPTS='-Xms168m -Xmx1536m -XX:NewSize=64m -Djava.awt.headless=true -Dorg.slf4j.simpleLogger.defaultLogLevel=warn'" > ~/.mavenrc
+  # https://github.com/travis-ci/travis-ci/issues/4629
+  # This stops lots of warning about the broken nexus.codehaus.org repository
+  - sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml
+
 language: java
 jdk:
   - oraclejdk8
