@@ -260,6 +260,8 @@ public class UserPrefsTool
 
 	protected final static String ORDER_SITE_LISTS = "order";
 
+	protected final static String TAB_LABEL_PREF = "tab:label";
+
 	protected boolean isNewUser = false;
 
 	// user's currently selected time zone
@@ -1452,7 +1454,7 @@ public class UserPrefsTool
 
 	    Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
 	    ResourceProperties props = prefs.getProperties(CHARON_PREFS);
-	    prefTabLabel = props.getProperty("tab:label");
+	    prefTabLabel = props.getProperty(TAB_LABEL_PREF);
 
 	    if ( prefTabLabel == null )
 	        prefTabLabel = String.valueOf(DEFAULT_TAB_LABEL);
@@ -2198,47 +2200,52 @@ public class UserPrefsTool
 
 	public String processHiddenSites()
 	{
-		// Remove existing property
 		setUserEditingOn();
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
+		if (m_edit != null) {
+			// Remove existing property
+			ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
 
-		List currentFavoriteSites = props.getPropertyList(ORDER_SITE_LISTS);
+			List currentFavoriteSites = props.getPropertyList(ORDER_SITE_LISTS);
 
-		if (currentFavoriteSites == null) {
-			currentFavoriteSites = Collections.<String>emptyList();
-		}
-
-		props.removeProperty(ORDER_SITE_LISTS);
-		props.removeProperty(EXCLUDE_SITE_LISTS);
-
-		m_preferencesService.commit(m_edit);
-		cancelEdit();
-
-		// Set favorites and hidden sites
-		setUserEditingOn();
-		props = m_edit.getPropertiesEdit(CHARON_PREFS);
-
-		// Any site now hidden should also be removed from favorites
-		for (String siteId : hiddenSitesInput.split(",")) {
-			currentFavoriteSites.remove(siteId);
-		}
-
-		for (Object siteId : currentFavoriteSites) {
-			props.addPropertyToList(ORDER_SITE_LISTS, (String)siteId);
-		}
-
-		if (hiddenSitesInput != null && !hiddenSitesInput.isEmpty()) {
-			for (String siteId : hiddenSitesInput.split(",")) {
-				props.addPropertyToList(EXCLUDE_SITE_LISTS, siteId);
+			if (currentFavoriteSites == null) {
+				currentFavoriteSites = Collections.<String>emptyList();
 			}
+
+			props.removeProperty(TAB_LABEL_PREF);
+			props.removeProperty(ORDER_SITE_LISTS);
+			props.removeProperty(EXCLUDE_SITE_LISTS);
+
+			m_preferencesService.commit(m_edit);
+			cancelEdit();
+
+			// Set favorites and hidden sites
+			setUserEditingOn();
+			props = m_edit.getPropertiesEdit(CHARON_PREFS);
+
+			// Any site now hidden should also be removed from favorites
+			for (String siteId : hiddenSitesInput.split(",")) {
+				currentFavoriteSites.remove(siteId);
+			}
+
+			for (Object siteId : currentFavoriteSites) {
+				props.addPropertyToList(ORDER_SITE_LISTS, (String)siteId);
+			}
+
+			if (hiddenSitesInput != null && !hiddenSitesInput.isEmpty()) {
+				for (String siteId : hiddenSitesInput.split(",")) {
+					props.addPropertyToList(EXCLUDE_SITE_LISTS, siteId);
+				}
+			}
+
+			props.addProperty(TAB_LABEL_PREF, prefTabLabel);
+
+			m_preferencesService.commit(m_edit);
+			cancelEdit();
+
+			hiddenUpdated = true;
+
+			m_reloadTop = Boolean.TRUE;
 		}
-
-		m_preferencesService.commit(m_edit);
-		cancelEdit();
-
-		hiddenUpdated = true;
-
-		m_reloadTop = Boolean.TRUE;
 
 		return "hidden";
 	}
