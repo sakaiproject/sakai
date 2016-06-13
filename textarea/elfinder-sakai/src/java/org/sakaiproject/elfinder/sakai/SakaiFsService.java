@@ -219,6 +219,10 @@ public class SakaiFsService implements FsService {
 		}
 	}
 
+	public SiteService getSiteService() {
+		return siteService;
+	}
+
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}

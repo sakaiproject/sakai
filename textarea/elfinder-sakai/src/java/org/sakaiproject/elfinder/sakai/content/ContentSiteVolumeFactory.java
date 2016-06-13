@@ -265,9 +265,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
         public FsItem getParent(FsItem fsi) {
             String rootId = asId(getRoot());
-            String id1 = asId(fsi);
-            if (!rootId.equals(id1)) {
-                String id = asId(fsi);
+            String id = asId(fsi);
+            if (id.startsWith(rootId) && !rootId.equals(id))  {
                 String parentId = contentHostingService.getContainingCollectionId(id);
                 return fromPath(parentId);
             } else {
