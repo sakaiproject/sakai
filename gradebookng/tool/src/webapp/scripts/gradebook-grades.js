@@ -1730,20 +1730,20 @@ GradebookEditableCell.prototype.setupInput = function() {
 
   function prepareForEdit(event) {
     self.$cell.addClass("gb-cell-editing");
-
+    
+    //strip any symbols and put it back into the input field
+    var inputVal = strip(self.$input.val());
+    self.$input.val(inputVal);
+    
     self.$cell.data("originalValue", self.$input.val());
 
     var withValue = self.$cell.data("initialValue");
-
+   
     if (withValue != null && withValue != "") {
       self.$input.val(withValue);
     } else {
       self.$input.select();
     }
-    
-    // hide the persistent percent when editing
-    var $percent = self.$input.next(".gb-persistent-percent");
-    $percent.hide();
 
     // add the "out of XXX marks" label
     var $outOf = $("<span class='gb-out-of'></span>");
@@ -1769,10 +1769,10 @@ GradebookEditableCell.prototype.setupInput = function() {
       self.$cell.data("_pendingReplacement", true);
       self.$input.trigger("scorechange.sakai");
     }
-    
-    // show the persistent percent when finished editing
-    var $percent = self.$input.next(".gb-persistent-percent");
-    $percent.show();
+  }
+  
+  function strip(value) {
+	  return value.replace('%','');
   }
 
   self.$input.off("focus", prepareForEdit).on("focus", prepareForEdit);
