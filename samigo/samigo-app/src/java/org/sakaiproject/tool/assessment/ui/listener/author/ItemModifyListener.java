@@ -145,55 +145,58 @@ public class ItemModifyListener implements ActionListener
     try {
       ItemFacade itemfacade = delegate.getItem(itemId);
 
-      // Check permissions: if sequence is null, the item is *not* in a pool then the poolId would be null
-      if (isEditPendingAssessmentFlow || itemauthorbean.getQpoolId() == null) {
-        AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-        // the way to get assessment ID is completely different for published and core
-        // you'd think a slight variant of the published would work for core, but it generates an error
-        Long assessmentId = null;
-        String createdBy = null;
-        if (isEditPendingAssessmentFlow) {
-          Long sectionId = itemfacade.getSection().getSectionId();
-          AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
-          assessmentId = af.getAssessmentBaseId();
-          createdBy = af.getCreatedBy();
-        }
-        else {
-          PublishedAssessmentIfc assessment = (PublishedAssessmentIfc)itemfacade.getSection().getAssessment();
-          assessmentId = assessment.getPublishedAssessmentId();
-          createdBy = assessment.getCreatedBy();
-        }
-        if (!authzBean.isUserAllowedToEditAssessment(assessmentId.toString(), createdBy, !isEditPendingAssessmentFlow)) {
-          String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
-          context.addMessage(null,new FacesMessage(err));
-          itemauthorbean.setOutcome("author");
-          log.warn("itemID " + itemId + " for assignment " + assessmentId.toString() + " is being returned null from populateItemBean because it fails isUserAllowedToEditAssessment for " + createdBy);
-          return false;
-        }
-      }
-      else {
-          // This item is in a question pool
-          UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
-          String currentUserId = userDirectoryService.getCurrentUser().getId();
-          QuestionPoolService qpdelegate = new QuestionPoolService();
-          List<Long> poolIds = qpdelegate.getPoolIdsByItem(itemId);
-          boolean authorized = false;
-          poolloop:
-          for (Long poolId: poolIds) {
-              List agents = qpdelegate.getAgentsWithAccess(poolId);
-              for (Object agent: agents) {
-                  if (currentUserId.equals(((AgentDataIfc)agent).getIdString())) {
-                      authorized = true;
-                      break poolloop;
+      if (isEditPendingAssessmentFlow) {
+          // Check permissions: if sequence is null, the item is *not* in a pool then the poolId would be null
+          String target = itemauthorbean.getTarget();
+          if ("assessment".equals(target)) {
+              AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+              // the way to get assessment ID is completely different for published and core
+              // you'd think a slight variant of the published would work for core, but it generates an error
+              Long assessmentId = null;
+              String createdBy = null;
+              if (isEditPendingAssessmentFlow) {
+                  Long sectionId = itemfacade.getSection().getSectionId();
+                  AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
+                  assessmentId = af.getAssessmentBaseId();
+                  createdBy = af.getCreatedBy();
+              } else {
+                  PublishedAssessmentIfc assessment = (PublishedAssessmentIfc) itemfacade.getSection().getAssessment();
+                  assessmentId = assessment.getPublishedAssessmentId();
+                  createdBy = assessment.getCreatedBy();
+              }
+              if (!authzBean.isUserAllowedToEditAssessment(assessmentId.toString(), createdBy, !isEditPendingAssessmentFlow)) {
+                  String err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+                  context.addMessage(null, new FacesMessage(err));
+                  itemauthorbean.setOutcome("author");
+                  log.warn("itemID " + itemId + " for assignment " + assessmentId.toString() + " is being returned null from populateItemBean because it fails isUserAllowedToEditAssessment for " + createdBy);
+                  return false;
+              }
+          } else if ("questionpool".equals(target)) {
+              // This item is in a question pool
+              UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+              String currentUserId = userDirectoryService.getCurrentUser().getId();
+              QuestionPoolService qpdelegate = new QuestionPoolService();
+              List<Long> poolIds = qpdelegate.getPoolIdsByItem(itemId);
+              boolean authorized = false;
+              poolloop:
+              for (Long poolId : poolIds) {
+                  List agents = qpdelegate.getAgentsWithAccess(poolId);
+                  for (Object agent : agents) {
+                      if (currentUserId.equals(((AgentDataIfc) agent).getIdString())) {
+                          authorized = true;
+                          break poolloop;
+                      }
                   }
               }
-          }
-          if (!authorized) {
-              String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
-              context.addMessage(null,new FacesMessage(err));
-              itemauthorbean.setOutcome("author");
-              log.warn("itemID " + itemId + " in pool is being returned null from populateItemBean because it fails isUserAllowedToEditAssessment for user " + currentUserId);
-              return false;
+              if (!authorized) {
+                  String err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+                  context.addMessage(null, new FacesMessage(err));
+                  itemauthorbean.setOutcome("author");
+                  log.warn("itemID " + itemId + " in pool is being returned null from populateItemBean because it fails isUserAllowedToEditAssessment for user " + currentUserId);
+                  return false;
+              }
+          } else {
+              log.warn("Skip authorization for unknown target '" + target + "' for itemId '" + itemId + "', this should probably never happen.");
           }
       }
 
