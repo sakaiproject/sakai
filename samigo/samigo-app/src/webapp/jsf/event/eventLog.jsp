@@ -78,6 +78,7 @@
 
 	 <h:panelGroup>
 	  <h:outputText value="#{log.shortenedTitle}"/><h:outputText rendered="#{log.title != log.shortenedTitle}" value="#{eventLogMessages.dotdotdot}"/>
+	  <h:outputText value="-deleted" rendered="#{eventLog.isDeleted(log.assessmentId)}"/>
 	  <f:verbatim><span class="info"></f:verbatim>
 	  <h:graphicImage id="infoImg" url="/images/info_icon.gif" alt="" styleClass="infoDiv"/>
 	   <h:panelGroup styleClass="makeLogInfo" style="display:none;z-index:2000;" >
@@ -87,6 +88,7 @@
                <f:param value="#{log.assessmentIdStr}" />
             </h:outputFormat>
 		</h:panelGroup>
+		<h:panelGroup styleClass="deleted" style="display:none" rendered="#{eventLog.isDeleted(log.assessmentId)}"/>		
 	  <f:verbatim></span></f:verbatim>
 
      </h:panelGroup>
