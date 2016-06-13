@@ -120,14 +120,32 @@
 		}
 	}
 	
-	#assessmentSettingsAction .layout-navigation input[type="radio"],
-	#assessmentSettingsAction\:toDefaultGradebook{
+	#assessmentSettingsAction .layout-navigation input[type="radio"]{
 		@media #{$nonPhone}{
 			float:left;
 			& + label {
 				overflow:auto;
 				display:block;
 				margin-left: 1.5em;
+			}
+		}
+	}
+	
+	#assessmentSettingsAction input[type="radio"],
+	#assessmentSettingsAction input[type="checkbox"]{
+		@media #{$tablet}{
+			float:left;
+			& + label {
+				overflow:auto;
+				display:block;
+			}
+		}
+	}
+	
+	#assessmentSettingsAction input[type="checkbox"]{
+		@media #{$tablet}{
+			& + label {
+			margin-left: 1.5em;
 			}
 		}
 	}
