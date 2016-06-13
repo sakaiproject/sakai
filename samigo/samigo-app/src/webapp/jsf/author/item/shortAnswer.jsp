@@ -121,7 +121,6 @@
     </div>
   </h:panelGroup>
 
-</div>
 
   <!-- 5 ANSWER and ANSWERFEEDBACK -->
   <h2>
@@ -164,7 +163,6 @@
 </h:panelGrid>
 
 </h:panelGroup>
-</div>
 
 
 <p class="act">
