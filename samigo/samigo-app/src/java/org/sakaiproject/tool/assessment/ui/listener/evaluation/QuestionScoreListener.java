@@ -66,6 +66,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 // end testing
@@ -534,8 +535,18 @@ public class QuestionScoreListener implements ActionListener,
 				// predictable order. This is also required by the getCalcQResult method.
 				Collections.sort(answerList, new Comparator<ItemGradingData>() {
 					public int compare(ItemGradingData i1, ItemGradingData i2) {
-						return i1.getPublishedAnswerId().compareTo(
-								i2.getPublishedAnswerId());
+						if (i1 == i2) {
+							return 0;
+						}
+						else if (i1 == null || i1.getPublishedAnswerId() == null) {
+							return -1;
+						}
+						else if (i2 == null || i2.getPublishedAnswerId() == null) {
+							return 1;
+						}
+						else {
+							return NumberUtils.compare(i1.getPublishedAnswerId(),i2.getPublishedAnswerId());
+						}
 					}
 				});
 				Iterator iter2 = answerList.iterator();
