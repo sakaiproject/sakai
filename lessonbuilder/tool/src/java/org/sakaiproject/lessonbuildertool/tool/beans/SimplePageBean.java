@@ -1534,14 +1534,15 @@ public class SimplePageBean {
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 		// ideally the following should be the same, but there can be odd cases. So be safe
 		long before = 0;
+		String beforeStr = addBefore;
 		boolean addAfter = false;
-		if (addBefore != null && addBefore.startsWith("-")) {
+		if (beforeStr != null && beforeStr.startsWith("-")) {
 		    addAfter = true;
-		    addBefore = addBefore.substring(1);
+		    beforeStr = beforeStr.substring(1);
 		}
-		if (addBefore != null && !addBefore.equals("")) {
+		if (beforeStr != null && !beforeStr.equals("")) {
 		    try {
-			before = Long.parseLong(addBefore);
+			before = Long.parseLong(beforeStr);
 		    } catch (Exception e) {
 			// nothing. ignore bad arg
 		    }
