@@ -109,7 +109,7 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
     <br/>
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.export}" type="submit"
-       style="act" onclick="getSelectedType( '../qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
+       style="act" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
        '/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}', 
        '/samigo-app/servlet/ExportMarkupText?&assessmentId=#{assessmentBean.assessmentId}', '#{assessmentBean.exportable2MarkupText}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>

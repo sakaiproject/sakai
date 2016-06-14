@@ -951,7 +951,7 @@ function hiddenLinkOnClick(){
       
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
     <h:outputText value="#{description.answer}" escape="false"/>
-		<h:outputLink title="#{evaluationMessages.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+		<h:outputLink title="#{evaluationMessages.t_fullShortAnswer}"   value="#" onclick="window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/evaluation/fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/evaluation/fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
     		<h:outputText  value="(#{evaluationMessages.click_shortAnswer})" rendered="#{description.answer != 'No Answer'}"/>
     	</h:outputLink>
     </h:panelGroup>
