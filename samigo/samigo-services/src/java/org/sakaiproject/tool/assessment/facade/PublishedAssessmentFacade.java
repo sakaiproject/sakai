@@ -541,6 +541,25 @@ public class PublishedAssessmentFacade
     addAssessmentMetaData(label, entry);
   }
 
+  public void removeAssessmentMetaData(String label) {
+    if(label == null || label.isEmpty()) {
+      throw new IllegalArgumentException("Label may not be null or empty.");
+    }
+
+    this.publishedMetaDataMap = getAssessmentMetaDataMap();
+    if (this.publishedMetaDataMap.get(label) != null) {
+      this.publishedMetaDataMap.remove(label);
+      for (Object obj : this.publishedMetaDataSet) {
+        PublishedMetaData metaData = (PublishedMetaData) obj;
+        if(metaData.getLabel().equals(label)) {
+          this.publishedMetaDataSet.remove(metaData);
+          break;
+        }
+      }
+      setAssessmentMetaDataSet(this.publishedMetaDataSet);
+    }
+  }
+
 /** not tested this method -daisy 11/16/04
   public void removeAssessmentMetaDataByLabel(String label) {
     HashSet set = new HashSet();
