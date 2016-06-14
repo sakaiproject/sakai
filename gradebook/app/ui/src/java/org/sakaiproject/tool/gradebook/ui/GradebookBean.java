@@ -93,7 +93,7 @@ public class GradebookBean extends InitializableBean {
         if (newGradebookUid != null) {
             Gradebook gradebook = null;
             try {
-                gradebook = getGradebookManager().getGradebook(newGradebookUid);
+                gradebook = getGradebookManager().addOrGetGradebook(newGradebookUid);
             } catch (GradebookNotFoundException gnfe) {
                 logger.error("Request made for inaccessible gradebookUid=" + newGradebookUid);
                 newGradebookUid = null;

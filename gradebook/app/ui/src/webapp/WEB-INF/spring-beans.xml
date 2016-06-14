@@ -35,6 +35,9 @@
 				<property name="authn">
 					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 				</property>
+				<property name="gradebookFrameworkService">
+					<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
+				</property>
                 <property name="eventTrackingService">
                     <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
                 </property>
