@@ -236,7 +236,6 @@ public class FeedbackTool extends HttpServlet {
             siteEmail = site.getProperties().getProperty(Site.PROP_SITE_CONTACT_EMAIL);
         }
 
-        String mailSupport = sakaiProxy.getConfigString(Constants.MAIL_SUPPORT, "support@"+ sakaiProxy.getServerName());
         if (siteEmail!=null && !siteEmail.isEmpty() && siteExists){
             contactName = site.getProperties().getProperty(Site.PROP_SITE_CONTACT_NAME);
         }
@@ -246,7 +245,6 @@ public class FeedbackTool extends HttpServlet {
             contactName = String.format("%s <%s>" ,serviceContactName, serviceContactEmail);
         }
         setStringAttribute(request, "contactName", contactName);
-        setStringAttribute(request, "mailSupport", mailSupport);
 
         response.setContentType("text/html");
         request.getRequestDispatcher("/WEB-INF/bootstrap.jsp").include(request, response);
