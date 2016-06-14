@@ -1706,11 +1706,15 @@ GradebookEditableCell.prototype.setupInput = function() {
 
   function prepareForEdit(event) {
     self.$cell.addClass("gb-cell-editing");
-
+    
+    //strip any symbols and put it back into the input field
+    var inputVal = strip(self.$input.val());
+    self.$input.val(inputVal);
+    
     self.$cell.data("originalValue", self.$input.val());
 
     var withValue = self.$cell.data("initialValue");
-
+   
     if (withValue != null && withValue != "") {
       self.$input.val(withValue);
     } else {
@@ -1741,6 +1745,10 @@ GradebookEditableCell.prototype.setupInput = function() {
       self.$cell.data("_pendingReplacement", true);
       self.$input.trigger("scorechange.sakai");
     }
+  }
+  
+  function strip(value) {
+	  return value.replace('%','');
   }
 
   self.$input.off("focus", prepareForEdit).on("focus", prepareForEdit);
