@@ -176,18 +176,26 @@ public class CourseGradeOverridePanel extends Panel {
 	 */
 	private String formatPoints(final CourseGrade courseGrade, final Gradebook gradebook) {
 
+		String rval;
+		
 		// only display points if not weighted category type
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 		if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
-
-			return new StringResourceModel("coursegrade.display.points-first", null,
-					new Object[] { pointsEarned, totalPointsPossible }).getString();
+			
+			if(pointsEarned != null && totalPointsPossible != null) {
+				rval = new StringResourceModel("coursegrade.display.points-first", null,
+						new Object[] { pointsEarned, totalPointsPossible }).getString();
+			} else {
+				rval = getString("coursegrade.display.points-none");
+			}
 		} else {
-			return getString("coursegrade.display.points-none");
+			rval = getString("coursegrade.display.points-none");
 		}
+		
+		return rval;
 
 	}
 

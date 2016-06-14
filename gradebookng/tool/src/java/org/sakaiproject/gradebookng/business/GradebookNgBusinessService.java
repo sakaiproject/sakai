@@ -372,8 +372,15 @@ public class GradebookNgBusinessService {
 	public CourseGrade getCourseGrade(final String studentUuid) {
 
 		final Gradebook gradebook = this.getGradebook();
-		final CourseGrade rval = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
-		return rval;
+		final CourseGrade courseGrade = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
+		
+		// handle the special case in the gradebook service where totalPointsPossible = -1
+		if(courseGrade.getTotalPointsPossible() == -1) {
+			courseGrade.setTotalPointsPossible(null);
+			courseGrade.setPointsEarned(null);
+		}
+		
+		return courseGrade;
 	}
 
 	/**
