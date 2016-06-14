@@ -118,6 +118,7 @@ public class ImportGradesHelper extends BaseImportHelper {
 			}
 
 		} catch (final Exception e) {
+			//TOOD this shouldn't catch everything, it should continue throwing back up the stack
 			log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
 			return null;
 		}
