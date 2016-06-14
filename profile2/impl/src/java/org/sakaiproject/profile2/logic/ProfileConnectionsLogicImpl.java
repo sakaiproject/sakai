@@ -301,27 +301,30 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.ignoreFriendRequest"); 
 	  	}
 		
-		//current user must be the user making the request
+		//current user must be the user making the request or the user receiving it.
 		String currentUserId = sakaiProxy.getCurrentUserId();
-		if(!StringUtils.equals(currentUserId, toUser)) {
+		if(!(StringUtils.equals(currentUserId, toUser) || StringUtils.equals(currentUserId, fromUser))) {
 			log.error("User: " + currentUserId + " attempted to ignore connection request from " + fromUser + " on behalf of " + toUser);
 			throw new SecurityException("You are not authorised to perform that action.");
 		}
-		
+
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.error("ProfileLogic.ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");   
-			return false;
+		    profileFriend = dao.getPendingConnection(toUser, fromUser);
+		    if (profileFriend == null) {
+				log.error("ProfileLogic.ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
+				return false;
+			}
 		}
-	  	
+
 		//delete
 		if(dao.removeConnection(profileFriend)) {
 			log.info("User: " + toUser + " ignored friend request from: " + fromUser);  
 			return true;
 		}
-		
+
 		return false;
 	}
 	
