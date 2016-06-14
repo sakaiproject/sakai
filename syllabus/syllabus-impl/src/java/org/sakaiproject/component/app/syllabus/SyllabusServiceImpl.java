@@ -35,6 +35,7 @@ import java.util.Vector;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
@@ -1196,7 +1197,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 					SyllabusItem toSyItem = syllabusManager
 							.getSyllabusItemByContextId(toPage);
 					String redirectUrl = fromSyllabusItem.getRedirectURL();
-					if (redirectUrl.indexOf(fromContext) != -1)
+					if (StringUtils.contains(redirectUrl, fromContext))
 					{
 							redirectUrl = redirectUrl.replaceAll(fromContext, toContext);
 					}
