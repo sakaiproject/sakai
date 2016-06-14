@@ -67,57 +67,7 @@
       <script type="text/javascript" src="/sakai-editor/editor.js"></script>
       <script type="text/javascript" src="/sakai-editor/editor-launch.js"></script>
 	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>	  	  
-      <script type="text/javascript">
-		
-		function whichradio(obj){ 
-          var myId = String(obj.id);
-          //such as : takeAssessmentForm:_id48:0:_id105:1:deliverMatrixChoicesSurvey:matrixSurveyRadioTable:0:_id1198_0:myRadioId1
-          //find the table id for mutiple matrix questions tables on the same display page 
-          //take care of two different question, one set as forceRanking, another is not
-          var myIdParts = myId.split(":");
-          var node_list = document.getElementsByTagName('input');
-          for (var i=0; i<node_list.length; i++) {
-            var node = node_list[i];		
-            if (node.getAttribute('type') == 'hidden' && node.id.endsWith('forceRanking')){
-              var nodeIdParts = node.id.split(":");
-              if(nodeIdParts[4]==myIdParts[4] && node.value == 'true'){
-                //find the radio button table(s)
-                var tables = document.getElementsByTagName('table');
-                for(var i=0; i<tables.length; i++){
-                  var mytable = tables[i];
-                  var mytableParts = mytable.id.split(":");
-                  if(mytable.id.endsWith('matrixSurveyRadioTable') && mytableParts[4] == myIdParts[4]){
-                    //found the right table
-                    break;
-                  }
-                }
-                //index will be the begining of 'matrixSurveyRadioTable'
-                var index = myId.indexOf("matrixSurveyRadioTable");
-                var strBefore = myId.substring(0,index+'matrixSurveyRadioTable'.length);
-                //This needs to skip past the id which is on index 7 and the colon to add 1
-                var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+myIdParts[7].length+1);
-                //find rows of mytable	
-                var iRow = mytable.getElementsByTagName('tr');
-                //one header row before the row containing the radio button
-                for (var i=0; i<iRow.length-1;i++){
-                    //alert(i);
-                  //construct radio button id in the same column
-                  var currentRadioButtonId= strBefore+":"+i+strAfter;
-                  //alert(currentRadioButtonId);
-                  var button=document.getElementById(currentRadioButtonId);
-                  var buttonIdStr = String(button.id);
-                  if(button.getAttribute('type') == 'radio' && button.checked == true && buttonIdStr != myId){
-                    obj.checked = false;
-                    alert("You are only allowed one selection per column, please try again.");
-                    return;
-                  }
-                }
-                return;
-              }
-            }
-          }
-		}
-      </script>
+    
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       </head>
 	<body>

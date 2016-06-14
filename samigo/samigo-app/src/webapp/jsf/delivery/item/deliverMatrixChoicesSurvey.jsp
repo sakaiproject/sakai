@@ -85,9 +85,9 @@ should be included in file importing DeliveryMessages
  							immediate="true"
  							disabled="#{delivery.actionString=='reviewAssessment'|| delivery.actionString=='gradeAssessment'}" />
 </h:panelGrid>
+<h:inputHidden value="#{question.forceRanking}" id="forceRanking"/>
 </div>
- <h:inputHidden value="#{question.forceRanking}" id="forceRanking"/> 
- 		
+  
   <h:panelGroup rendered="#{question.itemData.hasRationale}" >
     <f:verbatim><br /></f:verbatim>
     <h:outputLabel for="rationale" value="#{deliveryMessages.rationale}" />
