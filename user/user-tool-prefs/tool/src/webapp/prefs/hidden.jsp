@@ -27,38 +27,56 @@
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 1}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 1}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 1}" current="false" />
-                                <sakai:tool_bar_item value="#{msgs.prefs_hidden}"  rendered="#{UserPrefsTool.hidden_selection == 1}" current="true" />
+                                <sakai:tool_bar_item value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 1}" current="true" />
 
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 2}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 2}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 2}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 2}" current="false" />
-                                <sakai:tool_bar_item value="#{msgs.prefs_hidden}"  rendered="#{UserPrefsTool.hidden_selection == 2}" current="true" />
+                                <sakai:tool_bar_item value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 2}" current="true" />
 
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 3}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 3}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 3}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 3}" current="false" />
-                                <sakai:tool_bar_item value="#{msgs.prefs_hidden}"  rendered="#{UserPrefsTool.hidden_selection == 3}" current="true" />
+                                <sakai:tool_bar_item value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 3}" current="true" />
 
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 4}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 4}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 4}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 4}" current="false" />
-                                <sakai:tool_bar_item value="#{msgs.prefs_hidden}"  rendered="#{UserPrefsTool.hidden_selection == 4}" current="true" />
+                                <sakai:tool_bar_item value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 4}" current="true" />
 
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 5}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 5}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 5}" current="false" />
                                 <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 5}" current="false" />
-                                <sakai:tool_bar_item value="#{msgs.prefs_hidden}"  rendered="#{UserPrefsTool.hidden_selection == 5}" current="true" />
+                                <sakai:tool_bar_item value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 5}" current="true" />
                         </sakai:tool_bar>
 
+                        <h:panelGroup rendered="#{UserPrefsTool.hiddenUpdated}"  style="margin-top:1em;display:inline-block;font-weight:normal">
+                                <jsp:include page="prefUpdatedMsg.jsp"/>
+                        </h:panelGroup>
+
                         <h3>
-                                <h:outputText value="#{msgs.prefs_hidden}" />
-                                <h:panelGroup rendered="#{UserPrefsTool.hiddenUpdated}"  style="margin:0 3em;font-weight:normal">
-                                        <jsp:include page="prefUpdatedMsg.jsp"/>
-                                </h:panelGroup>
+                                <h:outputText rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" value="#{msgs.prefs_site_tab_display_format}" />
+                        </h3>
+
+                        <%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
+                        <f:verbatim>
+                        <div>
+                        </f:verbatim>
+                        <h:outputText value="#{msgs.tabDisplay_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
+                        <h:selectOneRadio value="#{UserPrefsTool.selectedTabLabel}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                                                <f:selectItem itemValue="1" itemLabel="#{msgs.tabDisplay_coursecode}"/>
+                                                <f:selectItem itemValue="2" itemLabel="#{msgs.tabDisplay_coursename}"/>
+                        </h:selectOneRadio>
+                        <f:verbatim>
+                        </div>
+                        </f:verbatim>
+
+                        <h3>
+                                <h:outputText value="#{msgs.hidden_title}" />
                         </h3>
 
                         <p class="instruction"><h:outputText value="#{msgs.hidden_instructions}" escape="false" /></p>
@@ -67,6 +85,10 @@
 
                         <div id="reallyHideConfirm" style="display: none">
                                 <h:outputText value="#{msgs.hidden_really_hide_confirm}" />
+                        </div>
+
+                        <div id="selectedTabLabelValue" style="display: none">
+                                <h:outputText value="#{UserPrefsTool.selectedTabLabel}" />
                         </div>
 
                         <div id="sitesByTerm" style="display: none">
