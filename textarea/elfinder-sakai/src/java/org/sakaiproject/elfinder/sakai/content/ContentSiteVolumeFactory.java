@@ -212,7 +212,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     contentEntity = contentHostingService.getResource(id);
                 }
                 Date date = contentEntity.getProperties().getDateProperty(ResourceProperties.PROP_MODIFIED_DATE);
-                return date.getTime();
+                return date.getTime() / 1000;
             } catch (SakaiException se) {
                 LOG.warn("Failed to get last modified date for: " + id, se);
             } catch (EntityPropertyTypeException e) {
