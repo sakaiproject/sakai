@@ -805,15 +805,6 @@ div.wicket-modal div.w_right > div {
   box-shadow: 0 0 5px 2px #444;
 }
 
-/* style applied to the UL rendered for a feedback panel */
-ul.feedbackPanel {
-	list-style-type: none;
-	margin: 0;
-}
-ul.feedbackPanel li span {
-  display: block;
-}
-
 /* feedback styles for the grade saving state */
 .gb-score-dynamically-updated,
 .grade-save-success {
