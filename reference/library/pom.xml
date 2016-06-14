@@ -314,6 +314,7 @@
 					       <inputPath>${basedir}/src/${sakai.skin.source}/sass/</inputPath>
 					       <outputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</outputPath>
 					       <includePath>${basedir}/src/${sakai.skin.source}/bootstrap-sass-3.3.6/assets/stylesheets/${path.separator}${basedir}/src/${sakai.skin.source}/font-awesome-sass-4.5.0/assets/stylesheets/</includePath>
+					       <sourceMapOutputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</sourceMapOutputPath>
 					   </configuration>
 					</plugin>
 					<plugin>
