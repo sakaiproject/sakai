@@ -295,7 +295,7 @@ label.panelGridLabel{
 
 /*** Drop files bar for Resources & Dropbox ***/
 .dropzone {
-	overflow: hidden;
+	overflow: visible;
 	border: 2px dashed $toolMenuColor !important;
 	border-radius: 5px;
 	background-color: $toolMenuBGColor !important;
