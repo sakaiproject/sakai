@@ -125,7 +125,6 @@ function show_timeout_alert(min){
   if ($PBJQ("#timeout_alert_body").get(0)) {
     //its there, just update the min
     $PBJQ("#timeout_alert_body span").html(min);
-    $PBJQ("#timeout_alert_body span").css('top', (f_scrollTop() + 100) + "px");
   }
   else {
     var dialog = timeoutDialogFragment.replace("{0}", min);
