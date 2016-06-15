@@ -25,10 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Setter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
@@ -40,6 +37,10 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Setter;
 
 /**
  * Implementation of ProfileSearchLogic API
@@ -57,6 +58,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<Person> findUsersByNameOrEmail(String search, boolean includeConnections, String worksiteId) {
 				
 		//add users from SakaiPerson (clean list)
@@ -100,6 +102,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<Person> findUsersByInterest(String search, boolean includeConnections, String worksiteId) {
 				
 		//add users from SakaiPerson		
@@ -133,6 +136,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfileSearchTerm getLastSearchTerm(String userUuid) {
 		
 		List<ProfileSearchTerm> searchHistory = getSearchHistory(userUuid);
@@ -145,6 +149,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<ProfileSearchTerm> getSearchHistory(String userUuid) {
 
 		if (cache.containsKey(userUuid)) {
@@ -164,6 +169,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public void addSearchTermToHistory(String userUuid, ProfileSearchTerm searchTerm) {
 		
 		if (null == searchTerm) {
@@ -174,7 +180,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			throw new IllegalArgumentException("search term must contain UUID of user");
 		}
 		
-		if (false == userUuid.equals(searchTerm.getUserUuid())) {
+		if (!StringUtils.equals(userUuid, searchTerm.getUserUuid())) {
 			throw new IllegalArgumentException("userUuid must match search term userUuid");
 		}
 		
@@ -201,6 +207,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public void clearSearchHistory(String userUuid) {
 		
 		if (cache.containsKey(userUuid)) {
@@ -244,7 +251,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 		List<BasicConnection> connections = connectionsLogic.getBasicConnectionsForUser(sakaiProxy.getCurrentUserId());
 		for (BasicConnection connection : connections) {
 			for (User user : users) {
-				if (user.getId().equals(connection.getUuid())) {
+				if (StringUtils.equals(user.getId(), connection.getUuid())) {
 					users.remove(user);
 					break;
 				}
@@ -287,7 +294,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			Set<Member> members = sakaiProxy.getSite(worksiteId).getMembers();
 			for (Member member : members) {
 				for (User user : users) {
-					if (user.getId().equals(member.getUserId())) {
+					if (StringUtils.equals(user.getId(), member.getUserId())) {
 						worksiteMembers.add(user);
 						break;
 					}
@@ -316,7 +323,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			Set<Member> members = sakaiProxy.getSite(worksiteId).getMembers();
 			for (Member member : members) {
 				for (String userId : userIds) {
-					if (userId.equals(member.getUserId())) {
+					if (StringUtils.equals(userId, member.getUserId())) {
 						worksiteMemberIds.add(userId);
 						break;
 					}

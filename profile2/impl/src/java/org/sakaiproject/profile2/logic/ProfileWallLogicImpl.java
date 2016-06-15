@@ -22,11 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Setter;
-
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -35,6 +31,10 @@ import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Setter;
 
 /**
  * Implementation of ProfileWallLogic API for Profile2 wall.
@@ -70,6 +70,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean addNewCommentToWallItem(WallItemComment wallItemComment) {
 		if (dao.addNewCommentToWallItem(wallItemComment)) {
 			String ref = "/profile/wall/item/comment/" + wallItemComment.getId();
@@ -105,6 +106,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 		
 		Thread thread = new Thread() {
+			@Override
 			public void run() {
 
 				List<String> uuidsToEmail = new ArrayList<String>();
@@ -126,6 +128,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void addNewEventToWall(String event, final String userUuid) {
 		if (addNewItemToWall(ProfileConstants.WALL_ITEM_TYPE_EVENT, event, userUuid)) {
 			notifyConnections(ProfileConstants.WALL_ITEM_TYPE_EVENT, event, userUuid);
@@ -135,6 +138,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void addNewStatusToWall(String status, String userUuid) {
 		if (addNewItemToWall(ProfileConstants.WALL_ITEM_TYPE_STATUS, status, userUuid)) {
 			notifyConnections(ProfileConstants.WALL_ITEM_TYPE_STATUS, status, userUuid);
@@ -144,6 +148,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean postWallItemToWall(final String userUuid, final WallItem wallItem) {
 		// post to wall
 		if (false == dao.addNewWallItemForUser(userUuid, wallItem)) {
@@ -154,7 +159,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		sakaiProxy.postEvent(ProfileConstants.EVENT_WALL_ITEM_NEW, ref, false);
 
 		// don't email user if they've posted on their own wall
-		if (false == sakaiProxy.getCurrentUserId().equals(userUuid)) {
+		if (!StringUtils.equals(sakaiProxy.getCurrentUserId(), userUuid)) {
 			sendWallNotificationEmailToUser(userUuid, wallItem.getCreatorUuid(), EmailType.EMAIL_NOTIFICATION_WALL_POST_MY_NEW);
 		}
 		// and if they have posted on their own wall, let connections know
@@ -165,6 +170,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			if (null != connections) {
 
 				Thread thread = new Thread() {
+					@Override
 					public void run() {
 
 						List<String> uuidsToEmail = new ArrayList<String>();
@@ -190,6 +196,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean removeWallItemFromWall(WallItem wallItem) {
 
 		if (dao.removeWallItemFromWall(wallItem)) {
@@ -204,6 +211,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public WallItem getWallItem(long wallItemId) {
 		return dao.getWallItem(wallItemId);
 	}
@@ -211,6 +219,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public WallItemComment getWallItemComment(final long wallItemCommentId) {
 		return dao.getWallItemComment(wallItemCommentId);
 	}
@@ -218,6 +227,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<WallItem> getWallItemsForUser(String userUuid, ProfilePrivacy privacy) {
 
 		if (null == userUuid) {
@@ -264,6 +274,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<WallItem> getWallItemsForUser(String userUuid) {
 		return getWallItemsForUser(userUuid, privacyLogic
 				.getPrivacyRecordForUser(userUuid));
@@ -272,6 +283,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public int getWallItemsCount(String userUuid) {
 		return getWallItemsCount(userUuid, privacyLogic
 				.getPrivacyRecordForUser(userUuid));
@@ -280,6 +292,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public int getWallItemsCount(String userUuid, ProfilePrivacy privacy) {
 
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
