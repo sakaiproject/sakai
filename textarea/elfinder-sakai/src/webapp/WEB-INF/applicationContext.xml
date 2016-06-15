@@ -45,6 +45,7 @@
 							<property name="publishedAssessmentService" >
 								<bean class="org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService"/>
 							</property>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 
 						</bean>
 					</set>

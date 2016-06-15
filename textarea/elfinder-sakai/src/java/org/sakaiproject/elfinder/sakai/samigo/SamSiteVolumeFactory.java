@@ -30,6 +30,7 @@ import org.sakaiproject.elfinder.sakai.site.SiteFsItem;
 import org.sakaiproject.elfinder.sakai.site.SiteFsVolume;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,9 +46,14 @@ public class SamSiteVolumeFactory implements SiteVolumeFactory {
 
     private static final Log LOG = LogFactory.getLog(SamSiteVolumeFactory.class);
     private PublishedAssessmentService publishedAssessmentService;
+    private ServerConfigurationService serverConfigurationService;
 
     public void setPublishedAssessmentService(PublishedAssessmentService publishedAssessmentService) {
         this.publishedAssessmentService = publishedAssessmentService;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     @Override
@@ -219,12 +225,13 @@ public class SamSiteVolumeFactory implements SiteVolumeFactory {
         }
 
         public String getURL(FsItem f) {
+            String serverUrlPrefix = serverConfigurationService.getServerUrl();
             if(f instanceof SamFsItem) {
                 SamFsItem samFsItem1 = (SamFsItem)f;
                 if (!(samFsItem1.getId().equals(""))) {
                     PublishedAssessmentFacade pubAssessment = samFsItem1.getAssessment();
                     String alias = pubAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS);
-                    return "/samigo-app/servlet/Login?id=" + alias;
+                    return serverUrlPrefix + "/samigo-app/servlet/Login?id=" + alias;
                 }else{
                     return null;
                 }
