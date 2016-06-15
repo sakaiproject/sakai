@@ -23,9 +23,9 @@
   		text-align: center;
 	}
 	.alertMessage{
-		background: $errorcolor;
-		border: 1px solid darken( $errorcolor, 30% );
-		color: darken( $errorcolor, 30% );
+		background: $error-background-color;
+		border: $error-color;
+		color: $error-color;
 		padding: 0.8em;
 		text-align: center;
 	}
@@ -65,8 +65,8 @@
 
 	&.with-errors{
 		input[type="text"],input[type="password"]{			
-			border: 1px solid darken($errorcolor, 15%);
-			background: $errorcolor;
+			border: 1px solid $error-color;
+			background: $error-background-color;
 		}
 	}
 

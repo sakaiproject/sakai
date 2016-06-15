@@ -53,6 +53,10 @@
 	}
 }
 
+.#{$namespace}mainContent{
+  background: $main-content-background;
+}
+
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
 	margin: 0 1em 1em 1em;
 	clear: both;
@@ -61,8 +65,12 @@
 	}
 }
 
+.#{$namespace}container--footer{
+	background: $footer-background;
+}
+
 .#{$namespace}footer{
-	color: $background-color-secondary;
+	color: $footer-color;
 	padding: 0.8em;
 	font-size: 0.8em;
 	#footer-links{

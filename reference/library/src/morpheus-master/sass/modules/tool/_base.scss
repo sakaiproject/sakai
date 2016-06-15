@@ -81,7 +81,7 @@
 	.#{$namespace}toolTitleNav__link{
 		//color: lighten( $text-color, 70% );
 		border: 1px solid #e0e0e0;
-		background: $toolTabBGColor;
+		background: $tool-tab-background-color;
 		margin-right: 0.25em;
 		padding: 5px 8px;
 		text-decoration :none;
@@ -146,7 +146,7 @@
 
 .#{$namespace}toolBody{
 	background: $tool-background-color;
-	border-bottom: 1px solid $toolBorderColor;
+	border-bottom: 1px solid $tool-border-color;
 	iframe{
 		margin: 0 0 0 0;
 		width: 100%;
