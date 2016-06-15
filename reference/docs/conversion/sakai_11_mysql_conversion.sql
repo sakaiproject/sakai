@@ -471,7 +471,7 @@ WHERE template_key = 'sitemanage.notifySiteCreation.confirmation' AND template_l
 -- END SAK-30000
 
 -- SAK-29740 update gradebook settings
-ALTER TABLE gb_gradebook_t ADD course_letter_grade_displayed BIT(1) NOT NULL DEFAULT true;
+ALTER TABLE GB_GRADEBOOK_T ADD course_letter_grade_displayed BIT(1) NOT NULL DEFAULT true;
 
 -- SAK-29401/SAK-29977 Role based access to sites --
 INSERT INTO SAKAI_REALM_ROLE VALUES (DEFAULT, '.default');
