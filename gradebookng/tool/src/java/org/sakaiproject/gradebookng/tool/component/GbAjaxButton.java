@@ -19,7 +19,12 @@ public class GbAjaxButton extends AjaxButton {
 	protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
 		super.updateAjaxAttributes(attributes);
 		attributes.getAjaxCallListeners().add(new AjaxCallListener()
-			.onBefore("$('#" + getMarkupId() + "').prop('disabled',true);")
-			.onComplete("$('#" + getMarkupId() + "').prop('disabled',false);"));
+			// disable the button right away after clicking it
+			.onBefore(String.format("$('#%s').prop('disabled',true);", getMarkupId()))
+			// add a slight delay in re-enabling it, just in case it succeeded and there's
+			// a delay in closing a parent modal
+			.onComplete(
+				String.format("setTimeout(function() { $('#%s').prop('disabled',false); }, 1000);",
+					getMarkupId())));
 	}
 }
