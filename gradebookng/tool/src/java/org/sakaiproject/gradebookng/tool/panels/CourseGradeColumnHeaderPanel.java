@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -20,6 +19,7 @@ import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -111,7 +111,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 				return role == GbRole.INSTRUCTOR;
 			}
 		};
-		menu.add(new AjaxLink<Void>("setUngraded") {
+		menu.add(new GbAjaxLink("setUngraded") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -125,7 +125,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 			}
 		});
 
-		final AjaxLink<Boolean> showHidePoints = new AjaxLink<Boolean>("showHidePoints", this.model) {
+		final GbAjaxLink<Boolean> showHidePoints = new GbAjaxLink("showHidePoints", this.model) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

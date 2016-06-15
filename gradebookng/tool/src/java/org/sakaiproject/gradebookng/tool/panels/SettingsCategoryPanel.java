@@ -16,7 +16,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -41,6 +40,7 @@ import org.apache.wicket.util.convert.IConverter;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -400,7 +400,7 @@ public class SettingsCategoryPanel extends Panel {
 				item.add(categoryKeepHighest);
 
 				// remove button
-				final AjaxButton remove = new AjaxButton("remove") {
+				final GbAjaxButton remove = new GbAjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -476,7 +476,7 @@ public class SettingsCategoryPanel extends Panel {
 		settingsCategoriesPanel.add(categoriesWrap);
 
 		// add category button
-		final AjaxButton addCategory = new AjaxButton("addCategory") {
+		final GbAjaxButton addCategory = new GbAjaxButton("addCategory") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

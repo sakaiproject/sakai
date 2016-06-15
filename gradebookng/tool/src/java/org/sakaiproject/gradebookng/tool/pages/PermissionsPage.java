@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -29,6 +28,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -363,7 +363,7 @@ public class PermissionsPage extends BasePage {
 				item.add(groupChooser);
 
 				// remove button
-				final AjaxButton remove = new AjaxButton("remove") {
+				final GbAjaxButton remove = new GbAjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -390,7 +390,7 @@ public class PermissionsPage extends BasePage {
 		form.add(permissionsView);
 
 		// 'add a rule' button
-		final AjaxButton addRule = new AjaxButton("addRule") {
+		final GbAjaxButton addRule = new GbAjaxButton("addRule") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

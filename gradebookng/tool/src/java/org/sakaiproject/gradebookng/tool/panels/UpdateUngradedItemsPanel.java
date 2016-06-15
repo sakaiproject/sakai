@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -25,6 +24,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -79,7 +79,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 		// modal window forms must be submitted via AJAX so we do not specify an onSubmit here
 		final Form<GradeOverride> form = new Form<GradeOverride>("form", formModel);
 
-		final AjaxButton submit = new AjaxButton("submit") {
+		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -118,7 +118,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 		};
 		form.add(submit);
 
-		final AjaxButton cancel = new AjaxButton("cancel") {
+		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,6 +21,7 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -90,7 +90,7 @@ public class CourseGradeOverridePanel extends Panel {
 		overrideField.setOutputMarkupId(true);
 		form.add(overrideField);
 
-		final AjaxButton submit = new AjaxButton("submit") {
+		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -129,7 +129,7 @@ public class CourseGradeOverridePanel extends Panel {
 		form.add(new GbFeedbackPanel("feedback"));
 
 		// cancel button
-		final AjaxButton cancel = new AjaxButton("cancel") {
+		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
