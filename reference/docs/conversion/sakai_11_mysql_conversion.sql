@@ -746,8 +746,8 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
       'displayScores_isInstructorEditable', 'true');
 
 -- LTI CHANGES !!!
-alter table LTI_CONTENT add FA_ICON varchar(1024);
-alter table LTI_CONTENT add CONTENTITEM mediumtext;
+alter table lti_content add FA_ICON varchar(1024);
+alter table lti_content add CONTENTITEM mediumtext;
 alter table lti_tools add pl_launch tinyint(4) default 0;
 alter table lti_tools add pl_linkselection tinyint(4) default 0;
 alter table lti_tools add pl_fileitem tinyint(4) default 0;
@@ -757,27 +757,27 @@ alter table lti_tools add pl_importitem tinyint(4) default 0;
 alter table lti_tools add fa_icon varchar(1024);
 alter table lti_tools add tool_proxy_binding mediumtext;
 
-ALTER TABLE lti_content MODIFY (     title VARCHAR(1024) );
-ALTER TABLE lti_content MODIFY (     pagetitle VARCHAR(1024) );
-ALTER TABLE lti_content MODIFY (     consumerkey VARCHAR(1024) );
-ALTER TABLE lti_content MODIFY (     secret VARCHAR(1024) );
-alter table lti_content modify ( 	custom varchar(65536) );
+ALTER TABLE lti_content MODIFY title VARCHAR(1024);
+ALTER TABLE lti_content MODIFY pagetitle VARCHAR(1024);
+ALTER TABLE lti_content MODIFY consumerkey VARCHAR(1024);
+ALTER TABLE lti_content MODIFY secret VARCHAR(1024);
+alter table lti_content modify custom varchar(65536);
 
-ALTER TABLE lti_tools MODIFY (     title VARCHAR(1024) );
-ALTER TABLE lti_tools MODIFY (     pagetitle VARCHAR(1024) );
-ALTER TABLE lti_tools MODIFY (     consumerkey VARCHAR(1024) );
-ALTER TABLE lti_tools MODIFY (     secret VARCHAR(1024) );
-alter table lti_tools modify (	custom varchar(65536) );
+ALTER TABLE lti_tools MODIFY title VARCHAR(1024);
+ALTER TABLE lti_tools MODIFY pagetitle VARCHAR(1024);
+ALTER TABLE lti_tools MODIFY consumerkey VARCHAR(1024);
+ALTER TABLE lti_tools MODIFY secret VARCHAR(1024);
+alter table lti_tools modify custom varchar(65536);
 
-ALTER TABLE lti_deploy MODIFY (     title VARCHAR(1024) );
-ALTER TABLE lti_deploy MODIFY (     pagetitle VARCHAR(1024) );
-ALTER TABLE lti_deploy ADD (     allowcontentitem tinyint(4) DEFAULT 0 );
-ALTER TABLE lti_deploy MODIFY (     reg_key VARCHAR(1024) );
-ALTER TABLE lti_deploy MODIFY (     reg_password VARCHAR(1024) );
-ALTER TABLE lti_deploy ADD (	reg_ack CLOB );
-ALTER TABLE lti_deploy MODIFY (     consumerkey VARCHAR(1024) );
-ALTER TABLE lti_deploy MODIFY (     secret VARCHAR(1024) );
-ALTER TABLE lti_deploy ADD (     new_secret VARCHAR(1024) );
+ALTER TABLE lti_deploy MODIFY title VARCHAR(1024);
+ALTER TABLE lti_deploy MODIFY pagetitle VARCHAR(1024);
+ALTER TABLE lti_deploy ADD allowcontentitem tinyint(4) DEFAULT 0;
+ALTER TABLE lti_deploy MODIFY reg_key VARCHAR(1024);
+ALTER TABLE lti_deploy MODIFY reg_password VARCHAR(1024);
+ALTER TABLE lti_deploy ADD reg_ack TEXT;
+ALTER TABLE lti_deploy MODIFY consumerkey VARCHAR(1024);
+ALTER TABLE lti_deploy MODIFY secret VARCHAR(1024);
+ALTER TABLE lti_deploy ADD new_secret VARCHAR(1024);
 
 CREATE TABLE lti_memberships_jobbbs (
     SITE_ID VARCHAR(99),
