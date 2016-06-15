@@ -303,6 +303,10 @@ label.panelGridLabel{
 		border-color: lighten( $toolMenuColor, 5% ) !important;
 		background-color: lighten( $toolMenuBGColor, 5% ) !important;
 	}
+	
+	.dz-progress{
+		top: 70% !important;
+	}
 }
 
 .dropzone .dz-message .note {
