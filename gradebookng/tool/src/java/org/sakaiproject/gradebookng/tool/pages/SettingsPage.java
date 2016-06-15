@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -14,6 +13,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
@@ -182,7 +182,7 @@ public class SettingsPage extends BasePage {
 		add(form);
 
 		// expand/collapse panel actions
-		add(new AjaxLink<String>("expandAll") {
+		add(new GbAjaxLink("expandAll") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -190,7 +190,7 @@ public class SettingsPage extends BasePage {
 				target.appendJavaScript("$('#settingsAccordion .panel-collapse').collapse('show');");
 			}
 		});
-		add(new AjaxLink<String>("collapseAll") {
+		add(new GbAjaxLink("collapseAll") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

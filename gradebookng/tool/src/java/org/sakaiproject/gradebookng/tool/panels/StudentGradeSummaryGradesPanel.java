@@ -9,13 +9,11 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -28,6 +26,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -137,7 +136,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
 		toggleActions.setVisible(this.categoriesEnabled);
 
-		final AjaxLink toggleCategoriesLink = new AjaxLink("toggleCategoriesLink") {
+		final GbAjaxLink toggleCategoriesLink = new GbAjaxLink("toggleCategoriesLink") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
