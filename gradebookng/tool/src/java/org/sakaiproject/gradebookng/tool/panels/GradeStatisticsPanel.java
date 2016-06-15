@@ -13,7 +13,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -42,6 +41,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 public class GradeStatisticsPanel extends Panel {
@@ -188,7 +188,7 @@ public class GradeStatisticsPanel extends Panel {
 			add(new Label("deviation", "-"));
 		}
 
-		add(new AjaxLink<Void>("done") {
+		add(new GbAjaxLink("done") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

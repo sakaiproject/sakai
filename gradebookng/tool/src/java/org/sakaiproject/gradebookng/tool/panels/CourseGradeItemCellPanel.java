@@ -5,7 +5,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -16,6 +15,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -112,7 +112,7 @@ public class CourseGradeItemCellPanel extends Panel {
 				return role == GbRole.INSTRUCTOR;
 			}
 		};
-		menu.add(new AjaxLink<String>("courseGradeOverride", Model.of(studentUuid)) {
+		menu.add(new GbAjaxLink("courseGradeOverride", Model.of(studentUuid)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -124,7 +124,7 @@ public class CourseGradeItemCellPanel extends Panel {
 				window.show(target);
 			}
 		});
-		menu.add(new AjaxLink<String>("courseGradeOverrideLog", Model.of(studentUuid)) {
+		menu.add(new GbAjaxLink<String>("courseGradeOverrideLog", Model.of(studentUuid)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
