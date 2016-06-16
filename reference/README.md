@@ -1,5 +1,5 @@
 
-## Morpheus Documentation
+## Morpheus Documentation - starts about 3 minutes in.
 
 * **[Morpheus Hackathon video](https://www.youtube.com/watch?v=Hx7pQ52mWrc)**
 * **Morpheus quick start**: Basic commands you need to know to compile and generate new skin in Sakai using Morpheus. 
