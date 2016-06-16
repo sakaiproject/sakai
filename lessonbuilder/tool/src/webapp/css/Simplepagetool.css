@@ -252,6 +252,19 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	text-decoration: none !important;
 	background-color: #eee;
 }
+.mm-file-input {
+	display:inline;
+}
+.mm-file-input-name {
+        margin-right: 0.5em;
+}
+.mm-file-input-delete {
+        color: red;
+	cursor: pointer;
+}
+.mm-file-input-itemname {
+	margin-left: 1.0em;
+}
 #edit-title {
 	margin-left: 1em
 }
