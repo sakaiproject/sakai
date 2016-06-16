@@ -923,6 +923,8 @@
 			  <p rsf:id="msg=simplepage.break-here" id="simplepage.break-here"></p>
 			  <p rsf:id="msg=simplepage.break-column-here" id="simplepage.break-column-here"></p>
 			  <p rsf:id="msg=simplepage.columnopen" id="simplepage.columnopen"></p>
+			  <p rsf:id="msg=simplepage.remove_from_uploads" id="simplepage.remove_from_uploads"></p>
+			  <p rsf:id="msg=simplepage.title_for_upload" id="simplepage.title_for_upload"></p>
 			  <p rsf:id="siteid" id="siteid"></p>
 			  <p rsf:id="locale" id="locale"></p>
 			</div>
@@ -1148,11 +1150,13 @@
                             <label rsf:id="msg=simplepage.name_label" for="mm-name"></label>
                             <input type="text" name="mm-name" rsf:id="mm-name" id="mm-name" size="30" maxlength="99" class="edit-form-input" />
                           </p>
-			  <hr />
 			</div>
                         <p class="required">
+                            <textarea id="mm-names" rsf:id="mm-names"style="display:none"></textarea>
                             <label rsf:id="msg=simplepage.upload_label" for="mm-file">File</label>
-                            <input type="file" name="mm-file" id="mm-file" style="width:95%" class="edit-multimedia-input" multiple="multiple" />
+			    <div>
+                              <input type="file" name="mm-file" id="mm-file" style="width:95%" class="edit-multimedia-input mm-file-input" multiple="" />
+			    </div>
 			    <span id="mm-file-replace-group">
 			      <input type="checkbox" id="mm-file-replace" rsf:id="mm-file-replace" />
 			      <label for="mm-file-replace"><span rsf:id="msg=simplepage.file-replace"></span></label>

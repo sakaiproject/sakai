@@ -135,6 +135,7 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, ServerConfigurationService.getString("lessonbuilder.attachlinks", "true"));
 		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ITEMID, itemId);
 		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ADDBEFORE, ((FilePickerViewParameters) viewparams).getAddBefore());
+		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ITEMNAME, ((FilePickerViewParameters) viewparams).getName());
 
 		if (simplePageBean.getCurrentPage().getOwner() != null) {
 		    toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, "/user/" + simplePageBean.getCurrentUserId() + "/");
