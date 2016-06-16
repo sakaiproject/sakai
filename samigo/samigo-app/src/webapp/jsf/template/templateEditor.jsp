@@ -84,7 +84,7 @@
 <h3><h:outputText value="#{templateMessages.template_editor}"/>
      <h:outputText value="#{template.templateName}"/>
 </h3>
- <h:outputText escape="false" value="#{templateMessages.template_instructions}"/>
+ <p><h:outputText escape="false" value="#{templateMessages.template_instructions}"/></p>
  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="tier1" id="jqueryui-accordion">
@@ -131,7 +131,7 @@
     </h:panelGrid>
 	</div>
 
-    </div></div>
+    </div>
   </samigo:hideDivision>
 
   <!-- *** AUTHORSHIP *** -->
