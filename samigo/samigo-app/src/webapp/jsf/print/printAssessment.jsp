@@ -101,7 +101,7 @@ document.links[newindex].onclick();
   <h:form id="assessmentForm">
   
   <!-- HEADINGS (NOT PRINTED) -->
-      <p class="navIntraTool">        
+      <p>        
         <h:commandLink action="#{pdfAssessment.getActionString}">
           <h:outputText value="#{printMessages.back_to_assessmt}" rendered="#{pdfAssessment.actionString == 'editAssessment'}" escape="false" />
 		  <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
@@ -141,7 +141,7 @@ document.links[newindex].onclick();
 		      
 		&nbsp;&nbsp;&nbsp;
 
-        <h:outputText value="#{printMessages.font_size}:" />
+        <h:outputLabel for="fontSize" value="#{printMessages.font_size}:" />
         <h:selectOneMenu id="fontSize" value="#{printSettings.fontSize}">
           <f:selectItem itemLabel="#{printMessages.size_xsmall}" itemValue="1" />
           <f:selectItem itemLabel="#{printMessages.size_small}" itemValue="2" />
