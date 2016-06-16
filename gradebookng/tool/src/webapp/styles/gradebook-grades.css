@@ -116,6 +116,7 @@
   max-height: 2.8em;
   overflow: hidden;
   line-height: 1.4em;
+  margin-right: 4px;
 }
 #gradebookGrades thead th .gb-title > a {
   text-decoration: none;
