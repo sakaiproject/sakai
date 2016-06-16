@@ -135,6 +135,7 @@ import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UIInputMany;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
@@ -3909,6 +3910,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		makeCsrf(form, "csrf9");
 
 		UIInput.make(form, "mm-name", "#{simplePageBean.name}");
+		UIInput.make(form, "mm-names", "#{simplePageBean.names}");
 		UIOutput.make(form, "mm-file-label", messageLocator.getMessage("simplepage.upload_label"));
 
 		UIOutput.make(form, "mm-url-label", messageLocator.getMessage("simplepage.addLink_label"));
