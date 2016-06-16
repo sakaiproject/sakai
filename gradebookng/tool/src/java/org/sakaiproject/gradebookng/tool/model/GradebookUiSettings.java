@@ -44,7 +44,6 @@ public class GradebookUiSettings implements Serializable {
 	private GbAssignmentGradeSortOrder assignmentSortOrder;
 
 	@Getter
-	@Setter
 	private boolean categoriesEnabled;
 
 	private final Map<Long, Boolean> assignmentVisibility;
@@ -85,6 +84,15 @@ public class GradebookUiSettings implements Serializable {
 	@Setter
 	private Boolean showPoints;
 
+
+	/**
+	 * For toggling the group by categories option in the course grade summary table 
+	 */
+	@Getter
+	@Setter
+	private boolean gradeSummaryGroupedByCategory;
+
+
 	public GradebookUiSettings() {
 		// defaults. Note there is no default for assignmentSortOrder as that
 		// requires an assignmentId which will differ between gradebooks
@@ -98,6 +106,7 @@ public class GradebookUiSettings implements Serializable {
 
 		this.categoryColors = new HashMap<String, String>();
 		this.showPoints = false;
+		this.gradeSummaryGroupedByCategory = false;
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {
@@ -137,6 +146,11 @@ public class GradebookUiSettings implements Serializable {
 				}
 			}
 		}
+	}
+
+	public void setCategoriesEnabled(final boolean categoriesEnabled){
+		this.categoriesEnabled = categoriesEnabled;
+		this.gradeSummaryGroupedByCategory = categoriesEnabled;
 	}
 
 	/**
