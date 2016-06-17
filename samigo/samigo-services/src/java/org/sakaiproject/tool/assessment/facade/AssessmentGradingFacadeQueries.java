@@ -104,6 +104,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -3478,9 +3479,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    AssessmentGradingData adata = null;
 	    HashMap sectionSetMap = new HashMap();
 	    
-	    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
-	    PublishedAssessmentFacade assessment = null;
-	    
 	    EventLogService eventService = new EventLogService();
 	    EventLogFacade eventLogFacade = new EventLogFacade();
 	    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
@@ -3500,6 +3498,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 		boolean updateCurrentGrade;
 	    while (iter.hasNext()) {
+
 	    	updateCurrentGrade = false;
             Map<String, Object> notiValues = new HashMap<>();
 	    	try{
@@ -3509,6 +3508,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				Date endDate = new Date();
 				if (Boolean.FALSE.equals(adata.getForGrade())){
 
+						// SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
+						PublishedAssessmentFacade assessment = (PublishedAssessmentFacade)publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
+						ExtendedTimeService assessmentExtended = new ExtendedTimeService(assessment);
+						//If it has extended time, just continue for now, no method to tell if the time is passed
+						if (assessmentExtended.hasExtendedTime()) {
+							//If the due date or retract date hasn't passed yet, go on to the next one
+							if (assessmentExtended.getRetractDate().before(currentTime) || assessmentExtended.getDueDate().before(currentTime)) {
+								continue;
+							}
+						}
 						adata.setForGrade(Boolean.TRUE);
 						if (adata.getTotalAutoScore() == null) {
 								adata.setTotalAutoScore(0d);
@@ -3539,7 +3548,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         				// Check: needed updating gradebook
         				// If the assessment is configured with highest score and exists a previous submission with higher score 
         				// this submission doesn't have to be sent to gradebook
-        				assessment = (PublishedAssessmentFacade)publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
         				
         				if (assessment.getEvaluationModel().getScoringType().equals(EvaluationModel.HIGHEST_SCORE)) {
         					AssessmentGradingData assessmentGrading = 
