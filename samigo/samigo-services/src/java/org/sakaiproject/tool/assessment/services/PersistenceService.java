@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.util.autosubmit.AutoSubmitQueriesAPI;
 
 /**
  * @author jlannan
@@ -59,6 +60,7 @@ public class PersistenceService{
 	private PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries;
 	private PublishedItemFacadeQueriesAPI publishedItemFacadeQueries;
 	private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
+	private AutoSubmitQueriesAPI autoSubmitQueries;
 	private AuthorizationFacadeQueriesAPI authorizationFacadeQueries;
 	private PagingUtilQueriesAPI pagingUtilQueries;
 	private AuthzQueriesFacadeAPI authzQueriesFacade;
@@ -173,6 +175,16 @@ public class PersistenceService{
 
 	public void setAssessmentGradingFacadeQueries(AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries){
 	    this.assessmentGradingFacadeQueries = assessmentGradingFacadeQueries;
+	}
+	
+	public AutoSubmitQueriesAPI getAutoSubmitQueries()
+	{
+		return autoSubmitQueries;
+	}
+	
+	public void setAutoSubmitQueries(AutoSubmitQueriesAPI value)
+	{
+		autoSubmitQueries = value;
 	}
 
         public AuthorizationFacadeQueriesAPI getAuthorizationFacadeQueries(){
