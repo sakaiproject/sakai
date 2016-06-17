@@ -621,10 +621,6 @@
   border-bottom: none;
   margin: 0;
 }
-#gradeItemsTogglePanel .gb-item-filter-group .btn-group {
-  float: right;
-  margin-top: 3px;
-}
 #gradeItemsTogglePanel .gb-item-filter-group .btn-group .btn.dropdown-toggle {
   padding: 0 4px;
 }
