@@ -20,10 +20,6 @@
 
 package org.sakaiproject.accountvalidator.logic.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,17 +27,12 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.sakaiproject.accountvalidator.logic.ValidationException;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.logic.dao.ValidationDao;
@@ -59,7 +50,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -68,7 +58,6 @@ import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
@@ -76,10 +65,7 @@ import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 
-
-
 public class ValidationLogicImpl implements ValidationLogic {
-
 
 	private static final String TEMPLATE_KEY_EXISTINGUSER = "validate.existinguser";
 	private static final String TEMPLATE_KEY_NEW_USER = "validate.newUser";
@@ -91,86 +77,28 @@ public class ValidationLogicImpl implements ValidationLogic {
 	private static final String TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET = "acknowledge.passwordReset";
 	
 	private static final int VALIDATION_PERIOD_MONTHS = -36;
-	private static Logger log = LoggerFactory.getLogger(ValidationLogicImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ValidationLogicImpl.class);
 	
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	
 	public void init(){
-		log.info("init()");
+		LOG.info("init()");
+
 		//need to populate the templates
-		loadTemplate("validate_newUser.xml", TEMPLATE_KEY_NEW_USER);
-		loadTemplate("validate_existingUser.xml", TEMPLATE_KEY_EXISTINGUSER);
-		loadTemplate("validate_legacyUser.xml", TEMPLATE_KEY_LEGACYUSER);
-		loadTemplate("validate_newPassword.xml", TEMPLATE_KEY_PASSWORDRESET);
-		loadTemplate("validate_userIdUpdate.xml", TEMPLATE_KEY_USERIDUPDATE);
-		loadTemplate("validate_deleted.xml", TEMPLATE_KEY_DELETED);
-		loadTemplate("validate_requestAccount.xml", TEMPLATE_KEY_REQUEST_ACCOUNT);
-		loadTemplate("acknowledge_passwordReset.xml", TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET);
+		ClassLoader loader = ValidationLogicImpl.class.getClassLoader();
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_newUser.xml"), TEMPLATE_KEY_NEW_USER);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_existingUser.xml"), TEMPLATE_KEY_EXISTINGUSER);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_legacyUser.xml"), TEMPLATE_KEY_LEGACYUSER);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_newPassword.xml"), TEMPLATE_KEY_PASSWORDRESET);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_userIdUpdate.xml"), TEMPLATE_KEY_USERIDUPDATE);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_deleted.xml"), TEMPLATE_KEY_DELETED);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_requestAccount.xml"), TEMPLATE_KEY_REQUEST_ACCOUNT);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("acknowledge_passwordReset.xml"), TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET);
 		
 		//seeing the GroupProvider is optional we need to load it here
 		if (groupProvider == null) {
 			groupProvider = (GroupProvider) ComponentManager.get(GroupProvider.class.getName());
 		}
-	}
-	
-	/**
-	* Load and register one or more email templates (contained in the given
-	* .xml file) with the email template service
-	*
-	* @param fileName - the name of the .xml file to load
-	* @param templateKey - the key (name) of the template to be saved to the service
-	*/
-	private void loadTemplate(String fileName, String templateKey) {
-		//Create the SecurityAdvisor (elevated permissions needed to use EmailTemplateService)
-		org.sakaiproject.authz.api.SecurityService securityService = (org.sakaiproject.authz.api.SecurityService) ComponentManager.get( org.sakaiproject.authz.api.SecurityService.class );
-		SecurityAdvisor yesMan = new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed( String userId, String function, String reference )
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		};
-
-		try
-		{
-			// Push the yesMan SA on the stack and perform the necessary actions
-			securityService.pushAdvisor( yesMan );
-
-			// Load up the resource as an input stream
-			InputStream input = ValidationLogicImpl.class.getClassLoader().getResourceAsStream( fileName );
-			if ( input == null )
-			{
-				log.error( "Could not load resource from '" + fileName + "'. Skipping ..." );
-			}
-			else
-			{
-				// Parse the XML, get all the child templates
-				Document document = new SAXBuilder().build( input );
-				List<?> childTemplates = document.getRootElement().getChildren( "emailTemplate" );
-				Iterator<?> iter = childTemplates.iterator();
-
-				// Create and register a template with the service for each one found in the XML file
-				while ( iter.hasNext() )
-				{
-					xmlToTemplate( (Element) iter.next(), templateKey );
-				}
-			}
-		}
-		catch ( JDOMException e ) 
-		{ 
-			log.error( e.getMessage(), e); 
-		}
-		catch ( IOException e )
-		{
-			log.error( e.getMessage(), e);
-		}
-
-		// Pop the yesMan SA off the stack (remove elevated permissions)
-		finally
-		{
-			securityService.popAdvisor( yesMan );
-		}
-		
 	}
 
 	private IdManager idManager;
@@ -222,11 +150,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 		this.securityService = securityService;
 	}
 
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
 	private GroupProvider groupProvider;
 	public void setGroupProvider(GroupProvider groupProvider) {
 		this.groupProvider = groupProvider;
@@ -237,8 +160,10 @@ public class ValidationLogicImpl implements ValidationLogic {
 		Restriction rest = new Restriction("id", id);
 		search.addRestriction(rest);
 		List<ValidationAccount> l = dao.findBySearch(ValidationAccount.class, search);
-		if (l.size() >0 ) 
+		if (l.size() >0 )
+		{
 			return (ValidationAccount)l.get(0);
+		}
 		
 		return null;
 	}
@@ -249,16 +174,17 @@ public class ValidationLogicImpl implements ValidationLogic {
 		Restriction rest = new Restriction("validationToken", token);
 		search.addRestriction(rest);
 		List<ValidationAccount> l = dao.findBySearch(ValidationAccount.class, search);
-		if (l.size() >0 ) 
+		if (l.size() >0 )
+		{
 			return (ValidationAccount)l.get(0);
+		}
 		
 		return null;
 	}
 
 	public boolean isAccountValidated(String userId) {
 		//this is a basic rule need to account for validations expiring
-		log.debug("validating" + userId);
-		
+		LOG.debug("validating" + userId);
 		
 		ValidationAccount va = this.getVaLidationAcountByUserId(userId);
 		Calendar cal = new GregorianCalendar();
@@ -266,27 +192,27 @@ public class ValidationLogicImpl implements ValidationLogic {
 		//a time validation time in the past
 		Date validationDeadline = cal.getTime();
 		if (va == null) {
-			log.debug("no account found!");
+			LOG.debug("no account found!");
 			return false;
 		} else {
 			if(isTokenExpired(va)) {
 				return true;
 			}else if (va.getValidationReceived() == null && va.getValidationSent().after(validationDeadline)) {
-				log.debug("validation sent still awaiting reply");
+				LOG.debug("validation sent still awaiting reply");
 				return true;
 			} else if (va.getValidationReceived() == null && va.getValidationSent().before(validationDeadline)) {
-				log.debug("validation sent but no reply received");
+				LOG.debug("validation sent but no reply received");
 				//what should we do in this case?
 				return true;
 			}
-			log.debug("got an item of staus " + va.getStatus());
+			LOG.debug("got an item of staus " + va.getStatus());
 			if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
-				log.info("account is validated");
+				LOG.info("account is validated");
 				return true;
 			}
 		}
 		
-		log.debug("no conditions met assuming account is not validated");
+		LOG.debug("no conditions met assuming account is not validated");
 		return false;
 	}
 	
@@ -325,7 +251,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 				}
 				catch (NumberFormatException nfe)
 				{
-					log.warn("accountValidator.maxPasswordResetMinutes must be an integer");
+					LOG.warn("accountValidator.maxPasswordResetMinutes must be an integer", nfe);
 				}
 			}
 		}
@@ -341,14 +267,13 @@ public class ValidationLogicImpl implements ValidationLogic {
 		search.addRestriction(rest);
 		List<ValidationAccount> l = dao.findBySearch(ValidationAccount.class, search);
 		
-		if (l.size() >0 ) 
+		if (l.size() >0 )
+		{
 			return (ValidationAccount)l.get(0);
+		}
 		
 		return null;
 	}
-	
-	
-	
 	
 	public List<ValidationAccount> getValidationAccountsByStatus(Integer status) {
 		Search search = new Search();
@@ -356,10 +281,12 @@ public class ValidationLogicImpl implements ValidationLogic {
 		search.addRestriction(rest);
 		List<ValidationAccount> l = dao.findBySearch(ValidationAccount.class, search);
 		
-		if (l.size() >0 ) 
+		if (l.size() >0 )
+		{
 			return l;
+		}
 		
-		return new ArrayList<ValidationAccount>();
+		return new ArrayList<>();
 	}
 
 	public ValidationAccount createValidationAccount(String userRef) {
@@ -390,10 +317,9 @@ public class ValidationLogicImpl implements ValidationLogic {
 		return account;
 	}
 
-
 	public ValidationAccount createValidationAccount(String userRef,
 			Integer accountStatus) {
-		log.debug("createValidationAccount(" + userRef + ", " + accountStatus);
+		LOG.debug("createValidationAccount(" + userRef + ", " + accountStatus);
 		
 		
 		//TODO creating a new Validation should clear old ones for the user
@@ -410,13 +336,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 		}
 		sendEmailTemplate(v, null);
 		
-		
-		/*if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue()) {
-			//A password reset doesn't invalidate confirmation
-			v.setStatus(ValidationAccount.STATUS_CONFIRMED);
-		} else { 
-			v.setStatus(ValidationAccount.STATUS_SENT);
-		}*/
 		v = saveValidationAccount(v);
 		return v;
 	}
@@ -428,14 +347,17 @@ public class ValidationLogicImpl implements ValidationLogic {
 		try{
 			User u = userDirectoryService.getUser(userId);
 			if (StringUtils.isNotBlank(u.getFirstName()))
+			{
 				account.setFirstName(u.getFirstName());
+			}
 
 			if (StringUtils.isNotBlank(u.getLastName()))
+			{
 				account.setSurname(u.getLastName());
+			}
 		}
 		catch(UserNotDefinedException e){
-			log.error("No User found for the id " + e.getMessage());
-
+			LOG.error("No User found for the id " + e.getMessage());
 		}
 		dao.save(account);
 		return account;
@@ -450,7 +372,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 	{
 		if (accountStatus == null)
 		{
-			log.warn("can't determine which account validation page to use - accountStatus is null. Returning the legacy 'validate'");
+			LOG.warn("can't determine which account validation page to use - accountStatus is null. Returning the legacy 'validate'");
 			return "validate";
 		}
 
@@ -474,17 +396,17 @@ public class ValidationLogicImpl implements ValidationLogic {
 	}
 
 	private String getTemplateKey(Integer accountStatus) {
-		log.info("getTemplateKey( " + accountStatus.intValue());
+		LOG.info("getTemplateKey( " + accountStatus);
 		
 		String templateKey = TEMPLATE_KEY_NEW_USER;
 		
-		if ( (ValidationAccount.ACCOUNT_STATUS_EXISITING == accountStatus.intValue())) {
+		if ( (ValidationAccount.ACCOUNT_STATUS_EXISITING == accountStatus)) {
 			templateKey  = TEMPLATE_KEY_EXISTINGUSER;
-		} else if ( (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus.intValue() || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus.intValue())) {
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus)) {
 			templateKey  = TEMPLATE_KEY_LEGACYUSER;
-		} else if ( (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue())) {
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus)) {
 			templateKey  = TEMPLATE_KEY_PASSWORDRESET;
-		} else if ( (ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE == accountStatus.intValue())) {
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE == accountStatus)) {
 			templateKey = TEMPLATE_KEY_USERIDUPDATE;
 		} else if ( (ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus)) {
 			templateKey = TEMPLATE_KEY_REQUEST_ACCOUNT;
@@ -494,30 +416,29 @@ public class ValidationLogicImpl implements ValidationLogic {
 
 	
 	public void mergeAccounts(String oldUserReference, String newUserReference) throws ValidationException {
-		log.debug("merge account: " +  oldUserReference + ", " + newUserReference + ")");
+		LOG.debug("merge account: " +  oldUserReference + ", " + newUserReference + ")");
 		UserEdit olduser = null;
 		try {
 			String oldUserId = EntityReference.getIdFromRef(oldUserReference);
 			String newuserId = EntityReference.getIdFromRef(newUserReference);
 	
 			//we need a security advisor
-			SecurityAdvisor secAdvice = new SecurityAdvisor() {
-				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					log.debug("isAllowed( " + userId + ", " + function + ", " + reference);
-					if (UserDirectoryService.SECURE_UPDATE_USER_ANY.equals(function)) {
-						return SecurityAdvice.ALLOWED;
-					} else if (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function)){
-						return SecurityAdvice.ALLOWED;
-					} else if (UserDirectoryService.SECURE_REMOVE_USER.equals(function)) {
-						log.debug("advising user can delete users");
-						return SecurityAdvice.ALLOWED;
-					} else {
-						return SecurityAdvice.NOT_ALLOWED;
-					}
+			SecurityAdvisor secAdvice = (String userId, String function, String reference) ->
+			{
+				LOG.debug("isAllowed( " + userId + ", " + function + ", " + reference);
+				if (UserDirectoryService.SECURE_UPDATE_USER_ANY.equals(function)) {
+					return SecurityAdvice.ALLOWED;
+				} else if (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function)){
+					return SecurityAdvice.ALLOWED;
+				} else if (UserDirectoryService.SECURE_REMOVE_USER.equals(function)) {
+					LOG.debug("advising user can delete users");
+					return SecurityAdvice.ALLOWED;
+				} else {
+					return SecurityAdvice.NOT_ALLOWED;
 				}
 			};
 			securityService.pushAdvisor(secAdvice);
-			log.debug("pushed security avisor: "  + secAdvice);
+			LOG.debug("pushed security avisor: "  + secAdvice);
 			olduser = userDirectoryService.editUser(oldUserId);
 			
 			//get the old users realm memberships
@@ -548,29 +469,23 @@ public class ValidationLogicImpl implements ValidationLogic {
 			userDirectoryService.removeUser(olduser);
 			
 		} catch (UserNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn( "User not defined" , e );
 		} catch (UserPermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn( "User permission error", e );
 			if (olduser != null) {
 				userDirectoryService.cancelEdit(olduser);
 			}
-			//throw new ValidationException("don't have persmission", e);
 		} catch (UserLockedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn( "User locked", e );
 		} catch (GroupNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn( "AuthzGroup doesn't exist", e );
 		} catch (AuthzPermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn( "No permission to save group", e );
 		}
 		finally {
 			SecurityAdvisor sa = securityService.popAdvisor();
 			if (sa == null) {
-				log.warn("Something cleared our advisor!");
+				LOG.warn("Something cleared our advisor!");
 			}
 			
 		}
@@ -586,40 +501,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 	}
 
-
-	private void xmlToTemplate(Element xmlTemplate, String key) {
-		String subject = xmlTemplate.getChildText("subject");
-		String body = xmlTemplate.getChildText("message");
-		String bodyHtml = xmlTemplate.getChildText("messagehtml");
-		String locale = xmlTemplate.getChildText("locale");
-		String versionString = xmlTemplate.getChildText("version");
-		
-		
-		if (emailTemplateService.getEmailTemplate(key, new Locale(locale)) == null)
-		{
-			EmailTemplate template = new EmailTemplate();
-			template.setSubject(subject);
-			template.setMessage(body);
-			if (bodyHtml != null) {
-				String decodedHtml;
-				try {
-					decodedHtml = URLDecoder.decode(bodyHtml, "utf8");
-				} catch (UnsupportedEncodingException e) {
-					decodedHtml = bodyHtml;
-					e.printStackTrace();
-				}
-				template.setHtmlMessage(decodedHtml);
-			}
-			template.setLocale(locale);
-			template.setKey(key);
-			template.setVersion(Integer.valueOf(1));//setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
-			template.setOwner("admin");
-			template.setLastModified(new Date());
-			this.emailTemplateService.saveTemplate(template);
-			log.info(this + " user notification tempalte " + key + " added");
-		}
-	}
-
 	public void resendValidation(String token) {
 		ValidationAccount account = this.getVaLidationAcountBytoken(token);
 		
@@ -627,23 +508,23 @@ public class ValidationLogicImpl implements ValidationLogic {
 			throw new IllegalArgumentException("no such account: " + token);
 		}
 		
-		
 		account.setValidationSent(new Date());
 		account.setValidationsSent(account.getValidationsSent() + 1);
 		account.setStatus(ValidationAccount.STATUS_RESENT);
 		save(account);
 		sendEmailTemplate(account,null);
 	}
+
 	private void sendEmailTemplate(ValidationAccount account, String newUserId){
 		
 		//new send the validation
 		String userReference = userDirectoryService.userReference(account.getUserId());
-		List<String> userIds = new ArrayList<String>();
-		List<String> emailAddresses = new ArrayList<String>();
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		List<String> userIds = new ArrayList<>();
+		List<String> emailAddresses = new ArrayList<>();
+		Map<String, String> replacementValues = new HashMap<>();
 		replacementValues.put("validationToken", account.getValidationToken());
 		//get the url
-		Map<String, String> parameters = new  HashMap<String, String>();
+		Map<String, String> parameters = new  HashMap<>();
 		parameters.put("tokenId", account.getValidationToken());
 		
 		///we want a direct tool url
@@ -656,12 +537,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 		//add some details about the user
 		String userId = EntityReference.getIdFromRef(account.getUserId());
 		userIds.add(userId);
-		String userDisplayName = "";
-		String userEid = "";
+		String userDisplayName;
+		String userEid;
 			
 		try {
 			User u = userDirectoryService.getUser(userId);
-			
 			
 			userDisplayName = u.getDisplayName();
 			
@@ -680,16 +560,12 @@ public class ValidationLogicImpl implements ValidationLogic {
 			replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 			
 		} catch (UserNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error( "No user with ID = " + userId, e );
 		}
-		
-		
-		
 		
 		//information about the site(s) they have been added to
 		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
-		log.debug("got a list of: " + groups.size());
+		LOG.debug("got a list of: " + groups.size());
 		Iterator<String> itg = groups.iterator();
 		StringBuilder sb = new StringBuilder();
 		int siteCount = 0;
@@ -701,12 +577,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 				if (siteCount > 0) {
 					sb.append(", ");
 				}
-				log.debug("adding site: " + s.getTitle());
+				LOG.debug("adding site: " + s.getTitle());
 				sb.append(s.getTitle());
 				siteCount++;
 			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error( "No site with id = " + siteId, e );
 			}
 			
 		}
@@ -716,8 +591,4 @@ public class ValidationLogicImpl implements ValidationLogic {
 		RenderedTemplate renderedTemplate = emailTemplateService.getRenderedTemplateForUser(templateKey, userReference, replacementValues);
 		emailTemplateService.sendMessage(userIds,emailAddresses, renderedTemplate, serverConfigurationService.getString("mail.support","support@"+ serverConfigurationService.getServerName()), serverConfigurationService.getString("mail.support.name",serverConfigurationService.getString("support.name")));
 	}
-
-
-
-	
 }
