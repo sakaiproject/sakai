@@ -418,13 +418,13 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.view.audience'));
 -- END SAK-29497
 
--- SAK-29271 Feedback Tool
+-- SAK-29271 / SAK-31315 Feedback Tool
 CREATE TABLE IF NOT EXISTS sakai_feedback (
                 id INT NOT NULL AUTO_INCREMENT,
                 user_id VARCHAR(99),
                 email VARCHAR(255) NOT NULL,
                 site_id VARCHAR(99) NOT NULL,
-                report_type ENUM('content','technical', 'helpdesk') NOT NULL,
+                report_type ENUM('content','technical', 'helpdesk', 'suggestions', 'supplementala', 'supplementalb') NOT NULL,
                 title VARCHAR(40) NOT NULL,
                 content TEXT NOT NULL, PRIMARY KEY(id));
 INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '', '', null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
