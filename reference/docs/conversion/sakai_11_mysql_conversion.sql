@@ -17,8 +17,8 @@ UPDATE SAKAI_SITE_TOOL SET registration = 'sakai.simple.rss' WHERE registration 
 
 -- KNL-1350 / SAK-11647
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'dropbox.maintain.own.groups');
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'));
 -- END KNL-1350 / SAK-11647
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.myGroupMembers');
@@ -471,7 +471,7 @@ WHERE template_key = 'sitemanage.notifySiteCreation.confirmation' AND template_l
 -- END SAK-30000
 
 -- SAK-29740 update gradebook settings
-ALTER TABLE gb_gradebook_t ADD course_letter_grade_displayed BIT(1) NOT NULL DEFAULT true;
+ALTER TABLE GB_GRADEBOOK_T ADD course_letter_grade_displayed BIT(1) NOT NULL DEFAULT true;
 
 -- SAK-29401/SAK-29977 Role based access to sites --
 INSERT INTO SAKAI_REALM_ROLE VALUES (DEFAULT, '.default');
@@ -613,8 +613,8 @@ alter table SAM_ITEM_T add column MIN_SCORE double NULL;
 alter table SAM_PUBLISHEDITEM_T add column MIN_SCORE double NULL;
 
 -- KNL-1405 Don't have defaults for TIMESTAMP in SAKAI_SESSION
-ALTER TABLE SAKAI_SESSION MODIFY SESSION_START NULL;
-ALTER TABLE SAKAI_SESSION MODIFY SESSION_END NULL;
+ALTER TABLE SAKAI_SESSION MODIFY SESSION_START TIMESTAMP NULL;
+ALTER TABLE SAKAI_SESSION MODIFY SESSION_END TIMESTAMP NULL;
 
 -- 1389 GradebookNG sortable assignments within categories, add CATEGORIZED_SORT_ORDER to GB_GRADABLE_OBJECT_T
 ALTER TABLE GB_GRADABLE_OBJECT_T ADD COLUMN CATEGORIZED_SORT_ORDER int NULL;
@@ -670,8 +670,8 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
       'displayScores_isInstructorEditable', 'true');
 
 -- LTI CHANGES !!!
-alter table LTI_CONTENT add FA_ICON varchar(1024);
-alter table LTI_CONTENT add CONTENTITEM mediumtext;
+alter table lti_content add FA_ICON varchar(1024);
+alter table lti_content add CONTENTITEM mediumtext;
 alter table lti_tools add pl_launch tinyint(4) default 0;
 alter table lti_tools add pl_linkselection tinyint(4) default 0;
 alter table lti_tools add pl_fileitem tinyint(4) default 0;
@@ -681,27 +681,27 @@ alter table lti_tools add pl_importitem tinyint(4) default 0;
 alter table lti_tools add fa_icon varchar(1024);
 alter table lti_tools add tool_proxy_binding mediumtext;
 
-ALTER TABLE lti_content MODIFY (     title VARCHAR(1024) );
-ALTER TABLE lti_content MODIFY (     pagetitle VARCHAR(1024) );
-ALTER TABLE lti_content MODIFY (     consumerkey VARCHAR(1024) );
-ALTER TABLE lti_content MODIFY (     secret VARCHAR(1024) );
-alter table lti_content modify ( 	custom varchar(65536) );
+ALTER TABLE lti_content MODIFY title VARCHAR(1024);
+ALTER TABLE lti_content MODIFY pagetitle VARCHAR(1024);
+ALTER TABLE lti_content MODIFY consumerkey VARCHAR(1024);
+ALTER TABLE lti_content MODIFY secret VARCHAR(1024);
+alter table lti_content modify custom varchar(65536);
 
-ALTER TABLE lti_tools MODIFY (     title VARCHAR(1024) );
-ALTER TABLE lti_tools MODIFY (     pagetitle VARCHAR(1024) );
-ALTER TABLE lti_tools MODIFY (     consumerkey VARCHAR(1024) );
-ALTER TABLE lti_tools MODIFY (     secret VARCHAR(1024) );
-alter table lti_tools modify (	custom varchar(65536) );
+ALTER TABLE lti_tools MODIFY title VARCHAR(1024);
+ALTER TABLE lti_tools MODIFY pagetitle VARCHAR(1024);
+ALTER TABLE lti_tools MODIFY consumerkey VARCHAR(1024);
+ALTER TABLE lti_tools MODIFY secret VARCHAR(1024);
+alter table lti_tools modify custom varchar(65536);
 
-ALTER TABLE lti_deploy MODIFY (     title VARCHAR(1024) );
-ALTER TABLE lti_deploy MODIFY (     pagetitle VARCHAR(1024) );
-ALTER TABLE lti_deploy ADD (     allowcontentitem tinyint(4) DEFAULT 0 );
-ALTER TABLE lti_deploy MODIFY (     reg_key VARCHAR(1024) );
-ALTER TABLE lti_deploy MODIFY (     reg_password VARCHAR(1024) );
-ALTER TABLE lti_deploy ADD (	reg_ack CLOB );
-ALTER TABLE lti_deploy MODIFY (     consumerkey VARCHAR(1024) );
-ALTER TABLE lti_deploy MODIFY (     secret VARCHAR(1024) );
-ALTER TABLE lti_deploy ADD (     new_secret VARCHAR(1024) );
+ALTER TABLE lti_deploy MODIFY title VARCHAR(1024);
+ALTER TABLE lti_deploy MODIFY pagetitle VARCHAR(1024);
+ALTER TABLE lti_deploy ADD allowcontentitem tinyint(4) DEFAULT 0;
+ALTER TABLE lti_deploy MODIFY reg_key VARCHAR(1024);
+ALTER TABLE lti_deploy MODIFY reg_password VARCHAR(1024);
+ALTER TABLE lti_deploy ADD reg_ack TEXT;
+ALTER TABLE lti_deploy MODIFY consumerkey VARCHAR(1024);
+ALTER TABLE lti_deploy MODIFY secret VARCHAR(1024);
+ALTER TABLE lti_deploy ADD new_secret VARCHAR(1024);
 
 CREATE TABLE lti_memberships_jobbbs (
     SITE_ID VARCHAR(99),
@@ -774,7 +774,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'saka
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
 -- END KNL-1424
 
---SAM-2709 Submission Email Notifications Hidden Inappropriately--
+-- SAM-2709 Submission Email Notifications Hidden Inappropriately--
 ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
 ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
 
@@ -810,7 +810,7 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENT
      VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
       AND TYPEID='142' AND ISTEMPLATE=1),
        'instructorNotification_isInstructorEditable', 'true');
---END SAM-2709
+-- END SAM-2709
 
 -- SAM-2751
 ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD HONORPLEDGE BIT;
