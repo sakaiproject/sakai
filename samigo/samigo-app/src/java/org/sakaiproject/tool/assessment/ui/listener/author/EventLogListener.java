@@ -91,6 +91,18 @@ implements ActionListener, ValueChangeListener
 		return updatedEventLogDataList;
 	}
 
+	private Map<Long,Integer> setStatusEventLog(EventLogService eventLogService, String siteId, EventLogBean eventLog) {
+		List<EventLogData> eventLogDataList = eventLogService.getEventLogData(siteId, -1L, "");
+		PublishedAssessmentService assessmentService = new PublishedAssessmentService();	
+		Map<Long,Integer> statusMap = new  HashMap<>();
+		for(EventLogData data:eventLogDataList) {
+			Long assessmentId = data.getAssessmentId();
+			if(!statusMap.containsKey(assessmentId)){
+				statusMap.put(assessmentId, assessmentService.getPublishedAssessmentStatus(assessmentId));
+			}
+		}
+		return statusMap;
+	}
 	
 	/**
 	 * These things need to happen each time the page loads.
@@ -112,13 +124,15 @@ implements ActionListener, ValueChangeListener
       if (eventLog.getFilteredUser() != null && eventLog.getFilteredUser().equals(userFilterString)) {
     	  eventLog.setFilteredUser(null);
       }
+      Map<Long,Integer> statusMap = setStatusEventLog(eventLogService, siteId, eventLog);
+
       List<EventLogData> eventLogDataList = eventLogService.getEventLogData(siteId, eventLog.getFilteredAssessmentId(), eventLog.getFilteredUser());
       
       //check anonymous users setting, update user name and ip address to N/A
       List<EventLogData> updateEventLogDataList = updateData(eventLogDataList);
       
       List<Object[]> titles = eventLogService.getTitlesFromEventLogBySite(siteId);
-      eventLog.setAssessments(initAssessmentListFilter(titles));
+      eventLog.setAssessments(initAssessmentListFilter(titles, statusMap));
       
       applySort(updateEventLogDataList, eventLog);
       
@@ -129,6 +143,7 @@ implements ActionListener, ValueChangeListener
       eventLog.setSiteId(siteId);
       eventLog.setSiteTitle(siteTitle);
       eventLog.setPageNumber(1);
+      eventLog.setStatusMap(statusMap);
       if(pageDataMap.size()>1) {
          eventLog.setHasNextPage(Boolean.TRUE);
          eventLog.setHasPreviousPage(Boolean.FALSE);
@@ -145,14 +160,16 @@ implements ActionListener, ValueChangeListener
 	 * @param assessmentTitles List of titles
 	 * @return
 	 */
-	private List<SelectItem> initAssessmentListFilter(List<Object[]> assessmentTitles) {
+	private List<SelectItem> initAssessmentListFilter(List<Object[]> assessmentTitles, Map<Long,Integer> statusMap) {
 	   List<SelectItem> assessments = new ArrayList<SelectItem>();
 	   
 	   String allStr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EventLogMessages", "filterAll");
       assessments.add(new SelectItem((long)-1, allStr));
       for (Object[] assessment : assessmentTitles) {
          Long id = (Long)assessment[0];
-         String title = (String)assessment[1];
+         Integer status = statusMap.get( id );
+         String strStatus = status != null && status == EventLogBean.DELETED_STATUS ? "-deleted" : "";
+         String title = (String)assessment[1]+strStatus;
          assessments.add(new SelectItem(id, title));
       }
       return assessments;
