@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -40,6 +42,14 @@ import java.util.Set;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.api.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -88,6 +98,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    private SessionManager sessionManager;
    public void setSessionManager(SessionManager sm) {
       sessionManager = sm;
+   }
+
+   private SecurityService securityService;
+   public void setSecurityService(SecurityService value)
+   {
+      securityService = value;
    }
 
    public EmailTemplate getEmailTemplateById(Long id) {
@@ -586,5 +602,105 @@ private List<User> getUsersEmail(List<String> userIds) {
 			return;
 		}
 		sendEmailToUsers(toAddress, renderedTemplate, from, fromName);
+	}
+
+	/**
+	 * Registers a new template with the service, defined by the given XML file
+	* @param templateResourceStream the resource stream for the XML file
+	* @param templateRegistrationKey the key (name) to register the template under
+	* @return true if the template was registered
+	*/
+	@Override
+	public boolean importTemplateFromXmlFile(InputStream templateResourceStream, String templateRegistrationKey)
+	{
+		
+		if (templateResourceStream == null)
+		{
+			log.error(String.format("Unable to register template under key '%s': Could not load resource, input stream is null.", templateRegistrationKey));
+			return false;
+		}
+		
+		SecurityAdvisor yesMan = new SecurityAdvisor()
+		{
+			@Override
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		
+		try
+		{
+			securityService.pushAdvisor(yesMan);
+			
+			// Parse the XML, get all the child templates
+			Document document = new SAXBuilder().build(templateResourceStream);
+			List<Element> childTemplates = document.getRootElement().getChildren("emailTemplate");
+
+			// Create and register a template with the service for each one found in the XML file
+			for (Element element : childTemplates)
+			{
+				xmlToTemplate(element, templateRegistrationKey);
+			}
+
+		}
+		catch (JDOMException | IOException e)
+		{
+			log.error(String.format("Error registering template under key '%s': ", templateRegistrationKey), e);
+			return false;
+		}
+		finally
+		{
+			securityService.popAdvisor(yesMan);
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Extracts the email template fields from the given XML element. Checks
+	 * if the email template already exists; if it does not, it will save
+	 * the template to the service.
+	 * @param xmlTemplate - the XML element containing the email template data
+	 * @param key - the key (name) of the template to be saved to the service
+	 */
+	private void xmlToTemplate(Element xmlTemplate, String key)
+	{
+		String subject = xmlTemplate.getChildText("subject");
+		String body = xmlTemplate.getChildText("message");
+		String bodyHtml = StringUtils.trimToEmpty(xmlTemplate.getChildText("messagehtml"));
+		String locale = xmlTemplate.getChildText("locale");
+		String localeLangTag = xmlTemplate.getChildText("localeLangTag");
+		String versionString = xmlTemplate.getChildText("version");
+		
+		if (getEmailTemplate(key, Locale.forLanguageTag(localeLangTag)) == null)
+		{
+			EmailTemplate template = new EmailTemplate();
+			template.setSubject(subject);
+			template.setMessage(body);
+			try
+			{
+				template.setHtmlMessage(URLDecoder.decode(bodyHtml, "utf8"));
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				template.setHtmlMessage(bodyHtml);
+				log.warn(String.format("Unable to decode body HTML for template %s, reverting to original value.", key), e);
+			}
+			template.setLocale(locale);
+			template.setKey(key);
+			template.setVersion(NumberUtils.toInt(versionString, 1));
+			template.setOwner("admin");
+			template.setLastModified(new Date());
+			try
+			{
+				saveTemplate(template);
+				log.info("Added " + key + " to the email template service.");
+			}
+			catch (Exception e)
+			{
+				log.error("Error saving template: " + key, e);
+			}
+		}
 	}
 }
