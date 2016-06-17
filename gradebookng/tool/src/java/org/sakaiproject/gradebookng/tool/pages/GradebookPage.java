@@ -308,6 +308,7 @@ public class GradebookPage extends BasePage {
 				// event
 				final Map<String, Object> modelData = new HashMap<>();
 				modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
+				modelData.put("hasCourseGradeOverride", studentGradeInfo.getCourseGrade().getCourseGrade().getEnteredGrade() != null);
 				modelData.put("studentUuid", studentGradeInfo.getStudentUuid());
 				modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
 				modelData.put("currentUserRole", GradebookPage.this.role);

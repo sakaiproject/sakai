@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -65,6 +66,12 @@ public class CourseGradeItemCellPanel extends Panel {
 		final boolean courseGradeVisible = (boolean) modelData.get("courseGradeVisible");
 		final boolean showPoints = (boolean) modelData.get("showPoints");
 		final boolean showOverride = (boolean) modelData.get("showOverride");
+
+		final boolean hasCourseGradeOverride = (boolean) modelData.get("hasCourseGradeOverride");
+
+		if (hasCourseGradeOverride) {
+			getParentCellFor(this).add(new AttributeAppender("class", " gb-cg-override"));
+		}
 
 		// the model map contains a lot of additional info we need for the course grade label, this is passed through
 
