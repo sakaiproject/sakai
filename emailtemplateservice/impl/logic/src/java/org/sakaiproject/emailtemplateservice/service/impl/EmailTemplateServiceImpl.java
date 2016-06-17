@@ -667,17 +667,17 @@ private List<User> getUsersEmail(List<String> userIds) {
 	private void xmlToTemplate(Element xmlTemplate, String key)
 	{
 		String subject = xmlTemplate.getChildText("subject");
-        String body = xmlTemplate.getChildText("message");
-        String bodyHtml = StringUtils.trimToEmpty(xmlTemplate.getChildText("messagehtml"));
-        String locale = xmlTemplate.getChildText("locale");
-        String localeLangTag = xmlTemplate.getChildText("localeLangTag");
-        String versionString = xmlTemplate.getChildText("version");
+		String body = xmlTemplate.getChildText("message");
+		String bodyHtml = StringUtils.trimToEmpty(xmlTemplate.getChildText("messagehtml"));
+		String locale = xmlTemplate.getChildText("locale");
+		String localeLangTag = xmlTemplate.getChildText("localeLangTag");
+		String versionString = xmlTemplate.getChildText("version");
 		
 		if (getEmailTemplate(key, Locale.forLanguageTag(localeLangTag)) == null)
 		{
 			EmailTemplate template = new EmailTemplate();
-            template.setSubject(subject);
-            template.setMessage(body);
+			template.setSubject(subject);
+			template.setMessage(body);
 			try
 			{
 				template.setHtmlMessage(URLDecoder.decode(bodyHtml, "utf8"));
@@ -687,20 +687,20 @@ private List<User> getUsersEmail(List<String> userIds) {
 				template.setHtmlMessage(bodyHtml);
 				log.warn(String.format("Unable to decode body HTML for template %s, reverting to original value.", key), e);
 			}
-            template.setLocale(locale);
-            template.setKey(key);
-            template.setVersion(NumberUtils.toInt(versionString, 1));
-            template.setOwner("admin");
-            template.setLastModified(new Date());
-            try
+			template.setLocale(locale);
+			template.setKey(key);
+			template.setVersion(NumberUtils.toInt(versionString, 1));
+			template.setOwner("admin");
+			template.setLastModified(new Date());
+			try
 			{
-                saveTemplate(template);
-                log.info("Added " + key + " to the email template service.");
-            }
+				saveTemplate(template);
+				log.info("Added " + key + " to the email template service.");
+			}
 			catch (Exception e)
 			{
-                log.error("Error saving template: " + key, e);
-            }
+				log.error("Error saving template: " + key, e);
+			}
 		}
 	}
 }
