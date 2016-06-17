@@ -39,7 +39,6 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
 	</bean>
 	
