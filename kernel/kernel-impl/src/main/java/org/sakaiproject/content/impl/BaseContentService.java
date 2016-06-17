@@ -1599,7 +1599,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	protected boolean availabilityCheck(String id) throws IdUnusedException
 	{
 		// item is available if avaialability checks are <b>NOT</b> enabled OR if it's in /attachment
-		boolean available = (! m_availabilityChecksEnabled) || isAttachmentResource(id);
+		boolean available = (! m_availabilityChecksEnabled) || (isAttachmentResource(id) && !isCollection(id));
+		// while site owners can validly look at attachment collections, it's odd, and there's no 
+		// way in UI that we know to do it. However admins can definitely see it from resources
+		// so warn except for admins. This check will return true for site owners even though
+		// the warning is issued.
+		if (isAttachmentResource(id) && isCollection(id) && !m_securityService.isSuperUser())
+		    M_log.warn("availability check for attachment collection " + id);
 
 		GroupAwareEntity entity = null;
 		//boolean isCollection = id.endsWith(Entity.SEPARATOR);
@@ -11011,7 +11017,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					return available;
 				}
 				if (available && !isHiddenWebFolder && currentEntity.getId().endsWith(Entity.SEPARATOR)) {
-					isHiddenWebFolder = "true".equals(currentEntity.getProperties().getProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT));
+					isHiddenWebFolder = isAttachmentResource(currentEntity.getId()) ||
+					    "true".equals(currentEntity.getProperties().getProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT));
 				}
 				currentEntity = currentEntity.getContainingCollection();
 				available = currentEntity!=null?!currentEntity.isHidden():available;
