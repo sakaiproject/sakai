@@ -125,7 +125,13 @@ public class CourseGradeFormatter {
 		}
 
 		// percentage
-		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+		final String calculatedGrade;
+		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+			calculatedGrade = FormatHelper.formatDoubleAsPercentage(
+				gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade()));
+		} else {
+			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+		}
 
 		if (StringUtils.isNotBlank(calculatedGrade)
 				&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {

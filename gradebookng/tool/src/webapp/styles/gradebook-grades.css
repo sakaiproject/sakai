@@ -84,6 +84,9 @@
   max-width: 120px;
   min-width: 120px;
 }
+#gradebookGrades .gb-course-grade.gb-cg-override {
+  font-weight: bold;
+}
 #gradebookGrades .gb-student-cell {
   width: 220px;
   max-width: 220px;
