@@ -13,6 +13,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -54,6 +55,7 @@ public class GradeSummaryTablePanel extends Panel {
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
 		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
+		final GbGradingType gradingType = (GbGradingType) data.get("gradingType");
 		isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 
 		if (getPage() instanceof GradebookPage) {
@@ -187,14 +189,23 @@ public class GradeSummaryTablePanel extends Panel {
 						dueDate.add(new AttributeModifier("data-sort-key",
 							assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
 						assignmentItem.add(dueDate);
-						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
-						assignmentItem.add(new Label("outOf",
-							new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
-							@Override
-							public boolean isVisible() {
-								return StringUtils.isNotBlank(rawGrade);
-							}
-						});
+
+						if (GbGradingType.PERCENTAGE.equals(gradingType)) {
+							assignmentItem.add(new Label("grade",
+								new StringResourceModel("label.percentage.valued", null,
+									new Object[]{FormatHelper.formatGrade(rawGrade)})));
+							assignmentItem.add(new Label("outOf").setVisible(false));
+						} else {
+							assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
+							assignmentItem.add(new Label("outOf",
+								new StringResourceModel("label.studentsummary.outof", null, new Object[]{assignment.getPoints()})) {
+								@Override
+								public boolean isVisible() {
+									return StringUtils.isNotBlank(rawGrade);
+								}
+							});
+						}
+
 						assignmentItem.add(new Label("comments", comment));
 						assignmentItem.add(
 							new Label("category", assignment.getCategoryName()).
