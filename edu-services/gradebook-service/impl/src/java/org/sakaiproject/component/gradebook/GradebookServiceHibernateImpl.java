@@ -3028,15 +3028,29 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
 		
 		Gradebook gb = (Gradebook) gradebook;
-				
+		
+		// used for translating letter grades
+		final Map<String, Double> gradingSchema = gb.getSelectedGradeMapping().getGradeMap();
+		
 		//collect the data and turn it into a list of AssignmentGradeRecords
 		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
 		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
 		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: viewableAssignments) {
 			
 			Long assignmentId = assignment.getId();
-			Double grade = NumberUtils.createDouble(gradeMap.get(assignmentId));
 			
+			String rawGrade = gradeMap.get(assignmentId);
+			Double pointsPossible = assignment.getPoints();
+			Double grade = null;
+			
+			//determine the grade we should be using depending on the grading type
+			if (gb.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+				grade = calculateEquivalentPointValueForPercent(pointsPossible, NumberUtils.createDouble(rawGrade));
+			}
+			if (gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER){
+				grade = gradingSchema.get(rawGrade);
+			}
+									
 			//recreate the category (required fields only)
 			Category c = new Category();
 			c.setId(category.getId());
@@ -3118,7 +3132,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Assignment assignment = gradeRecord.getAssignment();
 						
 			//check category ids match, otherwise skip
-			if(assignment.getCategory() != null && categoryId != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
 				continue;
 			}
 						
