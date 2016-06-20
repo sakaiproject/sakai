@@ -17038,9 +17038,8 @@ public class AssignmentAction extends PagedResourceActionII
 				for (int i = 0; i < userIds.length; i++) {
 					String userId = userIds[i];
 					try {
-						User u = UserDirectoryService.getUser(userId);
 						String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-						AssignmentSubmission submission = AssignmentService.getSubmission(assignmentRef, u);
+						AssignmentSubmission submission = AssignmentService.getSubmission(assignmentRef, userId);
 						if (submission != null) {
 							AssignmentSubmissionEdit submissionEdit = AssignmentService.editSubmission(submission.getReference());
 							if (submissionEdit != null) {
