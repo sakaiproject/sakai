@@ -22,8 +22,10 @@ package org.sakaiproject.signup.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import lombok.Getter;
@@ -1097,13 +1099,21 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	public void removeMeetings(List<SignupMeeting> meetings) throws Exception {
 		signupMeetingDao.removeMeetings(meetings);
+		Set<Long> sent = new HashSet<Long>();
 				
 		for(SignupMeeting m: meetings) {
 			if(!m.isMeetingExpired()) {
-				log.info("Meeting is still available, email notifications will be sent");
-				//SIGNUP-188 :If an event is cancelled, all the site members get an email
-				m.setSendEmailToSelectedPeopleOnly(SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES);
-				signupEmailFacade.sendEmailAllUsers(m, SignupMessageTypes.SIGNUP_CANCEL_MEETING);
+				//Only send once per recurrenceid
+				if (!sent.contains(m.getRecurrenceId())) {
+					sent.add(m.getRecurrenceId());
+					log.info("Meeting is still available, email notifications will be sent");
+					//SIGNUP-188 :If an event is cancelled, all the site members get an email
+					m.setSendEmailToSelectedPeopleOnly(SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES);
+					signupEmailFacade.sendEmailAllUsers(m, SignupMessageTypes.SIGNUP_CANCEL_MEETING);
+				}
+				else {
+					log.debug("Not sending email for duplicate reurrenceId: "+ m.getRecurrenceId());
+				}
 			}
 		}
 	}
