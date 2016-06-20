@@ -421,6 +421,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
         public void filterOptions(FsItem fsItem, Map<String, Object> map) {
             // The preview isn't working properly
             map.put("disabled", Arrays.asList(new String[]{"search", "zipdl"}));
+            // Disabled chunked uploads
+            map.put("uploadMaxConn", "-1");
         }
     }
 }

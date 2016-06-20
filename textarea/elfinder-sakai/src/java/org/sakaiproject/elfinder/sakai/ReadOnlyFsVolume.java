@@ -46,6 +46,8 @@ public abstract class ReadOnlyFsVolume  implements FsVolume {
     @Override
     public void filterOptions(FsItem item, Map<String, Object> map) {
         map.put("disabled", Arrays.asList(new String[]{"create", "rm", "duplicate", "rename", "mkfile", "mkdir", "search", "zipdl"}));
+        // Disable chunked uploads.
+        map.put("uploadMaxConn", "-1");
     }
 
 }
