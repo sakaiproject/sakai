@@ -127,8 +127,6 @@
 	    <h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
       </h:panelGroup>
     </h:panelGrid>
-	</div>
-
     </div></div>
   </samigo:hideDivision>
 
@@ -144,40 +142,12 @@
           value="#{template.valueMap.assessmentAuthor_isInstructorEditable}"/>
       <h:outputLabel for="authors" value="#{templateMessages.authors}"/>
 
-<%-- bug# SAM156 - i don't think creator should be editable, daisyf 01/26/05
-      <h:selectBooleanCheckbox id="creator"
-          value="#{template.valueMap.assessmentCreator_isInstructorEditable}"/>
-      <h:outputLabel for="creator" value="#{templateMessages.creator}"/>
---%>
       <h:selectBooleanCheckbox id="description_intro"
           value="#{template.valueMap.description_isInstructorEditable}"/>
       <h:outputLabel for="description_intro" value="#{templateMessages.description_intro}"/>
     </h:panelGrid>
     </div> </div>
   </samigo:hideDivision>
-
-<%-- get rid of delivery dates according to the new mockup,
-  <!-- *** DELIVERY DATES *** -->
-  <samigo:hideDivision title="#{templateMessages.delivery_dates}" id="div3">
-   <div class="tier2">
-  <div class="longtext">
-    <h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
- <div class="tier3">
-    <h:panelGrid columns="2"
-      summary="#{templateMessages.delivery_dates_sec}">
-
-      <h:selectBooleanCheckbox id="due_date"
-        value="#{template.valueMap.dueDate_isInstructorEditable}"/>
-      <h:outputLabel for="due_date" value="#{templateMessages.due_date}"/>
-
-      <h:selectBooleanCheckbox id="retract_date"
-        value="#{template.valueMap.retractDate_isInstructorEditable}"/>
-      <h:outputLabel for="retract_date" value="#{templateMessages.retract_date}"/>
-
-    </h:panelGrid>
-   </div></div>
-  </samigo:hideDivision>
- --%>
 
   <!-- *** RELEASED TO  *** -->
   <samigo:hideDivision title="#{templateMessages.released_to}" id="div4">
@@ -231,13 +201,6 @@
       <h:selectBooleanCheckbox id="timed_assmt"
         value="#{template.valueMap.timedAssessment_isInstructorEditable}"/>
       <h:outputLabel for="timed_assmt" value="#{templateMessages.timed_assmt}"/>
-
-<%-- SAK-3578: auto submit when time expired will always be true, 
-     so no need to provide "can edit" option
-      <h:selectBooleanCheckbox id="auto_submit_expires"
-        value="#{template.valueMap.timedAssessmentAutoSubmit_isInstructorEditable}"/>
-      <h:outputLabel for="auto_submit_expires" value="#{templateMessages.auto_submit_expires}"/>
---%>
 
     </h:panelGrid>
    </div></div>
@@ -435,27 +398,6 @@
     </h:panelGrid>
     </div></div>
 
-    <!-- AUTOSAVE -->
-<%-- hide for 1.5 release SAM-148
-    <h:outputText style="h4" styleClass="tier2"
-      value="#{templateMessages.auto_save}"/>
-
-     <h:panelGrid columns="2"
-      summary="#{templateMessages.auto_save_sub}">
-
-        <h:selectBooleanCheckbox id="auto_save"
-          value="#{template.valueMap.autoSave_isInstructorEditable}"/>
-        <h:outputLabel for="auto_save" value="#{templateMessages.template_canbedefault}"/>
-
-       <h:outputText value=" "/>
-      <h:panelGroup>
-    <h:selectOneRadio layout="pageDirection" value="#{template.autoSave}" required="true">
-      <f:selectItem itemValue="0" itemLabel="#{templateMessages.user_must_click}"/>
-      <f:selectItem itemValue="1" itemLabel="#{templateMessages.all_input_saved_auto}"/>
-    </h:selectOneRadio>
-   </h:panelGroup>
-   </h:panelGrid>
---%>
   </samigo:hideDivision>
 
   <!-- *** SUBMISSION MESSAGE *** -->
@@ -705,11 +647,6 @@
       <h:selectBooleanCheckbox id="record_meta_full"
         value="#{template.valueMap.metadataAssess_isInstructorEditable}"/>
       <h:outputLabel for="record_meta_full" value="#{templateMessages.record_meta_full}"/>
-<%-- see bug# SAM-117 -- no longer required in Samigo
-      <h:selectBooleanCheckbox id="record_meta_parts"
-        value="#{template.valueMap.metadataParts_isInstructorEditable}"/>
-      <h:outputLabel for="record_meta_parts" value="#{templateMessages.record_meta_parts}"/>
---%>
       <h:selectBooleanCheckbox id="record_meta_questions"
         value="#{template.valueMap.metadataQuestions_isInstructorEditable}"/>
       <h:outputLabel for="record_meta_questions" value="#{templateMessages.record_meta_questions}"/>
