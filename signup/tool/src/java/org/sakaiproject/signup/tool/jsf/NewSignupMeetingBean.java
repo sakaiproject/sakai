@@ -625,7 +625,18 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 					this.signupMeeting.setCategory(selectedCategory);
 				}
 			}
-			
+
+			// Need to filter for bad HTML
+			StringBuilder descriptionErrors = new StringBuilder();
+			String filteredDescription = sakaiFacade.getFormattedText()
+					.processFormattedText(this.signupMeeting.getDescription(), descriptionErrors, true);
+			this.signupMeeting.setDescription(filteredDescription);
+			if (descriptionErrors.length() > 0) {
+				validationError = true;
+				Utilities.addErrorMessage(descriptionErrors.toString());
+				return;
+			}
+
 			//set instructor
 			this.signupMeeting.setCreatorUserId(creatorUserId);
 			
