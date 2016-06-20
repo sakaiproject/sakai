@@ -161,4 +161,10 @@
 	#samLiteEntryForm\:data{
 		margin-top: 1.2em;
 	}
+	
+	#templateCreateForm{
+		label[for="templateCreateForm:tempName"]{
+			margin-right: 1em;
+		}
+	}
 }
