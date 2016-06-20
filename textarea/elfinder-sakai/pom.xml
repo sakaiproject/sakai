@@ -52,7 +52,7 @@
         <dependency>
             <groupId>com.github.bluejoe2008</groupId>
             <artifactId>elfinder-servlet-2</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
             <classifier>classes</classifier>
             <type>jar</type>
         </dependency>

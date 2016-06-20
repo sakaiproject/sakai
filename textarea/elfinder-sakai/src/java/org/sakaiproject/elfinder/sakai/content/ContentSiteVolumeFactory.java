@@ -21,9 +21,7 @@ import org.sakaiproject.site.api.SiteService;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * This is the creator of ContentHosting FsVolumes.
@@ -417,6 +415,12 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
         public String getURL(FsItem fsItem) {
             String id = asId(fsItem);
             return contentHostingService.getUrl(id);
+        }
+
+        @Override
+        public void filterOptions(FsItem fsItem, Map<String, Object> map) {
+            // The preview isn't working properly
+            map.put("disabled", Arrays.asList(new String[]{"search", "zipdl"}));
         }
     }
 }
