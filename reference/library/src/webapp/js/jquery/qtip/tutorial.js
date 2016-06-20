@@ -20,6 +20,10 @@ function startTutorial(opts){
 	}
 }
 
+function endTutorial(selection){
+	$(selection).qtip('destroy');
+}
+
 function showTutorialPage(url, opts){
 	//store options in cache so we can use the same options from start to end of the tutorial:
 	if(opts != null)
@@ -48,6 +52,14 @@ function showTutorialPage(url, opts){
 						showTutorialPage(response.data.nextUrl);
 					}
 				}else{
+					var selection;
+					
+					if ($(response.data.selection).length > 1 ){
+						selection = $(response.data.selection).first(); 
+					}else{
+						selection = $(response.data.selection); 
+					}
+					
 					previousClicked = false;
 					var mxWidth = maxWidth;
 					var totalWidth = $(document).width();
@@ -56,7 +68,7 @@ function showTutorialPage(url, opts){
 						mxWidth = totalWidth;
 					}
 
-					$(response.data.selection).qtip(
+					selection.qtip(
 							{ 
 								content: {
 									title: response.data.title,
