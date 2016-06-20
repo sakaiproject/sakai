@@ -6,6 +6,8 @@ import cn.bluejoe.elfinder.service.FsVolume;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * A FsVolume that doesn't allow changes, this can be extended by volumes that aren't like normal filesystems.
@@ -39,6 +41,11 @@ public abstract class ReadOnlyFsVolume  implements FsVolume {
     @Override
     public void rename(FsItem src, FsItem dst) throws IOException {
         throw new UnsupportedOperationException("Can't rename here.");
+    }
+
+    @Override
+    public void filterOptions(FsItem item, Map<String, Object> map) {
+        map.put("disabled", Arrays.asList(new String[]{"create", "rm", "duplicate", "rename", "mkfile", "mkdir", "search", "zipdl"}));
     }
 
 }
