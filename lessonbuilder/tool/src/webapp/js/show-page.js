@@ -80,11 +80,12 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
-        $("li.multimediaType iframe").each(function() {
+        $("li.multimediaType iframe, li.multimediaType object, li.multimediaType embed, li.multimediaType video").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
-                if (typeof width !== 'undefined' && width !== '' &&
-                    (typeof height === 'undefined' || height ==''))
+                if ($(this).attr('defaultsize') === 'true' ||
+		    (typeof width !== 'undefined' && width !== '' &&
+		     (typeof height === 'undefined' || height =='')))
                     $(this).height($(this).width() * 0.75);
             });
 
@@ -2107,7 +2108,7 @@ $(document).ready(function() {
 		var tail_uls = addAboveLI.parent().nextAll();
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
-		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-toggle-up fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2145,7 +2146,7 @@ $(document).ready(function() {
 		// current section DIV
 		var tail_uls = addAboveLI.parent().nextAll();
 		var column = addAboveLI.parent().parent();
-		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-toggle-up fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
 		// now go to new section
 		column = column.next();
 		// and move current item and following into the first col of the new section

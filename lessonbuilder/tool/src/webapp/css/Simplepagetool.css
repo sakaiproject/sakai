@@ -50,7 +50,7 @@
   overflow-wrap:break-word;
 }
 /* without this, these divs expand beyond the width of the column if there's an unbreakable word */
-.right-col, .contentCol, .checklistDiv, .checklistDescription {
+.right-col, .contentCol, .checklistDiv, .checklistDescription, .playerwidth {
   max-width:100%;
 }
 .gradingPane {
