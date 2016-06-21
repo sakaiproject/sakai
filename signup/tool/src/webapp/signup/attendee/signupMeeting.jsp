@@ -414,7 +414,7 @@
 
 
 				<sakai:button_bar>
-					<h:commandLink styleClass="actButton" id="goBack"
+					<h:commandLink styleClass="btn-primary" id="goBack"
 						action="listMeetings" value="#{msgs.goback_button}" />
 				</sakai:button_bar>
 
