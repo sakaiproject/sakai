@@ -62,7 +62,7 @@ should be included in file importing DeliveryMessages
                     </f:facet>
                     <h:outputText value="#{matrixBean.itemText.text}"/>
                 </t:column>
-		 <t:columns value="#{question.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center" >
+		 <t:columns value="#{question.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center matrixSurvey" >
 		 <f:facet name="header">
                         <t:outputText value="#{question.columnArray[colIndex]}"/>
                     </f:facet>
