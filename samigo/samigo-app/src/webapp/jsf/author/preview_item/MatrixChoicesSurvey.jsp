@@ -48,7 +48,7 @@
                     <h:outputText value="#{row}"/>
                 </t:column>
                 
-                <t:columns value="#{question.itemData.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center" >
+                <t:columns value="#{question.itemData.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center matrixSurvey" >
                     <f:facet name="header">
                             <t:outputText value="#{question.itemData.columnChoices[colIndex]}" />
                     </f:facet>

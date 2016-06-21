@@ -59,6 +59,10 @@
 			margin: 0 0 0 0.5em;
 		}
 	}
+	
+	.matrixSurvey{
+		padding: 0 1em 0 1em;
+	}
 
 	.disabledField{
 		color: darken( $errorcolor, 30% );
