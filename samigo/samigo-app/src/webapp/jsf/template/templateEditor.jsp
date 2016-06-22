@@ -40,8 +40,6 @@
         $(document).ready(function() {
           // set up the accordion for settings
           $("#jqueryui-accordion").accordion({ heightStyle: "content",collapsible: true });
-          // adjust the height of the iframe to accomodate the expansion from the accordion
-          $("body").height($("body").outerHeight() + 800);
         });
       </script>
      
