@@ -9,6 +9,22 @@
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
 	<script type="text/javascript" src="/library/js/spinner.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#content\\:\\:role-select-all-selection').change(function(){
+				var selectAll = $(this).val();
+				$('.roleDropDown').each(function(){
+					$(this).val(selectAll).change();
+				});
+			});
+			$('form').submit(function(){
+				$('select').each(function(){
+					$(this).attr('disabled', false);
+				});
+			});
+		});
+	</script>
 </head>
 
 <body rsf:id="scr=sakai-body">
@@ -21,39 +37,85 @@
 		<div class="information" rsf:id="info">We Have Infos!</div>
 	</div>
 	<div rsf:id="content:">
-		<h3 rsf:id="msg=adddif.choose">Choose a Role for Participants</h3>
+		<h2 rsf:id="addconf.confirming">Confirming Add Participant(s) to site</h2>
+		<p class="indnt1 addInstructions" rsf:id="addconf.finish"></p>
+		<div class="availableParticipantsTable indnt2">
+			<h4 rsf:id="msg=add.participants">Participant Roles</h4>
+			<table class="listHier lines nolines" style="width:100%" summary="">
+				<tr rsf:id="role-row:">
+					<td class="roleIdColumn" rsf:id="role-id"></td>
+					<td rsf:id="role-description"></td>		
+				</tr>
+			</table>
+		</div>
 		<form rsf:id="differentRole-form">
 			<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
-			<div class="table-responsive">
-				<table class="table table-bordered table-hover table-striped" summary="">
-					<tr rsf:id="role-row:">
-						<td rsf:id="role-id"></td>
-						<td rsf:id="role-description"></td>		
-					</tr>
-				</table>
+			<h3 class="addOfficialInstruction" rsf:id="msg=adddif.choose"></h3>
+			<p rsf:id="nonOfficialWarning" class="nonOfficialWarning" >
+				<span rsf:id="nonOfficialWarning1"></span>
+				<br />
+				<span rsf:id="nonOfficialWarning2"></span>
+			</p>
+			<div class="differentRolesDiv">
+			  <table class="differentRolesTable" border="0" cellspacing="0">
+			  <thead>
+			    <tr>
+			      <th rsf:id="msg=addconf.lastname">Last Name</th>
+			      <th rsf:id="msg=addconf.firstname">First Name</th>
+			      <th rsf:id="msg=addconf.username">UserName</th>
+			      <th>
+					  <span rsf:id="msg=addconf.role">Role</span><br />
+					  <select size="1" rsf:id="role-select-all" id="role-select-all" style="valign:top">
+						  <option value="" selected="selected">Please choose a role:</option>
+						  <option value="access" >access</option>
+						  <option value="maintain">maintain</option>
+					  </select>
+			      </th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr rsf:id="user-row:">
+			      <td rsf:id="last-name"></td>
+			      <td rsf:id="first-name"></td>
+			      <td rsf:id="user-name"></td>
+			      <td width="10%">
+					  <select size="1" rsf:id="role-select" id="role-select" style="valign:top" class="roleDropDown">
+						  <option value="" selected="selected">Please choose a role:</option>
+				          <option value="access" >access</option>
+				          <option value="maintain">maintain</option>
+				        </select>
+				      </td>
+			    </tr>
+			  </tbody>
+			</table>
 			</div>
-			<div class="table-responsive">
-				<table class="table table-bordered table-hover table-striped" border="0" cellspacing="0">
-					<thead>
-						<tr>
-							<th rsf:id="msg=addconf.username">UserName</th>
-							<th rsf:id="msg=addconf.role">Role</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr rsf:id="user-row:">
-							<td rsf:id="user-name"></td>
-							<td width="10%">
-								<select size="1" rsf:id="role-select" id="role-select" style="valign:top">
-									<option value="" selected="selected">Please choose a role:</option>
-									<option value="access" >access</option>
-									<option value="maintain">maintain</option>
-								</select>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+			<!--  choose active/inactive status -->
+			<h4  rsf:id="status-message"></h4>
+			<span rsf:id="select-status"></span>
+			<table style="width:auto" summary="">
+				<tr rsf:id="status-row:">
+					<td>
+						<input rsf:id="status-select" title="Select status type" type="radio" id="radio" name="statusChoice" value=""/>
+						<label rsf:id="status-label" for = "status-select">
+							label
+						</label>
+					</td>
+				</tr>
+			</table>
+			<h4 class="sendEmailHeader" rsf:id="msg=addnoti.anemail"></h4>
+			<!--  choose notification method -->
+			<span rsf:id="select-noti"></span>
+			<table style="width:auto" summary="">
+				<tr rsf:id="noti-row:">
+					<td>
+						<input rsf:id="noti-select" title="Select noti type" type="radio" id="radio" name="notiChoice" value=""/>
+						<label rsf:id="noti-label" for = "noti-select">
+							label
+						</label>
+					</td>
+				</tr>
+			</table>
+
 			<p class="act">
 				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input accesskey ="b" rsf:id="back" value="Back" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
