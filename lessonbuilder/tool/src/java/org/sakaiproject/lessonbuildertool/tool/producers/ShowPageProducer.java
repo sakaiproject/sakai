@@ -214,6 +214,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac,audio/mp3,video/x-m4v";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] html5Types = null;
+	private static final String DEFAULT_WIDTH = "640px";
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
 	SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -299,6 +300,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean definiteLength(Length l) {
+	    if (l == null || l.number == null)
+		return false;
+	    if (l.unit.equals("") || l.unit.equals("px"))
+		return true;
+	    return false;
 	}
 
 	// created style arguments. This was done at the time when i thought
@@ -1695,10 +1704,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIComponent item;
 					String youtubeKey;
 
+					String widthSt = i.getWidth();
 					Length width = null;
-					if (i.getWidth() != null) {
-						width = new Length(i.getWidth());
+
+					if (mmDisplayType == null && simplePageBean.isImageType(i)) {
+						// a wide default for images would produce completely wrong effect
+					} else if (widthSt == null || widthSt.equals("")) {
+						width = new Length(DEFAULT_WIDTH);
+					} else {
+						width = new Length(widthSt);
 					}
+
 					Length height = null;
 					if (i.getHeight() != null) {
 						height = new Length(i.getHeight());
@@ -1743,13 +1759,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    } else {
 					        UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 						// Grey it out
-						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+						    notAvailableText.decorate(new UIStyleDecorator("disabled-text-item"));
 					    }
 
 						// stuff for the jquery dialog
 						if (canEditPage) {
 							UIOutput.make(tableRow, "imageHeight", getOrig(height));
-							UIOutput.make(tableRow, "imageWidth", getOrig(width));
+							UIOutput.make(tableRow, "imageWidth", widthSt);  // original value from database
 							UIOutput.make(tableRow, "mimetype2", mimeType);
 							UIOutput.make(tableRow, "current-item-id4", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq3", String.valueOf(i.isPrerequisite()));
@@ -1798,14 +1814,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						} else {
 						    UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 						    // Grey it out
-						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+						    notAvailableText.decorate(new UIStyleDecorator("disabled-text-item"));
 						}
 
 						if (canEditPage) {
 							UIOutput.make(tableRow, "youtubeId", String.valueOf(i.getId()));
 							UIOutput.make(tableRow, "currentYoutubeURL", youtubeUrl);
 							UIOutput.make(tableRow, "currentYoutubeHeight", getOrig(height));
-							UIOutput.make(tableRow, "currentYoutubeWidth", getOrig(width));
+							UIOutput.make(tableRow, "currentYoutubeWidth", widthSt);
 							UIOutput.make(tableRow, "current-item-id5", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq4", String.valueOf(i.isPrerequisite()));
 							UIVerbatim.make(tableRow, "item-path4", getItemPath(i));
@@ -1901,15 +1917,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
                                 UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
 				// HTML5 spec says % isn't legal in width, so have to use style
+				String style = null;
                                 if (lengthOk(height))
-                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + height.getNew()));
-                                if (lengthOk(width))
-                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + width.getNew()));
+				    style = "height: " + height.getNew();
+                                if (lengthOk(width)) {
+				    if (style == null)
+					style = "";
+				    else 
+					style = style + ";";
+				    style = style + "width: " + width.getNew();
+				}
+				if (style != null)    
+				    h5video.decorate(new UIFreeAttributeDecorator("style", style));
                                 h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
                                 decorate(new UIFreeAttributeDecorator("type", mimeType));
 				String caption = i.getAttribute("captionfile");
 				if (!isAudio && caption != null && caption.length() > 0) {
-				    movieLink.decorate(new UIFreeAttributeDecorator("class", "has-caption allow-caption"));
+				    movieLink.decorate(new UIStyleDecorator("has-caption allow-caption"));
 				    String captionUrl = "/access/lessonbuilder/item/" + i.getId() + caption;
 				    sessionParameter = getSessionParameter(captionUrl);
 				    // sessionParameter should always be non-null
@@ -1920,7 +1944,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    UIOutput.make(tableRow, "h5track").
 					decorate(new UIFreeAttributeDecorator("src", captionUrl));
 				} else if (!isAudio) {
-				    movieLink.decorate(new UIFreeAttributeDecorator("class", "allow-caption"));
+				    movieLink.decorate(new UIStyleDecorator("allow-caption"));
 				}
                             }
 
@@ -1949,7 +1973,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             if (useEmbed) {
                                 item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } else {
-                                item2 = UIOutput.make(tableRow, "movieObject").decorate(new UIFreeAttributeDecorator("data", movieUrl)).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                               item2 = UIOutput.make(tableRow, "movieObject").decorate(new UIFreeAttributeDecorator("data", movieUrl)).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             }
                             if (mimeType != null) {
                                 item2.decorate(new UIFreeAttributeDecorator("type", mimeType));
@@ -1961,7 +1985,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             // some object types seem to need a specification, so supply our default if necessary
                             if (lengthOk(height) && lengthOk(width)) {
                                 item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
-                            } else {
+                            } else if (definiteLength(width)) {
+				// this is mostly because the default is 640 with no height specified
+				// we've validated width, so no errors in conversion should occur
+				Double h = new Double(width.getOld()) * 0.75;
+                                if (oMimeType.startsWith("audio/"))
+				    h = 100.0;
+                                item2.decorate(new UIFreeAttributeDecorator("height", Double.toString(h))).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+				// flag for javascript to adjust height
+				if (!oMimeType.startsWith("audio/"))
+				    item2.decorate(new UIFreeAttributeDecorator("defaultsize","true"));
+			    } else {				
                                 if (oMimeType.startsWith("audio/"))
                                 item2.decorate(new UIFreeAttributeDecorator("height", "100")).decorate(new UIFreeAttributeDecorator("width", "400"));
                                 else
@@ -2000,6 +2034,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 // some object types seem to need a specification, so give a default if needed
                                 if (lengthOk(height) && lengthOk(width)) {
                                     item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+				} else if (definiteLength(width)) {
+				    // this is mostly because the default is 640 with no height specified
+				    // we've validated width, so no errors in conversion should occur
+				    Double h = new Double(width.getOld()) * 0.75;
+				    if (oMimeType.startsWith("audio/"))
+					h = 100.0;
+				    item2.decorate(new UIFreeAttributeDecorator("height", Double.toString(h))).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+				    // flag for javascript to adjust height
+				    if (!oMimeType.startsWith("audio/"))
+					item2.decorate(new UIFreeAttributeDecorator("defaultsize","true"));
                                 } else {
                                     if (oMimeType.startsWith("audio/"))
                                     item2.decorate(new UIFreeAttributeDecorator("height", "100")).decorate(new UIFreeAttributeDecorator("width", "100%"));
@@ -2020,13 +2064,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                         } else {
 					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
                             // Grey it out
-						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-multimedia-item"));
+						    notAvailableText.decorate(new UIStyleDecorator("disabled-multimedia-item"));
                         }
 
 						if (canEditPage) {
 							UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));
 							UIOutput.make(tableRow, "movieHeight", getOrig(height));
-							UIOutput.make(tableRow, "movieWidth", getOrig(width));
+							UIOutput.make(tableRow, "movieWidth", widthSt);
 							UIOutput.make(tableRow, "mimetype5", oMimeType);
 							UIOutput.make(tableRow, "prerequisite", (i.isPrerequisite()) ? "true" : "false");
 							UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
@@ -2094,7 +2138,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						if (canEditPage) {
 							UIOutput.make(tableRow, "iframeHeight", getOrig(height));
-							UIOutput.make(tableRow, "iframeWidth", getOrig(width));
+							UIOutput.make(tableRow, "iframeWidth", widthSt);
 							UIOutput.make(tableRow, "mimetype3", mimeType);
 							UIOutput.make(tableRow, "item-prereq2", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "embedtype", mmDisplayType);
@@ -2109,7 +2153,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
                             // Grey it out
-						notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-multimedia-item"));
+						notAvailableText.decorate(new UIStyleDecorator("disabled-multimedia-item"));
 					    }
 
 					}
