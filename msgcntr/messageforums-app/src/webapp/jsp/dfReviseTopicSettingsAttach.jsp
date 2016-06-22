@@ -169,9 +169,9 @@
 					</h:column>
 					</h:dataTable>   
 			
-			<div class="instruction">	     
-				<h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty ForumTool.attachments}"/>
-			</div>
+			<h:panelGroup styleClass="instruction" rendered="#{empty ForumTool.attachments}">	     
+				<h:outputText value="#{msgs.cdfm_no_attachments}" />
+			</h:panelGroup>
 
 			<p class="act" style="padding:0 0 1em 0;">
 				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" 
