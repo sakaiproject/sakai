@@ -532,13 +532,13 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		for (RosterMember member : members) {
 			String userId = member.getUserId();
 			
-			// skip if privacy restricted and not the current user
-			if (!userId.equals(currentUserId) && (viewHidden || hiddenUserIds.contains(userId)) && authzGroup.getMember(userId) == null) {
+			// skip if not the current user and privacy restricted or user not in group
+			if (!userId.equals(currentUserId) && ((!viewHidden && hiddenUserIds.contains(userId)) || authzGroup.getMember(userId) == null)) {
 				continue;
 			}
 			
 			// now filter out users based on their role
-			if (filterRoles && !viewHidden) {
+			if (filterRoles) {
 				String memberRoleId = member.getRole();
 				if (ArrayUtils.contains(visibleRoles, memberRoleId)){
 					filtered.add(member);
