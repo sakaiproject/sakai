@@ -22,6 +22,7 @@ $.sakai.elfinder.options.handlers = {
       var cwd = $footer.data('cwd');
       $footer.data('embed', cwd);
     } else {
+      $footer.data('embed', instance.file(selected[0]).url);
       instance.exec('getfile', selected);
     }
   },
