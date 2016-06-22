@@ -21,6 +21,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -70,6 +71,8 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 
+		final GbGradingType gradingType = GbGradingType.valueOf(this.businessService.getGradebook().getGrade_type());
+
 		// form model
 		final GradeOverride override = new GradeOverride();
 		override.setGrade(String.valueOf(DEFAULT_GRADE));
@@ -93,7 +96,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 					final Double overrideValue = Double.valueOf(override.getGrade());
 					final GbGroup group = override.getGroup();
 
-					if (overrideValue > assignment.getPoints()) {
+					if (isExtraCredit(overrideValue, assignment, gradingType)) {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
@@ -131,10 +134,20 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 		form.add(new TextField<Double>("grade").setRequired(true));
 
-		form.add(new Label("points", assignment.getPoints()));
+		if (GbGradingType.PERCENTAGE.equals(gradingType)) {
+			form.add(new Label("points", getString("label.percentage.plain")));
+		} else {
+			form.add(new Label("points",
+				new StringResourceModel("label.studentsummary.outof", null,
+					new Object[] { assignment.getPoints() })));
+		}
 
 		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
-		hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
+		if (GbGradingType.PERCENTAGE.equals(gradingType)) {
+			hiddenGradePoints.add(new AttributeModifier("value", 100));
+		} else {
+			hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
+		}
 		form.add(hiddenGradePoints);
 
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
@@ -216,6 +229,11 @@ public class UpdateUngradedItemsPanel extends Panel {
 			new StringResourceModel(
 				"label.updateungradeditems.confirmation.general", null,
 				new Object[]{"${score}", "${group}"})).setEscapeModelStrings(false));
+	}
+
+	private boolean isExtraCredit(Double grade, Assignment assignment, GbGradingType gradingType) {
+		return (GbGradingType.PERCENTAGE.equals(gradingType) && grade > 100) ||
+			(GbGradingType.POINTS.equals(gradingType) && grade > assignment.getPoints());
 	}
 
 	/**
