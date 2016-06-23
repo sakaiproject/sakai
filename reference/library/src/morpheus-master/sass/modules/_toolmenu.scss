@@ -33,14 +33,16 @@ body.#{$namespace}toolMenu-collapsed{
 					&:hover{
 						.#{$namespace}toolsNav__menuitem--title{
 							position: absolute;
-						    display: block;
-						    float: right;
-						    margin: -2.1em 0em 0em 3.2em;
-						    background: $primary-color;
-						    padding: 0.71em;
-						    border-left: 1px solid $primary-color;
-						    max-width: 7.5em;
-						    z-index: 10;
+							display: block;
+							float: right;
+							margin: -2.1em 0em 0em 3.2em;
+							background: $primary-color;
+							padding: 0.71em;
+							border-left: 3px solid $primary-color-shadow;
+							z-index: 10;
+							width: auto;
+							border-radius: 0 15px 15px 0;
+							line-height: 100%;
 						}
 					}
 					&.is-invisible {
@@ -235,7 +237,7 @@ nav#subSites{
 					max-width: 100%;
 					width: 100%;
 					text-overflow: ellipsis;
-					white-space: pre-wrap;
+					white-space: pre;
 					overflow: hidden;
 				}
 				&.is-invisible {
