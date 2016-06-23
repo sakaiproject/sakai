@@ -63,7 +63,23 @@
 	.matrixSurvey{
 		padding: 0 1em 0 1em;
 	}
-
+	
+	.feedBackCheck, .feedBackCross{
+		margin-right: 0.2em;
+	}
+	
+	.feedBackCheck{
+		color: $okcolor;
+	}
+	
+	.feedBackCross{
+		color: darken($errorcolor, 30%);
+	}
+	
+	.feedBackMultipleChoice{
+		width: 2em;
+	}
+	
 	.disabledField{
 		color: darken( $errorcolor, 30% );
 		text-decoration: line-through;

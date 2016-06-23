@@ -27,20 +27,19 @@ should be included in file importing DeliveryMessages
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-  <h:dataTable value="#{question.selectionArray}" var="selection" width="100%">
-    <h:column rendered="#{delivery.feedback eq 'true' &&
-       delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
-      <h:graphicImage id="image"
+  <t:dataTable value="#{question.selectionArray}" var="selection" width="100%">
+    <t:column rendered="#{delivery.feedback eq 'true' &&
+       delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" styleClass="feedBackMultipleChoice">
+      <h:panelGroup id="image"
         rendered="#{selection.answer.isCorrect eq 'true' && selection.response}"
-        alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
-      </h:graphicImage>
-      <h:graphicImage id="image2"
+        styleClass="icon-sakai-check feedBackCheck">
+      </h:panelGroup>
+      <h:panelGroup id="image2"
         rendered="#{selection.answer.isCorrect != null && !selection.answer.isCorrect && selection.response}"
-        width="16" height="16"
-        alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
-      </h:graphicImage>
-    </h:column>
-    <h:column>
+        styleClass="icon-sakai-delete feedBackCross">
+      </h:panelGroup>
+    </t:column>
+    <t:column>
      <f:verbatim><label></f:verbatim>
      <h:selectBooleanCheckbox value="#{selection.response}"
         disabled="#{delivery.actionString=='reviewAssessment'
@@ -51,8 +50,8 @@ should be included in file importing DeliveryMessages
      <h:outputText value=" #{selection.answer.text}" escape="false" />
      <f:verbatim></div></f:verbatim>
      <f:verbatim></label></f:verbatim>
-    </h:column>
-    <h:column>
+    </t:column>
+    <t:column>
       <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel &&
 	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != null && selection.answer.generalAnswerFeedback != ''&& selection.response}" > 
@@ -61,8 +60,8 @@ should be included in file importing DeliveryMessages
        <h:outputText value="#{commonMessages.feedback}#{deliveryMessages.column} " />
        <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false" />
       </h:panelGroup>
-    </h:column>
-  </h:dataTable>
+    </t:column>
+  </t:dataTable>
 
   <h:panelGroup rendered="#{question.itemData.hasRationale}" >
     <f:verbatim><br /></f:verbatim>
