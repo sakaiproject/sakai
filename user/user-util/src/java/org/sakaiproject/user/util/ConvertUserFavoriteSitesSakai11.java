@@ -295,6 +295,9 @@ class ConvertUserFavoriteSitesSakai11 {
                 // This is *way* less important than it looks.  I just wanted
                 // a function that wouldn't jump around too much.
                 reportFrequency = (int)Math.pow(10, Math.floor((Math.log(recordsPerSecond) / Math.log(10)) + 1));
+                if (reportFrequency < 1) {
+                    reportFrequency = 10;
+                }
 
                 if (elapsed > 0) {
                     info(String.format("Average processing rate (records/second): %.2f", + recordsPerSecond));
