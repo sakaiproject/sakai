@@ -253,13 +253,13 @@
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				#set ($listDisplay="block")
 				<div class="row">
-					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						<label for="access_mode_inherited${DOT}$i">
 							<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" />
 							$tlang.getString("access.inherit")
 						</label>
 					</div>
-					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						<label for="access_mode_groups${DOT}$i">
 							<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"  />
 							$tlang.getString("access.groups.choice")
@@ -269,13 +269,13 @@
 			#elseif($model.isGroupInherited())	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				<div class="row">
-					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						<label for="access_mode_inherited${DOT}$i">
 							<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked" />
 							$tlang.getString("access.inherit")
 						</label>
 					</div>
-					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						<label for="access_mode_groups${DOT}$i">
 							<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" />
 							$tlang.getString("access.groups.choice")
@@ -285,7 +285,7 @@
 			#else
 				## Site is possible; group and additional roles (including pubview) may be possible.
 				<div class="row">
-					<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						<label for="access_mode_inherited${DOT}$i">
 							<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end />
 							#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end
@@ -316,7 +316,7 @@
 						#set ($listDisplay="none")
 					#end
 					<div class="row">
-						<div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 							<label for="access_mode_groups${DOT}$i">
 								<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end />
 								#if($model.isCollection())$tlang.getString("access.groups.fldr")#else$tlang.getString("access.groups.choice")#end
@@ -430,14 +430,14 @@
 				</div>
   		</div>
 			<div class="panel-body">
-				<div class="form-group">
-					<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
-					<label for="use_start_date${DOT}$i">
-						$tlang.getString("avail.start1")
-					</label>
-				</div>
-				<div class="form-group container-fluid">
-					<div class="row">
+				<div class="form-inline">
+					<div class="form-group">
+						<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
+						<label for="use_start_date${DOT}$i">
+							$tlang.getString("avail.start1")
+						</label>
+					</div>
+					<div class="form-group">
 						#set($release_year = $model.getReleaseDate().breakdownLocal().year)
 						#set($release_month = $model.getReleaseDate().breakdownLocal().month)
 						#set($release_day = $model.getReleaseDate().breakdownLocal().day)
@@ -461,15 +461,15 @@
 							});
 						</script>
 					</div>
-				</div>
-				<div class="form-group">
-					<input type="checkbox" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
-					<label for="use_end_date${DOT}$i">
-						$tlang.getString("avail.end1")
-					</label>
-				</div>
-				<div class="form-group container-fluid">
-					<div class="row">
+				</div><br/>
+				<div class="form-inline">
+					<div class="form-group">
+						<input type="checkbox" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
+						<label for="use_end_date${DOT}$i">
+							$tlang.getString("avail.end1")
+						</label>
+					</div>
+					<div class="form-group">
 						#set($retract_year = $model.getRetractDate().breakdownLocal().year)
 						#set($retract_month = $model.getRetractDate().breakdownLocal().month)
 						#set($retract_day = $model.getRetractDate().breakdownLocal().day)
