@@ -574,6 +574,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>geronimo-spec</groupId>
         <artifactId>geronimo-spec-jms</artifactId>
         <version>1.1-rc4</version>
