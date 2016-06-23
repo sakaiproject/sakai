@@ -33,12 +33,12 @@ should be included in file importing DeliveryMessages
            delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:dataTable value="#{question.answers}" var="answer">
         <h:column>
-          <h:graphicImage id="image" rendered="#{answer.description eq 'true' && question.responseId eq answer.value}"
-            alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
-          </h:graphicImage>
-          <h:graphicImage id="image2" rendered="#{answer.description ne 'true' && question.responseId eq answer.value}"
-            alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
-          </h:graphicImage>
+          <h:panelGroup id="image" rendered="#{answer.description eq 'true' && question.responseId eq answer.value}"
+            styleClass="icon-sakai-check feedBackCheck" >
+          </h:panelGroup>
+          <h:panelGroup id="image2" rendered="#{answer.description ne 'true' && question.responseId eq answer.value}"
+            styleClass="icon-sakai-delete feedBackCross">
+          </h:panelGroup>
        </h:column>
      </h:dataTable>
    </h:column>
