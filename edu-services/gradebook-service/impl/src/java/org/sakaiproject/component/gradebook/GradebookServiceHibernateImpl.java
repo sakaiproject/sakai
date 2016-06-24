@@ -799,7 +799,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				// external assessments are supported, but not these fields
 				if (!assignmentDefinition.isExternallyMaintained()) {
-					assignment.setName(assignmentDefinition.getName().trim());
+					assignment.setName(StringUtils.trim(assignmentDefinition.getName()));
 					assignment.setPointsPossible(assignmentDefinition.getPoints());
 					assignment.setDueDate(assignmentDefinition.getDueDate());
 				}
