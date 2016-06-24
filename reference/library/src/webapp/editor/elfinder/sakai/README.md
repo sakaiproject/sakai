@@ -16,6 +16,9 @@ Said scripts are bundled/built into the file `./js/build.min.js`.
 is loaded after the default elFinder skin. `./css/` contains further changes
 for the file browser that are Sakai-specific.
 
+Some upstream changes might appear through: 
+https://github.com/lokothodida/elfinder-theme-moono
+
 Furthermore, Javascript has been used to modify/move certain UI elements within
 elFinder. These are defined in `./js/ui.js`.
 
