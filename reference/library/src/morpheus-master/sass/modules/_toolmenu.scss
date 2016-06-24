@@ -50,6 +50,9 @@ body.#{$namespace}toolMenu-collapsed{
 							display: none;
 						}
 					}
+					span.#{$namespace}toolsNav__menuitem--title{
+						white-space: pre;
+					}
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					display: none;
@@ -72,6 +75,7 @@ body.#{$namespace}toolMenu-collapsed{
 }
 
 #toolMenuWrap{
+	z-index: 10;
 	background: $toolMenuBGColor;
 	display: block;
 	min-width: $tool-menu-width;
@@ -176,7 +180,7 @@ nav#subSites{
 			{
 				display:flex;
 				align-items:center;
-				justify-content:flex-end; /* right-align the arrows when expanded */
+				justify-content: center; /* right-align the arrows when expanded */
 				height:3em;
 				padding: 0 1em;
 				border-right: 1px solid $toolMenuBGColor;
@@ -212,6 +216,7 @@ nav#subSites{
 				margin: 0 0.25em 0 0;
 			}
 			a{
+				transition: all .1s linear;
 				border-bottom: 1px solid darken( $toolMenuBGColor, 10% );
 				color: $toolMenuColor;
 				display: block;
@@ -224,6 +229,11 @@ nav#subSites{
 				text-align: center;
 				text-decoration: none;
 				&:hover{
+					-webkit-transform: scale(1.15);  	// Chrome, Safari
+					-moz-transform: scale(1.15);  		// Firefox
+					-ms-transform: scale(1.15);  		// IE9
+					-o-transform: scale(1.15);  		// Opera
+					transform: scale(1.15);
 					background: $primary-color;
 					color: $tool-background-color;
 				}
@@ -234,11 +244,8 @@ nav#subSites{
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					display: block;
-					max-width: 100%;
-					width: 100%;
 					text-overflow: ellipsis;
-					white-space: pre;
-					overflow: hidden;
+					white-space: pre-wrap;
 				}
 				&.is-invisible {
 					color: #AAAAAA;
