@@ -6,8 +6,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -63,6 +67,8 @@ public class SettingsCategoryPanel extends Panel {
 
 	Radio<Integer> categoriesAndWeighting;
 
+	Map<Long, Boolean> categoryDropKeepAvailability = new HashMap<>();
+
 	public SettingsCategoryPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
 		this.model = model;
@@ -78,10 +84,14 @@ public class SettingsCategoryPanel extends Panel {
 		// get categories, passed in
 		final List<CategoryDefinition> categories = this.model.getObject().getGradebookInformation().getCategories();
 
-		// parse the categories and see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
-		// also build a map that we can use to add/remove from
+		// parse the categories
+		// 1. see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
+		// 2. check the assignments in each category and see if there are assignments with differing point values.
+		// This means that drop/keep highest/lowest is not available for that category
+
 		for (final CategoryDefinition category : categories) {
 
+			// check settings
 			if (category.getDropHighest() != null && category.getDropHighest() > 0) {
 				this.isDropHighest = true;
 			}
@@ -91,6 +101,14 @@ public class SettingsCategoryPanel extends Panel {
 			if (category.getKeepHighest() != null && category.getKeepHighest() > 0) {
 				this.isKeepHighest = true;
 			}
+
+			// check points
+			final Set<Double> points = new HashSet<>();
+			final List<Assignment> assignments = category.getAssignmentList();
+			assignments.forEach(a -> points.add(a.getPoints()));
+
+			this.categoryDropKeepAvailability.put(category.getId(), (points.size() <= 1));
+
 		}
 
 		// if categories enabled but we don't have any yet, add a default one
@@ -369,8 +387,10 @@ public class SettingsCategoryPanel extends Panel {
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
+						// intentionally left blank
 					}
 				});
+				categoryDropHighest.setEnabled(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()));
 				item.add(categoryDropHighest);
 
 				// drop lowest
@@ -382,8 +402,10 @@ public class SettingsCategoryPanel extends Panel {
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
+						// intentionally left blank
 					}
 				});
+				categoryDropLowest.setEnabled(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()));
 				item.add(categoryDropLowest);
 
 				// keep highest
@@ -395,8 +417,10 @@ public class SettingsCategoryPanel extends Panel {
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
+						// intentionally left blank
 					}
 				});
+				categoryKeepHighest.setEnabled(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()));
 				item.add(categoryKeepHighest);
 
 				// remove button
