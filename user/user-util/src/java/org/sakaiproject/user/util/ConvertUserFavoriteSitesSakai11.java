@@ -265,10 +265,14 @@ class ConvertUserFavoriteSitesSakai11 {
     //
     // Show a progress counter and some performance numbers
     private static class ProgressCounter {
+
+        // Show a status message every REPORT_FREQUENCY_MS milliseconds
+        private static long REPORT_FREQUENCY_MS = 10000;
+
         private long estimatedTotalRecordCount = 0;
         private long recordCount = 0;
         private long startTime;
-        private int reportFrequency = 1;
+        private long timeOfLastReport = 0;
 
         public ProgressCounter(long estimatedTotalRecordCount) {
             this.estimatedTotalRecordCount = estimatedTotalRecordCount;
@@ -283,20 +287,18 @@ class ConvertUserFavoriteSitesSakai11 {
                 recordCount = estimatedTotalRecordCount;
             }
 
-            if (recordCount > 0 && (recordCount % reportFrequency) == 0 || recordCount == estimatedTotalRecordCount) {
+            long now = System.currentTimeMillis();
+            long msSinceLastReport = (now - timeOfLastReport);
+
+            if (msSinceLastReport >= REPORT_FREQUENCY_MS || recordCount == estimatedTotalRecordCount) {
+                timeOfLastReport = now;
                 info("\nUp to record number " + recordCount + " of " + estimatedTotalRecordCount);
 
-                float elapsed = (float)(System.currentTimeMillis() - startTime);
-                float recordsPerSecond = (recordCount / elapsed) * 1000;
-
-                // dynamically (and psuedo-scientifically) adjust the delay
-                // between progress messages based on how fast we're going.
-                //
-                // This is *way* less important than it looks.  I just wanted
-                // a function that wouldn't jump around too much.
-                reportFrequency = (int)Math.pow(10, Math.floor((Math.log(recordsPerSecond) / Math.log(10)) + 1));
+                long elapsed = (timeOfLastReport - startTime);
 
                 if (elapsed > 0) {
+                    float recordsPerSecond = (recordCount / (float)elapsed) * 1000;
+
                     info(String.format("Average processing rate (records/second): %.2f", + recordsPerSecond));
                     long recordsRemaining = (estimatedTotalRecordCount - recordCount);
                     long msRemaining = (long)((recordsRemaining / recordsPerSecond) * 1000);
