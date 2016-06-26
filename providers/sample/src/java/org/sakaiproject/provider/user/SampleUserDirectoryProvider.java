@@ -139,9 +139,9 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 
 			M_log.info("init()");
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			M_log.warn(".init(): ", t);
+			M_log.warn(".init(): ", e);
 		}
 	}
 	
@@ -253,9 +253,9 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 * @param users
 	 *        The UserEdit objects (with id set) to fill in or remove.
 	 */
-	public void getUsers(Collection users)
+	public void getUsers(Collection<UserEdit> users)
 	{
-		for (Iterator i = users.iterator(); i.hasNext();)
+		for (Iterator<UserEdit> i = users.iterator(); i.hasNext();)
 		{
 			UserEdit user = (UserEdit) i.next();
 			if (!getUser(user))
@@ -299,9 +299,9 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 *        Use this factory's newUser() method to create all the UserEdit objects you populate and return in the return collection.
 	 * @return Collection (UserEdit) of user objects that have this email address, or an empty Collection if there are none.
 	 */
-	public Collection findUsersByEmail(String email, UserFactory factory)
+	public Collection<UserEdit> findUsersByEmail(String email, UserFactory factory)
 	{
-		Collection rv = new Vector();
+		Collection<UserEdit> rv = new Vector<UserEdit>();
 
 		// get a UserEdit to populate
 		UserEdit edit = factory.newUser();

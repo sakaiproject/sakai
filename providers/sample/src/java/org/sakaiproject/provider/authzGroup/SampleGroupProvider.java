@@ -142,7 +142,7 @@ public class SampleGroupProvider implements GroupProvider
 
 			M_log.info("init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -314,11 +314,11 @@ public class SampleGroupProvider implements GroupProvider
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getGroupRolesForUser(String userId)
+	public Map<String, String> getGroupRolesForUser(String userId)
 	{
 		update();
 
-		Map rv = new HashMap();
+		Map<String, String> rv = new HashMap<String, String>();
 
 		if (m_usersa.contains(userId))
 		{
