@@ -193,7 +193,12 @@ public class GradeSummaryTablePanel extends Panel {
 						if (GbGradingType.PERCENTAGE.equals(gradingType)) {
 							assignmentItem.add(new Label("grade",
 								new StringResourceModel("label.percentage.valued", null,
-									new Object[]{FormatHelper.formatGrade(rawGrade)})));
+									new Object[]{FormatHelper.formatGrade(rawGrade)})) {
+								@Override
+								public boolean isVisible() {
+									return StringUtils.isNotBlank(rawGrade);
+								}
+							});
 							assignmentItem.add(new Label("outOf").setVisible(false));
 						} else {
 							assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
