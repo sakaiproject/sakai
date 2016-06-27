@@ -36,11 +36,26 @@ public class ExtendedTimeService {
 	private String metaString; // holds the extended time info for the current
 								// user
 
+	/**
+	 * Creates an ExtendedTimeService object using the userId in the agentFacade as the current user
+	 * @param publishedAssessment a published assessment object
+	 */
 	public ExtendedTimeService(PublishedAssessmentFacade publishedAssessment) {
-		PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-		PublishedAssessmentFacade metaPublishedAssessment = assessmentService
-				.getPublishedAssessmentQuick(publishedAssessment.getPublishedAssessmentId().toString());
+		this(publishedAssessment,AgentFacade.getAgentString());
+
+	}
+
+	/**
+	 * Creates an ExtendedTimeService object based on a specific agentId (userId)
+	 * @param publishedAssessment a published assessment object
+	 * @param agentId a specific userId to look up
+	 * 
+	 */
+	public ExtendedTimeService(PublishedAssessmentFacade publishedAssessment, String agentId) {
+		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		if (!assessmentInitialized(publishedAssessment)) {
+			PublishedAssessmentFacade metaPublishedAssessment = publishedAssessmentService
+				.getPublishedAssessmentQuick(publishedAssessment.getPublishedAssessmentId().toString());
 			publishedAssessment = metaPublishedAssessment;
 		}
 	    authzGroupService = ComponentManager.get(AuthzGroupService.class);
@@ -48,22 +63,21 @@ public class ExtendedTimeService {
 		// Grab the site id from the publishedAssessment because the user may
 		// not be in a site
 		// if they're taking the test via url.
-		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		String pubId = publishedAssessment.getPublishedAssessmentId().toString();
 		siteId = publishedAssessmentService.getPublishedAssessmentSiteId(pubId);
 
-		this.metaString = extractMetaString(metaPublishedAssessment);
+		this.metaString = extractMetaString(publishedAssessment, agentId);
 		this.hasExtendedTime = (metaString != null);
 		if (this.hasExtendedTime) {
 			this.timeLimit = extractExtendedTime();
-			this.startDate = determineDate(1, publishedAssessment.getStartDate());
-			this.dueDate = determineDate(2, publishedAssessment.getDueDate());
-			this.retractDate = determineDate(3, publishedAssessment.getRetractDate());
+			this.startDate = determineDate(1, publishedAssessment.getAssessmentAccessControl().getStartDate());
+			this.dueDate = determineDate(2, publishedAssessment.getAssessmentAccessControl().getDueDate());
+			this.retractDate = determineDate(3, publishedAssessment.getAssessmentAccessControl().getRetractDate());
 		} else {
 			this.timeLimit = 0;
-			this.startDate = publishedAssessment.getStartDate();
-			this.dueDate = publishedAssessment.getDueDate();
-			this.retractDate = publishedAssessment.getRetractDate();
+			this.startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
+			this.dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+			this.retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
 		}
 	}
 
@@ -71,19 +85,19 @@ public class ExtendedTimeService {
 	private boolean assessmentInitialized(PublishedAssessmentFacade publishedAssessment) {
 		if (publishedAssessment == null)
 			return false;
-		if (publishedAssessment.getStartDate() != null)
+		if (publishedAssessment.getAssessmentAccessControl().getStartDate() != null)
 			return true;
-		if (publishedAssessment.getDueDate() != null)
+		if (publishedAssessment.getAssessmentAccessControl().getDueDate() != null)
 			return true;
-		if (publishedAssessment.getRetractDate() != null)
+		if (publishedAssessment.getAssessmentAccessControl().getRetractDate() != null)
 			return true;
-		if (publishedAssessment.getTimeLimit() != null)
+		if (publishedAssessment.getAssessmentAccessControl().getTimeLimit() != null)
 			return true;
 		return false;
 	}
 
 	// This sets the metString that holds the extended time info for the user
-	private String extractMetaString(PublishedAssessmentFacade publishedAssessment) {
+	private String extractMetaString(PublishedAssessmentFacade publishedAssessment, String userId) {
 		short itemNum = 1;
 		String meta = null;
 		String extendedTimeData = publishedAssessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
@@ -97,7 +111,6 @@ public class ExtendedTimeService {
 			// If it's a group determine if user is a member
 			boolean isMember = isUserInGroup(target);
 
-			String userId = AgentFacade.getAgentString();
 			if (target.equals(userId) || isMember) {
 				meta = extendedTimeData;
 			}
