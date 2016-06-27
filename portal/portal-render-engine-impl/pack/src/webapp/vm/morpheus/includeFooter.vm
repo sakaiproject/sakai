@@ -32,7 +32,7 @@
 
             <details class="Mrphs-footer--details Mrphs-footer--details__build-info">
                 <summary>${rloader.site_buildinfo_label}</summary>
-                <p class="Mrphs-footer--nav__build__panel">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion}) - Server ${bottomNavServer}</p>
+                <p class="Mrphs-footer--nav__build__panel">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}</p>
             </details>
 
             #if ($showServerTime == "true")
