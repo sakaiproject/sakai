@@ -17,7 +17,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -45,7 +44,7 @@ public class BasePage extends WebPage {
 	Link<Void> importExportPageLink;
 	Link<Void> permissionsPageLink;
 
-	final FeedbackPanel feedbackPanel;
+	public final GbFeedbackPanel feedbackPanel;
 
 	/**
 	 * The current user
@@ -157,20 +156,15 @@ public class BasePage extends WebPage {
 	}
 
 	/**
-	 * Helper to clear the feedbackpanel display.
-	 *
-	 * @param f
-	 *            FeedBackPanel
+	 * Helper to clear the feedback panel display from any child component
 	 */
-	public void clearFeedback(final FeedbackPanel f) {
-		if (!f.hasFeedbackMessage()) {
-			f.add(AttributeModifier.remove("class"));
-		}
+	public void clearFeedback() {
+		this.feedbackPanel.clear();
 	}
 
 	/**
-	 * This block adds the required wrapper markup to style it like a Sakai
-	 * tool. Add to this any additional CSS or JS references that you need.
+	 * This block adds the required wrapper markup to style it like a Sakai tool. Add to this any additional CSS or JS references that you
+	 * need.
 	 *
 	 */
 	@Override
@@ -194,7 +188,7 @@ public class BasePage extends WebPage {
 
 		// Shared stylesheets
 		response.render(CssHeaderItem
-			.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
+				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
 
 	}
 
