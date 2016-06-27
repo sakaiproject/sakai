@@ -108,7 +108,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderBase;
@@ -253,6 +253,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
    private AliasService aliasService;
 
+   private UserDirectoryService userDirectoryService;
+
    private RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
 
    private Collator collator = Collator.getInstance();
@@ -263,6 +265,7 @@ public class AnnouncementAction extends PagedResourceActionII
     public AnnouncementAction() {
         super();
         aliasService = ComponentManager.get(AliasService.class);
+        userDirectoryService = ComponentManager.get(UserDirectoryService.class);
     }
    /*
 	 * Returns the current order
@@ -279,26 +282,43 @@ public class AnnouncementAction extends PagedResourceActionII
 	}
 
 	/**
+	 * Gets a security advisor for reading announcements.
+	 * If <code>announcement.merge.visibility.strict</code> is set to <code>false</code>that allows messages from
+	 * other channels to be read when the current user
+	 * doesn't have permission. This is used to allow messages from merged sites to appear without the
+	 * current user having to be a member.
+	 * @param channelReference The entity reference of the channel in another site.
+	 * @return A security advisor that allows the current user access to that content.
+	 */
+	SecurityAdvisor getChannelAdvisor(final String channelReference)
+	{
+		if (ServerConfigurationService.getBoolean("announcement.merge.visibility.strict", false))
+		{
+			return (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.PASS;
+		}
+		else
+		{
+			return (userId, function, reference) -> {
+				if (userId.equals(userDirectoryService.getCurrentUser().getId()) &&
+						AnnouncementService.SECURE_ANNC_READ.equals(function) &&
+						channelReference.equals(reference)) {
+					return SecurityAdvisor.SecurityAdvice.ALLOWED;
+				} else {
+					return SecurityAdvisor.SecurityAdvice.PASS;
+				}
+			};
+		}
+	}
+
+	/**
 	 * Used by callback to convert channel references to channels.
 	 */
 	private final class AnnouncementReferenceToChannelConverter implements
 			MergedListEntryProviderFixedListWrapper.ReferenceToChannelConverter
 	{
-		public Object getChannel(String channelReference)
+		public Object getChannel(final String channelReference)
 		{
-			
-			final String finalChannelReference = channelReference;
-			SecurityAdvisor advisor = new SecurityAdvisor() {
-				@Override
-				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function) && finalChannelReference.equals(reference)) {
-						return SecurityAdvice.ALLOWED;
-					} else {
-						return SecurityAdvice.PASS;
-					}
-				}
-			};
-
+			SecurityAdvisor advisor = getChannelAdvisor(channelReference);
 			try {
 				m_securityService.pushAdvisor(advisor);
 				return AnnouncementService.getAnnouncementChannel(channelReference);
@@ -387,18 +407,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		 */
 		public boolean allowGet(String ref)
 		{
-			final String finalRef = ref;
-			SecurityAdvisor advisor = new SecurityAdvisor() {
-				@Override
-				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function) && reference.equals(finalRef)) {
-						return SecurityAdvice.ALLOWED;
-					} else {
-						return SecurityAdvice.PASS;
-					}
-				}
-			};
-
+			SecurityAdvisor advisor = getChannelAdvisor(ref);
 			try {
 				m_securityService.pushAdvisor(advisor);
 				return (!excludedSites.contains(ref) && AnnouncementService.allowGetChannel(ref));
@@ -1627,22 +1636,11 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 
 			AnnouncementChannel curChannel = null;
-			final String finalChannelReference = curEntry.getReference();
-			SecurityAdvisor advisor = new SecurityAdvisor() {
-				@Override
-				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function) && reference.equals(finalChannelReference)) {
-						return SecurityAdvice.ALLOWED;
-					} else {
-						return SecurityAdvice.PASS;
-					}
-				}
-			};
-
+			SecurityAdvisor advisor = getChannelAdvisor(curEntry.getReference());
 			try
 			{
 				m_securityService.pushAdvisor(advisor);
-				curChannel = (AnnouncementChannel) AnnouncementService.getChannel(finalChannelReference);
+				curChannel = (AnnouncementChannel) AnnouncementService.getChannel(curEntry.getReference());
 				if (curChannel != null)
 				{
 					if (AnnouncementService.allowGetChannel(curChannel.getReference()))
@@ -1904,7 +1902,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		String annTo=state.getTempAnnounceTo();
 		context.put("subject", subject);
 		context.put("body", body);
-		context.put("user", UserDirectoryService.getCurrentUser());
+		context.put("user", userDirectoryService.getCurrentUser());
 		context.put("newAnn", (state.getIsNewAnnouncement()) ? "true" : "else");
 		context.put("annTo", annTo);
 	
@@ -2355,22 +2353,12 @@ public class AnnouncementAction extends PagedResourceActionII
 		String messageReference = state.getMessageReference();
 
 		// get the message object through service
+		SecurityAdvisor channelAdvisor = getChannelAdvisor(getChannelIdFromReference(messageReference));
+		SecurityAdvisor messageAdvisor = getChannelAdvisor(messageReference);
 		try
 		{
-			final String finalMessageReference = messageReference;
-			final String finalChannelReference = getChannelIdFromReference(messageReference);
-			SecurityAdvisor advisor = new SecurityAdvisor() {
-				@Override
-				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function)
-						&& (finalMessageReference.equals(reference) || finalChannelReference.equals(reference))) {
-						return SecurityAdvice.ALLOWED;
-					} else {
-						return SecurityAdvice.PASS;
-					}
-				}
-			};
-			m_securityService.pushAdvisor(advisor);
+			m_securityService.pushAdvisor(channelAdvisor);
+			m_securityService.pushAdvisor(messageAdvisor);
 			// get the channel id throught announcement service
 			AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
 					.getChannelIdFromReference(messageReference));
@@ -2400,9 +2388,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					M_log.debug("buildShowMetadataContext retractDate is empty for message id " + message.getId());
 				}
 			}
-			finally {
-				m_securityService.popAdvisor(advisor);
-			}
+
 			
 			try {
 				Time modDate = message.getProperties().getTimeProperty(AnnouncementService.MOD_DATE);
@@ -2526,6 +2512,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			if (M_log.isDebugEnabled()) M_log.debug(this + ".buildShowMetadataContext()" + e);
 			addAlert(sstate, rb.getFormattedMessage("java.youmess.pes", e.toString()));
+		}
+		finally {
+			m_securityService.popAdvisor(channelAdvisor);
+			m_securityService.popAdvisor(messageAdvisor);
 		}
 
 		String template = (String) getContext(rundata).get("template");
@@ -3040,7 +3030,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				header.setDraft(tempHidden);
 				header.replaceAttachments(state.getAttachments());
-				header.setFrom(UserDirectoryService.getCurrentUser());
+				header.setFrom(userDirectoryService.getCurrentUser());
 
 				// values stored here if saving from Add/Revise page
 				ParameterParser params = rundata.getParameters();
@@ -4550,7 +4540,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * @param channelId The channel ID.
 	 */
 	private boolean isChannelPublic(String channelId) {
-		return m_securityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId);
+		return m_securityService.unlock(userDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId);
 	}
 
 
