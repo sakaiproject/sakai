@@ -7653,7 +7653,7 @@ extends VelocityPortletStateAction
 		bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
 		
 		// See if we are allowed to configure external calendar subscriptions
-		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,false))
+		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,true))
 			{
 				bar.add( new MenuEntry(rb.getString("java.subscriptions"), rb.getString("java.subscriptions.title"), null, allow_subscribe, MenuItem.CHECKED_NA, "doSubscriptions") );
 			}
