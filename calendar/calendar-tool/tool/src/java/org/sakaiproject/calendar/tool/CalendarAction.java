@@ -2514,9 +2514,9 @@ extends VelocityPortletStateAction
 			state.setImportWizardState(IMPORT_WIZARD_SELECT_TYPE_STATE);
 		}
 		
-		// (optional) ical.experimental import
+		// (optional) ical.public.userdefined.subscribe import (ical.experimental is deprecated)
 		context.put("icalEnable", 
-						ServerConfigurationService.getString("ical.experimental"));
+						ServerConfigurationService.getBoolean("ical.public.userdefined.subscribe",ServerConfigurationService.getBoolean("ical.experimental",true)));
 		
 		// Set whatever the current wizard state is.
 		context.put("importWizardState", state.getImportWizardState());
@@ -7661,7 +7661,7 @@ extends VelocityPortletStateAction
 		// See if we are allowed to export items.
 		String calId = state.getPrimaryCalendarReference();
 		if ( (allow_import_export || CalendarService.getExportEnabled(calId)) && 
-			  ServerConfigurationService.getBoolean("ical.experimental",false))
+			  ServerConfigurationService.getBoolean("ical.public.userdefined.subscribe",ServerConfigurationService.getBoolean("ical.experimental",true)))
 		{
 			bar.add( new MenuEntry(rb.getString("java.export"), rb.getString("java.export.title"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
 		}
