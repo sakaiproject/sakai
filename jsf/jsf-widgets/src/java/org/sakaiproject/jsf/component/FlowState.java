@@ -57,33 +57,25 @@ public class FlowState extends UIComponentBase {
 
 	public static final String COMPONENT_TYPE = "org.sakaiproject.jsf.FlowState";
 
-	private PhaseAware _bean;
-
 	public FlowState() {
 	}
 
-	public void setBean(PhaseAware bean) {
-		if (logger.isDebugEnabled()) logger.debug("setBean " + bean);
-		_bean = bean;
-	}
 	public PhaseAware getBean() {
-		if (logger.isDebugEnabled()) logger.debug("getBean " + _bean);
-		if (_bean != null) return _bean;
-
-		PhaseAware returnObject = null;
+		PhaseAware bean = null;
 		ValueBinding vb = getValueBinding("bean");
 		if (vb != null) {
-			returnObject = (PhaseAware)vb.getValue(getFacesContext());
+			bean = (PhaseAware) vb.getValue(getFacesContext());
 		}
-		if (logger.isDebugEnabled()) logger.debug("  returning " + returnObject);
-		return returnObject;
+		if (logger.isDebugEnabled()) logger.debug("getBean " + bean);
+		return bean;
 	}
 
 	public Object saveState(FacesContext context) {
-		if (logger.isDebugEnabled()) logger.debug("saveState " + _bean);
+		PhaseAware bean = getBean();
+		if (logger.isDebugEnabled()) logger.debug("saveState " + bean);
 		Object values[] = new Object[2];
 		values[0] = super.saveState(context);
-		values[1] = getBean();
+		values[1] = bean;
 		return ((Object)values);
 	}
 
@@ -91,50 +83,46 @@ public class FlowState extends UIComponentBase {
 		if (logger.isDebugEnabled()) logger.debug("restoreState " + state);
 		Object values[] = (Object[])state;
 		super.restoreState(context, values[0]);
-		_bean = (PhaseAware)values[1];
+		PhaseAware bean = (PhaseAware)values[1];
 		ValueBinding vb = getValueBinding("bean");
 		if (vb != null) {
-			vb.setValue(context, _bean);
+			vb.setValue(context, bean);
 		}
 	}
 
 	public void processRestoreState(FacesContext context, Object state) {
-		if (logger.isDebugEnabled()) logger.debug("processRestoreState " + _bean);
+		if (logger.isDebugEnabled()) logger.debug("processRestoreState " + getBean());
 		super.processRestoreState(context, state);
 	}
 
 	public void processDecodes(FacesContext context) {
-		if (logger.isDebugEnabled()) logger.debug("processDecodes " + _bean);
+		if (logger.isDebugEnabled()) logger.debug("processDecodes " + getBean());
 		super.processDecodes(context);
 	}
 
 	public void processValidators(FacesContext context) {
-		if (logger.isDebugEnabled()) logger.debug("processValidators " + _bean);
+		PhaseAware bean = getBean();
+		if (logger.isDebugEnabled()) logger.debug("processValidators " + bean);
 		super.processValidators(context);
-		if (_bean != null) {
-			_bean.endProcessValidators();
-		}
+		bean.endProcessValidators();
 	}
 
 	public void processUpdates(FacesContext context) {
-		if (logger.isDebugEnabled()) logger.debug("processUpdates " + _bean);
+		PhaseAware bean = getBean();
+		if (logger.isDebugEnabled()) logger.debug("processUpdates " + bean);
 		super.processUpdates(context);
-		if (_bean != null) {
-			_bean.endProcessUpdates();
-		}
+		bean.endProcessUpdates();
 	}
 
 	public void encodeBegin(FacesContext context) throws IOException {
 		PhaseAware bean = getBean();
-		if (logger.isDebugEnabled()) logger.debug("  getBean=" + bean);
-		if (bean != null) {
-			bean.startRenderResponse();
-		}
+		if (logger.isDebugEnabled()) logger.debug("encodeBegin " + bean);
+		bean.startRenderResponse();
 		super.encodeBegin(context);
 	}
 
 	public String getFamily() {
-		if (logger.isDebugEnabled()) logger.debug("getFamily " + _bean);
+		if (logger.isDebugEnabled()) logger.debug("getFamily " + getBean());
 		return "javax.faces.Data";
 	}
 
