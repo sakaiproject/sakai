@@ -1,0 +1,84 @@
+.Mrphs-quickLinksNav__popup{
+  @extend .view-all-sites-btn;
+  @media #{$phone}{
+    display: inline-block;
+  }
+}
+
+.fa-external-link-square{
+  @extend .all-sites-icon;
+  @media #{$phone}{
+    display: inline-block;
+  }
+}
+
+.quicklinks-label{
+  @extend .all-sites-label;
+  @media #{$phone}{
+    display: none;
+  }
+}
+
+#quickLinks{
+    #quickLinks-close{
+      font-size: 1.5em;
+      border-bottom: 1px solid #E0E0E0;
+      margin-bottom: 0.5em;
+      text-align: right;
+  }
+  .Mrphs-quickLinksNav__subnav{
+    font-family: $header-font-family;
+    font-weight: $header-font-weight;
+    list-style: none;
+    padding: 0 0 0 0;
+    background-color: $tool-menu-background-color;
+    text-align: left;
+    margin: 0.18em 0 0 0.9em;
+    @extend .userNav__subnav;
+    &:after {
+      bottom: 100%;
+      left: 82%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(255, 255, 255, 0);
+      border-bottom-color: $tool-menu-background-color;
+      border-width: 7px;
+      margin-left: -7px;
+      outline: 0;
+      @media #{$phone}{
+        left: 60%;
+      }
+    }
+    @media #{$phone}{
+      margin: 3.3em 0 0 -9.8em;
+      position: fixed;
+      top: 0.3em;
+      z-index: 61;
+    }
+    a{
+      color: $primary-color;
+      //padding: 0em 0.25em;
+      &:hover{
+        color: lighten( $primary-color, 10% );
+      }
+    }
+  }
+}
+
+#quicklink-icon{
+  width: 16px;
+  height: 16px;
+  right: auto;
+  top: 2px;
+  display: inline-block;
+  background-repeat: initial;
+  background-position: center;
+}
+
+.quicklinks-dropdown-overlay{
+  @extend .user-dropdown-overlay;
+}

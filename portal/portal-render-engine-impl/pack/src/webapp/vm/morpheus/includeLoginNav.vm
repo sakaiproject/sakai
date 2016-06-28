@@ -3,11 +3,46 @@
 <nav id="mastLogin" class="Mrphs-loginNav">
 
     #if (!${loginTopLogin})
+        <div id="relatedLinks">
+            <ul>
+                #foreach($relatedLink in $relatedLinks)
+                    <li><a href="$relatedLink.url" title="$relatedLink.title" target="_new">$relatedLink.name</a></li>
+                #end
+            </ul>
+        </div>
+
+        #if ($relatedLinks)
+            <ul id="quickLinks" class="Mrphs-quickLinksNav">
+                <li class="Mrphs-quickLinksNav__popup js-toggle-quicklinks-nav" aria-haspopup="true">
+                    <a href="javascript:void(0);" class="Mrphs-quickLinksNav__drop-btn" title="${rloader.sit_quick_links_title}" role="menuitem"  aria-haspopup="true">
+                        <i class="fa fa-th fa-external-link-square"></i><span class="quicklinks-label">${rloader.sit_quick_links}</span>
+                    </a>
+
+                    <ul class="Mrphs-quickLinksNav__subnav is-hidden" role="menu">
+                        <li id="quickLinks-header" class="Mrphs-quickLinksNav__submenuitem">
+                            <a id="quickLinks-close" href="javascript:void(0);"><i class="fa fa-times"></i></a>
+                        </li>
+                        #foreach($relatedLink in $relatedLinks)
+                            <li class="Mrphs-quickLinksNav__submenuitem">
+                                <a class="Mrphs-quickLinksNav__submenuitem" role="menuitem" href="${relatedLink.url}" title="$relatedLink.title" target="_blank">
+                                    #if(${relatedLink.iconType} == "image")
+                                        <span id="quicklink-icon" style="background-image:url(${relatedLink.imageURI})"></span>
+                                    #elseif (${relatedLink.iconType} == "icon")
+                                        <span id="quicklink-icon" class="${relatedLink.iconClass}"></span>
+                                    #end
+                                    <span class="Mrphs-quickLinks__submenuitem">$relatedLink.name</span>
+                                </a>
+                            </li>
+                        #end
+                    </ul>
+                </li>
+            </ul>
+        #end
 
         #if (${userIsLoggedIn})
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
                 <a href="javascript:void(0);" title="${rloader.sit_allsites}" role="menuitem" aria-haspopup="true">
-                    <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
+                    <i class="fa fa-th all-sites-icon"></i><span class="all-sites-label">${rloader.sit_worksites}</span>
                 </a>
             </div>
         #end
