@@ -301,7 +301,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public Collection<UserEdit> findUsersByEmail(String email, UserFactory factory)
 	{
-		Collection<UserEdit> rv = new Vector<UserEdit>();
+		Collection<UserEdit> rv = new Vector<>();
 
 		// get a UserEdit to populate
 		UserEdit edit = factory.newUser();

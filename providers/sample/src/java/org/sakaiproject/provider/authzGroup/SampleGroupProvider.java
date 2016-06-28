@@ -318,7 +318,7 @@ public class SampleGroupProvider implements GroupProvider
 	{
 		update();
 
-		Map<String, String> rv = new HashMap<String, String>();
+		Map<String, String> rv = new HashMap<>();
 
 		if (m_usersa.contains(userId))
 		{
