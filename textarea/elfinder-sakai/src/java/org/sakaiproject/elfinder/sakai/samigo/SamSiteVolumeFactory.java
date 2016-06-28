@@ -36,9 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ddelblanco on 03/16.
@@ -244,12 +242,6 @@ public class SamSiteVolumeFactory implements SiteVolumeFactory {
 
         public boolean isWriteable(FsItem fsi) {
             return false;
-        }
-
-        @Override
-        public void filterOptions(FsItem fsItem, Map<String, Object> map) {
-            // The preview isn't working properly
-            map.put("disabled", Arrays.asList(new String[]{"open", "download", "getfile", "copy", "cut", "paste"}));
         }
     }
 }
