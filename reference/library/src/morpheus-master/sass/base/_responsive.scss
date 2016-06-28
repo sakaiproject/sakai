@@ -27,7 +27,7 @@ body{
 					font-weight: 300;
 					background: $tool-background-color;
 					margin: 0;
-					border-bottom:  1px solid darken( $toolMenuBGColor, 5% );
+					border-bottom:  1px solid darken( $tool-menu-background-color, 5% );
 					position: relative;
 					&:after {
 						bottom: 100%;
@@ -51,7 +51,7 @@ body{
 					list-style: none;
 					padding: 0 0 0 0;
 					li{
-						border-left: 2px solid darken( $toolMenuBGColor, 10% );
+						border-left: 2px solid darken( $tool-menu-background-color, 10% );
 						display: inline-block;
 						margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 						width: calc( 25% - 1px );

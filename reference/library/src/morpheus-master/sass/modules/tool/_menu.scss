@@ -1,7 +1,7 @@
 .navIntraTool{
 	margin: -14px -14px 0 -14px;
 	background: $tool-background-color;
-	border-bottom: 1px solid $toolBorderColor;
+	border-bottom: 1px solid $tool-border-color;
 	padding: 0 170px 0 1em;
 	//max-width: calc(100% - 170px);
 	@media #{$phone}{
@@ -19,10 +19,10 @@
 		span{
 			display: inline;
 			a{
-				background: $toolTabBGColor;
-				border-top: 1px solid $toolBorderColor;
-				border-left: 1px solid $toolBorderColor;
-				border-right: 1px solid $toolBorderColor;
+				background: $tool-tab-background-color;
+				border-top: 1px solid $tool-border-color;
+				border-left: 1px solid $tool-border-color;
+				border-right: 1px solid $tool-border-color;
 				color: #666;
 				display: block;
 				font-size: 0.8em;
@@ -37,9 +37,9 @@
 			}
 			&.current{
 				background: $tool-background-color;
-				border-top: 1px solid $toolBorderColor;
-				border-left: 1px solid $toolBorderColor;
-				border-right: 1px solid $toolBorderColor;
+				border-top: 1px solid $tool-border-color;
+				border-left: 1px solid $tool-border-color;
+				border-right: 1px solid $tool-border-color;
 				display: block;
 				font-size: 0.8em;
 				letter-spacing: 1.2px;

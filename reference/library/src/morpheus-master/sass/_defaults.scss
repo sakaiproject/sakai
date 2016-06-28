@@ -32,18 +32,39 @@ $header-font-weight: 700 !default;										// 300, 400 or 700 as you wish
 $background-color: 			 #FFFFFF !default;
 $background-color-secondary: #444444 !default;
 
-$tool-background-color:		 $background-color !default;
-$toolMenuBGColor:			 #EBEBEB !default;
-$toolMenuColor: 			 #424242 !default;
-$toolTabBGColor: 			 #F8F8F8 !default;
-$toolBorderColor:			 #E0E0E0 !default;
-
 $primary-color:    			 #2a94c0 !default;
 $primary-color-shadow:		 	 #2A87C0 !default;
 $secondary-color:  			 #F00 !default;
 $alt-colour: 				 #d36f00 !default;
 
 $text-color:				 #212121 !default;
+
+$portal-background-color: $background-color !default;
+
+$tool-background-color:		 $background-color !default;
+$tool-menu-background-color:			 #EBEBEB !default;
+$tool-menu-color: 			 #424242 !default;
+$tool-tab-background-color: 			 #F8F8F8 !default;
+$tool-border-color:			 #E0E0E0 !default;
+$tool-tab-active-background-color: 			 $background-color !default;
+$tool-tab-active-border-color: 	 $background-color !default;
+$tool-menu-hover-color: $tool-background-color !default;
+$tool-menu-hover-background-color: $primary-color !default;
+$tool-menu-current-background-color: $background-color !default;
+$tool-menu-current-color: $primary-color !default;
+$tool-menu-current-border-color: $primary-color !default;
+$tool-sub-menu-border-color: lighten( $text-color, 5% ) !default;
+$tool-sub-menu-background-color: lighten( $text-color, 5% ) !default;
+$tool-sub-menu-hover-background-color: $primary-color !default;
+$tool-sub-menu-hover-color: $tool-menu-color !default;
+$tool-sub-menu-current-color: $primary-color !default;
+$tool-sub-menu-current-background-color: $background-color !default;
+$tool-sub-menu-current-hover-color: $tool-menu-color !default;
+$tool-sub-menu-current-hover-background-color: $background-color !default;
+
+$main-content-background: $background-color !default;
+$top-header-background: $background-color-secondary !default;
+$sites-nav-background: $top-header-background !default;
 
 $breadcrumbs-color:			 $text-color !default;
 $breadcrumbs-tool-color:		 #185878 !default;
@@ -69,9 +90,14 @@ $button-color-background-color: $primary-color !default;
 $button-color-background-secondary-color: #276488 !default;
 /* ///////////// */
 
-$okcolor: 					 #3c763d !default;
-$errorcolor: 			 	 #f2dede !default;
-$warncolor: 			 	 #F6ECB7 !default;
+$info-color:                $primary-color  !default;
+$info-background-color:     lighten($primary-color, 45%) !default;
+$ok-color:                  #3c763d !default;
+$ok-background-color:        lighten($ok-color, 45%) !default;
+$warn-background-color:     #F6ECB7 !default;
+$warn-color:                darken($warn-background-color, 35%) !default;
+$error-background-color:    #f2dede !default;
+$error-color:               darken($error-background-color, 30%) !default;
 
 $swapped-view-primary: 		 #bf360c !default;
 $swapped-view-text-color:	 #414141 !default;
@@ -85,6 +111,27 @@ $header-gradient-d: #a6c2df !default;
 
 /* Main Menu */
 $header-size : 3.8em !default;
+$sites-nav-menu-item-background: $background-color !default;
+$sites-nav-menu-item-color: $text-color !default;
+$sites-nav-menu-item-color-hover: $primary-color !default;
+$sites-nav-menu-item-border: none !default;
+$sites-nav-menu-item-selected-background: $primary-color !default;
+$sites-nav-menu-item-selected-color: $background-color !default;
+$sites-nav-menu-item-selected-border: none !default;
+$site-name-my-workspace-background: transparent !default;
+$site-name-my-workspace-color: $background-color !default;
+$sites-nav-submenu-background: $background-color !default;
+$sites-nav-submenu-item-background: $sites-nav-menu-item-background !default;
+$sites-nav-submenu-item-color: $sites-nav-menu-item-color !default;
+$sites-nav-submenu-item-border: none !default;
+$sites-nav-submenu-item-background-hover: inherit !default;
+$sites-nav-submenu-item-color-hover: $sites-nav-menu-item-color-hover !default;
+$sites-nav-submenu-item-border-hover: none !default;
+$sites-nav-submenu-item-border: none !default;
+$sites-nav-submenu-selected-background: $sites-nav-menu-item-selected-background !default;
+$sites-nav-submenu-item-selected-background: $sites-nav-menu-item-selected-background !default;
+$sites-nav-submenu-item-selected-color: $sites-nav-menu-item-selected-color !default;
+$sites-nav-submenu-item-selected-border: none !default;
 
 /* Tool Menu */
 $tool-menu-width: 7.5em !default;
@@ -103,6 +150,10 @@ $logo-width: 50px !default;
 /* Tool icons */
 $skin-with-icons: true !default;
 $icon-size: 20px !default;
+
+/* Footer */
+$footer-background: transparent !default;
+$footer-color: $background-color-secondary !default;
 
 @import "customization"; //it is created on-the-fly by maven.
 

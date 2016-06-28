@@ -8,7 +8,7 @@ body{
 	font-weight: $default-font-weight;
 	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
 	&.#{$namespace}portalBody{
-		background:  $background-color;
+		background:  $portal-background-color;
 		@media #{$phone}{
 			background: linear-gradient( to bottom, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df ) fixed;
 			background-size: auto 100%;

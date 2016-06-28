@@ -1,6 +1,6 @@
 .#{$namespace}sakai-assignment-grades {
 	#req-new_assignment_grade_points{
-		color: darken($errorcolor, 30%);
+		color: $error-color;
 	    margin: 9px 0 0 -13px;
 		position: absolute;
 	}
@@ -23,7 +23,7 @@
 		label{
 			&:after{
 				content: "*";
-				color: darken($errorcolor, 30%);
+				color: $error-color;
 				position: relative;
 				top: 3px;
 			}
