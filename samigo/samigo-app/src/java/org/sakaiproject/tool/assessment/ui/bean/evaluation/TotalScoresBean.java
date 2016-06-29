@@ -165,6 +165,8 @@ public class TotalScoresBean
 		// Get allAgents only at the first time
 		if (allAgents == null) {
 			allAgents = getAllAgents();
+			if (allAgents.size() > 500)
+			    maxDisplayedScoreRows = 100;
 		}
 		
 		// For anonymous grading, we want to take out the records that has not been submitted
@@ -993,6 +995,8 @@ public class TotalScoresBean
   
   public void setAllAgents(ArrayList allAgents) {
 	  this.allAgents = allAgents;
+	  if (allAgents.size() > 500)
+	      maxDisplayedScoreRows = 100;
   }
   /**
    * This will populate the SubmissionStatusBean with the data associated with the
