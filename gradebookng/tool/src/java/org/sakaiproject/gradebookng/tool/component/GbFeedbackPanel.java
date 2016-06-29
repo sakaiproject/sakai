@@ -50,4 +50,12 @@ public class GbFeedbackPanel extends FeedbackPanel {
 
 		return newMessageDisplayComponent;
 	}
+
+	/**
+	 * Clear all messages from the feedback panel
+	 */
+	public void clear() {
+		getFeedbackMessages().clear();
+		this.add(AttributeModifier.remove("class"));
+	}
 }

@@ -8,8 +8,8 @@
 }
 
 .topic-filter{
-	background: $toolMenuBGColor;
-	border: 1px solid darken( $toolMenuBGColor, 20% );
+	background: $tool-menu-background-color;
+	border: 1px solid darken( $tool-menu-background-color, 20% );
 	margin: 1em 0;
 	padding: 1em;
 	.topic-header-h3{

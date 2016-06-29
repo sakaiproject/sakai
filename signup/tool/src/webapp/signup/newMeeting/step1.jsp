@@ -228,7 +228,7 @@
                         <h:outputLabel value="#{msgs.event_signup_begins}" styleClass="titleText col-lg-2 form-control-label" for="signupBegins"/>
                     </h:panelGroup>
                     <h:panelGroup layout="block" styleClass="signupBDeadline col-lg-10" id="signup_beginDeadline_2">
-                        <h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="2" required="true" onkeyup="sakai.updateSignupBeginsExact();">
+                        <h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="5" required="true" onkeyup="sakai.updateSignupBeginsExact();">
                             <f:validateLongRange minimum="0" maximum="99999"/>
                         </h:inputText>
                         <h:selectOneMenu id="signupBeginsType" value="#{NewSignupMeetingBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value); sakai.updateSignupBeginsExact();" style="padding-left:5px; margin-right:5px">
@@ -252,7 +252,7 @@
                         <h:outputLabel value="#{msgs.event_signup_deadline2}" styleClass="titleText col-lg-2 form-control-label" for="signupDeadline"/>
                    	</h:panelGroup>
                     <h:panelGroup layout="block" styleClass="signupBDeadline col-lg-10" id="signup_beginDeadline_4">
-                        <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="2" required="true" onkeyup="sakai.updateSignupEndsExact();">
+                        <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="5" required="true" onkeyup="sakai.updateSignupEndsExact();">
                             <f:validateLongRange minimum="0" maximum="99999"/>
                         </h:inputText>
                         <h:selectOneMenu id="signupDeadlineType" value="#{NewSignupMeetingBean.deadlineTimeType}" onchange="sakai.updateSignupEndsExact();" >
