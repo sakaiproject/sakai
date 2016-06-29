@@ -1900,59 +1900,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			if ((lock == null) || (realmId == null)) return false;
 
-			Set<String> roles = getEmptyRoles(userId);
-			Set<Integer> roleIds = getRealmRoleKeys(roles);
-
-			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realm=" + realmId+
-						" roles="+ StringUtils.join(roles, ','));
-
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roleIds);
-			Object[] fields = new Object[3 + roleIds.size()];
-			int pos = 0;
-			for (Integer roleId : roleIds)
-			{
-				fields[pos++] = roleId;
-			}
-			fields[pos++] = userId;
-			fields[pos++] = lock;
-			fields[pos++] = realmId;
-
-
-			// checks to see if the user is the current user and has the roleswap variable set in the session
-			String roleswap = securityService().getUserEffectiveRole(realmId);
-
-            if (roleswap != null && roles.contains(AUTH_ROLE) && userId.equals(sessionManager().getCurrentSessionUserId()))
-            {
-            	fields[0] = roleswap; // set the field to the student role for the alternate sql
-            	statement = dbAuthzGroupSql.getCountRoleFunctionSql(); // set the function for our alternate sql
-            }
-
-			List resultsNew = m_sql.dbRead(statement, fields, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						int count = result.getInt(1);
-						return Integer.valueOf(count);
-					}
-					catch (SQLException ignore)
-					{
-						return null;
-					}
-				}
-			});
-
-			boolean rvNew = false;
-			int countNew = -1;
-			if (!resultsNew.isEmpty())
-			{
-				countNew = ((Integer) resultsNew.get(0)).intValue();
-				rvNew = countNew > 0;
-			}
-
-			return rvNew;
+			return isAllowed(userId,lock,Arrays.asList(new String[]{realmId}));
 		}
 
 		/**
@@ -2043,9 +1991,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (SiteService.GROUP_SUBTYPE.equals(ref.getSubType())) {
 				String containerSiteRef = siteService.siteReference(ref.getContainer());
 			    roleswap = securityService().getUserEffectiveRole(containerSiteRef);
-			    if (roleswap != null) {
-			        siteRef = containerSiteRef;
-			    }
 			} else {
 			    roleswap = securityService().getUserEffectiveRole(siteRef);
 			}
@@ -2066,7 +2011,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 				// Then check the site where there's a roleswap effective
 				if (M_log.isDebugEnabled()) M_log.debug("userId="+userId+", siteRef="+siteRef+", roleswap="+roleswap+", delegatedAccess="+delegatedAccess);
-				Object[] fields2 = new Object[3];
+				// In roleswap check all realms, not for delegated access
+				int fieldCount = 3 + (roleswap!=null?realms.size():1); 
+				Object[] fields2 = new Object[fieldCount];
 				if (roleswap != null) {
 				    fields2[0] = roleswap;
 				} else if (delegatedAccess
@@ -2075,18 +2022,27 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				    fields2[0] = delegatedAccessGroupAndRole[1];
 				}
 				fields2[1] = lock;
+				pos = 2;
 				if (roleswap == null
 				        && delegatedAccess
 				        && delegatedAccessGroupAndRole != null
 				        ) {
 				    // set the realm for delegated access
 				    fields2[2] = delegatedAccessGroupAndRole[0];
+				    pos++;
 				} else {
-				    fields2[2] = siteRef;
+					// Check all realms in roleswap
+					for (String realmId : realms) {
+						fields2[pos++] = realmId;
+					}
 				}
+				fields2[pos] = userId;
 				if (M_log.isDebugEnabled()) M_log.debug("roleswap/dac fields: "+Arrays.toString(fields2));
-
-				statement = dbAuthzGroupSql.getCountRoleFunctionSql();
+				// In delegated access use a single in clause
+				if (roleswap==null) {
+					inClause = orInClause(1, "SAKAI_REALM.REALM_ID");
+				}
+				statement = dbAuthzGroupSql.getCountRoleFunctionSql(inClause);
 
 				results = m_sql.dbRead(statement, fields2, new SqlReader()
 				{
@@ -2111,46 +2067,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					count = ((Integer) results.get(0)).intValue();
 					rv = count > 0;
 				}
-				if (rv) // if true, go ahead and return
-					return true;
-
-				// Then check the rest of the realms. For example these could be subfolders under /content/group/...
-				if(roleswap != null){
-				for (String realmId : realms)
-				{
-					if (realmId == siteRef || realmId == userSiteRef) // we've already checked these so no need to do it again
-						continue;
-
-					fields2[2] = realmId;
-
-					results = m_sql.dbRead(statement, fields2, new SqlReader()
-					{
-						public Object readSqlResultRecord(ResultSet result)
-						{
-							try
-							{
-								int count = result.getInt(1);
-								return Integer.valueOf(count);
-							}
-							catch (SQLException ignore)
-							{
-								return null;
-							}
-						}
-					});
-
-					count = -1;
-					if (!results.isEmpty())
-					{
-						count = ((Integer) results.get(0)).intValue();
-						rv = count > 0;
-					}
-					if (rv) // if true, go ahead and return
-						return true;
-				}
-				}
-				// No successful results for roleswap
-				return false;
+				return rv;
             }
 
 			// Regular lookup (not roleswap)
