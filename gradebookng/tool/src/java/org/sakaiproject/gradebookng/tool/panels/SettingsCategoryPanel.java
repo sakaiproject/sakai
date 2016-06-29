@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -318,6 +319,9 @@ public class SettingsCategoryPanel extends Panel {
 
 				final CategoryDefinition category = item.getModelObject();
 
+				// get the config. If there are no categories, detault is that the settings are enabled.
+				final boolean dropKeepEnabled = BooleanUtils.toBooleanDefaultIfNull(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()), true);
+
 				// note that all of these fields must have an ajaxform behaviour attached
 				// so that their data is persisted into the model.
 				// if they don't, when the listview repaints, they will be cleared
@@ -390,7 +394,8 @@ public class SettingsCategoryPanel extends Panel {
 						// intentionally left blank
 					}
 				});
-				categoryDropHighest.setEnabled(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()));
+				categoryDropHighest.setEnabled(dropKeepEnabled);
+
 				item.add(categoryDropHighest);
 
 				// drop lowest
@@ -405,7 +410,7 @@ public class SettingsCategoryPanel extends Panel {
 						// intentionally left blank
 					}
 				});
-				categoryDropLowest.setEnabled(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()));
+				categoryDropLowest.setEnabled(dropKeepEnabled);
 				item.add(categoryDropLowest);
 
 				// keep highest
@@ -420,7 +425,7 @@ public class SettingsCategoryPanel extends Panel {
 						// intentionally left blank
 					}
 				});
-				categoryKeepHighest.setEnabled(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()));
+				categoryKeepHighest.setEnabled(dropKeepEnabled);
 				item.add(categoryKeepHighest);
 
 				// remove button
