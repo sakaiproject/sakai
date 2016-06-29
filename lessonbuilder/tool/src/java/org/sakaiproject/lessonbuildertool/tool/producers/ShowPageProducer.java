@@ -236,18 +236,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	    int major = 2;
 
-	    if (sakaiVersion != null) {
-		String []parts = sakaiVersion.split("\\.");
-		if (parts.length >= 1) {
-		    try {
-			major = Integer.parseInt(parts[0]);
-		    } catch (Exception e) {
-		    };
+		String majorString = "";
+
+		if (sakaiVersion.endsWith("-SNAPSHOT")) {
+			majorString = sakaiVersion.substring(0, sakaiVersion.indexOf("-SNAPSHOT"));
+		} else {
+			String [] parts = sakaiVersion.split("\\.");
+			if (parts.length >= 1) {
+				majorString = parts[0];
+			}
 		}
-	    }
+
+		try {
+			major = Integer.parseInt(majorString);
+		} catch (NumberFormatException nfe) {
+			log.error(
+				"Failed to parse Sakai version number. This may impact which versions of dependencies are loaded.");
+		}
 
 	    return major;
-
 	}
 
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
