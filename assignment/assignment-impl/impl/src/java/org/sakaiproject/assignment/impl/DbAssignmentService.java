@@ -25,11 +25,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
@@ -44,6 +47,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -76,6 +80,9 @@ public class DbAssignmentService extends BaseAssignmentService
 	
 	/** Extra fields to store in the db with the XML in ASSIGNMENT_SUBMISSION table */
 	protected static final String[] SUBMISSION_FIELDS = { "CONTEXT", "SUBMITTER_ID", "SUBMIT_TIME", "SUBMITTED", "GRADED"};
+
+	/** Oracle in clause limit */
+	protected static final int MAX_IN_CLAUSE_SIZE = 1000;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -433,6 +440,85 @@ public class DbAssignmentService extends BaseAssignmentService
 			{
 				return null;
 			}
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment assignment, List<User> users)
+		{
+			if (assignment == null || assignment.isGroup())
+			{
+				throw new IllegalArgumentException("getSubmissionForUsers invoked with null of group assignment");
+			}
+
+			Map<User, AssignmentSubmission> userSubmissionMap = new HashMap<>();
+
+			if (CollectionUtils.isEmpty(users))
+			{
+				return userSubmissionMap;
+			}
+
+			// Work in batches of 1000 users (due to Oracle's in clause limit)
+			int minUser = 0;
+			int maxUser = Math.min(users.size(), MAX_IN_CLAUSE_SIZE);
+			while (minUser < users.size())
+			{
+				List<User> userSublist = users.subList(minUser, maxUser);
+
+				/* 
+				 * Build a query like: 
+				 * select XML from assignment_submission where (CONTEXT = ? AND SUBMITTER_ID in (?, ?, ...));
+				 */
+				// The sql string
+				StringBuilder sql = new StringBuilder();
+				// fields are the values to be passed in. 1st param is assignment ID, the rest are userIDs
+				String fields[] = new String[1 + userSublist.size()];
+
+				String param = "?";
+				sql.append("select XML from ").append(m_submissionsTableName)
+					.append(" where (").append(SUBMISSION_FIELDS[0]).append(" = ").append(param).append(" AND ")
+					.append(SUBMISSION_FIELDS[1]).append(" in (");
+				fields[0] = caseId(assignment.getId());
+
+				// This map will be useful to retrieve Users from submission.getSubmitterId()
+				Map<String, User> userIdUserMap = new HashMap<>();
+				for (int i = 0; i < userSublist.size(); i++)
+				{
+					User u = userSublist.get(i);
+					String userId = u.getId();
+					userIdUserMap.put(userId, u);
+
+					sql.append(param);
+					// compiler optimizes this (first iteration appends "?", subsequent iterations append ",?")
+					param = ",?";
+					// first field is assignmentId, all userId fields' indices are shifted up 1
+					fields[i + 1] = userId;
+				}
+				// append "))" to close "in (" and "where("
+				sql.append("))");
+
+				List xmlResources = m_sql.dbRead(sql.toString(), fields, null);
+				for (Object xml : xmlResources)
+				{
+					AssignmentSubmission submission = (AssignmentSubmission) readResource((String) xml);
+					String submitterId = submission.getSubmitterId();
+					User u = userIdUserMap.get(submitterId);
+					if (u == null)
+					{
+						M_log.warn("getUserSubmissionMap() - submission's submitterId not found in the original user list");
+					}
+					else
+					{
+						userSubmissionMap.put(u, submission);
+					}
+				}
+
+				minUser += MAX_IN_CLAUSE_SIZE;
+				maxUser = Math.min(users.size(), minUser + MAX_IN_CLAUSE_SIZE);
+			}
+
+			return userSubmissionMap;
 		}
 		
 		/**
