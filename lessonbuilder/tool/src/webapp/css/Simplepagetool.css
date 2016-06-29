@@ -1490,6 +1490,9 @@ font-size: 90%;
 .portletBody {
   margin-top:2px;
 }
+.PagePicker {
+  margin-top:12px;
+}
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
 .Mrphs-container--toolTitleNav {
@@ -1497,6 +1500,9 @@ font-size: 90%;
 }
 .genTitle {
   display:none;
+}
+div.portletBody {
+  margin-top:0px;
 }
 /* student mode only */
 .genTitle ~ .action {
