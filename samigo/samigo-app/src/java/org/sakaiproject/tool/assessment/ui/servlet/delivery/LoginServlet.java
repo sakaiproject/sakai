@@ -135,7 +135,10 @@ public class LoginServlet
     }
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());
-    delivery.setHonorPledge(pub.getAssessmentAccessControl().getHonorPledge());
+    Boolean honorPledge = pub.getAssessmentAccessControl().getHonorPledge();
+    if (honorPledge == null)
+	honorPledge = false;
+    delivery.setHonorPledge(honorPledge);
     delivery.setPublishedAssessment(pub);
 
     BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
