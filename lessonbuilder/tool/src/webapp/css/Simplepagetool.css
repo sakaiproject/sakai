@@ -1423,9 +1423,7 @@ font-size: 90%;
 .genTitle {
   display:none;
 }
-div.portletBody {
-  margin-top:0px;
-}
+
 /* student mode only */
 .genTitle ~ .action {
   margin-top:-5px;
