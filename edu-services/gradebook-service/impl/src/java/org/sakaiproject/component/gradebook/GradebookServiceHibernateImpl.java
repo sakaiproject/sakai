@@ -3046,9 +3046,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			//determine the grade we should be using depending on the grading type
 			if (gb.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
 				grade = calculateEquivalentPointValueForPercent(pointsPossible, NumberUtils.createDouble(rawGrade));
-			}
-			if (gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER){
+			} else if (gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER){
 				grade = gradingSchema.get(rawGrade);
+			} else {
+				grade = NumberUtils.createDouble(rawGrade);
 			}
 									
 			//recreate the category (required fields only)
