@@ -12,8 +12,9 @@ import java.util.Map;
 public enum GbGradingType {
 
 	POINTS(1),
-	PERCENTAGE(2);
-
+	PERCENTAGE(2),
+	LETTER(3);
+	
 	private int value;
 
 	GbGradingType(final int value) {
