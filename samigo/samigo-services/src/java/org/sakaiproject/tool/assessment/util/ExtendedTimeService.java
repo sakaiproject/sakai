@@ -70,14 +70,14 @@ public class ExtendedTimeService {
 		this.hasExtendedTime = (metaString != null);
 		if (this.hasExtendedTime) {
 			this.timeLimit = extractExtendedTime();
-			this.startDate = determineDate(1, publishedAssessment.getAssessmentAccessControl().getStartDate());
-			this.dueDate = determineDate(2, publishedAssessment.getAssessmentAccessControl().getDueDate());
-			this.retractDate = determineDate(3, publishedAssessment.getAssessmentAccessControl().getRetractDate());
+			this.startDate = determineDate(1, publishedAssessment.getStartDate());
+			this.dueDate = determineDate(2, publishedAssessment.getDueDate());
+			this.retractDate = determineDate(3, publishedAssessment.getRetractDate());
 		} else {
 			this.timeLimit = 0;
-			this.startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
-			this.dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
-			this.retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
+			this.startDate = publishedAssessment.getStartDate();
+			this.dueDate = publishedAssessment.getDueDate();
+			this.retractDate = publishedAssessment.getRetractDate();
 		}
 	}
 
@@ -85,13 +85,13 @@ public class ExtendedTimeService {
 	private boolean assessmentInitialized(PublishedAssessmentFacade publishedAssessment) {
 		if (publishedAssessment == null)
 			return false;
-		if (publishedAssessment.getAssessmentAccessControl().getStartDate() != null)
+		if (publishedAssessment.getStartDate() != null)
 			return true;
-		if (publishedAssessment.getAssessmentAccessControl().getDueDate() != null)
+		if (publishedAssessment.getDueDate() != null)
 			return true;
-		if (publishedAssessment.getAssessmentAccessControl().getRetractDate() != null)
+		if (publishedAssessment.getRetractDate() != null)
 			return true;
-		if (publishedAssessment.getAssessmentAccessControl().getTimeLimit() != null)
+		if (publishedAssessment.getTimeLimit() != null)
 			return true;
 		return false;
 	}
