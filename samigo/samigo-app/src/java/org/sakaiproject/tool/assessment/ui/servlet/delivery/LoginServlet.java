@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import javax.faces.component.UICommand;
 import javax.faces.component.UIComponent;
 import javax.faces.event.ActionEvent;
@@ -135,7 +137,8 @@ public class LoginServlet
     }
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());
-    delivery.setHonorPledge(pub.getAssessmentAccessControl().getHonorPledge());
+    Boolean honorPledge = BooleanUtils.toBoolean(pub.getAssessmentAccessControl().getHonorPledge());
+    delivery.setHonorPledge(honorPledge);
     delivery.setPublishedAssessment(pub);
 
     BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
