@@ -1900,59 +1900,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			if ((lock == null) || (realmId == null)) return false;
 
-			Set<String> roles = getEmptyRoles(userId);
-			Set<Integer> roleIds = getRealmRoleKeys(roles);
-
-			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realm=" + realmId+
-						" roles="+ StringUtils.join(roles, ','));
-
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roleIds);
-			Object[] fields = new Object[3 + roleIds.size()];
-			int pos = 0;
-			for (Integer roleId : roleIds)
-			{
-				fields[pos++] = roleId;
-			}
-			fields[pos++] = userId;
-			fields[pos++] = lock;
-			fields[pos++] = realmId;
-
-
-			// checks to see if the user is the current user and has the roleswap variable set in the session
-			String roleswap = securityService().getUserEffectiveRole(realmId);
-
-            if (roleswap != null && roles.contains(AUTH_ROLE) && userId.equals(sessionManager().getCurrentSessionUserId()))
-            {
-            	fields[0] = roleswap; // set the field to the student role for the alternate sql
-            	statement = dbAuthzGroupSql.getCountRoleFunctionSql(); // set the function for our alternate sql
-            }
-
-			List resultsNew = m_sql.dbRead(statement, fields, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						int count = result.getInt(1);
-						return Integer.valueOf(count);
-					}
-					catch (SQLException ignore)
-					{
-						return null;
-					}
-				}
-			});
-
-			boolean rvNew = false;
-			int countNew = -1;
-			if (!resultsNew.isEmpty())
-			{
-				countNew = ((Integer) resultsNew.get(0)).intValue();
-				rvNew = countNew > 0;
-			}
-
-			return rvNew;
+			return isAllowed(userId,lock,Arrays.asList(new String[]{realmId}));
 		}
 
 		/**
@@ -2066,7 +2014,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 				// Then check the site where there's a roleswap effective
 				if (M_log.isDebugEnabled()) M_log.debug("userId="+userId+", siteRef="+siteRef+", roleswap="+roleswap+", delegatedAccess="+delegatedAccess);
-				Object[] fields2 = new Object[3];
+				Object[] fields2 = new Object[4];
 				if (roleswap != null) {
 				    fields2[0] = roleswap;
 				} else if (delegatedAccess
@@ -2084,6 +2032,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				} else {
 				    fields2[2] = siteRef;
 				}
+				fields2[3] = userId;
 				if (M_log.isDebugEnabled()) M_log.debug("roleswap/dac fields: "+Arrays.toString(fields2));
 
 				statement = dbAuthzGroupSql.getCountRoleFunctionSql();
