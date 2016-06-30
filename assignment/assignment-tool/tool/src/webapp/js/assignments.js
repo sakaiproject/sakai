@@ -267,7 +267,13 @@ ASN.setupAssignNew = function(){
             $(this).children('.countDisplay').text($(this).find('.countHolder').text());
         }
     });
-    
+
+    $("#optionsAccordion").accordion({
+        collapsible: true,
+        header: "h4",
+        heightStyle: "content",
+        active: false
+    });
 };
 
 ASN.resizeFrame = function(updown)
@@ -614,7 +620,7 @@ ASN.toggleAddOptions = function(checked){
             $("#site").prop("disabled", true);
             $("#groups").prop("checked", true).trigger("click");
         }
-    }
+    };
     
 ASN.toggleReviewServiceOptions = function(checked){
     var section = document.getElementById("reviewServiceOptions");
@@ -856,7 +862,7 @@ ASN.toggleAllowResubmissionPanel = function()
     {
         allow.value = "checked";
     }
-}
+};
 
 ASN.toggleSendFeedbackPanel = function()
 {
@@ -868,14 +874,14 @@ ASN.toggleSendFeedbackPanel = function()
     var showLabel = document.getElementById("showSendFeedbackLabel");
     var hideLabel = document.getElementById("hideSendFeedbackLabel");
     ASN.swapDisplay(showLabel, hideLabel);
-}
+};
 
 ASN.swapDisplay = function(elem1, elem2)
 {
     var tmpDisplay = elem1.style.display;
     elem1.style.display = elem2.style.display;
     elem2.style.display = tmpDisplay;
-}
+};
 
 ASN.toggleIsGroupSubmission = function(checked){
     if (checked) {
@@ -958,4 +964,4 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
         header.src = expand;
         content.style.display = "none";
     }
-}
+};
