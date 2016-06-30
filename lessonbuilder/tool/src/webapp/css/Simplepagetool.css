@@ -239,6 +239,7 @@ body .below-link-help, #error.below-link-help {
 }
 body .error-spacingabove {
    margin-top: 30px;
+   clear:both;
 }
 body .error-nospacebelow {
    margin-bottom: 0px;
