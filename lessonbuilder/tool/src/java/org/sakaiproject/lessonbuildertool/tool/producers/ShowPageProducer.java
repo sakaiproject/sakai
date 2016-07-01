@@ -227,24 +227,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
         String browserString = ""; // set by checkIEVersion;
     	public static int majorVersion = getMajorVersion();
+        public static String fullVersion = getFullVersion();
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public static int getMajorVersion() {
 
-	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "12");
 
 	    int major = 2;
 
 		String majorString = "";
 
-		if (sakaiVersion.endsWith("-SNAPSHOT")) {
-			majorString = sakaiVersion.substring(0, sakaiVersion.indexOf("-SNAPSHOT"));
-		} else {
-			String [] parts = sakaiVersion.split("\\.");
-			if (parts.length >= 1) {
-				majorString = parts[0];
-			}
+		// use - as separator to handle -SNAPSHOT, etc.
+		String [] parts = sakaiVersion.split("[-.]");
+		if (parts.length >= 1) {
+		    majorString = parts[0];
 		}
 
 		try {
@@ -255,6 +253,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 	    return major;
+	}
+
+	public static String getFullVersion() {
+
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "12");
+
+	    int i = sakaiVersion.indexOf("-"); // for -snapshot
+	    if (i >= 0)
+		sakaiVersion = sakaiVersion.substring(0, i);
+	    
+	    return sakaiVersion;
 	}
 
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
@@ -396,6 +405,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", 
 		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js"));
+
+		UIOutput.make(tofill, "portletBody").decorate(new UIFreeAttributeDecorator("sakaimajor", Integer.toString(majorVersion)))
+		    .decorate(new UIFreeAttributeDecorator("sakaiversion", fullVersion));
 
 		boolean iframeJavascriptDone = false;
 		
