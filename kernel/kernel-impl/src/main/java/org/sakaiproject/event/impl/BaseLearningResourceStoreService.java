@@ -66,7 +66,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     private static final String ORIGIN_SAKAI_SYSTEM = "sakai.system";
     private static final String ORIGIN_SAKAI_CONTENT = "sakai.resources";
 
-    private static final Log log = LogFactory.getLog(BaseLearningResourceStoreService.class);
+    private static final Logger log = LoggerFactory.getLogger(BaseLearningResourceStoreService.class);
 
     /**
      * Stores the complete set of known LRSP providers (from the Spring AC or registered manually)
