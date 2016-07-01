@@ -1713,9 +1713,8 @@
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
-		#set($submitnotif="submitnotifBottom")
 		<div class="row col-sm-12">
-			#buttonBar($submitnotif)
+			#buttonBar()
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
