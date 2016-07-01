@@ -16,6 +16,12 @@
   position: relative;
   border-bottom: 1px solid rgba(165, 138, 29, 0.1);
 }
+
+.pasystem-banner-alert-message {
+  display: inline-block;
+  width: 92%;
+}
+
 .pasystem-banner-alert:before {
   font-family: 'pasystem-icons';
   float: left;
