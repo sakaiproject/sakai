@@ -83,15 +83,19 @@ public class GbHeadersToolbar extends HeadersToolbar {
 					categoryItem.add(new Label("name", category.getName()));
 					categoryItem.add(page.buildFlagWithPopover("extraCreditCategoryFlag",
 							getString("label.gradeitem.extracreditcategory")).setVisible(category.isExtraCredit()));
-					categoryItem.add(new AttributeModifier("title",
-						new StringResourceModel("label.gradeitem.categoryheadertooltip", null,
-							new Object[] {category.getName()})));
 
 					if (GbCategoryType.WEIGHTED_CATEGORY.equals(categoryType) && category.getWeight() != null) {
 						final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
 						categoryItem.add(new Label("weight", weight));
+						categoryItem.add(new AttributeModifier("title",
+							new StringResourceModel("label.gradeitem.categoryandweightheadertooltip", null,
+								new Object[] {category.getName(), weight})));
 					} else {
 						categoryItem.add(new WebMarkupContainer("weight").setVisible(false));
+						categoryItem.add(new AttributeModifier("title",
+							new StringResourceModel("label.gradeitem.categoryheadertooltip", null,
+								new Object[] {category.getName()})));
+
 					}
 				}
 			});
