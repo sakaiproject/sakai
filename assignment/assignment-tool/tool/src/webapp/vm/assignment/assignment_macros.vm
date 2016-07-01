@@ -35,7 +35,7 @@
 #end
 
 ## Defining macro to repeat buttons at the top and bottom of the page
-#macro( buttonBar $submitnotif )
+#macro( buttonBar )
     <div class="act">
         <input accesskey="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'post', null, null ); return false;" />
         <input accesskey="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'preview', null, null ); return false;" />
