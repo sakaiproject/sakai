@@ -3473,7 +3473,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" and (a.attemptDate <= c.retractDate " +
 							" or (c.dueDate <= :dueDate and c.lateHandling = 2) " +
 // This clause is to find which items also have extendedTime, but I feel like it's unnecessary and will fit into one of the other two criteria?
-//							" or a.publishedAssessmentId in (select p.assessment.publishedAssessmentId from PublishedMetaData p where p.label='extendedTime1')) " +
+//							" or a.publishedAssessmentId in (select p.assessment.publishedAssessmentId from PublishedMetaData p where p.label='extendedTime1') " +
+						"     ) " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 	    
 		query.setTimestamp("dueDate",currentTime);
