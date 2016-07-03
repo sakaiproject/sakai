@@ -31,7 +31,7 @@
 }
 #gradebookHorizontalOverflowWrapper {
   width: 100%;
-  padding-bottom: 120px;
+  padding-bottom: 160px;
   overflow: auto;
   position: relative;
   -webkit-overflow-scrolling: touch;
