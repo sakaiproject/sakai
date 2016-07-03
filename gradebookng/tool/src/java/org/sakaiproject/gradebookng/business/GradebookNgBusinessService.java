@@ -21,7 +21,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -38,7 +37,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
-import org.sakaiproject.gradebookng.business.util.Temp;
+import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -373,13 +372,13 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = this.getGradebook();
 		final CourseGrade courseGrade = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
-		
+
 		// handle the special case in the gradebook service where totalPointsPossible = -1
 		if(courseGrade != null && (courseGrade.getTotalPointsPossible() == null || courseGrade.getTotalPointsPossible() == -1)) {
 			courseGrade.setTotalPointsPossible(null);
 			courseGrade.setPointsEarned(null);
 		}
-		
+
 		return courseGrade;
 	}
 
@@ -424,7 +423,7 @@ public class GradebookNgBusinessService {
 		if (gradebook == null) {
 			return GradeSaveResponse.ERROR;
 		}
-		
+
 		//if newGrade is null, no change
 		if(newGrade == null) {
 			return GradeSaveResponse.NO_CHANGE;
@@ -580,18 +579,18 @@ public class GradebookNgBusinessService {
 		// settings could be null depending on constructor so it needs to be corrected
 		final GradebookUiSettings settings = (uiSettings != null) ? uiSettings : new GradebookUiSettings();
 
-		final StopWatch stopwatch = new StopWatch();
+		final GbStopWatch stopwatch = new GbStopWatch();
 		stopwatch.start();
-		Temp.timeWithContext("buildGradeMatrix", "buildGradeMatrix start", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "buildGradeMatrix start", stopwatch.getTime());
 
 		final Gradebook gradebook = this.getGradebook();
 		if (gradebook == null) {
 			return null;
 		}
-		Temp.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
 
 		final boolean categoriesEnabled = categoriesAreEnabled();
-		Temp.timeWithContext("buildGradeMatrix", "categoriesAreEnabled", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "categoriesAreEnabled", stopwatch.getTime());
 
 		// get current user
 		final String currentUserUuid = getCurrentUser().getId();
@@ -621,7 +620,7 @@ public class GradebookNgBusinessService {
 		// get course grades
 		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
 
-		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 
 		// setup a map because we progressively build this up by adding grades
 		// to a student's entry
@@ -653,7 +652,7 @@ public class GradebookNgBusinessService {
 			// add to map so we can build on it later
 			matrix.put(student.getId(), sg);
 		}
-		Temp.timeWithContext("buildGradeMatrix", "matrix seeded", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "matrix seeded", stopwatch.getTime());
 
 		// get categories. This call is filtered for TAs as well.
 		final List<CategoryDefinition> categories = this.getGradebookCategories();
@@ -722,7 +721,7 @@ public class GradebookNgBusinessService {
 			// get grades
 			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(),
 					assignment.getId(), studentUuids);
-			Temp.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(),
+			stopwatch.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(),
 					stopwatch.getTime());
 
 			// iterate the definitions returned and update the record for each
@@ -739,10 +738,10 @@ public class GradebookNgBusinessService {
 					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
 				}
 			}
-			Temp.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(),
+			stopwatch.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(),
 					stopwatch.getTime());
 		}
-		Temp.timeWithContext("buildGradeMatrix", "matrix built", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "matrix built", stopwatch.getTime());
 
 		// build category columns
 		for (final CategoryDefinition category : categories) {
@@ -784,7 +783,7 @@ public class GradebookNgBusinessService {
 			}
 
 		}
-		Temp.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
 
 		// course grade override. if no grades, course grade should be - instead
 		// of 'F'
@@ -800,7 +799,7 @@ public class GradebookNgBusinessService {
 		// sg.setCourseGrade("-");
 		// }
 		// }
-		// Temp.timeWithContext("buildGradeMatrix", "course grade override
+		// stopwatch.timeWithContext("buildGradeMatrix", "course grade override
 		// done", stopwatch.getTime());
 
 		// for a TA, apply the permissions to each grade item to see if we can
@@ -917,7 +916,7 @@ public class GradebookNgBusinessService {
 					}
 				}
 			}
-			Temp.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
+			stopwatch.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
 		}
 
 		// get the matrix as a list of GbStudentGradeInfo
@@ -938,7 +937,7 @@ public class GradebookNgBusinessService {
 				Collections.reverse(items);
 			}
 		}
-		Temp.timeWithContext("buildGradeMatrix", "matrix sorted by assignment", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by assignment", stopwatch.getTime());
 
 		// sort the matrix based on the supplied category sort order (if any)
 		if (settings.getCategorySortOrder() != null) {
@@ -955,7 +954,7 @@ public class GradebookNgBusinessService {
 				Collections.reverse(items);
 			}
 		}
-		Temp.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
 
 		if (settings.getCourseGradeSortOrder() != null) {
 			// sort
@@ -966,7 +965,7 @@ public class GradebookNgBusinessService {
 				Collections.reverse(items);
 			}
 		}
-		Temp.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
+		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
 
 		return items;
 	}
@@ -1229,7 +1228,7 @@ public class GradebookNgBusinessService {
 
 		final List<GbGradeCell> rval = new ArrayList<>();
 
-		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid, SortType.SORT_BY_SORTING);;
+		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid, SortType.SORT_BY_SORTING);
 		final List<Long> assignmentIds = assignments.stream().map(a -> a.getId()).collect(Collectors.toList());
 		final List<GradingEvent> events = this.gradebookService.getGradingEvents(assignmentIds, since);
 
@@ -1841,25 +1840,25 @@ public class GradebookNgBusinessService {
 		final ResourceLoader rl = new ResourceLoader();
 		return rl.getLocale();
 	}
-	
+
 	/**
 	 * Helper to check if a user is roleswapped
-	 * 
+	 *
 	 * @return true if ja, false if nay.
 	 */
 	public boolean isUserRoleSwapped() {
-		
+
 		final String siteId = getCurrentSiteId();
-		
+
 		try {
-			Site site = this.siteService.getSite(siteId);
-				
+			final Site site = this.siteService.getSite(siteId);
+
 			//they are roleswapped if they have an 'effective role'
-			String effectiveRole = this.securityService.getUserEffectiveRole(site.getReference());
+			final String effectiveRole = this.securityService.getUserEffectiveRole(site.getReference());
 			if(StringUtils.isNotBlank(effectiveRole)) {
 				return true;
 			}
-		} catch (IdUnusedException e) {
+		} catch (final IdUnusedException e) {
 			//something has happened between getting the siteId and getting the site.
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
 		}
@@ -1948,7 +1947,7 @@ public class GradebookNgBusinessService {
 
 		private List<String> ascendingGrades;
 
-		public CourseGradeComparator(GradebookInformation gradebookInformation) {
+		public CourseGradeComparator(final GradebookInformation gradebookInformation) {
 			final Map<String, Double> gradeMap = gradebookInformation.getSelectedGradingScaleBottomPercents();
 			this.ascendingGrades = new ArrayList<>(gradeMap.keySet());
 			this.ascendingGrades.sort(new Comparator<String>() {
@@ -1963,8 +1962,8 @@ public class GradebookNgBusinessService {
 
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
-			CourseGrade cg1 = g1.getCourseGrade().getCourseGrade();
-			CourseGrade cg2 = g2.getCourseGrade().getCourseGrade();
+			final CourseGrade cg1 = g1.getCourseGrade().getCourseGrade();
+			final CourseGrade cg2 = g2.getCourseGrade().getCourseGrade();
 
 			String letterGrade1 = cg1.getMappedGrade();
 			if (cg1.getEnteredGrade() != null) {
@@ -1975,11 +1974,11 @@ public class GradebookNgBusinessService {
 				letterGrade2 = cg2.getEnteredGrade();
 			}
 
-			int gradeIndex1 = ascendingGrades.indexOf(letterGrade1);
-			int gradeIndex2 = ascendingGrades.indexOf(letterGrade2);
+			final int gradeIndex1 = this.ascendingGrades.indexOf(letterGrade1);
+			final int gradeIndex2 = this.ascendingGrades.indexOf(letterGrade2);
 
-			Double calculatedGrade1 = Double.valueOf(cg1.getCalculatedGrade());
-			Double calculatedGrade2 = Double.valueOf(cg2.getCalculatedGrade());
+			final Double calculatedGrade1 = Double.valueOf(cg1.getCalculatedGrade());
+			final Double calculatedGrade2 = Double.valueOf(cg2.getCalculatedGrade());
 
 			return new CompareToBuilder()
 					.append(gradeIndex1, gradeIndex2)
