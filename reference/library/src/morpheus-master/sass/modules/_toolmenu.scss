@@ -72,6 +72,9 @@ body.#{$namespace}toolMenu-collapsed{
 }
 
 #toolMenuWrap{
+	#toolMenu {
+		position: relative;
+	}
 	background: $tool-menu-background-color;
 	display: block;
 	min-width: $tool-menu-width;

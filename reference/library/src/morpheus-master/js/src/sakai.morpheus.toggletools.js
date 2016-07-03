@@ -30,12 +30,30 @@ function toggleMinimizeNav(){
 $PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
 
 var collapsed = false;
+var initialOffset;
+var $window = $PBJQ(window),
+	offset 	= $("#toolMenu").offset();
 
 $PBJQ(document).ready(function(){
 	if(getCookieVal('sakai_nav_minimized') === 'true') {
 		$PBJQ(".js-toggle-nav").click();
 		collapsed = true;
 	}
+	initialOffset = $("#toolMenu").offset().top - $window.scrollTop();
+	$PBJQ(window).scroll(function(){
+		if($("#toolMenuWrap").css('position') !== 'fixed') {
+			var fromTop = $("#toolMenu").offset().top - $window.scrollTop();
+			if($window.scrollTop() > offset.top) {
+				$("#toolMenu").stop().animate({
+	                top: $window .scrollTop() - offset.top
+	            });
+			} else {
+				$("#toolMenu").stop().animate({
+					top: 0
+	            });
+			}
+		}
+	});
 });
 
 function getCookieVal(cookieName) {
