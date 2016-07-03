@@ -382,50 +382,98 @@ public class SettingsCategoryPanel extends Panel {
 				});
 				item.add(extraCredit);
 
-				// drop highest
-				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest",
-						new PropertyModel<Integer>(category, "dropHighest"));
+				// declare these here so we can work with the values. Config updated afterwards
+				// mutually exclusive rules apply here
+				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest", new PropertyModel<Integer>(category, "dropHighest"));
+				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest", new PropertyModel<Integer>(category, "drop_lowest"));
+				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest", new PropertyModel<Integer>(category, "keepHighest"));
+
+				boolean categoryDropHighestEnabled = true;
+				boolean categoryDropLowestEnabled = true;
+				boolean categoryKeepHighestEnabled = true;
+
+				if(category.getDropHighest().intValue() > 0) {
+					categoryKeepHighest.setModelValue(new String[]{"0"});
+					categoryKeepHighestEnabled = false;
+				}
+
+				if(category.getDrop_lowest().intValue() > 0) {
+					categoryKeepHighest.setModelValue(new String[]{"0"});
+					categoryKeepHighestEnabled = false;
+				}
+
+				if(category.getKeepHighest().intValue() > 0) {
+					categoryDropHighest.setModelValue(new String[]{"0"});
+					categoryDropLowest.setModelValue(new String[]{"0"});
+					categoryDropHighestEnabled = false;
+					categoryDropLowestEnabled = false;
+				}
+
+				// drop highest config
 				categoryDropHighest.setOutputMarkupId(true);
 				categoryDropHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						// intentionally left blank
+						// if drop highest is non zero, keep highest is to be unavailable
+						final Integer value = categoryDropHighest.getModelObject();
+						categoryKeepHighest.setEnabled(true);
+						if(value.intValue() > 0) {
+							categoryKeepHighest.setModelValue(new String[]{"0"});
+							categoryKeepHighest.setEnabled(false);
+						}
+						target.add(categoryKeepHighest);
 					}
 				});
-				categoryDropHighest.setEnabled(dropKeepEnabled);
+				categoryDropHighest.setEnabled(dropKeepEnabled && categoryDropHighestEnabled);
 
 				item.add(categoryDropHighest);
 
-				// drop lowest
-				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest",
-						new PropertyModel<Integer>(category, "drop_lowest"));
+				// drop lowest config
 				categoryDropLowest.setOutputMarkupId(true);
 				categoryDropLowest.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						// intentionally left blank
+						// if drop lowest is non zero, keep highest is to be unavailable
+						// however also need to check the drop highest value here also
+						final Integer value1 = categoryDropLowest.getModelObject();
+						final Integer value2 = categoryDropHighest.getModelObject();
+						categoryKeepHighest.setEnabled(true);
+						if(value1.intValue() > 0 || value2.intValue() > 0) {
+							categoryKeepHighest.setModelValue(new String[]{"0"});
+							categoryKeepHighest.setEnabled(false);
+						}
+						target.add(categoryKeepHighest);
 					}
 				});
-				categoryDropLowest.setEnabled(dropKeepEnabled);
+				categoryDropLowest.setEnabled(dropKeepEnabled && categoryDropLowestEnabled);
 				item.add(categoryDropLowest);
 
-				// keep highest
-				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest",
-						new PropertyModel<Integer>(category, "keepHighest"));
+				// keep highest config
 				categoryKeepHighest.setOutputMarkupId(true);
 				categoryKeepHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						// intentionally left blank
+						// if keep highest is non zero, drop highest AND drop lowest are to be unavailable
+						final Integer value = categoryKeepHighest.getModelObject();
+						categoryDropHighest.setEnabled(true);
+						categoryDropLowest.setEnabled(true);
+						if(value.intValue() > 0) {
+							categoryDropHighest.setModelValue(new String[]{"0"});
+							categoryDropHighest.setEnabled(false);
+							categoryDropLowest.setModelValue(new String[]{"0"});
+							categoryDropLowest.setEnabled(false);
+						}
+						target.add(categoryDropHighest);
+						target.add(categoryDropLowest);
 					}
 				});
-				categoryKeepHighest.setEnabled(dropKeepEnabled);
+				categoryKeepHighest.setEnabled(dropKeepEnabled && categoryKeepHighestEnabled);
 				item.add(categoryKeepHighest);
 
 				// remove button
