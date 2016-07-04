@@ -3523,8 +3523,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						ExtendedTimeService assessmentExtended = new ExtendedTimeService(assessment,adata.getAgentId());
 						//If it has extended time, just continue for now, no method to tell if the time is passed
 						if (assessmentExtended.hasExtendedTime()) {
-							//If the due date or retract date hasn't passed yet, go on to the next one
-							if (assessmentExtended.getRetractDate().before(currentTime) || assessmentExtended.getDueDate().before(currentTime)) {
+							//If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
+							if (currentTime.before(assessmentExtended.getRetractDate()) || currentTime.before(assessmentExtended.getDueDate())) {
 								continue;
 							}
 							//Continue on and try to submit it but it may be late, just change the due date
