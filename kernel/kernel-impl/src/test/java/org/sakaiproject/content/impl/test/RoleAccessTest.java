@@ -85,6 +85,9 @@ public class RoleAccessTest extends SakaiKernelTestBase {
         _ags.removeAuthzGroup(_chs.getReference(PHOTOS_COLLECTION));
         _chs.removeCollection(IMAGES_COLLECTION);
         _ags.removeAuthzGroup(_chs.getReference(IMAGES_COLLECTION));
+        // Mark as deleted.
+        _ss.removeSite(_ss.getSite(SITE_ID));
+        // Remove the deleted site.
         _ss.removeSite(_ss.getSite(SITE_ID));
     }
 
