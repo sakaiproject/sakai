@@ -1487,7 +1487,7 @@ public class SiteAction extends PagedResourceActionII {
 			Hashtable views = new Hashtable();
 
 			// Allow a user to see their deleted sites.
-			if (ServerConfigurationService.getBoolean("site.soft.deletion", false)) {
+			if (ServerConfigurationService.getBoolean("site.soft.deletion", true)) {
 				views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
 				if (SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED))) {
 					context.put("canSeeSoftlyDeletedSites", true);
@@ -1529,7 +1529,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 				// Allow SuperUser to see all deleted sites.
-				if (ServerConfigurationService.getBoolean("site.soft.deletion", false)) {
+				if (ServerConfigurationService.getBoolean("site.soft.deletion", true)) {
 					views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
 				}
 
@@ -1795,7 +1795,7 @@ public class SiteAction extends PagedResourceActionII {
 			String user = SessionManager.getCurrentSessionUserId();
 			String workspace = SiteService.getUserSiteId(user);
 			// Are we attempting to softly delete a site.
-			boolean softlyDeleting = ServerConfigurationService.getBoolean("site.soft.deletion", false);
+			boolean softlyDeleting = ServerConfigurationService.getBoolean("site.soft.deletion", true);
 			if (removals != null && removals.length != 0) {
 				for (int i = 0; i < removals.length; i++) {
 					String id = (String) removals[i];
