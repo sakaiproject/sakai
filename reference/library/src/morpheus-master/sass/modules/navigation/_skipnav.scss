@@ -17,6 +17,7 @@
 				padding: 7px 5px;
 				position: fixed;
 				text-decoration: none;
+				text-transform: capitalize;
 				top: 9px;
 				z-index: 100000;
 			}
@@ -28,7 +29,7 @@
 	@media #{$phone}{
 		position: fixed;
 		z-index: 20;
-		top: 3.2em;
+		top: 3.6em;
 		left: 0;
 		background: lighten($tool-menu-color, 15% );
 		width: 100%;
@@ -48,17 +49,23 @@
 		}
 		li{
 			@include flex-basis( 50% );
+			border-right: 1px solid #999;
+			
+			&:last-of-type
+			{
+			    border-right: 0 none;
+			}
+			
 			&.#{$namespace}skipNav__menuitem--content{
 				display: none;
 			}
-			&.#{$namespace}skipNav__menuitem--tools{
-				border-right: 1px solid #999;
-			}
 			a{
+				@include display-flex( flex );
+				@include justify-content( center );
+				@include align-items( center );
 				color: $background-color;
-				display: block;
 				text-align: center;
-				font-size: 11px;
+				font-size: 12px;
 				padding: 0.7em 0.5em;
 				text-decoration: none;
 				text-transform: uppercase;
@@ -66,6 +73,13 @@
 				max-width: 100%;
 				overflow: hidden;
 				text-overflow: ellipsis;
+				
+				&:hover, &:active
+				{
+				    color: $background-color;
+				    text-decoration: none;
+				    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0.15) inset;
+				}
 			}
 		}
 	}
