@@ -545,7 +545,7 @@ public class GradebookPage extends BasePage {
 			protected void onInitialize() {
 				super.onInitialize();
 				if (settings.isCategoriesEnabled()) {
-					add(new AttributeModifier("class", "on"));
+					add(new AttributeAppender("class", " on"));
 				}
 				add(new AttributeModifier("aria-pressed", settings.isCategoriesEnabled()));
 			}
