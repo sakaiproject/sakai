@@ -224,6 +224,17 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>deploy-skip</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/webapp</exists>
+        </file>
+      </activation>
+      <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+      </properties>
+    </profile>
   </profiles>
 
   <pluginRepositories>
