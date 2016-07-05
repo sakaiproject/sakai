@@ -24,7 +24,7 @@ The Public Announcement system provides:
 You can control the Public Announcement system with the following
 properties:
 
-  * pasystem.enabled (default: false) -- Whether or not to show popups
+  * pasystem.enabled (default: true) -- Whether or not to show popups
     and banners to users.
 
   * pasystem.auto.ddl (default: false) -- Whether to automatically
