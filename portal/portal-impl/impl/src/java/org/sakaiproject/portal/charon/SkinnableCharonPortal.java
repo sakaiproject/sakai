@@ -1772,7 +1772,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String userWarning = (String) s.getAttribute("userWarning");
 			rcontext.put("userWarning", new Boolean(StringUtils.isNotEmpty(userWarning)));
 
-			if (ServerConfigurationService.getBoolean("pasystem.enabled", false)) {
+			if (ServerConfigurationService.getBoolean("pasystem.enabled", true)) {
 			    PASystem paSystem = (PASystem) ComponentManager.get(PASystem.class);
 			    rcontext.put("paSystemEnabled", true);
 			    rcontext.put("paSystem", paSystem);
