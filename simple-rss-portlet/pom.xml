@@ -123,6 +123,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.sourceVersion>1.6</project.build.sourceVersion>
 		<project.build.targetVersion>1.6</project.build.targetVersion>
+		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
   
 	<build>

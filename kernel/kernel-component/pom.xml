@@ -19,6 +19,7 @@
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>
+    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
   <dependencies>
     <dependency>
