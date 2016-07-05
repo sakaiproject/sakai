@@ -12,7 +12,9 @@
         <div class="row">
             <div class="col-sm-12">
                 <p>
-                    <input type="button" wicket:id="downloadFullGradebook" wicket:message="value:importExport.template.button.fullGradebook"/>
+                    <button type="button" class="button" wicket:id="downloadFullGradebook">
+                        <wicket:message key="importExport.template.button.fullGradebook"/>
+                    </button>
                     <a role="button" data-toggle="modal" href="#advancedOptions" data-target="#customExportModal">
                         <wicket:message key="importExport.template.button.advancedOptions"/>
                     </a>
@@ -102,10 +104,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button wicket:id="downloadCustomGradebook" type="button" class="btn btn-primary pull-left">
+                        <button wicket:id="downloadCustomGradebook" type="button" class="button_color pull-left">
                             <wicket:message key="importExport.template.button.customGradebook"/>
                         </button>
-                        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
+                        <button type="button" class="pull-right" data-dismiss="modal">
                             <wicket:message key="importExport.button.cancel"/>
                         </button>
                     </div>
