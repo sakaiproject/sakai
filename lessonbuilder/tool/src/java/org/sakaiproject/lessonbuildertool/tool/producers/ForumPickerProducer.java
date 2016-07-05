@@ -128,13 +128,15 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 			}
 
 			List<UrlItem> createLinks = forumEntity.createNewUrls(simplePageBean);
+			int toolNum = 0;
 			for (UrlItem createLink: createLinks) {
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "forum-create:");
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(createLink.Url);
+			    view.setId(Long.toString(((GeneralViewParameters) viewparams).getItemId()));
+			    view.setSource("CREATE/FORUM/" + (toolNum++));
 			    view.setReturnView(VIEW_ID);
+			    view.setAddBefore(((GeneralViewParameters) viewparams).getAddBefore());
 			    view.setTitle(messageLocator.getMessage("simplepage.return_forum"));
 			    UIInternalLink.make(link, "forum-create-link", createLink.label , view);
 			}

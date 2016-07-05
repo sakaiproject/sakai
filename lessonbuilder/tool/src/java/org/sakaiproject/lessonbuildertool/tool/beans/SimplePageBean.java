@@ -1969,7 +1969,6 @@ public class SimplePageBean {
 					itemType == SimplePageItem.ASSESSMENT ||
 					itemType == SimplePageItem.FORUM ||
 					itemType == SimplePageItem.PAGE ||
-					itemType == SimplePageItem.CHECKLIST ||
 			                itemType == SimplePageItem.BLTI ||
 					itemType == SimplePageItem.RESOURCE && nextItem.isSameWindow()) {
 				// it's easy if the next item is available. If it's not, then
@@ -2030,34 +2029,10 @@ public class SimplePageBean {
 	    		// if the user has passed.
 	    		if (!isItemAvailable(nextItem, nextItem.getPageId()))
 	    			view.setRecheck("true");
-			String URL = nextItem.getItemURL(getCurrentSiteId(), getCurrentPage().getOwner());
-			if (lessonBuilderAccessService.needsCopyright(nextItem.getSakaiId()))
-			    URL = "/access/require?ref=" + URLEncoder.encode("/content" + nextItem.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
-	    		view.setSource(URL);
 	    		view.viewID = ShowItemProducer.VIEW_ID;
-	    	} else if (itemType == SimplePageItem.CHECKLIST) { /// must be a same page checklist
-	    	    view.setSendingPage(Long.valueOf(item.getPageId()));
-	    	    // to the check. We need the check to set access control appropriately
-	    	    // if the user has passed.
-	    	    if (!isItemAvailable(nextItem, nextItem.getPageId()))
-	    	    	view.setRecheck("true");
-	    	    view.setSource(nextItem.getItemURL(getCurrentSiteId(), getCurrentPage().getOwner()));
-	    	    view.viewID = ShowItemProducer.VIEW_ID;
 	    	} else {
 	    		view.setSendingPage(Long.valueOf(item.getPageId()));
-	    		LessonEntity lessonEntity = null;
-	    		switch (nextItem.getType()) {
-	    			case SimplePageItem.ASSIGNMENT:
-	    				lessonEntity = assignmentEntity.getEntity(nextItem.getSakaiId()); break;
-	    			case SimplePageItem.ASSESSMENT:
-	    				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-	    				lessonEntity = quizEntity.getEntity(nextItem.getSakaiId(),this); break;
-	    			case SimplePageItem.FORUM:
-	    				lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
-	    			case SimplePageItem.BLTI:
-				        if (bltiEntity != null)
-					    lessonEntity = bltiEntity.getEntity(nextItem.getSakaiId()); break;
-	    		}
+
 	    		// normally we won't send someone to an item that
 	    		// isn't available. But if the current item is a test, etc, we can't
 	    		// know whether the user will pass it, so we have to ask ShowItem to
@@ -2065,7 +2040,6 @@ public class SimplePageBean {
 	    		// if the user has passed.
 	    		if (!isItemAvailable(nextItem, nextItem.getPageId()))
 	    			view.setRecheck("true");
-	    			view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 	    			if (item.getType() == SimplePageItem.PAGE)
 	    				view.setPath("pop");  // now on a have, have to pop it off
 	    			view.viewID = ShowItemProducer.VIEW_ID;
@@ -2086,7 +2060,6 @@ public class SimplePageBean {
 	public void addPrevLink(UIContainer tofill, SimplePageItem item) {
 		List<PathEntry> backPath = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_BACKPATH);
 		List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
-
 		// current item is last on path, so need one before that
 		if (backPath == null || backPath.size() < 2)
 			return;
@@ -2117,16 +2090,6 @@ public class SimplePageBean {
 				view.setPath("push");  // item to page, have to push the page
 		} else if (itemType == SimplePageItem.RESOURCE) { // must be a samepage resource
 			view.setSendingPage(Long.valueOf(item.getPageId()));
-			String URL = prevItem.getItemURL(getCurrentSiteId(),getCurrentPage().getOwner());
-			// this is unlikely but possible. If you don't accept the copyright, go on and
-			// then go back, this will trigger
-			if (lessonBuilderAccessService.needsCopyright(prevItem.getSakaiId()))
-			    URL = "/access/require?ref=" + URLEncoder.encode("/content" + prevItem.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
-			view.setSource(URL);
-			view.viewID = ShowItemProducer.VIEW_ID;
-		} else if (itemType == SimplePageItem.CHECKLIST) { // must be a samepage checklist
-			view.setSendingPage(Long.valueOf(item.getPageId()));
-			view.setSource(prevItem.getItemURL(getCurrentSiteId(),getCurrentPage().getOwner()));
 			view.viewID = ShowItemProducer.VIEW_ID;
 		}else if(itemType == SimplePageItem.STUDENT_CONTENT) {
 			view.setSendingPage(prevEntry.pageId);
@@ -2140,20 +2103,6 @@ public class SimplePageBean {
 			}
 		} else {
 			view.setSendingPage(Long.valueOf(item.getPageId()));
-			LessonEntity lessonEntity = null;
-			switch (prevItem.getType()) {
-			case SimplePageItem.ASSIGNMENT:
-				lessonEntity = assignmentEntity.getEntity(prevItem.getSakaiId()); break;
-			case SimplePageItem.ASSESSMENT:
-				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-				lessonEntity = quizEntity.getEntity(prevItem.getSakaiId(),this); break;
-			case SimplePageItem.FORUM:
-				lessonEntity = forumEntity.getEntity(prevItem.getSakaiId()); break;
-			case SimplePageItem.BLTI:
-				if (bltiEntity != null)
-				    lessonEntity = bltiEntity.getEntity(prevItem.getSakaiId()); break;
-			}
-			view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 			if (item.getType() == SimplePageItem.PAGE)
 				view.setPath("pop");  // now on a page, have to pop it off
 			view.viewID = ShowItemProducer.VIEW_ID;
