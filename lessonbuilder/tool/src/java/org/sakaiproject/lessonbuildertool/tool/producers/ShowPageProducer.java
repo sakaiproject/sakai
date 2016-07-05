@@ -3231,12 +3231,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
-					if (i.getAttribute("multimediaUrl") != null) // resource where we've stored the URL ourselves
-					    params.setSource(i.getAttribute("multimediaUrl"));
-					if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
-					    params.setSource("/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()).substring(7)));
-					else
-					    params.setSource(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
 					params.setItemId(i.getId());
 					UILink link = UIInternalLink.make(container, "link", params);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3322,7 +3316,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				params.setSendingPage(currentPage.getPageId());
-				params.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				params.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", params);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3348,7 +3341,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3371,7 +3363,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
@@ -3427,7 +3418,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 				UIComponent link = UIInternalLink.make(container, "link", view)
 				    .decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
@@ -3835,20 +3825,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
-		params.setItemId(pageItem.getId());
+		params.setId(Long.toString(pageItem.getId()));
 		params.setReturnView(VIEW_ID);
 		params.setTitle(returnFromEditString);  
-		params.setSource("SRC");
+		params.setSource("EDIT");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-object", params);
 		UIOutput.make(form, "edit-item-text");
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
-		params.setItemId(pageItem.getId());
+		params.setId(Long.toString(pageItem.getId()));
 		params.setReturnView(VIEW_ID);
 		params.setTitle(returnFromEditString);  
-		params.setSource("SRC");
+		params.setSource("SETTINGS");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-settings", params);
 		UIOutput.make(form, "edit-item-settings-text");

@@ -1513,11 +1513,11 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_assessment"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_quiz"));
 					$("#edit-item-settings-p").show();
 					$("#edit-item-settings").attr("href", 
-						$("#edit-item-settings").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editsettingsurl) + '$2'));
+						$("#edit-item-settings").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
 
 				}else if (type === '8'){
@@ -1527,7 +1527,7 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_forum"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_topic"));
 
 				}else if (type === 'b'){
@@ -1553,9 +1553,8 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_assignment"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_assignment"));
-
 				}
 				
 				if(type === '3' || type === '6') {
