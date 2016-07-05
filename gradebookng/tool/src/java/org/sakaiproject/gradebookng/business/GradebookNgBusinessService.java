@@ -686,7 +686,10 @@ public class GradebookNgBusinessService {
 			// TA permission check. If there are categories and they don't have
 			// access to this one, skip it
 			if (role == GbRole.TA) {
-				if (!categoryIds.isEmpty() && !categoryIds.contains(categoryId)) {
+
+				log.debug("TA processing category: " + categoryId);
+
+				if (!categoryIds.isEmpty() && categoryId != null && !categoryIds.contains(categoryId)) {
 					continue;
 				}
 			}
@@ -785,32 +788,15 @@ public class GradebookNgBusinessService {
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
 
-		// course grade override. if no grades, course grade should be - instead
-		// of 'F'
-		// TODO this iteration may not be necessary as we could instead
-		// add a boolean to the GbStudentGradeInfo object for each student and
-		// when calling addGrade set it to true
-		// then check the boolean on the front end, but then it needs to be
-		// checked everywhere so this may be better.
-		// for (final User student : students) {
-		// final GbStudentGradeInfo sg = matrix.get(student.getId());
-		//
-		// if (sg.getGrades().isEmpty()) {
-		// sg.setCourseGrade("-");
-		// }
-		// }
-		// stopwatch.timeWithContext("buildGradeMatrix", "course grade override
-		// done", stopwatch.getTime());
-
-		// for a TA, apply the permissions to each grade item to see if we can
-		// render it
-		// the list of students, assignments and grades is already filtered to
-		// those that can be viewed
+		// for a TA, apply the permissions to each grade item to see if we can render it
+		// the list of students, assignments and grades is already filtered to those that can be viewed
 		// so we are only concerned with the gradeable permission
 		if (role == GbRole.TA) {
 
 			// get permissions
 			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
+
+			log.debug("All permissions: " + permissions.size());
 
 			// only need to process this if some are defined
 			// again only concerned with grade permission, so parse the list to
@@ -826,11 +812,11 @@ public class GradebookNgBusinessService {
 				}
 			}
 
+			log.debug("Filtered permissions: " + permissions.size());
+
 			// if we still have permissions, they will be of type grade, so we
 			// need to enrich the students grades
 			if (!permissions.isEmpty()) {
-
-				log.debug("Grade permissions exist, processing: " + permissions.size());
 
 				// first need a lookup map of assignment id to category so we
 				// can link up permissions by category
