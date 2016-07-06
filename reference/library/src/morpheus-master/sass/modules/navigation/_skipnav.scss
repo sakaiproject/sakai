@@ -56,7 +56,9 @@
 			    border-right: 0 none;
 			}
 			
-			&.#{$namespace}skipNav__menuitem--content{
+			&.#{$namespace}skipNav__menuitem--content,
+				&.#{$namespace}skipNav__menuitem--accessibility
+			{
 				display: none;
 			}
 			a{
