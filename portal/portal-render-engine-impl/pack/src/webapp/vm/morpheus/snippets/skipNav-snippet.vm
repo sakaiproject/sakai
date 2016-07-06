@@ -17,6 +17,7 @@
         </li>
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
             <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">
+                <i class="fa fa-cubes tools-icon"></i>
                 ${rloader.sit_menutools}
                 <span class="accesibility_key">[l]</span>
             </a>
