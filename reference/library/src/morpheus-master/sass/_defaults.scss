@@ -24,16 +24,16 @@ $font-family-url: "//fonts.googleapis.com/css?family=Noto Sans:400,700" !default
 //Typography variables
 $font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
 $default-font-size: 14px !default;
-$default-font-weight: 400 !default;										// 300, 400 or 700 as you wish
+$default-font-weight: 400 !default;										// 400 or 700 as you wish
 $header-font-family: $font-family;
-$header-font-weight: 700 !default;										// 300, 400 or 700 as you wish
+$header-font-weight: 700 !default;										// 400 or 700 as you wish
 
 /* Color palette */
 $background-color: 			 #FFFFFF !default;
 $background-color-secondary: #444444 !default;
 
 $primary-color:    			 #2a94c0 !default;
-$primary-color-shadow:		 	 #2A87C0 !default;
+$primary-color-shadow:			 #2A87C0 !default;
 $secondary-color:  			 #F00 !default;
 $alt-colour: 				 #d36f00 !default;
 
@@ -109,29 +109,33 @@ $header-gradient-b: #d9cdcd !default;
 $header-gradient-c: #c4ccd7 !default;
 $header-gradient-d: #a6c2df !default;
 
-/* Main Menu */
-$header-size : 3.8em !default;
-$sites-nav-menu-item-background: $background-color !default;
-$sites-nav-menu-item-color: $text-color !default;
-$sites-nav-menu-item-color-hover: $primary-color !default;
-$sites-nav-menu-item-border: none !default;
-$sites-nav-menu-item-selected-background: $primary-color !default;
-$sites-nav-menu-item-selected-color: $background-color !default;
-$sites-nav-menu-item-selected-border: none !default;
-$site-name-my-workspace-background: transparent !default;
-$site-name-my-workspace-color: $background-color !default;
-$sites-nav-submenu-background: $background-color !default;
-$sites-nav-submenu-item-background: $sites-nav-menu-item-background !default;
-$sites-nav-submenu-item-color: $sites-nav-menu-item-color !default;
-$sites-nav-submenu-item-border: none !default;
-$sites-nav-submenu-item-background-hover: inherit !default;
-$sites-nav-submenu-item-color-hover: $sites-nav-menu-item-color-hover !default;
-$sites-nav-submenu-item-border-hover: none !default;
-$sites-nav-submenu-item-border: none !default;
-$sites-nav-submenu-selected-background: $sites-nav-menu-item-selected-background !default;
-$sites-nav-submenu-item-selected-background: $sites-nav-menu-item-selected-background !default;
-$sites-nav-submenu-item-selected-color: $sites-nav-menu-item-selected-color !default;
-$sites-nav-submenu-item-selected-border: none !default;
+/* topNav Main Menu */
+$header-size : 50px !default;
+$topNav-text-color:                         #fff !default; /* used for links and text in the topNav */
+$topNav-text-alt-color:                     #ccc !default;
+
+$sites-nav-menu-item-background:            #666 !default;
+$sites-nav-menu-item-color:                 #fff !default;
+$sites-nav-menu-item-color-hover:           $sites-nav-menu-item-color !default;
+$sites-nav-menu-item-border-top:            1px solid transparent !default; /* to pre-allocate space for dropdown top border needed for illusion */
+$sites-nav-menu-item-border-right:          none !default;
+$sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
+$sites-nav-menu-item-border-left:           none !default;
+$sites-nav-menu-item-selected-background:   $primary-color !default;
+$sites-nav-menu-item-selected-color:        #fff !default;
+$sites-nav-menu-item-selected-color-hover:  $sites-nav-menu-item-selected-color !default;
+$sites-nav-menu-item-selected-border:       none !default;
+$sites-nav-submenu-background:              $sites-nav-menu-item-background !default;
+$sites-nav-submenu-item-background:         $sites-nav-menu-item-background !default;
+$sites-nav-submenu-item-background-hover:   $sites-nav-menu-item-background !default;
+$sites-nav-submenu-item-color:              $sites-nav-menu-item-color !default;
+$sites-nav-submenu-item-color-hover:        $sites-nav-submenu-item-color !default;
+$sites-nav-submenu-item-border:             none !default;
+$sites-nav-submenu-item-border-hover:       none !default;
+$sites-nav-submenu-selected-background:     $sites-nav-menu-item-selected-background !default;
+$sites-nav-submenu-item-selected-background:$sites-nav-menu-item-selected-background !default;
+$sites-nav-submenu-item-selected-color:     $sites-nav-menu-item-selected-color !default;
+$sites-nav-submenu-item-selected-border:    none !default;
 
 /* Tool Menu */
 $tool-menu-width: 7.5em !default;

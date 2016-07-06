@@ -311,3 +311,10 @@ label.panelGridLabel{
 	display: block;
 	margin-top: 1.4rem;
 }
+
+@mixin flex-wrap($p: nowrap)
+{
+	-moz-flex-wrap: $p;
+	-webkit-flex-wrap: $p;
+	flex-wrap: $p;
+}
