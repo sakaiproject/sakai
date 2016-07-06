@@ -392,17 +392,17 @@ public class SettingsCategoryPanel extends Panel {
 				boolean categoryDropLowestEnabled = true;
 				boolean categoryKeepHighestEnabled = true;
 
-				if(category.getDropHighest().intValue() > 0) {
+				if(category.getDropHighest() != null && category.getDropHighest().intValue() > 0) {
 					categoryKeepHighest.setModelValue(new String[]{"0"});
 					categoryKeepHighestEnabled = false;
 				}
 
-				if(category.getDrop_lowest().intValue() > 0) {
+				if(category.getDrop_lowest() != null && category.getDrop_lowest().intValue() > 0) {
 					categoryKeepHighest.setModelValue(new String[]{"0"});
 					categoryKeepHighestEnabled = false;
 				}
 
-				if(category.getKeepHighest().intValue() > 0) {
+				if(category.getKeepHighest() != null && category.getKeepHighest().intValue() > 0) {
 					categoryDropHighest.setModelValue(new String[]{"0"});
 					categoryDropLowest.setModelValue(new String[]{"0"});
 					categoryDropHighestEnabled = false;
@@ -417,12 +417,19 @@ public class SettingsCategoryPanel extends Panel {
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						// if drop highest is non zero, keep highest is to be unavailable
-						final Integer value = categoryDropHighest.getModelObject();
+						Integer value = categoryDropHighest.getModelObject();
+						if(value == null) {
+							value = 0;
+							categoryDropHighest.setModelValue(new String[]{"0"});
+							target.add(categoryDropHighest);
+						}
+
 						categoryKeepHighest.setEnabled(true);
 						if(value.intValue() > 0) {
 							categoryKeepHighest.setModelValue(new String[]{"0"});
 							categoryKeepHighest.setEnabled(false);
 						}
+
 						target.add(categoryKeepHighest);
 					}
 				});
@@ -439,8 +446,20 @@ public class SettingsCategoryPanel extends Panel {
 					protected void onUpdate(final AjaxRequestTarget target) {
 						// if drop lowest is non zero, keep highest is to be unavailable
 						// however also need to check the drop highest value here also
-						final Integer value1 = categoryDropLowest.getModelObject();
-						final Integer value2 = categoryDropHighest.getModelObject();
+						Integer value1 = categoryDropLowest.getModelObject();
+						Integer value2 = categoryDropHighest.getModelObject();
+
+						if(value1 == null) {
+							value1 = 0;
+							categoryDropLowest.setModelValue(new String[]{"0"});
+							target.add(categoryDropLowest);
+						}
+						if(value2 == null) {
+							value2 = 0;
+							categoryDropHighest.setModelValue(new String[]{"0"});
+							target.add(categoryDropHighest);
+						}
+
 						categoryKeepHighest.setEnabled(true);
 						if(value1.intValue() > 0 || value2.intValue() > 0) {
 							categoryKeepHighest.setModelValue(new String[]{"0"});
@@ -460,7 +479,14 @@ public class SettingsCategoryPanel extends Panel {
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						// if keep highest is non zero, drop highest AND drop lowest are to be unavailable
-						final Integer value = categoryKeepHighest.getModelObject();
+						Integer value = categoryKeepHighest.getModelObject();
+
+						if(value == null) {
+							value = 0;
+							categoryKeepHighest.setModelValue(new String[]{"0"});
+							target.add(categoryKeepHighest);
+						}
+
 						categoryDropHighest.setEnabled(true);
 						categoryDropLowest.setEnabled(true);
 						if(value.intValue() > 0) {
@@ -584,6 +610,9 @@ public class SettingsCategoryPanel extends Panel {
 		cd.setExtraCredit(false);
 		cd.setWeight(new Double(0));
 		cd.setAssignmentList(Collections.<Assignment> emptyList());
+		cd.setDropHighest(0);
+		cd.setDrop_lowest(0);
+		cd.setKeepHighest(0);
 
 		final GbSettings settings = this.model.getObject();
 		cd.setCategoryOrder(settings.getGradebookInformation().getCategories().size());
