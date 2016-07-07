@@ -2,8 +2,8 @@
     <ul role="menu" class="Mrphs-skipNav__menu">
 
         #if ($siteNavHasAccessibilityURL)
-            <li role="menuitem" class="Mrphs-skipNav__menuitem">
-                <a href="$siteNavAccessibilityURL" class="Mrphs-skipNav__link Mrphs-skipNav__link--accessibility" title="${rloader.sit_accessibility}" accesskey="0">
+            <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--accessibility">
+                <a href="$siteNavAccessibilityURL" class="Mrphs-skipNav__link" title="${rloader.sit_accessibility}" accesskey="0">
                     ${rloader.sit_accessibility}
                     <span class="accesibility_key">[0]</span>
                 </a>
