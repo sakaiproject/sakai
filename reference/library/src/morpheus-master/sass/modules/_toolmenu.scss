@@ -50,6 +50,9 @@ body.#{$namespace}toolMenu-collapsed{
 							display: none;
 						}
 					}
+					span.#{$namespace}toolsNav__menuitem--title{
+						white-space: pre;
+					}
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					display: none;
@@ -243,10 +246,9 @@ nav#subSites{
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					display: block;
-					max-width: 100%;
 					width: 100%;
 					text-overflow: ellipsis;
-					white-space: pre;
+					white-space: pre-wrap;
 					overflow: hidden;
 				}
 				&.is-invisible {

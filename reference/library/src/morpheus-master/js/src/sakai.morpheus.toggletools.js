@@ -30,9 +30,12 @@ function toggleMinimizeNav(){
 $PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
 
 var collapsed = false;
+
 var initialOffset;
 var $window = $PBJQ(window),
-	offset 	= $("#toolMenu").offset();
+	offset 	= $("#toolMenu").offset(),
+	$tools	= $("#toolMenu"),
+	padding	= $(".Mrphs-siteHierarchy").height() + $(".Mrphs-topHeader").height();
 
 $PBJQ(document).ready(function(){
 	if(getCookieVal('sakai_nav_minimized') === 'true') {
@@ -41,8 +44,9 @@ $PBJQ(document).ready(function(){
 	}
 	initialOffset = $("#toolMenu").offset().top - $window.scrollTop();
 	$PBJQ(window).scroll(function(){
-		if($("#toolMenuWrap").css('position') !== 'fixed') {
-			var fromTop = $("#toolMenu").offset().top - $window.scrollTop();
+		var follow = ($window.height()- padding) > $tools.height();
+		if($("#toolMenuWrap").css('position') !== 'fixed'
+			&& follow) {
 			if($window.scrollTop() > offset.top) {
 				$("#toolMenu").stop().animate({
 	                top: $window .scrollTop() - offset.top
