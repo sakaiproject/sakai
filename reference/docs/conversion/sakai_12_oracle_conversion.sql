@@ -114,3 +114,4 @@ create unique index dash_lock_ts_idx on dash_task_lock (task, server_id);
 
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-99', '!user', 'Dashboard', '0', 0, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-999', '!user-99', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
+
