@@ -37,6 +37,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
@@ -449,13 +450,13 @@ public class GradebookNgBusinessService {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			final Double newGradePercentage = NumberUtils.toDouble(newGrade);
 			final Double newGradePointsFromPercentage = (newGradePercentage / 100) * maxPoints;
-			newGradeAdjusted = newGradePointsFromPercentage.toString();
+			newGradeAdjusted = FormatHelper.formatDoubleToTwoDecimalPlaces(newGradePointsFromPercentage);
 
 			//only convert if we had a previous value otherwise it will be out of sync
 			if(StringUtils.isNotBlank(oldGradeAdjusted)){
 				final Double oldGradePercentage = NumberUtils.toDouble(oldGrade);
 				final Double oldGradePointsFromPercentage = (oldGradePercentage / 100) * maxPoints;
-				oldGradeAdjusted = oldGradePointsFromPercentage.toString();
+				oldGradeAdjusted = FormatHelper.formatDoubleToTwoDecimalPlaces(oldGradePointsFromPercentage);
 			}
 
 			// we dont need processing of the stored grade as the service does that when persisting.
