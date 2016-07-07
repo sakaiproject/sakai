@@ -18,25 +18,25 @@
 		#set($retractdate = $props.getTimeProperty("retractDate"))
 		#set($retdateset = $now.after($retractdate))
 	#end
+
+	#if ($reorder)
+		#set($rowClass = "row")
+	#end 
 	
 	## message marked as hidden, current date is before release date, or current date is after retract date
 	#if ($hidden || $reldateset || $retdateset)
 		#if ($displayOptions.isShowAnnouncementBody())
-			#set($class="lightHighLightRow inactive")
+			class="lightHighLightRow inactive $rowClass"
 		#else
-			#set($class="inactive")
+			class="inactive $rowClass"
 		#end
 	#else
 		#if ($displayOptions.isShowAnnouncementBody())
-			#set($class="lightHighLightRow")
+			class="lightHighLightRow $rowClass"
+		#elseif ($reorder)
+			class="$rowClass"
 		#end	
 	#end
-	
-	#if ($reorder)
-		#set($class = $class + " row")
-	#end
-	
-	class="$class"
 
 #end
 ############################################# Check if message hidden macro end
