@@ -134,7 +134,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.sakaiId = sakaiId;
 		this.name = maxlength(name, MAXNAME);
 		height = "";
-		width = "100%";
+		width = "";
 		description = "";
 		alt = "";
 		subrequirement = false;
@@ -160,7 +160,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.sakaiId = sakaiId;
 		this.name = maxlength(name, MAXNAME);
 		height = "";
-		width = "100%";
+		width = "";
 		description = "";
 		alt = "";
 		subrequirement = false;

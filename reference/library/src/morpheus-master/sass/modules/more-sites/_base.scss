@@ -13,7 +13,7 @@ body.active-more-sites{
 	overflow:visible;
 	@include transition( left 0.4s linear 0s );
 	&.dhtml_more_tabs{
-		background: $toolMenuBGColor;
+		background: $tool-menu-background-color;
 		display: block;
 		position: fixed;
 		width: 60% ;
@@ -40,7 +40,7 @@ body.active-more-sites{
 				position: absolute;
 				pointer-events: none;
 				border-color: rgba(255, 255, 255, 0);
-				border-bottom-color: $toolMenuBGColor;
+				border-bottom-color: $tool-menu-background-color;
 				border-width: 7px;
 				margin-left: -7px;
 				outline: 0;
@@ -65,7 +65,7 @@ body.active-more-sites{
 		position: absolute;
 		pointer-events: none;
 		border-color: rgba(255, 255, 255, 0);
-		border-bottom-color: $toolTabBGColor;
+		border-bottom-color: $tool-tab-background-color;
 		border-width: 7px;
 		margin-left: -7px;
 		outline: 0;
@@ -78,7 +78,7 @@ body.active-more-sites{
 		overflow-x: hidden;
 	}
 	.tab-box{
-		border: 1px solid $toolBorderColor;
+		border: 1px solid $tool-border-color;
 		padding: 5px 5px 5px 1em;
 
                 background-color: $tool-background-color;
@@ -92,7 +92,7 @@ body.active-more-sites{
 	.tab-bar .tab-btn{
 		display: inline-block;
 		padding: 5px 2em 5px 2em;
-		border: 1px solid $toolBorderColor;
+		border: 1px solid $tool-border-color;
 		border-bottom:  0;
 		margin: 0;
 		background-color: darken( $tool-background-color, 20% );
@@ -227,7 +227,7 @@ ul.otherSitesCategorList{
 			}
 		}
 		&.is-selected{
-			border: 1px solid darken( $toolBorderColor, 30% );
+			border: 1px solid darken( $tool-border-color, 30% );
 		}
 	}
 }
@@ -309,7 +309,7 @@ ul.favoriteSiteList{
 	padding: 0 0 0 0;
 	> li{
 		display: block;
-		border: 1px solid $toolBorderColor;
+		border: 1px solid $tool-border-color;
 		@include border-radius( 4px );
 		width: 305px;
 		white-space: nowrap;
@@ -390,7 +390,7 @@ ul.favoriteSiteList{
 		display: inline-block;
 		position: relative;
 		right: -4px;
-		color: $toolBorderColor;
+		color: $tool-border-color;
 		cursor: move; /* fallback if grab cursor is unsupported */
 		cursor: grab;
 		cursor: -moz-grab;
@@ -462,7 +462,7 @@ ul.favoriteSiteList{
 	left: 50%;
 	transform: translateX(-50%);
 	top: 13px;
-	border: 1px solid $toolBorderColor;
+	border: 1px solid $tool-border-color;
 	z-index: 1000;
 	display: inline-block;
 

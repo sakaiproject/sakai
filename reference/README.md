@@ -1,6 +1,7 @@
 
 ## Morpheus Documentation
 
+* **[Morpheus Hackathon video](https://www.youtube.com/watch?v=Hx7pQ52mWrc)** : starts about 3 minutes in.
 * **Morpheus quick start**: Basic commands you need to know to compile and generate new skin in Sakai using Morpheus. 
 
 	1. Morpheus has master theme which is located in [/reference/library/src/morpheus-master/](./library/src/morpheus-master/)  which is used to generate the default theme called "*morpheus-default*".

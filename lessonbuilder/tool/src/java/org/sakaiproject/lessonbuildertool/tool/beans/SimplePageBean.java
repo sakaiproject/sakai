@@ -141,9 +141,11 @@ public class SimplePageBean {
 	public static final String FILTERHTML = "lessonbuilder.filterhtml";
 	public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
 	public static final String LESSONBUILDER_ADDBEFORE = "sakai.addbefore";
+	public static final String LESSONBUILDER_ITEMNAME = "lessonbuilder.itemname";
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+
 
 	private static String PAGE = "simplepage.page";
 	private static String SITE_UPD = "site.upd";
@@ -232,6 +234,7 @@ public class SimplePageBean {
 
 	private String description;
 	private String name;
+	private String names;
 	private boolean required;
         private boolean replacefile;
 	private boolean subrequirement;
@@ -829,6 +832,10 @@ public class SimplePageBean {
 		this.name = name;
 	}
 
+	public void setNames(String names) {
+		this.names = names;
+	}
+
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
@@ -1311,8 +1318,10 @@ public class SimplePageBean {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		Long itemId = (Long)toolSession.getAttribute(LESSONBUILDER_ITEMID);
 		addBefore = (String)toolSession.getAttribute(LESSONBUILDER_ADDBEFORE);
+		name = (String)toolSession.getAttribute(LESSONBUILDER_ITEMNAME);
 		toolSession.removeAttribute(LESSONBUILDER_ITEMID);
 		toolSession.removeAttribute(LESSONBUILDER_ADDBEFORE);
+		toolSession.removeAttribute(LESSONBUILDER_ITEMNAME);
 
 		if (!itemOk(itemId))
 		    return "permission-failed";
@@ -1335,6 +1344,7 @@ public class SimplePageBean {
 			else {
 			    for(Reference reference : refs){
 				returnMesssage = processSingleResource(reference, type, isWebSite, isCaption, itemId);
+				name = null;  // only use name for first
 			    }
 			}
 			toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
@@ -1355,7 +1365,9 @@ public class SimplePageBean {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		String id  = reference.getId();
 		String description = reference.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
-		String name = reference.getProperties().getProperty("DAV:displayname");
+		String name = this.name; // user specified name overrides file name
+		if (name == null || name.equals(""))
+		    name = reference.getProperties().getProperty("DAV:displayname");
 
 		// URLs are complex. There are two issues:
 		// 1) The stupid helper treats a URL as a file upload. Have to make it a URL type.
@@ -1534,14 +1546,15 @@ public class SimplePageBean {
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 		// ideally the following should be the same, but there can be odd cases. So be safe
 		long before = 0;
+		String beforeStr = addBefore;
 		boolean addAfter = false;
-		if (addBefore != null && addBefore.startsWith("-")) {
+		if (beforeStr != null && beforeStr.startsWith("-")) {
 		    addAfter = true;
-		    addBefore = addBefore.substring(1);
+		    beforeStr = beforeStr.substring(1);
 		}
-		if (addBefore != null && !addBefore.equals("")) {
+		if (beforeStr != null && !beforeStr.equals("")) {
 		    try {
-			before = Long.parseLong(addBefore);
+			before = Long.parseLong(beforeStr);
 		    } catch (Exception e) {
 			// nothing. ignore bad arg
 		    }
@@ -5913,11 +5926,22 @@ public class SimplePageBean {
 			if (multipartMap.size() > 0) {
 				// 	user specified a file, create it
 				boolean first = true;
+				String[] fnames = new String[0];
+				// names always gets sent. Only use it if there is something there
+				if (names.length() > 0)
+				    fnames = names.split("\n");
+				int fileindex = 0;
 				for(MultipartFile file : multipartMap.values()){
 					if (file.isEmpty())
 						file = null;
-					addMultimediaFile(file, first);
+					// for file uploads only, name is in names rather than name
+					String fname = name;
+					if (fnames.length > fileindex)
+					    fname = fnames[fileindex].trim();
+					name = null;  // don't reuse name
+					addMultimediaFile(file, first, fname);
 					first = false;
+					fileindex++;
 				}
 			}
 		} catch (Exception exception) {
@@ -5928,7 +5952,7 @@ public class SimplePageBean {
 		
 	}
 
-	public void addMultimediaFile(MultipartFile file, boolean first){
+	public void addMultimediaFile(MultipartFile file, boolean first, String name){
 		try{
 			
 			String sakaiId = null;
@@ -6011,7 +6035,7 @@ public class SimplePageBean {
 				// if user supplied name use it, else the filename
 				// if multiple files, the user supplied name is for first only, or we'd
 				// have several links with the same name
-				if (!first || name == null || name.trim().equals(""))
+				if (name == null || name.trim().equals(""))
 				    name = fname;
 			} else if (mmUrl != null && !mmUrl.trim().equals("") && multimediaDisplayType != 1 && multimediaDisplayType != 3) {
 				// 	user specified a URL, create the item

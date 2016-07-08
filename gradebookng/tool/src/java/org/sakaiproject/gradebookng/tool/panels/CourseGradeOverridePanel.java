@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,6 +21,7 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -90,7 +90,7 @@ public class CourseGradeOverridePanel extends Panel {
 		overrideField.setOutputMarkupId(true);
 		form.add(overrideField);
 
-		final AjaxButton submit = new AjaxButton("submit") {
+		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -129,7 +129,7 @@ public class CourseGradeOverridePanel extends Panel {
 		form.add(new GbFeedbackPanel("feedback"));
 
 		// cancel button
-		final AjaxButton cancel = new AjaxButton("cancel") {
+		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -176,18 +176,26 @@ public class CourseGradeOverridePanel extends Panel {
 	 */
 	private String formatPoints(final CourseGrade courseGrade, final Gradebook gradebook) {
 
+		String rval;
+		
 		// only display points if not weighted category type
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 		if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
-
-			return new StringResourceModel("coursegrade.display.points-first", null,
-					new Object[] { pointsEarned, totalPointsPossible }).getString();
+			
+			if(pointsEarned != null && totalPointsPossible != null) {
+				rval = new StringResourceModel("coursegrade.display.points-first", null,
+						new Object[] { pointsEarned, totalPointsPossible }).getString();
+			} else {
+				rval = getString("coursegrade.display.points-none");
+			}
 		} else {
-			return getString("coursegrade.display.points-none");
+			rval = getString("coursegrade.display.points-none");
 		}
+		
+		return rval;
 
 	}
 

@@ -50,11 +50,11 @@ public class EditorConfiguration
 
 	/**
 	 * Get the file browser that should be used when picking a file in CKEditor.
-	 * @return The file browser, i.e. fckeditor
+	 * @return The file browser, i.e. fckeditor, elfinder
 	 */
 	public static String getCKEditorFileBrowser()
 	{
-		return ServerConfigurationService.getString("wysiwyg.editor.ckeditor.browser", "fckeditor");
+		return ServerConfigurationService.getString("wysiwyg.editor.ckeditor.browser", "elfinder");
 	}
 	
 	/**

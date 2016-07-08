@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 /**
  * Provides support for Sakai to work with Learning Record Stores (LRS)
  * Allows centralized registration of LRS activity statements which Sakai
@@ -382,6 +384,20 @@ public interface LearningResourceStoreService {
          */
         String mbox;
         /**
+         * SHA1 encoded String in the form "mailto:email address" (mbox identifier).
+         * (Note: Only emails that have only ever been and will ever be assigned to this Agent, but no others, should be used for this property and mbox).
+         */
+        String mbox_sha1sum;
+        /**
+         * A user account on an existing system, such as a private system (LMS or intranet) or a public system (social networking site).
+         */
+        LRS_Account account;
+        /**
+         * The OpenID for this actor (Optional)
+         * This value should be used when available, instead of the {@link LRS_Account} object
+         */
+        String openid;
+        /**
          * @param email the user email address
          * @return an actor built using the given email address
          */
@@ -394,6 +410,7 @@ public interface LearningResourceStoreService {
          */
         protected LRS_Actor() {
             objectType = "Agent";
+            account = new LRS_Account();
         }
         /**
          * Construct an actor using an email address
@@ -405,12 +422,27 @@ public interface LearningResourceStoreService {
                 throw new IllegalArgumentException("LRS_Actor email cannot be null");
             }
             mbox = "mailto:"+email;
+            mbox_sha1sum = DigestUtils.sha1Hex(mbox);
         }
         /**
          * @param name OPTIONAL display value for this actor
          */
         public void setName(String name) {
             this.name = name;
+        }
+        /**
+         * @param openid OPTIONAL the OpenID for this actor
+         */
+        public void setOpenId(String openid) {
+            this.openid = openid;
+        }
+        /**
+         * @param name the unique identifier (EID, etc.)
+         * @param homePage the URL of the Sakai instance
+         */
+        public void setAccount(String name, String homePage) {
+            account.setName(name);
+            account.setHomePage(homePage);
         }
         // GETTERS
         /**
@@ -431,12 +463,67 @@ public interface LearningResourceStoreService {
         public String getMbox() {
             return mbox;
         }
+        /**
+         * @see #mbox_sha1sum
+         */
+        public String getMbox_sha1sum() {
+            return mbox_sha1sum;
+        }
+        /**
+         * @see #openid
+         */
+        public String getOpenid() {
+            return openid;
+        }
+        /**
+         * @see #account
+         */
+        public LRS_Account getAccount() {
+            return account;
+        }
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
          */
         @Override
         public String toString() {
-            return "Actor[mbox=" + mbox + ", name=" + name + "]";
+            return "Actor[mbox=" + mbox + ", name=" + name + ", account=" + account + "]";
+        }
+    }
+
+    public static class LRS_Account {
+        /*
+         * A user account on an existing system, such as a private system (LMS or intranet) or a public system (social networking site).
+         * 
+         * If the system that provides the account Object uses OpenID, the Activity Provider SHOULD use the openid property instead of an account Object.
+         * 
+         * If the Activity Provider is concerned about revealing personally identifiable information about an Agent or Group, 
+         * it SHOULD use an opaque account name (for example an account number) to identify all Statements about a person while maintaining anonymity.
+         */
+        String name;
+        String homePage;
+        public LRS_Account() {
+            name = "";
+            homePage = "";
+        }
+        public LRS_Account(String name, String homePage) {
+            this.name = name;
+            this.homePage = homePage;
+        }
+        public String getName() {
+            return name;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public String getHomePage() {
+            return homePage;
+        }
+        public void setHomePage(String homePage) {
+            this.homePage = homePage;
+        }
+        @Override
+        public String toString() {
+            return "Account[name=" + name + ", homePage=" + homePage + "]";
         }
     }
 

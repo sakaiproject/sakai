@@ -21,9 +21,7 @@ import org.sakaiproject.site.api.SiteService;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * This is the creator of ContentHosting FsVolumes.
@@ -120,14 +118,21 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
         public void createFolder(FsItem fsi) throws IOException {
             String id = asId(fsi);
             try {
-                String collectionId = asId(getParent(fsi));
-                String path = asId(fsi);
-                String name = lastPathSegment(path);
-                ContentCollectionEdit edit = contentHostingService.addCollection(collectionId, name);
-                ResourcePropertiesEdit props = edit.getPropertiesEdit();
-                props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-
-                contentHostingService.commitCollection(edit);
+                if (fsi instanceof ContentFsItem) {
+                    ContentFsItem cfsi = (ContentFsItem)fsi;
+                    String collectionId = asId(getParent(cfsi));
+                    String path = asId(cfsi);
+                    String name = lastPathSegment(path);
+                    ContentCollectionEdit edit = contentHostingService.addCollection(collectionId, name);
+                    ResourcePropertiesEdit props = edit.getPropertiesEdit();
+                    props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+                    contentHostingService.commitCollection(edit);
+                    // Directories always end with a trailing slash
+                    // The creation appends this if missing, so make sure the item is in sync
+                    cfsi.setId(edit.getId());
+                } else {
+                    throw new IllegalArgumentException("Can only pass ContentFsItem");
+                }
             } catch (SakaiException se) {
                 throw new IOException("Failed to create new folder: " + id, se);
             }
@@ -207,7 +212,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     contentEntity = contentHostingService.getResource(id);
                 }
                 Date date = contentEntity.getProperties().getDateProperty(ResourceProperties.PROP_MODIFIED_DATE);
-                return date.getTime();
+                return date.getTime() / 1000;
             } catch (SakaiException se) {
                 LOG.warn("Failed to get last modified date for: " + id, se);
             } catch (EntityPropertyTypeException e) {
@@ -265,9 +270,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
         public FsItem getParent(FsItem fsi) {
             String rootId = asId(getRoot());
-            String id1 = asId(fsi);
-            if (!rootId.equals(id1)) {
-                String id = asId(fsi);
+            String id = asId(fsi);
+            if (id.startsWith(rootId) && !rootId.equals(id))  {
                 String parentId = contentHostingService.getContainingCollectionId(id);
                 return fromPath(parentId);
             } else {
@@ -411,6 +415,14 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
         public String getURL(FsItem fsItem) {
             String id = asId(fsItem);
             return contentHostingService.getUrl(id);
+        }
+
+        @Override
+        public void filterOptions(FsItem fsItem, Map<String, Object> map) {
+            // The preview isn't working properly
+            map.put("disabled", Arrays.asList(new String[]{"search", "zipdl"}));
+            // Disabled chunked uploads
+            map.put("uploadMaxConn", "-1");
         }
     }
 }

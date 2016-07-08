@@ -52,14 +52,14 @@ should be included in file importing DeliveryMessages
 
   <t:dataList layout="unorderedList" styleClass="samigo-question" itemStyleClass="samigo-question-answer" value="#{question.selectionArray}" var="selection">
     <h:panelGroup rendered="#{delivery.feedback eq 'true' && delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
-      <h:graphicImage id="image"
+      <h:panelGroup id="image"
         rendered="#{(selection.answer.isCorrect eq 'true' || (question.itemData.partialCreditFlag && selection.answer.partialCredit gt 0)) && selection.response}"
-        alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
-      </h:graphicImage>
-      <h:graphicImage id="image2"
+        styleClass="icon-sakai-check feedBackCheck" >
+      </h:panelGroup>
+      <h:panelGroup id="image2"
         rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
-        width="16" height="16" alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
-      </h:graphicImage>
+        styleClass="icon-sakai-delete feedBackCross" >
+      </h:panelGroup>
     </h:panelGroup>
     <div class="mcscFixUpTarget"></div>
 	<h:panelGroup> 	 

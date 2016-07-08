@@ -46,7 +46,6 @@
                 maxAttachmentsMB: ${maxAttachmentsMB},
                 showContentPanel: ${showContentPanel},
                 showHelpPanel: ${showHelpPanel},
-                mailSupport: '${mailSupport}',
                 showTechnicalPanel: ${showTechnicalPanel},
                 showSuggestionsPanel: ${showSuggestionsPanel},
                 showSupplementalAPanel: ${showSupplementalAPanel},

@@ -49,7 +49,7 @@ public class ExportPanel extends Panel {
 	boolean includeStudentId = true;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
-	boolean includeCourseGrade = true;
+	boolean includeCourseGrade = false;
 	boolean includePoints = false;
 	boolean includeLastLogDate = false;
 	boolean includeCalculatedGrade = false;
@@ -196,8 +196,10 @@ public class ExportPanel extends Panel {
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.calculatedGrade")));
 			}
-			if (!isCustomExport || includeCourseGrade) {
-				header.add(getString("importExport.export.csv.headers.courseGrade"));
+			if (isCustomExport && includeCourseGrade) {
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.courseGrade")));
 			}
 			if (isCustomExport && includeGradeOverride) {
 				header.add(String.format("%s%s",

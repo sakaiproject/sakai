@@ -38,14 +38,14 @@ should be included in file importing DeliveryMessages
   <h:dataTable value="#{question.matchingArray}" var="matching">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
-      <h:graphicImage id="image"
+      <h:panelGroup id="image"
         rendered="#{matching.isCorrect || matching.isDistractor}"
-        alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
-      </h:graphicImage>
-      <h:graphicImage id="ximage"
+        styleClass="icon-sakai-check feedBackCheck" >
+      </h:panelGroup>
+      <h:panelGroup id="ximage"
         rendered="#{!matching.isCorrect && !matching.isDistractor}"
-        alt="#{deliveryMessages.alt_correct}" url="/images/crossmark.gif" >
-      </h:graphicImage>
+        styleClass="icon-sakai-delete feedBackCross" >
+      </h:panelGroup>
       <h:graphicImage id="image2"
         width="16" height="16"
         alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">

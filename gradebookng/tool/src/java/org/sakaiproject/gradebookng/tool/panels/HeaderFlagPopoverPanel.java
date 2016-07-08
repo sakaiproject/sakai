@@ -1,7 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.core.util.string.ComponentRenderer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -12,6 +11,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 
 import java.util.Map;
@@ -75,7 +75,7 @@ public class HeaderFlagPopoverPanel extends Panel {
 				link.add(new Label("linkText", getString("label.coursegrade.editsettings")));
 				add(link);
 			} else if (this.assignmentId != null) {
-				final AjaxLink link = new AjaxLink("link") {
+				final GbAjaxLink link = new GbAjaxLink("link") {
 					@Override
 					public void onClick(final AjaxRequestTarget target) {
 						// do nothing

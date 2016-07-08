@@ -80,11 +80,12 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
-        $("li.multimediaType iframe").each(function() {
+        $("li.multimediaType iframe, li.multimediaType object, li.multimediaType embed, li.multimediaType video").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
-                if (typeof width !== 'undefined' && width !== '' &&
-                    (typeof height === 'undefined' || height ==''))
+                if ($(this).attr('defaultsize') === 'true' ||
+		    (typeof width !== 'undefined' && width !== '' &&
+		     (typeof height === 'undefined' || height =='')))
                     $(this).height($(this).width() * 0.75);
             });
 
@@ -528,6 +529,15 @@ $(document).ready(function() {
 			    //  there's another button to try the other alterantive
 
 			}
+			// for file upload set up the names
+			if ($('.mm-file-input-names').size() > 0) {
+			    var names = '';
+			    $('.mm-file-input-names').each(function() {
+				    names = names + $(this).val().replace(/\s/g," ") + "\n";
+				});
+			    // it's not really HTML, but I don't want any processing done on it
+			    $('#mm-names').html(names);
+			};
 			// prevent double click
 			if (!mmactive)
 			    return false;
@@ -587,6 +597,12 @@ $(document).ready(function() {
 				$("#page-points").prop("disabled", true);
 			}
 	    });
+
+		// link to resource helper. add name if user has typed one
+		$('#mm-choose').click(function() {
+			$(this).attr('href', $(this).attr('href').replace(/&name=[a-z]*/, "&name=" + encodeURIComponent($('#mm-name').val())));
+			return true;
+		    });
 
 		$('#new-page').click(function(){
 			oldloc = $(".dropdown a");
@@ -1318,6 +1334,7 @@ $(document).ready(function() {
 			$("#mm-item-id").val($("#movieEditId").val());
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
+			$(".mm-file-group").remove();
 			var href=$(this).attr("href");
 			var editingCaption = (href.indexOf("&caption=true&")>0);
 			$("#mm-is-caption").val(editingCaption ? "true" : "false");
@@ -1682,6 +1699,7 @@ $(document).ready(function() {
 			$("#mm-item-id").val($("#item-id").val());
 			$("#mm-is-mm").val('false');
 			$("#mm-add-before").val(addAboveItem);
+			$(".mm-file-group").remove();
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#item-id").val(), "false", "false"));
 			$("#mm-choose").attr("href",href);
@@ -1717,6 +1735,7 @@ $(document).ready(function() {
 			$("#mm-is-website").val('false');
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
+			$(".mm-file-group").remove();
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1", "true", "false"));
 			$("#mm-choose").attr("href",href);
@@ -1753,6 +1772,7 @@ $(document).ready(function() {
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-website").val('false');
 			$("#mm-is-caption").val('false');
+			$(".mm-file-group").remove();
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href,"-1","false","false"));
 			$("#mm-choose").attr("href",href);
@@ -1786,6 +1806,7 @@ $(document).ready(function() {
 			$("#mm-is-website").val('true');
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
+			$(".mm-file-group").remove();
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1","false","true"));
 			$("#mm-choose").attr("href",href);
@@ -1911,6 +1932,7 @@ $(document).ready(function() {
 			$("#mm-item-id").val($("#multimedia-item-id").val());
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
+			$(".mm-file-group").remove();
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#multimedia-item-id").val(), true, false));
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
@@ -2086,7 +2108,7 @@ $(document).ready(function() {
 		var tail_uls = addAboveLI.parent().nextAll();
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
-		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-toggle-up fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2124,7 +2146,7 @@ $(document).ready(function() {
 		// current section DIV
 		var tail_uls = addAboveLI.parent().nextAll();
 		var column = addAboveLI.parent().parent();
-		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-toggle-up fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
 		// now go to new section
 		column = column.next();
 		// and move current item and following into the first col of the new section
@@ -2769,6 +2791,83 @@ $(function() {
 	        return true;  
 	    }  
 	});
+
+	function mmFileInputDelete() {
+	    // embed dialog doesn't have an item name, so only do this if there is one
+	    var doingNames = ($('#mm-name-section').is(':visible') ||
+			      $('.mm-file-input-names').size() > 0);
+	    $(this).parent().remove();
+	    if (doingNames) {
+		// if no files left, need to put back the original name section
+		if ($('.mm-file-group').size() === 0) {
+		    $('#mm-name-section').show();
+		    // if there are files left but the first one was removed, put the label on
+		    // the new first
+		} else if ($('#mm-file-input-itemname').size() === 0) {
+		    var nameInput = $('.mm-file-input-names').first();
+		    nameInput.attr('id', 'mm-file-input-itemname');
+		    nameInput.after('<label></label>');
+		    nameInput.next().text($('#mm-name').prev().text());
+		    nameInput.next().attr('for','mm-file-input-itemname');
+		}
+	    }
+	}
+	function mmFileInputChanged() {
+	    // user has probably selected a file. 
+	    var lastInput = $(".mm-file-input").last();
+	    if (lastInput[0].files.length !== 0) {
+		// embed dialog doesn't have names
+		var doingNames = ($('#mm-name-section').is(':visible') ||
+				  $('.mm-file-input-names').size() > 0);
+		// user has chosen a file. 
+		// Add another button for user to pick more files
+		lastInput.parent().after(lastInput.parent().clone());
+		// find the new button and put this trigger on it
+		lastInput.parent().next().find('input').on("change", mmFileInputChanged);
+		// change this one to have name of file and remove button
+		var newStuff = '<span class="mm-file-input-name"></span> <span title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-times"></span></span>';
+		// only do this if we're doing names
+		if (doingNames) {
+		    newStuff = newStuff + '<input class="mm-file-input-names" type="text" size="30" maxlength="255"/>';
+		}
+		lastInput.after(newStuff);
+		lastInput.parent().addClass('mm-file-group');
+		lastInput.next().text(lastInput[0].files[0].name);
+		// arm the delete
+		lastInput.next().next().on('click', mmFileInputDelete);
+		// and hide the actual button
+		lastInput.hide();
+		if (doingNames) {
+		    // put the item name after it
+		    // for first file, initialize to whatever is in the top field
+		    var itemName = '';
+		    var firsttime = false;
+		    if ($('#mm-name-section').is(':visible')) {
+			// first time
+			itemName = $('#mm-name').val();
+			firsttime = true;
+		    }
+		    $('#mm-name-section').hide();
+		    var nameInput = lastInput.next().next().next();
+		    nameInput.addClass('mm-file-input-itemname');
+		    nameInput.attr('title', msg('simplepage.title_for_upload'));
+		    nameInput.val(itemName);
+		    if (firsttime) {
+			// add a label for the name field. I think it's too much to do it for all of them
+			nameInput.attr('id', 'mm-file-input-itemname');
+			nameInput.after('<label></label>');
+			nameInput.next().text($('#mm-name').prev().text());
+			nameInput.next().attr('for','mm-file-input-itemname');
+		    }
+		    nameInput.show();
+		}
+	    }
+	};
+
+	$(".mm-file-input").on("change", mmFileInputChanged);
+
+
+
 });
 
 var hasBeenInMenu = false;
@@ -3202,6 +3301,7 @@ function fixupHeights() {
 		}
 	});
 };
+
 
 // indent is 20px. but with narrow screen and indent 8, this could use too
 // much. So constrain indent so only 1/4 of the width can be used for the

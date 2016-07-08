@@ -56,9 +56,51 @@
      -->
 
     <profiles>
+
+<!-- 
+   10, 11 and 12 are mostly the same. So I'm using 10 for the common ones.
+   Please activate 10 if either 11 or 12 is active
+  -->
+
         <profile>
-          <id>10</id>
+          <id>12</id>
     
+          <activation>
+            <activeByDefault>true</activeByDefault>
+          </activation>
+
+          <properties>
+	    <!-- this is for the  jcl-over-slf4j library. 12 has it in /lib, 11 doesn't -->
+	    <jclslf>provided</jclslf>
+          </properties>
+    
+	</profile>
+
+ 
+        <profile>
+          <id>11</id>
+    
+          <properties>
+	    <!-- this is for the  jcl-over-slf4j library. 12 has it in /lib, 11 doesn't -->
+	    <jclslf>compile</jclslf>
+          </properties>
+
+	  <!-- nothing special yet -->
+	</profile>
+
+<!-- if you want to try this on 10, start with the 11 profile.
+     If I ever support 10, I'll make a copy of this and call it 10, then
+     do whatever adjustments are needed -->
+
+	<!-- 
+	  I'm not supporting anything before 10, and even 10 will need major CSS changes
+	  To avoid duplicating all of this for 10, 11 and 12, I'm using a common section.
+          It should be on for 10, 11, or 12.
+	-->
+
+        <profile>
+          <id>10plus</id>
+
           <activation>
             <activeByDefault>true</activeByDefault>
           </activation>

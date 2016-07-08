@@ -261,6 +261,52 @@ public class SakaiBLTIUtil {
 		}
 	}
 
+	/**
+	 * adjustCustom - Deal with various custom parameter strings
+	 *
+	 * The correct way:
+	 *    x=1\ny=2\nz=3
+	 * The old Sakai way:
+	 *    x=1;y=2;z=3
+	 * A format string that confuses things:
+	 *    x=1;\ny=2\nz=3
+	 * In this string, the first parameter should be "1;"
+	 *
+	 * So here are the rules:
+	 *
+	 * If it is null, blank, or has no equal signs return unchanged
+	 * If there is a newline anywhere in the trimmed string return unchanged
+	 * If there is one equal sign return unchanged
+	 * If there is a new line anywhere in the string after trim, return unchanged
+	 * If we see ..=..;..=..;..=..[;] - we replace ; with \n
+	 */
+	public static String adjustCustom(String customstr)
+	{
+		if ( customstr == null ) return customstr;
+		String trim = customstr.trim();
+		if ( trim.length() == 0 ) return customstr;
+
+		if ( trim.indexOf('\n') >= 0 ) return customstr;
+
+		String[] pieces = trim.split("=");
+
+		// Two pieces means one equal sign (a=42)
+		if ( pieces.length <= 2 ) return customstr;
+
+		// Insist that all but the first and last piece have a semicolon
+		// x | 1;y | 2;z | 3
+		for( int i = 1; i < pieces.length - 1; i++)
+		{
+			String piece = pieces[i];
+			String [] chunks = piece.split(";");
+			if ( chunks.length != 2 ) return customstr;
+		}
+
+		// Now we can assume that ';' maps to '\n'
+		return customstr.replace(';','\n');
+	}
+
+
 	public static String encryptSecret(String orig)
 	{
 		if ( orig == null || orig.trim().length() < 1 ) return orig;
@@ -926,10 +972,15 @@ public class SakaiBLTIUtil {
 		}
 
 		int allowCustom = getInt(tool.get(LTIService.LTI_ALLOWCUSTOM));
-		if ( allowCustom == 1 ) 
-			LTI2Util.mergeLTI1Custom(custom, (String) content.get(LTIService.LTI_CUSTOM));
+		if ( allowCustom == 1 ) {
+			String contentCustom = (String) content.get(LTIService.LTI_CUSTOM);
+			contentCustom = adjustCustom(contentCustom);
+			LTI2Util.mergeLTI1Custom(custom, contentCustom);
+		}
 
-		LTI2Util.mergeLTI1Custom(custom, (String) tool.get(LTIService.LTI_CUSTOM));
+		String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
+		toolCustom = adjustCustom(toolCustom);
+		LTI2Util.mergeLTI1Custom(custom, toolCustom);
 
 		if ( isLTI2 ) {
 			M_log.debug("before ltiProps="+ltiProps);

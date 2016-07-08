@@ -379,10 +379,11 @@ function hiddenLinkOnClick(){
   </h2>
 
 <sakai:flowState bean="#{questionScores}" />
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
-      <h:outputText value="#{evaluationMessages.view}"/>
-      <h:outputText value="&#160;" escape="false" />
-	  <h:panelGroup styleClass="view-submissions">
+
+  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+    <div class="form-group">
+        <h:outputLabel value="#{evaluationMessages.view}" />
+        <h:outputText value="&#160;" escape="false" />
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL1"
          required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true'  }">
           <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
@@ -390,7 +391,6 @@ function hiddenLinkOnClick(){
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         </h:selectOneMenu>
-
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH1"
          required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'  && totalScores.multipleSubmissionsAllowed eq 'true' }">
           <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
@@ -398,56 +398,62 @@ function hiddenLinkOnClick(){
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         </h:selectOneMenu>
-        
-        <h:outputText value="&nbsp;" escape="false" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true'}"/>
-        
-        <h:outputText value="&nbsp;#{evaluationMessages.with}&nbsp;&nbsp;" escape="false" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}"/>
-        
-        <h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup1" 
-         rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
-       	 required="true" onchange="document.forms[0].submit();" >
-           <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.responses_popup}" />
-           <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.responses_inline}" />
-           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-        </h:selectOneMenu> 
-        
-        <h:outputText value="&nbsp;" escape="false" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}"/>
-        
-        <!-- SECTION AWARE -->
-        <h:outputText value="&nbsp;#{evaluationMessages.forAllSectionsGroups}" escape="false" rendered="#{totalScores.availableSectionSize < 1}"/>
-        
-        <h:outputText value="&nbsp;#{evaluationMessages.for_s}&nbsp;&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" escape="false"/>
-        <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
-          <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
-          <f:valueChangeListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener"/>
+    </div>
+    
+    <h:panelGroup styleClass="form-group" layout="block" 
+                  rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || 
+                                 questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}">
+        <h:outputLabel value="&nbsp;#{evaluationMessages.with}&nbsp;" escape="false" />
+        <h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup1"
+            required="true" onchange="document.forms[0].submit();" >
+            <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.responses_popup}" />
+            <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.responses_inline}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         </h:selectOneMenu>
-		
-		<h:outputText value="&nbsp;" escape="false" />
+    </h:panelGroup>
+    
+    <!-- SECTION AWARE -->
+    <div class="form-group">
+        <h:outputLabel value="&nbsp;#{evaluationMessages.forAllSectionsGroups}&nbsp;" escape="false" 
+                        rendered="#{totalScores.availableSectionSize < 1}"/>
+        <h:outputLabel value="&nbsp;#{evaluationMessages.for_s}&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" 
+                        escape="false"/>
+
+        <h:panelGroup layout="block" rendered="#{totalScores.availableSectionSize >= 1}">
+            <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker" required="true" 
+                    onchange="document.forms[0].submit();" >
+            <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
+            <f:valueChangeListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener"/>
+            </h:selectOneMenu>
+        </h:panelGroup>
+    </div>
+  </h:panelGroup>
+  <br/>
+  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+
+      <h:panelGroup styleClass="form-group" rendered="#{questionScores.typeId == '6'}" layout="block">
+        <h:outputText value="&nbsp;#{evaluationMessages.separator}&nbsp;&nbsp;" style="color: #999999;" escape="false"/>
+        <h:outputLink title="#{evaluationMessages.t_fileUpload}"  value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
+            <h:graphicImage url="/images/DownloadButton12px.png"/>
+        </h:outputLink>
       </h:panelGroup>
-         
-      <h:outputText value="&nbsp;#{evaluationMessages.separator}&nbsp;&nbsp;" style="color: #999999;" rendered="#{questionScores.typeId == '6'}" escape="false"/>
-      <h:outputText value="&nbsp;" rendered="#{questionScores.typeId != '6'}" escape="false"/>  
-        
-      <h:outputLink title="#{evaluationMessages.t_fileUpload}" rendered="#{questionScores.typeId == '6'}" value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
-	    <h:graphicImage url="/images/DownloadButton12px.png"/>
-	  </h:outputLink>
-
-      <h:outputText value="&nbsp;" rendered="#{questionScores.typeId != '6'}" escape="false"/>  
-
-	  <h:panelGroup styleClass="samigo-search-student" layout="block">
-        <h:outputText value="#{evaluationMessages.search}"/>
-        <h:outputText value="&#160;" escape="false" />
-			<h:inputText
-				id="searchString"
-				value="#{questionScores.searchString}"
-				onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
-				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{questionScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
-	  </h:panelGroup>
+      
+      <div class="form-group">
+        <h:panelGroup styleClass="samigo-search-student" layout="block">
+            <h:outputLabel value="#{evaluationMessages.search}"/>
+            <h:outputText value="&#160;" escape="false" />
+            <h:inputText
+                    id="searchString"
+                    value="#{questionScores.searchString}"
+                    onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
+                    onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
+            <h:outputText value="&nbsp;" escape="false" />
+            <h:commandButton actionListener="#{questionScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
+            <h:outputText value="&nbsp;" escape="false" />
+            <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
+         </h:panelGroup>
+	  </div>
   </h:panelGroup>
    
    <h:panelGroup>
@@ -951,7 +957,7 @@ function hiddenLinkOnClick(){
       
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
     <h:outputText value="#{description.answer}" escape="false"/>
-		<h:outputLink title="#{evaluationMessages.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+		<h:outputLink title="#{evaluationMessages.t_fullShortAnswer}"   value="#" onclick="window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/evaluation/fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/evaluation/fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
     		<h:outputText  value="(#{evaluationMessages.click_shortAnswer})" rendered="#{description.answer != 'No Answer'}"/>
     	</h:outputLink>
     </h:panelGroup>

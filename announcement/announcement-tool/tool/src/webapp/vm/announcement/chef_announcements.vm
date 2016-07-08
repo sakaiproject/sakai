@@ -3,7 +3,6 @@
 ##(gsilver - remaining issues: trimming body, <p> in body when produced with WYS, the fact that how thing look in the synopsys is still undefined - and finally - the permissions nightmare as well as the ling to Remove...
 
 ############################################# Check if message hidden macro begin
-## SAK-31180 $reorder added. We need the bootstrap class "row" only for the Reorder Tab 
 #macro(rowTRconstruct $props $displayOptions $hidden $reorder)
 
 	#set($now = $timeservice.newTime())
@@ -19,24 +18,26 @@
 		#set($retractdate = $props.getTimeProperty("retractDate"))
 		#set($retdateset = $now.after($retractdate))
 	#end
-
+	
 	## message marked as hidden, current date is before release date, or current date is after retract date
 	#if ($hidden || $reldateset || $retdateset)
 		#if ($displayOptions.isShowAnnouncementBody())
-			class="lightHighLightRow inactive"
-		#elseif ($reorder)
-			class="inactive row"
-		#else 
-			class="inactive"
+			#set($class="lightHighLightRow inactive")
+		#else
+			#set($class="inactive")
 		#end
 	#else
 		#if ($displayOptions.isShowAnnouncementBody())
-			class="lightHighLightRow"
-		#elseif ($reorder)
-			class="row"
+			#set($class="lightHighLightRow")
 		#end	
 	#end
 	
+	#if ($reorder)
+		#set($class = $class + " row")
+	#end
+	
+	class="$class"
+
 #end
 ############################################# Check if message hidden macro end
 		

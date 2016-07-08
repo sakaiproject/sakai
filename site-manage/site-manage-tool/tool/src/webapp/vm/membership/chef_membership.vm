@@ -119,60 +119,62 @@
 		</div>	
 		
 		<form action="#toolForm("$action")" method="post">
-			<table id="membership" class = "listHier lines specialLink" cellspacing="0" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
-				<tr>
-					<th id="checkbox" class="screenOnly attach">
-						<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
-					</th>
-					<th id="worksite" class="attach">
-						<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')"> 
-							$tlang.getString("gen.worksite")
-							#if ($currentSortAsc) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
-							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
-							#end
-						</a>
-					</th>
+			<div class="table-responsive">
+				<table id="membership" class = "table table-bordered table-hover table-striped" cellspacing="0" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
+					<tr>
+						<th id="checkbox" class="screenOnly attach">
+							<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
+						</th>
+						<th id="worksite" class="attach">
+							<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')"> 
+								$tlang.getString("gen.worksite")
+								#if ($currentSortAsc) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
+								#end	
+							</a>
+						</th>
 
-					## SAK-29138
-					<th id="sections">$tlang.getString("mb.sections")</th>
+						## SAK-29138
+						<th id="sections">$tlang.getString("mb.sections")</th>
 
-					<th id="description">$tlang.getString("gen.description")</th>
-				</tr>
-				<tbody>
-					#set ($rowCount =0)
-					#set ($checkboxCount = 0)
-					#foreach ($site in $unjoinableSites)
-					#set ($rowCount =$rowCount + 1)
-						<tr>
-							<td headers="checkbox" class="screenOnly attach">
-								#set($siteType=$site.Type)
-								## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
-								#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
-									<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
-									#set ($checkboxCount = $checkboxCount + 1)
-								#end
-							</td>	
+						<th id="description">$tlang.getString("gen.description")</th>
+					</tr>
+					<tbody>
+						#set ($rowCount =0)
+						#set ($checkboxCount = 0)
+						#foreach ($site in $unjoinableSites)
+						#set ($rowCount =$rowCount + 1)
+							<tr>
+								<td headers="checkbox" class="screenOnly attach">
+									#set($siteType=$site.Type)
+									## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
+									#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
+										<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
+										#set ($checkboxCount = $checkboxCount + 1)
+									#end
+								</td>	
 	
-							<td headers="worksite" style="white-space:nowrap" class="attach" id="mcstR-$rowCount">
-								<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
-							</td>
+								<td headers="worksite" class="attach" id="mcstR-$rowCount">
+									<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
+								</td>
 
-							<td headers="sections">
-								$siteGroupsMap.get( $site.getId() )
-							</td>
+								<td headers="sections">
+									$siteGroupsMap.get( $site.getId() )
+								</td>
 
-							<td headers="description mcstR-$rowCount" class="specialLink">
-								#if ($validator.escapeHtml($site.Description) != '')
-									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
-									<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
-								#end
-						</td>
-						</tr>
-					#end
-				</tbody>	
-			</table>
+								<td headers="description mcstR-$rowCount" class="specialLink">
+									#if ($validator.escapeHtml($site.Description) != '')
+										$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
+										<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
+									#end
+								</td>
+							</tr>
+						#end
+					</tbody>	
+				</table>
+			</div>
 
 		#if( $checkboxCount > 0 )
 			<p class="act">

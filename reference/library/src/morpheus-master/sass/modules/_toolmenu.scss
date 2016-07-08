@@ -33,14 +33,16 @@ body.#{$namespace}toolMenu-collapsed{
 					&:hover{
 						.#{$namespace}toolsNav__menuitem--title{
 							position: absolute;
-						    display: block;
-						    float: right;
-						    margin: -2.1em 0em 0em 3.2em;
-						    background: $primary-color;
-						    padding: 0.71em;
-						    border-left: 1px solid $primary-color;
-						    max-width: 7.5em;
-						    z-index: 10;
+							display: block;
+							float: right;
+							margin: -2.1em 0em 0em 3.2em;
+							background: $primary-color;
+							padding: 0.71em;
+							border-left: 3px solid $primary-color-shadow;
+							z-index: 10;
+							width: auto;
+							border-radius: 0 15px 15px 0;
+							line-height: 100%;
 						}
 					}
 					&.is-invisible {
@@ -70,7 +72,10 @@ body.#{$namespace}toolMenu-collapsed{
 }
 
 #toolMenuWrap{
-	background: $toolMenuBGColor;
+	#toolMenu {
+		position: relative;
+	}
+	background: $tool-menu-background-color;
 	display: block;
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
@@ -136,7 +141,7 @@ body.#{$namespace}toolMenu-collapsed{
 }
 
 #subSites{
-	background: darken( $toolMenuBGColor, 10% );
+	background: darken( $tool-menu-background-color, 10% );
 	ul{
 		list-style: none;
 		padding: 0 0 0 0;
@@ -157,8 +162,8 @@ nav#subSites{
 			width: 0;
 			position: absolute;
 			pointer-events: none;
-			border-color: rgba( darken( $toolMenuBGColor, 10% ) , 0);
-			border-right-color: darken( $toolMenuBGColor, 10% );
+			border-color: rgba( darken( $tool-menu-background-color, 10% ) , 0);
+			border-right-color: darken( $tool-menu-background-color, 10% );
 			border-width: 7px;
 			margin-top: -7px;
 		}
@@ -177,15 +182,15 @@ nav#subSites{
 				justify-content:flex-end; /* right-align the arrows when expanded */
 				height:3em;
 				padding: 0 1em;
-				border-right: 1px solid $toolMenuBGColor;
-				border-bottom: 1px solid darken( $toolMenuBGColor, 10% );
+				border-right: 1px solid $tool-menu-background-color;
+				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
 				cursor:pointer;
 				font-size: 1.2em;
-				background-color: $toolTabBGColor;
+				background-color: $tool-tab-background-color;
 				&:hover
 				{
-					background: $primary-color;
-					color: $tool-background-color;
+					background: $tool-menu-hover-background-color;
+					color: $tool-menu-hover-color;
 				}
 				&.min
 				{
@@ -202,7 +207,7 @@ nav#subSites{
 				}
 			}
 			@media #{$phone}{
-				border-left: 2px solid darken( $toolMenuBGColor, 10% );
+				border-left: 2px solid darken( $tool-menu-background-color, 10% );
 				margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 				width: calc( 25% - 1px );
 			}
@@ -210,8 +215,8 @@ nav#subSites{
 				margin: 0 0.25em 0 0;
 			}
 			a{
-				border-bottom: 1px solid darken( $toolMenuBGColor, 10% );
-				color: $toolMenuColor;
+				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
+				color: $tool-menu-color;
 				display: block;
 				font-family: $header-font-family;
 				font-weight: 300;
@@ -222,8 +227,8 @@ nav#subSites{
 				text-align: center;
 				text-decoration: none;
 				&:hover{
-					background: $primary-color;
-					color: $tool-background-color;
+					background: $tool-menu-hover-background-color;
+					color: $tool-menu-hover-color;
 				}
 				@media #{$phone}{
 					height:  5.5em;
@@ -235,7 +240,7 @@ nav#subSites{
 					max-width: 100%;
 					width: 100%;
 					text-overflow: ellipsis;
-					white-space: pre-wrap;
+					white-space: pre;
 					overflow: hidden;
 				}
 				&.is-invisible {
@@ -256,34 +261,34 @@ nav#subSites{
 				}
 			}
 			&.is-current{
-				background: $background-color;
+				background: $tool-menu-current-background-color;
 				a{
-					border-left: 4px solid $primary-color;
-					border-bottom: 1px solid $primary-color;
-					color: $primary-color;
+					border-left: 4px solid $tool-menu-current-border-color;
+					border-bottom: 1px solid $tool-menu-current-border-color;
+					color: $tool-menu-current-color;
 					.#{$namespace}toolsNav__menuitem--title{
 						font-weight: 700;
 					}
 					&:hover{
-						background: $primary-color;
-						color: $tool-background-color;
+						background: $tool-menu-hover-background-color;
+						color: $tool-menu-hover-color;
 					}
 					@media #{$phone}{
-						border: 1px solid $primary-color;
-						border-left: 1px solid $primary-color;
+						border: 1px solid $tool-menu-current-border-color;
+						border-left: 1px solid $tool-menu-current-border-color;
 					}
 				}
 			}
 			.#{$namespace}toolsNav__subnav{
 				padding: 0 0 0 0;
 				li{
-					border-bottom: 1px solid lighten( $text-color, 5% );
+					border-bottom: 1px solid $tool-sub-menu-border-color;
 					a{
 			  			padding: 0.6em 0 0.6em 2em;
-						background: lighten( $text-color, 5% );
+						background: $tool-sub-menu-background-color;
 						&:hover{
-							background: $primary-color;
-							color: #{$toolMenuColor};
+							background: $tool-sub-menu-hover-background-color;
+							color: $tool-sub-menu-hover-color;
 						}
 						@media #{$phone}{
 							padding: 0.6em 0.6em;
@@ -291,14 +296,14 @@ nav#subSites{
 					}
 					&.is-current{
 						a{
-							background: $background-color;
-							color: $primary-color;
+							background: $tool-sub-menu-current-background-color;
+							color: $tool-sub-menu-current-color;
 							.#{$namespace}toolsNav__menuitem--title{
 								font-weight: 700;
 							}
 							&:hover{
-								background: $background-color;
-								color: #{$toolMenuColor};
+								background: $tool-sub-menu-current-hover-background-color;
+								color: $tool-sub-menu-current-hover-color;
 							}
 						}
 					}

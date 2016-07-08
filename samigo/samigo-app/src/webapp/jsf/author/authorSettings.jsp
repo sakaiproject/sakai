@@ -124,7 +124,7 @@
       </script>
 
       </head>
-    <body onload="checkTimeSelect(); <%= request.getAttribute("html.body.onload") %>">
+    <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody container-fluid">
 

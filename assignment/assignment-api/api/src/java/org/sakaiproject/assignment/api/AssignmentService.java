@@ -730,6 +730,14 @@ public interface AssignmentService extends EntityProducer
 	 *         if the current user is not allowed to read this.
 	 */
 	public AssignmentSubmission getSubmission(String assignmentReference, String submitterId);
+
+	/**
+	 * Access a mapping of users to their corresponding submission on the specified assignment for the specified users
+	 * @param assignment the assignment with which the submissions should be associated
+	 * @param users the returned map's keys will contain only members of this list of users who have submissions on the specified assignment
+	 * @return a mapping of Users to their corresponding submissions, never null
+	 */
+	public Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment assignment, List<User> users);
 	
 	/**
 	 * Access a User's AssignmentSubmission inside a list of AssignmentSubmission object.

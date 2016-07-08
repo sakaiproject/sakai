@@ -62,6 +62,10 @@
                 <artifactId>entitybroker-utils</artifactId>
         </dependency>
         <dependency>
+                <groupId>org.sakaiproject.profile2</groupId>
+                <artifactId>profile2-api</artifactId>
+        </dependency>
+        <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
         </dependency>
@@ -114,6 +118,10 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 
     </dependencies>
 
@@ -124,6 +132,11 @@
                 <includes>
                     <include>**/*.config</include>
                     <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
                     <include>**/*.vm</include>
                 </includes>
             </resource>

@@ -104,6 +104,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -3458,28 +3459,34 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	
 	public void autoSubmitAssessments() {
 		java.util.Date currentTime = new java.util.Date();
-		Object [] values = {currentTime, currentTime};
+		
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
-		List list = getHibernateTemplate()
-				.find("select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
+		Query query = session.createQuery("select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
 						" a.agentId, a.submittedDate, a.isLate, a.forGrade, a.totalAutoScore, a.totalOverrideScore, " +
 						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-						" and c.retractDate <= ?" +
+						" and c.retractDate <= :retractDate" +
 						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
 						" and a.attemptDate is not null " +
-						" and (a.attemptDate <= c.retractDate or (c.dueDate <= ? and c.lateHandling = 2)) " +
-						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId", values);
+						" and (a.attemptDate <= c.retractDate " +
+							" or (c.dueDate <= :dueDate and c.lateHandling = 2) " +
+// This clause is to find which items also have extendedTime, but I feel like it's unnecessary and will fit into one of the other two criteria?
+//							" or a.publishedAssessmentId in (select p.assessment.publishedAssessmentId from PublishedMetaData p where p.label='extendedTime1') " +
+						"     ) " +
+						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
+	    
+		query.setTimestamp("dueDate",currentTime);
+		query.setTimestamp("retractDate",currentTime);
 		
+		List<AssessmentGradingData> list = query.list();
+
 	    Iterator iter = list.iterator();
 	    String lastAgentId = "";
 	    Long lastPublishedAssessmentId = Long.valueOf(0);
 	    AssessmentGradingData adata = null;
 	    HashMap sectionSetMap = new HashMap();
-	    
-	    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
-	    PublishedAssessmentFacade assessment = null;
 	    
 	    EventLogService eventService = new EventLogService();
 	    EventLogFacade eventLogFacade = new EventLogFacade();
@@ -3500,6 +3507,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 		boolean updateCurrentGrade;
 	    while (iter.hasNext()) {
+
 	    	updateCurrentGrade = false;
             Map<String, Object> notiValues = new HashMap<>();
 	    	try{
@@ -3509,6 +3517,20 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				Date endDate = new Date();
 				if (Boolean.FALSE.equals(adata.getForGrade())){
 
+						// SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
+						PublishedAssessmentFacade assessment = (PublishedAssessmentFacade)publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
+						Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
+						ExtendedTimeService assessmentExtended = new ExtendedTimeService(assessment,adata.getAgentId());
+						//If it has extended time, just continue for now, no method to tell if the time is passed
+						if (assessmentExtended.hasExtendedTime()) {
+							//If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
+							if (currentTime.before(assessmentExtended.getRetractDate()) || currentTime.before(assessmentExtended.getDueDate())) {
+								continue;
+							}
+							//Continue on and try to submit it but it may be late, just change the due date
+							dueDate = assessmentExtended.getDueDate();
+						}
+						
 						adata.setForGrade(Boolean.TRUE);
 						if (adata.getTotalAutoScore() == null) {
 								adata.setTotalAutoScore(0d);
@@ -3516,13 +3538,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						if (adata.getFinalScore() == null) {
 								adata.setFinalScore(0d);
 						}
-						if (adata.getAttemptDate() != null && assessment != null && assessment.getDueDate() != null &&
-										adata.getAttemptDate().after(assessment.getDueDate())) {
+
+						if (adata.getAttemptDate() != null && dueDate != null &&
+										adata.getAttemptDate().after(dueDate)) {
 								adata.setIsLate(true);
 						}
 						// SAM-1088
-						else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
-										adata.getSubmittedDate().after(assessment.getDueDate())) {
+						else if (adata.getSubmittedDate() != null && dueDate != null &&
+										adata.getSubmittedDate().after(dueDate)) {
 								adata.setIsLate(true);
 						}
 						// SAM-2729 user probably opened assessment and then never submitted a question
@@ -3539,7 +3562,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         				// Check: needed updating gradebook
         				// If the assessment is configured with highest score and exists a previous submission with higher score 
         				// this submission doesn't have to be sent to gradebook
-        				assessment = (PublishedAssessmentFacade)publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
         				
         				if (assessment.getEvaluationModel().getScoringType().equals(EvaluationModel.HIGHEST_SCORE)) {
         					AssessmentGradingData assessmentGrading = 

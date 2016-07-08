@@ -1,0 +1,40 @@
+<script type="text/javascript" src="http://localhost/profile2-tool/javascript/profile2-eb.js"></script>
+<div class="profile-popup">
+    <div class="profile-popup-display-name">${displayName}</div>
+    <div class="profile-popup-email"><a href="mailto:${email}">${email}</a></div>
+
+    <div id="profile-popup-connected-block-${connectionUserId}" #if (!${connected})style="display: none;"#end>
+        <button class="profile-connection-button" onclick="return profile.removeFriend('${currentUserId}','${connectionUserId}');">
+            <span class="fa fa-minus"><span>
+            <span class="profile-popup-action-label">${removeConnectionLabel}</span>
+        </button>
+    </div>
+
+    <div id="profile-popup-requested-block-${connectionUserId}" #if (!${requested})style="display: none;"#end>
+        <div class="profile-popup-incoming-label">${requestMadeLabel}</div>
+        <button class="profile-connection-button" onclick="return profile.ignoreFriendRequest('${currentUserId}','${connectionUserId}');">
+            <span class="fa fa-minus"><span>
+            <span class="profile-popup-action-label">${cancelLabel}</span>
+        </button>
+    </div>
+
+    <div id="profile-popup-incoming-block-${connectionUserId}" #if (!${incoming})style="display: none;"#end>
+        <div class="profile-popup-incoming-label">${incomingRequestLabel}</div>
+        <button class="profile-connection-button" onclick="return profile.confirmFriendRequest('${currentUserId}','${connectionUserId}');">
+            <span class="fa fa-plus"><span>
+            <span class="profile-popup-action-label">${acceptLabel}</span>
+        </button>
+        <button class="profile-connection-button" onclick="return profile.ignoreFriendRequest('${currentUserId}','${connectionUserId}');">
+            <span class="fa fa-minus"><span>
+            <span class="profile-popup-action-label">${rejectLabel}</span>
+        </button>
+    </div>
+
+    <div id="profile-popup-unconnected-block-${connectionUserId}" #if (!${unconnected})style="display: none;"#end>
+        <button class="profile-connection-button" onclick="return profile.requestFriend('${currentUserId}','${connectionUserId}');">
+            <span class="fa fa-plus"><span>
+            <span class="profile-popup-action-label">${addConnectionLabel}</span>
+        </button>
+    </div>
+
+</div>

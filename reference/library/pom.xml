@@ -82,6 +82,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
+			<artifactId>jquery-ui-themes</artifactId>
+			<version>1.11.3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
 			<artifactId>jquery-ui-touch-punch</artifactId>
 			<version>0.2.3-2</version>
 			<scope>runtime</scope>
@@ -108,6 +114,29 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>pnotify</artifactId>
 			<version>2.1.0-1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>elfinder</artifactId>
+			<version>2.1.12</version>
+			<scope>runtime</scope>
+			<exclusions>
+				<!-- The exclusions are because the bower versions don't have concat/min versions -->
+				<exclusion>
+					<artifactId>jquery-ui</artifactId>
+					<groupId>org.webjars.bower</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jquery</artifactId>
+					<groupId>org.webjars.bower</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>fontawesome</artifactId>
+			<version>4.6.3</version>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
@@ -285,6 +314,7 @@
 					       <inputPath>${basedir}/src/${sakai.skin.source}/sass/</inputPath>
 					       <outputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</outputPath>
 					       <includePath>${basedir}/src/${sakai.skin.source}/bootstrap-sass-3.3.6/assets/stylesheets/${path.separator}${basedir}/src/${sakai.skin.source}/font-awesome-sass-4.5.0/assets/stylesheets/</includePath>
+					       <sourceMapOutputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</sourceMapOutputPath>
 					   </configuration>
 					</plugin>
 					<plugin>

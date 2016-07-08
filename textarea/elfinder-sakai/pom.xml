@@ -52,9 +52,15 @@
         <dependency>
             <groupId>com.github.bluejoe2008</groupId>
             <artifactId>elfinder-servlet-2</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
             <classifier>classes</classifier>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

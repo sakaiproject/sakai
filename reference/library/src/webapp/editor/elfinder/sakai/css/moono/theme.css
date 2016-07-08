@@ -155,6 +155,10 @@
 .elfinder-cwd-icon-xml:before {
   content: '\f1c9';
 }
+/* unknown file types */
+.elfinder-cwd-icon-unknown:before {
+  content: '\f016';
+}
 /* Toolbar  */
 /* toolbar */
 .elfinder .elfinder-toolbar {
@@ -198,7 +202,7 @@
 .elfinder .elfinder-buttonset .elfinder-button:active {
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3) inset;
   background: #ccc;
-  background-image: linear-gradient(to bottom, #f2f2f2, #cccccc);
+  background-image: linear-gradient(to bottom, #f2f2f2, #ccc);
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#f2f2f2', endColorstr='#cccccc');
 }
 /* disabled buttons */
@@ -492,7 +496,7 @@
 .elfinder .elfinder-navbar-icon,
 .elfinder-lock,
 .elfinder-perms,
-.elfinder-symlink{
+.elfinder-symlink {
   background-image: none !important;
   overflow: hidden;
   height: 16px;
@@ -501,7 +505,6 @@
   line-height: 16px;
   margin-left: 3px;
 }
-
 .elfinder .elfinder-navbar-icon:before,
 .elfinder-lock:before,
 .elfinder-perms:before,
@@ -513,28 +516,24 @@
   cursor: pointer;
   font-size: smaller;
 }
-
 .elfinder-lock:before,
 .elfinder-perms:before,
 .elfinder-symlink:before {
-  color:grey;
+  color: grey;
   opacity: 0.9;
 }
 /* read-only */
 .elfinder-ro .elfinder-perms:before {
   content: '\f023';
 }
-
 /* not available */
-elfinder-na .elfinder-perms before {
+.elfinder-na .elfinder-perms:before {
   content: '\f05e';
 }
-
 /* write-only available */
-elfinder-wo .elfinder-perms before {
+.elfinder-wo .elfinder-perms:before {
   content: '\f01a';
 }
-
 /* home */
 .elfinder .elfinder-navbar-root > .elfinder-navbar-icon:before,
 .elfinder .elfinder-navbar-root.elfinder-navbar-expanded > .elfinder-navbar-icon:before {
@@ -889,7 +888,7 @@ elfinder-wo .elfinder-perms before {
 .elfinder-dialog .ui-button:hover {
   border-color: #9e9e9e;
   background: #ccc;
-  background-image: linear-gradient(to bottom, #f2f2f2, #cccccc);
+  background-image: linear-gradient(to bottom, #f2f2f2, #ccc);
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#f2f2f2', endColorstr='#cccccc');
 }
 .elfinder-dialog .ui-button:active {
@@ -898,27 +897,30 @@ elfinder-wo .elfinder-perms before {
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.4) inset;
 }
 /* Context menu */
-.elfinder-contextmenu * {
+.elfinder {
+  /* item */
+  /* item hovered */
+  /* icons */
+  /* separator */
+}
+.elfinder .elfinder-contextmenu * {
   font: normal normal normal 16px Arial, Helvetica, Tahoma, Verdana, Sans-Serif;
 }
-.elfinder-contextmenu {
+.elfinder .elfinder-contextmenu {
   display: block;
   border: 1px solid #b6b6b6;
   padding: 0;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
 }
-/* item */
-.elfinder-contextmenu .elfinder-contextmenu-item {
+.elfinder .elfinder-contextmenu .elfinder-contextmenu-item {
   padding: 5px 30px 5px 30px;
   box-sizing: border-box;
   height: 24px;
 }
-/* item hovered */
-.elfinder-contextmenu .elfinder-contextmenu-item:hover {
+.elfinder .elfinder-contextmenu .elfinder-contextmenu-item:hover {
   background-color: #EFF0EF;
 }
-/* icons */
-.elfinder-contextmenu .elfinder-contextmenu-icon {
+.elfinder .elfinder-contextmenu .elfinder-contextmenu-icon {
   top: 0;
   left: 0;
   margin: 0;
@@ -932,8 +934,7 @@ elfinder-wo .elfinder-perms before {
   width: 24px;
   text-align: center;
 }
-/* separator */
-.elfinder-contextmenu .elfinder-contextmenu-separator {
+.elfinder .elfinder-contextmenu .elfinder-contextmenu-separator {
   border: none;
   background-color: #D3D3D3;
   height: 1px;
@@ -987,7 +988,7 @@ elfinder-wo .elfinder-perms before {
 .elfinder .elfinder-path a:hover:active {
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3) inset;
   background: #ccc;
-  background-image: linear-gradient(to bottom, #f2f2f2, #cccccc);
+  background-image: linear-gradient(to bottom, #f2f2f2, #ccc);
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#f2f2f2', endColorstr='#cccccc');
 }
 .elfinder .elfinder-statusbar .elfinder-stat-selected {

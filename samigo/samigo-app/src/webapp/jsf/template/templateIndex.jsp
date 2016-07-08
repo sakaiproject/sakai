@@ -37,9 +37,9 @@
 <!-- content... -->
 <div class="portletBody">
   <h:form id="templateCreateForm">
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- HEADINGS -->
   <%@ include file="/jsf/template/templateHeadings.jsp" %>
+  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h3>
    <h:outputText value="#{templateMessages.index_templates}"/>
@@ -51,25 +51,22 @@
    <h4>
    <h:outputText value="#{templateMessages.index_new}"  rendered="#{authorization.createTemplate}"/>
    </h4>
+   <h5>
+    <h:outputText value="#{templateMessages.index_create_new}"  rendered="#{authorization.createTemplate}"/>
+   </h5>
+</div>
 
-<div class="tier2">
-  <h5>
-   <h:outputText value="#{templateMessages.index_create_new}"  rendered="#{authorization.createTemplate}"/>
-  </h5>
-   <h:panelGrid columns="2">
-      <h:outputLabel for="tempName" value="#{templateMessages.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
-      
-<h:panelGroup  rendered="#{authorization.createTemplate}" >
-      <h:inputText id="tempName" value="#{template.newName}" size="60" maxlength="255" />
+<div class="form-inline">
+    <div class="form-group">
+        <h:outputLabel for="tempName" value="#{templateMessages.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
+        <h:inputText id="tempName" value="#{template.newName}" size="60" maxlength="255" styleClass="form-control" />
+    </div>
+    <h:commandButton type="submit" id="Submit" value="#{templateMessages.index_button_create}" action="#{template.getOutcome}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
+    </h:commandButton>
+</div>
 
-      <h:commandButton type="submit" id="Submit" value="#{templateMessages.index_button_create}" action="#{template.getOutcome}">
-              <f:actionListener
-                type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
-       </h:commandButton>
-</h:panelGroup>
- </h:panelGrid>
-    </div>
-    </div>
+
 </h:form>
 
 <br/><h:message for="tempName" styleClass="validate"/>
@@ -83,8 +80,9 @@
 
   <!-- controller buttons for invisible pager control -->
   <!-- samigo:pagerButtonControl controlId="templates" formId="editOrRemoveTemplateForm" / -->
+  <div class="table-responsive">
   <h:dataTable cellpadding="0" cellspacing="0" id="editDataTable" value="#{templateIndex.sortTemplateList}"
-    var="templateListItem" styleClass="listHier">
+    var="templateListItem" styleClass="table table-hover table-bordered table-striped">
     <h:column>
      <f:facet name="header">
        <h:panelGroup>
@@ -173,7 +171,7 @@
       </h:outputText>
     </h:column>
 
-  </h:dataTable>
+  </h:dataTable></div>
   <!-- invisible pager control -->
   <!-- samigo:pager controlId="templates" dataTableId="editDataTable"
     showpages="999" showLinks="false" styleClass="rtEven"

@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import javax.xml.bind.DatatypeConverter;
@@ -95,26 +96,23 @@ class ConvertUserFavoriteSitesSakai11 {
 
     public static void main(String args[]) {
         String tomcatDir = System.getProperty("tomcat.dir");
+        String dbPropertiesPath = System.getProperty("db.properties");
 
-        if (tomcatDir == null) {
-            info("You must set the tomcat.dir system property.\n");
+        if (tomcatDir == null && dbPropertiesPath == null) {
+            info("You must either set the tomcat.dir system property, or the db.properties system property.\n");
             showUsage();
 
             System.exit(1);
         }
 
         try {
-            Properties sakaiProperties = loadSakaiProperties(tomcatDir + File.separator + "sakai" + File.separator + "sakai.properties");
-
-            Class.forName(getProperty(sakaiProperties, "driverClassName@javax.sql.BaseDataSource"));
-
-            String jdbcUrl = getProperty(sakaiProperties, "url@javax.sql.BaseDataSource");
+            DBConfig config = new DBConfig(dbPropertiesPath, tomcatDir);
 
             Connection db = null;
             try {
-                db = DriverManager.getConnection(jdbcUrl,
-                                                 getProperty(sakaiProperties, "username@javax.sql.BaseDataSource"),
-                                                 getProperty(sakaiProperties, "password@javax.sql.BaseDataSource"));
+                db = DriverManager.getConnection(config.getUrl(),
+                        config.getUsername(),
+                        config.getPassword());
 
                 migrateFavoriteSites(db);
             } finally  {
@@ -229,27 +227,6 @@ class ConvertUserFavoriteSitesSakai11 {
         info("Migration complete!");
     }
 
-    private static Properties loadSakaiProperties(String sakaiProperties)
-        throws IOException {
-        Properties result = new Properties();
-
-        FileInputStream fh = new FileInputStream(sakaiProperties);
-        result.load(fh);
-        fh.close();
-
-        return result;
-    }
-
-    private static String getProperty(Properties properties, String key) {
-        String result = properties.getProperty(key);
-
-        if (result == null) {
-            throw new IllegalStateException("No entry for key: " + key);
-        }
-
-        return result;
-    }
-
     private static void showUsage() {
         info("Usage:\n");
         info("  cd /path/to/my/tomcat/directory");
@@ -259,16 +236,24 @@ class ConvertUserFavoriteSitesSakai11 {
 
         info("\nOr Windows:\n");
         info("  java -cp \"lib\\*\" -Dtomcat.dir=%cd% org.sakaiproject.user.util.ConvertUserFavoriteSitesSakai11\n");
+
+        info("\nIf the properties file containing your database connection details is stored in a non-standard location, you can explicitly select it with:\n");
+        info("  java -cp \"lib\\*\" -Ddb.properties=my_database.properties org.sakaiproject.user.util.ConvertUserFavoriteSitesSakai11\n");
+
     }
 
 
     //
     // Show a progress counter and some performance numbers
     private static class ProgressCounter {
+
+        // Show a status message every REPORT_FREQUENCY_MS milliseconds
+        private static long REPORT_FREQUENCY_MS = 10000;
+
         private long estimatedTotalRecordCount = 0;
         private long recordCount = 0;
         private long startTime;
-        private int reportFrequency = 1;
+        private long timeOfLastReport = 0;
 
         public ProgressCounter(long estimatedTotalRecordCount) {
             this.estimatedTotalRecordCount = estimatedTotalRecordCount;
@@ -283,20 +268,18 @@ class ConvertUserFavoriteSitesSakai11 {
                 recordCount = estimatedTotalRecordCount;
             }
 
-            if (recordCount > 0 && (recordCount % reportFrequency) == 0 || recordCount == estimatedTotalRecordCount) {
+            long now = System.currentTimeMillis();
+            long msSinceLastReport = (now - timeOfLastReport);
+
+            if (msSinceLastReport >= REPORT_FREQUENCY_MS || recordCount == estimatedTotalRecordCount) {
+                timeOfLastReport = now;
                 info("\nUp to record number " + recordCount + " of " + estimatedTotalRecordCount);
 
-                float elapsed = (float)(System.currentTimeMillis() - startTime);
-                float recordsPerSecond = (recordCount / elapsed) * 1000;
-
-                // dynamically (and psuedo-scientifically) adjust the delay
-                // between progress messages based on how fast we're going.
-                //
-                // This is *way* less important than it looks.  I just wanted
-                // a function that wouldn't jump around too much.
-                reportFrequency = (int)Math.pow(10, Math.floor((Math.log(recordsPerSecond) / Math.log(10)) + 1));
+                long elapsed = (timeOfLastReport - startTime);
 
                 if (elapsed > 0) {
+                    float recordsPerSecond = (recordCount / (float)elapsed) * 1000;
+
                     info(String.format("Average processing rate (records/second): %.2f", + recordsPerSecond));
                     long recordsRemaining = (estimatedTotalRecordCount - recordCount);
                     long msRemaining = (long)((recordsRemaining / recordsPerSecond) * 1000);
@@ -380,6 +363,81 @@ class ConvertUserFavoriteSitesSakai11 {
             public String toString() {
                 return userId + " - " + sites;
             }
+        }
+    }
+
+
+    //
+    // Find the user's database connection settings
+    //
+    private static class DBConfig {
+        private String username;
+        private String password;
+        private String url;
+
+        public DBConfig(String propertiesFile, String tomcatDir) {
+            if (propertiesFile != null) {
+                loadFromProperties(propertiesFile);
+            } else {
+                for (String possibleProperties : findPropertiesFiles(tomcatDir)) {
+                    loadFromProperties(possibleProperties);
+                }
+            }
+
+            if (username == null || password == null || url == null) {
+                throw new RuntimeException("Could not locate your database connection settings!");
+            }
+        }
+
+        public String getUrl() { return url; }
+        public String getUsername() { return username; }
+        public String getPassword() { return password; }
+
+
+        private void loadFromProperties(String file) {
+            Properties properties = new Properties();
+
+            try {
+                FileInputStream fh = new FileInputStream(file);
+                properties.load(fh);
+                fh.close();
+            } catch (IOException e) {
+                ConvertUserFavoriteSitesSakai11.info("Failed to read properties from: " + file);
+            }
+
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                String prop = (String) entry.getKey();
+                String value = (String) entry.getValue();
+
+                if ("driverClassName@javax.sql.BaseDataSource".equals(prop)) {
+                    try {
+                        Class.forName(value);
+                    } catch (ClassNotFoundException e) {
+                        ConvertUserFavoriteSitesSakai11.info("*** Failed to load database driver!");
+                        throw new RuntimeException(e);
+                    }
+                } else if ("url@javax.sql.BaseDataSource".equals(prop)) {
+                    this.url = value;
+                } else if ("username@javax.sql.BaseDataSource".equals(prop)) {
+                    this.username = value;
+                } else if ("password@javax.sql.BaseDataSource".equals(prop)) {
+                    this.password = value;
+                }
+            }
+        }
+
+        private List<String> findPropertiesFiles(String tomcatDir) {
+            List<String> result = new ArrayList();
+
+            for (String path : new String[] { "sakai" + File.separator + "sakai.properties",
+                                              "sakai" + File.separator + "local.properties",
+                                              "sakai" + File.separator + "instance.properties" }) {
+                if (new File(tomcatDir + File.separator + path).exists()) {
+                    result.add(path);
+                }
+            }
+
+            return result;
         }
     }
 

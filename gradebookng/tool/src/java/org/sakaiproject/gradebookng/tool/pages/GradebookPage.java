@@ -10,14 +10,12 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
@@ -48,7 +46,8 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-import org.sakaiproject.gradebookng.business.util.Temp;
+import org.sakaiproject.gradebookng.business.util.GbStopWatch;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -95,9 +94,10 @@ public class GradebookPage extends BasePage {
 	GbModalWindow updateCourseGradeDisplayWindow;
 
 	Label liveGradingFeedback;
+	boolean hasAssignmentsAndGrades;
 
 	Form<Void> form;
-	
+
 	List<PermissionDefinition> permissions = new ArrayList<>();
 	boolean showGroupFilter = true;
 
@@ -109,29 +109,29 @@ public class GradebookPage extends BasePage {
 		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
 		}
-				
+
 		//TAs with no permissions or in a roleswap situation
 		if(this.role == GbRole.TA){
-			
+
 			//roleswapped?
 			if(this.businessService.isUserRoleSwapped()) {
-				PageParameters params = new PageParameters();
+				final PageParameters params = new PageParameters();
 				params.add("message", getString("ta.roleswapped"));
 				throw new RestartResponseException(AccessDeniedPage.class, params);
 			}
-			
+
 			// no perms
-			permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
-			if(permissions.isEmpty()) {
-				PageParameters params = new PageParameters();
+			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
+			if(this.permissions.isEmpty()) {
+				final PageParameters params = new PageParameters();
 				params.add("message", getString("ta.nopermission"));
 				throw new RestartResponseException(AccessDeniedPage.class, params);
 			}
 		}
 
-		final StopWatch stopwatch = new StopWatch();
+		final GbStopWatch stopwatch = new GbStopWatch();
 		stopwatch.start();
-		Temp.time("GradebookPage init", stopwatch.getTime());
+		stopwatch.time("GradebookPage init", stopwatch.getTime());
 
 		this.form = new Form<Void>("form");
 		add(this.form);
@@ -167,7 +167,7 @@ public class GradebookPage extends BasePage {
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		this.form.add(this.updateCourseGradeDisplayWindow);
 
-		final AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
+		final GbAjaxButton addGradeItem = new GbAjaxButton("addGradeItem") {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form form) {
 				final GbModalWindow window = getAddOrEditGradeItemWindow();
@@ -184,7 +184,6 @@ public class GradebookPage extends BasePage {
 				}
 				return true;
 			}
-
 		};
 		addGradeItem.setDefaultFormProcessing(false);
 		addGradeItem.setOutputMarkupId(true);
@@ -207,15 +206,17 @@ public class GradebookPage extends BasePage {
 		// fetch the grades for each student for each assignment from
 		// the map
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
-		Temp.time("getGradebookAssignments", stopwatch.getTime());
+		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
 		// get the grade matrix. It should be sorted if we have that info
 		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
 
+		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !grades.isEmpty();
+
 		// mark the current timestamp so we can use this date to check for any changes since now
 		final Date gradesTimestamp = new Date();
 
-		Temp.time("buildGradeMatrix", stopwatch.getTime());
+		stopwatch.time("buildGradeMatrix", stopwatch.getTime());
 
 		// categories enabled?
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
@@ -289,7 +290,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public String getCssClass() {
-				String cssClass = "gb-course-grade";
+				final String cssClass = "gb-course-grade";
 				if (settings.getShowPoints()) {
 					return cssClass + " points";
 				} else {
@@ -309,6 +310,7 @@ public class GradebookPage extends BasePage {
 				// event
 				final Map<String, Object> modelData = new HashMap<>();
 				modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
+				modelData.put("hasCourseGradeOverride", studentGradeInfo.getCourseGrade().getCourseGrade().getEnteredGrade() != null);
 				modelData.put("studentUuid", studentGradeInfo.getStudentUuid());
 				modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
 				modelData.put("currentUserRole", GradebookPage.this.role);
@@ -453,7 +455,7 @@ public class GradebookPage extends BasePage {
 			}
 		}
 
-		Temp.time("all Columns added", stopwatch.getTime());
+		stopwatch.time("all Columns added", stopwatch.getTime());
 
 		// TODO make this AjaxFallbackDefaultDataTable
 		final DataTable table = new DataTable("table", cols, studentGradeMatrix, 100) {
@@ -524,7 +526,7 @@ public class GradebookPage extends BasePage {
 
 		// Populate the toolbar
 		final WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
-		toolbar.setVisible(!assignments.isEmpty() && !grades.isEmpty());
+		toolbar.setVisible(this.hasAssignmentsAndGrades);
 		this.form.add(toolbar);
 
 		toolbar.add(constructTableSummaryLabel("studentSummary", table));
@@ -569,23 +571,23 @@ public class GradebookPage extends BasePage {
 
 		// if only one group, just show the title
 		// otherwise add the 'all groups' option
-		// cater for the case where there is only one group visible to TA but they can see everyone.		
+		// cater for the case where there is only one group visible to TA but they can see everyone.
 		if (this.role == GbRole.TA) {
 
 			//if only one group, hide the filter
 			if (groups.size() == 1) {
-				showGroupFilter = false;
-			
+				this.showGroupFilter = false;
+
 				// but need to double check permissions to see if we have any permissions with no group reference
-				permissions.forEach(p -> {					
+				this.permissions.forEach(p -> {
 					if (!StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString()) && StringUtils.isBlank(p.getGroupReference())) {
-						showGroupFilter = true;
+						this.showGroupFilter = true;
 					}
 				});
 			}
 		}
-		
-		if(!showGroupFilter) {
+
+		if(!this.showGroupFilter) {
 			toolbar.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
 		} else {
 			toolbar.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
@@ -667,7 +669,7 @@ public class GradebookPage extends BasePage {
 			noStudents.setVisible(true);
 		}
 
-		Temp.time("Gradebook page done", stopwatch.getTime());
+		stopwatch.time("Gradebook page done", stopwatch.getTime());
 	}
 
 	/**
@@ -865,6 +867,7 @@ public class GradebookPage extends BasePage {
 		// add simple feedback nofication to sit above the table
 		// which is reset every time the page renders
 		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
+		this.liveGradingFeedback.setVisible(this.hasAssignmentsAndGrades);
 		this.liveGradingFeedback.setOutputMarkupId(true);
 
 		// add the 'saving...' message to the DOM as the JavaScript will

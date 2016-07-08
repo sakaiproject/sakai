@@ -73,10 +73,11 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		}
 		String previousUrl = tutorialProps.getString(ref.getId() + ".previousUrl");
 		String nextUrl = tutorialProps.getString(ref.getId() + ".nextUrl");
-                String sakaiInstanceName = ServerConfigurationService.getString("ui.service", "Sakai");
-                
+		String sakaiInstanceName = ServerConfigurationService.getString("ui.service", "Sakai");
+		String selection = tutorialProps.getString(ref.getId() + ".selection");
+
 		Map valuesMap = new HashMap<String, String>();
-		valuesMap.put("selection", tutorialProps.getString(ref.getId() + ".selection"));
+		valuesMap.put("selection", selection);
 		valuesMap.put("title", msgs.getFormattedMessage(ref.getId() + ".title", sakaiInstanceName));
 		valuesMap.put("dialog", tutorialProps.getString(ref.getId() + ".dialog"));
 		valuesMap.put("positionTooltip", tutorialProps.getString(ref.getId() + ".positionTooltip"));
@@ -97,6 +98,8 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		}
 		if(nextUrl != null && !"".equals(nextUrl)){
 			footerHtml += "<div class='tut-next'><a href='#' class='qtipLinkButton' onclick='showTutorialPage(\"" + nextUrl + "\");'>" + msgs.getString("next") + "&nbsp;<i class='fa fa-arrow-right'></i></a></div>";
+		}else{
+			footerHtml += "<a href='#' class='btn-primary tut-close' onclick='endTutorial(\"" + selection + "\");' >"+ msgs.getString("endTutorial") +"</a>";
 		}
 		footerHtml += "</div>";
 		body += footerHtml;

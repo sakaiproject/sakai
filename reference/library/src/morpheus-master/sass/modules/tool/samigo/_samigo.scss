@@ -15,7 +15,7 @@
 	}
 
 	.samigo-question-callout {
-			border-left: 5px solid $toolBorderColor;
+			border-left: 5px solid $tool-border-color;
 			margin: 2em 0;
 			padding: 1.5em 2.5em 1.5em 1.5em;
 			input[type="checkbox"], input[type="radio"] {
@@ -59,9 +59,29 @@
 			margin: 0 0 0 0.5em;
 		}
 	}
-
+	
+	.matrixSurvey{
+		padding: 0 1em 0 1em;
+	}
+	
+	.feedBackCheck, .feedBackCross{
+		margin-right: 0.2em;
+	}
+	
+	.feedBackCheck{
+		color: $ok-color;
+	}
+	
+	.feedBackCross{
+		color: $error-color;
+	}
+	
+	.feedBackMultipleChoice{
+		width: 2em;
+	}
+	
 	.disabledField{
-		color: darken( $errorcolor, 30% );
+		color: $error-color;
 		text-decoration: line-through;
 	}
 
@@ -71,7 +91,7 @@
 			padding: 0 0 0 0;
 		}
 	}
-	.mcscFixUp > ul{
+	.mcscFixUp > ul,.question-wrapper{
 		list-style: none;
 		padding: 0 0 0 0;
 	}
@@ -160,5 +180,11 @@
 	
 	#samLiteEntryForm\:data{
 		margin-top: 1.2em;
+	}
+	
+	#templateCreateForm{
+		label[for="templateCreateForm:tempName"]{
+			margin-right: 1em;
+		}
 	}
 }

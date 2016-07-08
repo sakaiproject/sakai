@@ -39,6 +39,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
     this.setupTabs();
     this.setupStudentNavigation();
     this.setupFixedFooter();
+    this.hideWeightColumn();
     this.setupTableSorting();
     this.setupMask();
     this.setupModalPrint();
@@ -230,6 +231,7 @@ GradebookGradeSummary.prototype.setupModalPrint = function() {
 
 GradebookGradeSummary.prototype.setupStudentView = function() {
   var self = this;
+  self.hideWeightColumn();
   self.setupTableSorting();
 
   var $button = $("body").find(".portletBody .gb-summary-print");
@@ -305,6 +307,14 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
     },
     cssInfoBlock: "gb-summary-category-tbody"
   });
+};
+
+
+GradebookGradeSummary.prototype.hideWeightColumn = function() {
+  // only hide the weight column if there are no categories being displayed
+  if (this.$content.find(".gb-summary-category-row").length == 0) {
+    this.$content.find(".weight-col").hide();
+  }
 };
 
 
