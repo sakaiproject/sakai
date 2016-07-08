@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.component;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.html.form.Form;
 
 /**
  * A GradebookNG implementation of Wicket's AjaxButton that
@@ -13,6 +14,10 @@ public class GbAjaxButton extends AjaxButton {
 
 	public GbAjaxButton(String id) {
 		super(id);
+	}
+
+	public GbAjaxButton(String id, Form<?> form) {
+		super(id, form);
 	}
 
 	@Override

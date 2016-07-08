@@ -87,7 +87,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 		// form
 		final Form<Assignment> form = new Form<Assignment>("addOrEditGradeItemForm", formModel);
 
-		final GbAjaxButton submit = new GbAjaxButton("submit") {
+		final GbAjaxButton submit = new GbAjaxButton("submit", form) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -166,7 +166,11 @@ public class AddOrEditGradeItemPanel extends Panel {
 						}
 					}
 				}
+			}
 
+			@Override
+			protected void onError(AjaxRequestTarget target, Form<?> form) {
+				target.addChildren(form, FeedbackPanel.class);
 			}
 		};
 
