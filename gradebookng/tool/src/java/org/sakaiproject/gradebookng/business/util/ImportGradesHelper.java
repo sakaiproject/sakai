@@ -1,19 +1,23 @@
-package org.sakaiproject.gradebookng.business.helpers;
+package org.sakaiproject.gradebookng.business.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportColumn;
@@ -25,7 +29,6 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
 import au.com.bytecode.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +37,19 @@ import lombok.extern.slf4j.Slf4j;
  * Helper to handling parsing and processing of an imported gradebook file
  */
 @Slf4j
-public class ImportGradesHelper extends BaseImportHelper {
+public class ImportGradesHelper {
 
-	private static final String IMPORT_USER_ID = "Student ID";
-	private static final String IMPORT_USER_NAME = "Student Name";
+	// column names we know about
+	final static String IMPORT_USER_ID = "Student ID";
+	final static String IMPORT_USER_NAME = "Student Name";
+	final static String IMPORT_COURSE_GRADE = "Course Grade";
 
-	protected static final String ASSIGNMENT_HEADER_PATTERN = "{0} [{1}]";
-	protected static final String ASSIGNMENT_HEADER_COMMENT_PATTERN = "*/ {0} Comments */";
-	protected static final String HEADER_STANDARD_PATTERN = "{0}";
+	// patterns for detecting column headers and their types
+	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([\\w ]+ \\[\\d+\\])");
+	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* [\\w ]+)");
+	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
+	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
+	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\# \\w+)");
 
 	/**
 	 * Parse a CSV into a list of ImportedGrade objects. Returns list if ok, or null if error
@@ -118,7 +126,7 @@ public class ImportGradesHelper extends BaseImportHelper {
 			}
 
 		} catch (final Exception e) {
-			//TOOD this shouldn't catch everything, it should continue throwing back up the stack
+			// TOOD this shouldn't catch everything, it should continue throwing back up the stack
 			log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
 			return null;
 		}
@@ -130,8 +138,7 @@ public class ImportGradesHelper extends BaseImportHelper {
 	}
 
 	/**
-	 * Takes a row of data and maps it into the appropriate ImportedGrade properties We have a fixed list of properties, anything else goes
-	 * into ResourceProperties
+	 * Takes a row of data and maps it into the appropriate ImportedGrade pieces
 	 *
 	 * @param line
 	 * @param mapping
@@ -140,13 +147,11 @@ public class ImportGradesHelper extends BaseImportHelper {
 	private static ImportedGrade mapLine(final String[] line, final Map<Integer, ImportColumn> mapping, final Map<String, String> userMap) {
 
 		final ImportedGrade grade = new ImportedGrade();
-		final ResourceProperties p = new BaseResourcePropertiesEdit();
 
 		for (final Map.Entry<Integer, ImportColumn> entry : mapping.entrySet()) {
+
 			final int i = entry.getKey();
-			// trim in case some whitespace crept in
 			final ImportColumn importColumn = entry.getValue();
-			// String col = trim(entry.getValue());
 
 			// In case there aren't enough data fields in the line to match up with the number of columns needed
 			String lineVal = null;
@@ -154,40 +159,49 @@ public class ImportGradesHelper extends BaseImportHelper {
 				lineVal = trim(line[i]);
 			}
 
-			// now check each of the main properties in turn to determine which one to set, otherwise set into props
+			// process user id column
 			if (StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_ID)) {
 				grade.setStudentEid(lineVal);
 				grade.setStudentUuid(userMap.get(lineVal));
+
+			// process user name column
 			} else if (StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_NAME)) {
 				grade.setStudentName(lineVal);
+
+			// process cours egrade column
+			} else if (StringUtils.equals(importColumn.getColumnTitle(), IMPORT_COURSE_GRADE)) {
+				ImportedGradeItem courseGradeItem = grade.getGradeItemMap().get(IMPORT_COURSE_GRADE);
+				if (courseGradeItem == null) {
+					courseGradeItem = new ImportedGradeItem(IMPORT_COURSE_GRADE);
+				}
+				courseGradeItem.setGradeItemScore(lineVal);
+				grade.getGradeItemMap().put(IMPORT_COURSE_GRADE, courseGradeItem);
+
+			//process item with points column
 			} else if (ImportColumn.TYPE_ITEM_WITH_POINTS == importColumn.getType()) {
 				final String assignmentName = importColumn.getColumnTitle();
 				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
 				if (importedGradeItem == null) {
-					importedGradeItem = new ImportedGradeItem();
-					grade.getGradeItemMap().put(assignmentName, importedGradeItem);
-					importedGradeItem.setGradeItemName(assignmentName);
+					importedGradeItem = new ImportedGradeItem(assignmentName);
 				}
 				importedGradeItem.setGradeItemScore(lineVal);
+				grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+
+			//process comments
 			} else if (ImportColumn.TYPE_ITEM_WITH_COMMENTS == importColumn.getType()) {
 				final String assignmentName = importColumn.getColumnTitle();
 				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
 				if (importedGradeItem == null) {
-					importedGradeItem = new ImportedGradeItem();
-					grade.getGradeItemMap().put(assignmentName, importedGradeItem);
-					importedGradeItem.setGradeItemName(assignmentName);
+					importedGradeItem = new ImportedGradeItem(assignmentName);
 				}
 				importedGradeItem.setGradeItemComment(lineVal);
+				grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+
 			} else {
 
-				// only add if not blank
-				if (StringUtils.isNotBlank(lineVal)) {
-					p.addProperty(importColumn.getColumnTitle(), lineVal);
-				}
 			}
 		}
 
-		grade.setProperties(p);
 		return grade;
 	}
 
@@ -206,7 +220,7 @@ public class ImportGradesHelper extends BaseImportHelper {
 
 		for (final ImportColumn column : importedGradeWrapper.getColumns()) {
 			boolean needsAdded = false;
-			final String assignmentName = StringUtils.trim(column.getColumnTitle()); //trim whitespace so we can match properly
+			final String assignmentName = StringUtils.trim(column.getColumnTitle()); // trim whitespace so we can match properly
 
 			ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(assignmentName);
 			if (processedGradeItem == null) {
@@ -335,5 +349,122 @@ public class ImportGradesHelper extends BaseImportHelper {
 		}
 
 		return assignmentMap;
+	}
+
+	/**
+	 * Takes a row of String[] data to determine the position of the columns so that we can correctly parse any arbitrary delimited file.
+	 * This is required because when we iterate over the rest of the lines, we need to know what the column header is, so we can take the appropriate action.
+	 *
+	 * @param line the already split line
+	 * @return
+	 */
+	private static Map<Integer, ImportColumn> mapHeaderRow(final String[] line) throws GbImportExportException {
+		final Map<Integer, ImportColumn> mapping = new LinkedHashMap<Integer, ImportColumn>();
+		for (int i = 0; i < line.length; i++) {
+
+			final ImportColumn column = parseHeaderForImportColumn(trim(line[i]));
+			if (column != null) {
+				mapping.put(i, column);
+			}
+		}
+
+		return mapping;
+	}
+
+	/**
+	 * Helper to parse the header row into an {@link ImportColumn}
+	 * @param headerValue
+	 * @return the mapped column or null if ignoring.
+	 * @throws GbImportExportException if columns didn't match any known pattern
+	 */
+	private static ImportColumn parseHeaderForImportColumn(final String headerValue) throws GbImportExportException {
+		final ImportColumn importColumn = new ImportColumn();
+
+		System.out.println("headerValue: " + headerValue + "%%%");
+
+		// assignment with points header
+		final Matcher m1 = ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		if (m1.matches()) {
+
+			// extract title and score
+			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
+			final Matcher pointsMatcher = POINTS_PATTERN.matcher(headerValue);
+
+			if (titleMatcher.find()) {
+				importColumn.setColumnTitle(trim(titleMatcher.group()));
+			}
+			if (pointsMatcher.find()) {
+				importColumn.setPoints(pointsMatcher.group());
+			}
+
+			importColumn.setType(ImportColumn.TYPE_ITEM_WITH_POINTS);
+
+			return importColumn;
+		}
+
+		final Matcher m2 = ASSIGNMENT_COMMENT_PATTERN.matcher(headerValue);
+		if (m2.matches()) {
+
+			// extract title
+			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
+
+			if (titleMatcher.find()) {
+				importColumn.setColumnTitle(trim(titleMatcher.group()));
+			}
+			importColumn.setType(ImportColumn.TYPE_ITEM_WITH_COMMENTS);
+
+			return importColumn;
+		}
+
+		final Matcher m3 = STANDARD_HEADER_PATTERN.matcher(headerValue);
+		if (m3.matches()) {
+
+			importColumn.setColumnTitle(headerValue);
+			importColumn.setType(ImportColumn.TYPE_REGULAR);
+
+			return importColumn;
+		}
+
+		final Matcher m4 = IGNORE_PATTERN.matcher(headerValue);
+		if (m4.matches()) {
+			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed aith a #.");
+			return null;
+		}
+
+		// if we got here, couldn't parse the column header, throw an error
+		throw new GbImportExportException("Invalid column header, skipping: " + headerValue);
+
+	}
+
+	/**
+	 * Helper to map an Excel {@link Row} to a String[] so we can use the same methods to process it as the CSV
+	 *
+	 * @param row
+	 * @return
+	 */
+	private static String[] convertRow(final Row row) {
+
+		final int numCells = row.getPhysicalNumberOfCells();
+		final String[] s = new String[numCells];
+
+		int i = 0;
+		for (final Cell cell : row) {
+			// force cell to String
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			s[i] = trim(cell.getStringCellValue());
+			i++;
+		}
+
+		return s;
+	}
+
+	/**
+	 * Helper to trim a string to null
+	 *
+	 * @param s
+	 * @return
+	 */
+	private static String trim(final String s) {
+		return StringUtils.trimToNull(s);
 	}
 }

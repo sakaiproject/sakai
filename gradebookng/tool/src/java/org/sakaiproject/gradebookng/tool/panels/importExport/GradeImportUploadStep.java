@@ -17,10 +17,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.helpers.ImportGradesHelper;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -35,7 +35,7 @@ import lombok.extern.apachecommons.CommonsLog;
 public class GradeImportUploadStep extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel",
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
@@ -95,23 +95,23 @@ public class GradeImportUploadStep extends Panel {
 
 				try {
 					log.debug("file upload success");
-					
+
 					// get all users
 					final Map<String, String> userMap = getUserMap();
 
 					// turn file into list
 					final ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(),
 							upload.getContentType(), userMap);
-					
+
 					// couldn't parse
 					if(importedGradeWrapper == null) {
 						error("Couldn't parse");
 						return;
 					}
-					
+
 					//get existing data
-					List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
-					List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
+					final List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
+					final List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
 
 					//process file
 					final List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,assignments, grades);
@@ -152,15 +152,22 @@ public class GradeImportUploadStep extends Panel {
 	 */
 	private Map<String, String> getUserMap() {
 
-		List<User> users = this.businessService.getUsers(this.businessService.getGradeableUsers());
-				
+		final List<User> users = this.businessService.getUsers(this.businessService.getGradeableUsers());
+
 		final Map<String, String> rval = users.stream().collect(
                 Collectors.toMap(User::getEid, User::getId));
-	
+
 		return rval;
 	}
 
-	public ImportedGradeWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) {
+	/**
+	 * Helper to parse the imported file into an {@link ImportedGradeWrapper} depending on its type
+	 * @param is
+	 * @param mimetype
+	 * @param userMap
+	 * @return
+	 */
+	private ImportedGradeWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) {
 
 		// determine file type and delegate
 		if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
