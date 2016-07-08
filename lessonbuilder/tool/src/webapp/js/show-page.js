@@ -1996,7 +1996,7 @@ $(document).ready(function() {
 		section = section.next();
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    section.find("ul").append(addAboveLI, tail_lis);
+		    section.find("ul.mainList").append(addAboveLI, tail_lis);
 		section.find(".column").append(tail_uls);
 		section.append(tail_cols);
 
@@ -2025,7 +2025,7 @@ $(document).ready(function() {
 		column = column.next();
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    column.find("ul").append(addAboveLI, tail_lis);
+		    column.find("ul.mainList").append(addAboveLI, tail_lis);
 		column.find(".column").append(tail_uls);
 		// need trigger on the A we just added
 		column.find('.column-merge-link').click(columnMergeLink);
@@ -2051,7 +2051,7 @@ $(document).ready(function() {
 		// current section DIV
 		var section = thisCol.parent();
 		// append rest of ul last one in prevous section
-		section.prev().find('ul').last().append(tail_lis);
+		section.prev().find('ul.mainList').last().append(tail_lis);
 		section.prev().find('.column').last().append(tail_uls);
 		section.prev().append(tail_cols);
 		// nothing should be left in current section. kill it
@@ -2069,7 +2069,7 @@ $(document).ready(function() {
 		var tail_uls = thisCol.find('.mainList').nextAll();
 
 		// append rest of ul last one in prevous column;
-		thisCol.prev().find('ul').last().append(tail_lis);
+		thisCol.prev().find('ul.mainList').last().append(tail_lis);
 		thisCol.prev().append(tail_uls);
 		// nothing should be left in current section. kill it
 		thisCol.remove();
@@ -2619,8 +2619,8 @@ function buttonOpenDropdowna() {
 
 function buttonOpenDropdownb() {
     oldloc = $(this);
-    addAboveItem = '-' + $(this).closest('.column').find('ul').children().last().find("span.itemid").text();
-    addAboveLI = $(this).closest('.column').find('ul').children().last().closest("li");
+    addAboveItem = '-' + $(this).closest('.column').find('ul.mainList').children().last().find("span.itemid").text();
+    addAboveLI = $(this).closest('.column').find('ul.mainList').children().last().closest("li");
     $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
     return false;
