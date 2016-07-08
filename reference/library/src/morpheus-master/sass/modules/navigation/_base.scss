@@ -695,7 +695,10 @@ body.is-logged-out{
 				a{
 					background: $sites-nav-menu-item-selected-background;
 					color: $sites-nav-menu-item-selected-color;
-					border: $sites-nav-menu-item-selected-border;
+					border-top: $sites-nav-menu-item-selected-border-top; /* to balance bottom border for vertical centering */
+					border-right: $sites-nav-menu-item-selected-border-right;
+					border-bottom: $sites-nav-menu-item-selected-border-bottom; /* to pre-allocate space for dropdown top border needed for illusion */
+					border-left: $sites-nav-menu-item-selected-border-left;
 				}
 				ul{
 					background: $sites-nav-menu-item-selected-background;
