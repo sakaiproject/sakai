@@ -281,6 +281,11 @@
       <f:selectItems value="#{assessmentSettings.groupsForSite}" />
     </h:selectManyCheckbox>
   </div>
+  
+  <%--
+  <!-- Extended Time -->
+  <%@ include file="inc/extendedTime.jspf"%>
+  --%>
 
   <!-- NUMBER OF SUBMISSIONS -->
   <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
