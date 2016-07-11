@@ -1,100 +1,141 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>Sakai by willkara</title>
+    <title>Sakai by The Sakai Project</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="static/stylesheets/normalize.css" media="screen">
+
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">Sakai</h1>
-      <h2 class="project-tagline">Sakai is a freely available, feature-rich technology solution for learning, teaching, research and collaboration. Sakai is an open source software suite developed by a diverse and global adopter community.</h2>
-      <a href="https://github.com/willkara/sakai" class="btn">View on GitHub</a>
-      <a href="https://github.com/willkara/sakai/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/willkara/sakai/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+    <link rel="stylesheet" type="text/css" href="static/stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="static/stylesheets/github-light.css" media="screen">
 
-    <section class="main-content">
-      <h1>
-<a id="sakai-cle" class="anchor" href="#sakai-cle" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sakai CLE</h1>
+    <!-- Latest compiled and minified CSS -->
+</head>
+<body>
+<section class="page-header">
+    <h1 class="project-name">Sakai</h1>
+    <h2 class="project-tagline">Sakai is a freely available, feature-rich technology solution for learning, teaching,
+        research and collaboration. Sakai is an open source software suite developed by a diverse and global adopter
+        community.</h2>
+    <a href="https://github.com/sakaiproject/sakai" class="btn">View on GitHub</a>
+    <a href="https://github.com/sakaiproject/sakai/zipball/master" class="btn">Download .zip</a>
+    <a href="https://github.com/sakaiproject/sakai/tarball/master" class="btn">Download .tar.gz</a>
+</section>
 
-<p>This is the source code for the Sakai CLE.</p>
+<section class="main-content">
+    <h1>
+        <a id="sakai-cle" class="anchor" href="#sakai-cle" aria-hidden="true"><span aria-hidden="true"
+                                                                                    class="octicon octicon-link"></span></a>Sakai
+        CLE</h1>
 
-<h2>
-<a id="building" class="anchor" href="#building" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building</h2>
+    <p>This is the source code for the Sakai CLE.</p>
 
-<p><a href="https://travis-ci.org/sakaiproject/sakai"><img src="https://travis-ci.org/sakaiproject/sakai.svg?branch=master" alt="Build Status"></a></p>
+    <h2>
+        <a id="building" class="anchor" href="#building" aria-hidden="true"><span aria-hidden="true"
+                                                                                  class="octicon octicon-link"></span></a>Building
+    </h2>
 
-<p>To build Sakai you need Java 1.8 and Maven 3.2. Once you have clone a copy of this repository you can
-build it by running:</p>
+    <p><a href="https://travis-ci.org/sakaiproject/sakai"><img
+            src="https://travis-ci.org/sakaiproject/sakai.svg?branch=master" alt="Build Status"></a></p>
+
+    <p>To build Sakai you need Java 1.8 and Maven 3.2. Once you have clone a copy of this repository you can
+        build it by running:</p>
 
 <pre><code>mvn install
 </code></pre>
 
-<h2>
-<a id="running" class="anchor" href="#running" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running</h2>
+    <h2>
+        <a id="running" class="anchor" href="#running" aria-hidden="true"><span aria-hidden="true"
+                                                                                class="octicon octicon-link"></span></a>Running
+    </h2>
 
-<p>Sakai runs on Apache Tomcat 8. Download the latest version from <a href="http://tomcat.apache.org">http://tomcat.apache.org</a> and extract the archive.
-<em>Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.</em></p>
+    <p>Sakai runs on Apache Tomcat 8. Download the latest version from <a href="http://tomcat.apache.org">http://tomcat.apache.org</a>
+        and extract the archive.
+        <em>Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package
+            managers.</em></p>
 
-<p>You <strong>must</strong> configure Tomcat according to the instructions on this page:
-<a href="https://confluence.sakaiproject.org/pages/viewpage.action?pageId=75667828">https://confluence.sakaiproject.org/pages/viewpage.action?pageId=75667828</a></p>
+    <p>You <strong>must</strong> configure Tomcat according to the instructions on this page:
+        <a href="https://confluence.sakaiproject.org/pages/viewpage.action?pageId=75667828">https://confluence.sakaiproject.org/pages/viewpage.action?pageId=75667828</a>
+    </p>
 
-<p>When you are done, deploy Sakai to Tomcat:</p>
+    <p>When you are done, deploy Sakai to Tomcat:</p>
 
 <pre><code>mvn clean install sakai:deploy -Dmaven.tomcat.home=/path/to/your/tomcat
 </code></pre>
 
-<p>Now start Tomcat:</p>
+    <p>Now start Tomcat:</p>
 
 <pre><code>cd /path/to/your/tomcat/bin
 ./startup.sh &amp;&amp; tail -f ../logs.catalina.out
 </code></pre>
 
-<p>Once Sakai has started up (it usually takes around 30 seconds), open your browser and navigate to http://localhost:8080/portal</p>
+    <p>Once Sakai has started up (it usually takes around 30 seconds), open your browser and navigate to
+        http://localhost:8080/portal</p>
 
-<h2>
-<a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Licensing</h2>
+    <h2>
+        <a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span aria-hidden="true"
+                                                                                    class="octicon octicon-link"></span></a>Licensing
+    </h2>
 
-<p>Sakai is licensed under the <a href="http://opensource.org/licenses/ECL-2.0">Educational Community License version 2.0</a> </p>
+    <p>Sakai is licensed under the <a href="http://opensource.org/licenses/ECL-2.0">Educational Community License
+        version 2.0</a></p>
 
-<p>Sakai is an <a href="http://www.apereo.org">Apereo Foundation</a> project and follows the Foundation's guidelines and requirements for <a href="https://www.apereo.org/licensing">Contributor License Agreements</a>.</p>
+    <p>Sakai is an <a href="http://www.apereo.org">Apereo Foundation</a> project and follows the Foundation's guidelines
+        and requirements for <a href="https://www.apereo.org/licensing">Contributor License Agreements</a>.</p>
 
-<h2>
-<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
+    <h2>
+        <a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true"
+                                                                                          class="octicon octicon-link"></span></a>Contributing
+    </h2>
 
-<p>See <a href="CONTRIBUTING.md">our dedicated page</a> for more information on contributing to Sakai.</p>
+    <p>See <a href="CONTRIBUTING.md">our dedicated page</a> for more information on contributing to Sakai.</p>
 
-<h2>
-<a id="bugs" class="anchor" href="#bugs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bugs</h2>
+    <h2>
+        <a id="bugs" class="anchor" href="#bugs" aria-hidden="true"><span aria-hidden="true"
+                                                                          class="octicon octicon-link"></span></a>Bugs
+    </h2>
 
-<p>For filing bugs against Sakai please use our Jira instance: <a href="https://jira.sakaiproject.org/">https://jira.sakaiproject.org/</a></p>
+    <p>For filing bugs against Sakai please use our Jira instance: <a href="https://jira.sakaiproject.org/">https://jira.sakaiproject.org/</a>
+    </p>
 
-<h2>
-<a id="nightly-servers" class="anchor" href="#nightly-servers" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Nightly servers</h2>
+    <h2>
+        <a id="nightly-servers" class="anchor" href="#nightly-servers" aria-hidden="true"><span aria-hidden="true"
+                                                                                                class="octicon octicon-link"></span></a>Nightly
+        servers</h2>
 
-<p>For testing out the latest builds go to the <a href="http://nightly2.sakaiproject.org">nightly server page</a></p>
+    <p>For testing out the latest builds go to the <a href="http://nightly2.sakaiproject.org">nightly server page</a>
+    </p>
 
-<h2>
-<a id="get-in-touch" class="anchor" href="#get-in-touch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Get in touch</h2>
+    <h2>
+        <a id="get-in-touch" class="anchor" href="#get-in-touch" aria-hidden="true"><span aria-hidden="true"
+                                                                                          class="octicon octicon-link"></span></a>Get
+        in touch</h2>
 
-<p>If you have any questions, please join the Sakai developer mailing list: To subscribe send an email to <a href="mailto:sakai-dev+subscribe@apereo.org">sakai-dev+subscribe@apereo.org</a></p>
+    <p>If you have any questions, please join the Sakai developer mailing list: To subscribe send an email to <a
+            href="mailto:sakai-dev+subscribe@apereo.org">sakai-dev+subscribe@apereo.org</a></p>
 
-<p>To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
-<a href="https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists">https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists</a></p>
+    <p>To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this
+        Sakai wiki page:
+        <a href="https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists">https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists</a>
+    </p>
 
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/willkara/sakai">Sakai</a> is maintained by <a href="https://github.com/willkara">willkara</a>.</span>
+    <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/sakaiproject/sakai">Sakai</a> is maintained by <a
+                href="https://github.com/sakaiproject">The Sakai Project</a>.</span>
 
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a
+                href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a
+                href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+    </footer>
 
-    </section>
+</section>
 
-  
-  </body>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+        crossorigin="anonymous"></script>
+</body>
 </html>
