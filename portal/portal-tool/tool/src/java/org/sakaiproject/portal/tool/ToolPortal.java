@@ -70,9 +70,11 @@ public class ToolPortal extends HttpServlet
     // SAK-22384
     private static final String MATHJAX_ENABLED = "mathJaxEnabled";
     private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
-    private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP, "");
     private static final String MATHJAX_ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
-    private static final boolean MATHJAX_ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(MATHJAX_ENABLED_SAKAI_PROP, false) && !MATHJAX_SRC_PATH.trim().isEmpty();
+    private static final String SRC_PATH_SAKAI_PROP_DEFAULT = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default,Safe";
+    private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
+    private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP, SRC_PATH_SAKAI_PROP_DEFAULT);
+    private static final boolean MATHJAX_ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(MATHJAX_ENABLED_SAKAI_PROP, ENABLED_SAKAI_PROP_DEFAULT) && !MATHJAX_SRC_PATH.trim().isEmpty();
     
 	/**
 	 * Access the Servlet's information display.
