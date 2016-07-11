@@ -7039,7 +7039,9 @@ public class SimplePageBean {
 				pointsInt = Integer.valueOf(maxPoints);
 			}catch(Exception ex) {
 				setErrMessage(messageLocator.getMessage("simplepage.integer-expected"));
-				return "failure";
+				// can't fail, because it will leave an inconsistent items. So create one with default point value
+				// check in UI to make sure it can't happen
+				// return "failure";
 			}
 		}
 		
