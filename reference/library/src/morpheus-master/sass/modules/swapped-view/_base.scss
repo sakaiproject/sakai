@@ -11,5 +11,8 @@
 		  	color: $background-color;
 		  }
 		}
+		.#{$namespace}mainHeader.is-maximized .siteNavWrap{
+			background: $swapped-view-sites-nav-background;
+		}
 	}
 }
