@@ -812,7 +812,7 @@ h3.author {
     cursor:pointer;
 }
 .link-div .usebutton {
-	font-size: 160%
+	  background-color: rgb(246,246,246)
 }
 .link-div {
 	display:inline;

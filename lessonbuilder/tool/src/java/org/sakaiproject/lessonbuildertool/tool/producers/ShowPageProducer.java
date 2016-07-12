@@ -1324,6 +1324,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIBranchContainer linkdiv = null;
 					if (!isInline) {
 					    linkdiv = UIBranchContainer.make(tableRow, "link-div:");
+					}
+					if (!isInline && !navButton) {
 					    UIOutput itemicon = UIOutput.make(linkdiv,"item-icon");
 					    switch (i.getType()) {
 					    case SimplePageItem.FORUM:
