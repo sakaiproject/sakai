@@ -276,8 +276,10 @@
     </h:selectManyCheckbox>
   </div>
   
+  <%--
   <!-- Extended Time -->
   <%@ include file="inc/publishedExtendedTime.jspf"%>
+  --%>
 
     <!-- NUMBER OF SUBMISSIONS -->
   <h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
