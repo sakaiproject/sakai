@@ -282,11 +282,6 @@
     </h:selectManyCheckbox>
   </div>
   
-  <%--
-  <!-- Extended Time -->
-  <%@ include file="inc/extendedTime.jspf"%>
-  --%>
-
   <!-- NUMBER OF SUBMISSIONS -->
   <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.submissions_allowed}" />
@@ -366,8 +361,10 @@
     </div>
   </h:panelGroup>
 
+  <%--
   <!-- Extended Time -->
   <%@ include file="inc/extendedTime.jspf"%>
+  --%>
 
   <!-- AUTOMATIC SUBMISSION -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
