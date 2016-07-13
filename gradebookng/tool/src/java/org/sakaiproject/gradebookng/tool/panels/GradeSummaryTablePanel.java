@@ -115,22 +115,30 @@ public class GradeSummaryTablePanel extends Panel {
 
 				final List<Assignment> categoryAssignments;
 				if (isGroupedByCategory) {
-					categoryAssignments = categoryNamesToAssignments.get(categoryName);
+					if (categoryNamesToAssignments.containsKey(categoryName)) {
+						categoryAssignments = categoryNamesToAssignments.get(categoryName);
+					} else {
+						categoryAssignments = new ArrayList<Assignment>();
+					}
 				} else {
 					categoryAssignments = new ArrayList<Assignment>();
 					categoryNamesToAssignments.values().forEach(categoryAssignments::addAll);
 				}
 
 				final WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
-				categoryRow.setVisible(categoriesEnabled && isGroupedByCategory);
+				categoryRow.setVisible(categoriesEnabled && isGroupedByCategory && !categoryAssignments.isEmpty());
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
 
-				Double categoryAverage = categoryAverages.get(categoryAssignments.get(0).getCategoryId());
-				if (categoryAverage == null) {
-					categoryRow.add(new Label("categoryGrade", getString("label.nocategoryscore")));
+				if (!categoryAssignments.isEmpty()) {
+					Double categoryAverage = categoryAverages.get(categoryAssignments.get(0).getCategoryId());
+					if (categoryAverage == null) {
+						categoryRow.add(new Label("categoryGrade", getString("label.nocategoryscore")));
+					} else {
+						categoryRow.add(new Label("categoryGrade", FormatHelper.formatDoubleAsPercentage(categoryAverage)));
+					}
 				} else {
-					categoryRow.add(new Label("categoryGrade", FormatHelper.formatDoubleAsPercentage(categoryAverage)));
+					categoryRow.add(new Label("categoryGrade", getString("label.nocategoryscore")));
 				}
 
 				String categoryWeight = "";
