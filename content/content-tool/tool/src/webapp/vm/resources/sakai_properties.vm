@@ -602,7 +602,7 @@
 				</th>
 				<td>
 					<div class="form-group">
-						<a class="textPanelFooter" href="#" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
+						<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
 						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
 						|
 						<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
