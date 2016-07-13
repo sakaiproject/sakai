@@ -8,7 +8,6 @@
   	<description>An RSS/Atom feed reader.</description>
   	<url>https://wiki.jasig.org/display/PLT/Simple+RSS+Portlet</url>
   	
-  	<version>1.2.3-SNAPSHOT</version>
   	<packaging>war</packaging>
   	
     <parent>
