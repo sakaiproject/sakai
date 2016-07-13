@@ -166,7 +166,7 @@ public class ItemAddListener
     if(iType.equals(TypeFacade.MULTIPLE_CHOICE_SURVEY.toString()))
     {   
       String scaleName = item.getScaleName();
-      if (scaleName == null){
+      if (StringUtils.isBlank(scaleName)){
 	    err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","corrAnswer");
 	    context.addMessage(null,new FacesMessage(err));
 	    item.setOutcome("surveyItem");
