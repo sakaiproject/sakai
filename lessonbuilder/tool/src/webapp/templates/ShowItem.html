@@ -69,11 +69,16 @@ setMainFrameHeight(window.name);
 <link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
 
 <script type="text/javascript" language="JavaScript">
+function resizeContent() {
+  if (window.matchMedia("only screen and (max-width: 800px)").matches) {
+    jQuery("#content").css('margin-top',jQuery(".Mrphs-siteHierarchy").height() + 60);
+  } else {
+    jQuery("#content").css('margin-top','0px');
+  }
+}
 $(function() {
          if ($(".showItemMorpheus").size() != 0) {
          // inline, move action (next/prev buttons) to top area
-	   $(".Mrphs-siteHierarchy").append($(".action"));
-           $(".Mrphs-siteHierarchy .nextprev").removeClass("nextprev usebutton returnheader");
            $(".itemHeader").show();
 	   // move hierarchy to top area -- resources and applications
            if ($(".crumb-item").size() > 0) {
@@ -91,7 +96,15 @@ $(function() {
              // call tool from picker
                    $(".itemTitle .title").addClass("instruction title-instruction");
            }
-
+	   $(".Mrphs-siteHierarchy").children().wrapAll('<div class="hierarchyWrap" />');
+	   $(".Mrphs-siteHierarchy").append($(".action").children().first());
+           $(".Mrphs-siteHierarchy .nextprev").removeClass("usebutton returnheader");
+	   // the top is position:fixed. The rest of the page is position static, put below the
+	   // fixed by a magic margin. However if the siteHierarchy is large, the magic margin
+	   // has to be adjusted.
+           resizeContent();
+	   jQuery(window).load(resizeContent);
+	   jQuery(window).resize(resizeContent);
          }
         
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
@@ -158,7 +171,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
                 </div>
                 <div class="action itemAction">
                     
-                    <span class="returnheader nextprev"><a style="background:none; width: auto" href="#" rsf:id="prev" class="button usebutton ui-button-text nextprev">prev</a><a href="#" rsf:id="next" style="background:none; width:auto" class="usebutton ui-button-text nextprev">next</a></span>
+                    <span class="nextprev buttonset ui-buttonset"><a style="background:none" href="#" rsf:id="prev" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left ui-button-text">prev</a><a href="#" rsf:id="next" style="background:none" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right ui-button-text">next</a></span>
                     <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
 	            </a>
