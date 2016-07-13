@@ -8,8 +8,7 @@
         <version>11-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF widget dependencies for Sun's RI
-        (sakai-depend-jsf-widgets-sun)</name>
+    <name>Sakai JSF widget dependencies for Sun's RI (sakai-depend-jsf-widgets-sun)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf-widgets-sun-depend</artifactId>
     <organization>

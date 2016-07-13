@@ -1498,6 +1498,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.oauth</groupId>
+        <artifactId>oauth-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf-app</artifactId>
         <version>${sakai.version}</version>

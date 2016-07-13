@@ -8,8 +8,7 @@
         <version>11-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF Widgets Dependencies for MyFaces
-        (sakai-depend-jsf-widgets-myfaces)</name>
+    <name>Sakai JSF Widgets Dependencies for MyFaces (sakai-depend-jsf-widgets-myfaces)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>myfaces-widgets-depend</artifactId>
     <organization>
