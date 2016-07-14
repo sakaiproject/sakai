@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-	<bean
-		id="org.sakaiproject.contentreview.service.ContentReviewService"
-		class="org.sakaiproject.contentreview.impl.ContentReviewFederatedServiceImpl"
-		init-method="init">
-		<property name="providers">
-			<list>
-				<!--ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceTii"/>
-	            		<ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceVeriCite"/>
-					-->
-			</list>
-		</property>
+        <bean
+                id="org.sakaiproject.contentreview.service.ContentReviewService"
+                class="org.sakaiproject.contentreview.impl.ContentReviewFederatedServiceImpl"
+                init-method="init">
+                <property name="providers" ref="contentReviewProviders"/>
 
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+                <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+                <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 
-	</bean>
+        </bean>
 
+        <util:list id="contentReviewProviders">
+                <!--ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceTii"/>
+                <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceVeriCite"/>
+                -->
+        </util:list>
+        <!-- Override this list in sakai/sakai-configuration.xml (https://confluence.sakaiproject.org/display/REL/More+Flexible+Sakai+Configuration) like
+            <util:list id="contentReviewProviders">
+                    <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceVeriCite"/>
+            </util:list>
+        -->
 </beans>
