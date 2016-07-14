@@ -202,12 +202,6 @@
              <artifactId>opencsv</artifactId>
              <version>2.3</version>
         </dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>jcl-over-slf4j</artifactId>
-	  <version>${sakai.slf4j.version}</version>
-	  <scope>${jclslf}</scope>
-	</dependency>
 
     </dependencies>
 

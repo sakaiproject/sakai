@@ -69,23 +69,19 @@
             <activeByDefault>true</activeByDefault>
           </activation>
 
-          <properties>
-	    <!-- this is for the  jcl-over-slf4j library. 12 has it in /lib, 11 doesn't -->
-	    <jclslf>provided</jclslf>
-          </properties>
-    
 	</profile>
 
  
         <profile>
           <id>11</id>
     
-          <properties>
-	    <!-- this is for the  jcl-over-slf4j library. 12 has it in /lib, 11 doesn't -->
-	    <jclslf>compile</jclslf>
-          </properties>
+	  <dependencies>
+	    <dependency>
+	      <groupId>org.projectlombok</groupId>
+	      <artifactId>lombok</artifactId>
+	    </dependency>
+	  </dependencies>
 
-	  <!-- nothing special yet -->
 	</profile>
 
 <!-- if you want to try this on 10, start with the 11 profile.
