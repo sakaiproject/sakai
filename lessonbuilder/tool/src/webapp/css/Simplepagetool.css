@@ -1597,7 +1597,7 @@ div.portletBody[sakaiversion="12"] {
 .navIntraTool li.contentButton a .fa-button-text, .fa-fw {
   font-family:FontAwesome;
 }
-.fa-fw {
+.studentRow > .fa-fw {
   width: 1em !important;
   display: inline-block;
 }
