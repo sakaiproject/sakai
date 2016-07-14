@@ -1619,8 +1619,12 @@ span.nextprev {
   padding-top:2px !important;
   padding-bottom:2px !important;
 }
-.navIntraTool li.contentButton a .fa-button-text {
+.navIntraTool li.contentButton a .fa-button-text, .fa-fw {
   font-family:FontAwesome;
+}
+.studentRow > .fa-fw {
+  width: 1em !important;
+  display: inline-block;
 }
 .fa-item-text {
   position:relative; 
