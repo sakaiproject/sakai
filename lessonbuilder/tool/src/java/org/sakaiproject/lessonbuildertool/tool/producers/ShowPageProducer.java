@@ -2562,7 +2562,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
  
 							// Never visited page
 							if(entry == null) {
-							    UIOutput.make(row, "newPageImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-page")));
+							    UIOutput.make(row, "newPageImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-content-page")));
 							} else
 							    UIOutput.make(row, "newPageImgT");
 
