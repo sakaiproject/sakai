@@ -1159,8 +1159,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
 					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
 					// only do this is there's an actual section break. Implicit ones don't have an item to hold the title
-					UIOutput.make(sectionWrapper, "sectionHeaderText", (!"section".equals(i.getFormat()) || i.getName() == null) ? "" : i.getName());
-					sectionHeader.decorate(new UIStyleDecorator(i.getName() == null || i.getName().isEmpty() ? "skip" : ""));
+					String headerText = "";
+					if ("section".equals(i.getFormat()) && i.getName() != null) {
+					    headerText = i.getName();
+					}
+					UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
+					sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
 					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
 					if (collapsible) {
 						sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
