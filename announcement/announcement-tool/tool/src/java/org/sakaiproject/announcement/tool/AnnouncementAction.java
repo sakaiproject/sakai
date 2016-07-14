@@ -66,7 +66,7 @@ import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -255,6 +255,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
    private UserDirectoryService userDirectoryService;
 
+   private ServerConfigurationService serverConfigurationService;
+
    private RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
 
    private Collator collator = Collator.getInstance();
@@ -266,14 +268,15 @@ public class AnnouncementAction extends PagedResourceActionII
         super();
         aliasService = ComponentManager.get(AliasService.class);
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     }
    /*
 	 * Returns the current order
 	 * 
 	 */
-	public static String getCurrentOrder() {
+	public String getCurrentOrder() {
 		
-		String enableReorder=ServerConfigurationService.getString("sakai.announcement.reorder", "true");
+		String enableReorder=serverConfigurationService.getString("sakai.announcement.reorder", "true");
 		
 		if (enableReorder.equals("true")){
 			SORT_CURRENTORDER="message_order";
@@ -292,7 +295,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	SecurityAdvisor getChannelAdvisor(final String channelReference)
 	{
-		if (ServerConfigurationService.getBoolean("announcement.merge.visibility.strict", false))
+		if (serverConfigurationService.getBoolean("announcement.merge.visibility.strict", false))
 		{
 			return (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.PASS;
 		}
@@ -1466,7 +1469,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private boolean isOkToShowMergeButton(String statusName)
 	{
-		String displayMerge = ServerConfigurationService.getString("announcement.merge.display", "1");
+		String displayMerge = serverConfigurationService.getString("announcement.merge.display", "1");
 		
 		if(displayMerge != null && !displayMerge.equals("1"))
 			return false;
@@ -2159,7 +2162,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			// "r", "o" or "n"
 			// Get default notification
 			if (notification == null) {
-				notification = ServerConfigurationService.getString("announcement.default.notification", "n");
+				notification = serverConfigurationService.getString("announcement.default.notification", "n");
 			}
 			context.put("noti", notification);
  
@@ -4294,7 +4297,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		Menu bar = new MenuImpl(portlet, rundata, "AnnouncementAction");
 		boolean buttonRequiringCheckboxesPresent = false;
 		Properties placementProperties = ToolManager.getCurrentPlacement().getPlacementConfig();
-		String sakaiReorderProperty= ServerConfigurationService.getString("sakai.announcement.reorder", "true");
+		String sakaiReorderProperty= serverConfigurationService.getString("sakai.announcement.reorder", "true");
 
 		//if (!displayOptions.isShowOnlyOptionsButton()) ##SAK-13434
 		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
@@ -4515,7 +4518,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		try
 		{
 			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-			String[] disableStrgs = ServerConfigurationService.getStrings("prevent.public.announcements");
+			String[] disableStrgs = serverConfigurationService.getStrings("prevent.public.announcements");
 			if (disableStrgs != null)
 			{
 				for (int i = 0; i < disableStrgs.length; i++)
