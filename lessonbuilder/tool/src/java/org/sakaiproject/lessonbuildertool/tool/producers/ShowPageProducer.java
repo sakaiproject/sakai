@@ -1264,7 +1264,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.CHECKLIST: itemClassName = "checklistType"; break;
 				}
 
-				if (listItem){
+				// inline LTI. Our code calls all BLTI items listItem, but the inline version really isn't
+				boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
+
+				if (listItem && !isInline){
 				    itemClassName = itemClassName + " listType";
 				}
 				if (canEditPage) {
@@ -1310,8 +1313,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							notDone = true;
 						}
 					}
-
-					boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
 
 					UIOutput linktd = UIOutput.make(tableRow, "item-td");
 					
