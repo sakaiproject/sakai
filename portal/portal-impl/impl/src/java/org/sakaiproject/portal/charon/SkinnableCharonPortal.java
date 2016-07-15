@@ -1802,6 +1802,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
 			String loginUserDispId = null;
+			String loginUserId = null;
 			String loginUserFirstName = null;
 			boolean displayUserloginInfo = ServerConfigurationService.
 			getBoolean("display.userlogin.info", true);
@@ -1864,6 +1865,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				{
 					User thisUser = UserDirectoryService.getCurrentUser();
 					loginUserDispId = Validator.escapeHtml(thisUser.getDisplayId());
+					loginUserId = Validator.escapeHtml(thisUser.getId());
 					loginUserDispName = Validator.escapeHtml(thisUser.getDisplayName());
 					loginUserFirstName = Validator.escapeHtml(thisUser.getFirstName());
 				}
@@ -1941,6 +1943,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginUserDispName", loginUserDispName);
 				rcontext.put("loginUserFirstName", loginUserFirstName);
 				rcontext.put("loginUserDispId", loginUserDispId);
+				rcontext.put("loginUserId", loginUserId);
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
 		}
