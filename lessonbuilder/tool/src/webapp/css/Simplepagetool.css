@@ -578,6 +578,17 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     font-size:100%;
     margin-left:3px;
 }
+.listType .link-div h3.link-div-head {
+    display:inline-block;
+    margin-top:0px;
+    width: calc(100% - 30px);
+    vertical-align: text-top;
+}
+.listType .link-div .fa-item-text {
+    display:inline-block;
+    vertical-align: text-top;
+}
+
 
 .ui-button-text {
 	font-weight: bold !important;
@@ -1289,6 +1300,17 @@ div[role="dialog"] {
 .right-col {
  display: inline-block;
 }
+
+.listType .right-col {
+  display:flex
+}
+.listType .statusCol {
+  flex:none; width:20px
+}
+.listType .contentCol {
+  flex:auto
+}
+
 /* types that need to span the full column */
 .multimediaType .right-col, .textType .right-col {
  width:100%;
