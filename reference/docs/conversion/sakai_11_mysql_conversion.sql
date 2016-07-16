@@ -779,7 +779,7 @@ ALTER TABLE lti_deploy MODIFY consumerkey VARCHAR(1024);
 ALTER TABLE lti_deploy MODIFY secret VARCHAR(1024);
 ALTER TABLE lti_deploy ADD new_secret VARCHAR(1024);
 
-CREATE TABLE lti_memberships_jobbbs (
+CREATE TABLE lti_memberships_jobs (
     SITE_ID VARCHAR(99),
     memberships_id VARCHAR(256),
     memberships_url mediumtext,
