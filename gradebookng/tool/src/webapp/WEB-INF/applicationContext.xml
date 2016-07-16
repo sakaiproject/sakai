@@ -22,6 +22,8 @@
 		<property name="courseManagementService"
 			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+		
 	</bean>
 
 	<bean
@@ -39,7 +41,7 @@
 		init-method="init">
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
-		<property name="gradebookFrameworkService" ref="org_sakaiproject_service_gradebook_GradebookFrameworkService" />	
+		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService" />	
 	</bean>
 	
 	<bean
