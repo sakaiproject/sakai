@@ -1,5 +1,11 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -18,12 +24,6 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The panel that is rendered for students for both their own grades view, and also when viewing it from the instructor review tab
@@ -57,11 +57,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
 
 		this.configuredCategoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
-		this.isGroupedByCategory =  groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
+		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.isAssignmentsDisplayed = gradebook.isAssignmentsDisplayed();
 
-		this.setOutputMarkupId(true);
+		setOutputMarkupId(true);
 	}
 
 	@Override
@@ -74,22 +74,22 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-			gradebook,
-			GbRole.STUDENT,
-			gradebook.isCourseGradeDisplayed(),
-			gradebook.isCoursePointsDisplayed(),
-			true);
+				gradebook,
+				GbRole.STUDENT,
+				gradebook.isCourseGradeDisplayed(),
+				gradebook.isCoursePointsDisplayed(),
+				true);
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
 
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
 		final Map<Long, Double> categoryAverages = new HashMap<>();
 
 		// if gradebook release setting disabled, no work to do
-		if (isAssignmentsDisplayed) {
+		if (this.isAssignmentsDisplayed) {
 			// iterate over assignments and build map of categoryname to list of assignments as well as category averages
 			for (final Assignment assignment : assignments) {
 				// if an assignment is released, update the flag (but don't set it false again)
@@ -103,7 +103,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
 
 						if (assignment.getCategoryId() != null) {
-							final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
+							final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(),
+									userId);
 							if (categoryAverage != null) {
 								categoryAverages.put(assignment.getCategoryId(), categoryAverage);
 							}
@@ -117,23 +118,23 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		}
 
 		// build the model for table
-		Map<String, Object> tableModel = new HashMap<>();
+		final Map<String, Object> tableModel = new HashMap<>();
 		tableModel.put("grades", grades);
 		tableModel.put("categoryNamesToAssignments", categoryNamesToAssignments);
 		tableModel.put("categoryNames", categoryNames);
 		tableModel.put("categoryAverages", categoryAverages);
-		tableModel.put("categoriesEnabled", categoriesEnabled);
+		tableModel.put("categoriesEnabled", this.categoriesEnabled);
 		tableModel.put("isCategoryWeightEnabled", isCategoryWeightEnabled());
-		tableModel.put("isGroupedByCategory", isGroupedByCategory);
+		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", true);
 		tableModel.put("gradingType", GbGradingType.valueOf(gradebook.getGrade_type()));
 
-		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String,Object>>() {
+		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override
 			public Map<String, Object> load() {
 				return tableModel;
 			}
-		}).setVisible(isAssignmentsDisplayed && someAssignmentsReleased));
+		}).setVisible(this.isAssignmentsDisplayed && this.someAssignmentsReleased));
 
 		// no assignments message
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments") {
