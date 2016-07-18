@@ -93,6 +93,9 @@ public class TriggerEventManagerHibernateImpl
         final Criteria criteria = buildCriteria(after, before, jobs, triggerName, types);
         // We put the newest items first as generally that's what people are most interested in.
         criteria.addOrder(Order.desc("time"));
+        // Sort by event type so that if the time of 2 events is the same the fired event happens before
+        // the completed event.
+        criteria.addOrder(Order.asc("eventType"));
         if (first != null && size != null)
         {
             criteria.setFirstResult(first).setMaxResults(size);
