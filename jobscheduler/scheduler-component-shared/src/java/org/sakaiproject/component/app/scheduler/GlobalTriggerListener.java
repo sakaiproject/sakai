@@ -62,11 +62,12 @@ public class GlobalTriggerListener implements TriggerListener
   private String getServerId() {
 	  return serverConfigurationService.getServerId();
   }
-  
+
+  @Override
   public void triggerFired(Trigger trigger, JobExecutionContext jobExecutionContext)
   {
-	  
-      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.FIRED, jobExecutionContext.getJobDetail().getKey(), trigger.getKey(), new Date(), "Trigger fired", getServerId());
+      Date fired = jobExecutionContext.getFireTime();
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.FIRED, jobExecutionContext.getJobDetail().getKey(), trigger.getKey(), fired, "Trigger fired", getServerId());
   }
 
   public boolean vetoJobExecution(Trigger trigger, JobExecutionContext jobExecutionContext)
@@ -76,13 +77,14 @@ public class GlobalTriggerListener implements TriggerListener
 
   public void triggerMisfired(Trigger trigger)
   {
+    eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.ERROR, trigger.getJobKey(), trigger.getKey(), new Date(), "Trigger misfired", getServerId());
   }
   
   @Override
   public void triggerComplete(Trigger trigger, JobExecutionContext context, CompletedExecutionInstruction triggerInstructionCode) {
-      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, context.getJobDetail().getKey(), trigger.getKey(), new Date(), "Trigger complete", getServerId());
+      Date complete = Date.from(context.getFireTime().toInstant().plusMillis(context.getJobRunTime()));
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, context.getJobDetail().getKey(), trigger.getKey(), complete, "Trigger complete", getServerId());
   }
-
 
   /**
    * @return Returns the triggerEvents.
