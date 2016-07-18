@@ -27,11 +27,11 @@
 
             <div id="article-description">
         <p>For more information about cron expressions, go to: <a href="http://www.quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/crontrigger.html" target="_blank">http://www.quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/crontrigger.html</a></p>
-      </div>      <div id="steps-container">          <div id="step-19164" class="step-container">            <h2 class="step-title">Introduction</h2>            <div class="step-instructions">
+      </div>      <div id="steps-container">          <div id="step-15358" class="step-container">            <h2 class="step-title">Introduction</h2>            <div class="step-instructions">
 <p>cron is a UNIX tool that has been around for a long time, so its scheduling capabilities are powerful and proven. The CronTrigger class is based on the scheduling capabilities of cron.</p>
 <p>CronTrigger uses &ldquo;cron expressions&rdquo;, which are able to create firing schedules such as: &ldquo;At 8:00am every Monday through Friday&rdquo; or &ldquo;At 1:30am every last Friday of the month&rdquo;.</p>
 </div>          </div>
-          <div class="clear"></div>          <div id="step-19165" class="step-container">            <h2 class="step-title">Format</h2>            <div class="step-instructions">
+          <div class="clear"></div>          <div id="step-15359" class="step-container">            <h2 class="step-title">Format</h2>            <div class="step-instructions">
 <p>A cron expression is a string comprised of 6 or 7 fields separated by white space. Fields can contain any of the allowed values, along with various combinations of the allowed special characters for that field. The fields are as follows:</p>
 <p><strong>Field Name	Mandatory	Allowed Values	Allowed Special Characters</strong></p>
 <p>Seconds	YES	0-59	, - * /</p>
@@ -44,7 +44,7 @@
 <p>So cron expressions can be as simple as this: * * * * ? *</p>
 <p>or more complex, like this: 0/5 14,18,3-39,52 * ? JAN,MAR,SEP MON-FRI 2002-2010</p>
 </div>          </div>
-          <div class="clear"></div>          <div id="step-19166" class="step-container">            <h2 class="step-title">Special characters</h2>            <div class="step-instructions">
+          <div class="clear"></div>          <div id="step-15360" class="step-container">            <h2 class="step-title">Special characters</h2>            <div class="step-instructions">
 <p>* (&ldquo;all values&rdquo;) - used to select all values within a field. For example, &ldquo;*&rdquo; in the minute field means &ldquo;every minute&rdquo;.</p>
 <p>? (&ldquo;no specific value&rdquo;) - useful when you need to specify something in one of the two fields in which the character is allowed, but not the other. For example, if I want my trigger to fire on a particular day of the month (say, the 10th), but don&rsquo;t care what day of the week that happens to be, I would put &ldquo;10&rdquo; in the day-of-month field, and &ldquo;?&rdquo; in the day-of-week field. See the examples below for clarification.</p>
 <p>- - used to specify ranges. For example, &ldquo;10-12&rdquo; in the hour field means &ldquo;the hours 10, 11 and 12&rdquo;.</p>
@@ -56,7 +56,7 @@
 <p># - used to specify &ldquo;the nth&rdquo; XXX day of the month. For example, the value of &ldquo;6#3&rdquo; in the day-of-week field means &ldquo;the third Friday of the month&rdquo; (day 6 = Friday and &ldquo;#3&rdquo; = the 3rd one in the month). Other examples: &ldquo;2#1&rdquo; = the first Monday of the month and &ldquo;4#5&rdquo; = the fifth Wednesday of the month. Note that if you specify &ldquo;#5&rdquo; and there is not 5 of the given day-of-week in the month, then no firing will occur that month.</p>
 <p>The legal characters and the names of months and days of the week are not case sensitive. MON is the same as mon.</p>
 </div>          </div>
-          <div class="clear"></div>          <div id="step-19167" class="step-container">            <h2 class="step-title">Examples</h2>            <div class="step-instructions">
+          <div class="clear"></div>          <div id="step-15361" class="step-container">            <h2 class="step-title">Examples</h2>            <div class="step-instructions">
 <p>Here are some full examples:</p>
 <p>**Expression**	**Meaning**</p>
 <p>0 0 12 * * ?	Fire at 12pm (noon) every day</p>

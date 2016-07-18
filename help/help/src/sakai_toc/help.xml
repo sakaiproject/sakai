@@ -1599,24 +1599,24 @@
       <list>
         <ref bean="aboutHelpUserGuide"/>
         <ref bean="accessibilityUserGuide"/>
-        <ref bean="homeUserGuide"/>
-        <ref bean="courseandProjectSitesUserGuide"/>
-        <ref bean="permissionsandRolesUserGuide"/>
         <ref bean="announcementsUserGuide"/>
         <ref bean="assignmentsUserGuide"/>
         <ref bean="calendarUserGuide"/>
         <ref bean="chatUserGuide"/>
         <ref bean="contactUsUserGuide"/>
+        <ref bean="courseandProjectSitesUserGuide"/>
         <ref bean="dropBoxUserGuide"/>
         <ref bean="emailUserGuide"/>
         <ref bean="emailArchiveUserGuide"/>
         <ref bean="externalToolLTIUserGuide"/>
         <ref bean="forumsUserGuide"/>
+        <ref bean="gradebookClassicUserGuide"/>
         <ref bean="gradebookUserGuide"/>
-        <ref bean="gradebookNGUserGuide"/>
+        <ref bean="homeUserGuide"/>
         <ref bean="lessonsUserGuide"/>
         <ref bean="messagesUserGuide"/>
         <ref bean="newsUserGuide"/>
+        <ref bean="permissionsandRolesUserGuide"/>
         <ref bean="podcastsUserGuide"/>
         <ref bean="pollsUserGuide"/>
         <ref bean="postEmUserGuide"/>
@@ -1802,270 +1802,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_accessibilityUserGuide/Why-should-I-use-paragraph-breaks-in-my-document-.html</value>
-    </property>
-  </bean>
-  <bean id="homeUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>Home</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatisHome"/>
-        <ref bean="whatisSiteNavigation"/>
-        <ref bean="whatistheHomeToolMenu"/>
-        <ref bean="whatistheHomeMessageoftheDay"/>
-        <ref bean="whatistheHomeCalendar"/>
-        <ref bean="whatistheHomeInformationDisplay"/>
-        <ref bean="whataretheHomeRecentAnnouncements"/>
-        <ref bean="whataretheHomeMessageCenterNotifications"/>
-        <ref bean="whatisMembership"/>
-        <ref bean="howdoIviewandeditmyaccountdetails"/>
-        <ref bean="whatisWorksiteSetup"/>
-        <ref bean="whatisthePreferencestool"/>
-        <ref bean="whataretheResourcesinHome"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatisHome" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatisHome</value>
-    </property>
-    <property name="name">
-      <value>What is Home?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-Home-.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.home</value>
-    </property>
-  </bean>
-  <bean id="whatisSiteNavigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatisSiteNavigation</value>
-    </property>
-    <property name="name">
-      <value>What is Site Navigation?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-Site-Navigation-.html</value>
-    </property>
-  </bean>
-  <bean id="whatistheHomeToolMenu" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatistheHomeToolMenu</value>
-    </property>
-    <property name="name">
-      <value>What is the Home Tool Menu?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Tool-Menu-.html</value>
-    </property>
-  </bean>
-  <bean id="whatistheHomeMessageoftheDay" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatistheHomeMessageoftheDay</value>
-    </property>
-    <property name="name">
-      <value>What is the Home Message of the Day? </value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Message-of-the-Day-.html</value>
-    </property>
-  </bean>
-  <bean id="whatistheHomeCalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatistheHomeCalendar</value>
-    </property>
-    <property name="name">
-      <value>What is the Home Calendar?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Calendar-.html</value>
-    </property>
-  </bean>
-  <bean id="whatistheHomeInformationDisplay" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatistheHomeInformationDisplay</value>
-    </property>
-    <property name="name">
-      <value>What is the Home Information Display?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Information-Display-.html</value>
-    </property>
-  </bean>
-  <bean id="whataretheHomeRecentAnnouncements" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whataretheHomeRecentAnnouncements</value>
-    </property>
-    <property name="name">
-      <value>What are the Home Recent Announcements?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-are-the-Home-Recent-Announcements-.html</value>
-    </property>
-  </bean>
-  <bean id="whataretheHomeMessageCenterNotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whataretheHomeMessageCenterNotifications</value>
-    </property>
-    <property name="name">
-      <value>What are the Home Message Center Notifications?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-are-the-Home-Message-Center-Notifications-.html</value>
-    </property>
-  </bean>
-  <bean id="whatisMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatisMembership</value>
-    </property>
-    <property name="name">
-      <value>What is Membership?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-Membership-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIviewandeditmyaccountdetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIviewandeditmyaccountdetails</value>
-    </property>
-    <property name="name">
-      <value>How do I view and edit my account details?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/How-do-I-view-and-edit-my-account-details-.html</value>
-    </property>
-  </bean>
-  <bean id="whatisthePreferencestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatisthePreferencestool</value>
-    </property>
-    <property name="name">
-      <value>What is the Preferences tool?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-is-the-Preferences-tool-.html</value>
-    </property>
-  </bean>
-  <bean id="whataretheResourcesinHome" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whataretheResourcesinHome</value>
-    </property>
-    <property name="name">
-      <value>What are the Resources in Home?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_homeUserGuide/What-are-the-Resources-in-Home-.html</value>
-    </property>
-  </bean>
-  <bean id="courseandProjectSitesUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>Course and Project Sites</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatarecoursesites"/>
-        <ref bean="whatareprojectsites"/>
-        <ref bean="howdoInavigateamongdifferentsites"/>
-        <ref bean="howdoInavigatewithinasite"/>
-        <ref bean="howdoIresetatool"/>
-        <ref bean="whatdoesUnpublishedSitemean"/>
-        <ref bean="howdoIcreateanewcourseorprojectsite"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatarecoursesites" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatarecoursesites</value>
-    </property>
-    <property name="name">
-      <value>What are course sites?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_courseandProjectSitesUserGuide/What-are-course-sites-.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.courseandProjectSites</value>
-    </property>
-  </bean>
-  <bean id="whatareprojectsites" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatareprojectsites</value>
-    </property>
-    <property name="name">
-      <value>What are project sites?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_courseandProjectSitesUserGuide/What-are-project-sites-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoInavigateamongdifferentsites" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoInavigateamongdifferentsites</value>
-    </property>
-    <property name="name">
-      <value>How do I navigate among different sites?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-navigate-among-different-sites-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoInavigatewithinasite" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoInavigatewithinasite</value>
-    </property>
-    <property name="name">
-      <value>How do I navigate within a site?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-navigate-within-a-site-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIresetatool" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIresetatool</value>
-    </property>
-    <property name="name">
-      <value>How do I reset a tool?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-reset-a-tool-.html</value>
-    </property>
-  </bean>
-  <bean id="whatdoesUnpublishedSitemean" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatdoesUnpublishedSitemean</value>
-    </property>
-    <property name="name">
-      <value>What does Unpublished Site mean?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_courseandProjectSitesUserGuide/What-does-Unpublished-Site-mean-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIcreateanewcourseorprojectsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIcreateanewcourseorprojectsite</value>
-    </property>
-    <property name="name">
-      <value>How do I create a new course or project site?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-create-a-new-course-or-project-site-.html</value>
-    </property>
-  </bean>
-  <bean id="permissionsandRolesUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>Permissions and Roles</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatarePermissionsandRoles"/>
-        <ref bean="howdoIchangeparticipantroleswithinasite"/>
-      </list>
     </property>
   </bean>
   <bean id="announcementsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -2632,6 +2368,102 @@
       <value>/sakai_screensteps_contactUsUserGuide/How-do-I-use-the-Contact-Us-tool-.html</value>
     </property>
   </bean>
+  <bean id="courseandProjectSitesUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Course and Project Sites</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatarecoursesites"/>
+        <ref bean="whatareprojectsites"/>
+        <ref bean="howdoInavigateamongdifferentsites"/>
+        <ref bean="howdoInavigatewithinasite"/>
+        <ref bean="howdoIresetatool"/>
+        <ref bean="whatdoesUnpublishedSitemean"/>
+        <ref bean="howdoIcreateanewcourseorprojectsite"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatarecoursesites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatarecoursesites</value>
+    </property>
+    <property name="name">
+      <value>What are course sites?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/What-are-course-sites-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.courseandProjectSites</value>
+    </property>
+  </bean>
+  <bean id="whatareprojectsites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatareprojectsites</value>
+    </property>
+    <property name="name">
+      <value>What are project sites?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/What-are-project-sites-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoInavigateamongdifferentsites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoInavigateamongdifferentsites</value>
+    </property>
+    <property name="name">
+      <value>How do I navigate among different sites?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-navigate-among-different-sites-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoInavigatewithinasite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoInavigatewithinasite</value>
+    </property>
+    <property name="name">
+      <value>How do I navigate within a site?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-navigate-within-a-site-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIresetatool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIresetatool</value>
+    </property>
+    <property name="name">
+      <value>How do I reset a tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-reset-a-tool-.html</value>
+    </property>
+  </bean>
+  <bean id="whatdoesUnpublishedSitemean" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatdoesUnpublishedSitemean</value>
+    </property>
+    <property name="name">
+      <value>What does Unpublished Site mean?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/What-does-Unpublished-Site-mean-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateanewcourseorprojectsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateanewcourseorprojectsite</value>
+    </property>
+    <property name="name">
+      <value>How do I create a new course or project site?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/How-do-I-create-a-new-course-or-project-site-.html</value>
+    </property>
+  </bean>
   <bean id="dropBoxUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Drop Box</value>
@@ -3052,38 +2884,195 @@
       <value>/sakai_screensteps_forumsUserGuide/How-do-I-watch-or-subscribe-to-forums-.html</value>
     </property>
   </bean>
+  <bean id="gradebookClassicUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Gradebook Classic</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatisGradebookClassic"/>
+        <ref bean="howdoIsetupmyGradebookClassic"/>
+        <ref bean="howdoIadditemstoGradebookClassic"/>
+        <ref bean="howdoIenterandoreditgradesinGradebookClassic"/>
+        <ref bean="howdoIexportgradesfromGradebookClassic"/>
+        <ref bean="howdoIimportgradesintoGradebookClassic"/>
+        <ref bean="howdoIoverrideacoursegradeinGradebookClassic"/>
+        <ref bean="howdoIsetallungradeditemstozeroinGradebookClassic"/>
+        <ref bean="howdoesextracreditworkinGradebookClassic"/>
+        <ref bean="howaregradescalculatedinGradebookClassic"/>
+        <ref bean="howdostudentsviewtheirgradesinGradebookClassic"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatisGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>What is Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/What-is-Gradebook-Classic-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.gradebookClassic</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetupmyGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetupmyGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I set up my Gradebook?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-set-up-my-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIadditemstoGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIadditemstoGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I add items to the Gradebook?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-add-items-to-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIenterandoreditgradesinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIenterandoreditgradesinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I enter and/or edit grades in the Gradebook?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-enter-and-or-edit-grades-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIexportgradesfromGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIexportgradesfromGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I export grades from the Gradebook?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-export-grades-from-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIimportgradesintoGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIimportgradesintoGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I import grades into the Gradebook?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-import-grades-into-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIoverrideacoursegradeinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIoverrideacoursegradeinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I override a course grade?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-override-a-course-grade-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetallungradeditemstozeroinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetallungradeditemstozeroinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I set all ungraded items to zero?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-set-all-ungraded-items-to-zero-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoesextracreditworkinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoesextracreditworkinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How does extra credit work?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-does-extra-credit-work-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howaregradescalculatedinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howaregradescalculatedinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How are grades calculated?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-are-grades-calculated-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdostudentsviewtheirgradesinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdostudentsviewtheirgradesinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do students view their Gradebook grades?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-students-view-their-grades-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
   <bean id="gradebookUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Gradebook</value>
     </property>
     <property name="resources">
       <list>
-        <ref bean="whatistheGradebook"/>
+        <ref bean="whatisGradebook"/>
+        <ref bean="howdoIviewandorganizeinformationinGradebook"/>
         <ref bean="howdoIsetupmyGradebook"/>
         <ref bean="howdoIadditemstotheGradebook"/>
-        <ref bean="howdoIenterandoreditgradesintheGradebook"/>
-        <ref bean="howdoIexportgradesfromtheGradebook"/>
-        <ref bean="howdoIimportgradesintotheGradebook"/>
-        <ref bean="howdoIoverrideacoursegrade"/>
-        <ref bean="howdoIsetallungradeditemstozero"/>
-        <ref bean="howdoesextracreditwork"/>
-        <ref bean="howaregradescalculated"/>
-        <ref bean="howdostudentsviewtheirGradebookgrades"/>
+        <ref bean="howdoIenterandoreditgradesinGradebook"/>
+        <ref bean="howdoIexportgradesfromGradebook"/>
+        <ref bean="howdoIimportgradesintoGradebook"/>
+        <ref bean="howdoIoverrideacoursegradeinGradebook"/>
+        <ref bean="howdoIviewthecoursegradeoverrideloginGradebook"/>
+        <ref bean="howdoIsetallungradeditemstozeroinGradebook"/>
+        <ref bean="howdoesextracreditworkinGradebook"/>
+        <ref bean="howaregradescalculatedinGradebook"/>
+        <ref bean="howdostudentsviewtheirgradesintheGradebook"/>
       </list>
     </property>
   </bean>
-  <bean id="whatistheGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="whatisGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>whatistheGradebook</value>
+      <value>whatisGradebook</value>
     </property>
     <property name="name">
-      <value>What is the Gradebook?</value>
+      <value>What is Gradebook?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/What-is-the-Gradebook-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/What-is-Gradebook-.html</value>
     </property>
     <property name="defaultForTool">
       <value>sakai.gradebook.tool</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewandorganizeinformationinGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewandorganizeinformationinGradebook</value>
+    </property>
+    <property name="name">
+      <value>How do I view and organize information in Gradebook?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-view-and-organize-information-in-Gradebook-.html</value>
     </property>
   </bean>
   <bean id="howdoIsetupmyGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3091,7 +3080,7 @@
       <value>howdoIsetupmyGradebook</value>
     </property>
     <property name="name">
-      <value>How do I set up my Gradebook?</value>
+      <value>How do I set up GradebookNG?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-set-up-my-Gradebook-.html</value>
@@ -3102,254 +3091,266 @@
       <value>howdoIadditemstotheGradebook</value>
     </property>
     <property name="name">
-      <value>How do I add items to the Gradebook?</value>
+      <value>How do I add items to GradebookNG?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-add-items-to-the-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdoIenterandoreditgradesintheGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIenterandoreditgradesinGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIenterandoreditgradesintheGradebook</value>
-    </property>
-    <property name="name">
-      <value>How do I enter and/or edit grades in the Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-enter-and-or-edit-grades-in-the-Gradebook-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIexportgradesfromtheGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIexportgradesfromtheGradebook</value>
-    </property>
-    <property name="name">
-      <value>How do I export grades from the Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-export-grades-from-the-Gradebook-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIimportgradesintotheGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIimportgradesintotheGradebook</value>
-    </property>
-    <property name="name">
-      <value>How do I import grades into the Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-import-grades-into-the-Gradebook-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIoverrideacoursegrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIoverrideacoursegrade</value>
-    </property>
-    <property name="name">
-      <value>How do I override a course grade?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-override-a-course-grade-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIsetallungradeditemstozero" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIsetallungradeditemstozero</value>
-    </property>
-    <property name="name">
-      <value>How do I set all ungraded items to zero?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-set-all-ungraded-items-to-zero-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoesextracreditwork" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoesextracreditwork</value>
-    </property>
-    <property name="name">
-      <value>How does extra credit work?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-does-extra-credit-work-.html</value>
-    </property>
-  </bean>
-  <bean id="howaregradescalculated" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howaregradescalculated</value>
-    </property>
-    <property name="name">
-      <value>How are grades calculated?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-are-grades-calculated-.html</value>
-    </property>
-  </bean>
-  <bean id="howdostudentsviewtheirGradebookgrades" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdostudentsviewtheirGradebookgrades</value>
-    </property>
-    <property name="name">
-      <value>How do students view their Gradebook grades?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/How-do-students-view-their-Gradebook-grades-.html</value>
-    </property>
-  </bean>
-  <bean id="gradebookNGUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>GradebookNG</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatisGradebookNG"/>
-        <ref bean="howdoIsetupGradebookNG"/>
-        <ref bean="howdoIadditemstoGradebookNG"/>
-        <ref bean="howdoIenterandoreditgradesinGradebookNG"/>
-        <ref bean="howdoIexportgradesfromGradebookNG"/>
-        <ref bean="howdoIimportgradesintoGradebookNG"/>
-        <ref bean="howdoIoverrideacoursegradeinGradebookNG"/>
-        <ref bean="howdoIviewthecoursegradeoverrideloginGradebookNG"/>
-        <ref bean="howdoIsetallungradeditemstozeroinGradebookNG"/>
-        <ref bean="howdoesextracreditworkinGradebookNG"/>
-        <ref bean="howaregradescalculatedinGradebookNG"/>
-        <ref bean="howdostudentsviewtheirGradebookNGgrades"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatisGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatisGradebookNG</value>
-    </property>
-    <property name="name">
-      <value>What is GradebookNG?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/What-is-GradebookNG-.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.gradebookNG</value>
-    </property>
-  </bean>
-  <bean id="howdoIsetupGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIsetupGradebookNG</value>
-    </property>
-    <property name="name">
-      <value>How do I set up GradebookNG?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-set-up-GradebookNG-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIadditemstoGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIadditemstoGradebookNG</value>
-    </property>
-    <property name="name">
-      <value>How do I add items to GradebookNG?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-add-items-to-GradebookNG-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIenterandoreditgradesinGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIenterandoreditgradesinGradebookNG</value>
+      <value>howdoIenterandoreditgradesinGradebook</value>
     </property>
     <property name="name">
       <value>How do I enter and/or edit grades in GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-enter-and-or-edit-grades-in-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-enter-and-or-edit-grades-in-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdoIexportgradesfromGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIexportgradesfromGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIexportgradesfromGradebookNG</value>
+      <value>howdoIexportgradesfromGradebook</value>
     </property>
     <property name="name">
       <value>How do I export grades from GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-export-grades-from-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-export-grades-from-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdoIimportgradesintoGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIimportgradesintoGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIimportgradesintoGradebookNG</value>
+      <value>howdoIimportgradesintoGradebook</value>
     </property>
     <property name="name">
       <value>How do I import grades into GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-import-grades-into-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-import-grades-into-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdoIoverrideacoursegradeinGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIoverrideacoursegradeinGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIoverrideacoursegradeinGradebookNG</value>
+      <value>howdoIoverrideacoursegradeinGradebook</value>
     </property>
     <property name="name">
       <value>How do I override a course grade in GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-override-a-course-grade-in-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-override-a-course-grade-in-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdoIviewthecoursegradeoverrideloginGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIviewthecoursegradeoverrideloginGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIviewthecoursegradeoverrideloginGradebookNG</value>
+      <value>howdoIviewthecoursegradeoverrideloginGradebook</value>
     </property>
     <property name="name">
       <value>How do I view the course grade override log in GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-view-the-course-grade-override-log-in-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-view-the-course-grade-override-log-in-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdoIsetallungradeditemstozeroinGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIsetallungradeditemstozeroinGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIsetallungradeditemstozeroinGradebookNG</value>
+      <value>howdoIsetallungradeditemstozeroinGradebook</value>
     </property>
     <property name="name">
       <value>How do I set all ungraded items to zero in GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-I-set-all-ungraded-items-to-zero-in-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-I-set-all-ungraded-items-to-zero-in-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdoesextracreditworkinGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoesextracreditworkinGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoesextracreditworkinGradebookNG</value>
+      <value>howdoesextracreditworkinGradebook</value>
     </property>
     <property name="name">
       <value>How does extra credit work in GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-does-extra-credit-work-in-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-does-extra-credit-work-in-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howaregradescalculatedinGradebookNG" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howaregradescalculatedinGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howaregradescalculatedinGradebookNG</value>
+      <value>howaregradescalculatedinGradebook</value>
     </property>
     <property name="name">
       <value>How are grades calculated in GradebookNG?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-are-grades-calculated-in-GradebookNG-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-are-grades-calculated-in-Gradebook-.html</value>
     </property>
   </bean>
-  <bean id="howdostudentsviewtheirGradebookNGgrades" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdostudentsviewtheirgradesintheGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdostudentsviewtheirGradebookNGgrades</value>
+      <value>howdostudentsviewtheirgradesintheGradebook</value>
     </property>
     <property name="name">
       <value>How do students view their GradebookNG grades?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookNGUserGuide/How-do-students-view-their-GradebookNG-grades-.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/How-do-students-view-their-grades-in-the-Gradebook-.html</value>
+    </property>
+  </bean>
+  <bean id="homeUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Home</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatisHome"/>
+        <ref bean="whatisSiteNavigation"/>
+        <ref bean="whatistheHomeToolMenu"/>
+        <ref bean="whatistheHomeMessageoftheDay"/>
+        <ref bean="whatistheHomeCalendar"/>
+        <ref bean="whatistheHomeInformationDisplay"/>
+        <ref bean="whataretheHomeRecentAnnouncements"/>
+        <ref bean="whataretheHomeMessageCenterNotifications"/>
+        <ref bean="whatisMembership"/>
+        <ref bean="howdoIviewandeditmyaccountdetails"/>
+        <ref bean="whatisWorksiteSetup"/>
+        <ref bean="whatisthePreferencestool"/>
+        <ref bean="whataretheResourcesinHome"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatisHome" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisHome</value>
+    </property>
+    <property name="name">
+      <value>What is Home?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-Home-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.home</value>
+    </property>
+  </bean>
+  <bean id="whatisSiteNavigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisSiteNavigation</value>
+    </property>
+    <property name="name">
+      <value>What is Site Navigation?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-Site-Navigation-.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheHomeToolMenu" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheHomeToolMenu</value>
+    </property>
+    <property name="name">
+      <value>What is the Home Tool Menu?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Tool-Menu-.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheHomeMessageoftheDay" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheHomeMessageoftheDay</value>
+    </property>
+    <property name="name">
+      <value>What is the Home Message of the Day? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Message-of-the-Day-.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheHomeCalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheHomeCalendar</value>
+    </property>
+    <property name="name">
+      <value>What is the Home Calendar?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Calendar-.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheHomeInformationDisplay" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheHomeInformationDisplay</value>
+    </property>
+    <property name="name">
+      <value>What is the Home Information Display?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Information-Display-.html</value>
+    </property>
+  </bean>
+  <bean id="whataretheHomeRecentAnnouncements" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whataretheHomeRecentAnnouncements</value>
+    </property>
+    <property name="name">
+      <value>What are the Home Recent Announcements?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-are-the-Home-Recent-Announcements-.html</value>
+    </property>
+  </bean>
+  <bean id="whataretheHomeMessageCenterNotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whataretheHomeMessageCenterNotifications</value>
+    </property>
+    <property name="name">
+      <value>What are the Home Message Center Notifications?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-are-the-Home-Message-Center-Notifications-.html</value>
+    </property>
+  </bean>
+  <bean id="whatisMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisMembership</value>
+    </property>
+    <property name="name">
+      <value>What is Membership?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-Membership-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewandeditmyaccountdetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewandeditmyaccountdetails</value>
+    </property>
+    <property name="name">
+      <value>How do I view and edit my account details?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/How-do-I-view-and-edit-my-account-details-.html</value>
+    </property>
+  </bean>
+  <bean id="whatisthePreferencestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisthePreferencestool</value>
+    </property>
+    <property name="name">
+      <value>What is the Preferences tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-is-the-Preferences-tool-.html</value>
+    </property>
+  </bean>
+  <bean id="whataretheResourcesinHome" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whataretheResourcesinHome</value>
+    </property>
+    <property name="name">
+      <value>What are the Resources in Home?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/What-are-the-Resources-in-Home-.html</value>
     </property>
   </bean>
   <bean id="lessonsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -3531,7 +3532,7 @@
       <value>howdoIaddaninlinequestiontoaLessonspage</value>
     </property>
     <property name="name">
-      <value>How do I add an in-line question to a Lessons page?</value>
+      <value>How do I add a question to a Lessons page?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_lessonsUserGuide/How-do-I-add-an-in-line-question-to-a-Lessons-page-.html</value>
@@ -3904,6 +3905,17 @@
       <value>/sakai_screensteps_newsUserGuide/How-do-I-delete-a-News-tool-.html</value>
     </property>
   </bean>
+  <bean id="permissionsandRolesUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Permissions and Roles</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatarePermissionsandRoles"/>
+        <ref bean="howdoIchangeparticipantroleswithinasite"/>
+      </list>
+    </property>
+  </bean>
   <bean id="podcastsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Podcasts</value>
@@ -4214,9 +4226,12 @@
         <ref bean="howdoInavigatetheResourcestool"/>
         <ref bean="howdoIcreatefolders"/>
         <ref bean="howdoIuploadfilestoResources"/>
+        <ref bean="howdoIuploadandunpackazipfiletoaResourcesfolder"/>
+        <ref bean="howdoIcreateaziparchivefileinResources"/>
         <ref bean="howdoIaddaweblinkorURL"/>
         <ref bean="howdoIcreateatextdocument"/>
         <ref bean="howdoIcreateanHTMLpage"/>
+        <ref bean="howdoIcreateacitationlist"/>
         <ref bean="howdoImoveafileorfolderwithinResourcesinthesamesite"/>
         <ref bean="howdoIcopyafileorfolderwithinResourcesinthesamesite"/>
         <ref bean="howdoIcopyaResourcesfileorfolderfromonesitetoanothersite"/>
@@ -4236,6 +4251,7 @@
         <ref bean="howdoIallowallstudentstouploadcontenttoaselectedfolder"/>
         <ref bean="howdoImakeafileorfolderpubliclyviewable"/>
         <ref bean="whatistheResourcesquota"/>
+        <ref bean="howdoItransferfilestoResourcesusingWebDAV"/>
       </list>
     </property>
   </bean>
@@ -4286,6 +4302,28 @@
       <value>/sakai_screensteps_resourcesUserGuide/How-do-I-upload-files-to-Resources-.html</value>
     </property>
   </bean>
+  <bean id="howdoIuploadandunpackazipfiletoaResourcesfolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIuploadandunpackazipfiletoaResourcesfolder</value>
+    </property>
+    <property name="name">
+      <value>How do I upload and unpack a zip file to a Resources folder?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_resourcesUserGuide/How-do-I-upload-and-unpack-a-zip-file-to-a-Resources-folder-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateaziparchivefileinResources" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateaziparchivefileinResources</value>
+    </property>
+    <property name="name">
+      <value>How do I create a zip archive file in Resources?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_resourcesUserGuide/How-do-I-create-a-zip-archive-file-in-Resources-.html</value>
+    </property>
+  </bean>
   <bean id="howdoIaddaweblinkorURL" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
       <value>howdoIaddaweblinkorURL</value>
@@ -4317,6 +4355,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_resourcesUserGuide/How-do-I-create-an-HTML-page-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateacitationlist" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateacitationlist</value>
+    </property>
+    <property name="name">
+      <value>How do I create a citation list?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_resourcesUserGuide/How-do-I-create-a-citation-list-.html</value>
     </property>
   </bean>
   <bean id="howdoImoveafileorfolderwithinResourcesinthesamesite" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4526,6 +4575,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_resourcesUserGuide/What-is-the-Resources-quota-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoItransferfilestoResourcesusingWebDAV" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoItransferfilestoResourcesusingWebDAV</value>
+    </property>
+    <property name="name">
+      <value>How do I upload or download multiple resources?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_resourcesUserGuide/How-do-I-transfer-files-to-Resources-using-WebDAV-.html</value>
     </property>
   </bean>
   <bean id="richTextEditorUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -5730,7 +5790,7 @@
       <value>howdoIcreateafileuploadquestion</value>
     </property>
     <property name="name">
-      <value>How do I create a file upload question?</value>
+      <value>How do I add a file upload question?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_testsandQuizzesUserGuide/How-do-I-create-a-file-upload-question-.html</value>
@@ -5774,7 +5834,7 @@
       <value>howdoIaddcopymoveordeleteaquestionpool</value>
     </property>
     <property name="name">
-      <value>How do I add, copy, move, or delete a question pool?</value>
+      <value>How do I add, copy, move, or remove a question pool?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_testsandQuizzesUserGuide/How-do-I-add--copy--move--or-delete-a-question-pool-.html</value>
