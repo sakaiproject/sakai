@@ -4,7 +4,6 @@ import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.gradebookng.tool.panels.importExport.ExportPanel;
 import org.sakaiproject.gradebookng.tool.panels.importExport.GradeImportUploadStep;
 
 /**

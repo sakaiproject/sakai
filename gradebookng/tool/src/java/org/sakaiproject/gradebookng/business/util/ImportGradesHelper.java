@@ -49,7 +49,7 @@ public class ImportGradesHelper {
 	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* [\\w ]+)");
 	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
-	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\# \\w+)");
+	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#[\\w ]+)");
 
 	/**
 	 * Parse a CSV into a list of ImportedGrade objects. Returns list if ok, or null if error
@@ -427,7 +427,7 @@ public class ImportGradesHelper {
 
 		final Matcher m4 = IGNORE_PATTERN.matcher(headerValue);
 		if (m4.matches()) {
-			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed aith a #.");
+			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
 			return null;
 		}
 
