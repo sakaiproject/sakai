@@ -711,6 +711,12 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
       'displayScores_isInstructorEditable', 'true');
 
 -- LTI CHANGES !!!
+-- ALTER TABLE lti_binding MODIFY settings CLOB;
+alter table lti_binding add temp CLOB;
+update lti_binding set temp=settings, settings=null;
+alter table lti_binding drop column settings;
+alter table lti_binding rename column temp to settings;
+
 alter table LTI_CONTENT add FA_ICON varchar2(1024);
 alter table LTI_CONTENT add CONTENTITEM CLOB;
 alter table lti_tools add pl_launch number(3) default 0;
@@ -721,6 +727,16 @@ alter table lti_tools add pl_assessmentselection number(3) default 0;
 alter table lti_tools add pl_importitem number(3) default 0;
 alter table lti_tools add fa_icon varchar2(1024);
 alter table lti_tools add tool_proxy_binding clob;
+-- ALTER TABLE lti_tools MODIFY settings CLOB;
+alter table lti_tools add temp CLOB;
+update lti_tools set temp=settings, settings=null;
+alter table lti_tools drop column settings;
+alter table lti_tools rename column temp to settings;
+-- ALTER TABLE lti_tools MODIFY xmlimport CLOB;
+alter table lti_tools add temp CLOB;
+update lti_tools set temp=xmlimport, xmlimport=null;
+alter table lti_tools drop column xmlimport;
+alter table lti_tools rename column temp to xmlimport;
 
 ALTER TABLE lti_content MODIFY (     title VARCHAR2(1024) );
 ALTER TABLE lti_content MODIFY (     pagetitle VARCHAR2(1024) );
@@ -730,6 +746,21 @@ alter table lti_content add temp CLOB;
 update lti_content set temp=custom, custom=null;
 alter table lti_content drop column custom;
 alter table lti_content rename column temp to custom;
+-- ALTER TABLE lti_content MODIFY xmlimport CLOB;
+alter table lti_content add temp CLOB;
+update lti_content set temp=xmlimport, xmlimport=null;
+alter table lti_content drop column xmlimport;
+alter table lti_content rename column temp to xmlimport;
+-- ALTER TABLE lti_content MODIFY settings CLOB;
+alter table lti_content add temp CLOB;
+update lti_content set temp=settings, settings=null;
+alter table lti_content drop column settings;
+alter table lti_content rename column temp to settings;
+-- ALTER TABLE lti_content MODIFY settings_ext CLOB;
+alter table lti_content add temp CLOB;
+update lti_content set temp=settings_ext, settings_ext=null;
+alter table lti_content drop column settings_ext;
+alter table lti_content rename column temp to settings_ext;
 
 ALTER TABLE lti_tools MODIFY (     title VARCHAR2(1024) );
 ALTER TABLE lti_tools MODIFY (     pagetitle VARCHAR2(1024) );
@@ -740,6 +771,16 @@ update lti_tools set temp=custom, custom=null;
 alter table lti_tools drop column custom;
 alter table lti_tools rename column temp to custom;
 
+-- ALTER TABLE lti_deploy MODIFY reg_profile CLOB;
+alter table lti_deploy add temp CLOB;
+update lti_deploy set temp=reg_profile, reg_profile=null;
+alter table lti_deploy drop column reg_profile;
+alter table lti_deploy rename column temp to reg_profile;
+-- ALTER TABLE lti_deploy MODIFY settings CLOB;
+alter table lti_deploy add temp CLOB;
+update lti_deploy set temp=settings, settings=null;
+alter table lti_deploy drop column settings;
+alter table lti_deploy rename column temp to settings;
 ALTER TABLE lti_deploy MODIFY (     title VARCHAR2(1024) );
 ALTER TABLE lti_deploy MODIFY (     pagetitle VARCHAR2(1024) );
 ALTER TABLE lti_deploy ADD (     allowcontentitem NUMBER(1) DEFAULT '0' );
