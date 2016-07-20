@@ -257,9 +257,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
               if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
                   result = onShow.call(this);
               }
-              var pos = findPos(e.editor.container.$);
-              //SAK-29830 - On some pages it was moving too far down the pages, on others it was still moving too far. This fix is intended to cut that significantly.
-              this.move(this.getPosition().x, pos[1]*0.25);
               return result;
           }
 
