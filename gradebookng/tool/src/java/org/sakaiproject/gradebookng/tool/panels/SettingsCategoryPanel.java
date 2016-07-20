@@ -3,7 +3,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -670,16 +669,10 @@ public class SettingsCategoryPanel extends Panel {
 		@Override
 		public String convertToString(final Double value, final Locale locale) {
 
-			// set the decimal precision
-			final NumberFormat df = NumberFormat.getInstance();
-			df.setMinimumFractionDigits(0);
-			df.setMaximumFractionDigits(2);
-			df.setRoundingMode(RoundingMode.DOWN);
-
 			// convert to percentage representation
-			final Double rval = value * 100;
+			final Double percentage = value * 100;
 
-			return df.format(rval);
+			return FormatHelper.formatDoubleToTwoDecimalPlaces(percentage);
 		}
 
 	}
