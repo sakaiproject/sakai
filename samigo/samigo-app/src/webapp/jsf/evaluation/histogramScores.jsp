@@ -282,13 +282,12 @@ $Id$
           <h:column>
             <h:panelGrid styleClass="table table-striped" columns="1">
               <h:panelGroup rendered="#{item.questionType !='13'}">
-                <h:graphicImage id="image8" rendered="#{bar.isCorrect}" width="12" height="12" alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" />
                 <h4>
                   <h:outputText value="#{bar.title}" escape="false" rendered="#{bar.title ne ''}"/>
                 </h4>
-                <h:graphicImage id="image8_b" rendered="#{bar.isCorrect}" width="12" height="12" alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" />
                 <div class="progress">
-                  <h:outputText value="<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
+                  <h:outputText rendered="#{bar.isCorrect}" value="<div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
+                  <h:outputText rendered="#{!bar.isCorrect}" value="<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
                     <h:outputText value="#{bar.numStudentsText}" />
                   </div>
                 </div>
