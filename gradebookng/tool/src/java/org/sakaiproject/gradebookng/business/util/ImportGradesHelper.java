@@ -51,7 +51,7 @@ public class ImportGradesHelper {
 	public final static int USER_NAME_POS = 1;
 
 	// patterns for detecting column headers and their types
-	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([\\w ]+ \\[\\d+\\])");
+	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([\\w ]+ \\[[0-9]+(\\.[0-9][0-9]?)?\\])");
 	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* [\\w ]+)");
 	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");

@@ -1,8 +1,6 @@
 package org.sakaiproject.gradebookng.business.helpers;
 
 import java.io.InputStream;
-import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,38 +122,6 @@ public class TestImportGradesHelper {
 	 * TODO fix this failing test
 	 */
 	@Ignore
-	@Test
-	public void testParseAssignmentHeader() throws Exception {
-		final String inputString = "The Assignment [10]";
-
-		final MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_PATTERN);
-		final Object[] parsedObject = mf.parse(inputString);
-
-		Assert.assertEquals("Parsed assignment name does not match", "The Assignment", parsedObject[0]);
-		Assert.assertEquals("Parsed assignment points do not match", "10", parsedObject[1]);
-
-	}
-
-	@Test
-	public void testParseAssignmentCommentHeader() throws Exception {
-		final String inputString = "*/ The Assignment Comments */";
-
-		final MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_COMMENT_PATTERN);
-		final Object[] parsedObject = mf.parse(inputString);
-
-		Assert.assertEquals("Parsed assignment name does not match", "The Assignment", parsedObject[0]);
-
-	}
-
-	@Test(expected = ParseException.class)
-	public void testBadParseAssignmentCommentHeader() throws Exception {
-		final String inputString = "*/ The Assignment Comments */";
-
-		final MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_PATTERN);
-		mf.parse(inputString);
-
-	}
-
 	@Test
 	public void testProcessImportedGrades() {
 		final List<Assignment> assignments = mockAssignments();
@@ -295,8 +261,12 @@ public class TestImportGradesHelper {
 		importedGrade1.setStudentName("User 1");
 		final Map<String, ImportedGradeItem> gradeMap1 = new HashMap<>();
 
-		gradeMap1.put("Assignment 1", new ImportedGradeItem("Assignment 1", "comment 1", "1"));
-		gradeMap1.put("Assignment 2", new ImportedGradeItem("Assignment 2", "comment 2", "2"));
+		gradeMap1.put("Assignment 1", new ImportedGradeItem("Assignment 1"));
+		gradeMap1.get("Assignment 1").setGradeItemComment("comment 1");
+		gradeMap1.get("Assignment 1").setGradeItemScore("1");
+		gradeMap1.put("Assignment 2", new ImportedGradeItem("Assignment 2"));
+		gradeMap1.get("Assignment 2").setGradeItemComment("comment 2");
+		gradeMap1.get("Assignment 2").setGradeItemScore("2");
 		importedGrade1.setGradeItemMap(gradeMap1);
 		importedGrades.add(importedGrade1);
 
@@ -306,8 +276,12 @@ public class TestImportGradesHelper {
 		importedGrade2.setStudentName("User 2");
 		final Map<String, ImportedGradeItem> gradeMap2 = new HashMap<>();
 
-		gradeMap2.put("Assignment 1", new ImportedGradeItem("Assignment 1", "comment 12", "5"));
-		gradeMap2.put("Assignment 2", new ImportedGradeItem("Assignment 2", "comment 222", "3"));
+		gradeMap2.put("Assignment 1", new ImportedGradeItem("Assignment 1"));
+		gradeMap2.get("Assignment 1").setGradeItemComment("comment 12");
+		gradeMap2.get("Assignment 1").setGradeItemScore("5");
+		gradeMap2.put("Assignment 2", new ImportedGradeItem("Assignment 2"));
+		gradeMap2.get("Assignment 2").setGradeItemComment("comment 222");
+		gradeMap2.get("Assignment 2").setGradeItemScore("3");
 		importedGrade2.setGradeItemMap(gradeMap2);
 		importedGrades.add(importedGrade2);
 
@@ -318,8 +292,12 @@ public class TestImportGradesHelper {
 		final Map<String, ImportedGradeItem> gradeMap3 = new HashMap<>();
 
 		// gradeMap3.put("Assignment 1", new ImportedGradeItem("Assignment 1", "comment 13", "5"));
-		gradeMap3.put("Assignment 2", new ImportedGradeItem("Assignment 2", "comment 23", "6"));
-		gradeMap3.put("Assignment 3", new ImportedGradeItem("Assignment 3", "comment 233", "7"));
+		gradeMap3.put("Assignment 2", new ImportedGradeItem("Assignment 2"));
+		gradeMap3.get("Assignment 2").setGradeItemComment("comment 23");
+		gradeMap3.get("Assignment 2").setGradeItemScore("6");
+		gradeMap3.put("Assignment 3", new ImportedGradeItem("Assignment 3"));
+		gradeMap3.get("Assignment 3").setGradeItemComment("comment 233");
+		gradeMap3.get("Assignment 3").setGradeItemScore("7");
 		importedGrade3.setGradeItemMap(gradeMap3);
 		importedGrades.add(importedGrade3);
 
