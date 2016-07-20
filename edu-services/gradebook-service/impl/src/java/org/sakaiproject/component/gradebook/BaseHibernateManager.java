@@ -288,9 +288,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     private Assignment prepareNewAssignment(String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased, Boolean isExtraCredit)
     {
         String validatedName = StringUtils.trimToNull(name);
-        if (validatedName == null)
-        {
+        if (validatedName == null){
             throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
+        }
+        
+        // name cannot start with * or # as they are reserved for special columns in import/export
+        if(StringUtils.startsWithAny(validatedName, new String[]{"*", "#"})) {
+            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
+        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
         }
         
         Assignment asn = new Assignment();

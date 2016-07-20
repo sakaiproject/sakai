@@ -49,7 +49,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -777,6 +776,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					+ " attempted to change the definition of assignment " + assignmentId);
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
+		
+		//validate the name
+		String validatedName = StringUtils.trimToNull(assignmentDefinition.getName());
+        if (validatedName == null){
+            throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
+        }
+        
+        // name cannot start with * or # as they are reserved for special columns in import/export
+        if(StringUtils.startsWithAny(validatedName, new String[]{"*", "#"})) {
+            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
+        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        }
 
 		final Gradebook gradebook = this.getGradebook(gradebookUid);
 
@@ -799,7 +810,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				// external assessments are supported, but not these fields
 				if (!assignmentDefinition.isExternallyMaintained()) {
-					assignment.setName(StringUtils.trim(assignmentDefinition.getName()));
+					assignment.setName(validatedName);
 					assignment.setPointsPossible(assignmentDefinition.getPoints());
 					assignment.setDueDate(assignmentDefinition.getDueDate());
 				}
