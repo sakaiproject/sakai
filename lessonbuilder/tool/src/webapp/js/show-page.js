@@ -8,6 +8,8 @@ var delbutton;
 var mm_testing = 0;
 var editrow;
 var delete_orphan_enabled = true;
+// for generating ids
+var nextid = 0;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -2129,6 +2131,7 @@ $(document).ready(function() {
 		var tail_uls = addAboveLI.parent().nextAll();
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
+		var sectionId = "sectionid" + (nextid++);
 		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
@@ -2315,11 +2318,19 @@ $(document).ready(function() {
 		if (collapsible) {
 			section.addClass('collapsible');
 			header.addClass('collapsibleSectionHeader');
-			setCollapsedStatus($(this), false);
+			setCollapsedStatus(header, false);
+			var sectionId = section.attr('id');
+			if (typeof sectionId === 'undefined' || sectionId === null || sectionId === '') {
+			    sectionId = 'sectionid' + (nextid++);
+			    section.attr('id', sectionId);
+			}
+			header.attr('aria-controls', sectionId);
 		} else {
 			section.removeClass('collapsible');
 			header.removeClass('collapsibleSectionHeader');
-			setCollapsedStatus($(this), false);
+			setCollapsedStatus(header, false);
+			header.removeAttr('aria-controls');
+			header.removeAttr('aria-expanded');
 		}
 		if (defaultClosed) {
 			section.addClass('defaultClosed');
@@ -2480,11 +2491,13 @@ function setCollapsedStatus(header, collapse) {
 	header.find('.collapseIcon').removeClass("fa-toggle-up");
 	header.find('.sectionCollapsedIcon').show();
 	header.find('.toggleCollapse').text(msg('simplepage.clickToExpand'));
+	header.attr('aria-expanded', 'false');
     } else {
 	header.find('.collapseIcon').removeClass("fa-toggle-down");
 	header.find('.collapseIcon').addClass("fa-toggle-up");
 	header.find('.sectionCollapsedIcon').hide();
 	header.find('.toggleCollapse').text(msg('simplepage.clickToCollapse'));
+	header.attr('aria-expanded', 'true');
     }
 }
 
