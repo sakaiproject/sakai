@@ -6816,19 +6816,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		//duplicating code from doAttachUpload. TODO: Consider refactoring into a method
 
-		SecurityAdvisor sa = new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				if(function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)){
-					return SecurityAdvice.ALLOWED;
-				}else if(function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_ANY)){
-					return SecurityAdvice.ALLOWED;
-				}else{
-					return SecurityAdvice.PASS;
-				}
-			}
-		};
+		SecurityAdvisor sa = createSubmissionSecurityAdvisor();
 		try
 		{
 			m_securityService.pushAdvisor(sa);
@@ -17176,16 +17164,7 @@ public class AssignmentAction extends PagedResourceActionII
 					props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
 	
 					// make an attachment resource for this URL
-					SecurityAdvisor sa = new SecurityAdvisor() {
-						public SecurityAdvice isAllowed(String userId, String function, String reference)
-						{
-							//Needed to be able to add or modify their own
-							if (function.equals(m_contentHostingService.AUTH_RESOURCE_ADD) || function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_OWN)) {
-								return SecurityAdvice.ALLOWED;
-							}
-							return SecurityAdvice.PASS;
-						}
-					};
+					SecurityAdvisor sa = createSubmissionSecurityAdvisor();
 					try
 					{
 						String siteId = ToolManager.getCurrentPlacement().getContext();
@@ -17295,8 +17274,30 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 	}	// doAttachupload
-	
-	
+
+	/**
+	 * This security advisor is used when making an assignment submission so that attachments can be added.
+	 *
+	 * @return The security advisor.
+	 */
+	private SecurityAdvisor createSubmissionSecurityAdvisor() {
+		return (userId, function, reference) -> {
+			//Needed to be able to add or modify their own
+			if (function.equals(m_contentHostingService.AUTH_RESOURCE_ADD) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_HIDDEN)
+			) {
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			} else if (function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
+				M_log.info(userId + " requested ability to write to any content on "+ reference+
+						" which we didn't expect, this should be investigated");
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvisor.SecurityAdvice.PASS;
+		};
+	}
+
+
 	/**
 	 * Simply take as much as possible out of 'in', and write it to 'out'. Don't
 	 * close the streams, just transfer the data.
