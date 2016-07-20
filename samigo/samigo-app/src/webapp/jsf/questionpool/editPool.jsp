@@ -55,7 +55,12 @@ function textCounter(field, maxlimit) {
               }
               function initPage()
               {
-                  disableIt();checkUpdate();document.getElementById('editform:import').disabled=true;
+                  disableIt();checkUpdate();
+                  var importButton = document.getElementById('editform:import');
+                  if (importButton !== null)
+                  {
+                      importButton.disabled=true;
+                  }
                   flagFolders();
               }
               window.onload = initPage;
