@@ -8,6 +8,7 @@
 		<property name="mappingResources">
 			<list>
 				<value>ContentReviewItem.hbm.xml</value>
+				<value>ContentReviewActivityConfigEntry.hbm.xml</value>
 			</list>
 		</property>
 	</bean>
