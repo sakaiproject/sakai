@@ -6177,36 +6177,11 @@ public class SimplePageBean {
 		// if there's a new youtube URL, and it's different from
 		// the old one, update the URL if they are different
 		if (key != null && !key.equals(oldkey)) {
-		    String url = "http://www.youtube.com/watch#!v=" + key;
-		    String siteId = getCurrentPage().getSiteId();
-		    String collectionId = getCollectionId(true);
-
-		    SecurityAdvisor advisor = null;
-		    try {
-		    	if(getCurrentPage().getOwner() != null) {
-					advisor = new SecurityAdvisor() {
-						public SecurityAdvice isAllowed(String userId, String function, String reference) {
-							return SecurityAdvice.ALLOWED;
-						}
-					};
-					securityService.pushAdvisor(advisor);
-				}
-		    	
-		    	ContentResourceEdit res = contentHostingService.addResource(collectionId,Validator.escapeResourceName("Youtube video " + key),Validator.escapeResourceName("swf"),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-		    	res.setContentType("text/url");
-		    	res.setResourceType("org.sakaiproject.content.types.urlResource");
-		    	res.setContent(url.getBytes());
-		    	contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
-		    	item.setSakaiId(res.getId());
-		    	
-		    } catch (org.sakaiproject.exception.OverQuotaException ignore) {
-		    	setErrMessage(messageLocator.getMessage("simplepage.overquota"));
-		    } catch (Exception e) {
-		    	setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
-		    	log.error("addMultimedia error 3 " + e);
-		    }finally {
-		    	if(advisor != null) securityService.popAdvisor();
-		    }
+		    String url = "https://youtu.be/" + key;
+		    item.setName("youtub.be/" + key);
+		    item.setSakaiId(sakaiIdFromUrl(url, item));
+		    item.setAttribute("multimediaUrl", url);
+		    item.setAttribute("multimediaDisplayType", "2");
 		}
 
 		// even if there's some oddity with URLs, we do these updates
