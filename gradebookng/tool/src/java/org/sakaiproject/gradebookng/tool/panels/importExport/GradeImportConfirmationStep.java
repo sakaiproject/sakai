@@ -237,6 +237,7 @@ public class GradeImportConfirmationStep extends Panel {
 			@Override
 			protected void populateItem(final ListItem<ProcessedGradeItem> item) {
 				item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
+				item.add(new Label("itemPointValue", new PropertyModel<String>(item.getDefaultModel(), "itemPointValue")));
 
 				final PropertyModel<String> commentLabelProp = new PropertyModel<String>(item.getDefaultModel(), "commentLabel");
 				final String commentLabel = commentLabelProp.getObject();
@@ -250,7 +251,7 @@ public class GradeImportConfirmationStep extends Panel {
 						@Override
 						public void afterRender(final Component component) {
 							super.afterRender(component);
-							component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\"><span>" + commentLabel + "</span></td></tr>");
+							component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\" colspan=\"2\"><span>" + commentLabel + "</span></td></tr>");
 						}
 					});
 				}
