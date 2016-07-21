@@ -26,10 +26,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +37,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -51,9 +49,9 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidCategoryException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -61,6 +59,8 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -181,6 +181,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		if (isAssignmentDefined(gradebookUid, title)) {
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
+		
+		// name cannot start with * or # as they are reserved for special columns in import/export
+        if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
+        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        }
 
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -237,6 +243,11 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
         
+        // name cannot start with * or # as they are reserved for special columns in import/export
+        if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
+        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        }
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -747,6 +758,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		if (isAssignmentDefined(gradebookUid, title)) {
 			throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
 		}
+		
+		// name cannot start with * or # as they are reserved for special columns in import/export
+        if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
+        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        }
 
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -817,6 +834,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     if( StringUtils.trimToNull(externalId) == null ||
             StringUtils.trimToNull(title) == null) {
         throw new RuntimeException("ExternalId, and title must not be empty");
+    }
+    
+    // name cannot start with * or # as they are reserved for special columns in import/export
+    if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+        // TODO InvalidAssignmentNameException plus move all exceptions to their own package
+    	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
     }
 
     HibernateCallback hc = new HibernateCallback() {
