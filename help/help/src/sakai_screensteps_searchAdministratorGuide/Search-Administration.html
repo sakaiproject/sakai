@@ -29,11 +29,11 @@
         <p><em>Note: To complete the procedures in this document, you need to be assigned a role that has the necessary permissions.</em></p>
 <p>Admin users are allowed to administer all aspects of the search engine. These users are allowed access to the administration page of the Search Tool. This page gives these users access to parts of the Search Engine which is used by the Search Tool.</p>
 <p>The Administration page shows information about the indexing worker threads in the server cluster, and their state. It also shows information concerning the current index queue.</p>
-      </div>      <div id="steps-container">          <div id="step-19303" class="step-container">            <h2 class="step-title">Go to Search.</h2>            <div class="step-instructions">
+      </div>      <div id="steps-container">          <div id="step-15497" class="step-container">            <h2 class="step-title">Go to Search.</h2>            <div class="step-instructions">
 <p>Select the <strong>Search</strong> tool from the Tool Menu of your site. </p>
 <p><em>Note: You must be logged in as an admin user to access the admin Search options.</em></p>
 </div>          </div>
-          <div class="clear"></div>          <div id="step-19304" class="step-container">            <h2 class="step-title">View Search administration information.</h2>                      <div class="step-image-container step-image-fullsize">
+          <div class="clear"></div>          <div id="step-15498" class="step-container">            <h2 class="step-title">View Search administration information.</h2>                      <div class="step-image-container step-image-fullsize">
             <img src="/library/image/help/en/Search-Administration/View-Search-administration-information-sm.png" width="640" height="193" class="step-image" alt="View Search administration information."><div class="step-image-caption">
               <a href="/library/image/help/en/Search-Administration/View-Search-administration-information.png" rel="featherlight" target="_blank">Zoom</a>
             </div>
@@ -48,7 +48,7 @@
 <strong>Index Workers</strong> provides a list of all indexer threads in the Sakai cluster. In this list is the ID of the thread, the last time a heartbeat was received, and the current state of the thread, either idle or running. If the thread its ID will be present in the first information block with an estimated time of completion.</li>
 <li>Finally there is a block of information about the search index segments that are used by the search engine to store its state.</li>
 </ol></div>          </div>
-          <div class="clear"></div>          <div id="step-19305" class="step-container">            <h2 class="step-title">Index Queue</h2>            <div class="step-instructions">
+          <div class="clear"></div>          <div id="step-15499" class="step-container">            <h2 class="step-title">Index Queue</h2>            <div class="step-instructions">
 <p>The index queue is a queue of indexing commands that are enacted upon by search indexer threads. These commands take 3 forms.</p>
 <ol>
 <li>Global commands that control the whole search engine.</li>
@@ -56,7 +56,7 @@
 <li>Document commands that inform the search engine of items to be added or removed from the index.</li>
 </ol>
 </div>          </div>
-          <div class="clear"></div>          <div id="step-19306" class="step-container">            <h2 class="step-title">Global Commands (Rebuild Whole Index, Refresh Whole Index, Remove Lock)</h2>            <div class="step-instructions">
+          <div class="clear"></div>          <div id="step-15500" class="step-container">            <h2 class="step-title">Global Commands (Rebuild Whole Index, Refresh Whole Index, Remove Lock)</h2>            <div class="step-instructions">
 <p>Only instance administrators are allowed to perform Global operations. These operations are, rebuild, refresh and release lock. </p>
 <ul>
 <li>
@@ -67,7 +67,7 @@
 <strong>Remove Lock</strong> should only be issued if the operator is certain that the indexer thread that is supposed to be performing the current index operation has died. This should almost never be necessary, as each indexer thread emits a heartbeat to the cluster that conforms its health. If any indexer thread that has not emitted a heartbeat, or has become overdue has a writer lock on the index, it will have that lock removed by one of the other indexer threads, which will allow one of the other indexer threads to recover the indexing operation.</li>
 </ul>
 </div>          </div>
-          <div class="clear"></div>          <div id="step-19307" class="step-container">            <h2 class="step-title">Site Commands (Rebuild Site Index, Refresh Site Index)</h2>            <div class="step-instructions">
+          <div class="clear"></div>          <div id="step-15501" class="step-container">            <h2 class="step-title">Site Commands (Rebuild Site Index, Refresh Site Index)</h2>            <div class="step-instructions">
 <p>Site administrators or maintainers are allowed to issues refresh and rebuild commands against the site which they maintain.</p>
 <ul>
 <li>
@@ -76,7 +76,7 @@
 <strong>Refresh Site Index</strong> takes all the content in the current site only and refreshes the index for that site. While this command is being enacted upon by the indexer threads, the search index will still contain all of the site content. </li>
 </ul>
 </div>          </div>
-          <div class="clear"></div>          <div id="step-19308" class="step-container">            <h2 class="step-title">Refresh Status</h2>            <div class="step-instructions"><p>This command will refresh the page to give you an update on the status of the engine.</p></div>          </div>
+          <div class="clear"></div>          <div id="step-15502" class="step-container">            <h2 class="step-title">Refresh Status</h2>            <div class="step-instructions"><p>This command will refresh the page to give you an update on the status of the engine.</p></div>          </div>
           <div class="clear"></div>      </div>      
     </div>
     
