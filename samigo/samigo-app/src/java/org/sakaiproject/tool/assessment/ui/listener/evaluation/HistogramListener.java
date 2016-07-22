@@ -1837,7 +1837,7 @@ public class HistogramListener
 private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, List labels) {
     final String CORRECT = "Correct";
     final String INCORRECT = "Incorrect";
-    final int COLUMN_MAX_HEIGHT = 600;
+    final int COLUMN_MAX_HEIGHT = 100;
     
     ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
@@ -3025,6 +3025,13 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 	  }
 	  if (typeId == TypeIfc.MATRIX_CHOICES_SURVEY.intValue()) {
 		  return rb.getString("q_matrix_choices_surv");
+	  }
+	  if (typeId == TypeIfc.CALCULATED_QUESTION.intValue()) {
+	      return rb.getString("q_cq");
+	  }
+	  
+	  if (typeId == TypeIfc.IMAGEMAP_QUESTION.intValue()) {
+	      return rb.getString("q_imq");
 	  }
 	  return "";
   }
