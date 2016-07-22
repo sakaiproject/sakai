@@ -312,7 +312,7 @@ public class ItemAddListener
 
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
-    itemauthorbean = null;
+    itemauthorbean.setItemTypeString("");
   }
     
 	private void checkEMI() {
