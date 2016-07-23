@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>11-SNAPSHOT</version>
+		<version>11.0</version>
 	</parent>
     
 	<name>Sakai Samigo Content Packaging (samigo-cp)</name>

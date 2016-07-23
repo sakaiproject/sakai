@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler</artifactId>
-        <version>11-SNAPSHOT</version>
+        <version>11.0</version>
     </parent>
 
     <name>Sakai Job Scheduler Deploy POM (scheduler-deploy)</name>
