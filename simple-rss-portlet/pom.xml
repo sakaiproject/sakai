@@ -143,6 +143,7 @@
 		<project.build.sourceVersion>1.6</project.build.sourceVersion>
 		<project.build.targetVersion>1.6</project.build.targetVersion>
 		<maven.deploy.skip>true</maven.deploy.skip>
+		<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
 	</properties>
   
 	<build>

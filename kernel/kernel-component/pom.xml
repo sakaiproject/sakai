@@ -20,6 +20,7 @@
   <properties>
     <deploy.target>components</deploy.target>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
   </properties>
   <dependencies>
     <dependency>
