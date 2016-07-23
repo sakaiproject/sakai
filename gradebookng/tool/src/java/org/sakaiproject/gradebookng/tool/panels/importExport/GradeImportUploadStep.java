@@ -105,7 +105,7 @@ public class GradeImportUploadStep extends Panel {
 
 					// couldn't parse
 					if(importedGradeWrapper == null) {
-						error("Couldn't parse");
+						error(getString("importExport.error.badfile"));
 						return;
 					}
 
@@ -119,7 +119,7 @@ public class GradeImportUploadStep extends Panel {
 					// if null, the file was of the incorrect type
 					// if empty there are no users
 					if (processedGradeItems == null || processedGradeItems.isEmpty()) {
-						error(getString("error.parse.upload"));
+						error(getString("importExport.error.badfile"));
 					} else {
 						// GO TO NEXT PAGE
 						log.debug(processedGradeItems.size());

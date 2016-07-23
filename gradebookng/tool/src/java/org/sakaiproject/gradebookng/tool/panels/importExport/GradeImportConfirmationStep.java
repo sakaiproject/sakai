@@ -17,7 +17,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
@@ -115,7 +114,9 @@ public class GradeImportConfirmationStep extends Panel {
 
 							//get data
 							Long assignmentId = processedGradeItem.getItemId();
-							final String assignmentTitle = StringUtils.trim(processedGradeItem.getItemTitle()); //trim to match the gbservice behaviour
+
+							//if assignment title was modified, we need to use that instead
+							final String assignmentTitle = StringUtils.trim((processedGradeItem.getAssignmentTitle() != null) ? processedGradeItem.getAssignmentTitle() : processedGradeItem.getItemTitle());
 
 							if (assignmentId == null) {
 								// Should be a newly created GB item
@@ -236,11 +237,17 @@ public class GradeImportConfirmationStep extends Panel {
 
 			@Override
 			protected void populateItem(final ListItem<ProcessedGradeItem> item) {
-				item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
-				item.add(new Label("itemPointValue", new PropertyModel<String>(item.getDefaultModel(), "itemPointValue")));
 
-				final PropertyModel<String> commentLabelProp = new PropertyModel<String>(item.getDefaultModel(), "commentLabel");
-				final String commentLabel = commentLabelProp.getObject();
+				final ProcessedGradeItem gradeItem = item.getModelObject();
+
+				// ensure we display the edited data if we have it (won't exist for an update)
+				final String assignmentTitle = gradeItem.getAssignmentTitle();
+				final Double assignmentPoints = gradeItem.getAssignmentPoints();
+
+				item.add(new Label("itemTitle", (assignmentTitle != null) ? assignmentTitle : gradeItem.getItemTitle()));
+				item.add(new Label("itemPointValue", (assignmentPoints != null) ? assignmentPoints : gradeItem.getItemPointValue()));
+
+				final String commentLabel = gradeItem.getCommentLabel();
 
 				//if comment label, add additional row
 				if (commentLabel != null) {
@@ -251,7 +258,7 @@ public class GradeImportConfirmationStep extends Panel {
 						@Override
 						public void afterRender(final Component component) {
 							super.afterRender(component);
-							component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\" colspan=\"2\"><span>" + commentLabel + "</span></td></tr>");
+							component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\" colspan=\"2\"><span>" + getString("importExport.commentname") + "</span></td></tr>");
 						}
 					});
 				}

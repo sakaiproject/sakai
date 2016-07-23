@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -86,25 +87,20 @@ public class GradeItemImportSelectionStep extends Panel {
 					log.debug("Filtered Update items: " + itemsToUpdate.size());
 					log.debug("Filtered Create items: " + itemsToCreate.size());
 
-					final List<ProcessedGradeItem> gbItemsToCreate = new ArrayList<ProcessedGradeItem>();
-					itemsToCreate.forEach(item -> {
-						// Don't want comment items here
-						if (!"N/A".equals(item.getItemPointValue())) {
-							gbItemsToCreate.add(item);
-						}
-					});
 
-					log.debug("Actual items to create: " + gbItemsToCreate.size());
+					// Don't want comment items here
+					// TODO using N/A to indicate this is a comment column? How about an enum...
+					itemsToCreate.removeIf(i -> StringUtils.equals("N/A", i.getItemPointValue()));
+					log.debug("Actual items to create: " + itemsToCreate.size());
 
 					// repaint panel
 					Component newPanel = null;
 					importWizardModel.setSelectedGradeItems(selectedGradeItems);
-					importWizardModel.setGbItemsToCreate(gbItemsToCreate);
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
-					if (gbItemsToCreate.size() > 0) {
+					if (itemsToCreate.size() > 0) {
 						importWizardModel.setStep(1);
-						importWizardModel.setTotalSteps(gbItemsToCreate.size());
+						importWizardModel.setTotalSteps(itemsToCreate.size());
 						newPanel = new CreateGradeItemStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
 					} else {
 						newPanel = new GradeImportConfirmationStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
@@ -189,6 +185,9 @@ public class GradeItemImportSelectionStep extends Panel {
 				final PropertyModel<String> commentLabelProp = new PropertyModel<String>(item.getDefaultModel(), "commentLabel");
 				final PropertyModel<ProcessedGradeItemStatus> commentStatusProp = new PropertyModel<ProcessedGradeItemStatus>(
 						item.getDefaultModel(), "commentStatus");
+
+				// not actually used except for an if test
+				// TODO refactor this part
 				final String commentLabel = commentLabelProp.getObject();
 				final ProcessedGradeItemStatus commentStatus = commentStatusProp.getObject();
 
@@ -213,7 +212,7 @@ public class GradeItemImportSelectionStep extends Panel {
 							component.getResponse().write(
 									"<tr class=\"" + rowClass + "\">" +
 											"<td></td>" +
-											"<td class=\"item_title\">" + commentLabel + "</td>" +
+											"<td class=\"item_title\">" + getString("importExport.commentname") + "</td>" +
 											"<td class=\"item_points\">" + naString + "</td>" +
 											"<td class=\"item_status\">" + statusValue + "</td>" +
 											"</tr>"
