@@ -26,11 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 public class CreateGradeItemStep extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
-	private String panelId;
-    private IModel<ImportWizardModel> model;
 
-    public CreateGradeItemStep(String id, IModel<ImportWizardModel> importWizardModel) {
+	private final String panelId;
+    private final IModel<ImportWizardModel> model;
+
+    public CreateGradeItemStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
         super(id);
         this.panelId = id;
         this.model = importWizardModel;
@@ -44,32 +44,38 @@ public class CreateGradeItemStep extends Panel {
         final ImportWizardModel importWizardModel = this.model.getObject();
 
         final int step = importWizardModel.getStep();
-        
-        ProcessedGradeItem processedGradeItem = importWizardModel.getGbItemsToCreate().get(step - 1);
-        
-        //setup new assignment for populating
-        Assignment assignment = new Assignment();
+
+        // original data
+        final ProcessedGradeItem processedGradeItem = importWizardModel.getItemsToCreate().get(step - 1);
+
+        // setup new assignment for populating
+        final Assignment assignment = new Assignment();
         assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
         assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
 
-        Model<Assignment> assignmentModel = new Model<>(assignment);
+        final Model<Assignment> assignmentModel = new Model<>(assignment);
 
         @SuppressWarnings("unchecked")
+		final
 		Form<Assignment> form = new Form("form", assignmentModel) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
             protected void onSubmit() {
-                List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
-                
-                Assignment a = (Assignment)getDefaultModel().getObject();
+                final List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
+
+                final Assignment a = (Assignment)getDefaultModel().getObject();
 
                 if (a != null) {
                     assignmentsToCreate.add(assignment);
                 }
-                
+
                 log.debug("Assignment: " + assignment);
-                
+
+                // sync up the assignment data so we can present it for confirmation
+                processedGradeItem.setAssignmentTitle(a.getName());
+                processedGradeItem.setAssignmentPoints(a.getPoints());
+
                 //Figure out if there are more steps
                 //If so, go to the next step (ie do it all over again)
                 Component newPanel = null;
@@ -77,12 +83,12 @@ public class CreateGradeItemStep extends Panel {
 
                 if (step < importWizardModel.getTotalSteps()) {
                     importWizardModel.setStep(step+1);
-                    newPanel = new CreateGradeItemStep(panelId, Model.of(importWizardModel));
+                    newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 } else {
                     //If not, continue on in the wizard
-                    newPanel = new GradeImportConfirmationStep(panelId, Model.of(importWizardModel));
+                    newPanel = new GradeImportConfirmationStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
-                
+
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);
 
@@ -90,7 +96,7 @@ public class CreateGradeItemStep extends Panel {
         };
         add(form);
 
-        Button backButton = new Button("backbutton") {
+        final Button backButton = new Button("backbutton") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -99,10 +105,10 @@ public class CreateGradeItemStep extends Panel {
                 Component newPanel = null;
                 if (step > 1) {
                     importWizardModel.setStep(step-1);
-                    newPanel = new CreateGradeItemStep(panelId, Model.of(importWizardModel));
+                    newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
                 else {
-                    newPanel = new GradeItemImportSelectionStep(panelId, Model.of(importWizardModel));
+                    newPanel = new GradeItemImportSelectionStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);

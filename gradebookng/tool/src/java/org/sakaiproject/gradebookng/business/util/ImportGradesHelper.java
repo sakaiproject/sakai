@@ -236,6 +236,8 @@ public class ImportGradesHelper {
 				processedGradeItem.setItemPointValue(column.getPoints());
 				processedGradeItem.setStatus(status);
 			} else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
+
+				// internal only, no longer displayed, but used to link up the columns as it is unique
 				processedGradeItem.setCommentLabel(assignmentName + " Comments");
 				processedGradeItem.setCommentStatus(status);
 			} else {
