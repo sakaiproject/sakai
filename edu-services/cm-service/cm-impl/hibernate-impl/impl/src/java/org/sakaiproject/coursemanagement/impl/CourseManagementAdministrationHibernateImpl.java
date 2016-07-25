@@ -516,6 +516,15 @@ public class CourseManagementAdministrationHibernateImpl extends
 		return meeting;
 	}
 
+	@Override
+	public void removeAllSectionMeetings(String sectionEid) {
+		Section section = (Section)getObjectByEid(sectionEid, SectionCmImpl.class.getName());
+		Set<Meeting> meetings = section.getMeetings();
+		for (Meeting meeting : meetings) {
+			getHibernateTemplate().delete(meeting);
+		}
+	}
+
 	public void removeAcademicSession(String eid) {
 		AcademicSessionCmImpl as = (AcademicSessionCmImpl)getObjectByEid(eid, AcademicSessionCmImpl.class.getName());
 

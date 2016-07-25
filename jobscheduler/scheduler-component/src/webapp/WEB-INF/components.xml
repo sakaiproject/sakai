@@ -336,8 +336,6 @@
         </property>
     </bean>
 
-    <import resource="backfill-tool.xml"/>
-
     <!-- global quartz scheduler proxy bean -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.CourseSiteRemovalJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
@@ -378,5 +376,7 @@
         <property name="sessionManager"            ><ref bean="org.sakaiproject.tool.api.SessionManager"                    /></property>
         <property name="userDirectoryService"      ><ref bean="org.sakaiproject.user.api.UserDirectoryService"              /></property>
     </bean>
-   
+
+    <import resource="backfill-tool.xml"/>
+    <import resource="cm-components.xml"/>
 </beans>
