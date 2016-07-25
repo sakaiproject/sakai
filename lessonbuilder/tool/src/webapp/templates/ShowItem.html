@@ -155,7 +155,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 		<div rsf:id="refreshAlert" class="ui-widget">
 			<div class="instruction" title="Some items on this page are required.  Refreshing will update the icons next to them to reflect their current state."> 
 				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-				<span rsf:id="msg=simplepage.refresh_prompt"></span> <strong><a href="#" rsf:id="refreshLink"><span rsf:id="msg=simplepage.refresh"></span></a></strong> <span rsf:id="msg=simplepage.update_icons"></span></p>
+				<span rsf:id="msg=simplepage.refresh_prompt"></span> <strong><a role="button" href="#" rsf:id="refreshLink"><span rsf:id="msg=simplepage.refresh"></span></a></strong> <span rsf:id="msg=simplepage.update_icons"></span></p>
 			</div>
 		</div>
 		
@@ -164,23 +164,23 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
         <div rsf:id="nav" role="navigation" class="neoPortletTitleWrap itemHeader">
             <div class="portletTitle itemTitle">
                 <div class="title">
-                    <a href="#" rsf:id="resetbutton2" class="title-tools reset reload Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"><img rsf:id="resetimage2" src="/library/image/transparent.gif"/></a>
+                    <a role="button" href="#" rsf:id="resetbutton2" class="title-tools reset reload Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"><img rsf:id="resetimage2" src="/library/image/transparent.gif"/></a>
                     <span rsf:id="crumb:" class="crumb-item"><a style="background:none" href="#" rsf:id="crumb-link" class="crumb-link"></a><span rsf:id="crumb-follow" class="lessons-siteHierarchy-title"></span><span rsf:id="crumb-separator" class="Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span></span>
-                    <span class="returnheader nextprev"><a style="background:none; width:auto" href="#" class="usebutton nextprev returnmsg" rsf:id="return"></a></span>
+                    <span class="returnheader nextprev"><a role="button" style="background:none; width:auto" href="#" class="usebutton nextprev returnmsg" rsf:id="return"></a></span>
                     <span rsf:id="returnwarning" class="returnwarning"></span>
                 </div>
                 <div class="action itemAction">
                     
-                    <span class="nextprev buttonset ui-buttonset"><a style="background:none" href="#" rsf:id="prev" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left ui-button-text">prev</a><a href="#" rsf:id="next" style="background:none" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right ui-button-text">next</a></span>
-                    <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
+                    <span class="nextprev buttonset ui-buttonset"><a role="button" style="background:none" href="#" rsf:id="prev" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left ui-button-text">prev</a><a role="button" href="#" rsf:id="next" style="background:none" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right ui-button-text">next</a></span>
+                    <a role="button" aria-haspopup="dialog" aria-controls="direct-dialog" href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
 	            </a>
-		    <div rsf:id="directurl-div" class="portlet title-tools direct-url-wrap Mrphs-directUrl Mrphs-directUrl__dropDown">
+		    <div rsf:id="directurl-div" id="direct-dialog" role="dialog" class="portlet title-tools direct-url-wrap Mrphs-directUrl Mrphs-directUrl__dropDown">
 		      <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/>
 		      <span rsf:id="directurl-shorten">Short URL</span>
 		      <textarea rsf:id="directurl-textarea" class="portlet title-tools"></textarea>
 		    </div>
-                    <a href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup"><img rsf:id="helpimage2" src="/library/image/transparent.gif" /><span rsf:id="helpnewwindow2" class="offscreen"></span></a>
+                    <a role="button" href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup"><img rsf:id="helpimage2" src="/library/image/transparent.gif" /><span rsf:id="helpnewwindow2" class="offscreen"></span></a>
 
                 </div>
             <div style="clear:both"> </div>
