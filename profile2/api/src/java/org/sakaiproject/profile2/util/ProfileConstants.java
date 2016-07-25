@@ -276,6 +276,8 @@ public class ProfileConstants {
 	public static final String TAB_COOKIE = "profile2-tab";
 	public static final int TAB_INDEX_PROFILE = 0;
 	public static final int TAB_INDEX_WALL = 1;
+	public static final String PROFILE = "profile";
+	public static final String WALL = "wall";
 	
 	/*
 	 * WALL 
