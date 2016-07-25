@@ -73,7 +73,7 @@
   </scm>
 
   <properties>
-    <sakai.version>11.0</sakai.version>
+    <sakai.version>11-SNAPSHOT</sakai.version>
     <!-- Retain this for backward compatibility -->
     <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
     <kernel.spring.version>${sakai.spring.version}</kernel.spring.version>
