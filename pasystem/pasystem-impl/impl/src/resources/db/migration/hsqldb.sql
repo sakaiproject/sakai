@@ -14,19 +14,19 @@ CREATE TABLE pasystem_popup_content (
 
 CREATE TABLE pasystem_popup_assign (
   uuid char(36),
-  user_eid varchar(255) DEFAULT NULL,
+  user_id varchar(99) DEFAULT NULL,
    FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
 CREATE TABLE pasystem_popup_dismissed (
   uuid char(36),
-  user_eid varchar(255) DEFAULT NULL,
+  user_id varchar(99) DEFAULT NULL,
   state varchar(50) DEFAULT NULL,
   dismiss_time BIGINT,
    FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
-ALTER TABLE pasystem_popup_dismissed add constraint unique_popup_dismissed unique (user_eid,state, uuid);
+ALTER TABLE pasystem_popup_dismissed add constraint unique_popup_dismissed unique (user_id,state, uuid);
 
 CREATE TABLE pasystem_banner_alert
 ( uuid CHAR(36) PRIMARY KEY,
@@ -41,12 +41,12 @@ CREATE TABLE pasystem_banner_alert
 
 CREATE TABLE pasystem_banner_dismissed (
   uuid char(36),
-  user_eid varchar(255) DEFAULT NULL,
+  user_id varchar(99) DEFAULT NULL,
   state varchar(50) DEFAULT NULL,
   dismiss_time BIGINT,
    FOREIGN KEY (uuid) REFERENCES pasystem_banner_alert(uuid)
 );
 
-ALTER TABLE pasystem_banner_dismissed add constraint unique_banner_dismissed unique (user_eid, state, uuid);
+ALTER TABLE pasystem_banner_dismissed add constraint unique_banner_dismissed unique (user_id, state, uuid);
 
 INSERT INTO SAKAI_REALM_FUNCTION (function_key, function_name) VALUES(NEXT VALUE FOR SAKAI_REALM_FUNCTION_SEQ, 'pasystem.manage');

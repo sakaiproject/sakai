@@ -35,7 +35,7 @@ public interface Banners extends Acknowledger {
     /**
      * A list of banners that should be shown for a given server and user.
      */
-    public List<Banner> getRelevantBanners(String serverId, String userEid);
+    public List<Banner> getRelevantBanners(String serverId, String userId);
 
     public String createBanner(Banner banner);
 
@@ -48,7 +48,7 @@ public interface Banners extends Acknowledger {
     /**
      * Forget all acknowledgements for the current user.
      */
-    public void clearTemporaryDismissedForUser(String userEid);
+    public void clearTemporaryDismissedForUser(String userId);
 
     public Optional<Banner> getForId(String uuid);
 }

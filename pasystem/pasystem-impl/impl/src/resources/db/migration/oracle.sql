@@ -20,22 +20,22 @@ CREATE TABLE pasystem_popup_content (
 
 CREATE TABLE pasystem_popup_assign (
   uuid char(36),
-  user_eid varchar2(255) DEFAULT NULL,
+  user_id varchar2(99) DEFAULT NULL,
   CONSTRAINT popup_assign_uuid_fk FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
-CREATE INDEX popup_assign_lower_user_eid on pasystem_popup_assign (lower(user_eid));
+CREATE INDEX popup_assign_lower_user_id on pasystem_popup_assign (user_id);
 
 CREATE TABLE pasystem_popup_dismissed (
   uuid char(36),
-  user_eid varchar2(255) DEFAULT NULL,
+  user_id varchar2(99) DEFAULT NULL,
   state varchar2(50) DEFAULT NULL,
   dismiss_time NUMBER,
   CONSTRAINT popup_dismissed_uuid_fk FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid),
-  CONSTRAINT popup_dismissed_unique UNIQUE (user_eid, state, uuid)
+  CONSTRAINT popup_dismissed_unique UNIQUE (user_id, state, uuid)
 );
 
-CREATE INDEX popup_dismissed_lower_user_eid on pasystem_popup_dismissed (lower(user_eid));
+CREATE INDEX popup_dismissed_lower_user_id on pasystem_popup_dismissed (user_id);
 CREATE INDEX popup_dismissed_state on pasystem_popup_dismissed (state);
 
 CREATE TABLE pasystem_banner_alert
@@ -62,12 +62,12 @@ VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, t.function_name);
 
 CREATE TABLE pasystem_banner_dismissed (
   uuid char(36),
-  user_eid varchar2(255) DEFAULT NULL,
+  user_id varchar2(99) DEFAULT NULL,
   state varchar2(50) DEFAULT NULL,
   dismiss_time NUMBER,
   CONSTRAINT banner_dismissed_uuid_fk FOREIGN KEY (uuid) REFERENCES pasystem_banner_alert(uuid),
-  CONSTRAINT banner_dismissed_unique UNIQUE (user_eid, state, uuid)
+  CONSTRAINT banner_dismissed_unique UNIQUE (user_id, state, uuid)
 );
 
-CREATE INDEX banner_dismissed_lcase_eid on pasystem_banner_dismissed (lower(user_eid));
+CREATE INDEX banner_dismissed_user_id on pasystem_banner_dismissed (user_id);
 CREATE INDEX banner_dismissed_state on pasystem_banner_dismissed (state);
