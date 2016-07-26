@@ -636,8 +636,8 @@ implements ActionListener
 		// hasRetractDate, hasAnonymous, hasAuthenticatedUser, hasIpAddress,
 		// hasUsernamePassword, hasTimeAssessment,hasAutoSubmit, hasPartMetaData, 
 		// hasQuestionMetaData
-		HashMap h;
-		h = addExtendedTimeValuesToMetaData(assessment, assessmentSettings);
+		HashMap <String, String> h = assessmentSettings.getValueMap();
+		addExtendedTimeValuesToMetaData(assessment, assessmentSettings,h);
 		saveAssessmentSettings.updateMetaWithValueMap(assessment, h);
 		
 		// i. set Graphics
@@ -815,10 +815,9 @@ implements ActionListener
 	 * @return
 	 */
 	private HashMap addExtendedTimeValuesToMetaData(PublishedAssessmentFacade assessment,
-			PublishedAssessmentSettingsBean assessmentSettings) {
+			PublishedAssessmentSettingsBean assessmentSettings,HashMap metaDataMap) {
 
-		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");
-		HashMap<String, String> metaDataMap = assessment.getAssessmentMetaDataMap();
+		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");		
 		String metaKey;
 
 		// clear out the old extended Time values
