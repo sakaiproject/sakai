@@ -25,12 +25,13 @@
 package org.sakaiproject.pasystem.impl.acknowledgements;
 
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.UUID;
+import org.sakaiproject.pasystem.api.AcknowledgementType;
 import org.sakaiproject.pasystem.api.Acknowledger;
 import org.sakaiproject.pasystem.impl.common.DB;
 import org.sakaiproject.pasystem.impl.common.DBAction;
 import org.sakaiproject.pasystem.impl.common.DBConnection;
-import org.sakaiproject.pasystem.api.AcknowledgementType;
 
 /**
  * Mark a popup or banner as acknowledged by a user.
@@ -45,7 +46,7 @@ public class AcknowledgementStorage {
     private final String tableName;
 
     public AcknowledgementStorage(NotificationType type) {
-        tableName = ("PASYSTEM_" + type + "_dismissed").toLowerCase();
+        tableName = ("PASYSTEM_" + type + "_dismissed").toLowerCase(Locale.ROOT);
     }
 
     /**
