@@ -149,6 +149,9 @@
       <id>sakai-release</id>
       <activation>
         <activeByDefault>false</activeByDefault>
+        <property>
+            <name>sakai-release</name>
+        </property>
       </activation>
       <build>
         <plugins>
