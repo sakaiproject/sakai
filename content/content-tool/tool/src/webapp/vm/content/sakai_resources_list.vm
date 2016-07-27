@@ -213,9 +213,9 @@
     					#end
     				</div>
     		#end
-        <div class="col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right;padding-right:0">
+        <div class="col-xs-12 col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right;padding-right:0">
             #if($showHotDropboxWidget)
-              <label for="dropboxHighlight" class="hidden-sm hidden-xs">
+              <label for="dropboxHighlight">
                   <small>$clang.getString("dropbox_highlight")</small>
               </label>
               <select class="form-control " name="dropboxHighlight" id="dropboxHighlight" onchange="document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
