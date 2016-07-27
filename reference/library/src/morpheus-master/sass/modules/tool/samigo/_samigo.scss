@@ -187,4 +187,16 @@
 			margin-right: 1em;
 		}
 	}
+	
+	.toolTipLink{
+		color: $link-color;
+		background-color: $link-background-color;
+		text-decoration: underline;
+		cursor: pointer;
+		&:hover{
+			color: $link-hover-color;
+			background-color: $link-hover-background-color;
+			text-decoration:underline;
+		}
+	}
 }
