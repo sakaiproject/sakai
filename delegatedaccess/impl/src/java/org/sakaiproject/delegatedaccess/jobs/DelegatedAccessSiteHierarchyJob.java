@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.DisallowConcurrentExecution;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
@@ -65,6 +66,7 @@ import org.sakaiproject.site.api.Site;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
+@DisallowConcurrentExecution
 public class DelegatedAccessSiteHierarchyJob implements Job{
 
 	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessSiteHierarchyJob.class);
@@ -76,21 +78,12 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private DelegatedAccessDao dao;
 	@Getter @Setter
 	private ProjectLogic projectLogic;
-		
-	private static boolean semaphore = false;
 
 	public void init() {
 
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		//this will stop the job if there is already another instance running
-		if(semaphore){
-			log.warn("Stopping job since this job is already running");
-			return;
-		}
-		semaphore = true;
-
 		try{
 			log.info("DelegatedAccessSiteHierarchyJob started");
 			Date startTime = new Date();
@@ -227,8 +220,6 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		}catch (Exception e) {
 			log.error(e.getMessage(), e);
 			sakaiProxy.sendEmail("Error occurred in DelegatedAccessSiteHierarchyJob", e.getMessage());
-		}finally{
-			semaphore = false;
 		}
 	}
 
