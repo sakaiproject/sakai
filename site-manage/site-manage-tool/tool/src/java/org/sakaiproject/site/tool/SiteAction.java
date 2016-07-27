@@ -10008,7 +10008,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @return the new migrated resource url
 	 */
 	private String transferSiteResource(String oSiteId, String nSiteId, String siteAttribute) {
-		String rv = "";
+		String rv = siteAttribute;
 		
 		String access = ServerConfigurationService.getAccessUrl();
 		if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && access != null)
