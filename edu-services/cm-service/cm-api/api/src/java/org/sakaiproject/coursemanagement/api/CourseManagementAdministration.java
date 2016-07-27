@@ -58,6 +58,13 @@ public interface CourseManagementAdministration {
 	public void updateAcademicSession(AcademicSession academicSession);
 
 	/**
+	 * Removes all meetings from the section
+	 *
+	 * @param sectionEid
+	 */
+	public void removeAllSectionMeetings(String sectionEid);
+
+	/**
 	 * Removes an academic session and all CourseOfferings associated with this
 	 * academic session.
 	 * 
