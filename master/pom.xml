@@ -100,6 +100,7 @@
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.2.2</sakai.quartz.version>
+    <sakai.opencsv.version>2.3</sakai.opencsv.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.sigar.version>1.6.4</sakai.sigar.version>
     <sakai.spatial4j.version>0.4.1</sakai.spatial4j.version>
@@ -870,6 +871,12 @@
         <groupId>org.quartz-scheduler</groupId>
         <artifactId>quartz</artifactId>
         <version>${sakai.quartz.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>${sakai.opencsv.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Added to shared by the kernel (duplicate definition in kernel/pom.xml) -->
