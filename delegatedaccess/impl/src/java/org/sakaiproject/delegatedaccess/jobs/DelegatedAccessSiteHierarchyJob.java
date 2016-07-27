@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.DisallowConcurrentExecution;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
@@ -65,6 +66,7 @@ import org.sakaiproject.site.api.Site;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
+@DisallowConcurrentExecution
 public class DelegatedAccessSiteHierarchyJob implements Job{
 
 	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessSiteHierarchyJob.class);
@@ -76,24 +78,15 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private DelegatedAccessDao dao;
 	@Getter @Setter
 	private ProjectLogic projectLogic;
-		
-	private static boolean semaphore = false;
 
 	public void init() {
 
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		//this will stop the job if there is already another instance running
-		if(semaphore){
-			log.warn("Stopping job since this job is already running");
-			return;
-		}
-		semaphore = true;
-
 		try{
 			log.info("DelegatedAccessSiteHierarchyJob started");
-			long startTime = System.currentTimeMillis();
+			Date startTime = new Date();
 
 //			newHiearchyNodeIds = new HashSet<String>();
 
@@ -210,20 +203,23 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				log.warn(errors);
 				sakaiProxy.sendEmail("DelegatedAccessSiteHierarchyJob error", errors);
 			}else{
-				//no errors, so let's save this date so we can save time next run:
-				projectLogic.saveHierarchyJobLastRunDate(new Date(), rootNode.id);
+				//no errors, so let's save this date so we can save time next run.
+				//
+				//we use the time recorded when the job started
+				//to ensure that any modifications made while
+				//this job was running will be picked up by the
+				//next job run.
+				projectLogic.saveHierarchyJobLastRunDate(startTime, rootNode.id);
 			}
 
 			projectLogic.clearNodeCache();
 			//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
 	//		removeMissingNodes(rootNode);
 
-			log.info("DelegatedAccessSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms and processed " + processedSites + " sites.");		
+			log.info("DelegatedAccessSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime.getTime()) + " ms and processed " + processedSites + " sites.");		
 		}catch (Exception e) {
 			log.error(e.getMessage(), e);
 			sakaiProxy.sendEmail("Error occurred in DelegatedAccessSiteHierarchyJob", e.getMessage());
-		}finally{
-			semaphore = false;
 		}
 	}
 
