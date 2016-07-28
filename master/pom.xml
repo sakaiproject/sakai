@@ -2007,8 +2007,9 @@
             <!--suppress MavenModelInspection -->
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
-          <!-- This is to stop it stealing focus on developer machines (OSX) -->
-          <argLine>-Djava.awt.headless=true</argLine>
+          <!-- headless is to stop it stealing focus on developer machines (OSX) -->
+          <!-- file.encoding is for windows which was failing tests under maven without this -->
+          <argLine>-Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding}</argLine>
         </configuration>
       </plugin>
       <plugin>
