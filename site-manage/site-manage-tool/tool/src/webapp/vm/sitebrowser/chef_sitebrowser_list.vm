@@ -46,22 +46,17 @@
 				</p>
 			</div>
 			<div class="listNav">
-				<div class="instruction">
+				<div>
 					$tlang.getString("list.view") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")
 					<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
 				</div>
 				#if ($pagesize != 0)
-					#if ($goPPButton == "true")
-						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString("list.previous") $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("list.previous") $pagesize" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" /></fieldset>
+						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<fieldset><legend>$tlang.getString("list.previous") $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("list.previous") $pagesize" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" #if ($goPPButton == "false") disabled="disabled" #end/></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
-					#else
-						<fieldset><legend>$tlang.getString("list.previous") $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;"  disabled="disabled" /></fieldset>
-					#end
 				#end
-			
-				<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+				<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 						<label for="select" class="skip">$tlang.getString("list.select")</label>
 						<select name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.pagesizeForm.submit();" id="select">
@@ -76,14 +71,10 @@
 				</form>
 				
 				#if ($pagesize != 0)
-					#if ($goNPButton == "true")
 						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("list.next") $pagesize" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" /></fieldset>
+						<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("list.next") $pagesize" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" #if ($goNPButton == "false") disabled="disabled" #end/></fieldset>
 						</form>
-					#else
-							<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
-					#end
 				#end
 
 			</div>
