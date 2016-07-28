@@ -116,7 +116,6 @@ public class ItemAddListener
   public void processAction(ActionEvent ae) throws AbortProcessingException {
 
 	log.debug("ItemAdd LISTENER.");
-	assessdelegate = isEditPendingAssessmentFlow ? new AssessmentService() : new PublishedAssessmentService();
 
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     ItemBean item = itemauthorbean.getCurrentItem();
