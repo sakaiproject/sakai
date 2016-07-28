@@ -139,7 +139,6 @@
         <!-- for parsing CSV data from config service files -->
         <groupId>net.sf.opencsv</groupId>
         <artifactId>opencsv</artifactId>
-        <version>2.3</version>
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
