@@ -28,10 +28,7 @@ public class ScheduledInvocationTestJob implements Job {
 	{
 		m_timeService = service;
 	}
-	
-	
-	
-	
+
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
 		LOG.info("SimTester: Creating a delayed invocation");

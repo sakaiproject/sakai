@@ -3,6 +3,11 @@ package org.sakaiproject.api.app.scheduler;
 import org.sakaiproject.time.api.Time;
 
 
+/**
+ * Although not specified in the original API a recent restriction imposed is that you can't have
+ * multiple delayed invocations of the same component and opaqueContext.
+ * The original limitation on componentId and opaqueContext is 2000 characters.
+ */
 public interface ScheduledInvocationManager {
 
 	/**

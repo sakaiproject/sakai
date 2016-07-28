@@ -26,6 +26,12 @@ import java.io.IOException;
 import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 
+/**
+ * When the kernel starts up it will ask the component manager for all instances of this interface and then
+ * it will allow them all to add to the central Hibernate session factory configuration.
+ *
+ * @see AddableSessionFactoryBean
+ */
 public interface AdditionalHibernateMappings
 {
 	void processConfig(Configuration config) throws IOException, MappingException;

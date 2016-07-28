@@ -10,6 +10,11 @@
                 <value>org/sakaiproject/scheduler/events/hibernate/TriggerEventHibernateImpl.hbm.xml</value>
             </list>
         </property>
+        <property name="additionalClasses">
+            <list>
+                <value>org.sakaiproject.scheduler.events.hibernate.ContextMapping</value>
+            </list>
+        </property>
     </bean>
 
     <!-- This job bean factory attempts to autowire any jobs that the quartz scheduler creates, this means that
@@ -101,21 +106,12 @@
     
     <bean id="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"
         class="org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl"
-        init-method="init" destroy-method="destroy"> 
-        <property name="sqlService">
-        	<ref bean="org.sakaiproject.db.api.SqlService"/>
-        </property> 
+        init-method="init" destroy-method="destroy">
         <property name="idManager">
         	<ref bean="org.sakaiproject.id.api.IdManager"/>
         </property>
         <property name="schedulerManager">
         	<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
-        </property>
-        <property name="serverConfigurationService">
-        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
-        </property>
-        <property name="autoDdl">
-            <value>${auto.ddl}</value>
         </property>
     </bean>   
     
