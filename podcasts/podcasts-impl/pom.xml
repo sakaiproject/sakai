@@ -56,8 +56,8 @@
     </dependency>
     <dependency>
       <groupId>rome</groupId>
-      <artifactId>itunes</artifactId>
-      <version>0.3</version>
+      <artifactId>modules</artifactId>
+      <version>0.3.2</version>
     </dependency>
   </dependencies>
   <build>
