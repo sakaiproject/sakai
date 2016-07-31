@@ -48,7 +48,7 @@ public class ImportGradesHelper {
 	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* [\\w ]+)");
 	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
-	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#[\\w ]+)");
+	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 
 	/**
 	 * Parse a CSV into a list of ImportedGrade objects. Returns list if ok, or null if error
@@ -333,7 +333,8 @@ public class ImportGradesHelper {
 						break;
 					}
 				} else if (column.getType() == ImportColumn.Type.REGULAR) {
-					status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
+					//must be NA if it isn't new
+					status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
 					break;
 				}
 
