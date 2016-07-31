@@ -27,6 +27,10 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.util.Web;
 
 import org.sakaiproject.site.api.Site;
@@ -179,6 +183,18 @@ public class ToolUtils
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page, 
 		String portalPrefix, boolean reset, String effectiveSiteId, String pageAlias)
 	{
+		//If portal's CONFIG_AUTO_RESET is not set, check for Site's CONFIG_AUTO_RESET value
+		boolean resetSiteProperty = false;
+		if(!reset){
+			ResourceProperties siteProperties = site.getProperties();
+			try {
+				resetSiteProperty = siteProperties.getBooleanProperty(Portal.CONFIG_AUTO_RESET);
+			} catch (EntityPropertyNotDefinedException e) {
+				//do nothing let resetSiteProperty be set to false
+			} catch (EntityPropertyTypeException e) {
+				//do nothing let resetSiteProperty be set to false
+			}
+		}
 		if ( req == null ) req = getRequestFromThreadLocal();
 		if ( effectiveSiteId == null ) effectiveSiteId = site.getId();
 		if ( pageAlias == null ) pageAlias = page.getId();
@@ -203,7 +219,7 @@ public class ToolUtils
 		if (!trinity) return pageUrl;
 
 		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + effectiveSiteId);
-		if (reset) {
+		if (reset || resetSiteProperty) {
 			pageUrl = pageUrl + "/tool-reset/";
 		} else {
 			pageUrl = pageUrl + "/tool/";
