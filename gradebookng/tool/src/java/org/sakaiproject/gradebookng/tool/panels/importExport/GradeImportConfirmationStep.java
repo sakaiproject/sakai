@@ -25,6 +25,7 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -167,16 +168,20 @@ public class GradeImportConfirmationStep extends Panel {
 
 			@Override
 			public void onSubmit() {
-				log.debug("Clicking back button...");
+
+				// clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+
 				Component newPanel = null;
 				if (assignmentsToCreate.size() > 0) {
 					newPanel = new CreateGradeItemStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
 				} else {
 					newPanel = new GradeItemImportSelectionStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
 				}
+
 				newPanel.setOutputMarkupId(true);
 				GradeImportConfirmationStep.this.replaceWith(newPanel);
-
 			}
 		};
 		backButton.setDefaultFormProcessing(false);

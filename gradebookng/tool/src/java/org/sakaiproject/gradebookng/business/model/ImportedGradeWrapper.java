@@ -4,15 +4,21 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Created by chmaurer on 1/23/15.
+ * Wraps an imported file
  */
-@Data
 public class ImportedGradeWrapper implements Serializable {
 
-	// private List<ProcessedGradeItem> processedGradeItems;
+	private static final long serialVersionUID = 1L;
+
+	@Getter
+	@Setter
 	private List<ImportedGrade> importedGrades;
+
+	@Getter
+	@Setter
 	private Collection<ImportColumn> columns;
 }
