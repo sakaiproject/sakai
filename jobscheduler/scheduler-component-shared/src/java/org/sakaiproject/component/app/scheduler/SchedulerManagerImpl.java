@@ -27,18 +27,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.sql.DataSource;
 
+import org.quartz.spi.JobFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.quartz.CronScheduleBuilder;
@@ -68,7 +61,7 @@ import org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule;
 import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
 import org.sakaiproject.db.api.SqlService;
 
-public class SchedulerManagerImpl implements SchedulerManager
+public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory
 {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchedulerManagerImpl.class);
@@ -82,7 +75,6 @@ public class SchedulerManagerImpl implements SchedulerManager
   private String qrtzPropFile;
   /** The properties file from sakai.home */
   private String qrtzPropFileSakai;
-  private Properties qrtzProperties;
   private TriggerListener globalTriggerListener;
   private Boolean autoDdl;
   private boolean startScheduler = true;
@@ -94,10 +86,10 @@ public class SchedulerManagerImpl implements SchedulerManager
 
   // Service dependencies
   private ServerConfigurationService serverConfigurationService;
-  private SchedulerFactory schedFactory;
-  private Scheduler scheduler;
   private SqlService sqlService;
 
+  private Scheduler scheduler;
+  private JobFactory jobFactory;
 
   private LinkedList<TriggerListener>
       globalTriggerListeners = new LinkedList<TriggerListener>();
@@ -111,7 +103,7 @@ public void init()
   {
     try
     {
-      qrtzProperties = initQuartzConfiguration();
+      Properties qrtzProperties = initQuartzConfiguration();
 
       qrtzProperties.setProperty("org.quartz.scheduler.instanceId", serverId);
 
@@ -193,8 +185,9 @@ public void init()
 
 
       // start scheduler and load jobs
-      schedFactory = new StdSchedulerFactory(qrtzProperties);
+      SchedulerFactory schedFactory = new StdSchedulerFactory(qrtzProperties);
       scheduler = schedFactory.getScheduler();
+      scheduler.setJobFactory(jobFactory);
 
       // loop through persisted jobs removing both the job and associated
       // triggers for jobs where the associated job class is not found
@@ -204,11 +197,14 @@ public void init()
         {
           JobDetail detail = scheduler.getJobDetail(key);
           String bean = detail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
-          Job job = (Job) ComponentManager.get(bean);
-          if (job == null) {
+          // We now have jobs that don't explicitly reference a spring bean
+          if (bean != null && !bean.isEmpty()) {
+            Job job = (Job) ComponentManager.get(bean);
+            if (job == null) {
               LOG.warn("scheduler cannot load class for persistent job:" + key);
-        	  scheduler.deleteJob(key);
+              scheduler.deleteJob(key);
               LOG.warn("deleted persistent job:" + key);
+            }
           }
         }
         catch (SchedulerException e)
@@ -694,6 +690,22 @@ public void init()
     this.scheduler = scheduler;
   }
 
+  @Override
+  public Scheduler getScheduler(String schedName) throws SchedulerException
+  {
+    if (scheduler.getSchedulerName().equals(schedName))
+    {
+      return getScheduler();
+    }
+    return null;
+  }
+
+  @Override
+  public Collection<Scheduler> getAllSchedulers() throws SchedulerException
+  {
+    return Collections.singleton(getScheduler());
+  }
+
   /**
    * @param serverConfigurationService The ServerConfigurationService to get our configuation from.
    */
@@ -719,10 +731,14 @@ public void init()
    }
 
    public JobBeanWrapper getJobBeanWrapper(String beanWrapperId) {
-      return (JobBeanWrapper) getBeanJobs().get(beanWrapperId);
+      return getBeanJobs().get(beanWrapperId);
    }
 
-   public boolean isStartScheduler() {
+    public void setJobFactory(JobFactory jobFactory) {
+        this.jobFactory = jobFactory;
+    }
+
+    public boolean isStartScheduler() {
        return startScheduler;
    }
 

@@ -40,7 +40,7 @@ public class SpringJobBeanWrapper implements JobBeanWrapper, Job {
    public SpringJobBeanWrapper() {
    }
 
-   public Class getJobClass() {
+   public Class<? extends Job> getJobClass() {
       return this.getClass();
    }
 
