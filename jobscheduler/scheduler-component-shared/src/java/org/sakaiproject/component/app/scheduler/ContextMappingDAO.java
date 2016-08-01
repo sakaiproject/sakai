@@ -2,18 +2,22 @@ package org.sakaiproject.component.app.scheduler;
 
 import org.hibernate.SessionFactory;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This is used to allow faster lookups from a UUID to a context ID.
  */
-public class ContextMapingDAO {
+@Transactional
+public class ContextMappingDAO {
 
     private SessionFactory sessionFactory;
 
+    @Autowired
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
+
 
     public String find(String uuid) {
         ContextMapping o = (ContextMapping) sessionFactory.getCurrentSession().get(ContextMapping.class, uuid);

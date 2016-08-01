@@ -81,7 +81,7 @@ public class ScheduledInvocationTest {
         String uuid = manager.createDelayedInvocation(time, COMPONENT_ID, CONTEXT);
         manager.deleteDelayedInvocation(COMPONENT_ID, CONTEXT);
         DelayedInvocation[] empty = manager.findDelayedInvocations(ALL, ALL);
-//        Assert.assertArrayEquals(new DelayedInvocation[0], empty);
+        Assert.assertArrayEquals(new DelayedInvocation[0], empty);
     }
 
     @Test

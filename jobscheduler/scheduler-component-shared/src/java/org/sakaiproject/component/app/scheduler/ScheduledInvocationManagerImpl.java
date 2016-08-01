@@ -52,9 +52,9 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 
 	private SessionFactory sessionFactory;
 
-	private ContextMapingDAO dao;
+	private ContextMappingDAO dao;
 
-	public void setDao(ContextMapingDAO dao) {
+	public void setDao(ContextMappingDAO dao) {
 		this.dao = dao;
 	}
 
