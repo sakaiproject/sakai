@@ -125,7 +125,7 @@ public class TestImportGradesHelper {
 
 		Assert.assertNotNull(processedGradeItems);
 
-		Assert.assertEquals("wrong number of results", 4, processedGradeItems.size());
+		Assert.assertEquals("Wrong number of columns", 4, processedGradeItems.size());
 
 		// assignment 1
 		Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NA, processedGradeItems.get(0).getStatus().getStatusCode());
@@ -151,7 +151,7 @@ public class TestImportGradesHelper {
 
 	/**
 	 * Mock up some assignment data
-	 * 
+	 *
 	 * @return List of mocked assignments
 	 */
 	private List<Assignment> mockAssignments() {
@@ -181,7 +181,7 @@ public class TestImportGradesHelper {
 
 	/**
 	 * Mock up some student grade data
-	 * 
+	 *
 	 * @return
 	 */
 	private List<GbStudentGradeInfo> mockStudentGrades() {
@@ -227,15 +227,18 @@ public class TestImportGradesHelper {
 	private ImportedGradeWrapper mockImportedGrades() {
 		final ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
 		final List<ImportColumn> columns = new ArrayList<ImportColumn>();
-		columns.add(new ImportColumn("Student ID", null, ImportColumn.TYPE_REGULAR));
-		columns.add(new ImportColumn("Student Name", null, ImportColumn.TYPE_REGULAR));
-		columns.add(new ImportColumn("Assignment 1", "10.0", ImportColumn.TYPE_ITEM_WITH_POINTS));
-		columns.add(new ImportColumn("Assignment 1", "N/A", ImportColumn.TYPE_ITEM_WITH_COMMENTS));
-		columns.add(new ImportColumn("Assignment 2", "10.0", ImportColumn.TYPE_ITEM_WITH_POINTS));
-		columns.add(new ImportColumn("Assignment 2", "N/A", ImportColumn.TYPE_ITEM_WITH_COMMENTS));
-		columns.add(new ImportColumn("Assignment 3", "100.0", ImportColumn.TYPE_ITEM_WITH_POINTS));
-		columns.add(new ImportColumn("Assignment 3", "N/A", ImportColumn.TYPE_ITEM_WITH_COMMENTS));
-		columns.add(new ImportColumn("Assignment Ext", "1000.0", ImportColumn.TYPE_ITEM_WITH_POINTS));
+
+
+		// only list actual columns to be turned into the import here
+		columns.add(new ImportColumn("Student ID", null, ImportColumn.Type.REGULAR));
+		columns.add(new ImportColumn("Student Name", null, ImportColumn.Type.REGULAR));
+		columns.add(new ImportColumn("Assignment 1", "10.0", ImportColumn.Type.GBITEM_WITH_POINTS));
+		columns.add(new ImportColumn("Assignment 1", "N/A", ImportColumn.Type.GBITEM_WITH_COMMENTS));
+		columns.add(new ImportColumn("Assignment 2", "10.0", ImportColumn.Type.GBITEM_WITH_POINTS));
+		columns.add(new ImportColumn("Assignment 2", "N/A", ImportColumn.Type.GBITEM_WITH_COMMENTS));
+		columns.add(new ImportColumn("Assignment 3", "100.0", ImportColumn.Type.GBITEM_WITH_POINTS));
+		columns.add(new ImportColumn("Assignment 3", "N/A", ImportColumn.Type.GBITEM_WITH_COMMENTS));
+		columns.add(new ImportColumn("Assignment Ext", "1000.0", ImportColumn.Type.GBITEM_WITH_POINTS));
 
 		importedGradeWrapper.setColumns(columns);
 
@@ -278,4 +281,6 @@ public class TestImportGradesHelper {
 
 		return importedGradeWrapper;
 	}
+
+
 }

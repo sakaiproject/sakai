@@ -36,9 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 public class GradeImportUploadStep extends Panel {
 	private static final long serialVersionUID = 1L;
 
-    //list of mimetypes for each category. Must be compatible with the parser
-    private static final String[] XLS_MIME_TYPES={"application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
-    private static final String[] CSV_MIME_TYPES={"text/csv"};
+	// list of mimetypes for each category. Must be compatible with the parser
+	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+	private static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
 
 	private final String panelId;
 
@@ -102,9 +102,9 @@ public class GradeImportUploadStep extends Panel {
 					final ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(),
 							upload.getContentType(), userMap);
 
-					// couldn't parse
+					// incorrect file type?
 					if(importedGradeWrapper == null) {
-						error(getString("importExport.error.badfile"));
+						error(getString("importExport.error.incorrecttype"));
 						return;
 					}
 
@@ -117,8 +117,10 @@ public class GradeImportUploadStep extends Panel {
 
 					// if null, the file was of the incorrect type
 					// if empty there are no users
-					if (processedGradeItems == null || processedGradeItems.isEmpty()) {
-						error(getString("importExport.error.badfile"));
+					if (processedGradeItems == null) {
+						error(getString("importExport.error.incorrectformat"));
+					} else if (processedGradeItems.isEmpty()) {
+						error(getString("importExport.error.empty"));
 					} else {
 						// GO TO NEXT PAGE
                         log.debug(Integer.toString(processedGradeItems.size()));

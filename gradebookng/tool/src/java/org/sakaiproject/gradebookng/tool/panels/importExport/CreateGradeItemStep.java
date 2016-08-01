@@ -14,6 +14,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
+import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -51,7 +52,9 @@ public class CreateGradeItemStep extends Panel {
         // setup new assignment for populating
         final Assignment assignment = new Assignment();
         assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
-        assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
+        if(StringUtils.isNotBlank(processedGradeItem.getItemPointValue())) {
+        	assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
+        }
 
         final Model<Assignment> assignmentModel = new Model<>(assignment);
 
@@ -89,6 +92,10 @@ public class CreateGradeItemStep extends Panel {
                     newPanel = new GradeImportConfirmationStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
 
+                // clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);
 
@@ -101,7 +108,11 @@ public class CreateGradeItemStep extends Panel {
 
 			@Override
             public void onSubmit() {
-                log.debug("Clicking back button...");
+
+				// clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+
                 Component newPanel = null;
                 if (step > 1) {
                     importWizardModel.setStep(step-1);
@@ -110,10 +121,9 @@ public class CreateGradeItemStep extends Panel {
                 else {
                     newPanel = new GradeItemImportSelectionStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
+
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);
-
-
             }
         };
         backButton.setDefaultFormProcessing(false);

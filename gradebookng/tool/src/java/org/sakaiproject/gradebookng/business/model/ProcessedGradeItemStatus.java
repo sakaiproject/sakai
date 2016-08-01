@@ -2,12 +2,13 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Created by chmaurer on 3/16/15.
+ * Status of an imported item
+ * TODO these values should be an enum rather than an ints
  */
-@Data
 public class ProcessedGradeItemStatus implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -48,6 +49,9 @@ public class ProcessedGradeItemStatus implements Serializable {
 	@Getter
 	@Setter
 	private int statusCode;
+
+	@Getter
+	@Setter
 	private String statusValue;
 
 	public ProcessedGradeItemStatus(final int statusCode) {
