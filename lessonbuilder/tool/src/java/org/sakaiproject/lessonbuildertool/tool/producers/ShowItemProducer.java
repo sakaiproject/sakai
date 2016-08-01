@@ -415,6 +415,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		case SimplePageItem.ASSIGNMENT:
 		case SimplePageItem.ASSESSMENT:
 		case SimplePageItem.FORUM:
+		case SimplePageItem.FORUM_SUMMARY:
+			source = myUrl()+ "/portal/tool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID)
+					+"/discussionForum/message/dfViewThreadDirect.jsf?&messageId=" + params.getMessageId()
+					+ "&topicId=" + params.getTopicId() + "&forumId=" + params.getForumId();
+			break;
 		case SimplePageItem.BLTI:
 		    LessonEntity lessonEntity = null;
 		    switch (item.getType()) {

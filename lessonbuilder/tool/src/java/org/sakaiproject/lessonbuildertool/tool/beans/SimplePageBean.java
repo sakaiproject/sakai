@@ -146,7 +146,7 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
-
+	public static final String FORUMS_TOOL_ID = "sakai.forums";
 
 	private static String PAGE = "simplepage.page";
 	private static String SITE_UPD = "site.upd";
@@ -290,6 +290,9 @@ public class SimplePageBean {
 	public String rubricRow;
 	private HashMap<Integer, String> rubricRows = null;
 	
+	//variables used for forum-summary setting
+	private String forumSummaryHeight;
+	private String forumSummaryDropDown;
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
@@ -933,6 +936,14 @@ public class SimplePageBean {
 
 	public void setWebsite(boolean isWebsite) {
 	    this.isWebsite = isWebsite;
+	}
+
+	public void setForumSummaryHeight(String forumSummaryHeight) {
+		this.forumSummaryHeight = forumSummaryHeight;
+	}
+
+	public void setForumSummaryDropDown(String forumSummaryDropDown) {
+		this.forumSummaryDropDown = forumSummaryDropDown;
 	}
 
 	public void setCaption(boolean isCaption) {
@@ -8067,5 +8078,35 @@ public class SimplePageBean {
 	}
 	return result.toString();
     }
+
+	/**
+	 * To add latest conversations in a div on Lessons Page
+	 */
+	public String addForumSummary(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.FORUM_SUMMARY);
+			}
+			//setting forum height variable value in the attribute
+			item.setAttribute("height", forumSummaryHeight);
+			item.setAttribute("numberOfConversations", forumSummaryDropDown);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
 
 }
