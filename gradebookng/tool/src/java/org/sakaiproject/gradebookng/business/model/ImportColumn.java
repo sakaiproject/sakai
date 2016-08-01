@@ -3,27 +3,35 @@ package org.sakaiproject.gradebookng.business.model;
 import java.io.Serializable;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * Created by chmaurer on 1/27/15.
+ * Describes the type of column imported
  */
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImportColumn implements Serializable {
 
-	public static final int TYPE_REGULAR = 0;
-	public static final int TYPE_ITEM_WITH_POINTS = 1;
-	public static final int TYPE_ITEM_WITH_COMMENTS = 2;
+	private static final long serialVersionUID = 1L;
 
+	@Getter
+	@Setter
 	private String columnTitle;
-	private String points;
-	private int type = TYPE_REGULAR;
 
-	// public ImportColumn(String columnTitle, String points, int type) {
-	//
-	// }
+	@Getter
+	@Setter
+	private String points;
+
+	@Getter
+	@Setter
+	private Type type = Type.REGULAR;
+
+	public enum Type {
+		GBITEM_WITH_POINTS,
+		GBITEM_WITH_COMMENTS,
+		REGULAR;
+	}
 
 }
