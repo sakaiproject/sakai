@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Test the ContextMapping DAI
+ * Test the ContextMapping DAO
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestConfiguration.class})
@@ -22,19 +22,30 @@ public class ContextMappingDAOTest {
 
     @Test
     public void testAddAndFind() {
-        dao.add("uuid", "contextId");
-        Assert.assertEquals("contextId", dao.find("uuid"));
+        dao.add("uuid", "componentId", "contextId");
+        Assert.assertEquals("uuid", dao.find("componentId", "contextId"));
     }
 
     @Test(expected = NonUniqueObjectException.class)
     public void testAddAddFind() {
-        dao.add("uuid", "contextId1");
-        dao.add("uuid", "contextId2");
+        dao.add("uuid", "componentId", "contextId1");
+        dao.add("uuid", "componentId", "contextId2");
     }
 
     @Test
     public void testNotFound() {
-        Assert.assertNull(dao.find("doesNotExist"));
+        Assert.assertNull(dao.find("componentId", "doesNotExist"));
+    }
+
+    @Test
+    public void testAddRemove() {
+        dao.add("uuid", "componentId", "contextId");
+        dao.remove("componentId", "contextId");
+    }
+
+    @Test
+    public void testRemoveNoteFound() {
+        dao.remove("componentId", "contextId");
     }
 
 

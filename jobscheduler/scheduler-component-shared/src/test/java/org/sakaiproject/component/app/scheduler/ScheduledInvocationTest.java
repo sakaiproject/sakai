@@ -4,7 +4,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.DirectSchedulerFactory;
@@ -17,6 +20,7 @@ import java.util.UUID;
 /**
  * Check it's working as expected.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ScheduledInvocationTest {
 
     public static final String COMPONENT_ID = "componentId";
@@ -24,6 +28,8 @@ public class ScheduledInvocationTest {
     public static final String CONTEXT = "opaqueContext";
     private ScheduledInvocationManagerImpl manager;
     private Scheduler scheduler;
+    @Mock
+    private ContextMappingDAO dao;
 
     @Before
     public void setUp() throws SchedulerException {
@@ -37,6 +43,7 @@ public class ScheduledInvocationTest {
         manager = new ScheduledInvocationManagerImpl();
         manager.setIdManager(() -> UUID.randomUUID().toString());
         manager.setSchedulerFactory(schedulerFactory);
+        manager.setDao(dao);
     }
 
     @After
@@ -78,6 +85,7 @@ public class ScheduledInvocationTest {
     public void testCreateAndDeleteBySearch() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.getTime()).thenReturn(0L);
+        Mockito.when(dao.find(COMPONENT_ID, CONTEXT)).thenReturn("uuid");
         String uuid = manager.createDelayedInvocation(time, COMPONENT_ID, CONTEXT);
         manager.deleteDelayedInvocation(COMPONENT_ID, CONTEXT);
         DelayedInvocation[] empty = manager.findDelayedInvocations(ALL, ALL);
