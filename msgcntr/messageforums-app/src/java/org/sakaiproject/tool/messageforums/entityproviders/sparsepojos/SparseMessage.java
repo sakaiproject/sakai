@@ -61,6 +61,12 @@ public class SparseMessage{
 	
 	@Getter
 	private boolean isDeleted;
+
+	@Getter @Setter
+	private String modifiedBy;
+
+	//this is used for displaying recent messages in the lessons
+	private Long forumId;
 	 
 	public SparseMessage(Message fatMessage, Boolean readStatus, boolean addAttachments, String serverUrl) {
 		
@@ -91,6 +97,7 @@ public class SparseMessage{
 				attachments.add(new SparseAttachment(fatAttachment.getAttachmentName(),url));
 			}
 		}
+		this.modifiedBy = fatMessage.getModifiedBy();
 	}
 	
 	public SparseMessage(SparseMessage that) {
@@ -120,5 +127,12 @@ public class SparseMessage{
 			replies = new ArrayList<SparseMessage>();
 		}
 		replies.add(reply);
+	}
+	public Long getForumId() {
+		return forumId;
+	}
+
+	public void setForumId(Long forumId) {
+		this.forumId = forumId;
 	}
 }
