@@ -62,6 +62,7 @@
  <script type="text/javascript" src="$context/js/announcements.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
  <script type="text/javascript" src="$context/js/checklistAjax.js"></script>
+ <script type="text/javascript" src="$context/js/forum-summary.js"></script>
  <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
  <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
@@ -254,6 +255,9 @@
 		<ul>
 		  <li>
 		    <a role="menuitem button" href="#" rsf:id="add-text" class="add-text-link add-before-param" ><span rsf:id="msg.simplepage.text"></span></a>
+		  </li>
+		  <li rsf:id="forum-summary-li">
+		    <a role="menuitem" href="#" rsf:id="forum-summary-link" class="forum-summary-link"><span rsf:id="msg=simplepage.forumSummaryLinkText"></span></a>
 		  </li>
 		  <li>
 		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-multimedia" class="add-multimedia add-before-param"><span rsf:id="msg.simplepage.multimedia"></span></a>
@@ -449,6 +453,17 @@
                         <span style="display:none" rsf:id="announcements-site-url" class="announcements-site-url"></span>
                         <span style="display:none" rsf:id="announcements-view-url" class="announcements-view-url"></span>
                         <span style="display:none" rsf:id="numberOfAnnouncements" class="numberOfAnnouncements"></span>
+                    </div>
+                    <div rsf:id="forumsummarygroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="groupforum-summary-link"><span rsf:id="groupforum-summary-icon"></span></a></div></div>
+                    <div rsf:id="forumSummarySpan" class="right-col">
+                        <div rsf:id="forum-summary-td" class="edit-col"><div><a href="#" class="usebutton edit-forum-summary" onclick="return false" rsf:id="edit-forum-summary"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+                        <div rsf:id="forum-summary-groups-titles" class="item-group-titles"></div>
+                        <div rsf:id="content" class="textbox"></div>
+                        <span style="display:none" rsf:id="forum-summary-id" class="forumSummaryId"></span>
+                        <span style="display:none" rsf:id="forum-summary-widget-height" class="forumSummaryWidgetHeight"></span>
+                        <span style="display:none" rsf:id="forum-summary-site-url" class="forum-summary-site-url"></span>
+                        <span style="display:none" rsf:id="forum-summary-view-url" class="forum-summary-view-url"></span>
+                        <span style="display:none" rsf:id="numberOfConversations" class="numberOfConversations"></span>
                     </div>
                     <div rsf:id="grouptext-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="grouptext-link"><span rsf:id="grouptext-icon"></span></a></div></div>
                     <div rsf:id="itemSpan" class="right-col">
@@ -857,6 +872,9 @@
 			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
 			<p rsf:id="msg=simplepage.save_message" id="simplepage.save_message"></p>
 			<p rsf:id="msg=simplepage.ckeditor" id="simplepage.ckeditor"></p>
+			<p rsf:id="msg=simplepage.forum-summary-no-message" id="simplepage.forum-summary-no-message"></p>
+			<p rsf:id="msg=simplepage.forum-summary-error-message" id="simplepage.forum-summary-error-message"></p>
+			<p rsf:id="msg=simplepage.forum-header-title" id="simplepage.forum-header-title"></p>
 			<p rsf:id="msg=simplepage.clickToExpand" id="simplepage.clickToExpand"></p>
 			<p rsf:id="msg=simplepage.clickToCollapse" id="simplepage.clickToCollapse"></p>
 			<p rsf:id="msg=simplepage.height-error-message" id="simplepage.height-error-message"></p>
@@ -1877,6 +1895,40 @@
 
                 </form>
 			</div>
+
+            <div id="add-forum-summary-dialog" rsf:id="add-forum-summary-dialog">
+                <form action="#" rsf:id="add-forum-summary-form" method="post" enctype="multipart/form-data" class="controlPanel">
+                    <input type="hidden" rsf:id="csrf24" />
+                    <input type="hidden" rsf:id="forumSummaryEditId" id="forumSummaryEditId" />
+                    <div class="ui-widget" id="forum-summary-error-container">
+                        <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+                            <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                                <strong rsf:id="msg=simplepage.error_colon"></strong> <span id="forum-summary-error"></span></p>
+                        </div>
+                    </div>
+                    <div rsf:id="forum-summary-error-div" class="ui-widget">
+                        <div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;">
+                            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                                <span rsf:id="forum-summary-error-span"></span> </p>
+                        </div>
+                    </div>
+                    <div class="forum-summary-content">
+                        <p class="required">
+                            <label rsf:id="forum-summary-height-label" class="pageTitle" for="forum-summary-height"></label>
+                            <input style="margin-left: 104px;" type="text" name="forum-summary-height" rsf:id="forum-summary-height" id="forum-summary-height"  maxlength="99" size="20"/>&nbsp;<span id="forumSummaryHeightErrmsg"></span>
+                        </p>
+                        <label for="forumNumberDropdown" rsf:id="forumNumberDropdownLabel"></label>
+                        <select style="margin-left: 93px;" rsf:id="forumNumberDropdown" id="forumNumberDropdown" name="forumNumberDropdown">
+                            <option rsf:id="forumOption:"><span rsf:id="forumOptionText"></span></option>
+                        </select><br/>
+                        <p class="act">
+                            <input class="bold" type="submit" id="forum-summary-add-item" rsf:id="forum-summary-add-item" />
+                            <input type="submit" rsf:id="forum-summary-cancel" onclick="closeForumSummaryDialog(); return false" />
+                            <span id="forum-summary-delete-span" style="display:none"><input type="submit" class="deleteButton" rsf:id="delete-forum-summary-item" id="delete-forum-summary-item" /></span><br/>
+                        </p>
+                    </div>
+                </form>
+            </div>
 			
 			<div id="question-dialog" rsf:id="question-dialog" class="lessonsDialog">
 			  <div class="ui-widget" id="question-error-container">
