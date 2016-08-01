@@ -161,7 +161,10 @@ simplePageBean.selectPage,
 simplePageBean.peerEval,
 simplePageBean.peerEvalDueDate,
 simplePageBean.peerEvalOpenDate,
-simplePageBean.peerEvalAllowSelfGrade
+simplePageBean.peerEvalAllowSelfGrade,
+simplePageBean.forumSummaryHeight,
+simplePageBean.forumSummaryDropDown,
+simplePageBean.addForumSummary
 </value>
 </property>
    </bean>

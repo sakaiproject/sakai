@@ -188,6 +188,15 @@ $(document).ready(function() {
                 $(this).oembed(null, {maxWidth: width, maxHeight: height});
             });
 
+	//Only number allowed for forum-summary height
+	$("#forum-summary-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#forumSummaryHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
 	// We don't need to run all of this javascript if the user isn't an admin
 	if($("#subpage-dialog").length > 0) {
 		$('#subpage-dialog').dialog({
@@ -207,6 +216,13 @@ $(document).ready(function() {
 		});
 
 		$('#edit-multimedia-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+		$('#add-forum-summary-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
 			modal: true,
@@ -601,6 +617,27 @@ $(document).ready(function() {
 			return false;
 		    });
 		
+		$(".edit-forum-summary").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".forumSummaryId").text();
+			$('#forumSummaryEditId').val(itemId);
+			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
+			$('#forum-summary-height').val(height);
+			var number = row.find(".numberOfConversations").text();
+			$("#forumNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#forum-summary-error-container').hide();
+			//Change the text of the button to 'Update Item'
+			$("#forum-summary-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#forum-summary-delete-span").show();
+			$('#add-forum-summary-dialog').dialog('open');
+			setupdialog($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$('.mm-test-reset').click(function() {
 			mm_test_reset();
 			return false;
@@ -1155,6 +1192,18 @@ $(document).ready(function() {
 			}
 		});
 		
+		$('.forum-summary-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			$("#forum-summary-error-container").hide();
+			$("#forumSummaryEditId").val("-1");
+			$("#forum-summary-height").val("");
+			$("#forumNumberDropdown-selection").val("5");
+			$("#add-forum-summary-dialog").dialog("open");
+			setupdialog($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$('.question-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
@@ -2043,6 +2092,7 @@ $(document).ready(function() {
 				$('#movie-dialog').dialog('isOpen') ||
 				$('#import-cc-dialog').dialog('isOpen') ||
 				$('#export-cc-dialog').dialog('isOpen') ||
+				$('#add-forum-summary-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
 				$('#column-dialog').dialog('isOpen') ||
 			        $('#student-dialog').dialog('isOpen') ||
@@ -2583,7 +2633,11 @@ function closeQuestionDialog() {
 function closePeerReviewDialog() {
 	$('#peer-eval-create-dialog').dialog('close');
 }
-
+function closeForumSummaryDialog(){
+	$('#add-forum-summary-dialog').dialog('close');
+	$('#forum-summary-error-container').hide();
+	oldloc.focus();
+}
 function checkEditTitleForm() {
 	if($('#pageTitle').val() === '') {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));

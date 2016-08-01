@@ -6,6 +6,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 
+import org.apache.commons.lang.math.NumberUtils;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -45,6 +48,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 	private static final Logger LOG = LoggerFactory.getLogger(ForumsEntityProviderImpl.class);
 
 	public final static String ENTITY_PREFIX = "forums";
+	public static int DEFAULT_NUM_MESSAGES = 3;
 	
 	@Setter
 	protected DiscussionForumManager forumManager;
@@ -57,6 +61,9 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 	
 	@Setter
 	protected ToolManager toolManager;
+
+	@Setter
+	private UserDirectoryService userDirectoryService;
 
 	@Setter
 	private SecurityService securityService;
@@ -432,5 +439,81 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		if(!toolManager.isVisible(site, toolConfig)) {
 			throw new EntityException("No access to tool in site: " + siteId, "",HttpServletResponse.SC_UNAUTHORIZED);
 		}
+	}
+
+	/**
+	 * Handles requests /direct/forums/messages/SITEID.json?n=10 and returns latest threads for a site
+	 * @param view
+	 * @param params
+	 * @return
+	 */
+	@EntityCustomAction(action="messages",viewKey=EntityView.VIEW_LIST)
+	public Object displayMessages(EntityView view, Map<String, Object> params) {
+
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("handleSite");
+		}
+
+		//get number of messages to display from the URL params, validate and set to 0 if not set or conversion fails
+		int numberOfMessages = NumberUtils.toInt((String)params.get("n"), 0);
+		if(numberOfMessages == 0){
+			numberOfMessages = DEFAULT_NUM_MESSAGES;
+		}
+		String userId = developerHelperService.getCurrentUserId();
+
+		if(userId == null) {
+			LOG.error("Not logged in");
+			throw new EntityException("You must be logged in view conversations.","",HttpServletResponse.SC_UNAUTHORIZED);
+		}
+
+		String siteId = view.getPathSegment(2);
+
+		if(siteId == null) {
+			LOG.error("Bad request. No SITEID supplied on path.");
+			throw new EntityException("Bad request: To get the fora in a site you need a url like '/direct/forums/site/SITEID/latestmessages.json?n=10'"
+					,"",HttpServletResponse.SC_BAD_REQUEST);
+		}
+
+		checkSiteAndToolAccess(siteId);
+		List<SparseMessage> messages = new ArrayList<SparseMessage>();
+		//List of topicIds from all forums which are accessible to the user
+		List<Long> topicIds = new ArrayList<Long>();
+
+		//get all forums for the site
+		List<DiscussionForum> forums = forumManager.getDiscussionForumsWithTopics(siteId);
+		for(DiscussionForum forum : forums){
+			if( ! checkAccess(forum, userId, siteId)) {
+				LOG.debug("Access denied for user id '" + userId + "' to forum '" + forum.getId()
+						+ "'. Topic ids will not be added for this forum .");
+				continue;
+			}
+
+			for(Topic topic : (List<Topic>) forum.getTopics()) {
+				//check if user can see this topic
+				if(!uiPermissionsManager.isRead(topic.getId(),((DiscussionTopic)topic).getDraft(),false, userId, siteId)) {
+					//user has no permission so skip adding this topicId into the list.
+					continue;
+				}
+				topicIds.add(topic.getId());
+			}
+		}
+		//For given 'topicIds' fetch recently updated threads
+		for(Message fm : (List<Message>) forumManager.getRecentDiscussionForumThreadsByTopicIds(topicIds, numberOfMessages)) {
+			//message has user_Id set in the 'modifiedBy' field, setting it to 'displayId' for display purpose
+			try {
+				String displayId =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayId();
+				fm.setModifiedBy(displayId);
+			} catch (UserNotDefinedException e) {
+				LOG.debug(" User not defined for id '" + fm.getModifiedBy() + "'.");
+			}
+			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
+			Topic topic = fm.getTopic();
+			//setting forumId for the sparse message
+			if(topic != null && topic.getBaseForum() != null) {
+				sm.setForumId(topic.getBaseForum().getId());
+			}
+			messages.add(sm);
+		}
+		return messages;
 	}
 }
