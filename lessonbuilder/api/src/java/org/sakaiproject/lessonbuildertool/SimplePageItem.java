@@ -46,6 +46,8 @@ public interface SimplePageItem {
 	public static final int QUESTION = 11;
     public static final int BLTI = 12;
     public static final int PEEREVAL = 13;
+    //new SimplePageItem type added to display latest announcements in Lessons
+    public static final int ANNOUNCEMENTS = 17;
     public static final int BREAK = 14;
     public static final int CHECKLIST = 15;
 

@@ -92,6 +92,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	private static final String MOTD_CHANNEL_SUFFIX = "motd";
 	public static int DEFAULT_NUM_ANNOUNCEMENTS = 3;
 	public static int DEFAULT_DAYS_IN_PAST = 10;
+	private static final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
 	private static final Logger log = LoggerFactory.getLogger(AnnouncementEntityProviderImpl.class);
 	private static ResourceLoader rb = new ResourceLoader("announcement");
     
@@ -224,6 +225,17 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				announcements.addAll(announcementService.getMessages(channel, t, numberOfAnnouncements, true, false, onlyPublic));
 			} catch (PermissionException e) {
 				log.warn("User: " + currentUserId + " does not have access to view the announcement channel: " + channel + ". Skipping...");
+				//user may not have access to view the channel but get all public messages in this channel
+				AnnouncementChannel announcementChannel = (AnnouncementChannel)announcementService.getChannelPublic(channel);
+				if(announcementChannel != null){
+					List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
+					for(Message message : publicMessages){
+						//Add message only if it is within the time range
+						if(isMessageWithinPastNDays(message, numberOfDaysInThePast)){
+							announcements.add(message);
+						}
+					}
+				}
 			}
 		}
 		
@@ -261,6 +273,18 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		
 		
 		return decoratedAnnouncements;
+	}
+
+	/**
+	 * Checks if the given message was posted in the last N days, where N is the value of the maxDaysInPast
+	 * @param message
+	 * @param numberOfDaysInPast
+	 * @return
+	 */
+	private boolean isMessageWithinPastNDays(Message message, int numberOfDaysInPast){
+		long timeDeltaMSeconds = timeService.newTime().getTime() - message.getHeader().getDate().getTime();
+		long numDays = timeDeltaMSeconds / MILLISECONDS_IN_DAY;
+		return (numDays <= numberOfDaysInPast);
 	}
 
 

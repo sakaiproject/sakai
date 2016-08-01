@@ -145,6 +145,7 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 
 
 	private static String PAGE = "simplepage.page";
@@ -292,6 +293,9 @@ public class SimplePageBean {
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
+	//variables used for announcements widget
+	private String announcementsHeight;
+	private String announcementsDropdown;
 
     // almost ISO format. real thing can't be done until Java 7. uses -0400 rather than -04:00
     //        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -933,6 +937,12 @@ public class SimplePageBean {
 
 	public void setCaption(boolean isCaption) {
 	    this.isCaption = isCaption;
+	}
+	public void setAnnouncementsHeight(String announcementsHeight) {
+		this.announcementsHeight = announcementsHeight;
+	}
+	public void setAnnouncementsDropdown(String announcementsDropdown) {
+		this.announcementsDropdown = announcementsDropdown;
 	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
@@ -7782,6 +7792,36 @@ public class SimplePageBean {
 		return "success";
 	}
 
+	 /**
+	 * To add latest announcements in a div in Lessons page
+	 * @return status
+	 */
+	public String addAnnouncements(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			if (itemId != null && itemId != -1) {
+				//existing item, need to update
+				item = findItem(itemId);
+			}else{
+				//new item ,add it
+				item = appendItem("", "", SimplePageItem.ANNOUNCEMENTS);
+			}
+			//setting height in the item attribute
+			item.setAttribute("height", announcementsHeight);
+			item.setAttribute("numberOfAnnouncements", announcementsDropdown);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+		}else{
+			status = "cancel";
+		}
+		return status;
+	}
 	public String savePeerEvalResult() {
 		
 		String userId = getCurrentUserId();
