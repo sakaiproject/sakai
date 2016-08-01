@@ -123,6 +123,15 @@ $(document).ready(function() {
 
 	});
 
+	//Only number allowed for announcements height
+	$("#announcements-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#announcementsHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
 	$(".sectionHeader").on("click", function(){
 		var section = $(this).next("div.section");
 		if (section.hasClass("collapsible")) {
@@ -191,6 +200,13 @@ $(document).ready(function() {
 	// We don't need to run all of this javascript if the user isn't an admin
 	if($("#subpage-dialog").length > 0) {
 		$('#subpage-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+		$('#add-announcements-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
 			modal: true,
@@ -415,6 +431,41 @@ $(document).ready(function() {
 			$("#page-releasedate").prop('checked', true);
 		    });
 
+		$('.announcements-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			var position =  $(this).position();
+			$("#announcements-error-container").hide();
+			$("#announcementsEditId").val("-1");
+			$("#announcements-height").val("");
+			$("#announcementsNumberDropdown-selection").val("5");
+			$("#add-announcements-dialog").dialog("open");
+			setupdialog($("#add-announcements-dialog"));
+			return false;
+		});
+
+		$(".edit-announcements").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".announcementsId").text();
+			$('#announcementsEditId').val(itemId);
+			var height = row.find(".announcementsWidgetHeight").text().replace(/'/g,"");
+			$('#announcements-height').val(height);
+			var number = row.find(".numberOfAnnouncements").text();
+			$("#announcementsNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#announcements-error-container').hide();
+			//Change the text of the add button to 'Update Item'
+			$("#announcements-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#announcements-delete-span").show();
+			$('#add-announcements-dialog').dialog('open');
+			setupdialog($("#add-announcements-dialog"));
+			return false;
+		});
 		$('#import-cc').click(function(){
 			oldloc = $(".dropdown a");
 			closeDropdowns();
@@ -2507,6 +2558,11 @@ function closeSubpageDialog() {
 	oldloc.focus();
 }
 
+function closeAnnouncementsDialog(){
+	$('#add-announcements-dialog').dialog('close');
+	$('#announcements-error-container').hide();
+	oldloc.focus();
+}
 function closeEditItemDialog() {
 	$("#edit-item-dialog").dialog("close");
 	$('#edit-item-error-container').hide();

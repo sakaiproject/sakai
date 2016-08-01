@@ -59,6 +59,7 @@
  <script type="text/javascript" src="$context/js/peer-eval.js"></script>
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
  <script type="text/javascript" src="$context/js/show-page.js"></script>
+ <script type="text/javascript" src="$context/js/announcements.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
  <script type="text/javascript" src="$context/js/checklistAjax.js"></script>
  <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
@@ -274,6 +275,9 @@
 		  <li rsf:id="assignment-li">
 		    <a role="menuitem button" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
 		  </li>
+		  <li rsf:id="announcements-li">
+		    <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span rsf:id="msg=simplepage.announcementsLinkText"></span></a>
+		  </li>
 		  <li rsf:id="quiz-li">
 		    <a role="menuitem button" href="#" rsf:id="add-quiz" class="add-before-param"><span rsf:id="msg.simplepage.quiz"></span></a>
 		  </li>
@@ -434,6 +438,17 @@
                         <span rsf:id="item-path" class="item-path"></span>
                         <span rsf:id="subpagereleasedate" class="subpagereleasedate"></span>
                       </div>
+                    </div>
+                    <div rsf:id="announcementsgroup-td" class="group-col"><div><a href="#" class="usebutton" rsf:id="groupannouncements-link"><span rsf:id="groupannouncements-icon"></span></a></div></div>
+                    <div rsf:id="announcementsSpan" class="right-col">
+                        <div rsf:id="announcements-td" class="edit-col"><div><a href="#" class="usebutton edit-announcements" onclick="return false" rsf:id="edit-announcements"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+                        <div rsf:id="announcements-groups-titles" class="item-group-titles"></div>
+                        <div rsf:id="content" class="textbox"></div>
+                        <span style="display:none" rsf:id="announcements-id" class="announcementsId"></span>
+                        <span style="display:none" rsf:id="announcements-widget-height" class="announcementsWidgetHeight"></span>
+                        <span style="display:none" rsf:id="announcements-site-url" class="announcements-site-url"></span>
+                        <span style="display:none" rsf:id="announcements-view-url" class="announcements-view-url"></span>
+                        <span style="display:none" rsf:id="numberOfAnnouncements" class="numberOfAnnouncements"></span>
                     </div>
                     <div rsf:id="grouptext-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="grouptext-link"><span rsf:id="grouptext-icon"></span></a></div></div>
                     <div rsf:id="itemSpan" class="right-col">
@@ -835,6 +850,8 @@
 		   </ul>
 
 		<div style="display:none;">
+			<p rsf:id="msg=simplepage.announcements-no-message" id="simplepage.announcements-no-message"></p>
+            <p rsf:id="msg=simplepage.announcements-header-title" id="simplepage.announcements-header-title"></p>
 			<p rsf:id="msg=simplepage.add-comment" id="simplepage.add-comment"></p>
 			<p rsf:id="msg=simplepage.edit-comment" id="simplepage.edit-comment"></p>
 			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
@@ -842,6 +859,9 @@
 			<p rsf:id="msg=simplepage.ckeditor" id="simplepage.ckeditor"></p>
 			<p rsf:id="msg=simplepage.clickToExpand" id="simplepage.clickToExpand"></p>
 			<p rsf:id="msg=simplepage.clickToCollapse" id="simplepage.clickToCollapse"></p>
+			<p rsf:id="msg=simplepage.height-error-message" id="simplepage.height-error-message"></p>
+            <p rsf:id="msg=simplepage.announcements-error-message" id="simplepage.announcements-error-message"></p>
+            <p rsf:id="msg=simplepage.announcements-header-title" id="simplepage.announcements-header-title"></p>
 		</div>
 
 		<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
@@ -1125,6 +1145,39 @@
                 </form>
 			</div>
 
+			<div id="add-announcements-dialog" rsf:id="add-announcements-dialog">
+				<form action="#" rsf:id="add-announcements-form" method="post" enctype="multipart/form-data" class="controlPanel">
+					<input type="hidden" rsf:id="csrf23" />
+					<input type="hidden" rsf:id="announcementsEditId" id="announcementsEditId" />
+					<div class="ui-widget" id="announcements-error-container">
+						<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+							<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+							<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="announcements-error"></span></p>
+						</div>
+					</div>
+					<div rsf:id="announcements-error-div" class="ui-widget">
+						<div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;">
+							<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+							<span rsf:id="announcements-error-span"></span> </p>
+						</div>
+					</div>
+					<div class="announcements-content">
+						<p class="required">
+							<label rsf:id="announcements-height-label" class="pageTitle" for="announcements-height"></label>
+							<input style="margin-left: 104px;" type="text" name="announcements-height" rsf:id="announcements-height" id="announcements-height"  maxlength="99" size="10"/>&nbsp;<span id="announcementsHeightErrmsg"></span>
+						</p>
+						<label for="announcementsNumberDropdown" rsf:id="announcementsNumberDropdownLabel"></label>
+						<select style="margin-left: 80px;" rsf:id="announcementsNumberDropdown" id="announcementsNumberDropdown" name="announcementsNumberDropdown">
+							<option rsf:id="announcementsOption:"><span rsf:id="announcementsOptionText"></span></option>
+						</select><br/>
+						<p class="act">
+							<input class="bold" type="submit" id="announcements-add-item" rsf:id="announcements-add-item" />
+							<input type="submit" rsf:id="announcements-cancel" onclick="closeAnnouncementsDialog(); return false" />
+							<span id="announcements-delete-span" style="display:none"><input type="submit" class="deleteButton" rsf:id="delete-announcements-item" id="delete-announcements-item" /></span><br/>
+						</p>
+					</div>
+				</form>
+			</div>
 			<div id="add-multimedia-dialog" rsf:id="add-multimedia-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="mm-error-container">
 					<div class="messageError">
