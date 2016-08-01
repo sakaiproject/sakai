@@ -45,6 +45,13 @@ $PBJQ(".js-toggle-user-nav a#loginUser > .Mrphs-userNav__drop-btn", "#loginLinks
 $PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 
 $PBJQ(document).ready( function(){
+  if($PBJQ('.Mrphs-siteHierarchyImg').length>0 && $PBJQ(window).width() > 800){
+    var margin = (parseInt($PBJQ('.Mrphs-siteHierarchy').outerHeight(true)) / 2);
+    if($PBJQ(".Mrphs-hierarchy--parent-sites").length>0){
+      margin -= $PBJQ(".Mrphs-hierarchy--parent-sites").outerHeight(true);
+    }
+    $PBJQ(".Mrphs-siteHierarchyAlign").css("margin-top", margin +"px")
+  }
   if( $PBJQ('.Mrphs-hierarchy--parent-sites').length > 0 && $PBJQ(window).width() <= 800 ){
     $PBJQ('#content').css( 'margin-top', ( parseInt( $PBJQ('#content').css('margin-top').replace('px', '') ) +  $PBJQ('.Mrphs-hierarchy--parent-sites').outerHeight(true) ) + 'px' );
   }

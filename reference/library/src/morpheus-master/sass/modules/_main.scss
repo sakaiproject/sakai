@@ -28,6 +28,10 @@
 	> .#{$namespace}pagebody{
 		width: 100%;
 	}
+	@media #{$nonPhone}{
+		float: left;
+		width: 100%;
+	}
 	@media #{$phone}{
 		padding: 12px;
 	}
