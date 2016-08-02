@@ -48,13 +48,34 @@
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
 
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+  </h:commandButton>
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+  </h:commandButton>
+
+
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
+  </h:commandButton>
+
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+ </h:commandButton>
 
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
   <div class="form-group row"> 
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.answer_point_value}" />
     <div class="col-md-2">
-      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="ConvertPoint">
+      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
 	    <f:validateDoubleRange minimum="0.00"/>
 	  </h:inputText>
 	<h:message for="answerptr" styleClass="validate"/>
@@ -76,14 +97,16 @@
   </div>
 
 <!-- 1.2 MIN POINTS -->
-<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-  <div class="shorttext">
-    <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="ConvertPoint">
-	  <f:validateDoubleRange/>
-	</h:inputText>
-    <h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
-	<h:message for="answerminptr" styleClass="validate"/>
+<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}" >
+  <div class="form-group row">
+    <h:outputLabel value="#{authorMessages.answer_min_point_value}" styleClass="col-md-2"/>
+    <div class="col-md-2">
+        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
+	      <f:validateDoubleRange/>
+	    </h:inputText>
+        <h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
+	    <h:message for="answerminptr" styleClass="validate"/>
+    </div>
   </div>
 </f:subview>
 
