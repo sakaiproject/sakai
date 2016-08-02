@@ -180,7 +180,7 @@ public class PoolSaveListener implements ActionListener
 
       //  System.out.println( "SAVE - POOLSOURCE= "+qpbean.getAddPoolSource());
       //where do you get value from addPoolSource?  It always return null though.
-      if ("editpool".equals(qpbean.getAddPoolSource()) && !qpbean.ORIGIN_TOP.equals(qpbean.getOutcome())) {
+      if ("editpool".equals(qpbean.getAddPoolSource()) && !qpbean.ORIGIN_TOP.equals(qpbean.getOutcome()) && (qpbean.getOutcomePool() > 0) ) {
     // so reset subpools tree
 //    QuestionPoolFacade thepool= delegate.getPool(parentid, AgentFacade.getAgentString());
 //    qpbean.getCurrentPool().setNumberOfSubpools(thepool.getSubPoolSize().toString());
