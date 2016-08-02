@@ -56,6 +56,11 @@
             <artifactId>sections-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.emailtemplateservice</groupId>
+            <artifactId>emailtemplateservice-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>

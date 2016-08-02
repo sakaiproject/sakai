@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+    <emailTemplate>
+        <subject>AutoSubmit Job Failure Notice</subject>
+        <message>The AutoSubmit job encountered errors during processing and had to skip ${failureCount} attempts/submissions. The remaining attempts/submissions were processed successfully.
+
+Manual intervention may be required to correct these issues. For further details, see the logs.
+        </message>
+        <messagehtml>&lt;p&gt;The AutoSubmit job encountered errors during processing and had to skip ${failureCount} attempts/submissions. The remaining attempts/submissions were processed successfully.&lt;/p&gt;
+			
+&lt;p&gt;Manual intervention may be required to correct these issues. For further details, see the logs.&lt;/p&gt;
+        </messagehtml>
+        <version>1</version>
+        <owner>admin</owner>
+        <key>sam.assessmentAutoSubmitErrors</key>
+        <locale></locale>
+        <localeLangTag></localeLangTag>
+    </emailTemplate>
+</emailTemplates>
