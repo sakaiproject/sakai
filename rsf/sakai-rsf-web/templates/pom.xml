@@ -10,6 +10,9 @@
   <properties>
     <deploy.appserver.home>${sakai.appserver.home}</deploy.appserver.home>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- This has a webapp but is needed by some projects, so deploy it -->
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <skipNexusStagingDeployMojo>false</skipNexusStagingDeployMojo>
   </properties>
   <packaging>war</packaging>
   <dependencies>
