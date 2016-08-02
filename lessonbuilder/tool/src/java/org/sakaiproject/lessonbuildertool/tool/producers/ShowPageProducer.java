@@ -1241,8 +1241,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
 						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
-						|| i.getType() == SimplePageItem.CHECKLIST
-					        || i.getType() == SimplePageItem.BREAK);
+					        || i.getType() == SimplePageItem.CHECKLIST || i.getType() == SimplePageItem.FORUM_SUMMARY
+					        || i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.ANNOUNCEMENTS );
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -1273,6 +1273,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
+				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
+				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
 				case SimplePageItem.CHECKLIST: itemClassName = "checklistType"; break;
 				}
 
@@ -2783,6 +2785,87 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "student-group-owned-see-only-own", (i.getAttribute("see-only-own")));
 						}
 					}
+				}else if(i.getType() == SimplePageItem.ANNOUNCEMENTS){
+					UIOutput.make(tableRow, "announcementsSpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
+					if (canSeeAll) {
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "announcements-groups-titles", itemGroupTitles);
+					}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						//get widget height from the item attribute
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						//create html for announcements widget
+						String divHeight = "height:" + height +"px;";
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"announcements-div\"></div>";
+						UIVerbatim.make(tableRow, "content", html);
+						UIOutput.make(tableRow, "announcements-id", String.valueOf(i.getId()));
+						UIOutput.make(tableRow, "announcements-widget-height", height);
+						//setting announcements url to get all announcements for the site
+						UIOutput.make(tableRow, "announcements-site-url", myUrl() + "/direct/announcement/site/" + simplePageBean.getCurrentSiteId());
+						//setting this variable to redirect user to the particular announcement
+						UIOutput.make(tableRow, "announcements-view-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.ANNOUNCEMENTS_TOOL_ID) + "?itemReference=/announcement/msg/" + simplePageBean.getCurrentSiteId() + "/main/");
+						//get numberOfAnnouncements for the widget
+						String numberOfAnnouncements = i.getAttribute("numberOfAnnouncements") != null ? i.getAttribute("numberOfAnnouncements") : "";
+						UIOutput.make(tableRow, "numberOfAnnouncements", numberOfAnnouncements);
+					}else{
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						UIOutput.make(tableRow, "announcements-td");
+						UILink.make(tableRow, "edit-announcements", (String) null, "");
+					}
+				} else if(i.getType() == SimplePageItem.FORUM_SUMMARY){
+					UIOutput.make(tableRow, "forumSummarySpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
+					if (canSeeAll) {
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "forum-summary-groups-titles", itemGroupTitles);
+					}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						//get widget height from the item attribute
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						String divHeight = "height:" + height +"px;";
+						//create html for forum-summary widget
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"forum-summary-div\"></div>";
+						UIVerbatim.make(tableRow, "content", html);
+						UIOutput.make(tableRow, "forum-summary-id", String.valueOf(i.getId()));
+						UIOutput.make(tableRow, "forum-summary-widget-height", height);
+						//setting forums-messages url to get all recent messages for the site
+						UIOutput.make(tableRow, "forum-summary-site-url", myUrl() + "/direct/forums/messages/" + simplePageBean.getCurrentSiteId());
+						//setting the url such that request goes to ShowItemProducer to display forum conversations inside Lessons tool
+						UIOutput.make(tableRow, "forum-summary-view-url", myUrl() + "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool/" + placement.getId()
+								+"/" + ShowItemProducer.VIEW_ID + "?itemId=" +i.getId()+"&sendingPage="+currentPage.getPageId());
+						//get numberOfConversations for the widget
+						String numberOfConversations = i.getAttribute("numberOfConversations") != null ? i.getAttribute("numberOfConversations") : "" ;
+						UIOutput.make(tableRow, "numberOfConversations", numberOfConversations);
+					}else {
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						UIOutput.make(tableRow, "forum-summary-td");
+						UILink.make(tableRow, "edit-forum-summary", (String) null, "");
+					}
 				}else if(i.getType() == SimplePageItem.QUESTION) {
 				 	String itemGroupString = null;
 					String itemGroupTitles = null;
@@ -3180,7 +3263,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createCommentsDialog(tofill);
 		createStudentContentDialog(tofill, currentPage);
 		createQuestionDialog(tofill, currentPage);
+		createForumSummaryDialog(tofill, currentPage);
 		createDeleteItemDialog(tofill, currentPage);
+		createAnnouncementsDialog(tofill, currentPage);
 		createColumnDialog(tofill, currentPage);
 	}
 
@@ -3579,6 +3664,29 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			bltiEntity = e;
 	}
 
+	//Create a latest forum conversations dialog where user can enter other settings for the forum summary div
+	private void createForumSummaryDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "add-forum-summary-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.forumSummaryLinkText")));
+		UIForm form = UIForm.make(tofill, "add-forum-summary-form");
+		makeCsrf(form, "csrf24");
+		//check if site has forum tool added?if not then display info and return
+		if (simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID) == null) {
+			UIOutput.make(tofill, "forum-summary-error-div");
+			UIOutput.make(tofill, "forum-summary-error-span", messageLocator.getMessage("simplepage.no_forum_tools"));
+			UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+			return;
+		}
+		UIInput.make(form, "forumSummaryEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "forum-summary-height", "#{simplePageBean.forumSummaryHeight}");
+		UIOutput.make(form, "forum-summary-height-label", messageLocator.getMessage("simplepage.forum-summary.height_label"));
+		String[] options = {"5", "10", "15", "20", "30", "50"};
+		String[] labels = {"5", "10", "15", "20", "30", "50"};
+		UIOutput.make(form, "forumNumberDropdownLabel", messageLocator.getMessage("simplepage.forum-number-dropdown-label"));
+		UISelect.make(form, "forumNumberDropdown", options, labels, "#{simplePageBean.forumSummaryDropDown}", "5");
+		UICommand.make(form, "forum-summary-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addForumSummary}");
+		UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UICommand.make(form, "delete-forum-summary-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+	}
 	public void setToolManager(ToolManager m) {
 		toolManager = m;
 	}
@@ -3685,12 +3793,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// A: Not sure
 			log.warn("SecurityException thrown by expandZippedResource method lookup", e);
 		    }
-			
+		    //Adding 'Embed Announcements' component
+		    UIOutput.make(tofill, "announcements-li");
+		    UILink announcementsLink = UIInternalLink.makeURL(tofill, "announcements-link", "#");
+		    announcementsLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.announcements-descrip")));
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
+
+		    //Adding 'Embed forum conversations' component
+		    UIOutput.make(tofill, "forum-summary-li");
+		    UILink forumSummaryLink = UIInternalLink.makeURL(tofill, "forum-summary-link", "#");
+			forumSummaryLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.forum-summary-descrip")));
 
 		    UIOutput.make(tofill, "forum-li");
 		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
@@ -3965,7 +4081,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 	}
-
+	//To display dialog to add Announcements widget in Lessons
+	private void createAnnouncementsDialog(UIContainer tofill, SimplePage currentPage){
+		UIOutput.make(tofill, "add-announcements-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.announcementsLinkText")));
+		UIForm form = UIForm.make(tofill, "add-announcements-form");
+		makeCsrf(form, "csrf23");
+		//check if site has announcements tool added?if not then display info and return
+		if(simplePageBean.getCurrentTool(simplePageBean.ANNOUNCEMENTS_TOOL_ID) == null){
+			UIOutput.make(tofill, "announcements-error-div");
+			UIOutput.make(tofill, "announcements-error-span", messageLocator.getMessage("simplepage.no_announcements_tool"));
+			UICommand.make(form, "announcements-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+			UICommand.make(form, "delete-announcements-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+			return;
+		}
+		UIInput.make(form, "announcementsEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "announcements-height", "#{simplePageBean.announcementsHeight}");
+		UIOutput.make(form, "announcements-height-label", messageLocator.getMessage("simplepage.announcements.height_label"));
+		String[] options = {"5","10","15","20","30","50"};
+		String[] labels = {"5","10","15","20","30","50"};
+		UIOutput.make(form, "announcementsNumberDropdownLabel", messageLocator.getMessage("simplepage.announcements-number-dropdown-label"));
+		UISelect.make(form, "announcementsNumberDropdown", options, labels, "#{simplePageBean.announcementsDropdown}","5");
+		UICommand.make(form, "announcements-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addAnnouncements}");
+		UICommand.make(form, "announcements-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UICommand.make(form, "delete-announcements-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+	}
 	// for both add multimedia and add resource, as well as updating resources
 	// in the edit dialogs
 	private void createAddMultimediaDialog(UIContainer tofill, SimplePage currentPage) {

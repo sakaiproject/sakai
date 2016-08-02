@@ -1025,6 +1025,37 @@ img {
 .topBorder td {
 	border-top: 3px solid white
 }
+.forumSummaryHeaderDiv{
+ position: relative;
+ width: 100.0%;
+ max-height: 240.0px;
+ vertical-align: top;
+ overflow: hidden;
+ background-color: #eee;
+}
+.forumSummaryHeader{
+ font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+ border-bottom:1px solid #ccc;
+ padding: 10px 0px 10px 15px;
+ font-size: 1.2em;
+ letter-spacing: normal
+}
+.forumSummaryLink{
+ text-decoration: none;
+ color: #444;
+ margin-left: 5px;
+}
+.forumSummaryDate{
+ font-size:12px;
+ color:#000;
+ font-weight: normal;
+}
+.forumSummaryList{
+ list-style: none;
+ padding: 0 15px;
+ font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+ color: #666
+ }
 .first-row {
 }
 .first-row td {
@@ -1321,6 +1352,44 @@ div[role="dialog"] {
 .right-col3 {
  left:10px;
 }
+.announcements-div{
+ border: 1px solid #ccc;
+ float: left;
+ margin: 30px 10px 30px 0;
+ overflow-y: scroll;
+ text-align: left;
+ background-color: #fff;
+ width: 550px;
+ }
+.announcementsHeaderDiv{
+position: relative;
+width: 100.0%;
+max-height: 240.0px;
+vertical-align: top;
+overflow: hidden;
+background-color: #eee;
+}
+.announcementSummaryHeader{
+font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+border-bottom:1px solid #ccc;
+padding: 10px 0px 10px 15px;
+font-size: 1.2em;
+letter-spacing: normal
+}
+.announcementLink{
+margin-left: 5px;
+}
+.itemDiv {
+padding: 10px 15px 0 15px
+}
+.forum-summary-div{
+ border: 1px solid #ccc;
+ float: left;
+ overflow-y: scroll;
+ text-align: left;
+ background-color: #fff;
+ width: 550px;
+ }
 .returnwarning, .returnheader, .xMrphs-toolTitleNav__addLeft .usebutton span {
   font-size: .75em;
 }
@@ -1515,6 +1584,10 @@ font-size: 90%;
 }
 
 /* for ShowItem */
+.itemDate {
+font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+font-size: 12px;
+}
 .itemHeader {
 }
 .itemHeader-resource {
@@ -1524,6 +1597,11 @@ font-size: 90%;
 .itemTitle .title-instruction {
   margin-bottom:0px;
 }
+
+.forumSummaryItem{
+ margin-bottom: 10px;
+}
+
 .itemTitle {
   line-height:10px;
   margin-bottom:5px;

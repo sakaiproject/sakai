@@ -158,10 +158,16 @@ simplePageBean.width,
 simplePageBean.youtubeId,
 simplePageBean.youtubeURL,
 simplePageBean.selectPage,
+simplePageBean.announcementsHeight,
+simplePageBean.announcementsDropdown,
+simplePageBean.addAnnouncements,
 simplePageBean.peerEval,
 simplePageBean.peerEvalDueDate,
 simplePageBean.peerEvalOpenDate,
-simplePageBean.peerEvalAllowSelfGrade
+simplePageBean.peerEvalAllowSelfGrade,
+simplePageBean.forumSummaryHeight,
+simplePageBean.forumSummaryDropDown,
+simplePageBean.addForumSummary
 </value>
 </property>
    </bean>

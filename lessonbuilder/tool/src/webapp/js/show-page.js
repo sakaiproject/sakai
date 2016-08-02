@@ -123,6 +123,15 @@ $(document).ready(function() {
 
 	});
 
+	//Only number allowed for announcements height
+	$("#announcements-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#announcementsHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
 	$(".sectionHeader").on("click", function(){
 		var section = $(this).next("div.section");
 		if (section.hasClass("collapsible")) {
@@ -188,9 +197,25 @@ $(document).ready(function() {
                 $(this).oembed(null, {maxWidth: width, maxHeight: height});
             });
 
+	//Only number allowed for forum-summary height
+	$("#forum-summary-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#forumSummaryHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
 	// We don't need to run all of this javascript if the user isn't an admin
 	if($("#subpage-dialog").length > 0) {
 		$('#subpage-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+		$('#add-announcements-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
 			modal: true,
@@ -207,6 +232,13 @@ $(document).ready(function() {
 		});
 
 		$('#edit-multimedia-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+		$('#add-forum-summary-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
 			modal: true,
@@ -415,6 +447,41 @@ $(document).ready(function() {
 			$("#page-releasedate").prop('checked', true);
 		    });
 
+		$('.announcements-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			var position =  $(this).position();
+			$("#announcements-error-container").hide();
+			$("#announcementsEditId").val("-1");
+			$("#announcements-height").val("");
+			$("#announcementsNumberDropdown-selection").val("5");
+			$("#add-announcements-dialog").dialog("open");
+			setupdialog($("#add-announcements-dialog"));
+			return false;
+		});
+
+		$(".edit-announcements").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".announcementsId").text();
+			$('#announcementsEditId').val(itemId);
+			var height = row.find(".announcementsWidgetHeight").text().replace(/'/g,"");
+			$('#announcements-height').val(height);
+			var number = row.find(".numberOfAnnouncements").text();
+			$("#announcementsNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#announcements-error-container').hide();
+			//Change the text of the add button to 'Update Item'
+			$("#announcements-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#announcements-delete-span").show();
+			$('#add-announcements-dialog').dialog('open');
+			setupdialog($("#add-announcements-dialog"));
+			return false;
+		});
 		$('#import-cc').click(function(){
 			oldloc = $(".dropdown a");
 			closeDropdowns();
@@ -601,6 +668,27 @@ $(document).ready(function() {
 			return false;
 		    });
 		
+		$(".edit-forum-summary").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".forumSummaryId").text();
+			$('#forumSummaryEditId').val(itemId);
+			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
+			$('#forum-summary-height').val(height);
+			var number = row.find(".numberOfConversations").text();
+			$("#forumNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#forum-summary-error-container').hide();
+			//Change the text of the button to 'Update Item'
+			$("#forum-summary-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#forum-summary-delete-span").show();
+			$('#add-forum-summary-dialog').dialog('open');
+			setupdialog($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$('.mm-test-reset').click(function() {
 			mm_test_reset();
 			return false;
@@ -1155,6 +1243,18 @@ $(document).ready(function() {
 			}
 		});
 		
+		$('.forum-summary-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			$("#forum-summary-error-container").hide();
+			$("#forumSummaryEditId").val("-1");
+			$("#forum-summary-height").val("");
+			$("#forumNumberDropdown-selection").val("5");
+			$("#add-forum-summary-dialog").dialog("open");
+			setupdialog($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$('.question-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
@@ -2043,6 +2143,7 @@ $(document).ready(function() {
 				$('#movie-dialog').dialog('isOpen') ||
 				$('#import-cc-dialog').dialog('isOpen') ||
 				$('#export-cc-dialog').dialog('isOpen') ||
+				$('#add-forum-summary-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
 				$('#column-dialog').dialog('isOpen') ||
 			        $('#student-dialog').dialog('isOpen') ||
@@ -2507,6 +2608,11 @@ function closeSubpageDialog() {
 	oldloc.focus();
 }
 
+function closeAnnouncementsDialog(){
+	$('#add-announcements-dialog').dialog('close');
+	$('#announcements-error-container').hide();
+	oldloc.focus();
+}
 function closeEditItemDialog() {
 	$("#edit-item-dialog").dialog("close");
 	$('#edit-item-error-container').hide();
@@ -2583,7 +2689,11 @@ function closeQuestionDialog() {
 function closePeerReviewDialog() {
 	$('#peer-eval-create-dialog').dialog('close');
 }
-
+function closeForumSummaryDialog(){
+	$('#add-forum-summary-dialog').dialog('close');
+	$('#forum-summary-error-container').hide();
+	oldloc.focus();
+}
 function checkEditTitleForm() {
 	if($('#pageTitle').val() === '') {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));

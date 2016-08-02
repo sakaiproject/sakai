@@ -21,6 +21,7 @@
 
 package org.sakaiproject.event.impl;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -689,21 +690,34 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		M_log.debug("Starting (after) Event #: {}", m_lastEventSeq);
 	}
 
-    /**
-     * KNL-1184
-     * Initializes the events cache, if enabled
-     */
-    private void initCacheServer() {
-        // remove down to and including this line
-        cachingEnabled = serverConfigurationService().getBoolean("memory.cluster.enabled", false);
-        if (cachingEnabled) {
-            eventCache = memoryService().newCache("org.sakaiproject.event.impl.ClusterEventTracking.eventsCache");
-            /**
-             * This cache only needs to hold a single value, the last updated event id
-             */
-            eventLastCache = memoryService().newCache("org.sakaiproject.event.impl.ClusterEventTracking.eventLastCache");
-        }
-    }
+	/**
+	 * KNL-1184
+	 * Initializes the events cache, if enabled
+	 */
+	private void initCacheServer() {
+		// remove down to and including this line
+		cachingEnabled = serverConfigurationService().getBoolean("memory.cluster.enabled", false);
+		if (cachingEnabled) {
+			boolean eventsCacheUsed = false;
+			boolean eventLastCacheUsed = false;
+			String[] caches = serverConfigurationService().getStrings("memory.cluster.names");
+			if(ArrayUtils.isNotEmpty(caches)) {
+				for(String cacheName : caches) {
+					if("org.sakaiproject.event.impl.ClusterEventTracking.eventsCache".equals(cacheName)) {
+						eventCache = memoryService().newCache("org.sakaiproject.event.impl.ClusterEventTracking.eventsCache");
+						eventsCacheUsed = true;
+					} else if("org.sakaiproject.event.impl.ClusterEventTracking.eventLastCache".equals(cacheName)) {
+						/**
+						 * This cache only needs to hold a single value, the last updated event id
+						 */
+						eventLastCache = memoryService().newCache("org.sakaiproject.event.impl.ClusterEventTracking.eventLastCache");
+						eventLastCacheUsed = true;
+					}
+				}
+				cachingEnabled = eventsCacheUsed && eventLastCacheUsed;
+			}
+		}
+	}
 
     /**
      * Finds the last event ID inserted into the event cache

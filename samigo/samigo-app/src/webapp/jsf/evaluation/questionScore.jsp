@@ -231,35 +231,30 @@ function hiddenLinkOnClick(){
      <h:panelGroup rendered="#{questionScores.typeId == '11'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
          <small>
-         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_fin} (#{questionScores.maxPoint})"/>
          </small>
      </h:panelGroup>
       <h:panelGroup rendered="#{questionScores.typeId == '9'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
          <small>
-         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_match} (#{questionScores.maxPoint})"/>
          </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '2'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
          <small>
-         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{commonMessages.multipl_mc_ms} (#{questionScores.maxPoint})"/>
          </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '4'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
          <small>
-         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_tf} (#{questionScores.maxPoint})"/>
          </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '5'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
          <small>
-         <h:outputText value=" - #{evaluationMessages.q_fib} (#{questionScores.maxPoint})"/>
          <h:outputText value=" - #{evaluationMessages.q_short_ess} (#{questionScores.maxPoint})"/>
          </small>
      </h:panelGroup>
@@ -270,7 +265,10 @@ function hiddenLinkOnClick(){
          </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '13'}">
-         <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_matrix_choices_surv}"/>
+         <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}"/>
+         <small>
+             <h:outputText value=" - #{evaluationMessages.q_matrix_choices_surv} (#{questionScores.maxPoint})"/>
+         </small>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '1'}">
          <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
@@ -294,7 +292,10 @@ function hiddenLinkOnClick(){
       <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_emi}"/>
     </h:panelGroup>   
     <h:panelGroup rendered="#{questionScores.typeId == '15'}"><!-- // CALCULATED_QUESTION -->
-      <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_cq}"/>
+      <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}"/>
+      <small>
+          <h:outputText value=" - #{evaluationMessages.q_cq} (#{questionScores.maxPoint})"/>
+      </small>
     </h:panelGroup>
       </h2>
     </div>

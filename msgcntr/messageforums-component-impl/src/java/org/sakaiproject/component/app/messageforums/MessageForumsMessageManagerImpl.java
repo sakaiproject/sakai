@@ -2060,6 +2060,46 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		return (List) getHibernateTemplate().execute(hcb);        
 	}
 
+	public List getRecentDiscussionForumThreadsByTopicIds(final List<Long> topicIds, final int numberOfMessages) {
+		if (topicIds.isEmpty())
+		{
+			return new ArrayList<Object[]>();
+		}
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("getRecentDiscussionForumThreadsByTopicIds executing for list of size: " + topicIds.size());
+		}
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("findRecentDiscussionForumThreadsByTopicIds");
+				q.setParameterList("topicIds", topicIds);
+				q.setMaxResults(numberOfMessages);
+				return q.list();
+			}
+		};
+
+		Message tempMsg = null;
+		Set resultSet = new HashSet();
+		List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+		LOG.debug("got an initial list of " + temp.size());
+		for (Iterator i = temp.iterator(); i.hasNext();)
+		{
+			Object[] results = (Object[]) i.next();
+
+			if (results != null) {
+				if (results[0] instanceof Message) {
+					tempMsg = (Message)results[0];
+					tempMsg.setTopic((Topic)results[1]);
+					tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
+				}
+				resultSet.add(tempMsg);
+			}
+		}
+
+		LOG.debug("about to return");
+		return Util.setToList(resultSet);
+	}
+
 	public List findMovedHistoryByMessageId(final Long messageid){
 		if (messageid == null) {
 			LOG.error("findMovedHistoryByMessageId failed with messageid: " + messageid);

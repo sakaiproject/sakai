@@ -809,6 +809,17 @@
              where area.contextId = :contextId and
              message.deleted = false]]>
   </query>
+
+    <!-- returns recent forum  threads for a given list of topicIds -->
+    <query name="findRecentDiscussionForumThreadsByTopicIds">
+        <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+             join message.topic as topic
+             join topic.openForum as forum
+             where topic.id in (:topicIds) and
+             message.inReplyTo is null and
+             message.draft = false and
+             message.deleted = false ORDER BY message.modified desc]]>
+    </query>
   
   <!-- return all moved messages that need to be displayed as reminders -->
 <query name="findMovedMessagesByTopicId">
