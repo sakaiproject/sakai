@@ -15,30 +15,21 @@
  */
 package org.sakaiproject.samigo.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.*;
+import javax.mail.internet.InternetAddress;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -75,20 +66,21 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     public      void                init                            () {
         LOG.info("init()");
 
-        String samigoFromAddress                    = serverConfigurationService.getString("samigo.fromAddress");
-
-        if( samigoFromAddress == null || StringUtils.isBlank(samigoFromAddress)){
-            fromAddress                             = serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName());
-        } else {
-            fromAddress                             = samigoFromAddress;
+        fromAddress = serverConfigurationService.getString("samigo.fromAddress");
+        if(StringUtils.isBlank(fromAddress)){
+            String defaultAddress = "no-reply@" + serverConfigurationService.getServerName();
+            fromAddress = serverConfigurationService.getString("setup.request", defaultAddress);
         }
 
-        constantValues.put("localSakaiName" , serverConfigurationService.getString("ui.service", ""));
+        constantValues.put("localSakaiName" , serverConfigurationService.getString("ui.service", "Sakai"));
         constantValues.put("localSakaiUrl"  , serverConfigurationService.getPortalUrl());
 
-        loadTemplate(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED_FILE_NAME      , SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED);
-        loadTemplate(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED_FILE_NAME , SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED);
-        loadTemplate(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME, SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED);
+        // Register XML file email templates with the service
+        ClassLoader cl = SamigoETSProviderImpl.class.getClassLoader();
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS);
     }
 
     public      void                notify                          (String eventKey, Map<String, Object> notificationValues, Event event) {
@@ -373,86 +365,34 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
 
         return headers;
     }
-
-    // loadTemplate from ValidationLogicImpl.java
-    /**
-     * Load and register one or more email templates (contained in the given
-     * .xml file) with the email template service
-     *
-     * @param templateFileName - the name of the .xml file to load
-     * @param templateRegistrationString - the key (name) of the template to be saved to the service
-     */
-    @SuppressWarnings("unchecked")
-    private     void                loadTemplate                    (String templateFileName, String templateRegistrationString) {
-        LOG.info(this + " loading template " + templateFileName);
-
-        SecurityAdvisor yesMan = new SecurityAdvisor() {
-            public SecurityAdvice isAllowed( String userId, String function, String reference ) {
-                return SecurityAdvice.ALLOWED;
-            }
-        };
-
-        try {
-            // Push the yesMan SA on the stack and perform the necessary actions
-            securityService.pushAdvisor(yesMan);
-
-            // Load up the resource as an input stream
-            InputStream input = SamigoETSProviderImpl.class.getClassLoader().getResourceAsStream("" + templateFileName);
-            if ( input == null ) {
-                LOG.error( "Could not load resource from '" + templateFileName + "'. Skipping ..." );
-            } else {
-                // Parse the XML, get all the child templates
-                Document document = new SAXBuilder().build( input );
-                List<?> childTemplates = document.getRootElement().getChildren( "emailTemplate" );
-                Iterator<?> iter = childTemplates.iterator();
-
-                // Create and register a template with the service for each one found in the XML file
-                while ( iter.hasNext() ) {
-                    xmlToTemplate( (Element) iter.next(), templateRegistrationString );
-                }
-            }
-        } catch (JDOMException | IOException e) {
-            LOG.error("loadTemplate error: ", e);
-        } finally { // Pop the yesMan SA off the stack (remove elevated permissions)
-            securityService.popAdvisor(yesMan);
-        }
-    }
-
-    // xmlToTemplate from ValidationLogicImpl.java
-    private     void                xmlToTemplate                   (Element xmlTemplate, String key) {
-        String              subject                 = xmlTemplate.getChildText("subject");
-        String              body                    = xmlTemplate.getChildText("message");
-        String              bodyHtml                = xmlTemplate.getChildText("messagehtml");
-        String              locale                  = xmlTemplate.getChildText("locale");
-        String              localeLangTag           = xmlTemplate.getChildText("localeLangTag");
-        String              versionString           = xmlTemplate.getChildText("version");
-
-        if (emailTemplateService.getEmailTemplate(key, Locale.forLanguageTag(localeLangTag)) == null)
+	
+    @Override
+    public void notifyAutoSubmitFailures(int count)
+    {
+        boolean notifyOn = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED, false);
+        if (!notifyOn)
         {
-            EmailTemplate template = new EmailTemplate();
-            template.setSubject(subject);
-            template.setMessage(body);
-            if (bodyHtml != null) {
-                String decodedHtml;
-                try {
-                    decodedHtml = URLDecoder.decode(bodyHtml, "utf8");
-                } catch (UnsupportedEncodingException e) {
-                    decodedHtml = bodyHtml;
-                    LOG.warn(e.getMessage(), e);
-                }
-                template.setHtmlMessage(decodedHtml);
+            return;
+        }
+        String supportAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_SUPPORT_EMAIL_ADDRESS, fromAddress);
+        String toAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS, supportAddress);
+
+        Map<String, String> replacementValues = new HashMap<>();
+        replacementValues.put("failureCount", Integer.toString(count));
+
+        try
+        {
+            RenderedTemplate template = emailTemplateService.getRenderedTemplate(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS, Locale.getDefault(), replacementValues);
+            if (template == null)
+            {
+                throw new IllegalStateException("Template is null");
             }
-            template.setLocale(locale);
-            template.setKey(key);
-            template.setVersion(Integer.valueOf(versionString));//setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
-            template.setOwner("admin");
-            template.setLastModified(new Date());
-            try {
-                this.emailTemplateService.saveTemplate(template);
-                LOG.info(this + " user notification template " + key + " added");
-            }catch (Exception e){
-                LOG.warn("Samigo notification xmlToTemplate error." + e);
-            }
+            InternetAddress[] to = { new InternetAddress(toAddress) };
+            emailService.sendMail(new InternetAddress(fromAddress), to, template.getRenderedSubject(), template.getRenderedMessage(), null, null, null);
+        }
+        catch (Exception e)
+        {
+            LOG.error("Unable to send email notification for AutoSubmit failures.", e);
         }
     }
 

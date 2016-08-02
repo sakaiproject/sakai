@@ -47,6 +47,7 @@
      <property name="publishedSectionFacadeQueries"><ref bean="PublishedSectionFacadeQueries" /></property>
      <property name="publishedItemFacadeQueries"><ref bean="PublishedItemFacadeQueries" /></property>
      <property name="assessmentGradingFacadeQueries"><ref bean="AssessmentGradingFacadeQueries" /></property>
+     <property name="autoSubmitQueries"><ref bean="AutoSubmitQueries" /></property>
      <property name="authorizationFacadeQueries"><ref bean="AuthorizationFacadeQueries" /></property>
      <property name="pagingUtilQueries"><ref bean="PagingUtilQueries" /></property>
      <property name="authzQueriesFacade"><ref bean="AuthzQueriesFacade" /></property>
@@ -212,6 +213,21 @@
       </property>
     </bean>
 
+    <bean id="AutoSubmitQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.util.autosubmit.AutoSubmitQueries">
+          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+    </bean>
+      </property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRES_NEW</prop>
+        </props>
+      </property>
+    </bean>
+
     <bean id="AuthorizationFacadeQueries"
           class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
       <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
@@ -319,6 +335,7 @@
    <bean id="AutoSubmitAssessments" class="org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob" 
    	init-method="init" destroy-method="destroy">
        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+       <property name="samigoETSProvider" ref="org.sakaiproject.samigo.api.SamigoETSProvider"/>
    </bean>
 
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AutoSubmitAssessments"

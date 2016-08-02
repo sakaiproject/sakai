@@ -34,6 +34,8 @@ public final class SamigoConstants {
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED_FILE_NAME  = "template-assessmentAutoSubmission.xml";
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED           = "sam.assessmentTimedSubmitted";
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME = "template-assessmentTimedSubmission.xml";
+    public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS                   = "sam.assessmentAutoSubmitErrors";
+    public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME         = "template-assessmentAutoSubmitErrors.xml";
 
     /*
      * Events
@@ -128,6 +130,13 @@ public final class SamigoConstants {
     public static final		String		AUTHZ_TEMPLATE_CREATE								= "assessment.template.create";
     public static final		String		AUTHZ_TEMPLATE_EDIT_OWN								= "assessment.template.edit.own";
     public static final		String		AUTHZ_TEMPLATE_DELETE_OWN							= "assessment.template.delete.own";
+
+    /*
+     * Sakai.properties 
+     */
+    public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED     = "samigo.email.autoSubmit.errorNotification.enabled";
+    public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS  = "samigo.email.autoSubmit.errorNotification.toAddress";
+    public static final     String      SAK_PROP_SUPPORT_EMAIL_ADDRESS                      = "mail.support";
     
     private SamigoConstants() {
     	throw new AssertionError();
