@@ -15,28 +15,18 @@
  */
 package org.sakaiproject.samigo.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.*;
 import javax.mail.internet.InternetAddress;
 
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -75,10 +65,10 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         fromAddress = serverConfigurationService.getString("samigo.fromAddress");
         if(StringUtils.isBlank(fromAddress)){
             String defaultAddress = "no-reply@" + serverConfigurationService.getServerName();
-            fromAddress = StringUtils.defaultIfBlank(serverConfigurationService.getString("setup.request"), defaultAddress);
+            fromAddress = serverConfigurationService.getString("setup.request", defaultAddress);
         }
 
-        constantValues.put("localSakaiName" , StringUtils.defaultIfBlank(serverConfigurationService.getString("ui.service"), ""));
+        constantValues.put("localSakaiName" , serverConfigurationService.getString("ui.service", "Sakai"));
         constantValues.put("localSakaiUrl"  , serverConfigurationService.getPortalUrl());
 
         // Register XML file email templates with the service
@@ -356,8 +346,8 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         {
             return;
         }
-        String supportAddress = StringUtils.defaultIfBlank(serverConfigurationService.getString(SamigoConstants.SAK_PROP_SUPPORT_EMAIL_ADDRESS), fromAddress);
-        String toAddress = StringUtils.defaultIfBlank(serverConfigurationService.getString(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS), supportAddress);
+        String supportAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_SUPPORT_EMAIL_ADDRESS, fromAddress);
+        String toAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS, supportAddress);
 
         Map<String, String> replacementValues = new HashMap<>();
         replacementValues.put("failureCount", Integer.toString(count));
