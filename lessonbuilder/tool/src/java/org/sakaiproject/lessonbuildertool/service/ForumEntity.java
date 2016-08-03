@@ -520,6 +520,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    noneMask.put(PermissionLevel.READ, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+	    noneMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
@@ -537,6 +538,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    contributorMask.put(PermissionLevel.READ, Boolean.valueOf(true));
 	    contributorMask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 	    contributorMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+	    contributorMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 	    contributorMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 	    contributorMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 	    contributorMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
@@ -554,6 +556,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    ownerMask.put(PermissionLevel.READ, Boolean.valueOf(true));
 	    ownerMask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 	    ownerMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(true));
+	    ownerMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 	    ownerMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 	    ownerMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(true));
 	    ownerMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
