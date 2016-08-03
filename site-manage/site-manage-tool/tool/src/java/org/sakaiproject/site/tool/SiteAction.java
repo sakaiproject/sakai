@@ -12053,6 +12053,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					rp.addProperty(TEMPLATE_USED, templateSite.getId());
 				}
 
+				// Enable MathJax, if applies
+				MathJaxEnabler.prepareMathJaxForNewSite(site, state);
+				
 				// bjones86 - SAK-24423 - update site properties for joinable site settings
 				JoinableSiteSettings.updateSitePropertiesFromSiteInfoOnAddNewSite( siteInfo, rp );
 
