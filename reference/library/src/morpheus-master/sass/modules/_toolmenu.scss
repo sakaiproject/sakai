@@ -111,6 +111,12 @@ body.#{$namespace}toolMenu-collapsed{
 	}
 }
 
+#totoolmenu{
+	@media #{$phone}{
+		display:none !important;
+	}
+}
+
 .#{$namespace}toolsNav__title--current-site{
 	display: none;
 	@media #{$phone}{
