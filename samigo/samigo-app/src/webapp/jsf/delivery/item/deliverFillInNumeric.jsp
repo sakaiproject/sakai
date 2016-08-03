@@ -27,9 +27,9 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-<h:outputLink value="#" styleClass="hasTooltip">
+<h:panelGroup styleClass="hasTooltip toolTipLink">
 	<h:outputText value="#{deliveryMessages.additional_instructions_label}" />
-</h:outputLink>
+</h:panelGroup>
 <h:panelGroup layout="block" id="div_accepted_instruction" style="display:none;">
 	<h:outputText value="#{deliveryMessages.fin_accepted_instruction} " escape="false" />
 	<f:verbatim><br /></f:verbatim>
