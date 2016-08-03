@@ -15,3 +15,8 @@ sudo: false
 cache:
  directories:
  - $HOME/.m2
+
+# We don't want to cache our own artifacts, just the externally downloaded ones.
+# This makes the cache smaller and helps highlight problems with a clean build
+before_cache:
+ - find $HOME/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
