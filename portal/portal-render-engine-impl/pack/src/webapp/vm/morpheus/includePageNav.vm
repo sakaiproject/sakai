@@ -189,7 +189,7 @@
                     #foreach ( $site in $subSites )
 
                         <li>
-                            <a class="Mrphs-toolsNav__menuitem--link" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
+                            <a class="Mrphs-toolsNav__menuitem--link #if(!${site.isPublished})is-invisible#end" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
                                 <span class="Mrphs-toolsNav__menuitem--icon ${sitePages.subsiteClass}"></span>
                                 <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</span>
                             </a>
