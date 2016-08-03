@@ -1011,7 +1011,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           //sak-5146 saveDiscussionForum(discussionForum, parentForumDraftStatus);
             
         } else {
-            getHibernateTemplate().saveOrUpdate(topic);
+	    // LSNBLDR-708 we've checked that it's existing, so it's always an update. Need merge or Lessons sometimes fails to save
+	    getHibernateTemplate().merge(topic);	    
+	    // getHibernateTemplate().saveOrUpdate(topic);
         }
         //now schedule any jobs that are needed for the open/close dates
         //this will require having the ID of the topic (if its a new one)
