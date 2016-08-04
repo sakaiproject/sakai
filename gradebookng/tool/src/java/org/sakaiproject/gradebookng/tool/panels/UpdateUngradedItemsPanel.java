@@ -104,7 +104,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 					if (success) {
 						UpdateUngradedItemsPanel.this.window.close(target);
-						setResponsePage(new GradebookPage());
+						setResponsePage(GradebookPage.class);
 					} else {
 						// InvalidGradeException
 						error(getString("grade.notifications.invalid"));

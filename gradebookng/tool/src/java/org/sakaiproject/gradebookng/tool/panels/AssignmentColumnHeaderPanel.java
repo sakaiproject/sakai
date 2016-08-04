@@ -96,7 +96,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 		};
@@ -241,7 +241,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 					AssignmentColumnHeaderPanel.this.businessService.updateAssignmentOrder(assignmentId.longValue(), (order - 1));
 				}
 
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 			@Override
@@ -280,7 +280,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 					AssignmentColumnHeaderPanel.this.businessService.updateAssignmentOrder(assignmentId.longValue(), (order + 1));
 				}
 
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 			@Override
