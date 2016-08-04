@@ -46,18 +46,25 @@ public class ImportWizardModel implements Serializable {
 	private int totalSteps;
 
 	/**
-	 * List of items from the spreadsheet
+	 * List of items from the spreadsheet that need to be created first
 	 */
 	@Getter
 	@Setter
 	private List<ProcessedGradeItem> itemsToCreate;
 
 	/**
-	 * List of items from the spreadsheet
+	 * List of items from the spreadsheet that just need their data updated
 	 */
 	@Getter
 	@Setter
 	private List<ProcessedGradeItem> itemsToUpdate;
+
+	/**
+	 * List of items from the spreadsheet that need to have the assignment updated and their data updated
+	 */
+	@Getter
+	@Setter
+	private List<ProcessedGradeItem> itemsToModify;
 
 	/**
 	 * The list of assignments to be created once the form has been filled in

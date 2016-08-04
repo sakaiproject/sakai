@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -23,6 +24,7 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -61,6 +63,8 @@ public class GradeImportConfirmationStep extends Panel {
 
 		final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
 		final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
+		final List<ProcessedGradeItem> itemsToModify = importWizardModel.getItemsToModify();
+
 		final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
 		final Form<?> form = new Form("form") {
@@ -97,12 +101,29 @@ public class GradeImportConfirmationStep extends Panel {
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignmentId);
 				});
 
-				// only proceeed if no errors
+				//Modify any that need modification
+				itemsToModify.forEach(item -> {
+
+					final Double points = NumberUtils.toDouble(item.getItemPointValue());
+					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(item.getItemTitle());
+					assignment.setPoints(points);
+
+					final boolean updated = GradeImportConfirmationStep.this.businessService.updateAssignment(assignment);
+					if(!updated) {
+						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
+                        this.errors = true;
+					}
+
+					assignmentMap.put(StringUtils.trim(assignment.getName()), assignment.getId());
+				});
+
+				// add/update the data
 				if (!this.errors) {
 
 					final List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
 					itemsToSave.addAll(itemsToUpdate);
 					itemsToSave.addAll(itemsToCreate);
+					itemsToSave.addAll(itemsToModify);
 
 					itemsToSave.forEach(processedGradeItem -> {
 						log.debug("Looping through items to save");
@@ -185,7 +206,7 @@ public class GradeImportConfirmationStep extends Panel {
 		// finish button
 		form.add(new Button("finishbutton"));
 
-		// items to be updated
+		// render items to be updated
 		final boolean hasItemsToUpdate = !itemsToUpdate.isEmpty();
 		final WebMarkupContainer gradesUpdateContainer = new WebMarkupContainer("grades_update_container") {
 			private static final long serialVersionUID = 1L;
@@ -199,12 +220,11 @@ public class GradeImportConfirmationStep extends Panel {
 
 		if (hasItemsToUpdate) {
 			final ListView<ProcessedGradeItem> updateList = makeListView("grades_update", itemsToUpdate);
-
 			updateList.setReuseItems(true);
 			gradesUpdateContainer.add(updateList);
 		}
 
-		// items to be created
+		// render items to be created
 		final boolean hasItemsToCreate = !itemsToCreate.isEmpty();
 		final WebMarkupContainer gradesCreateContainer = new WebMarkupContainer("grades_create_container") {
 			private static final long serialVersionUID = 1L;
@@ -218,9 +238,26 @@ public class GradeImportConfirmationStep extends Panel {
 
 		if (hasItemsToCreate) {
 			final ListView<ProcessedGradeItem> createList = makeListView("grades_create", itemsToCreate);
-
 			createList.setReuseItems(true);
 			gradesCreateContainer.add(createList);
+		}
+
+		// render items to be created
+		final boolean hasItemsToModify = !itemsToModify.isEmpty();
+		final WebMarkupContainer gradesModifyContainer = new WebMarkupContainer("grades_modify_container") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return hasItemsToModify;
+			}
+		};
+		add(gradesModifyContainer);
+
+		if (hasItemsToModify) {
+			final ListView<ProcessedGradeItem> modifyList = makeListView("grades_modify", itemsToModify);
+			modifyList.setReuseItems(true);
+			gradesModifyContainer.add(modifyList);
 		}
 	}
 

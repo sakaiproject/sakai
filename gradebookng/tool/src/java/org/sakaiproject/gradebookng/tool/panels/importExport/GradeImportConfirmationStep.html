@@ -32,6 +32,25 @@
             </tbody>
         </table>
     </div>
+    
+    <!--  TODO collapse these three containers -->
+    <div wicket:id="grades_modify_container">
+   		<h3><wicket:message key="importExport.confirmation.modify.heading" /></h3>
+        <table class="table table-striped table-condensed grade_import_confirmation">
+            <thead>
+              <tr>
+                <th><wicket:message key="importExport.confirmation.title" /></th>
+                <th><wicket:message key="importExport.confirmation.points" /></th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr wicket:id="grades_modify">
+                    <td><span wicket:id="itemTitle">[assignment 1]</span></td>
+                    <td><span wicket:id="itemPointValue">[50]</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <form wicket:id="form">
         <div class="act">
