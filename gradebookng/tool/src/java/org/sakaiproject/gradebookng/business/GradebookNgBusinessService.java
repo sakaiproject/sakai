@@ -1287,8 +1287,7 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public Assignment getAssignment(final long assignmentId) {
-		final String siteId = getCurrentSiteId();
-		return this.getAssignment(siteId, assignmentId);
+		return this.getAssignment(getCurrentSiteId(), assignmentId);
 	}
 
 	/**
@@ -1302,6 +1301,34 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook(siteId);
 		if (gradebook != null) {
 			return this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+		}
+		return null;
+	}
+
+	/**
+	 * Get an Assignment in the current site given the assignment name
+	 * This should be avoided where possible but is required for the import process to allow modification of assignment point values
+	 *
+	 * @param assignmentName
+	 * @return
+	 */
+	public Assignment getAssignment(final String assignmentName) {
+		return this.getAssignment(getCurrentSiteId(), assignmentName);
+	}
+
+	/**
+	 * Get an Assignment in the specified site given the assignment name
+	 * This should be avoided where possible but is required for the import process to allow modification of assignment point values
+	 *
+	 * @param siteId
+	 * @param assignmentName
+	 * @return
+	 */
+	@SuppressWarnings("deprecation")
+	public Assignment getAssignment(final String siteId, final String assignmentName) {
+		final Gradebook gradebook = getGradebook(siteId);
+		if (gradebook != null) {
+			return this.gradebookService.getAssignment(gradebook.getUid(), assignmentName);
 		}
 		return null;
 	}
