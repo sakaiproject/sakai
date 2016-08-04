@@ -301,7 +301,7 @@ public class ImportGradesHelper {
 		// comment columns must have an associated gb item column
 		// this ensures we have a processed grade item for each one
 		commentColumns.forEach(c -> {
-			final boolean matchingItemExists = processedGradeItems.stream().filter(p -> StringUtils.equals(c, p.getAssignmentTitle())).findFirst().isPresent();
+			final boolean matchingItemExists = processedGradeItems.stream().filter(p -> StringUtils.equals(c, p.getItemTitle())).findFirst().isPresent();
 			if(!matchingItemExists) {
 				throw new GbImportCommentMissingItemException("The comment column '" + c + "' does not have a corresponding gradebook item.");
 			}
