@@ -42,8 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ImportGradesHelper {
 
 	// column names we know about
-	final static String IMPORT_USER_ID = "Student ID";
-	final static String IMPORT_USER_NAME = "Student Name";
+	public final static String IMPORT_USER_ID = "Student ID";
+	public final static String IMPORT_USER_NAME = "Student Name";
 
 	// patterns for detecting column headers and their types
 	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([\\w ]+ \\[[0-9]+(\\.[0-9][0-9]?)?\\])");
