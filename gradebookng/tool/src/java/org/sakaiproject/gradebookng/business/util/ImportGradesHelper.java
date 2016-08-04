@@ -17,7 +17,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.sakaiproject.gradebookng.business.exception.GbImportExportException;
+import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportColumn;
@@ -125,7 +126,7 @@ public class ImportGradesHelper {
 			}
 
 		} catch (final Exception e) {
-			// TOOD this shouldn't catch everything, it should continue throwing back up the stack
+			// TODO this shouldn't catch everything, it should continue throwing back up the stack
 			log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
 			return null;
 		}
@@ -158,73 +159,91 @@ public class ImportGradesHelper {
 				lineVal = trim(line[i]);
 			}
 
+			final String columnTitle = importColumn.getColumnTitle();
+
 			// process user id column
-			if (StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_ID)) {
+			if (StringUtils.equals(columnTitle, IMPORT_USER_ID)) {
 				grade.setStudentEid(lineVal);
 				grade.setStudentUuid(userMap.get(lineVal));
 
 			// process user name column
-			} else if (StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_NAME)) {
+			} else if (StringUtils.equals(columnTitle, IMPORT_USER_NAME)) {
 				grade.setStudentName(lineVal);
 
 			//process item with points column
 			} else if (importColumn.getType() == ImportColumn.Type.GBITEM_WITH_POINTS) {
-				final String assignmentName = importColumn.getColumnTitle();
-				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
+				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(columnTitle);
 				if (importedGradeItem == null) {
-					importedGradeItem = new ImportedGradeItem(assignmentName);
+					importedGradeItem = new ImportedGradeItem(columnTitle);
 				}
 				importedGradeItem.setGradeItemScore(lineVal);
-				grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+				grade.getGradeItemMap().put(columnTitle, importedGradeItem);
 
 			//process comments
 			} else if (importColumn.getType() == ImportColumn.Type.GBITEM_WITH_COMMENTS) {
-				final String assignmentName = importColumn.getColumnTitle();
-				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
+				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(columnTitle);
 				if (importedGradeItem == null) {
-					importedGradeItem = new ImportedGradeItem(assignmentName);
+					importedGradeItem = new ImportedGradeItem(columnTitle);
 				}
 				importedGradeItem.setGradeItemComment(lineVal);
-				grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+				grade.getGradeItemMap().put(columnTitle, importedGradeItem);
 
 			// process any left overs. These will be gb items without points
 			} else if (importColumn.getType() == ImportColumn.Type.REGULAR) {
-				final String assignmentName = importColumn.getColumnTitle();
-				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
+				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(columnTitle);
 				if (importedGradeItem == null) {
-					importedGradeItem = new ImportedGradeItem(assignmentName);
+					importedGradeItem = new ImportedGradeItem(columnTitle);
 				}
-				grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+				grade.getGradeItemMap().put(columnTitle, importedGradeItem);
 			}
 		}
 
 		return grade;
 	}
 
+	/**
+	 * Process the data.
+	 *
+	 * TODO enhance this to have better returns ie GbExceptions
+	 *
+	 * @param importedGradeWrapper
+	 * @param assignments
+	 * @param currentGrades
+	 *
+	 * @return
+	 */
 	public static List<ProcessedGradeItem> processImportedGrades(final ImportedGradeWrapper importedGradeWrapper,
 			final List<Assignment> assignments, final List<GbStudentGradeInfo> currentGrades) {
-		final List<ProcessedGradeItem> processedGradeItems = new ArrayList<ProcessedGradeItem>();
-		final Map<String, Assignment> assignmentNameMap = new HashMap<String, Assignment>();
-		final Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<String, ProcessedGradeItem>();
 
+		//setup
+		final List<ProcessedGradeItem> processedGradeItems = new ArrayList<>();
+		final Map<String, Assignment> assignmentNameMap = new HashMap<>();
+		final Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<>();
+		final List<String> commentColumns = new ArrayList<>();
+
+		// process grades
 		final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
+
 
 		// Map the assignment name back to the Id
 		for (final Assignment assignment : assignments) {
 			assignmentNameMap.put(assignment.getName(), assignment);
 		}
 
+		//for every column, setup the data
 		for (final ImportColumn column : importedGradeWrapper.getColumns()) {
 			boolean needsAdded = false;
-			final String assignmentName = StringUtils.trim(column.getColumnTitle()); // trim whitespace so we can match properly
 
-			ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(assignmentName);
+			final String columnTitle = StringUtils.trim(column.getColumnTitle()); // trim whitespace so we can match properly
+
+			//setup a new one unless it already exists (ie there were duplicate columns)
+			ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(columnTitle);
 			if (processedGradeItem == null) {
 				processedGradeItem = new ProcessedGradeItem();
 				needsAdded = true;
 			}
 
-			final Assignment assignment = assignmentNameMap.get(assignmentName);
+			final Assignment assignment = assignmentNameMap.get(columnTitle);
 			final ProcessedGradeItemStatus status = determineStatus(column, assignment, importedGradeWrapper, transformedGradeMap);
 
 			// skip the student columns
@@ -234,19 +253,23 @@ public class ImportGradesHelper {
 			}
 
 			if (column.getType() == ImportColumn.Type.GBITEM_WITH_POINTS) {
-				processedGradeItem.setItemTitle(assignmentName);
+				log.debug("GB Item: " + columnTitle + ", status: " + status.getStatusCode());
+				processedGradeItem.setItemTitle(columnTitle);
 				processedGradeItem.setItemPointValue(column.getPoints());
 				processedGradeItem.setStatus(status);
 			} else if (column.getType() == ImportColumn.Type.GBITEM_WITH_COMMENTS) {
-				processedGradeItem.setCommentLabel(assignmentName + " Comments");
+				log.debug("Comments: " + columnTitle + ", status: " + status.getStatusCode());
+				processedGradeItem.setCommentLabel(columnTitle + " Comments");
 				processedGradeItem.setCommentStatus(status);
+				commentColumns.add(columnTitle); //for further checking
 			} else if (column.getType() == ImportColumn.Type.REGULAR) {
-				log.debug("Title: " + assignmentName + ", status: " + status.getStatusCode());
-				processedGradeItem.setItemTitle(assignmentName);
+				log.debug("Regular: " + columnTitle + ", status: " + status.getStatusCode());
+				processedGradeItem.setItemTitle(columnTitle);
 				processedGradeItem.setStatus(status);
 			} else {
-				// Just get out
-				log.warn("Bad column. Type: " + column.getType() + ", header: " + assignmentName + ".  Skipping.");
+				// skip
+				//TODO could return this but as a skip status?
+				log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
 				continue;
 			}
 
@@ -256,7 +279,7 @@ public class ImportGradesHelper {
 
 			final List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
 			for (final ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
-				final ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(assignmentName);
+				final ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(columnTitle);
 				if (importedGradeItem != null) {
 					final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
 					processedGradeItemDetail.setStudentEid(importedGrade.getStudentEid());
@@ -271,9 +294,18 @@ public class ImportGradesHelper {
 
 			if (needsAdded) {
 				processedGradeItems.add(processedGradeItem);
-				assignmentProcessedGradeItemMap.put(assignmentName, processedGradeItem);
+				assignmentProcessedGradeItemMap.put(columnTitle, processedGradeItem);
 			}
 		}
+
+		// comment columns must have an associated gb item column
+		// this ensures we have a processed grade item for each one
+		commentColumns.forEach(c -> {
+			final boolean matchingItemExists = processedGradeItems.stream().filter(p -> StringUtils.equals(c, p.getAssignmentTitle())).findFirst().isPresent();
+			if(!matchingItemExists) {
+				throw new GbImportCommentMissingItemException("The comment column '" + c + "' does not have a corresponding gradebook item.");
+			}
+		});
 
 		return processedGradeItems;
 
@@ -292,6 +324,7 @@ public class ImportGradesHelper {
 			final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap) {
 
 		ProcessedGradeItemStatus status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
+
 		if (assignment == null) {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NEW);
 		} else if (assignment.getExternalId() != null) {
@@ -378,7 +411,7 @@ public class ImportGradesHelper {
 	 * @param line the already split line
 	 * @return
 	 */
-	private static Map<Integer, ImportColumn> mapHeaderRow(final String[] line) throws GbImportExportException {
+	private static Map<Integer, ImportColumn> mapHeaderRow(final String[] line) throws GbImportExportInvalidColumnException {
 		final Map<Integer, ImportColumn> mapping = new LinkedHashMap<Integer, ImportColumn>();
 		for (int i = 0; i < line.length; i++) {
 
@@ -395,9 +428,9 @@ public class ImportGradesHelper {
 	 * Helper to parse the header row into an {@link ImportColumn}
 	 * @param headerValue
 	 * @return the mapped column or null if ignoring.
-	 * @throws GbImportExportException if columns didn't match any known pattern
+	 * @throws GbImportExportInvalidColumnException if columns didn't match any known pattern
 	 */
-	private static ImportColumn parseHeaderForImportColumn(final String headerValue) throws GbImportExportException {
+	private static ImportColumn parseHeaderForImportColumn(final String headerValue) throws GbImportExportInvalidColumnException {
 		final ImportColumn importColumn = new ImportColumn();
 
 		// assignment with points header
@@ -450,7 +483,7 @@ public class ImportGradesHelper {
 		}
 
 		// if we got here, couldn't parse the column header, throw an error
-		throw new GbImportExportException("Invalid column header, skipping: " + headerValue);
+		throw new GbImportExportInvalidColumnException("Invalid column header, skipping: " + headerValue);
 
 	}
 

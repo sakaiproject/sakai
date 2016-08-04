@@ -10,4 +10,8 @@ public class GbException extends RuntimeException {
 	public GbException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
+
+	public GbException(final String message) {
+		super(message);
+	}
 }
