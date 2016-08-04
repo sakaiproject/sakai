@@ -133,7 +133,8 @@ public class TestImportGradesHelper {
 				processedGradeItems.get(0).getCommentStatus().getStatusCode());
 
 		// assignment 2
-		Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE, processedGradeItems.get(1).getStatus().getStatusCode());
+		Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_MODIFIED,
+				processedGradeItems.get(1).getStatus().getStatusCode());
 		Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE,
 				processedGradeItems.get(1).getCommentStatus().getStatusCode());
 
@@ -228,7 +229,6 @@ public class TestImportGradesHelper {
 		final ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
 		final List<ImportColumn> columns = new ArrayList<ImportColumn>();
 
-
 		// only list actual columns to be turned into the import here
 		columns.add(new ImportColumn("Student ID", null, ImportColumn.Type.REGULAR));
 		columns.add(new ImportColumn("Student Name", null, ImportColumn.Type.REGULAR));
@@ -281,6 +281,5 @@ public class TestImportGradesHelper {
 
 		return importedGradeWrapper;
 	}
-
 
 }
