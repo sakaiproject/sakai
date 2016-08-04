@@ -53,19 +53,25 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId, final boolean useCache) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPrivacyRecordForUser"); 
-	  	}
+			throw new IllegalArgumentException("Null argument in ProfileLogic.getPrivacyRecordForUser"); 
+		}
+		
+		//will stay null if we can't get or create one
+		ProfilePrivacy privacy = null;
 		
 		//check cache
 		if(useCache) {
 			if(cache.containsKey(userId)){
 				log.debug("Fetching privacy record from cache for: " + userId);
-				return (ProfilePrivacy)cache.get(userId);
+				privacy = (ProfilePrivacy)cache.get(userId);
+				if(privacy != null) {
+				  return(privacy);
+				}
+				// This means that the cache has expired. evict the key from the cache
+				log.debug("Privacy cache appears to have expired for " + userId);
+				evictFromCache(userId);
 			}
 		}
-		
-		//will stay null if we can't get or create one
-		ProfilePrivacy privacy = null;
 		
 		privacy = dao.getPrivacyRecord(userId);
 		log.debug("Fetching privacy record from dao for: " + userId);
@@ -494,6 +500,15 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		return privacy;
 	}
 	
+	/**
+	 * Helper to evict an item from a cache. 
+	 * @param cacheKey	the id for the data in the cache
+	 */
+	private void evictFromCache(String cacheKey) {
+		cache.remove(cacheKey);
+		log.debug("Evicted data in cache for key: " + cacheKey);
+	}
+
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
 	}

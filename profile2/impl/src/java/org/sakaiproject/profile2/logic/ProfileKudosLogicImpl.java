@@ -45,12 +45,18 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
  	 */
 	public int getKudos(String userUuid){
 		
-		ProfileKudos k;
+		ProfileKudos k = null;
 		
 		if(cache.containsKey(userUuid)){
 			log.debug("Fetching kudos from cache for: " + userUuid);
 			k = (ProfileKudos)cache.get(userUuid);
-		} else {
+			if(k == null) {
+				// This means that the cache has expired. evict the key from the cache
+				log.debug("Kudos cache appears to have expired for " + userUuid);
+				evictFromCache(userUuid);
+			}
+		}
+		if(k == null) {
 			k = dao.getKudos(userUuid);
 			
 			if(k != null){
@@ -94,7 +100,15 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		return false;
 	}
 	
-	
+	/**
+	 * Helper to evict an item from a cache. 
+	 * @param cacheKey	the id for the data in the cache
+	 */
+	private void evictFromCache(String cacheKey) {
+		cache.remove(cacheKey);
+		log.debug("Evicted data in cache for key: " + cacheKey);
+	}
+
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
 	}
