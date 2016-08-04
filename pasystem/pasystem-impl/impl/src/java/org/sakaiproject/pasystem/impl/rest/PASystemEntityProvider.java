@@ -183,6 +183,11 @@ public class PASystemEntityProvider implements EntityProvider, AutoRegisterEntit
             User thisUser = UserDirectoryService.getCurrentUser();
             String userid = thisUser.getId();
 
+            // If there is no user (e.g. on the gateway site!) there's no timezone
+            if(userid == null || userid == "") {
+                return null;
+            }
+
             try {
                 Site userSite = SiteService.getSite("~" + userid);
                 ToolConfiguration preferences = userSite.getToolForCommonId("sakai.preferences");
