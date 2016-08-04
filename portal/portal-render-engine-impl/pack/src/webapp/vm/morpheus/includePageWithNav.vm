@@ -3,8 +3,17 @@
 ##
 <!-- START VM includePageWithNav.vm -->
 
-    <nav class="Mrphs-siteHierarchy">
+    <nav class="Mrphs-siteHierarchy" style="#if (${banner.backgroundColour})background: ${banner.backgroundColour} !important; #end
+                    #if (${banner.backgroundImage})background-image: url('${banner.backgroundImage}'); #end">
 
+		#if ($!{banner.imageSource})
+                <div class="Mrphs-siteHierarchyImg">
+                    <a href="${banner.imageLink}">
+                        <img src="${banner.imageSource}" />
+                    </a>
+                </div>
+        #end
+        <div class="Mrphs-siteHierarchyAlign">
         #if ( $portalBreadCrumbs or $portalPwd ) 
 
                 #set ($tabTotal = 0)
@@ -28,11 +37,11 @@
 
                         #set ($tabCountBread = $tabCountBread + 1)
                         <span class="Mrphs-hierarchy-item Mrphs-hierarchy--portalPwd Mrphs-hierarchy--$tabCountBread">
-                            <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                            <a #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-breadCrumbs--title">
                             #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
                             </span></a>
                         </span>
-                        <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+                        <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
 
                     #end ## END of FOREACH ( $pwd in $portalPwd )
                 </div>
@@ -40,10 +49,10 @@
                 #foreach ( $pwd in $portalBreadCrumbs )
 
                     #set ($tabCountBread = $tabCountBread + 1)
-                    <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                    <a #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-breadCrumbs--title">
                         #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
                     </span></a>
-                    <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+                    <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
 
                 #end ## END of FOREACH ( $pwd in $portalBreadCrumbs )
 
@@ -52,10 +61,14 @@
         #set($index = 0)
         #foreach( $page in $sitePages.pageNavTools )
             #if ( $index == 0 )
-                <span class="Mrphs-hierarchy--siteName" title="${siteTitle}">
-                    <a href="${page.pageResetUrl}">${siteTitleTruncated}</a>
-                </span>
-                <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+                #if ($!{banner.message})
+                    <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-hierarchy--siteName" title="$!{banner.message}">$!{banner.message}</span>
+                #else
+                    <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-hierarchy--siteName" title="${siteTitle}">
+                        <a #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end href="${page.pageResetUrl}">${siteTitleTruncated}</a>
+                    </span>
+                #end
+                <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
             #end
             #set($index = $index + 1 )
         #end
@@ -63,13 +76,15 @@
         
         #foreach( $page in $sitePages.pageNavTools )
             #if (${page.current})
-            <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
-                <span class="Mrphs-breadcrumb--reset-icon icon-sakai fa fa-share" aria-hidden="true"></span>
-                <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
-                <span>${page.pageTitle}</span>
+            <a #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
+                <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-breadcrumb--reset-icon icon-sakai fa fa-share" aria-hidden="true"></span>
+                <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+                <span #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end>${page.pageTitle}</span>
             </a>
             #end
         #end
+
+        </div>
     </nav>
 
     <div id="pageBody">

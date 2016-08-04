@@ -3,6 +3,9 @@
 	background: linear-gradient( to right, $header-gradient-a, $header-gradient-b, $header-gradient-c, $header-gradient-d);
 	box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);
 	min-height: $hierarchy-size;
+	float: left;
+	width: 100%;
+	background-size: contain;
 
 	h1{
 		color: $background-color;
@@ -17,6 +20,11 @@
 		&:hover{
 			text-decoration: none;
 		}
+	}
+
+	img{
+		float: right;
+		width: auto;
 	}
 
 	.Mrphs-hierarchy--parent-sites{
@@ -80,6 +88,12 @@
 			font-weight: 200;
 			margin-bottom: 5px;
 		}
+
+		img{
+			padding-top:8px !important;
+			padding-bottom:4px !important;
+			padding-right:20px !important;
+		}
 	}
 
 	@media #{$phone}{
@@ -124,6 +138,10 @@
 
 		.#{$namespace}breadcrumb--reset-icon{
 			display: none;
+		}
+
+		.#{$namespace}siteHierarchyImg{
+			display:none
 		}
 	}
 

@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -537,6 +538,11 @@ public class SiteHandler extends WorksiteHandler
 		
 		addLocale(rcontext, site, session.getUserId());
 		
+		if(ServerConfigurationService.getBoolean("include.site.banner", false)){
+			rcontext.put("includeSiteBanner", Boolean.TRUE);
+			includeSiteBanner(rcontext, site);
+		}
+
 		includeSiteNav(rcontext, req, session, siteId);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
@@ -1157,5 +1163,95 @@ public class SiteHandler extends WorksiteHandler
 		return true;
 	}
 
+	public void includeSiteBanner(PortalRenderContext rcontext, Site site) {
+		BannerContextPreparer contextPreparer = new BannerContextPreparer(site);
+		Map<String, String> context = contextPreparer.prepare();
+		rcontext.put("banner", context);
+	}
+
+	/**
+	 * Encapsulates the logic involved in preparing the banner for a site.
+	 */
+	private class BannerContextPreparer
+	{
+
+		private static final String MESSAGE = "message";
+		private static final String IMAGE_SOURCE = "imageSource";
+		private static final String IMAGE_LINK = "imageLink";
+		private static final String BACKGROUND_COLOUR = "backgroundColour";
+		private static final String BACKGROUND_IMAGE = "backgroundImage";
+		private static final String FONT_COLOUR = "fontColour";
+
+		private static final String DEFAULT_PREFIX = "banner.default.";
+		private static final String SITE_PREFIX = "banner.";
+
+		private Site site;
+
+		public BannerContextPreparer(Site site)
+		{
+			this.site = site;
+		}
+
+		/**
+		 * Collect each parameter for the site banner with the following precedence:
+		 *
+		 *   1. use the value defined in the site's properties;
+		 *   2. if not defined use the "banner overrides" value in the admin site properties;
+		 *   3. if still not defined use the site title and values defined in the server properties.
+		 *
+		 * @return a set of parameters for the banner
+		 */
+		public Map<String, String> prepare()
+		{
+
+			final Map<String, String> context = new LinkedHashMap<String, String>();
+
+			mergeContexts(context, getDefaultBannerProperties());
+			mergeContexts(context, getSiteBannerProperties());
+
+			return context;
+		}
+
+		/** Similar to Map.putall but ignores empty values */
+		private void mergeContexts(Map<String, String> source, Map<String, String> target)
+		{
+			for (Map.Entry<String, String> entry : target.entrySet())
+			{
+				if(entry.getValue() != null && !entry.getValue().isEmpty())
+				{
+					source.put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+
+		private Map<String, String> getDefaultBannerProperties()
+		{
+			final Map<String, String> context = new LinkedHashMap<String, String>();
+
+			context.put("message", site.getTitle());
+			context.put(IMAGE_SOURCE,      ServerConfigurationService.getString(DEFAULT_PREFIX + IMAGE_SOURCE));
+			context.put(IMAGE_LINK,        ServerConfigurationService.getString(DEFAULT_PREFIX + IMAGE_LINK));
+			context.put(BACKGROUND_COLOUR, ServerConfigurationService.getString(DEFAULT_PREFIX + BACKGROUND_COLOUR));
+			context.put(BACKGROUND_IMAGE,  ServerConfigurationService.getString(DEFAULT_PREFIX + BACKGROUND_IMAGE));
+			context.put(FONT_COLOUR,       ServerConfigurationService.getString(DEFAULT_PREFIX + FONT_COLOUR));
+
+			return context;
+		}
+
+		private Map<String, String> getSiteBannerProperties()
+		{
+			final Map<String, String> context = new LinkedHashMap<String, String>();
+			final ResourceProperties siteProperties = site.getProperties();
+
+			context.put(MESSAGE,           siteProperties.getProperty(SITE_PREFIX + MESSAGE));
+			context.put(IMAGE_SOURCE,      siteProperties.getProperty(SITE_PREFIX + IMAGE_SOURCE));
+			context.put(IMAGE_LINK,        siteProperties.getProperty(SITE_PREFIX + IMAGE_LINK));
+			context.put(BACKGROUND_COLOUR, siteProperties.getProperty(SITE_PREFIX + BACKGROUND_COLOUR));
+			context.put(BACKGROUND_IMAGE,  siteProperties.getProperty(SITE_PREFIX + BACKGROUND_IMAGE));
+			context.put(FONT_COLOUR,       siteProperties.getProperty(SITE_PREFIX + FONT_COLOUR));
+
+			return context;
+		}
+	}
 
 }
