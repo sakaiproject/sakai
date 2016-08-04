@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -323,12 +324,15 @@ public class ImportGradesHelper {
 			final ImportedGradeWrapper importedGradeWrapper,
 			final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap) {
 
+		//TODO - really? an arbitrary value? How about null... Remove this
 		ProcessedGradeItemStatus status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
 
 		if (assignment == null) {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NEW);
 		} else if (assignment.getExternalId() != null) {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_EXTERNAL, assignment.getExternalAppName());
+		} else if (column.getType() == ImportColumn.Type.GBITEM_WITH_POINTS && assignment.getPoints().compareTo(NumberUtils.toDouble(column.getPoints())) != 0) {
+			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_MODIFIED);
 		} else {
 			for (final ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
 				final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());

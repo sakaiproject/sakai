@@ -83,10 +83,12 @@ public class GradeItemImportSelectionStep extends Panel {
 							Arrays.asList(ProcessedGradeItemStatus.STATUS_UPDATE, ProcessedGradeItemStatus.STATUS_NA));
 					final List<ProcessedGradeItem> itemsToCreate = filterListByStatus(selectedGradeItems,
 							Arrays.asList(ProcessedGradeItemStatus.STATUS_NEW));
+					final List<ProcessedGradeItem> itemsToModify = filterListByStatus(selectedGradeItems,
+							Arrays.asList(ProcessedGradeItemStatus.STATUS_MODIFIED));
 
 					log.debug("Filtered Update items: " + itemsToUpdate.size());
 					log.debug("Filtered Create items: " + itemsToCreate.size());
-
+					log.debug("Filtered Modify items: " + itemsToModify.size());
 
 					// Don't want comment items here
 					// TODO using N/A to indicate this is a comment column? How about an enum...
@@ -98,6 +100,9 @@ public class GradeItemImportSelectionStep extends Panel {
 					importWizardModel.setSelectedGradeItems(selectedGradeItems);
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
+					importWizardModel.setItemsToModify(itemsToModify);
+
+					// create those that need to be created. When finished all, continue.
 					if (itemsToCreate.size() > 0) {
 						importWizardModel.setStep(1);
 						importWizardModel.setTotalSteps(itemsToCreate.size());
