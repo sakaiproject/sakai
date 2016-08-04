@@ -17,12 +17,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
 
@@ -112,28 +114,39 @@ public class GradeImportUploadStep extends Panel {
 					final List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
 					final List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
 
-					//process file
-					final List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,assignments, grades);
-
+					// process file
+					// exceptions here will have a resourcekey and possible params
+					List<ProcessedGradeItem> processedGradeItems = null;
+					try {
+						processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,assignments, grades);
+					} catch (final GbImportCommentMissingItemException e) {
+						// TODO would be good if we could show the column here, but would have to return it
+						error(getString("importExport.error.commentnoitem"));
+						return;
+					}
 					// if null, the file was of the incorrect type
-					// if empty there are no users
 					if (processedGradeItems == null) {
 						error(getString("importExport.error.incorrectformat"));
-					} else if (processedGradeItems.isEmpty()) {
-						error(getString("importExport.error.empty"));
-					} else {
-						// GO TO NEXT PAGE
-                        log.debug(Integer.toString(processedGradeItems.size()));
-
-						// repaint panel
-						final ImportWizardModel importWizardModel = new ImportWizardModel();
-						importWizardModel.setProcessedGradeItems(processedGradeItems);
-						final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId,
-								Model.of(importWizardModel));
-						newPanel.setOutputMarkupId(true);
-						GradeImportUploadStep.this.replaceWith(newPanel);
-
+						return;
 					}
+					// if empty there are no users
+					if (processedGradeItems.isEmpty()) {
+						error(getString("importExport.error.empty"));
+						return;
+					}
+
+					// OK, GO TO NEXT PAGE
+
+					// clear any previous errors
+					final ImportExportPage page = (ImportExportPage) getPage();
+					page.clearFeedback();
+
+					// repaint panel
+					final ImportWizardModel importWizardModel = new ImportWizardModel();
+					importWizardModel.setProcessedGradeItems(processedGradeItems);
+					final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId, Model.of(importWizardModel));
+					newPanel.setOutputMarkupId(true);
+					GradeImportUploadStep.this.replaceWith(newPanel);
 
 				} catch (final IOException e) {
 					e.printStackTrace();
