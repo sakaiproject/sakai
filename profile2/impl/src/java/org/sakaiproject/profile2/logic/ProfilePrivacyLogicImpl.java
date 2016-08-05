@@ -73,7 +73,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 				}
 				// This means that the cache has expired. evict the key from the cache
 				log.debug("Privacy cache appears to have expired for " + userId);
-				evictFromCache(userId);
+				this.cacheManager.evictFromCache(this.cache, userId);
 			}
 		}
 		
@@ -522,14 +522,6 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		return privacy;
 	}
 	
-	/**
-	 * Helper to evict an item from a cache. 
-	 * @param cacheKey	the id for the data in the cache
-	 */
-	private void evictFromCache(String cacheKey) {
-		cache.remove(cacheKey);
-		log.debug("Evicted data in cache for key: " + cacheKey);
-	}
 
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
