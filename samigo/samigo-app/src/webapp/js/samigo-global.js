@@ -61,6 +61,7 @@ $( document ).ready(function() {
 function whichradio(el) {
 	var parentTable = $(el).closest('table');
 	var forcedRanking;
+	var allowChange = true;
 	// resolve the property for this instance
 	$(parentTable).siblings('input[type=hidden]').each(
 			function() {
@@ -86,8 +87,11 @@ function whichradio(el) {
 		$('input[type=radio]',parentTable).not(el).each(function(){
 			var id = $(this).prop('id');
 			if(id.indexOf(colId) !== -1 && $(this).is(':checked')) {
-				$(this).prop('checked',false);
+				alert("You are only allowed one selection per column, please try again.");
+				allowChange = false;
 			}
 		});
 	}
+
+	return allowChange;
 }
