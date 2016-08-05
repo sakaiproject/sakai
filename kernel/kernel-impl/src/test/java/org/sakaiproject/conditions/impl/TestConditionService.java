@@ -69,6 +69,10 @@ public class TestConditionService {
 			public String getResource() {
 				return "69";
 			}
+			
+			public String getMetadata() {
+				return null; 
+			}
 
 			public String getSessionId() {
 				// TODO Auto-generated method stub
@@ -112,6 +116,10 @@ public class TestConditionService {
 
 			public String getResource() {
 				return "zt10";
+			}
+			
+			public String getMetadata() {
+				return null;
 			}
 
 			public String getSessionId() {
