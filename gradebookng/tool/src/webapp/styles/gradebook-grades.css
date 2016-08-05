@@ -220,6 +220,17 @@
 #gradebookGrades .btn.dropdown-toggle:focus {
   border: 1px solid #DDD;
 }
+#gradebookGrades #gradebookGradesTable caption {
+  /* hide the caption from users, but retain for screen readers */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
 #gradebookGrades #gradebookGradesTable tfoot .gb-cell-inner {
   /* ensure there's enough room at the bottom of the scrollable div
      so that the bottom-most menus display without being cropped */
