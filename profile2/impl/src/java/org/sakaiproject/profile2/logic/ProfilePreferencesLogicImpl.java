@@ -54,16 +54,22 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPreferencesRecordForUser"); 
 	  	}
 		
+		//will stay null if we can't get or create a record
+		ProfilePreferences prefs = null;
+		
 		//check cache
 		if(useCache){
 			if(cache.containsKey(userId)){
 				log.debug("Fetching preferences record from cache for: " + userId);
-				return (ProfilePreferences)cache.get(userId);
+				prefs = (ProfilePreferences)cache.get(userId);
+				if(prefs != null) {
+					return(prefs);
+				}
+				// This means that the cache has expired. evict the key from the cache
+				log.debug("Preferences cache appears to have expired for " + userId);
+				evictFromCache(userId);
 			}
 		}
-		
-		//will stay null if we can't get or create a record
-		ProfilePreferences prefs = null;
 		
 		prefs = dao.getPreferencesRecordForUser(userId);
 		log.debug("Fetching preferences record from dao for: " + userId);
@@ -166,6 +172,15 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	}
 	
 	
+	/**
+	 * Helper to evict an item from a cache. 
+	 * @param cacheKey	the id for the data in the cache
+	 */
+	private void evictFromCache(String cacheKey) {
+		cache.remove(cacheKey);
+		log.debug("Evicted data in cache for key: " + cacheKey);
+	}
+
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
 	}
