@@ -40,11 +40,13 @@ import org.sakaiproject.util.ParameterParser;
 public class MathJaxEnabler
 {
     private static final String ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
+    private static final String ENABLED_SAKAI_PROP_NEW_SITE = "portal.mathjax.newSites.enabled";
     private static final String SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
     private static final String VERSION_SERVICE_SAKAI_PROP = "version.service";
     private static final String VERSION_SERVICE_DEFAULT = "Sakai";
     private static final String SRC_PATH_SAKAI_PROP_DEFAULT = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default,Safe";
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
+    private static final boolean ENABLED_SAKAI_NEW_SITE_DEFAULT = false;
     
     private static final String SITE_PROP_MATHJAX_ENABLED = "mathJaxEnabled";
     private static final String SITE_PROP_MATHJAX_ALLOWED = "mathJaxAllowed";
@@ -62,6 +64,7 @@ public class MathJaxEnabler
         
     private static final String SRC_PATH = ServerConfigurationService.getString(SRC_PATH_SAKAI_PROP, SRC_PATH_SAKAI_PROP_DEFAULT);
     private static final boolean ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP, ENABLED_SAKAI_PROP_DEFAULT) && !SRC_PATH.trim().isEmpty();
+    private static final boolean ENABLED_AT_NEW_SITE_CREATION_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP_NEW_SITE, ENABLED_SAKAI_NEW_SITE_DEFAULT) && ENABLED_AT_SYSTEM_LEVEL;
     private static final String SAKAI_SERVICE = ServerConfigurationService.getString(VERSION_SERVICE_SAKAI_PROP, VERSION_SERVICE_DEFAULT);
     
     /**
@@ -175,6 +178,26 @@ public class MathJaxEnabler
         }
 
         return true;
+    }
+    
+    /**
+     * Apply MathJax default settings to new sites
+     * @param site The site
+     * @param state the session state
+     * @return true if the site properties were modified
+     */
+    public static boolean prepareMathJaxForNewSite(Site site, SessionState state) {	
+
+    	if (ENABLED_AT_SYSTEM_LEVEL && site != null && state != null) {
+    		
+    		String allowed = String.valueOf(ENABLED_AT_NEW_SITE_CREATION_LEVEL);
+        	site.getProperties().addProperty(SITE_PROP_MATHJAX_ALLOWED, allowed);
+        	state.setAttribute(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE, Boolean.valueOf(allowed));
+    		
+    		return true;
+    	}
+
+    	return false;
     }
 
     /**
