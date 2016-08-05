@@ -1472,7 +1472,11 @@ public class AssignmentAction extends PagedResourceActionII
 				if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment))
 				{
 					context.put("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage()));
-					context.put("content_review_acceptedMimeTypes", getContentReviewAcceptedMimeTypes());
+
+					// SAK-31649 commenting this out to remove file picker filters, as the results vary depending on OS and browser.
+					// If in the future browser support for the 'accept' attribute on a file picker becomes more robust and 
+					// ubiquitous across browsers, we can re-enable this feature.
+					//context.put("content_review_acceptedMimeTypes", getContentReviewAcceptedMimeTypes());
 				}
 			}
 			if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
