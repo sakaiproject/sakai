@@ -492,6 +492,11 @@ public class GradebookPage extends BasePage {
 					}
 				};
 			}
+
+			@Override
+			protected IModel<String> getCaptionModel() {
+				return Model.of(getString("gradespage.caption"));
+			}
 		};
 		table.addBottomToolbar(new NavigationToolbar(table) {
 			@Override
