@@ -15,10 +15,12 @@
  */
 package org.sakaiproject.profile2.cache;
 
-import lombok.Setter;
-
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Setter;
 
 /**
  * Implementation of CacheManager for Profile2.
@@ -28,13 +30,22 @@ import org.sakaiproject.memory.api.MemoryService;
  */
 public class CacheManagerImpl implements CacheManager {
 
-	/**
- 	* {@inheritDoc}
- 	*/
-	public Cache createCache(String cacheName) {
-		return memoryService.newCache(cacheName);
-	}
+	private static final Logger log = LoggerFactory.getLogger(CacheManagerImpl.class);
 
+	@Override
+	@SuppressWarnings("rawtypes")
+	public Cache createCache(String cacheName) {
+		return memoryService.getCache(cacheName);
+	}
+	
+	@Override
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public void evictFromCache(Cache cache, String cacheKey) {
+		cache.remove(cacheKey);
+		log.debug("Evicted data in cache: " + cache.getName() + ", key: " + cacheKey);
+	}
+	
 	@Setter
 	private MemoryService memoryService;
+
 }

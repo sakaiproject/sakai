@@ -15,16 +15,16 @@
  */
 package org.sakaiproject.profile2.logic;
 
-import lombok.Setter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.types.PreferenceType;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Setter;
 
 /**
  * Implementation of ProfilePreferencesLogic API
@@ -42,6 +42,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
 		return getPreferencesRecordForUser(userId, true);
 	}
@@ -49,6 +50,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfilePreferences getPreferencesRecordForUser(final String userId, final boolean useCache) {
 		
 		if(userId == null){
@@ -68,7 +70,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 				}
 				// This means that the cache has expired. evict the key from the cache
 				log.debug("Preferences cache appears to have expired for " + userId);
-				evictFromCache(userId);
+				this.cacheManager.evictFromCache(this.cache, userId);
 			}
 		}
 		
@@ -102,6 +104,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean savePreferencesRecord(ProfilePreferences prefs) {
 		
 		if(dao.savePreferencesRecord(prefs)){
@@ -120,6 +123,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean isPreferenceEnabled(final String userUuid, final PreferenceType type) {
 		
 		//get preferences record for this user
@@ -172,16 +176,6 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		return prefs;
 	}
 	
-	
-	/**
-	 * Helper to evict an item from a cache. 
-	 * @param cacheKey	the id for the data in the cache
-	 */
-	private void evictFromCache(String cacheKey) {
-		cache.remove(cacheKey);
-		log.debug("Evicted data in cache for key: " + cacheKey);
-	}
-
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
 	}
