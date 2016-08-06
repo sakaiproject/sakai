@@ -156,17 +156,12 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 
 			log.debug("Fetching searchHistory from cache for: " + userUuid);
 		
+			//TODO this could do with a refactor
 			List<ProfileSearchTerm> searchHistory = new ArrayList<ProfileSearchTerm>(
 					((Map<String, ProfileSearchTerm>) cache.get(userUuid))
 							.values());
 
-			if(searchHistory != null) {
-				Collections.sort(searchHistory);
-			} else {
-				// This means that the cache has expired. evict the key from the cache
-				log.debug("SearchHistory cache appears to have expired for " + userUuid);
-				evictFromCache(userUuid);
-			}
+			Collections.sort(searchHistory);
 
 			return searchHistory;
 		} else {
@@ -193,13 +188,12 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 		}
 		
 		Map<String, ProfileSearchTerm> searchHistory = null;
-		String sTUserUuid = searchTerm.getUserUuid();
-		if (cache.containsKey(sTUserUuid)) {
-			searchHistory = (HashMap<String, ProfileSearchTerm>) cache.get(sTUserUuid);
+		if (cache.containsKey(userUuid)) {
+			searchHistory = (HashMap<String, ProfileSearchTerm>) cache.get(userUuid);
 			if(searchHistory == null) {
 				// This means that the cache has expired. evict the key from the cache
-				log.debug("SearchHistory cache appears to have expired for " + sTUserUuid);
-				evictFromCache(userUuid);
+				log.debug("SearchHistory cache appears to have expired for " + userUuid);
+				this.cacheManager.evictFromCache(this.cache, userUuid);
 			}
 		} else {
 			searchHistory = new HashMap<String, ProfileSearchTerm>();
@@ -346,15 +340,6 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 		}
 
 		return worksiteMemberIds;
-	}
-	
-	/**
-	 * Helper to evict an item from a cache. 
-	 * @param cacheKey	the id for the data in the cache
-	 */
-	private void evictFromCache(String cacheKey) {
-		cache.remove(cacheKey);
-		log.debug("Evicted data in cache for key: " + cacheKey);
 	}
 
 	public void init() {

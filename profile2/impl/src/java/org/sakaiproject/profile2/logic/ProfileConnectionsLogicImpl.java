@@ -295,8 +295,8 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_CONFIRM, "/profile/"+fromUser, true);
 			
 			//invalidate the confirmed connection caches for each user as they are now stale
-			evictFromCache(fromUser);
-			evictFromCache(toUser);
+			this.cacheManager.evictFromCache(this.cache, fromUser);
+			this.cacheManager.evictFromCache(this.cache, toUser);
 			
 			return true;
 		} 
@@ -371,8 +371,8 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			log.info("User: " + userId + " removed friend: " + friendId);  
 			
 			//invalidate the confirmed connection caches for each user as they are now stale
-			evictFromCache(userId);
-			evictFromCache(friendId);
+			this.cacheManager.evictFromCache(this.cache, userId);
+			this.cacheManager.evictFromCache(this.cache, friendId);
 			
 			return true;
 		}
@@ -538,7 +538,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			if(userUuids == null) {
 				// This means that the cache has expired. evict the key from the cache
 				log.debug("Connections cache appears to have expired for " + userUuid);
-				evictFromCache(userUuid);
+				this.cacheManager.evictFromCache(this.cache, userUuid);
 			}
 		}
 		if(userUuids == null) {
@@ -604,16 +604,6 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		}
 		
 	}
-	
-	/**
-	 * Helper to evict an item from a cache. 
-	 * @param cacheKey	the id for the data in the cache
-	 */
-	private void evictFromCache(String cacheKey) {
-		cache.remove(cacheKey);
-		log.debug("Evicted data in cache for key: " + cacheKey);
-	}
-
 	
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
