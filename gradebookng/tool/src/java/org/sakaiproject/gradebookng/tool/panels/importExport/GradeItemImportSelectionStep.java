@@ -3,10 +3,13 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.basic.Label;
@@ -41,6 +44,11 @@ public class GradeItemImportSelectionStep extends Panel {
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
 
+	// a count of the items that can be selected
+	private int selectableItems = 0;
+
+	private boolean naHidden = false;
+
 	public GradeItemImportSelectionStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
 		super(id);
 		this.panelId = id;
@@ -53,6 +61,53 @@ public class GradeItemImportSelectionStep extends Panel {
 
 		// unpack model
 		final ImportWizardModel importWizardModel = this.model.getObject();
+
+		// get the count of items that are selectable
+		GradeItemImportSelectionStep.this.selectableItems = importWizardModel.getProcessedGradeItems().stream().filter(item -> item.getStatus().getStatusCode() != ProcessedGradeItemStatus.STATUS_NA).collect(Collectors.toList()).size();
+
+		// label to show if all items are actually hidden
+		final Label allHiddenLabel = new Label("allHiddenLabel", new ResourceModel("importExport.selection.hideitemsallhidden")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return GradeItemImportSelectionStep.this.naHidden && (GradeItemImportSelectionStep.this.selectableItems == 0);
+			}
+		};
+		allHiddenLabel.setOutputMarkupPlaceholderTag(true);
+		add(allHiddenLabel);
+
+		// button to hide NA/no changes items
+		final AjaxLink<Void> hideNoChanges = new AjaxLink<Void>("hideNoChanges") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+
+				// toggle button state
+				if(GradeItemImportSelectionStep.this.naHidden) {
+					//toggling off
+					GradeItemImportSelectionStep.this.naHidden = false;
+					this.add(AttributeModifier.replace("class", "button"));
+					this.add(AttributeModifier.replace("aria-pressed", "false"));
+				} else {
+					//toggling on
+					GradeItemImportSelectionStep.this.naHidden = true;
+					this.add(AttributeModifier.replace("class", "button on"));
+					this.add(AttributeModifier.replace("aria-pressed", "true"));
+				}
+				target.add(this);
+				target.add(allHiddenLabel);
+
+				// toggle elements
+				target.appendJavaScript("$('.no_changes').toggle();");
+				if(GradeItemImportSelectionStep.this.selectableItems == 0) {
+					target.appendJavaScript("$('.selection_form').toggle();");
+					//TODO show a message
+				}
+			}
+		};
+		add(hideNoChanges);
 
 		final CheckGroup<ProcessedGradeItem> group = new CheckGroup<ProcessedGradeItem>("group", new ArrayList<ProcessedGradeItem>());
 
@@ -140,8 +195,7 @@ public class GradeItemImportSelectionStep extends Panel {
 		group.add(new Button("nextbutton"));
 
 		group.add(new CheckGroupSelector("groupselector"));
-		final ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades",
-				importWizardModel.getProcessedGradeItems()) {
+		final ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades", importWizardModel.getProcessedGradeItems()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
