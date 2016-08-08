@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -172,7 +173,7 @@ public class ImportGradesHelper {
 				grade.setStudentName(lineVal);
 
 			//process item with points column
-			} else if (importColumn.getType() == ImportColumn.Type.GBITEM_WITH_POINTS) {
+			} else if (importColumn.getType() == ImportColumn.Type.GB_ITEM_WITH_POINTS) {
 				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(columnTitle);
 				if (importedGradeItem == null) {
 					importedGradeItem = new ImportedGradeItem(columnTitle);
@@ -181,7 +182,7 @@ public class ImportGradesHelper {
 				grade.getGradeItemMap().put(columnTitle, importedGradeItem);
 
 			//process comments
-			} else if (importColumn.getType() == ImportColumn.Type.GBITEM_WITH_COMMENTS) {
+			} else if (importColumn.getType() == ImportColumn.Type.COMMENTS) {
 				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(columnTitle);
 				if (importedGradeItem == null) {
 					importedGradeItem = new ImportedGradeItem(columnTitle);
@@ -190,7 +191,7 @@ public class ImportGradesHelper {
 				grade.getGradeItemMap().put(columnTitle, importedGradeItem);
 
 			// process any left overs. These will be gb items without points
-			} else if (importColumn.getType() == ImportColumn.Type.REGULAR) {
+			} else if (importColumn.getType() == ImportColumn.Type.GB_ITEM_WITHOUT_POINTS) {
 				ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(columnTitle);
 				if (importedGradeItem == null) {
 					importedGradeItem = new ImportedGradeItem(columnTitle);
@@ -220,7 +221,6 @@ public class ImportGradesHelper {
 		final List<ProcessedGradeItem> processedGradeItems = new ArrayList<>();
 		final Map<String, Assignment> assignmentNameMap = new HashMap<>();
 		final Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<>();
-		final List<String> commentColumns = new ArrayList<>();
 
 		// process grades
 		final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
@@ -242,6 +242,10 @@ public class ImportGradesHelper {
 			if (processedGradeItem == null) {
 				processedGradeItem = new ProcessedGradeItem();
 				needsAdded = true;
+
+				//default to gb_item
+				//overridden if a comment type
+				processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
 			}
 
 			final Assignment assignment = assignmentNameMap.get(columnTitle);
@@ -253,17 +257,16 @@ public class ImportGradesHelper {
 				continue;
 			}
 
-			if (column.getType() == ImportColumn.Type.GBITEM_WITH_POINTS) {
+			if (column.getType() == ImportColumn.Type.GB_ITEM_WITH_POINTS) {
 				log.debug("GB Item: " + columnTitle + ", status: " + status.getStatusCode());
 				processedGradeItem.setItemTitle(columnTitle);
 				processedGradeItem.setItemPointValue(column.getPoints());
 				processedGradeItem.setStatus(status);
-			} else if (column.getType() == ImportColumn.Type.GBITEM_WITH_COMMENTS) {
+			} else if (column.getType() == ImportColumn.Type.COMMENTS) {
 				log.debug("Comments: " + columnTitle + ", status: " + status.getStatusCode());
-				processedGradeItem.setCommentLabel(columnTitle + " Comments");
+				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
 				processedGradeItem.setCommentStatus(status);
-				commentColumns.add(columnTitle); //for further checking
-			} else if (column.getType() == ImportColumn.Type.REGULAR) {
+			} else if (column.getType() == ImportColumn.Type.GB_ITEM_WITHOUT_POINTS) {
 				log.debug("Regular: " + columnTitle + ", status: " + status.getStatusCode());
 				processedGradeItem.setItemTitle(columnTitle);
 				processedGradeItem.setStatus(status);
@@ -301,8 +304,10 @@ public class ImportGradesHelper {
 
 		// comment columns must have an associated gb item column
 		// this ensures we have a processed grade item for each one
+		final List<ProcessedGradeItem> commentColumns = processedGradeItems.stream().filter(p -> p.getType() == ProcessedGradeItem.Type.COMMENT).collect(Collectors.toList());
+
 		commentColumns.forEach(c -> {
-			final boolean matchingItemExists = processedGradeItems.stream().filter(p -> StringUtils.equals(c, p.getItemTitle())).findFirst().isPresent();
+			final boolean matchingItemExists = processedGradeItems.stream().filter(p -> StringUtils.equals(c.getItemTitle(), p.getItemTitle())).findFirst().isPresent();
 			if(!matchingItemExists) {
 				throw new GbImportCommentMissingItemException("The comment column '" + c + "' does not have a corresponding gradebook item.");
 			}
@@ -331,7 +336,7 @@ public class ImportGradesHelper {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NEW);
 		} else if (assignment.getExternalId() != null) {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_EXTERNAL, assignment.getExternalAppName());
-		} else if (column.getType() == ImportColumn.Type.GBITEM_WITH_POINTS && assignment.getPoints().compareTo(NumberUtils.toDouble(column.getPoints())) != 0) {
+		} else if (column.getType() == ImportColumn.Type.GB_ITEM_WITH_POINTS && assignment.getPoints().compareTo(NumberUtils.toDouble(column.getPoints())) != 0) {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_MODIFIED);
 		} else {
 			for (final ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
@@ -357,19 +362,19 @@ public class ImportGradesHelper {
 					importedComment = importedGradeItem.getGradeItemComment();
 				}
 
-				if (column.getType() == ImportColumn.Type.GBITEM_WITH_POINTS) {
+				if (column.getType() == ImportColumn.Type.GB_ITEM_WITH_POINTS) {
 					final String trimmedImportedScore = StringUtils.removeEnd(importedScore, ".0");
 					final String trimmedActualScore = StringUtils.removeEnd(actualScore, ".0");
 					if (trimmedImportedScore != null && !trimmedImportedScore.equals(trimmedActualScore)) {
 						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
 						break;
 					}
-				} else if (column.getType() == ImportColumn.Type.GBITEM_WITH_COMMENTS) {
+				} else if (column.getType() == ImportColumn.Type.COMMENTS) {
 					if (importedComment != null && !importedComment.equals(actualComment)) {
 						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
 						break;
 					}
-				} else if (column.getType() == ImportColumn.Type.REGULAR) {
+				} else if (column.getType() == ImportColumn.Type.GB_ITEM_WITHOUT_POINTS) {
 					//must be NA if it isn't new
 					status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
 					break;
@@ -452,7 +457,7 @@ public class ImportGradesHelper {
 				importColumn.setPoints(pointsMatcher.group());
 			}
 
-			importColumn.setType(ImportColumn.Type.GBITEM_WITH_POINTS);
+			importColumn.setType(ImportColumn.Type.GB_ITEM_WITH_POINTS);
 
 			return importColumn;
 		}
@@ -466,7 +471,7 @@ public class ImportGradesHelper {
 			if (titleMatcher.find()) {
 				importColumn.setColumnTitle(trim(titleMatcher.group()));
 			}
-			importColumn.setType(ImportColumn.Type.GBITEM_WITH_COMMENTS);
+			importColumn.setType(ImportColumn.Type.COMMENTS);
 
 			return importColumn;
 		}
@@ -475,7 +480,7 @@ public class ImportGradesHelper {
 		if (m3.matches()) {
 
 			importColumn.setColumnTitle(headerValue);
-			importColumn.setType(ImportColumn.Type.REGULAR);
+			importColumn.setType(ImportColumn.Type.GB_ITEM_WITHOUT_POINTS);
 
 			return importColumn;
 		}

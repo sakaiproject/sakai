@@ -26,12 +26,12 @@ public class ImportColumn implements Serializable {
 
 	@Getter
 	@Setter
-	private Type type = Type.REGULAR;
+	private Type type = Type.GB_ITEM_WITHOUT_POINTS;
 
 	public enum Type {
-		GBITEM_WITH_POINTS,
-		GBITEM_WITH_COMMENTS,
-		REGULAR;
+		GB_ITEM_WITH_POINTS,
+		COMMENTS,
+		GB_ITEM_WITHOUT_POINTS;
 	}
 
 }

@@ -196,15 +196,15 @@ public class TestImportGradesHelper {
 		final List<ImportColumn> columns = new ArrayList<ImportColumn>();
 
 		// only list actual columns to be turned into the import here
-		columns.add(new ImportColumn("Student ID", null, ImportColumn.Type.REGULAR));
-		columns.add(new ImportColumn("Student Name", null, ImportColumn.Type.REGULAR));
-		columns.add(new ImportColumn("Assignment 1", "10.0", ImportColumn.Type.GBITEM_WITH_POINTS));
-		columns.add(new ImportColumn("Assignment 1", "N/A", ImportColumn.Type.GBITEM_WITH_COMMENTS));
-		columns.add(new ImportColumn("Assignment 2", "10.0", ImportColumn.Type.GBITEM_WITH_POINTS));
-		columns.add(new ImportColumn("Assignment 2", "N/A", ImportColumn.Type.GBITEM_WITH_COMMENTS));
-		columns.add(new ImportColumn("Assignment 3", "100.0", ImportColumn.Type.GBITEM_WITH_POINTS));
-		columns.add(new ImportColumn("Assignment 3", "N/A", ImportColumn.Type.GBITEM_WITH_COMMENTS));
-		columns.add(new ImportColumn("Assignment Ext", "1000.0", ImportColumn.Type.GBITEM_WITH_POINTS));
+		columns.add(new ImportColumn("Student ID", null, ImportColumn.Type.GB_ITEM_WITHOUT_POINTS));
+		columns.add(new ImportColumn("Student Name", null, ImportColumn.Type.GB_ITEM_WITHOUT_POINTS));
+		columns.add(new ImportColumn("Assignment 1", "10.0", ImportColumn.Type.GB_ITEM_WITH_POINTS));
+		columns.add(new ImportColumn("Assignment 1", "N/A", ImportColumn.Type.COMMENTS));
+		columns.add(new ImportColumn("Assignment 2", "10.0", ImportColumn.Type.GB_ITEM_WITH_POINTS));
+		columns.add(new ImportColumn("Assignment 2", "N/A", ImportColumn.Type.COMMENTS));
+		columns.add(new ImportColumn("Assignment 3", "100.0", ImportColumn.Type.GB_ITEM_WITH_POINTS));
+		columns.add(new ImportColumn("Assignment 3", "N/A", ImportColumn.Type.COMMENTS));
+		columns.add(new ImportColumn("Assignment Ext", "1000.0", ImportColumn.Type.GB_ITEM_WITH_POINTS));
 
 		importedGradeWrapper.setColumns(columns);
 
