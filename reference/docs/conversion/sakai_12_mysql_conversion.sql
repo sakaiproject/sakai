@@ -147,3 +147,9 @@ UPDATE OAUTH_ACCESSORS SET type = CASE
   WHEN type = 2 THEN "REQUEST_AUTHORISED"
   WHEN type = 3 THEN "ACCESS"
 END;
+
+--
+-- SAK-31636 Rename existing 'Home' tools
+--
+
+update SAKAI_SITE_PAGE set title = 'Overview' where title = 'Home';
