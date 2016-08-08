@@ -58,6 +58,28 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>hibernate3-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <components>
+                        <component>
+                            <name>hbm2ddl</name>
+                            <implementation>configuration</implementation>
+                        </component>
+                    </components>
+                    <componentProperties>
+                        <configurationfile>/src/ddl/hibernate.cfg.xml</configurationfile>
+                        <export>false</export>
+                        <update>false</update>
+                        <create>false</create>
+                        <outputfilename>siteassociation.sql</outputfilename>
+                    </componentProperties>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
     
 </project>
