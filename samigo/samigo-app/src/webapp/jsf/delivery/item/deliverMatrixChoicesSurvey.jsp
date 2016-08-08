@@ -72,7 +72,7 @@ should be included in file importing DeliveryMessages
        			value="#{matrixBean.responseId}"
        			disabled="#{delivery.actionString=='reviewAssessment'|| delivery.actionString=='gradeAssessment'}"
        			itemValue="#{matrixBean.answerSid[colIndex]}"
-       			onClick="javascript:whichradio(this);" />
+       			onClick="if( whichradio(this) !== true ) {return false;}" />
          </t:columns>
          </t:dataTable>
      <f:verbatim><br /></f:verbatim>      

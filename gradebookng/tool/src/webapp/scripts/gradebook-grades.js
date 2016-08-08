@@ -428,6 +428,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
                         attr("class", self.$table.attr("class")).
                         addClass("gb-fixed-header-table").
                         attr("role", "presentation").
+                        attr("aria-hidden", "true").
                         hide();
 
   var $fixedHeaderHead = $("<thead>");
@@ -493,11 +494,13 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   self.$fixedColumnsHeader = $("<table>").attr("class", self.$table.attr("class")).
                                           addClass("gb-fixed-column-headers-table").
                                           attr("role", "presentation").
+                                          attr("aria-hidden", "true").
                                           hide();
 
   self.$fixedColumns = $("<table>").attr("class", self.$table.attr("class")).
                                     addClass("gb-fixed-columns-table").
                                     attr("role", "presentation").
+                                    attr("aria-hidden", "true").
                                     hide();
 
   var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);

@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.site.api.Site;
 
 /**
@@ -201,6 +202,15 @@ public interface LTIService {
 	 * @return
 	 */
 	public String getToolLaunch(Map<String, Object> tool, String siteId);
+	
+	/**
+	 * 
+	 * @param siteId
+	 * @param filterId
+	 * @param exportType
+	 * @return
+	 */
+	public String getExportUrl(String siteId, String filterId, ExportType exportType);
 
 	/**
 	 * 
@@ -492,6 +502,22 @@ public interface LTIService {
 	 * @return
 	 */
         public  List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+    
+    /**
+	 * 
+	 * @param search
+	 * @return
+	 */
+    public int countContents(String search);
+    
+    /**
+	 * 
+	 * @param search
+	 * @param siteId
+	 * @param isAdminRole
+	 * @return
+	 */
+    public int countContentsDao(String search, String siteId, boolean isAdminRole);
 
 	/**
 	 * 
@@ -721,6 +747,15 @@ public interface LTIService {
 		"oldplacementsecret:text:hidden=true:maxlength=512",
 		"created_at:autodate",
 		"updated_at:autodate" };
+	
+    public static final String[] CONTENT_EXTRA_FIELDS = { 
+    	"SITE_TITLE:text:table=SAKAI_SITE:realname=TITLE", 
+    	"SITE_CONTACT_NAME:text:table=ssp1:realname=VALUE", 
+    	"SITE_CONTACT_EMAIL:text:table=ssp2:realname=VALUE", 
+    	"ATTRIBUTION:text:table=ssp3:realname=VALUE",
+    	"URL:text:table=lti_tools:realname=launch",
+    	"searchURL:text:table=NULL" //no realname and table is NULL for this, it just exists in the select
+    };
 
 	/**
 	 * 
@@ -895,5 +930,15 @@ public interface LTIService {
 	static final String LTI_PL_IMPORTITEM = "pl_importitem";
 	static final String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
 	static final String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
+	
+	public static final String LTI_SEARCH_TOKEN_SEPARATOR_AND = "#&#";
+	public static final String LTI_SEARCH_TOKEN_SEPARATOR_OR = "#|#";
+	public static final String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND = "\\#\\&\\#";
+	public static final String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR = "\\#\\|\\#";
+	public static final String LTI_SEARCH_TOKEN_NULL = "#null#";
+	public static final String LTI_SEARCH_TOKEN_DATE = "#date#";
+	public static final String LTI_SEARCH_INTERNAL_DATE_FORMAT = "dd/MM/yyyy H:mm:ss";
+	public static final String LTI_SITE_ATTRIBUTION_PROPERTY_KEY = "basiclti.tool.site.attribution.key";
+	public static final String LTI_SITE_ATTRIBUTION_PROPERTY_NAME = "basiclti.tool.site.attribution.name";
 
 }

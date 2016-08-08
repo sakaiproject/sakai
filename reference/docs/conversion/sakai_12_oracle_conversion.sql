@@ -139,3 +139,24 @@ create unique index dash_lock_ts_idx on dash_task_lock (task, server_id);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-99', '!user', 'Dashboard', '0', 0, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-999', '!user-99', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
 
+--
+-- SAK-31641 Switch from INTs to VARCHARs in Oauth
+--
+ALTER TABLE oauth_accessors
+MODIFY (
+  status VARCHAR2(255)
+, type VARCHAR2(255)
+);
+
+UPDATE oauth_accessors SET status = CASE
+  WHEN status = 0 THEN 'VALID'
+  WHEN status = 1 THEN 'REVOKED'
+  WHEN status = 2 THEN 'EXPIRED'
+END;
+
+UPDATE oauth_accessors SET type = CASE
+  WHEN type = 0 THEN 'REQUEST'
+  WHEN type = 1 THEN 'REQUEST_AUTHORISING'
+  WHEN type = 2 THEN 'REQUEST_AUTHORISED'
+  WHEN type = 3 THEN 'ACCESS'
+END;

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.DisallowConcurrentExecution;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
@@ -66,7 +66,6 @@ import org.sakaiproject.site.api.Site;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
-@DisallowConcurrentExecution
 public class DelegatedAccessSiteHierarchyJob implements Job{
 
 	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessSiteHierarchyJob.class);
@@ -78,12 +77,20 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private DelegatedAccessDao dao;
 	@Getter @Setter
 	private ProjectLogic projectLogic;
+		
+	private static AtomicBoolean jobIsRunning = new AtomicBoolean(false);
 
 	public void init() {
 
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		//this will stop the job if there is already another instance running
+		if(!jobIsRunning.compareAndSet(false, true)){
+			log.warn("Stopping job since this job is already running");
+			return;
+		}
+
 		try{
 			log.info("DelegatedAccessSiteHierarchyJob started");
 			Date startTime = new Date();
@@ -220,6 +227,8 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		}catch (Exception e) {
 			log.error(e.getMessage(), e);
 			sakaiProxy.sendEmail("Error occurred in DelegatedAccessSiteHierarchyJob", e.getMessage());
+		}finally{
+			jobIsRunning.set(false);
 		}
 	}
 
