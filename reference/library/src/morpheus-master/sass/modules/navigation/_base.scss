@@ -26,6 +26,7 @@ body.is-logged-out{
 		min-width: $tool-menu-width;
 		@include flex-shrink( 0 );
 		@include transition( width 0.5s linear 0s );
+		margin: 1em;
 		.#{$namespace}headerLogo--institution{
 			background: url($logo) no-repeat center center;
 			width: 		$logo-width;
@@ -76,6 +77,26 @@ body.is-logged-out{
 			background: $sites-nav-background;
 		}
 	}
+	
+	&.is-fixed {
+		
+		position: fixed;
+		top: 0;
+		width: 100%;
+		z-index: 9999;
+		height: 2.8em;
+		
+		#topnav {
+			display: none;
+		}
+		
+		.#{$namespace}topHeader > * {
+			-webkit-transform: scale(0.75, 0.75); /* Safari */
+		    transform: scale(0.75, 0.75);
+		}
+		
+	}
+	
 	@media #{$phone}{
 		background: $primary-color;
 		position: fixed;
@@ -189,7 +210,7 @@ body.is-logged-out{
 	background: $top-header-background;
 	color: $background-color;
 	font-size: 1em;
-	min-height: $header-size;
+	height: auto;
 	width: 100%;
 	@include display-flex(inline-flex);
 	@include align-items(center);
@@ -204,6 +225,7 @@ body.is-logged-out{
 		color: $topNav-text-color;
 	}
 	> * {
+		transition: all 0.3s ease;
 		@media #{$phone}{
 			display: inline;
 		}

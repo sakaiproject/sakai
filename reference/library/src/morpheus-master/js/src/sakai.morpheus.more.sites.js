@@ -7,6 +7,7 @@ var dhtml_view_sites = function(){
   // first time through set up the DOM
   $PBJQ('#selectSiteModal').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
   $PBJQ('.more-tab').position();
+  var paneHeight = $PBJQ(window).height()*0.8;
 
   // then recast the function to the post initialized state which will run from then on
   dhtml_view_sites = function(){
@@ -27,13 +28,13 @@ var dhtml_view_sites = function(){
       // Align with the bottom of the main header in desktop mode
       var allSitesButton = $PBJQ('.view-all-sites-btn:visible');
 
-      var topPadding = 10;
+      var topPadding = allSitesButton.height() + 5;
 
       if (allSitesButton.length > 0) {
         // Raise the button to keep it visible over the modal overlay
         allSitesButton.css('z-index', 1005);
 
-        var topPosition = allSitesButton.offset().top + allSitesButton.outerHeight() + topPadding;
+        var topPosition = allSitesButton.offset().top - $(window).scrollTop() + topPadding;
         var rightPosition = $PBJQ('body').outerWidth() - (allSitesButton.offset().left + allSitesButton.outerWidth());
         if( $PBJQ('html').attr('dir') !== "rtl" ){
           modal.css('top', topPosition).css('right', rightPosition);
@@ -43,18 +44,13 @@ var dhtml_view_sites = function(){
       }
       
       modal.toggleClass('outscreen');
-
-      var paneHeight = $PBJQ(window).height();
-
+      
       // Adjust for our offset from the top of the screen
-      paneHeight -= $PBJQ('.tab-pane').offset().top;
+      paneHeight -= topPosition;
 
       // and adjust to show the bottom of the modal frame
       paneHeight -= parseInt(modal.css('padding-bottom'), 10);
-
-      $PBJQ('.tab-pane').css('max-height', paneHeight);
-
-
+      
       $PBJQ('#txtSearch').focus();
       createDHTMLMask(dhtml_view_sites);
 
@@ -81,8 +77,15 @@ var dhtml_view_sites = function(){
       $PBJQ('#otherSiteTools').remove();
       $PBJQ('.selectedTab').unbind('click');
     }
+    
   }
-
+  
+  
+  if($(window).width() < 800) {
+	  paneHeight = paneHeight*0.85;
+  }
+  $PBJQ('.tab-pane').css('max-height', paneHeight);
+  
   // finally run the inner function, first time through
   dhtml_view_sites();
 }
