@@ -23,10 +23,13 @@
 package org.sakaiproject.lti.impl;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.lti.api.LTISearchData;
 import org.sakaiproject.lti.api.LTIService;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -461,20 +464,55 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
 
-		if ( order != null ) {
-			order = foorm.orderCheck(order, "lti_content", LTIService.CONTENT_MODEL);
-			if ( order == null ) {
-				throw new IllegalArgumentException("order must be [table.]field [asc|desc]");
-			}
-		}
-
-		List<Map<String, Object>> contents = getThingsDao("lti_content",
-				LTIService.CONTENT_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
-		for (Map<String, Object> content : contents) {
-			content.put("launch_url", getContentLaunch(content));
-		}
-		return contents;
+        String concatSearch = ("mysql".equals(m_sql.getVendor())) ?  "CONCAT_WS('', lti_content.launch, lti_tools.launch)" : "(lti_content.launch || lti_tools.launch)";
+        String extraSelect = "SAKAI_SITE.TITLE AS SITE_TITLE, ssp1.VALUE AS SITE_CONTACT_NAME, ssp2.VALUE AS SITE_CONTACT_EMAIL, lti_tools.launch as URL, "+concatSearch+" AS searchURL";
+        String joinClause = "JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
+        		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp1 ON (lti_content.SITE_ID = ssp1.SITE_ID AND ssp1.name = 'contact-name')"
+        		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp2 ON (lti_content.SITE_ID = ssp2.SITE_ID AND ssp2.name = 'contact-email')"
+        		+ " JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
+        
+        String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY);
+        if (StringUtils.isNotEmpty(propertyKey)) {
+            extraSelect += ", ssp3.VALUE as ATTRIBUTION";
+            joinClause = joinClause + " LEFT JOIN SAKAI_SITE_PROPERTY ssp3 ON (lti_content.SITE_ID = ssp3.SITE_ID AND ssp3.name = '" + propertyKey + "')";
+        }
+        
+        final String[] fields = (String[])ArrayUtils.addAll(LTIService.CONTENT_MODEL, LTIService.CONTENT_EXTRA_FIELDS);
+        if (order != null) {
+            order = foorm.orderCheck(order, "lti_content", fields);
+            if (order == null) {
+                throw new IllegalArgumentException("order must be [table.]field [asc|desc]");
+            }
+        }
+        search = foorm.searchCheck(search, "lti_content", fields);
+        
+        List<Map<String, Object>> contents = getThingsDao("lti_content", LTIService.CONTENT_MODEL, extraSelect, joinClause, search, null, order, first, last, siteId, isAdminRole);
+        for (Map<String, Object> content : contents) {
+            content.put("launch_url", getContentLaunch(content));
+        }
+        return contents;
 	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#countContentsDao(java.lang.String,
+	 *      java.lang.String, boolean)
+	 */
+	public int countContentsDao(String search, String siteId, boolean isAdminRole) {
+        String joinClause = "JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
+        		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp1 ON (lti_content.SITE_ID = ssp1.SITE_ID AND ssp1.name = 'contact-name')"
+        		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp2 ON (lti_content.SITE_ID = ssp2.SITE_ID AND ssp2.name = 'contact-email')"
+        		+ " JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
+        final String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY);
+        if (StringUtils.isNotEmpty(propertyKey)) {
+            joinClause = joinClause + " LEFT JOIN SAKAI_SITE_PROPERTY ssp3 ON (lti_content.SITE_ID = ssp3.SITE_ID AND ssp3.name = '" + propertyKey + "')";
+        }
+        String[] fields = (String[])ArrayUtils.addAll(LTIService.CONTENT_MODEL, LTIService.CONTENT_EXTRA_FIELDS);
+        search = foorm.searchCheck(search, "lti_content", fields);
+        return countThingsDao("lti_content", LTIService.CONTENT_MODEL, joinClause, search, null, siteId, isAdminRole);
+    }
 
 	/**
 	 * 
@@ -790,26 +828,29 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String whereClause = "";
 
 		// Only admins can see invisible items and items from any site
-		Object fields[] = null;
+		final List<Object> fields = new ArrayList<Object>();
 		if ( ! isAdminRole ) {
 			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 && 
 				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
 				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+
 					"("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+'.'+LTI_VISIBLE+" != 1 ) ) ";
-				fields = new Object[1];
-				fields[0] = siteId;
+				fields.add(siteId);
 			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
 				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL)";
-				fields = new Object[1];
-				fields[0] = siteId;
+				fields.add(siteId);
 			}
 		}
 
-		if ( search != null && search.length() > 0 ) {
-			if ( whereClause.length() > 0 ) {
-				whereClause += " AND (" + search + ") ";
-			} else { 
-				whereClause += " (" + search + ") ";
+		if (search != null && search.length() > 0) {
+			LTISearchData searchData = foorm.secureSearch(search, m_sql.getVendor());
+			if (searchData.hasValue()) {
+				if (whereClause.length() > 0) {
+					whereClause = whereClause + " AND (" + searchData.getSearch() + ") ";
+				}
+				else {
+					whereClause = whereClause + " (" + searchData.getSearch() + ") ";
+				}
+				fields.addAll(searchData.getValues());
 			}
 		}
 
@@ -835,7 +876,77 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 				statement = pagedStatement;
 		}
 		M_log.debug(statement);
-		return getResultSet(statement, fields, columns);
+		return getResultSet(statement, ((fields.size() > 0) ? fields.toArray() : null), columns);
+	}
+
+	/**
+	 * 
+	 * @param table
+	 * @param model
+	 * @param joinClause
+	 * @param search
+	 * @param groupBy
+	 * @param siteId
+	 * @param isMaintainRole
+	 * @return
+	 */
+	public int countThingsDao(String table, String[] model, String joinClause, String search, String groupBy, String siteId, boolean isAdminRole) 
+	{
+		if (table == null || model == null ) {
+			throw new IllegalArgumentException("table and model must be non-null");
+		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+
+		String statement = "SELECT count(*)";
+		statement += " FROM " + table;
+		if ( joinClause != null ) {
+			statement += " " + joinClause;
+		}
+		String[] columns = foorm.getFields(model);
+		String whereClause = "";
+
+		// Only admins can see invisible items and items from any site
+		final List<Object> fields = new ArrayList<Object>();
+		if ( ! isAdminRole ) {
+			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 && 
+				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
+				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+
+					"("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+'.'+LTI_VISIBLE+" != 1 ) ) ";
+				fields.add(siteId);
+			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
+				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL)";
+				fields.add(siteId);
+			}
+		}
+
+		if (search != null && search.length() > 0) {
+			LTISearchData searchData = foorm.secureSearch(search, m_sql.getVendor());
+			if (searchData.hasValue()) {
+				if (whereClause.length() > 0) {
+					whereClause = whereClause + " AND (" + searchData.getSearch() + ") ";
+				}
+				else {
+					whereClause = whereClause + " (" + searchData.getSearch() + ") ";
+				}
+				fields.addAll(searchData.getValues());
+			}
+		}
+
+		if ( whereClause.length() > 0 ) statement += " WHERE " + whereClause;
+
+		if ( groupBy != null ) {
+			statement += " GROUP BY ";
+			if ("oracle".equals(m_sql.getVendor()) ) {
+				statement += foorm.formSelect(table, model, false);
+			} else {
+				statement += groupBy;
+			}
+		}
+		M_log.debug(statement);
+		int ret = jdbcTemplate.queryForObject(statement, ((fields.size() > 0) ? fields.toArray() : null), Integer.class);
+		return ret;
 	}
 
 	/**
