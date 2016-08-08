@@ -369,6 +369,7 @@ public class EntityGroup implements Group {
     public void addMember(String arg0, String arg1, boolean arg2, boolean arg3) {
         if (group != null) {
             group.addMember(arg0, arg1, arg2, arg3);
+            return;
         }
         throw new UnsupportedOperationException();
     }
