@@ -57,6 +57,7 @@ public class SimpleEvent implements Event {
         setPriority(event.getPriority());
         setEventTime(event.getEventTime());
         setServerId(serverId);
+        setMetadata(event.getMetadata());
     }
 
     /** The Event's sequence number. */
@@ -67,6 +68,9 @@ public class SimpleEvent implements Event {
 
     /** The Event's resource reference string. */
     protected String resource = "";
+
+    /** The Event's metadata reference string */
+    protected String metadata = null;
 
     /** The Event's context. May be null. */
     protected String context = null;
@@ -125,6 +129,25 @@ public class SimpleEvent implements Event {
      */
     public void setResource(String id) {
         resource = (id != null) ? id : "";
+    }
+    
+    /**
+     * Access the resource metadata.
+     * 
+     * @return The resource metadata string.
+     */
+    public String getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * Set the resource id.
+     * 
+     * @param id
+     *        The resource id string.
+     */
+    public void setMetadata(String id) {
+        metadata = (id != null) ? id : "";
     }
 
     /**

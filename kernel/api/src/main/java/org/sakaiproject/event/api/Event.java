@@ -45,6 +45,13 @@ public interface Event extends Serializable
 	 */
 	String getResource();
 
+    /**
+	 * Access the resource metadata.
+	 * 
+	 * @return The metadata string.
+	 */
+	String getMetadata();
+
 	/**
 	 * Access the event context
 	 * 
