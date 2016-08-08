@@ -152,5 +152,4 @@ END;
 -- SAK-31636 Rename existing 'Home' tools
 --
 
-update sakai_site_page set title = 'Overview' where title = 'Home';
-
+update SAKAI_SITE_PAGE set title = 'Overview' where title = 'Home';
