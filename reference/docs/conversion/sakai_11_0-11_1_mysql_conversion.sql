@@ -5,3 +5,10 @@ create table OAUTH_CONSUMERS (id varchar(255) not null, name varchar(255) not nu
 create table OAUTH_RIGHTS (id varchar(255) not null, accessright varchar(255) not null, primary key (id, accessright));
 create index user_idx on OAUTH_ACCESSORS (userId);
 alter table OAUTH_RIGHTS add index FK5992789F74F42154 (id), add constraint FK5992789F74F42154 foreign key (id) references OAUTH_CONSUMERS (id);
+
+--
+-- SAK-31636 Rename existing 'Home' tools
+--
+
+update SAKAI_SITE_PAGE set title = 'Overview' where title = 'Home';
+
