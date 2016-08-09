@@ -1,3 +1,16 @@
+ /* *************************************************************** *
+ *                  Gradebook Import/Export styles                  *
+ * **************************************************************** */
+ 
+ /* Fonts */
+@font-face {
+    font-family:"gradebook-icons";
+    src:url(../fonts/gradebook-icons.eot);
+    src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
+    font-weight:400;
+    font-style:normal
+}
+
 #gradebookImportExport ul.exportToolbar {
   padding: 0;
   list-style: none;
@@ -40,4 +53,14 @@
 
 .no_changes {
 	color: grey;
+}
+
+#hideNoChanges:before {
+  font-family: 'gradebook-icons';
+  content: '\f096';
+  font-size: 0.9em;
+  margin-right: 6px;
+}
+#hideNoChanges.on:before {
+  content: '\f046';
 }
