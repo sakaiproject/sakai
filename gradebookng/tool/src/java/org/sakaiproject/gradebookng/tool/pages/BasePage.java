@@ -84,7 +84,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public void onClick() {
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 			@Override
@@ -102,7 +102,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public void onClick() {
-				setResponsePage(new ImportExportPage());
+				setResponsePage(ImportExportPage.class);
 			}
 
 			@Override
@@ -119,7 +119,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public void onClick() {
-				setResponsePage(new PermissionsPage());
+				setResponsePage(PermissionsPage.class);
 			}
 
 			@Override
@@ -136,7 +136,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public void onClick() {
-				setResponsePage(new SettingsPage());
+				setResponsePage(SettingsPage.class);
 			}
 
 			@Override

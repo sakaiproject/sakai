@@ -561,7 +561,7 @@ public class GradebookPage extends BasePage {
 				setUiSettings(settings);
 
 				// refresh
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 			@Override
@@ -639,7 +639,7 @@ public class GradebookPage extends BasePage {
 				setUiSettings(settings);
 
 				// refresh
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 		});
