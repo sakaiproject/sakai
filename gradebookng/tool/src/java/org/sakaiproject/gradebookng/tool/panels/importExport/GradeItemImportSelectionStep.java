@@ -23,7 +23,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -200,10 +199,11 @@ public class GradeItemImportSelectionStep extends Panel {
 			@Override
 			protected void populateItem(final ListItem<ProcessedGradeItem> item) {
 
+				final ProcessedGradeItem importedItem = item.getModelObject();
+
 				final Check<ProcessedGradeItem> checkbox = new Check<>("checkbox", item.getModel());
-				final Label itemTitle = new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle"));
-				final Label itemPointValue = new Label("itemPointValue",
-						new PropertyModel<String>(item.getDefaultModel(), "itemPointValue"));
+				final Label itemTitle = new Label("itemTitle", importedItem.getItemTitle());
+				final Label itemPointValue = new Label("itemPointValue", importedItem.getItemPointValue());
 				final Label itemStatus = new Label("itemStatus");
 
 				item.add(checkbox);
@@ -211,15 +211,12 @@ public class GradeItemImportSelectionStep extends Panel {
 				item.add(itemPointValue);
 				item.add(itemStatus);
 
-				// Use the status code to look up the text representation
-				final PropertyModel<ProcessedGradeItemStatus> statusProp = new PropertyModel<ProcessedGradeItemStatus>(
-						item.getDefaultModel(), "status");
-				final ProcessedGradeItemStatus status = statusProp.getObject();
+				// Determine status label
+				final ProcessedGradeItemStatus status = importedItem.getStatus();
 
 				// For external items, set a different label and disable the control
 				if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
-					itemStatus.setDefaultModel(new StringResourceModel("importExport.status." + status.getStatusCode(), statusProp, null,
-							status.getStatusValue()));
+					itemStatus.setDefaultModel(new StringResourceModel("importExport.status." + status.getStatusCode(), Model.of(status), null, status.getStatusValue()));
 					item.setEnabled(false);
 					item.add(new AttributeModifier("class", "external"));
 				} else {
@@ -240,14 +237,7 @@ public class GradeItemImportSelectionStep extends Panel {
 				}
 
 				// add an additional row for the comments for each
-				final PropertyModel<String> commentLabelProp = new PropertyModel<String>(item.getDefaultModel(), "commentLabel");
-				final PropertyModel<ProcessedGradeItemStatus> commentStatusProp = new PropertyModel<ProcessedGradeItemStatus>(
-						item.getDefaultModel(), "commentStatus");
-
-				// not actually used except for an if test
-				// TODO refactor this part
-				final String commentLabel = commentLabelProp.getObject();
-				final ProcessedGradeItemStatus commentStatus = commentStatusProp.getObject();
+				final ProcessedGradeItemStatus commentStatus = importedItem.getCommentStatus();
 
 				item.add(new Behavior() {
 					private static final long serialVersionUID = 1L;
@@ -255,13 +245,12 @@ public class GradeItemImportSelectionStep extends Panel {
 					@Override
 					public void afterRender(final Component component) {
 						super.afterRender(component);
-						if (commentLabel != null) {
+						if (importedItem.getType() == ProcessedGradeItem.Type.COMMENT) {
 							String rowClass = "comment";
 							String statusValue = getString("importExport.status." + commentStatus.getStatusCode());
 							if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
 								rowClass += " external";
-								statusValue = new StringResourceModel("importExport.status." + commentStatus.getStatusCode(),
-										commentStatusProp, null, commentStatus.getStatusValue()).getString();
+								statusValue = new StringResourceModel("importExport.status." + commentStatus.getStatusCode(), Model.of(commentStatus), null, commentStatus.getStatusValue()).getString();
 							}
 							if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
 								rowClass += " no_changes";

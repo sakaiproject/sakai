@@ -24,6 +24,7 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -145,31 +146,45 @@ public class GradeImportConfirmationStep extends Panel {
 								assignmentId = assignmentMap.get(assignmentTitle);
 							}
 
-							final GradeSaveResponse saved = GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
+							final GradeSaveResponse saveResponse = GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
 									processedGradeItemDetail.getStudentUuid(),
 									processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
 
-							//if no change, try just the comment
-							if (saved == GradeSaveResponse.NO_CHANGE) {
+							// handle the response types
+							switch(saveResponse) {
+								case OK:
+									// sweet
+									break;
+								case OVER_LIMIT:
+									// no worries!
+									break;
+								case NO_CHANGE:
+									// Try to save just the comments
+									final String currentComment = StringUtils.trimToNull(GradeImportConfirmationStep.this.businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid()));
+									final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
 
-								// Check for changed comments
-								final String currentComment = StringUtils.trimToNull(GradeImportConfirmationStep.this.businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid()));
-								final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
-
-								if (!StringUtils.equals(currentComment, newComment)) {
-									final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid(), newComment);
-									log.info("Saving comment: " + success + ", " + assignmentId + ", "+ processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getComment());
-									if (!success) {
-										getSession().error(new ResourceModel("importExport.error.comment").getObject());
-										this.errors = true;
+									if (!StringUtils.equals(currentComment, newComment)) {
+										final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid(), newComment);
+										log.info("Saving comment: " + success + ", " + assignmentId + ", "+ processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getComment());
+										if (!success) {
+											getSession().error(new ResourceModel("importExport.error.comment").getObject());
+											this.errors = true;
+										}
 									}
-								}
-							} else if (saved != GradeSaveResponse.OK) {
-								// Anything other than OK is bad
-								getSession().error(new ResourceModel("importExport.error.grade").getObject());
-								this.errors = true;
+									break;
+								case CONCURRENT_EDIT:
+									// this will be handled eventually
+									break;
+								case ERROR:
+									// uh oh
+									getSession().error(new ResourceModel("importExport.error.grade").getObject());
+									this.errors = true;
+									break;
+								default:
+									break;
 							}
-							log.info("Saving grade: " + saved + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
+
+							log.info("Saving grade for assignment id: " +  assignmentId + ", student: " + processedGradeItemDetail.getStudentEid() + ", grade: " + processedGradeItemDetail.getGrade() + ", comment: " + processedGradeItemDetail.getComment() + ", status: " + saveResponse);
 						});
 					});
 				}
@@ -289,10 +304,8 @@ public class GradeImportConfirmationStep extends Panel {
 				item.add(new Label("itemTitle", (assignmentTitle != null) ? assignmentTitle : gradeItem.getItemTitle()));
 				item.add(new Label("itemPointValue", (assignmentPoints != null) ? assignmentPoints : gradeItem.getItemPointValue()));
 
-				final String commentLabel = gradeItem.getCommentLabel();
-
-				//if comment label, add additional row
-				if (commentLabel != null) {
+				//if comment and it's being updated, add additional row
+				if (gradeItem.getType() == ProcessedGradeItem.Type.COMMENT && gradeItem.getCommentStatus().getStatusCode() != ProcessedGradeItemStatus.STATUS_NA) {
 
 					item.add(new Behavior() {
 						private static final long serialVersionUID = 1L;

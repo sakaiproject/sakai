@@ -7,7 +7,7 @@ import lombok.Setter;
 
 /**
  * Status of an imported item
- * TODO these values should be an enum rather than an ints
+ * TODO this should not be a class. Instead the 'value' should be on ProcessedGradeItem' as it just indicates if its external or not
  */
 public class ProcessedGradeItemStatus implements Serializable {
 

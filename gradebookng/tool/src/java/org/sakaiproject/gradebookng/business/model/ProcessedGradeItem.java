@@ -15,6 +15,18 @@ public class ProcessedGradeItem implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Indicate the type of column
+	 */
+	@Getter
+	@Setter
+	private Type type;
+
+	public enum Type {
+		GB_ITEM,
+		COMMENT
+	}
+
 	@Getter
 	@Setter
 	private String itemTitle;
@@ -34,10 +46,6 @@ public class ProcessedGradeItem implements Serializable {
 	@Getter
 	@Setter
 	private List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<ProcessedGradeItemDetail>();
-
-	@Getter
-	@Setter
-	private String commentLabel;
 
 	@Getter
 	@Setter
