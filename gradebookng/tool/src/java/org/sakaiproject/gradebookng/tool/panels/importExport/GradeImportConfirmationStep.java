@@ -191,7 +191,7 @@ public class GradeImportConfirmationStep extends Panel {
 
 				if (!this.errors) {
 					getSession().success(getString("importExport.confirmation.success"));
-					setResponsePage(new GradebookPage());
+					setResponsePage(GradebookPage.class);
 				}
 				//auto refresh will render the errors
 			}

@@ -25,6 +25,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -58,17 +59,26 @@ public class PermissionsPage extends BasePage {
 		disableLink(this.permissionsPageLink);
 	}
 
-	public PermissionsPage(final GbUser taSelected) {
-		disableLink(this.permissionsPageLink);
-		this.taSelected = taSelected;
-	}
-
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
+		// grab the selected parameter (if provided)
+		final PageParameters params = getPageParameters();
+		final String taUuid = params.get("selected").toOptionalString();
+
 		// get the list of TAs
 		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
+
+		// get the TA GbUser for selected (if provided)
+		if (!StringUtils.isBlank(taUuid)) {
+			for (GbUser gbUser : teachingAssistants) {
+				if (taUuid.equals(gbUser.getUserUuid())) {
+					this.taSelected = gbUser;
+					break;
+				}
+			}
+		}
 
 		// get list of categories
 		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
@@ -146,13 +156,17 @@ public class PermissionsPage extends BasePage {
 				final GbUser selection = (GbUser) taChooser.getDefaultModelObject();
 
 				// refresh with the selected user
-				setResponsePage(new PermissionsPage(selection));
+				PageParameters pageParameters = new PageParameters();
+				pageParameters.add("selected", selection.getUserUuid());
+				setResponsePage(PermissionsPage.class, pageParameters);
 			}
 
 		});
 
 		taChooser.setNullValid(false);
-		taChooser.setModelObject(this.taSelected);
+		if (this.taSelected != null) {
+			taChooser.setModelObject(this.taSelected);
+		}
 
 		add(taChooser);
 
@@ -240,7 +254,9 @@ public class PermissionsPage extends BasePage {
 
 				getSession().success(getString("permissionspage.update.success"));
 
-				setResponsePage(new PermissionsPage(PermissionsPage.this.taSelected));
+				PageParameters pageParameters = new PageParameters();
+				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
+				setResponsePage(PermissionsPage.class, pageParameters);
 			}
 
 			@Override
@@ -256,7 +272,9 @@ public class PermissionsPage extends BasePage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(new PermissionsPage(PermissionsPage.this.taSelected));
+				PageParameters pageParameters = new PageParameters();
+				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
+				setResponsePage(PermissionsPage.class, pageParameters);
 			}
 
 			@Override

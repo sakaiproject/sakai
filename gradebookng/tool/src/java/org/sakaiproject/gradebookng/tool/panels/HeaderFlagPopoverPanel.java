@@ -69,7 +69,7 @@ public class HeaderFlagPopoverPanel extends Panel {
 				final Link link = new Link("link") {
 					@Override
 					public void onClick() {
-						setResponsePage(new SettingsPage());
+						setResponsePage(SettingsPage.class);
 					}
 				};
 				link.add(new Label("linkText", getString("label.coursegrade.editsettings")));

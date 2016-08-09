@@ -173,7 +173,7 @@ public class SettingsPage extends BasePage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 		};
 		cancel.setDefaultFormProcessing(false);

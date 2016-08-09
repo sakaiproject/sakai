@@ -81,7 +81,7 @@ public class GradeImportUploadStep extends Panel {
 			final Button cancel = new Button("cancelbutton") {
 				@Override
 				public void onSubmit() {
-					setResponsePage(new GradebookPage());
+					setResponsePage(GradebookPage.class);
 				}
 			};
 			cancel.setDefaultFormProcessing(false);
