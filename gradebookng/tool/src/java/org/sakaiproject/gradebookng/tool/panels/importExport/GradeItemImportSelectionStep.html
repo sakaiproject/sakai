@@ -4,7 +4,8 @@
     <p><wicket:message key="importExport.selection.description" /></p>
     <p><wicket:message key="importExport.selection.note" /></p>
 
-    <form wicket:id="form">
+	<button wicket:id="hideNoChanges" id="hideNoChanges" class="button" aria-controls="grade_import_selection"><wicket:message key="importExport.selection.hideitems" /></button>
+    <form wicket:id="form" class="selection_form">
         <div wicket:id="group">
             <table id="grade_import_selection" class="table table-striped table-condensed">
                 <thead>
@@ -36,5 +37,5 @@
             </div>
         </div>
     </form>
-
+    <div wicket:id="allHiddenLabel" class="instruction"></div>
 </wicket:panel>
