@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -18,6 +19,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -94,63 +97,63 @@ public class GradeImportUploadStep extends Panel {
 			final FileUpload upload = this.fileUploadField.getFileUpload();
 			if (upload != null) {
 
+				log.debug("file upload success");
+
+				// get all users
+				final Map<String, String> userMap = getUserMap();
+
+				// turn file into list
+				ImportedGradeWrapper importedGradeWrapper = null;
 				try {
-					log.debug("file upload success");
-
-					// get all users
-					final Map<String, String> userMap = getUserMap();
-
-					// turn file into list
-					final ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(),
-							upload.getContentType(), userMap);
-
-					// incorrect file type?
-					if(importedGradeWrapper == null) {
-						error(getString("importExport.error.incorrecttype"));
-						return;
-					}
-
-					//get existing data
-					final List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
-					final List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
-
-					// process file
-					// exceptions here will have a resourcekey and possible params
-					List<ProcessedGradeItem> processedGradeItems = null;
-					try {
-						processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,assignments, grades);
-					} catch (final GbImportCommentMissingItemException e) {
-						// TODO would be good if we could show the column here, but would have to return it
-						error(getString("importExport.error.commentnoitem"));
-						return;
-					}
-					// if null, the file was of the incorrect type
-					if (processedGradeItems == null) {
-						error(getString("importExport.error.incorrectformat"));
-						return;
-					}
-					// if empty there are no users
-					if (processedGradeItems.isEmpty()) {
-						error(getString("importExport.error.empty"));
-						return;
-					}
-
-					// OK, GO TO NEXT PAGE
-
-					// clear any previous errors
-					final ImportExportPage page = (ImportExportPage) getPage();
-					page.clearFeedback();
-
-					// repaint panel
-					final ImportWizardModel importWizardModel = new ImportWizardModel();
-					importWizardModel.setProcessedGradeItems(processedGradeItems);
-					final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId, Model.of(importWizardModel));
-					newPanel.setOutputMarkupId(true);
-					GradeImportUploadStep.this.replaceWith(newPanel);
-
+					importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), userMap);
+				} catch (final GbImportExportInvalidColumnException e) {
+					error(getString("importExport.error.incorrectformat"));
+					return;
+				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
+					error(getString("importExport.error.incorrecttype"));
+					return;
 				} catch (final IOException e) {
-					e.printStackTrace();
+					error(getString("importExport.error.unknown"));
+					return;
 				}
+
+				//if still null
+				if(importedGradeWrapper == null) {
+					error(getString("importExport.error.unknown"));
+					return;
+				}
+
+				//get existing data
+				final List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
+				final List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
+
+				// process file
+				List<ProcessedGradeItem> processedGradeItems = null;
+				try {
+					processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,assignments, grades);
+				} catch (final GbImportCommentMissingItemException e) {
+					// TODO would be good if we could show the column here, but would have to return it
+					error(getString("importExport.error.commentnoitem"));
+					return;
+				}
+				// if empty there are no users
+				if (processedGradeItems.isEmpty()) {
+					error(getString("importExport.error.empty"));
+					return;
+				}
+
+				// OK, GO TO NEXT PAGE
+
+				// clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+
+				// repaint panel
+				final ImportWizardModel importWizardModel = new ImportWizardModel();
+				importWizardModel.setProcessedGradeItems(processedGradeItems);
+				final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId, Model.of(importWizardModel));
+				newPanel.setOutputMarkupId(true);
+				GradeImportUploadStep.this.replaceWith(newPanel);
 
 			}
 
@@ -179,17 +182,23 @@ public class GradeImportUploadStep extends Panel {
 	 * @param mimetype
 	 * @param userMap
 	 * @return
+	 * @throws GbImportExportInvalidColumnException
+	 * @throws GbImportExportInvalidFileTypeException
+	 * @throws IOException
+	 * @throws InvalidFormatException
 	 */
-	private ImportedGradeWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) {
+	private ImportedGradeWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
+
+		ImportedGradeWrapper rval = null;
 
 		// determine file type and delegate
 		if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			return ImportGradesHelper.parseCsv(is, userMap);
+			rval = ImportGradesHelper.parseCsv(is, userMap);
 		} else if (ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			return ImportGradesHelper.parseXls(is, userMap);
+			rval = ImportGradesHelper.parseXls(is, userMap);
 		} else {
-			log.error("Invalid file type for grade import: " + mimetype);
+			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
 		}
-		return null;
+		return rval;
 	}
 }

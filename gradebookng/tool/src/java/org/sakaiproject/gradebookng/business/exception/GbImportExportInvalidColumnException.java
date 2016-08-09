@@ -1,7 +1,7 @@
 package org.sakaiproject.gradebookng.business.exception;
 
 /**
- * A generic exception that can be thrown from the Import/Export process
+ * An exception that indicates that an invalid column was present in the file
  */
 public class GbImportExportInvalidColumnException extends GbException {
 

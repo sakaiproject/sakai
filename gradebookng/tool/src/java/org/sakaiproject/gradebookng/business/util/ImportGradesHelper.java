@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -58,8 +59,10 @@ public class ImportGradesHelper {
 	 *
 	 * @param is InputStream of the data to parse
 	 * @return
+	 * @throws IOException
+	 * @throws GbImportExportInvalidColumnException
 	 */
-	public static ImportedGradeWrapper parseCsv(final InputStream is, final Map<String, String> userMap) {
+	public static ImportedGradeWrapper parseCsv(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, IOException {
 
 		// manually parse method so we can support arbitrary columns
 		final CSVReader reader = new CSVReader(new InputStreamReader(is));
@@ -80,9 +83,6 @@ public class ImportGradesHelper {
 				}
 				lineCount++;
 			}
-		} catch (final Exception e) {
-			log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
-			return null;
 		} finally {
 			try {
 				reader.close();
@@ -103,34 +103,31 @@ public class ImportGradesHelper {
 	 *
 	 * @param is InputStream of the data to parse
 	 * @return
+	 * @throws IOException
+	 * @throws InvalidFormatException
+	 * @throws GbImportExportInvalidColumnException
 	 */
-	public static ImportedGradeWrapper parseXls(final InputStream is, final Map<String, String> userMap) {
+	public static ImportedGradeWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException {
 
 		int lineCount = 0;
 		final List<ImportedGrade> list = new ArrayList<ImportedGrade>();
 		Map<Integer, ImportColumn> mapping = null;
 
-		try {
-			final Workbook wb = WorkbookFactory.create(is);
-			final Sheet sheet = wb.getSheetAt(0);
-			for (final Row row : sheet) {
 
-				final String[] r = convertRow(row);
+		final Workbook wb = WorkbookFactory.create(is);
+		final Sheet sheet = wb.getSheetAt(0);
+		for (final Row row : sheet) {
 
-				if (lineCount == 0) {
-					// header row, capture it
-					mapping = mapHeaderRow(r);
-				} else {
-					// map the fields into the object
-					list.add(mapLine(r, mapping, userMap));
-				}
-				lineCount++;
+			final String[] r = convertRow(row);
+
+			if (lineCount == 0) {
+				// header row, capture it
+				mapping = mapHeaderRow(r);
+			} else {
+				// map the fields into the object
+				list.add(mapLine(r, mapping, userMap));
 			}
-
-		} catch (final Exception e) {
-			// TODO this shouldn't catch everything, it should continue throwing back up the stack
-			log.error("Error reading imported file: " + e.getClass() + " : " + e.getMessage());
-			return null;
+			lineCount++;
 		}
 
 		final ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
