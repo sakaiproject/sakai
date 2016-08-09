@@ -6820,6 +6820,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					    M_log.error(this + "doFinish: unable to reload site " + site.getId() + " after updating roster.");
 					}
 				}
+
+				String skin = templateSite.getSkin();
+				if (StringUtils.isNotBlank(skin)) {
+					site.setSkin(skin);
+				}
+
 				// We don't want the new site to automatically be a template
 				site.getPropertiesEdit().removeProperty("template");
 				
