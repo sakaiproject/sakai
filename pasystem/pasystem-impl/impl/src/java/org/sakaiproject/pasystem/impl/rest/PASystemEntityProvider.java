@@ -27,6 +27,7 @@ package org.sakaiproject.pasystem.impl.rest;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -182,6 +183,11 @@ public class PASystemEntityProvider implements EntityProvider, AutoRegisterEntit
         public String getTimezoneToolUrlForUser() {
             User thisUser = UserDirectoryService.getCurrentUser();
             String userid = thisUser.getId();
+
+            // If there is no user (e.g. on the gateway site!) there's no timezone
+            if(StringUtils.isEmpty(userid)) {
+                return null;
+            }
 
             try {
                 Site userSite = SiteService.getSite("~" + userid);
