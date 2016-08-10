@@ -552,6 +552,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .shortanswerDiv .bold {
   display: block;
 }
+.questionPollGraph {
+  max-width: 100%;
+}
 .questionStatusText {
 }
 .mainList li .textbox {
