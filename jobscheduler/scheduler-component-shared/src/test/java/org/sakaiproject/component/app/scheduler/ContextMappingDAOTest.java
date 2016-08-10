@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Test the ContextMapping DAO
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class})
+@ContextConfiguration(classes = {ContextMappingConfiguration.class})
 @Transactional
 public class ContextMappingDAOTest {
 

@@ -17,7 +17,7 @@ public interface ScheduledInvocationManager {
 	 * @param componentId the unique name of a bean in the bean factory which implements 
 	 * command pattern DelayedInvocationCommand
 	 * @param opaqueContext the key which the tool can use to uniquely identify some 
-	 * entity when invoked; i.e. the context
+	 * entity when invoked; i.e. the context. This currently accepts empty string which is shouldn't as it can't be explicitly removed.
 	 * @return unique id of a delayed invocation
 	 */
 	public String createDelayedInvocation(Time time, String componentId, String opaqueContext);
