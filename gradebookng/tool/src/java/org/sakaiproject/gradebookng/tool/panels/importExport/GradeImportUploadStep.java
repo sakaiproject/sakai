@@ -1,12 +1,10 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Button;
@@ -40,10 +38,6 @@ import lombok.extern.apachecommons.CommonsLog;
 public class GradeImportUploadStep extends Panel {
 
 	private static final long serialVersionUID = 1L;
-
-	// list of mimetypes for each category. Must be compatible with the parser
-	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
-	private static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
 
 	private final String panelId;
 
@@ -105,7 +99,7 @@ public class GradeImportUploadStep extends Panel {
 				// turn file into list
 				ImportedGradeWrapper importedGradeWrapper = null;
 				try {
-					importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), userMap);
+					importedGradeWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), userMap);
 				} catch (final GbImportExportInvalidColumnException e) {
 					error(getString("importExport.error.incorrectformat"));
 					return;
@@ -176,29 +170,4 @@ public class GradeImportUploadStep extends Panel {
 		return rval;
 	}
 
-	/**
-	 * Helper to parse the imported file into an {@link ImportedGradeWrapper} depending on its type
-	 * @param is
-	 * @param mimetype
-	 * @param userMap
-	 * @return
-	 * @throws GbImportExportInvalidColumnException
-	 * @throws GbImportExportInvalidFileTypeException
-	 * @throws IOException
-	 * @throws InvalidFormatException
-	 */
-	private ImportedGradeWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
-
-		ImportedGradeWrapper rval = null;
-
-		// determine file type and delegate
-		if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseCsv(is, userMap);
-		} else if (ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseXls(is, userMap);
-		} else {
-			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
-		}
-		return rval;
-	}
 }
