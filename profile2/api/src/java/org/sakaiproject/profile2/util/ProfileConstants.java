@@ -124,7 +124,7 @@ public class ProfileConstants {
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
 	
 	//gravatar base URL
-	public static final String GRAVATAR_BASE_URL = "http://www.gravatar.com/avatar/";
+	public static final String GRAVATAR_BASE_URL = "//www.gravatar.com/avatar/";
 
     // Defines the name of the blank image, the one a user gets when nothing else is available
     public static final String BLANK = "blank";
