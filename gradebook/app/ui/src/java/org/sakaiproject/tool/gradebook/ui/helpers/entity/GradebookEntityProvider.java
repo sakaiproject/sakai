@@ -1,13 +1,12 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.entity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -22,11 +21,18 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.rsf.entitybroker.EntityViewParamsInferrer;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.ui.helpers.entity.model.GradebookData;
+import org.sakaiproject.tool.gradebook.ui.helpers.entity.model.GradebookItem;
+import org.sakaiproject.tool.gradebook.ui.helpers.entity.model.StudentGrade;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer;
 import org.sakaiproject.tool.gradebook.ui.helpers.producers.GradebookItemProducer;
@@ -34,7 +40,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.sakaiproject.rsf.entitybroker.EntityViewParamsInferrer;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
@@ -62,18 +69,22 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 	@Setter
 	private SecurityService securityService;
 
+	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
 
+	@Override
 	public boolean entityExists(String id) {
 		return true;
 	}
 
+	@Override
 	public String[] getHandledPrefixes() {
 		return new String[] { ENTITY_PREFIX };
 	}
 
+	@Override
 	public Object getSampleEntity() {
 		return new GradeAssignmentItemDetail();
 	}
@@ -85,10 +96,12 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 	 * org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable#
 	 * getHandledOutputFormats()
 	 */
+	@Override
 	public String[] getHandledOutputFormats() {
 		return new String[] { Formats.XML, Formats.JSON };
 	}
 
+	@Override
 	public ViewParameters inferDefaultViewParameters(String reference) {
 		// IdEntityReference ep = new IdEntityReference(reference);
 		// String contextId = ep.id;
@@ -118,13 +131,7 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("Only logged in users can access");
 		}
 
-		Site site;
-		try {
-			site = siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			throw new IllegalArgumentException(String.format(
-					"Invalid siteId %s", siteId));
-		}
+		Site site = this.getSite(siteId);
 
 		// The gradebookUID is the siteId, the gradebookID is a long
 		if (!gradebookService.isGradebookDefined(siteId)) {
@@ -149,7 +156,7 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 					item.setGrade(gradebookService.getAssignmentScoreString(
 							siteId, assignment.getId(), studentId));
 
-					course.assignments.add(item);
+					course.getAssignments().add(item);
 				}
 			}
 			return course;
@@ -167,7 +174,7 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 				item.setGrade(gradebookService.getAssignmentScoreString(siteId,
 						assignment.getId(), userId));
 
-				course.assignments.add(item);
+				course.getAssignments().add(item);
 			}
 			return course;
 		}
@@ -187,7 +194,6 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 
 		ArrayList<String> result = new ArrayList<String>();
 
-		@SuppressWarnings("unchecked")
 		Map<String, String> studentToPoints = gradebookService.getImportCourseGrade(gbID);
 		ArrayList<String> eids = new ArrayList<String>(studentToPoints.keySet());
 				
@@ -246,7 +252,7 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 				item.setGrade(gradebookService.getAssignmentScoreString(siteId,
 						assignment.getId(), userId));
 
-				course.assignments.add(item);
+				course.getAssignments().add(item);
 			}
 			r.add(course);
 		}
@@ -307,5 +313,101 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 		throw new IllegalArgumentException(String.format(
 				"No assignment %s for site %s", assignmentName, siteId));
 	}
+	
+	/**
+	 * Batched provider
+	 * 
+	 * Note only super user/instructor in each site able to access this.
+	 * 
+	 * @param ref
+	 * @param params
+	 * @return
+	 */
+	@EntityCustomAction(action = "batch", viewKey = EntityView.VIEW_LIST)
+	public List<GradebookData> getBatchGradebookData(EntityReference ref, Map<String,Object> params) {
+		
+		String rawSiteIds = (String) params.get("siteIds");
+		
+		// check siteIds supplied
+		if (StringUtils.isBlank(rawSiteIds)) {
+			throw new IllegalArgumentException(
+					String.format("siteIds must be set in order to get the gradebooks, via the URL /%s/batch?siteIds={siteIds}",ENTITY_PREFIX));
+		}
+		
+		List<String> siteIds = Arrays.asList(StringUtils.split(rawSiteIds, ','));
+		
+		String userId = developerHelperService.getCurrentUserId();
+		if (userId == null) {
+			throw new SecurityException("Only logged in users can access");
+		}
+		
+		List<GradebookData> rval = new ArrayList<>();
+		
+		// for every passed in site get the students, the assignments and the grades for each student in each assignment, and map it all together
+		siteIds.forEach(siteId -> {
+			
+			if (securityService.isSuperUser() || siteService.allowUpdateSite(siteId)) {
+			
+				Site site = this.getSite(siteId);
+				Gradebook gradebook = this.getGradebook(siteId);
+				
+				GradebookData gradebookData = new GradebookData(site);
+			
+				//get gradeable students
+				final List<String> studentUuids = new ArrayList<>(site.getUsersIsAllowed("section.role.student"));
+				
+				// Note: to make this user centric this could be changed to getViewableAssignmentsForCurrentUser though it does more checks.
+				List<Assignment> assignments = this.gradebookService.getAssignments(siteId);
+				assignments.forEach(assignment -> {					
+					
+					GradebookItem gradebookItem = new GradebookItem(assignment);
 
+					final List<GradeDefinition> gradeDefinitions = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
+					
+					gradeDefinitions.forEach(def -> {						
+						
+						StudentGrade grade = new StudentGrade(def);
+						gradebookItem.getGrades().add(grade);
+					});
+					
+					gradebookData.getGradeItems().add(gradebookItem);
+				});
+				
+				rval.add(gradebookData);
+			}
+			
+		});
+		
+		return rval;
+		
+	}
+	
+	/**
+	 * Helper to get a gradebook for a site
+	 * @param siteId
+	 * @return
+	 */
+	private Gradebook getGradebook(final String siteId) {
+		try {
+			final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
+			return gradebook;
+		} catch (final GradebookNotFoundException e) {
+			log.error("No gradebook in site: " + siteId);
+			return null;
+		}
+	}
+	
+	/**
+	 * Helper to get a site
+	 * @param siteId
+	 * @return
+	 */
+	private Site getSite(String siteId) {
+		try {
+			return siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			throw new IllegalArgumentException(String.format("Invalid siteId %s", siteId));
+		}
+	}
+	
 }

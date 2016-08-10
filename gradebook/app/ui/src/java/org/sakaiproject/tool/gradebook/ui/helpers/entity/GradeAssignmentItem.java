@@ -1,22 +1,38 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.entity;
 
-import lombok.Data;
-
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-@Data
+import lombok.Getter;
+import lombok.Setter;
+
+
 public class GradeAssignmentItem {
-	protected String userId;
-	protected String userName;
-	protected String itemName;
-	protected Double points;
-	protected String grade;
+	
+	@Getter
+	@Setter
+	private String userId;
+	
+	@Getter
+	@Setter
+	private String userName;
+	
+	@Getter
+	@Setter
+	private String itemName;
+	
+	@Getter
+	@Setter
+	private Double points;
+	
+	@Getter
+	@Setter
+	private String grade;
 
 	public GradeAssignmentItem() {
 	}
 
 	public GradeAssignmentItem(Assignment assignment) {
-		itemName = assignment.getName();
-		points = assignment.getPoints();
+		this.itemName = assignment.getName();
+		this.points = assignment.getPoints();
 	}
 }
