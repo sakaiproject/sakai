@@ -23,7 +23,7 @@ body.is-logged-out{
 		overflow: hidden;
 		padding: 0 1em;
 		text-align: center;
-		width: $tool-menu-width;
+		min-width: $tool-menu-width;
 		@include flex-shrink( 0 );
 		@include transition( width 0.5s linear 0s );
 		.#{$namespace}headerLogo--institution{
