@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 
 /************************************************************************
  * Making copies of events
@@ -31,12 +32,13 @@ public class EventCopy implements Event
 	protected String entityReference;
 	protected String sessionId;
 	protected String userId;
+	protected LRS_Statement lrsStatement;
 
 	public EventCopy() {
 		super();
 	}
 	
-    public EventCopy(Date eventTime, String eventIdentifier, String entityReference, String context, String userId, String sessionId, char eventCode, int priority) {
+    public EventCopy(Date eventTime, String eventIdentifier, String entityReference, String context, String userId, String sessionId, char eventCode, int priority, LRS_Statement lrsStatement) {
         super();
         this.eventTime= eventTime;
         this.eventIdentifier = eventIdentifier;
@@ -45,6 +47,7 @@ public class EventCopy implements Event
         this.userId = userId;
         this.sessionId = sessionId;
         this.modify = ('m' == eventCode);
+        this.lrsStatement = lrsStatement;
     }
 
 	
@@ -142,5 +145,11 @@ public class EventCopy implements Event
 		builder.append(userId);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public LRS_Statement getLrsStatement() {
+		// TODO Auto-generated method stub
+		return lrsStatement;
 	}
 }

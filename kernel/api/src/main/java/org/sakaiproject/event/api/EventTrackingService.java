@@ -23,6 +23,7 @@ package org.sakaiproject.event.api;
 
 import java.util.Observer;
 
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
@@ -83,6 +84,25 @@ public interface EventTrackingService
 	 * @return A new Event object that can be used with this service.
 	 */
 	Event newEvent(String event, String resource, String context, boolean modify, int priority);
+
+/**
+	 * Construct a Event object.
+	 * 
+	 * @param event
+	 *        The Event id.
+	 * @param resource
+	 *        The resource reference.
+	 * @param context
+	 *        The Event's context (may be null).
+	 * @param modify
+	 *        Set to true if this event caused a resource modification, false if it was just an access.
+	 * @param priority
+	 *        The Event's notification priority. Use NotificationService.NOTI_OPTIONAL as default.
+	 * @param lrsStatement
+	 *        Additional, optional (currently unpersisted) lrsStatement passed to LRS service (null is the default)
+	 * @return A new Event object that can be used with this service.
+	 */
+	Event newEvent(String event, String resource, String context, boolean modify, int priority, LRS_Statement lrsStatement);
 
 	/**
 	 * Post an event
