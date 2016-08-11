@@ -286,6 +286,7 @@ $(document).ready(function() {
 			if ($(this).hasClass("add-at-end"))
 			    addAboveItem = '';
 			$('#subpage-add-before').val(addAboveItem);
+			$('#subpage-choose').attr('href', fixAddBefore($('#subpage-choose').attr('href')));
 			$('#subpage-dialog').dialog('open');
 			setupdialog($('#subpage-dialog'));
 			return false;
