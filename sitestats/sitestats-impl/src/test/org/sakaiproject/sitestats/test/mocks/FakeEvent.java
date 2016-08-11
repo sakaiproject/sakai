@@ -25,6 +25,7 @@ package org.sakaiproject.sitestats.test.mocks;
 import java.util.Date;
 
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.sitestats.test.data.FakeData;
 
 /**
@@ -43,25 +44,30 @@ public class FakeEvent implements Event {
    private String context = null;
    private boolean modify = true;
    private int priority = 3;
+   private LRS_Statement lrsStatement = null;
 
    public FakeEvent() {
    }
    
    public FakeEvent(String event, String resource, boolean modify) {
-	   this(event, resource, FakeData.SITE_A_ID, modify, 3);
+	   this(event, resource, FakeData.SITE_A_ID, modify, 3, null);
    }
    
    public FakeEvent(String event, String resource, boolean modify, int priority) {
-	   this(event, resource, FakeData.SITE_A_ID, modify, priority);
+	   this(event, resource, FakeData.SITE_A_ID, modify, priority, null);
    }
 
    public FakeEvent(String event, String resource, String context, boolean modify, int priority) {
+	   this(event, resource, context, modify, priority, null);
+   }
+   public FakeEvent(String event, String resource, String context, boolean modify, int priority, LRS_Statement lrsStatement) {
       super();
       this.event = event;
       this.modify = modify;
       this.priority = priority;
       this.resource = resource;
       this.context = context;
+      this.lrsStatement = lrsStatement;
    }
 
    /*
@@ -128,6 +134,12 @@ public class FakeEvent implements Event {
    }
 
 public Date getEventTime() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public LRS_Statement getLrsStatement() {
 	// TODO Auto-generated method stub
 	return null;
 }
