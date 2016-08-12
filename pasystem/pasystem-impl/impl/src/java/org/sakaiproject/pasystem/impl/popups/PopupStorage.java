@@ -44,6 +44,8 @@ import org.sakaiproject.pasystem.impl.common.DB;
 import org.sakaiproject.pasystem.impl.common.DBAction;
 import org.sakaiproject.pasystem.impl.common.DBConnection;
 import org.sakaiproject.pasystem.impl.common.DBResults;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,7 @@ public class PopupStorage implements Popups, Acknowledger {
     @Override
     public String createCampaign(Popup popup,
                                  TemplateStream templateInput,
-                                 Optional<List<String>> assignToUsers) {
+                                 Optional<List<String>> assignToEids) {
         return DB.transaction
                 ("Popup creation",
                         new DBAction<String>() {
@@ -74,7 +76,7 @@ public class PopupStorage implements Popups, Acknowledger {
                                         .executeUpdate();
 
                                 setPopupContent(db, uuid, templateInput);
-                                setPopupAssignees(db, uuid, assignToUsers);
+                                setPopupAssignees(db, uuid, assignToEids);
 
                                 db.commit();
 
@@ -87,7 +89,7 @@ public class PopupStorage implements Popups, Acknowledger {
     @Override
     public void updateCampaign(Popup popup,
         Optional<TemplateStream> templateInput,
-        Optional<List<String>> assignToUsers) {
+        Optional<List<String>> assignToEids) {
         try {
             final String uuid = popup.getUuid();
 
@@ -105,7 +107,7 @@ public class PopupStorage implements Popups, Acknowledger {
                                             .param(uuid)
                                             .executeUpdate();
 
-                                    setPopupAssignees(db, uuid, assignToUsers);
+                                    setPopupAssignees(db, uuid, assignToEids);
 
                                     if (templateInput.isPresent()) {
                                         setPopupContent(db, uuid, templateInput.get());
@@ -197,26 +199,28 @@ public class PopupStorage implements Popups, Acknowledger {
     }
 
     @Override
-    public List<String> getAssignees(final String uuid) {
-        return DB.transaction
+    public List<String> getAssigneeEids(final String uuid) {
+        List<String> userIds = DB.transaction
                 ("Find a list of assignees by popup uuid",
                         new DBAction<List<String>>() {
                             @Override
                             public List<String> call(DBConnection db) throws SQLException {
-                                List<String> users = new ArrayList<String>();
+                                final List<String> userIds = new ArrayList<String>();
 
-                                try (DBResults results = db.run("SELECT user_eid from pasystem_popup_assign WHERE UUID = ? AND user_eid is not NULL")
-                                        .param(uuid)
-                                        .executeQuery()) {
+                                try (DBResults results = db.run("SELECT user_id from pasystem_popup_assign WHERE UUID = ? AND user_id is not NULL")
+                                    .param(uuid)
+                                    .executeQuery()) {
                                     for (ResultSet result : results) {
-                                        users.add(result.getString("user_eid"));
+                                        userIds.add(result.getString("user_id"));
                                     }
-
-                                    return users;
                                 }
+
+                                return userIds;
                             }
                         }
                 );
+
+        return userIdsToEids(userIds);
     }
 
     private void setPopupContent(DBConnection db, String uuid, TemplateStream templateContent) throws SQLException {
@@ -239,16 +243,16 @@ public class PopupStorage implements Popups, Acknowledger {
                 .executeUpdate();
     }
 
-    private void setPopupAssignees(DBConnection db, String uuid, Optional<List<String>> assignToUsers) throws SQLException {
-        if (assignToUsers.isPresent()) {
-            db.run("DELETE FROM pasystem_popup_assign where uuid = ? AND user_eid is not NULL")
+    private void setPopupAssignees(DBConnection db, String uuid, Optional<List<String>> assignToEids) throws SQLException {
+        if (assignToEids.isPresent()) {
+            db.run("DELETE FROM pasystem_popup_assign where uuid = ? AND user_id is not NULL")
                     .param(uuid)
                     .executeUpdate();
 
-            for (String userEid : assignToUsers.get()) {
-                db.run("INSERT INTO pasystem_popup_assign (uuid, user_eid) VALUES (?, ?)")
+            for (String userId : eidsToUserIds(assignToEids.get())) {
+                db.run("INSERT INTO pasystem_popup_assign (uuid, user_id) VALUES (?, ?)")
                         .param(uuid)
-                        .param(userEid)
+                        .param(userId)
                         .executeUpdate();
             }
         }
@@ -286,13 +290,34 @@ public class PopupStorage implements Popups, Acknowledger {
     }
 
     @Override
-    public void acknowledge(final String uuid, final String userEid, final AcknowledgementType acknowledgementType) {
-        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.POPUP).acknowledge(uuid, userEid, acknowledgementType);
+    public void acknowledge(final String uuid, final String userId, final AcknowledgementType acknowledgementType) {
+        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.POPUP).acknowledge(uuid, userId, acknowledgementType);
     }
 
     @Override
-    public void acknowledge(final String uuid, final String userEid) {
-        acknowledge(uuid, userEid, AcknowledgementType.TEMPORARY);
+    public void acknowledge(final String uuid, final String userId) {
+        acknowledge(uuid, userId, AcknowledgementType.TEMPORARY);
     }
+
+    private static List<String> eidsToUserIds(List<String> eids) {
+        List<String> userIds = new ArrayList<String>();
+
+        for (User user : UserDirectoryService.getUsersByEids(eids)) {
+            userIds.add(user.getId());
+        }
+
+        return userIds;
+    }
+
+    private static List<String> userIdsToEids(List<String> userIds) {
+        List<String> eids = new ArrayList<String>();
+
+        for (User user : (List<User>)UserDirectoryService.getUsers(userIds)) {
+            eids.add(user.getEid());
+        }
+
+        return eids;
+    }
+
 
 }

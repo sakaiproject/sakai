@@ -107,17 +107,17 @@ public class PASystemEntityProvider implements EntityProvider, AutoRegisterEntit
         User currentUser = UserDirectoryService.getCurrentUser();
         String uuid = (String) params.get("uuid");
         String acknowledgement = (String) params.get("acknowledgement");
-        String eid = currentUser.getEid();
+        String userId = currentUser.getId();
 
-        if (uuid == null || eid == null) {
+        if (uuid == null || userId == null) {
             LOG.warn("Parameter mismatch: {}", params);
             return result.toJSONString();
         }
 
         if (acknowledgement == null) {
-            acknowledger.acknowledge(uuid, eid);
+            acknowledger.acknowledge(uuid, userId);
         } else {
-            acknowledger.acknowledge(uuid, eid, AcknowledgementType.of(acknowledgement));
+            acknowledger.acknowledge(uuid, userId, AcknowledgementType.of(acknowledgement));
         }
                 
         result.put("status", "SUCCESS");
@@ -138,14 +138,14 @@ public class PASystemEntityProvider implements EntityProvider, AutoRegisterEntit
         }
 
         User currentUser = UserDirectoryService.getCurrentUser();
-        String eid = currentUser.getEid();
+        String userId = currentUser.getId();
 
-        if (eid == null) {
+        if (userId == null) {
             LOG.warn("Parameter mismatch: {}", params);
             return result.toJSONString();
         }
 
-        paSystem.getBanners().clearTemporaryDismissedForUser(eid);
+        paSystem.getBanners().clearTemporaryDismissedForUser(userId);
         result.put("status", "SUCCESS");
 
         return result.toJSONString();

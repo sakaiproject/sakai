@@ -153,3 +153,46 @@ END;
 --
 
 update SAKAI_SITE_PAGE set title = 'Overview' where title = 'Home';
+
+--
+-- SAK-31563
+--
+
+-- Add new user_id columns and their corresponding indexes
+ALTER TABLE pasystem_popup_assign ADD user_id varchar(99);
+ALTER TABLE pasystem_popup_dismissed ADD user_id varchar(99);
+ALTER TABLE pasystem_banner_dismissed ADD user_id varchar(99);
+
+CREATE INDEX popup_assign_lower_user_id on pasystem_popup_assign (user_id);
+CREATE INDEX popup_dismissed_lower_user_id on pasystem_popup_dismissed (user_id);
+CREATE INDEX banner_dismissed_user_id on pasystem_banner_dismissed (user_id);
+
+-- Map existing EIDs to their corresponding user IDs
+update pasystem_popup_assign popup set user_id = (select user_id from sakai_user_id_map map where popup.user_eid = map.eid);
+update pasystem_popup_dismissed popup set user_id = (select user_id from sakai_user_id_map map where popup.user_eid = map.eid);
+update pasystem_banner_dismissed banner set user_id = (select user_id from sakai_user_id_map map where banner.user_eid = map.eid);
+
+-- Any rows that couldn't be mapped are dropped (there shouldn't
+-- really be any, but if there are those users were already being
+-- ignored when identified by EID)
+DELETE FROM pasystem_popup_assign WHERE user_id is null;
+DELETE FROM pasystem_popup_dismissed WHERE user_id is null;
+DELETE FROM pasystem_banner_dismissed WHERE user_id is null;
+
+-- Enforce NULL checks on the new columns
+ALTER TABLE pasystem_popup_assign MODIFY user_id varchar(99) NOT NULL;
+ALTER TABLE pasystem_popup_dismissed MODIFY user_id varchar(99) NOT NULL;
+ALTER TABLE pasystem_banner_dismissed MODIFY user_id varchar(99) NOT NULL;
+
+-- Reintroduce unique constraints for the new column
+ALTER TABLE pasystem_popup_dismissed drop INDEX unique_popup_dismissed;
+ALTER TABLE pasystem_popup_dismissed add UNIQUE INDEX unique_popup_dismissed (user_id, state, uuid);
+
+ALTER TABLE pasystem_banner_dismissed drop INDEX unique_banner_dismissed;
+ALTER TABLE pasystem_banner_dismissed add UNIQUE INDEX unique_banner_dismissed (user_id, state, uuid);
+
+-- Drop the old columns
+ALTER TABLE pasystem_popup_assign DROP COLUMN user_eid;
+ALTER TABLE pasystem_popup_dismissed DROP COLUMN user_eid;
+ALTER TABLE pasystem_banner_dismissed DROP COLUMN user_eid;
+
