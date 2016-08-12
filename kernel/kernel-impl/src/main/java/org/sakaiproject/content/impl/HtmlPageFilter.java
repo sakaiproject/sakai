@@ -124,8 +124,7 @@ public class HtmlPageFilter implements ContentFilter {
 		StringBuilder additionalScripts = new StringBuilder();
 		if (isMathJaxEnabled(entity)) {
 			additionalScripts.append(MessageFormat.format(mathjaxTemplate,
-				serverConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP,
-					"https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default,Safe"
+				serverConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP
 				)
 			));
 		}

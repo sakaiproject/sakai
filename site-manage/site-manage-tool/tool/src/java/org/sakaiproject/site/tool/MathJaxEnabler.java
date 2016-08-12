@@ -44,7 +44,6 @@ public class MathJaxEnabler
     private static final String SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
     private static final String VERSION_SERVICE_SAKAI_PROP = "version.service";
     private static final String VERSION_SERVICE_DEFAULT = "Sakai";
-    private static final String SRC_PATH_SAKAI_PROP_DEFAULT = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default,Safe";
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
     private static final boolean ENABLED_SAKAI_NEW_SITE_DEFAULT = false;
     
@@ -62,7 +61,7 @@ public class MathJaxEnabler
     private static final String PARAM_MATHJAX_ALLOWED_KEY = "allowMathJax";
     private static final String TOOL_DELIM = ",";
         
-    private static final String SRC_PATH = ServerConfigurationService.getString(SRC_PATH_SAKAI_PROP, SRC_PATH_SAKAI_PROP_DEFAULT);
+    private static final String SRC_PATH = ServerConfigurationService.getString(SRC_PATH_SAKAI_PROP);
     private static final boolean ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP, ENABLED_SAKAI_PROP_DEFAULT) && !SRC_PATH.trim().isEmpty();
     private static final boolean ENABLED_AT_NEW_SITE_CREATION_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP_NEW_SITE, ENABLED_SAKAI_NEW_SITE_DEFAULT) && ENABLED_AT_SYSTEM_LEVEL;
     private static final String SAKAI_SERVICE = ServerConfigurationService.getString(VERSION_SERVICE_SAKAI_PROP, VERSION_SERVICE_DEFAULT);
