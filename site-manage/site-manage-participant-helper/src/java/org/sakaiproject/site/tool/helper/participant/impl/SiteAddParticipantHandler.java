@@ -23,6 +23,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -461,7 +462,9 @@ public class SiteAddParticipantHandler {
 
 	private boolean checkCurrentUserRoleChange() {
 		boolean rv = true;
-		
+		if (SecurityService.isSuperUser()) {
+			return rv;
+		}
 		// check the change of roles whether it is valid: changed current user into role without "membership edit" permission? leaving the site without maintain role?
 		User currentUser = userDirectoryService.getCurrentUser();
 		String currentUserEid = currentUser != null ? currentUser.getEid():"";
