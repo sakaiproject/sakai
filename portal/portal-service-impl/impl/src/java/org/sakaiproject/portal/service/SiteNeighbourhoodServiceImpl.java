@@ -545,11 +545,11 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				return (String)originalId;
 			}
 		}
-		List<Alias> aliases = aliasService.getAliases(id);
 		if (!useSiteAliases)
 		{
 			return null;
 		}
+		List<Alias> aliases = aliasService.getAliases(id);
 		if (aliases.size() > 0)
 		{
 			if (aliases.size() > 1 && log.isInfoEnabled())
