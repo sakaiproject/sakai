@@ -12,7 +12,7 @@
     <parent>
         <artifactId>content-review-impl-base-federated</artifactId>
         <groupId>org.sakaiproject.contentreview</groupId>
-        <version>11-SNAPSHOT</version>
+        <version>11.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

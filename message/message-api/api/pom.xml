@@ -5,7 +5,7 @@
     <parent>
         <artifactId>message</artifactId>
         <groupId>org.sakaiproject.message</groupId>
-        <version>11-SNAPSHOT</version>
+        <version>11.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 

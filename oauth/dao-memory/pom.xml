@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.oauth</groupId>
         <artifactId>oauth-base</artifactId>
-        <version>11-SNAPSHOT</version>
+        <version>11.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

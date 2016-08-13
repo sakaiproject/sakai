@@ -4,7 +4,7 @@
   <parent>
     <artifactId>pasystem-base</artifactId>
     <groupId>org.sakaiproject.pasystem</groupId>
-    <version>11-SNAPSHOT</version>
+    <version>11.1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>pasystem-pack</name>
