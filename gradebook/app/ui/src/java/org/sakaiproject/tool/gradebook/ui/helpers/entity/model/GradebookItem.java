@@ -11,8 +11,10 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.entity.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.Getter;
@@ -25,20 +27,39 @@ public class GradebookItem {
 	
 	@Getter
 	@Setter
-	private long assignmentId;
+	private long id;
 	
 	@Getter
 	@Setter
-	private String assignmentName;
+	private String name;
+	
+	@Getter
+	@Setter
+	private Double points;
+	
+	@Getter
+	@Setter
+	private Date dueDate;
+	
+	@Getter
+	@Setter
+	private ExternalInfo externalInfo;
 	
 	@Getter
 	@Setter
 	private List<StudentGrade> grades;
 	
 	public GradebookItem(Assignment assignment) {
-		this.assignmentId = assignment.getId();
-		this.assignmentName = assignment.getName();
+		this.id = assignment.getId();
+		this.name = assignment.getName();
+		this.points = assignment.getPoints();
+		this.dueDate = assignment.getDueDate();
+		if(StringUtils.isNotBlank(assignment.getExternalId())) {
+			this.externalInfo = new ExternalInfo(assignment);
+		}
 		this.grades = new ArrayList<>();
+		
+		assignment.get
 	}
 	
 }
