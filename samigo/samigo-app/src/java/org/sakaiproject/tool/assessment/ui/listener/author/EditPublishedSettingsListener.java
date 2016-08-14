@@ -38,7 +38,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
@@ -47,6 +50,8 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.spring.SpringBeanLocator;
 
 /**
  * <p>Title: Samigo</p>
@@ -59,6 +64,10 @@ public class EditPublishedSettingsListener
     implements ActionListener
 {
   private static Logger log = LoggerFactory.getLogger(EditPublishedSettingsListener.class);
+  private static final GradebookExternalAssessmentService g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
+			getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+  private static final GradebookServiceHelper gbsHelper =
+				IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 
   public EditPublishedSettingsListener()
   {
@@ -137,6 +146,8 @@ public class EditPublishedSettingsListener
 	boolean isRetractedForEdit = isRetractedForEdit(assessment);
 	log.debug("isRetractedForEdit = " + isRetractedForEdit);
 	author.setIsRetractedForEdit(isRetractedForEdit);
+	
+	assessmentSettings.setGradebookExists(gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(),g));
 	
 	String editPubAnonyGradingRestricted = ServerConfigurationService.getString("samigo.editPubAnonyGrading.restricted");
     if (editPubAnonyGradingRestricted != null && editPubAnonyGradingRestricted.equals("true")) {

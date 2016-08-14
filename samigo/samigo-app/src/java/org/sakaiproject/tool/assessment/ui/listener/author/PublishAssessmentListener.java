@@ -43,14 +43,16 @@ import javax.faces.event.ActionListener;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -267,7 +269,7 @@ public class PublishAssessmentListener
     }
     String toGradebook = assessment.getEvaluationModel().getToGradeBook();
     try{
-      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+    	if (StringUtils.equals(toGradebook, String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK)) &&
           gbsHelper.isAssignmentDefined(assessmentName, g)){
         error=true;
         String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
@@ -475,4 +477,5 @@ public class PublishAssessmentListener
 	  
 	  return message.toString();
   }
+  
 }

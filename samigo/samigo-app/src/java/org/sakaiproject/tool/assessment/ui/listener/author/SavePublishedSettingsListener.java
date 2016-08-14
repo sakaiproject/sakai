@@ -39,10 +39,14 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -149,7 +153,6 @@ implements ActionListener
 		
 		assessment.setLastModifiedBy(AgentFacade.getAgentString());
 		assessment.setLastModifiedDate(new Date());
-		assessmentService.saveAssessment(assessment); 
 		
 		// jj. save assessment first, then deal with ip
 	    assessmentService.saveAssessment(assessment);
@@ -611,19 +614,21 @@ implements ActionListener
 			evaluation.setAssessmentBase(assessment.getData());
 		}
 		if (assessmentSettings.getAnonymousGrading()) {
-			evaluation.setAnonymousGrading(1);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
 		}
 		else {
-			evaluation.setAnonymousGrading(2);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
 	    
 		// If there is value set for toDefaultGradebook, we reset it
 		// Otherwise, do nothing
-		if (assessmentSettings.getToDefaultGradebook()) {
-			evaluation.setToGradeBook("1");
-		}
-		else {
-			evaluation.setToGradeBook("2");
+	    String toExistingGradebookItem = String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM);
+		if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
+			evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.ANONYMOUS_GRADING));
+		} else if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), toExistingGradebookItem)) {
+			evaluation.setToGradeBook(toExistingGradebookItem);
+		} else {
+			evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 		}
 
 		if (assessmentSettings.getScoringType() != null) {
@@ -655,7 +660,7 @@ implements ActionListener
 		// point = 0.
 		boolean gbError = false;
 
-		if (assessmentSettings.getToDefaultGradebook()) {
+		if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
 			if (assessment.getTotalScore() <= 0) {
 				String gb_err = (String) ContextUtil.getLocalizedString(
 						"org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_min_points");
@@ -676,7 +681,7 @@ implements ActionListener
 		if (integrated)
 		{
 			g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-			getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+					getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 		}
 
 		if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)){ // => something to do
@@ -686,27 +691,27 @@ implements ActionListener
 				evaluation = new PublishedEvaluationModel();
 				evaluation.setAssessmentBase(assessment.getData());
 			}
-			
+
 			String assessmentName;
-			boolean gbItemExists = false;
 			try{
 				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getTitle().trim());
-				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-				if (assessmentSettings.getToDefaultGradebook() && gbItemExists && isTitleChanged){
+				boolean gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
+				if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK)) && gbItemExists && isTitleChanged){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
 				}
 			}
-			catch(Exception e){
+			catch(Exception e) {
 				LOG.warn("external assessment in GB has the same title:"+e.getMessage());
 			}
-			
-			if (assessmentSettings.getToDefaultGradebook()) {
-				evaluation.setToGradeBook("1");
-			}
-			else {
-				evaluation.setToGradeBook("2");
+
+			if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
+				evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.ANONYMOUS_GRADING));
+			} else if (StringUtils.equals(assessmentSettings.getToDefaultGradebook(), String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM))) {
+				evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM));
+			} else {
+				evaluation.setToGradeBook(String.valueOf(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 			}
 
 			// If the assessment is retracted for edit, we don't sync with gradebook (only until it is republished)
@@ -714,8 +719,10 @@ implements ActionListener
 				return true;
 			}
 			Integer scoringType = evaluation.getScoringType();
-			if (evaluation.getToGradeBook()!=null && 
-					evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+			String toDefaultGradebook = String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK);
+			String toExistingGradebookItem = String.valueOf(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM);
+			if (StringUtils.equals(evaluation.getToGradeBook(), toDefaultGradebook) ||
+							StringUtils.equals(evaluation.getToGradeBook(), toExistingGradebookItem)) {
 				Long categoryId = null;
 				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
@@ -728,62 +735,15 @@ implements ActionListener
 						LOG.info("Exception thrown in updateGB():" + e1.getMessage());
 					}
 				}
-				
-				if(gbItemExists && !(isTitleChanged || isScoringTypeChanged)){
-					try {
-						gbsHelper.updateGradebook(assessment, g);
-					} catch (Exception e) {
-						LOG.warn("Exception thrown in updateGB():" + e.getMessage());
-					}
+				try {
+					// Handle linking here of published assessments, if necessary
+					GradingService gradingService = new GradingService();
+					gradingService.linkAssessmentWithGradebook(scoringType, assessment);
+					evaluation.setToGradeBook(toDefaultGradebook);
+				} catch (Exception e) {
+					LOG.warn("Exception thrown in updateGB():" + e.getMessage());
 				}
-				else{
-					try{
-						LOG.debug("before gbsHelper.addToGradebook()");
-						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), categoryId, g);
-
-						// any score to copy over? get all the assessmentGradingData and copy over
-						GradingService gradingService = new GradingService();
-
-						// need to decide what to tell gradebook
-						List list;
-
-						if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-							list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-						}
-						else {
-							list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-						}
-
-						//ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
-						LOG.debug("list size =" + list.size()	);
-						for (int i=0; i<list.size();i++){
-							try {
-								AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
-								LOG.debug("ag.scores " + ag.getTotalAutoScore());
-								// Send the average score if average was selected for multiple submissions
-								if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {							
-									// status = 5: there is no submission but grader update something in the score page
-									if(ag.getStatus() ==5) {
-										ag.setFinalScore(ag.getFinalScore());
-									} else {
-										Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-										getAverageSubmittedAssessmentGrading(assessment.getPublishedAssessmentId(), ag.getAgentId());
-										ag.setFinalScore(averageScore);
-									}
-								}
-								gbsHelper.updateExternalAssessmentScore(ag, g);
-							}
-							catch (Exception e) {
-								LOG.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
-							}
-						}
-					}
-					catch(Exception e){
-						LOG.warn("oh well, must have been added already:"+e.getMessage());
-					}
-				}
-			}
-			else{ //remove
+			} else if (StringUtils.equals(evaluation.getToGradeBook(),String.valueOf(EvaluationModelIfc.NOT_TO_GRADEBOOK))) { //remove
 				try{
 					gbsHelper.removeExternalAssessment(
 							GradebookFacade.getGradebookUId(),
@@ -792,7 +752,7 @@ implements ActionListener
 				catch(Exception e){
 					LOG.warn("*** oh well, looks like there is nothing to remove:"+e.getMessage());
 				}
-			}
+			} 
 		}
 		return true;
 	}

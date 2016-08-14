@@ -40,6 +40,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
@@ -48,10 +49,12 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
@@ -73,6 +76,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -86,6 +90,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 public class PublishedAssessmentSettingsBean
   implements Serializable {
@@ -169,11 +174,12 @@ public class PublishedAssessmentSettingsBean
   // properties of PublishedEvaluationModel
   private boolean anonymousGrading;
   private boolean gradebookExists;
-  private boolean toDefaultGradebook;
+  private String toDefaultGradebook;
   private String scoringType;
   private String bgColor;
   private String bgImage;
   private HashMap values = new HashMap();
+  private boolean gradebookLinkeable;
 
   // extra properties
   private String publishedUrl;
@@ -361,7 +367,7 @@ public class PublishedAssessmentSettingsBean
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1");
         if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook().equals("1");
+          this.toDefaultGradebook = String.valueOf(evaluation.getToGradeBook());
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
         
@@ -370,17 +376,8 @@ public class PublishedAssessmentSettingsBean
         
         this.extendedTimeTargets = initExtendedTimeTargets();
         
-        /*
-        GradebookService g = null;
-        if (integrated)
-        {
-          g = (GradebookService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.service.gradebook.GradebookService");
-        }
-
-        this.gradebookExists = gbsHelper.gradebookExists(
-          GradebookFacade.getGradebookUId(), g);
-        */
+        GradingService gService = new GradingService();
+        this.gradebookLinkeable = gService.isGradebookItemAvailable(this.title); // true if there exist an empty GB item with same name as the assignment.
       }
 
       //set IPAddresses
@@ -834,11 +831,11 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.anonymousGrading = anonymousGrading;
   }
 
-  public boolean getToDefaultGradebook() {
+  public String getToDefaultGradebook() {
     return this.toDefaultGradebook;
   }
 
-  public void setToDefaultGradebook(boolean toDefaultGradebook) {
+  public void setToDefaultGradebook(String toDefaultGradebook) {
     this.toDefaultGradebook = toDefaultGradebook;
   }
 
@@ -1653,6 +1650,14 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   
  	public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
  		this.displayScoreDuringAssessments = displayScoreDuringAssessments;
+ 	}
+ 	
+ 	public boolean isGradebookLinkeable() {
+ 		return this.gradebookLinkeable;
+ 	}
+
+ 	public void setGradebookLinkeable(boolean pLinkeable) {
+ 		this.gradebookLinkeable = pLinkeable;
  	}
 }
 

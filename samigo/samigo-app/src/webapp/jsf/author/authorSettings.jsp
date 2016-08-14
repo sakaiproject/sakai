@@ -4,6 +4,7 @@
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -502,12 +503,22 @@
       </div>
     </h:panelGroup>
     
+    <f:verbatim><br /><br /></f:verbatim>
+    
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10 samigo-checkbox">
-        <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"/>
-        <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
+	      	<h:selectOneRadio id="toDefaultGradebook1" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection" rendered="#{assessmentSettings.gradebookLinkeable == true}">
+	     	 	<f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+	      		<f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.to_associate_existing_gradebook_item}"/>
+	        </h:selectOneRadio>
+	        <h:selectOneRadio id="toDefaultGradebook2" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection" rendered="#{assessmentSettings.gradebookLinkeable == false}">
+	  			<f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+	      		<f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
+	        </h:selectOneRadio>
+          <f:verbatim><br /></f:verbatim>
+          <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.gradebook_options_help}" />
       </div>
     </h:panelGroup>
 
