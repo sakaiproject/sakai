@@ -65,14 +65,14 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-[Sakai 11](https://confluence.sakaiproject.org/display/DOC/Sakai+11+Release+Notes) is the recommended version for production use.
+[Sakai 11.1](https://confluence.sakaiproject.org/display/DOC/Sakai+11+Release+Notes) is the recommended version for production use.
 
 [Sakai 10](https://confluence.sakaiproject.org/display/DOC/Sakai+10+Release+Notes) is still supported. Please use the latest maintenance release of 10.7.
 
 Sakai 2.9 and earlier are no longer supported by the community.
 
 ## Under Development
-Sakai 11.1 is under development.
+Sakai 11.2 is under development.
 
 ## Accessibility
 [The Sakai Accessibility Working Group] (https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan] (https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
