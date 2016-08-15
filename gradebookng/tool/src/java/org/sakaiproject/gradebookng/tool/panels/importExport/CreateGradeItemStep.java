@@ -1,8 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
@@ -65,13 +62,11 @@ public class CreateGradeItemStep extends Panel {
 
 			@Override
             protected void onSubmit() {
-                final List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
 
                 final Assignment a = (Assignment)getDefaultModel().getObject();
 
-                if (a != null) {
-                    assignmentsToCreate.add(assignment);
-                }
+                //add to model
+                importWizardModel.getAssignmentsToCreate().add(a);
 
                 log.debug("Assignment: " + assignment);
 
@@ -82,8 +77,6 @@ public class CreateGradeItemStep extends Panel {
                 //Figure out if there are more steps
                 //If so, go to the next step (ie do it all over again)
                 Component newPanel = null;
-                importWizardModel.setAssignmentsToCreate(assignmentsToCreate);
-
                 if (step < importWizardModel.getTotalSteps()) {
                     importWizardModel.setStep(step+1);
                     newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));

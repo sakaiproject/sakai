@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -22,6 +23,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportColumn;
@@ -54,6 +56,37 @@ public class ImportGradesHelper {
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 
+	// list of mimetypes for each category. Must be compatible with the parser
+	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+	private static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
+
+
+	/**
+	 * Helper to parse the imported file into an {@link ImportedGradeWrapper} depending on its type
+	 * @param is
+	 * @param mimetype
+	 * @param userMap
+	 * @return
+	 * @throws GbImportExportInvalidColumnException
+	 * @throws GbImportExportInvalidFileTypeException
+	 * @throws IOException
+	 * @throws InvalidFormatException
+	 */
+	public static ImportedGradeWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
+
+		ImportedGradeWrapper rval = null;
+
+		// determine file type and delegate
+		if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
+			rval = ImportGradesHelper.parseCsv(is, userMap);
+		} else if (ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
+			rval = ImportGradesHelper.parseXls(is, userMap);
+		} else {
+			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
+		}
+		return rval;
+	}
+
 	/**
 	 * Parse a CSV into a list of ImportedGrade objects. Returns list if ok, or null if error
 	 *
@@ -62,7 +95,7 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws GbImportExportInvalidColumnException
 	 */
-	public static ImportedGradeWrapper parseCsv(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, IOException {
+	private static ImportedGradeWrapper parseCsv(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, IOException {
 
 		// manually parse method so we can support arbitrary columns
 		final CSVReader reader = new CSVReader(new InputStreamReader(is));
@@ -107,7 +140,7 @@ public class ImportGradesHelper {
 	 * @throws InvalidFormatException
 	 * @throws GbImportExportInvalidColumnException
 	 */
-	public static ImportedGradeWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException {
+	private static ImportedGradeWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException {
 
 		int lineCount = 0;
 		final List<ImportedGrade> list = new ArrayList<ImportedGrade>();
@@ -214,23 +247,19 @@ public class ImportGradesHelper {
 	public static List<ProcessedGradeItem> processImportedGrades(final ImportedGradeWrapper importedGradeWrapper,
 			final List<Assignment> assignments, final List<GbStudentGradeInfo> currentGrades) {
 
-		//setup
-		final List<ProcessedGradeItem> processedGradeItems = new ArrayList<>();
-		final Map<String, Assignment> assignmentNameMap = new HashMap<>();
+		// setup
+		// TODO this will ensure dupes can't be added. Provide a report to the user that dupes were added. There would need to be a step before this though
 		final Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<>();
 
 		// process grades
 		final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
 
-
-		// Map the assignment name back to the Id
-		for (final Assignment assignment : assignments) {
-			assignmentNameMap.put(assignment.getName(), assignment);
-		}
+		// Map assignment name to assignment
+		final Map<String, Assignment> assignmentNameMap = assignments.stream().collect(Collectors.toMap(Assignment::getName, a -> a));
 
 		//for every column, setup the data
 		for (final ImportColumn column : importedGradeWrapper.getColumns()) {
-			boolean needsAdded = false;
+			boolean needsToBeAdded = false;
 
 			final String columnTitle = StringUtils.trim(column.getColumnTitle()); // trim whitespace so we can match properly
 
@@ -238,7 +267,7 @@ public class ImportGradesHelper {
 			ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(columnTitle);
 			if (processedGradeItem == null) {
 				processedGradeItem = new ProcessedGradeItem();
-				needsAdded = true;
+				needsToBeAdded = true;
 
 				//default to gb_item
 				//overridden if a comment type
@@ -293,11 +322,14 @@ public class ImportGradesHelper {
 			}
 			processedGradeItem.setProcessedGradeItemDetails(processedGradeItemDetails);
 
-			if (needsAdded) {
-				processedGradeItems.add(processedGradeItem);
+			// add to list
+			if (needsToBeAdded) {
 				assignmentProcessedGradeItemMap.put(columnTitle, processedGradeItem);
 			}
 		}
+
+		// get just a list
+		final List<ProcessedGradeItem> processedGradeItems = new ArrayList<>(assignmentProcessedGradeItemMap.values());
 
 		// comment columns must have an associated gb item column
 		// this ensures we have a processed grade item for each one
