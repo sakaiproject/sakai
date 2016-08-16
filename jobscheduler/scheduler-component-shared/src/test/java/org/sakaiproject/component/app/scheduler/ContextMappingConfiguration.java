@@ -7,6 +7,7 @@ import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hsqldb.jdbcDriver;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;
+import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -27,6 +28,7 @@ public class ContextMappingConfiguration {
             String dialectClassName = HSQLDialect.class.getName();
             Configuration config = new Configuration();
             config.addAnnotatedClass(ContextMapping.class);
+            config.addAnnotatedClass(DelayedInvocation.class);
 
             config.setProperty(Environment.DIALECT, dialectClassName);
             config.setProperty(Environment.DRIVER, jdbcDriver.class.getName());
