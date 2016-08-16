@@ -87,6 +87,7 @@ function whichradio(el) {
 		$('input[type=radio]',parentTable).not(el).each(function(){
 			var id = $(this).prop('id');
 			if(id.indexOf(colId) !== -1 && $(this).is(':checked')) {
+				el.checked = false;
 				alert("You are only allowed one selection per column, please try again.");
 				allowChange = false;
 			}
