@@ -81,6 +81,16 @@ $(document).ready(function() {
                     $(this).height($(this).width() * 0.75);
             });
 
+	$("input[type=checkbox].checklist-checkbox").on("change", function(){
+
+		$(this).next("span").addClass("savingChecklistItem");
+		$(this).parent().nextAll(".saveChecklistSaving").show();
+		$("#saveChecklistForm-checklistId").val($(this).closest(".checklistItemForm").find(".checklistId").val()).change();
+		$("#saveChecklistForm-checklistItemIdInput").val($(this).val()).change();
+		$("#saveChecklistForm-checklistItemDone").val($(this).is(':checked')).change();
+
+	});
+
 	// This is called in comments.js as well, however this may be faster.
 	//if(sakai.editor.editors.ckeditor==undefined) {
 //		$(".evolved-box :not(textarea)").hide();

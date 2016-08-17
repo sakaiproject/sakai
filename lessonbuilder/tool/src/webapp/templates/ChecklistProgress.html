@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+    <style rsf:id="iconstyle" type="text/css">
+    </style>
+    <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+    <script language="JavaScript" src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
+    <script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
+    <link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.11.1.smoothness.css" rel="stylesheet" />
+    <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+    <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+    <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/checklistProgress.css" type="text/css"/>
+    <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
+
+    <title rsf:id="msg=simplepage.checklist"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+<script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.11.1.custom.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery.tablesorter.min.js"></script>
+
+<div class="portletBody">
+
+    <div class="longtext checklistProgressPageHeader">
+        <span rsf:id="title-label"></span>
+
+        <div id="otherChecklistsDiv" class="progress-navigation">
+            <ul id="otherChecklistsMenu" class="menu">
+                <li id="otherChecklistsMenuItem" class="menu-item">
+                    <span id="checklist-title" rsf:id="checklist-title"></span><i class="fa fa-chevron-down"></i>
+                    <ul id="otherChecklists" class="dropdown">
+                        <li id="other-checklists:" rsf:id="other-checklists:" class="menu-item sub-menu">
+                            <a rsf:id="edit-checklistProgress"><span rsf:id="otherChecklistName"></span></a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <span class="nextprev buttonset">
+            <a href="#" class="usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only previousButton" rsf:id="back-button"></a>
+        </span>
+    </div>
+
+    <div class="checklistProgressHeader">
+        <h2><span rsf:id="checklist-name"></span></h2>
+        <p class="checklistDescription"><span rsf:id="checklist-description"></span></p>
+        <ol class="checklistItemList">
+            <li rsf:id="checklistItemList:">
+                <span rsf:id="checklistitem-text" class="itemText"></span>
+            </li>
+        </ol>
+    </div>
+
+    <div rsf:id="checklistContainer:">
+        <table class="checklistProgressTable" rsf:id="checklistTable:">
+            <thead>
+            <tr rsf:id="itemHeader:">
+                <th rsf:id="student-th" class="studentHeader"><span rsf:id="studentheader-text"></span></th>
+                <th rsf:id="checklistItem-th:" class="headerNum">
+                    <span rsf:id="checklistitemheader-num"></span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr rsf:id="item:">
+                <th rsf:id="student-td" class="row-header"><span rsf:id="studentname-text"></span></th>
+                <td rsf:id="checklistItem-td:"><span rsf:id="sortHelper"></span><img rsf:id="checkedOff" src="../images/green_checkmark_big.png" alt="Done"/></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <span class="nextprev buttonset">
+            <a href="#" class="usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only previousButton" rsf:id="back-button2"></a>
+        </span>
+    </div>
+
+</div>
+<script type="text/javascript" language="JavaScript" src="$context/js/checklistProgress.js"></script>
+<script type="text/javascript">
+    checklistProgress.init();
+</script>
+</body>
+</html>

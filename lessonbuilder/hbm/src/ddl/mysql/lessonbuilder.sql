@@ -145,3 +145,11 @@
         points double precision,
         primary key (id)
     );
+
+    create table lesson_builder_ch_status (
+        checklistId bigint not null,
+        checklistItemId bigint not null,
+        owner varchar(36) not null,
+        done bit,
+        primary key (checklistId,checklistItemId,owner)
+    );

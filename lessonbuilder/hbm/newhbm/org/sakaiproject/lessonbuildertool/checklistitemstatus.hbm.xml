@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="org.sakaiproject.lessonbuildertool.ChecklistItemStatusImpl" table="lesson_builder_ch_status">
+
+        <cache usage="nonstrict-read-write" />
+
+        <composite-id>
+           <key-property name="checklistId" type="long"/>
+           <key-property name="checklistItemId" type="long"/>
+           <key-property name="owner" type="string" length="99"/>
+        </composite-id>
+
+        <property name="done" type="boolean" />
+
+    </class>
+</hibernate-mapping>

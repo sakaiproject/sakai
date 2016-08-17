@@ -87,6 +87,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
@@ -1191,6 +1192,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
 						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
+						|| i.getType() == SimplePageItem.CHECKLIST
 					        || i.getType() == SimplePageItem.BREAK);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
@@ -1222,6 +1224,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
+				case SimplePageItem.CHECKLIST: itemClassName = "checklistType"; break;
 				}
 
 				// inline LTI. Our code calls all BLTI items listItem, but the inline version really isn't
@@ -1391,6 +1394,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						linkdiv.decorate(new UIFreeAttributeDecorator("role", "navigation"));
 					    }
 					}
+
+					styleItem(tableRow, linktd, i, "indentLevel", "custom-css-class");
 
 					// note that a lot of the info here is used by the
 					// javascript that prepares
@@ -2893,6 +2898,86 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "questionShowPoll", String.valueOf(i.getAttribute("questionShowPoll")));
 						}
 					}
+				} else if (i.getType() == SimplePageItem.CHECKLIST) {
+					UIOutput checklistItemContainer = UIOutput.make(tableRow, "checklistItemContainer");
+
+					UIOutput.make(tableRow, "checklistDiv");
+
+					UIOutput checklistTitle = UIOutput.make(tableRow, "checklistTitle", i.getName());
+
+					if(Boolean.valueOf(i.getAttribute(SimplePageItem.NAMEHIDDEN))) {
+						if(canEditPage) {
+							checklistTitle.setValue("( " + i.getName() + " )");
+							checklistTitle.decorate(new UIStyleDecorator("hiddenTitle"));
+						} else {
+							checklistTitle.decorate(new UIStyleDecorator("noDisplay"));
+						}
+					}
+
+					UIOutput.make(tableRow, "checklistDescription", i.getDescription());
+
+					List<SimpleChecklistItem> checklistItems = simplePageToolDao.findChecklistItems(i);
+
+					UIOutput.make(tableRow, "checklistItemDiv");
+					UIForm checklistForm = UIForm.make(tableRow, "checklistItemForm");
+
+					UIInput.make(checklistForm, "checklistId", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
+
+					ArrayList<String> values = new ArrayList<String>();
+					ArrayList<String> initValues = new ArrayList<String>();
+
+					for (SimpleChecklistItem checklistItem : checklistItems) {
+						values.add(String.valueOf(checklistItem.getId()));
+
+						boolean isDone = simplePageToolDao.isChecklistItemChecked(i.getId(), checklistItem.getId(), simplePageBean.getCurrentUserId());
+
+						if (isDone) {
+							initValues.add(String.valueOf(checklistItem.getId()));
+						} else {
+							initValues.add("");
+						}
+					}
+
+					UIOutput.make(checklistForm, "checklistItemsDiv");
+					if(!checklistItems.isEmpty()) {
+						UISelect select = UISelect.makeMultiple(checklistForm, "checklist-span", values.toArray(new String[1]), "#{simplePageBean.selectedChecklistItems}", initValues.toArray(new String[1]));
+
+						int index = 0;
+						for (SimpleChecklistItem checklistItem : checklistItems) {
+							UIBranchContainer row = UIBranchContainer.make(checklistForm, "select-checklistitem-list:");
+							UISelectChoice.make(row, "select-checklistitem", select.getFullID(), index).decorate(new UIStyleDecorator("checklist-checkbox"));
+
+							UIOutput.make(row, "select-checklistitem-name", checklistItem.getName()).decorate(new UIStyleDecorator("checklist-checkbox-label"));
+							index++;
+						}
+					}
+
+					if (canEditPage) {
+
+						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+
+						UIOutput.make(tableRow, "item-groups-titles-checklist", itemGroupTitles);
+
+						UIOutput.make(tableRow, "editchecklist-td");
+
+						GeneralViewParameters eParams = new GeneralViewParameters();
+						eParams.setSendingPage(currentPage.getPageId());
+						eParams.setItemId(i.getId());
+						eParams.viewID = ChecklistProducer.VIEW_ID;
+						UIInternalLink.make(tableRow, "edit-checklist", (String)null, eParams).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-checklist").replace("{}", i.getName())));
+
+						GeneralViewParameters gvp = new GeneralViewParameters();
+						gvp.setSendingPage(currentPage.getPageId());
+						gvp.setItemId(i.getId());
+						gvp.viewID = ChecklistProgressProducer.VIEW_ID;
+						UIInternalLink.make(tableRow, "edit-checklistProgress", (String)null, gvp).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.view-checklist").replace("{}", i.getName())));
+					}
+
+					makeSaveChecklistForm(tofill);
 				}  else {
 					// remaining type must be a block of HTML
 					UIOutput.make(tableRow, "itemSpan");
@@ -3262,6 +3347,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 				fake = true; // need to set this in case it's available for missing entity
 			}
+		} else if (i.getType() == SimplePageItem.CHECKLIST) {
+			if (available) {
+				if (i.isPrerequisite()) {
+					simplePageBean.checkItemPermissions(i, true);
+				}
+				GeneralViewParameters view = new GeneralViewParameters(ChecklistProducer.VIEW_ID);
+				view.setSendingPage(currentPage.getPageId());
+				view.setItemId(i.getId());
+				UILink link = UIInternalLink.make(container, "link", view);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+			} else {
+				if (i.isPrerequisite()) {
+					simplePageBean.checkItemPermissions(i, false);
+				}
+				fake = true; // need to set this in case it's available for missing entity
+			}
 		} else if (i.getType() == SimplePageItem.BLTI) {
 		    LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 		    if ("inline".equals(i.getFormat())) {
@@ -3348,6 +3449,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		link.decorate(new UIStyleDecorator("disabled"));
 		link.decorate(new UIFreeAttributeDecorator("style", "color:#999 !important"));
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
+	}
+
+	private void styleItem(UIContainer row, UIComponent component, SimplePageItem i, String indent, String customClass) {
+	    // Indent level - default to 0 if not previously set
+	    String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
+	    // Indent number in em is 4 times the level of indent
+
+	    if (!"0".equals(indentLevel))
+		component.decorate(new UIFreeAttributeDecorator("x-indent", indentLevel));
+	    if (indent != null)
+		UIOutput.make(row, indent, indentLevel);
+
+	    // Custom css class(es)
+	    String customCssClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
+	    if (customCssClass != null && customClass != null) {
+		component.decorate(new UIStyleDecorator(customCssClass));
+	    }
+	    if (customClass != null) {
+		UIOutput.make(row, customClass, customCssClass);
+	    }
+
 	}
 
 	// show is if it was disabled but don't actually
@@ -3522,6 +3644,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		    UIOutput.make(tofill, "forum-li");
 		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
+
+		    UIOutput.make(tofill, "checklist-li");
+		    createToolBarLink(ChecklistProducer.VIEW_ID, tofill, "add-checklist", "simplepage.checklist", currentPage, "simplepage.checklist");
 
 		    UIOutput.make(tofill, "question-li");
 		    UIComponent questionlink = UIInternalLink.makeURL(tofill, "question-link", "#");
@@ -4612,6 +4737,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIInput csrfInput = UIInput.make(gradingForm, "csrf", "gradingBean.csrfToken", (sessionToken == null ? "" : sessionToken.toString()));
 			UIInitBlock.make(tofill, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, typeInput, csrfInput, "gradingBean.results"});
 			printedGradingForm = true;
+		}
+	}
+
+	private boolean saveChecklistFormNeeded = false;
+	private void makeSaveChecklistForm(UIContainer tofill) {
+		// Ajax grading form so faculty can grade comments
+		if(!saveChecklistFormNeeded) {
+			UIForm saveChecklistForm = UIForm.make(tofill, "saveChecklistForm");
+			saveChecklistForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
+			UIInput checklistIdInput = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistId", "checklistBean.checklistId");
+			UIInput checklistItemIdInput = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistItemIdInput", "checklistBean.checklistItemId");
+			UIInput checklistItemDone = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistItemDone", "checklistBean.checklistItemDone");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			String sessionTokenString = null;
+			if (sessionToken != null)
+			    sessionTokenString = sessionToken.toString();
+			UIInput checklistCsrfInput = UIInput.make(saveChecklistForm, "saveChecklistForm-csrf", "checklistBean.csrfToken", sessionTokenString);
+
+			UIInitBlock.make(tofill, "saveChecklistForm-init", "checklistAjax.initSaveChecklistForm", new Object[] {checklistIdInput, checklistItemIdInput, checklistItemDone, checklistCsrfInput, "checklistBean.results"});
+			saveChecklistFormNeeded = true;
 		}
 	}
 	

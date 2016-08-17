@@ -175,6 +175,8 @@ public class SimplePageBean {
 	public String[] studentSelectedGroups = new String[] {};
 
 	public String selectedQuiz = null;
+
+	public String[] selectedChecklistItems = new String[] {};
 	
 	public long removeId = 0;
 
@@ -241,8 +243,13 @@ public class SimplePageBean {
     // but sameWindow should also be set properly, based on the format
 	private String format;
 
+	private boolean nameHidden;
+
 	private String numberOfPages;
 	private boolean copyPage;
+
+	private String indentLevel;
+	private String customCssClass;
 
 	private String alt = null;
 	private String order = null;
@@ -268,6 +275,8 @@ public class SimplePageBean {
 	private String currentSiteId = null;
 
 	public Map<String, MultipartFile> multipartMap;
+
+	private HashMap<Integer, String> checklistItems = new HashMap<>();
 	
 	public String rubricSelections;
 	
@@ -716,6 +725,39 @@ public class SimplePageBean {
 		this.description = description;
 	}
 
+	public void setNameHidden(boolean nameHidden) {
+		this.nameHidden = nameHidden;
+	}
+
+	public String getIndentLevel() {
+		if (itemId != null && itemId != -1) {
+			return findItem(itemId).getAttribute(SimplePageItem.INDENT);
+		} else {
+			// default is zero
+			return "0";
+		}
+	}
+
+	public void setIndentLevel(String indentLevel) {
+		this.indentLevel = indentLevel;
+	}
+
+	public String getCustomCssClass() {
+		return customCssClass;
+	}
+
+	public void setCustomCssClass(String customCssClass) {
+		this.customCssClass = customCssClass;
+	}
+
+	public boolean getNameHidden() {
+		if (itemId != null && itemId != -1) {
+			return Boolean.valueOf(findItem(itemId).getAttribute(SimplePageItem.NAMEHIDDEN));
+		} else {
+			return false;
+		}
+	}
+
 	public void setHidePage(boolean hide) {
 		hidePage = hide;
 	}
@@ -1094,6 +1136,105 @@ public class SimplePageBean {
 		}
 
 		return rv;
+	}
+
+	// called by the checklist producer
+	// to add or update a checklist (simplepageitem)
+	public String addChecklist() {
+
+		if (!itemOk(itemId)) {
+			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
+			return "permission-failed";
+		}
+		if (!checkCsrf())
+		    return "permission-failed";
+		if(!canEditPage()) {
+			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
+			return "failure";
+		}
+
+		SimplePageItem item;
+		if (itemId != null && itemId != -1) {
+			item = findItem(itemId);
+		} else {
+			// Adding a checklist to the page
+			item = appendItem("", messageLocator.getMessage("simplepage.checklistName"), SimplePageItem.CHECKLIST);
+		}
+
+		item.setName(name);
+		item.setDescription(description);
+		setItemGroups(item, selectedGroups);
+
+		// Set the indent level for this item
+		item.setAttribute(SimplePageItem.INDENT, indentLevel);
+
+		// Set the custom css class
+		item.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
+
+		// Is the name hidden from students
+		item.setAttribute(SimplePageItem.NAMEHIDDEN, String.valueOf(nameHidden));
+
+		Long max = simplePageToolDao.maxChecklistItem(item);
+
+		// Get existing item ids
+		List<Long> previousIds = new ArrayList<Long>();
+		for(SimpleChecklistItem checklistItem : simplePageToolDao.findChecklistItems(item)) {
+			previousIds.add(checklistItem.getId());
+		}
+
+		simplePageToolDao.clearChecklistItems(item);
+
+		for(int i = 0; checklistItems.get(i) != null; i++) {
+			// get data sent from post operation for this answer
+			String data = checklistItems.get(i);
+			// split the data into the actual fields
+			String[] fields = data.split(":", 2);
+			String itemName = fields[1];
+			// Don't save checklist items with a blank name
+			if(!"".equals(itemName)) {
+				Long checklistItemId;
+				if (fields[0].equals(""))
+					checklistItemId = -1L;
+				else
+					checklistItemId = Long.valueOf(fields[0]);
+				if (checklistItemId <= 0L)
+					checklistItemId = ++max;
+				// Remove checklistItemId from list of those to be cleaned up
+				previousIds.remove(checklistItemId);
+				Long id = simplePageToolDao.addChecklistItem(item, checklistItemId, itemName);
+			}
+		}
+
+		// Delete all checklist item statuses for checklist items that no longer exist.
+		if(!previousIds.isEmpty()) {
+			for(Long checklistItemIdToDelete : previousIds) {
+				simplePageToolDao.deleteAllSavedStatusesForChecklistItem(item.getId(), checklistItemIdToDelete);
+			}
+		}
+
+		update(item);
+
+		return "success";
+	}
+
+	public void setAddChecklistItemData(String data) {
+		if(data == null || data.equals("")) {
+			return;
+		}
+
+		int separator = data.indexOf(":");
+		String indexString = data.substring(0, separator);
+		Integer index = Integer.valueOf(indexString);
+		data = data.substring(separator+1);
+
+		if(checklistItems == null) {
+			checklistItems = new HashMap<Integer, String>();
+			log.debug("setAddChecklistItemData: it was null");
+		}
+
+		// We store with the index so that we can maintain the order
+		// in which the instructor inputted the checklist items
+		checklistItems.put(index, data);
 	}
 
 	public String cancel() {
@@ -1659,8 +1800,12 @@ public class SimplePageBean {
 		if(i.getAltGradebook() != null) {
 			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getAltGradebook());
 		}
-		
-		
+
+		// If SimplePageItem is a checklist delete all of the saved statuses
+		if(i.getType() == SimplePageItem.CHECKLIST) {
+			simplePageToolDao.deleteAllSavedStatusesForChecklist(i);
+		}
+
 		b = simplePageToolDao.deleteItem(i);
 		
 		if (b) {
@@ -1809,6 +1954,7 @@ public class SimplePageBean {
 					itemType == SimplePageItem.ASSESSMENT ||
 					itemType == SimplePageItem.FORUM ||
 					itemType == SimplePageItem.PAGE ||
+					itemType == SimplePageItem.CHECKLIST ||
 			                itemType == SimplePageItem.BLTI ||
 					itemType == SimplePageItem.RESOURCE && nextItem.isSameWindow()) {
 				// it's easy if the next item is available. If it's not, then
@@ -1874,6 +2020,14 @@ public class SimplePageBean {
 			    URL = "/access/require?ref=" + URLEncoder.encode("/content" + nextItem.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
 	    		view.setSource(URL);
 	    		view.viewID = ShowItemProducer.VIEW_ID;
+	    	} else if (itemType == SimplePageItem.CHECKLIST) { /// must be a same page checklist
+	    	    view.setSendingPage(Long.valueOf(item.getPageId()));
+	    	    // to the check. We need the check to set access control appropriately
+	    	    // if the user has passed.
+	    	    if (!isItemAvailable(nextItem, nextItem.getPageId()))
+	    	    	view.setRecheck("true");
+	    	    view.setSource(nextItem.getItemURL(getCurrentSiteId(), getCurrentPage().getOwner()));
+	    	    view.viewID = ShowItemProducer.VIEW_ID;
 	    	} else {
 	    		view.setSendingPage(Long.valueOf(item.getPageId()));
 	    		LessonEntity lessonEntity = null;
@@ -1954,6 +2108,10 @@ public class SimplePageBean {
 			if (lessonBuilderAccessService.needsCopyright(prevItem.getSakaiId()))
 			    URL = "/access/require?ref=" + URLEncoder.encode("/content" + prevItem.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
 			view.setSource(URL);
+			view.viewID = ShowItemProducer.VIEW_ID;
+		} else if (itemType == SimplePageItem.CHECKLIST) { // must be a samepage checklist
+			view.setSendingPage(Long.valueOf(item.getPageId()));
+			view.setSource(prevItem.getItemURL(getCurrentSiteId(),getCurrentPage().getOwner()));
 			view.viewID = ShowItemProducer.VIEW_ID;
 		}else if(itemType == SimplePageItem.STUDENT_CONTENT) {
 			view.setSendingPage(prevEntry.pageId);
@@ -2704,6 +2862,12 @@ public class SimplePageBean {
 				i.setRequirementText(dropDown);
 			}
 
+			// Set the indent level for this item
+			i.setAttribute(SimplePageItem.INDENT, indentLevel);
+
+			// Set the custom css class
+			i.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
+
 			// currently we only display HTML in the same page
 			if (i.getType() == SimplePageItem.RESOURCE)
 			    i.setSameWindow(!newWindow);
@@ -3238,6 +3402,7 @@ public class SimplePageBean {
 
 	    if (!nocache && i.getType() != SimplePageItem.PAGE 
 		         && i.getType() != SimplePageItem.TEXT
+		         && i.getType() != SimplePageItem.CHECKLIST
 		         && i.getType() != SimplePageItem.BLTI
 		         && i.getType() != SimplePageItem.COMMENTS
 		         && i.getType() != SimplePageItem.QUESTION
@@ -3277,6 +3442,7 @@ public class SimplePageBean {
 		   // fall through: groups controlled by LB
 	       // for the following items we don't have non-LB items so don't need itemunused
 	       case SimplePageItem.TEXT:
+	       case SimplePageItem.CHECKLIST:
 	       case SimplePageItem.PAGE:
 	       case SimplePageItem.COMMENTS:
 	       case SimplePageItem.QUESTION:
@@ -3461,6 +3627,7 @@ public class SimplePageBean {
 		   return setLBItemGroups(i, groups);
 	       return setResourceGroups (i, groups);
 	   case SimplePageItem.TEXT:
+	   case SimplePageItem.CHECKLIST:
 	   case SimplePageItem.PAGE:
 	   case SimplePageItem.BLTI:
 	   case SimplePageItem.COMMENTS:
@@ -4904,6 +5071,10 @@ public class SimplePageBean {
 			boolean result = peerEval ==null? true:false;
 				completeCache.put(itemId, result);
 				return result;
+		} else if (item.getType() == SimplePageItem.CHECKLIST) {
+			// Simply viewing will complete at this time
+			completeCache.put(itemId, true);
+			return true;
 		}
 		else {
 			completeCache.put(itemId, false);

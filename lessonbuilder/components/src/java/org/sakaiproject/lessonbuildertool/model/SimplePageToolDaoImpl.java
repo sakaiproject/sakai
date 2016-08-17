@@ -75,6 +75,9 @@ import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 import org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItemImpl;
+import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -1523,5 +1526,181 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	}
 
+	public List<SimpleChecklistItem> findChecklistItems(SimplePageItem checklist) {
+		List<SimpleChecklistItem> ret = new ArrayList<SimpleChecklistItem>();
+
+		// find new id number, max + 1
+		List checklistItems = (List)checklist.getJsonAttribute("checklistItems");
+		if (checklistItems == null)
+			return ret;
+		for (Object i: checklistItems) {
+			Map checklistItem = (Map) i;
+			SimpleChecklistItem newChecklistItem = new SimpleChecklistItemImpl((Long)checklistItem.get("id"), (String)checklistItem.get("name"));
+			ret.add(newChecklistItem);
+		}
+		return ret;
+	}
+
+	public SimpleChecklistItem findChecklistItem(SimplePageItem checklist, long checklistItemId) {
+		// find new id number, max + 1
+		List checklistItems = (List)checklist.getJsonAttribute("checklistItems");
+		if (checklistItems == null)
+			return null;
+		for (Object i: checklistItems) {
+			Map checklistItem = (Map) i;
+			if (checklistItemId == (Long)checklistItem.get("id")) {
+				SimpleChecklistItem newChecklistItem = new SimpleChecklistItemImpl(checklistItemId, (String)checklistItem.get("name"));
+				return newChecklistItem;
+			}
+		}
+		return null;
+	}
+
+	public boolean deleteAllSavedStatusesForChecklist(SimplePageItem checklist) {
+		try {
+			List<ChecklistItemStatus> checklistItemStatuses = findChecklistItemStatusesForChecklist(checklist.getId());
+			if(checklistItemStatuses != null) {
+				getHibernateTemplate().deleteAll(checklistItemStatuses);
+			}
+			return true;
+		} catch (DataAccessException dae) {
+			log.warn("Unable to delete all saved status for checklist: " + dae);
+			return false;
+		}
+	}
+
+	public boolean deleteAllSavedStatusesForChecklistItem(long checklistId, long checklistItemId) {
+		try {
+			List<ChecklistItemStatus> checklistItemStatuses = findChecklistItemStatusesForChecklistItem(checklistId, checklistItemId);
+			if(checklistItemStatuses != null) {
+				getHibernateTemplate().deleteAll(checklistItemStatuses);
+			}
+			return true;
+		} catch (DataAccessException dae) {
+			log.warn("Unable to delete all checklist item statuses for checklist item " + dae);
+			return false;
+		}
+	}
+
+	public void clearChecklistItems(SimplePageItem checklist) {
+		checklist.setJsonAttribute("checklistItems", null);
+	}
+
+	public Long maxChecklistItem(SimplePageItem checklist)  {
+		Long max = 0L;
+		List checklistItems = (List)checklist.getJsonAttribute("checklistItems");
+		if (checklistItems == null)
+			return max;
+		for (Object i: checklistItems) {
+			Map item = (Map) i;
+			Long id = (Long)item.get("id");
+			if (id > max)
+				max = id;
+		}
+		return max;
+	}
+
+	public Long addChecklistItem(SimplePageItem checklist, Long id, String name) {
+		// no need to check security. that happens when item is saved
+
+		List checklistItems = (List)checklist.getJsonAttribute("checklistItems");
+		if (checklistItems == null) {
+			checklistItems = new JSONArray();
+			checklist.setJsonAttribute("checklistItems", checklistItems);
+			if (id <= 0L)
+				id = 1L;
+		} else if (id <= 0L) {
+			Long max = 0L;
+			for (Object i: checklistItems) {
+				Map item = (Map) i;
+				Long newId = (Long)item.get("id");
+				if (newId > max)
+					max = newId;
+			}
+			id = max + 1;
+		}
+
+		// create and add the json form of the answer
+		Map newChecklistItem = new JSONObject();
+		newChecklistItem.put("id", id);
+		newChecklistItem.put("name", name);
+		checklistItems.add(newChecklistItem);
+
+		return id;
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean isChecklistItemChecked(long checklistId, long checklistItemId, String userId) {
+		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
+				.add(Restrictions.eq("checklistId", checklistId))
+				.add(Restrictions.eq("checklistItemId", checklistItemId))
+				.add(Restrictions.eq("owner", userId));
+
+		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+
+		if(list.size() > 0) {
+			return list.get(0).isDone();
+		}else {
+			return false;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ChecklistItemStatus> findChecklistItemStatusesForChecklist(long checklistId) {
+		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
+				.add(Restrictions.eq("checklistId", checklistId));
+		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+
+		if(list.size() > 0) {
+			return list;
+		} else {
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ChecklistItemStatus> findChecklistItemStatusesForChecklistItem(long checklistId, long checklistItemId) {
+		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
+				.add(Restrictions.eq("checklistId", checklistId))
+				.add(Restrictions.eq("checklistItemId", checklistItemId));
+		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+
+		if(list.size() > 0) {
+			return list;
+		} else {
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public ChecklistItemStatus findChecklistItemStatus(long checklistId, long checklistItemId, String userId) {
+		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
+				.add(Restrictions.eq("checklistId", checklistId))
+				.add(Restrictions.eq("checklistItemId", checklistItemId))
+				.add(Restrictions.eq("owner", userId));
+		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+
+		if(list.size() > 0) {
+			return list.get(0);
+		}else {
+			return null;
+		}
+	}
+
+	public boolean saveChecklistItemStatus(ChecklistItemStatus checklistItemStatus) {
+		try {
+			getHibernateTemplate().saveOrUpdate(checklistItemStatus);
+			return true;
+		} catch (DataAccessException e) {
+			log.warn("Failed to save checklist item status " + checklistItemStatus.toString());
+			return false;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<SimplePageItem> findAllChecklistsInSite(String siteId) {
+		String hql = "select item from org.sakaiproject.lessonbuildertool.SimplePageItem item, org.sakaiproject.lessonbuildertool.SimplePage page where item.pageId = page.pageId and page.siteId = :site and item.type = 15";
+		return (List<SimplePageItem>) getHibernateTemplate().findByNamedParam(hql, "site", siteId);
+	}
 
 }

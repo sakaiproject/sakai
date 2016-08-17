@@ -13,6 +13,7 @@
  <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
  <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
  <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
+ <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/checklist.css" type="text/css" />
  <title rsf:id="msg=simplepage.showpage"></title>
 
  <style type="text/css">
@@ -59,6 +60,7 @@
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
  <script type="text/javascript" src="$context/js/show-page.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
+ <script type="text/javascript" src="$context/js/checklistAjax.js"></script>
  <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
  <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
@@ -274,6 +276,9 @@
                     <a role="menuitem" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
                   </li>
 		  <hr style="border:none"/>
+            <li rsf:id="checklist-li">
+                <a role="menuitem" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
+            </li>
 		  <li rsf:id="question-li">
 		    <a role="menuitem" href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
 		  </li>
@@ -570,6 +575,32 @@
                         <span style="display:none" rsf:id="commentsGrade" class="commentsGrade"></span>
                         <span style="display:none" rsf:id="commentsMaxPoints" class="commentsMaxPoints"></span>
                     </div>
+
+
+                    <div rsf:id="checklistItemContainer" class="right-col">
+                        <div rsf:id="editchecklist-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-checklistProgress"><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton itemLink" rsf:id="edit-checklist"><span aria-hidden="true" class="fa-edit fa-edit-icon fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
+                        <div class="checklistDiv" rsf:id="checklistDiv">
+                            <div>
+                                <h3 class="checklistTitle" rsf:id="checklistTitle"></h3><span rsf:id="item-groups-titles-checklist" class="item-group-titles"></span>
+                                <p class="checklistDescription" rsf:id="checklistDescription"></p>
+                                <div class="checklistItemDiv" rsf:id="checklistItemDiv" style="padding-left:10px">
+                                    <form action="#" rsf:id="checklistItemForm" class="checklistItemForm">
+                                        <div id="checklistItemsDiv" rsf:id="checklistItemsDiv">
+                                            <span rsf:id="checklist-span"/>
+                                            <div rsf:id="select-checklistitem-list:">
+                                                <label class="checklistLabel"><input type="checkbox" rsf:id="select-checklistitem" /><span rsf:id="select-checklistitem-name"></span></label>
+                                                <span class="saveChecklistSuccess checklistSaveMessage" style="display: none;">Save successful!</span>
+                                                <span class="saveChecklistError checklistSaveMessage" style="display: none;">Unable to save checklist item</span>
+                                                <span class="saveChecklistSaving checklistSaveMessage" style="display: none;"><img src="../images/loading.gif" alt="Saving checklist..."/></span>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" rsf:id="checklistId" id="checklistId" class="checklistId"/>
+                                        <input type="hidden" rsf:id="checklistItemId" />
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div rsf:id="studentgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-student"><span rsf:id="icon-student"></span></a></div></div>
                     <div rsf:id="studentSpan" class="right-col">
@@ -810,6 +841,19 @@
     			// "emitJavascriptCall" method will be placed here by RSF
 		</script>
 
+         <form class="saveChecklistForm" rsf:id="saveChecklistForm" style="display:none;">
+             <input type="hidden" class="checkboxElementId" id="saveChecklistForm-checkboxElementId" rsf:id="saveChecklistForm-checkboxElementId"></input>
+             <input type="hidden" class="checklistIdField" id="saveChecklistForm-checklistId" rsf:id="saveChecklistForm-checklistId"></input>
+             <input type="hidden" class="checklistItemIdField" id="saveChecklistForm-checklistItemIdInput" rsf:id="saveChecklistForm-checklistItemIdInput"></input>
+             <input type="hidden" class="checklistItemDoneField" id="saveChecklistForm-checklistItemDone" rsf:id="saveChecklistForm-checklistItemDone"></input>
+             <input type="hidden" class="checklistCsrfField" id="saveChecklistForm-csrf" rsf:id="saveChecklistForm-csrf"></input>
+         </form>
+
+         <script rsf:id="saveChecklistForm-init" type="text/javascript">
+             // a real function call with real values which come from the
+             // "emitJavascriptCall" method will be placed here by RSF
+         </script>
+
 		<div rsf:id="dialogDiv" style="display:none" >
 			<div id="messages">
 			  <p rsf:id="msg=simplepage.require_submit_assessment" id="simplepage.require_submit_assessment"></p>
@@ -908,7 +952,7 @@
 					</div>
 				</div>
       <form action="#" rsf:id="edit-form" class="controlsPanel">
-        <input type="hidden" rsf:id="csrf8" />
+        <input type="hidden" rsf:id="csrf8" id="csrf8"/>
 
                     <div class="">
 

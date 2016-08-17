@@ -41,6 +41,9 @@ import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
 import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
+import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
+
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public interface SimplePageToolDao {
@@ -278,6 +281,34 @@ public interface SimplePageToolDao {
 
     // items in lesson_builder_groups for specified site, map of itemId to groups
     public Map<String,String> getExternalAssigns(String siteId);
+
+    // Returns all of the checklist list items for a given checklist
+    public List<SimpleChecklistItem> findChecklistItems(SimplePageItem checklist);
+
+    // get a specific checklist item for a checklist
+    public SimpleChecklistItem findChecklistItem(SimplePageItem checklist, long checklistItemId);
+
+    public boolean deleteAllSavedStatusesForChecklist(SimplePageItem checklist);
+
+    public boolean deleteAllSavedStatusesForChecklistItem(long checklistId, long checklistItemId);
+
+    public void clearChecklistItems(SimplePageItem checklist);
+
+    public Long maxChecklistItem(SimplePageItem checklist);
+
+    public Long addChecklistItem(SimplePageItem checklist, Long id, String name);
+
+    public boolean isChecklistItemChecked(long checklistId, long checklistItemId, String userId);
+
+    public List<ChecklistItemStatus> findChecklistItemStatusesForChecklist(long checklistId);
+
+    public List<ChecklistItemStatus> findChecklistItemStatusesForChecklistItem(long checklistId, long checklistItemId);
+
+    public ChecklistItemStatus findChecklistItemStatus(long checklistId, long checklistItemId, String userId);
+
+    public boolean saveChecklistItemStatus(ChecklistItemStatus checklistItemStatus);
+
+    public List<SimplePageItem> findAllChecklistsInSite(String siteId);
 
     public int clearNeedsFixup(String siteId);
 
