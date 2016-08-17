@@ -730,6 +730,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .afterheader {
 	margin-top: 1em
 }
+.returnmsg span {
+        text-align: left
+}
 /* also uses nextprev. this is specific for ShowItem */
 .returnheader a:link, .returnheader a:visited {
 	background-color: #fee !important;

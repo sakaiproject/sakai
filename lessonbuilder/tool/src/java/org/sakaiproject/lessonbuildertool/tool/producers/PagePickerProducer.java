@@ -291,7 +291,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 			// path defaults to null, which is next
 			UIOutput.make(tofill, "return-div");
-			UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
+
+			String currentToolTitle = simplePageBean.getPageTitle();
+			String returnText = messageLocator.getMessage("simplepage.return").replace("{}", currentToolTitle);  
+			UIInternalLink.make(tofill, "return", returnText, view);  
+
 			UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.index"));
 		} else {
 			UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.chooser"));
