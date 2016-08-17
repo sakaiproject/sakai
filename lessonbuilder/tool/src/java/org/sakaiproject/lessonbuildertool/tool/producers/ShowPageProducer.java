@@ -1446,7 +1446,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    }
 					}
 
-					styleItem(tableRow, linktd, i, "indentLevel", "custom-css-class");
+					styleItem(tableRow, linktd, contentCol, i, "indentLevel", "custom-css-class");
 
 					// note that a lot of the info here is used by the
 					// javascript that prepares
@@ -3041,9 +3041,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				} else if (i.getType() == SimplePageItem.CHECKLIST) {
 					UIOutput checklistItemContainer = UIOutput.make(tableRow, "checklistItemContainer");
 
-					UIOutput.make(tableRow, "checklistDiv");
+					UIOutput checklistDiv = UIOutput.make(tableRow, "checklistDiv");
 
-					styleItem(tableRow, checklistItemContainer, i, null, null);
+					styleItem(tableRow, checklistItemContainer, checklistDiv, i, null, null);
 
 					UIOutput checklistTitle = UIOutput.make(tableRow, "checklistTitle", i.getName());
 
@@ -3591,19 +3591,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 	}
 
-	private void styleItem(UIContainer row, UIComponent component, SimplePageItem i, String indent, String customClass) {
+	private void styleItem(UIContainer row, UIComponent container, UIComponent component, SimplePageItem i, String indent, String customClass) {
 	    // Indent level - default to 0 if not previously set
 	    String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
 	    // Indent number in em is 4 times the level of indent
 
 	    if (!"0".equals(indentLevel))
-		component.decorate(new UIFreeAttributeDecorator("x-indent", indentLevel));
+		container.decorate(new UIFreeAttributeDecorator("x-indent", indentLevel));
 	    if (indent != null)
 		UIOutput.make(row, indent, indentLevel);
 
 	    // Custom css class(es)
 	    String customCssClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
-	    if (customCssClass != null && customClass != null) {
+	    if (customCssClass != null && !customCssClass.equals("")) {
 		component.decorate(new UIStyleDecorator(customCssClass));
 	    }
 	    if (customClass != null) {
