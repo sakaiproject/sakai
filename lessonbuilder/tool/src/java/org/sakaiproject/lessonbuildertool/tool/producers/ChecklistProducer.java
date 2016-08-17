@@ -134,8 +134,6 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 
 	    UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", gparams.getAddBefore());
 
-	    UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", gparams.getAddBefore());
-
             UIOutput.make(tofill, "attributeString", itemAttributeString);
 
 	    String indentLevel = "0";

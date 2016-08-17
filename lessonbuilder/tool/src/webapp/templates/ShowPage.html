@@ -408,6 +408,8 @@
                         <div class="rowdescription itemdescription" rsf:id="description"></div>
                       </div>
                       <div style="display:none">
+                        <span rsf:id="indentLevel" class="indentLevel"></span>
+                        <span rsf:id="custom-css-class" class="custom-css-class"></span>
                         <span rsf:id="current-item-id2" class="current-item-id2"></span>
                         <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
                         <span rsf:id="type" class="type"></span>
@@ -795,6 +797,11 @@
 		    </script>
 	    </div>	
 	    </div>			
+	    <script type="text/javascript">
+	      // to avoid flickering, process indent here
+	      doIndents();
+	    </script>
+
 			<script rsf:id="swfobject" type="text/javascript" src="swfobject.js"></script>
 
 		</div>
@@ -1044,6 +1051,17 @@
                             <input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
                         </p>
 
+                    </div>
+
+                    <div id="stylingstuff" class="stylingstuff">
+                        <p class="shorttext">
+                            <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
+                            <select rsf:id="indent-level" name="indent-level" id="indent-level"/>
+                        </p>
+                        <p class="shorttext">
+                            <label for="customCssClass" rsf:id="custom-css-label"></label>
+                            <input rsf:id="customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
+                        </p>
                     </div>
                     
                     <input type="hidden" rsf:id="item-id" id="item-id" />

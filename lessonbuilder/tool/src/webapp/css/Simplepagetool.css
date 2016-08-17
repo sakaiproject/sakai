@@ -1115,7 +1115,9 @@ input[type="submit"].question-submit,.addStudentContent {
  -moz-border-radius: 10px;
  border-radius: 10px;
 }
-
+.checklistDiv {
+ padding-right: 15px;
+}
 .questionDivControl {
  margin-top: 5px;
  margin-bottom: 10px;
@@ -1794,4 +1796,10 @@ nav.Mrphs-container--toolTitleNav {
 }
 .saveChecklistSaving {
     margin-left: 2em;
+}
+
+.stylingstuff {
+    padding: .5em;
+    margin: .5em 0;
+    border: 1px solid #ccc;
 }
