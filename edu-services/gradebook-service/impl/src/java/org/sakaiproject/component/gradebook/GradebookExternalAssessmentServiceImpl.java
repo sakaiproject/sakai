@@ -180,10 +180,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
 		
-		// name cannot start with * or # as they are reserved for special columns in import/export
-        if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+		// name cannot contain these chars as they are reserved for special columns in import/export
+        if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
             // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
         }
 
 		getHibernateTemplate().execute(new HibernateCallback() {
@@ -241,10 +241,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
         
-        // name cannot start with * or # as they are reserved for special columns in import/export
-        if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+        // name cannot contain these chars as they are reserved for special columns in import/export
+        if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
             // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
         }
 
         HibernateCallback hc = new HibernateCallback() {
@@ -752,10 +752,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
 		}
 		
-		// name cannot start with * or # as they are reserved for special columns in import/export
-        if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+		// name cannot contain these chars as they are reserved for special columns in import/export
+        if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
             // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
         }
 
 		getHibernateTemplate().execute(new HibernateCallback() {
@@ -829,10 +829,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         throw new RuntimeException("ExternalId, and title must not be empty");
     }
     
-    // name cannot start with * or # as they are reserved for special columns in import/export
-    if(StringUtils.startsWithAny(title, new String[]{"*", "#"})) {
+    // name cannot contain these chars as they are reserved for special columns in import/export
+    if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
         // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-    	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+    	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
     }
 
     HibernateCallback hc = new HibernateCallback() {

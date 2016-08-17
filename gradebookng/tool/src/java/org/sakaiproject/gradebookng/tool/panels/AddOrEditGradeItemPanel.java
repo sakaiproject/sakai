@@ -124,8 +124,8 @@ public class AddOrEditGradeItemPanel extends Panel {
 					}
 				}
 
-				// 2. names cannot start with * or #
-				if(validated && StringUtils.startsWithAny(assignment.getName(), new String[]{"*", "#"})) {
+				// 2. names cannot contain these special chars
+				if(validated && StringUtils.containsAny(assignment.getName(), GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
 					validated = false;
 					error(getString("error.addeditgradeitem.titlecharacters"));
 					target.addChildren(form, FeedbackPanel.class);
