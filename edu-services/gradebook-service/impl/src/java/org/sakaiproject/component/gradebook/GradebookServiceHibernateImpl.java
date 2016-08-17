@@ -3039,7 +3039,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     }
 	
 	@Override
-	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
+	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> categoryAssignments, Map<Long,String> gradeMap) {
 		
 		Gradebook gb = (Gradebook) gradebook;
 		
@@ -3049,7 +3049,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//collect the data and turn it into a list of AssignmentGradeRecords
 		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
 		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
-		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: viewableAssignments) {
+		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: categoryAssignments) {
 			
 			Long assignmentId = assignment.getId();
 			
@@ -3114,9 +3114,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	/**
 	 * Does the heavy lifting for the category calculations.
 	 * Requires the List of AssignmentGradeRecord so that we can applyDropScores.
-	 * @param studentUuid
-	 * @param categoryId
-	 * @param gradeRecords
+	 * @param studentUuid the studnet uuid
+	 * @param categoryId the cateogry id we are interested in
+	 * @param gradeRecords all grade records for the student
 	 * @return
 	 */
 	private Double calculateCategoryScore(String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords) {
@@ -3140,16 +3140,35 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				
 		//apply any drop/keep settings for this category
 		this.applyDropScores(gradeRecords);
-				
+		
+		// remove gradeRecords that don't match the given category
+		// TODO move this above drop scores?
+		log.debug("categoryId: " + categoryId);
+
+		gradeRecords.removeIf(gradeRecord -> {
+			Assignment assignment = gradeRecord.getAssignment();
+			
+			log.debug("assignment.getCategory(): " + assignment.getCategory().getId());
+			
+			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+				return true;
+			}
+			return false;
+		});
+		
+		log.debug("gradeRecords.size(): " + gradeRecords.size());
+		
+		// pre-calc rule 1. If category only has a single EC item, don't try to calculate category total.
+		// NEEDS TO BE ADUSTED. a blank grade is returned here also
+		if(gradeRecords.size() == 1 && gradeRecords.get(0).getAssignment().isExtraCredit()) {
+			return null;
+		}
+		
+		
 		//iterate every grade record, check it's for the category we want, otherwise discard
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
 			Assignment assignment = gradeRecord.getAssignment();
-						
-			//check category ids match, otherwise skip
-			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
-				continue;
-			}
 						
 			//only update the variables for the calculation if:
 			// 1. the assignment has points to be assigned
@@ -3167,6 +3186,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				
 				//update total points earned
 				totalEarned = totalEarned.add(new BigDecimal(grade));
+				
 			}
 			
 		}
