@@ -22,8 +22,12 @@
 
 package org.sakaiproject.util;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
@@ -75,6 +79,27 @@ public class NoisierDefaultListableBeanFactory extends
 					}
 				}
 			}
+			// Trigger post-initialization callback for all applicable beans...
+			for (int i = 0; i < beanDefinitionNames.length; i++) {
+				beanName = beanDefinitionNames[i];
+				Object singletonInstance = getSingleton(beanName);
+				if (singletonInstance instanceof SmartInitializingSingleton) {
+					final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
+					if (System.getSecurityManager() != null) {
+						AccessController.doPrivileged(new PrivilegedAction<Object>() {
+							@Override
+							public Object run() {
+								smartSingleton.afterSingletonsInstantiated();
+								return null;
+							}
+						}, getAccessControlContext());
+					}
+					else {
+						smartSingleton.afterSingletonsInstantiated();
+					}
+				}
+			}
+
 		} catch (BeansException ex) {
 			// Destroy already created singletons to avoid dangling resources.
 			logger.error("Failed to preinstantiate the singleton named "
