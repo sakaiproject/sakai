@@ -1362,6 +1362,29 @@ $(document).ready(function() {
 			
 			if(type === 'page') {
 	                    $("#pagestuff").show();
+
+				var sbpgreleasedate = row.find(".subpagereleasedate").text();
+				if(sbpgreleasedate === '') {
+					$("#page-releasedate2").prop('checked', false);
+					localDatePicker({
+						input: '#release_date2',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						val: sbpgreleasedate,
+						ashidden: { iso8601: 'releaseDate2ISO8601' }
+					});
+				}
+				else {
+					$("#page-releasedate2").prop('checked', true);
+					localDatePicker({
+						input: '#release_date2',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						val: sbpgreleasedate,
+						ashidden: { iso8601: 'releaseDate2ISO8601' }
+					});
+				}
+
 			    var pagenext = row.find(".page-next").text();
 			    if(pagenext === "true") {
 				$("#item-next").prop("checked", true);
@@ -2516,6 +2539,10 @@ function checkEditItemForm() {
 		$('#edit-item-error-container').show();
 		return false;
 	}else {
+		if ($("#page-releasedate2").prop('checked'))
+			$("#release_date2").val($("#releaseDate2ISO8601").val());
+		else
+			$("#release_date2").val('');
 		$('#edit-item-error-container').hide();
 		return true;
 	}

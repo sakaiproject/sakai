@@ -1513,6 +1513,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
 							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							UIOutput.make(tableRow, "item-groups", itemGroupString);
+							SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
+							Date rDate = sPage.getReleaseDate();
+							String rDateString = "";
+							if(rDate != null)
+								rDateString = rDate.toString();
+							UIOutput.make(tableRow, "subpagereleasedate", rDateString);
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
 						        try {
 							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
@@ -1589,7 +1595,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 						}
 
-						String releaseString = simplePageBean.getReleaseString(i);
+						String releaseString = simplePageBean.getReleaseString(i, M_locale);
 						if (itemGroupString != null || releaseString != null || entityDeleted || notPublished) {
 							if (itemGroupString != null)
 							    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString, i);
@@ -3845,6 +3851,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
+
+		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
+
+		String releaseDateString = "";
+		try {
+			releaseDateString = isoDateFormat.format(new Date());
+		} catch (Exception e) {
+			System.out.println(e + "bad format releasedate " + new Date());
+		}
+
+		UIOutput releaseForm2 = UIOutput.make(form, "releaseDate2:");
+		UIOutput.make(form, "sbReleaseDate", releaseDateString);
+		UIInput.make(form, "release_date2", "#{simplePageBean.releaseDate}" );
 
 		// can't use site groups on user content, and don't want students to hack
 		// on groups for site content
