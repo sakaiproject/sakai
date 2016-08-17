@@ -241,7 +241,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             edit.setEmail(u.getEmail());
             edit.setFirstName(u.getFirstName());
             edit.setLastName(u.getLastName());
-            if (u.getPassword() != null) {
+            if (u.getPassword() != null && !"".equals(u.getPassword())) {
                 edit.setPassword(u.getPassword());
             }
             edit.setType(u.getType());
