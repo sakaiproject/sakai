@@ -227,27 +227,44 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
         String browserString = ""; // set by checkIEVersion;
     	public static int majorVersion = getMajorVersion();
+        public static String fullVersion = getFullVersion();
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public static int getMajorVersion() {
 
-	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "11");
 
 	    int major = 2;
 
-	    if (sakaiVersion != null) {
-		String []parts = sakaiVersion.split("\\.");
+		String majorString = "";
+
+		// use - as separator to handle -SNAPSHOT, etc.
+		String [] parts = sakaiVersion.split("[-.]");
 		if (parts.length >= 1) {
-		    try {
-			major = Integer.parseInt(parts[0]);
-		    } catch (Exception e) {
-		    };
+		    majorString = parts[0];
 		}
-	    }
+
+		try {
+			major = Integer.parseInt(majorString);
+		} catch (NumberFormatException nfe) {
+			log.error(
+				"Failed to parse Sakai version number. This may impact which versions of dependencies are loaded.");
+		}
 
 	    return major;
 
+	}
+
+	public static String getFullVersion() {
+
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "12");
+
+	    int i = sakaiVersion.indexOf("-"); // for -snapshot
+	    if (i >= 0)
+		sakaiVersion = sakaiVersion.substring(0, i);
+	    
+	    return sakaiVersion;
 	}
 
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
@@ -389,6 +406,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", 
 		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js"));
+
+		UIOutput.make(tofill, "portletBody").decorate(new UIFreeAttributeDecorator("sakaimajor", Integer.toString(majorVersion)))
+		    .decorate(new UIFreeAttributeDecorator("sakaiversion", fullVersion));
 
 		boolean iframeJavascriptDone = false;
 		
@@ -3237,12 +3257,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
-					if (i.getAttribute("multimediaUrl") != null) // resource where we've stored the URL ourselves
-					    params.setSource(i.getAttribute("multimediaUrl"));
-					if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
-					    params.setSource("/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()).substring(7)));
-					else
-					    params.setSource(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
 					params.setItemId(i.getId());
 					UILink link = UIInternalLink.make(container, "link", params);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3325,7 +3339,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				params.setSendingPage(currentPage.getPageId());
-				params.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				params.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", params);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3351,7 +3364,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3374,7 +3386,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
@@ -3430,7 +3441,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 				UIComponent link = UIInternalLink.make(container, "link", view)
 				    .decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
@@ -3838,20 +3848,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
-		params.setItemId(pageItem.getId());
+		params.setId(Long.toString(pageItem.getId()));
 		params.setReturnView(VIEW_ID);
 		params.setTitle(returnFromEditString);  
-		params.setSource("SRC");
+		params.setSource("EDIT");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-object", params);
 		UIOutput.make(form, "edit-item-text");
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
-		params.setItemId(pageItem.getId());
+		params.setId(Long.toString(pageItem.getId()));
 		params.setReturnView(VIEW_ID);
 		params.setTitle(returnFromEditString);  
-		params.setSource("SRC");
+		params.setSource("SETTINGS");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-settings", params);
 		UIOutput.make(form, "edit-item-settings-text");

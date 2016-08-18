@@ -129,13 +129,15 @@ public class QuizPickerProducer implements ViewComponentProducer, NavigationCase
 			Session ses = SessionManager.getCurrentSession();
 			
 			List<UrlItem> createLinks = quizEntity.createNewUrls(simplePageBean);
+			int toolNum = 0;
 			for (UrlItem createLink: createLinks) {
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "quiz-create:");
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(createLink.Url);
+			    view.setId(Long.toString(((GeneralViewParameters) viewparams).getItemId()));
+			    view.setSource("CREATE/QUIZ/" + (toolNum++));
 			    view.setReturnView(VIEW_ID);
+			    view.setAddBefore(((GeneralViewParameters) viewparams).getAddBefore());
 			    view.setTitle(messageLocator.getMessage("simplepage.return_quiz"));
 			    UIInternalLink.make(link, "quiz-create-link", createLink.label , view);
 			}

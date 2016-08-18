@@ -1550,7 +1550,10 @@ font-size: 90%;
 .genTitle {
   display:none;
 }
-
+/* if 11.1 uses the markup from 12, this will have to change */
+div.portletBody[sakaiversion="12"] {
+  margin-top:0px;
+}
 /* student mode only */
 .genTitle ~ .action {
   margin-top:-5px;

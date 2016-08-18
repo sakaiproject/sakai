@@ -129,14 +129,16 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			}
 			
 			List<UrlItem> createLinks = assignmentEntity.createNewUrls(simplePageBean);
+			int toolNum = 0;
 			for (UrlItem createLink: createLinks) {
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "assignment-create:");
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(createLink.Url);
+			    view.setId(Long.toString(((GeneralViewParameters) viewparams).getItemId()));
+			    view.setSource("CREATE/ASSIGN/" + (toolNum++));
 			    view.setReturnView(VIEW_ID);
 			    view.setTitle(messageLocator.getMessage("simplepage.return_assignment"));
+			    view.setAddBefore(((GeneralViewParameters) viewparams).getAddBefore());
 			    UIInternalLink.make(link, "assignment-create-link", createLink.label , view);
 			}
 
