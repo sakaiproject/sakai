@@ -109,7 +109,7 @@
 			      <a href="#" rsf:id="resetbutton2" class="reload">
 				  <img rsf:id="resetimage2" src="/library/image/transparent.gif"/>
 			      </a>
-			       <h2 ><span rsf:id="crumb:"><a style="background:none"  href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow" class="lessons-siteHierarchy-title"></span><span rsf:id="crumb-separator" class="Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span></span></h2>
+			       <h2 ><span rsf:id="crumb:"><a style="background:none"  href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow" class="lessons-siteHierarchy-title"></span><span rsf:id="crumb-separator" class="Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right" aria-hidden="true"></i></span></span></h2>
 			     </div>
 			     <a href="#" rsf:id="resetbutton" class="reload">
 				 <img rsf:id="resetimage" src="/library/image/transparent.gif"/>
@@ -203,7 +203,7 @@
                 
 		<li rsf:id="remove-student" class="contentButton"><span><a role="menuitem" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
-                <li class="contentButton"><span><a role="menuitem" class="add-at-end" href="#" rsf:id="reorder"><span class="fa-button-text"></span></a></span></li>
+                <li class="contentButton"><span><a role="menuitem" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
                 <li  class="contentButton"><span><a role="menuitem" href="#" rsf:id="help" target="_blank"></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
@@ -378,7 +378,6 @@
                 <li rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span><span style="display:none" rsf:id="pageid" class="pageid"></span>
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
-                      <div rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
                         <div class="statusCol">
                             <img class="status-image icon-image" rsf:id="status" />
                         </div>
@@ -415,6 +414,7 @@
 
                         <div class="rowdescription itemdescription" rsf:id="description"></div>
                       </div>
+                      <div rsf:id="edit-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
                       <div style="display:none">
                         <span rsf:id="indentLevel" class="indentLevel"></span>
                         <span rsf:id="custom-css-class" class="custom-css-class"></span>
@@ -437,13 +437,12 @@
                     </div>
                     <div rsf:id="grouptext-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="grouptext-link"><span rsf:id="grouptext-icon"></span></a></div></div>
                     <div rsf:id="itemSpan" class="right-col">
-                      <div rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                       <div rsf:id="item-groups-titles-text" class="item-group-titles"></div>
                       <div rsf:id="content" class="textbox"></div>
+                      <div rsf:id="edittext-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                     </div>
                     <div rsf:id="groupmm-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="iframe-group"><span rsf:id="iframe-icon"></span></a></div></div>
                     <div rsf:id="iframeSpan" class="hideOnDialog right-col"><div>
-		      <div rsf:id="editmm-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                       <div rsf:id="item-group-titles2" class="item-group-titles"></div>
 		      <div rsf:id="iframe-link-div">
 			<a rsf:id="iframe-link-link" href="#" target="_blank"></a>
@@ -462,7 +461,7 @@
                       <div rsf:id="mm-embed" class="multimedia playerwidth"></div>
 		      <script rsf:id="mm-embed-script" type="text/javascript"></script>
                       <a rsf:id="mm-oembed" href="#" class="oembed multimedia playerwidth">Preview</a>
-
+		      <div rsf:id="editmm-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                       <div style="display:none" rsf:id="iframeHeight" class="mm-height"></div>
                       <div style="display:none" rsf:id="iframeWidth" class="mm-width"></div>
                       <div class="description" rsf:id="description5"></div>
@@ -478,9 +477,9 @@
                     <div rsf:id="notAvailableText"></div>
     
                     <div rsf:id="imageSpan" class="right-col image-col"><div>
-			<div rsf:id="editimage-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="image-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                         <div rsf:id="item-group-titles3" class="item-group-titles"></div>
                         <img rsf:id="image" class="multimedia playerwidth" />
+			<div rsf:id="editimage-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="image-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                         <div style="display:none" rsf:id="imageHeight" class="mm-height"></div>
                         <div style="display:none" rsf:id="imageWidth" class="mm-width"></div>
                         <div class="description" rsf:id="description2"></div>
@@ -494,10 +493,10 @@
 
                     <div rsf:id="youtubegroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="youtube-group"><span rsf:id="youtubegroup-icon"></span></a></div></div>
                     <div rsf:id="youtubeSpan"  id="youtubeSpan"  class="hideOnDialog right-col"><div>
-			<div rsf:id="youtube-td" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                         <div rsf:id="item-group-titles4" class="item-group-titles"></div>
                         
                         <iframe rsf:id="youtubeIFrame" frameborder="0" allowfullscreen="allowfullscreen" class="playerwidth"></iframe>
+			<div rsf:id="youtube-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                       </div>
                       <div style="display:none" rsf:id="youtubeId" class="youtube-id"></div>
                       <div style="display:none" rsf:id="currentYoutubeURL" class="youtube-url"></div>
@@ -512,7 +511,6 @@
 
                     <div rsf:id="moviegroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-movie"><span rsf:id="icon-movie"></span></a></div></div>
                     <div rsf:id="movieSpan" class="hideOnDialog right-col"><div>
-			<div rsf:id="movie-td" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                         <div rsf:id="item-group-titles5" class="item-group-titles"></div>
 			<div rsf:id="movie-link-div">
 			  <a rsf:id="movie-link-link" href="#"></a>
@@ -533,6 +531,7 @@
                         <p rsf:id="mp4-noplugin-p"></p><br/><a href="#" rsf:id="mp4-noplugin" target="_blank"></a>
                           </object>
                         </object>
+			<div rsf:id="movie-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                       </div>
                       <div style="display:none" rsf:id="movieId" class="movie-id"></div>
                       <div style="display:none" rsf:id="movieHeight" class="mm-height"></div>
@@ -548,7 +547,6 @@
 
                     <div rsf:id="commentsgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-comments"></a><span rsf:id="icon-comments"></span></div></div>
                     <div rsf:id="commentsSpan" class="commentsCell right-col">
-                    	    <div rsf:id="comments-td" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="gradingPaneLink" ><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                             <p rsf:id="missing-prereqs" class="instruction"></p>
                         <div class="commentsDiv" rsf:id="commentsDiv">
                             <div rsf:id="item-group-titles6" class="item-group-titles"></div>
@@ -576,7 +574,7 @@
                                 </div>
                             </form>
                         </div>
-                        
+                    	    <div rsf:id="comments-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="gradingPaneLink" ><span aria-hidden="true" class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>                        
                         <a href="#" style="display:none" rsf:id="commentsLink" class="commentsBlock"></a>
                         <span style="display:none" rsf:id="commentsId" class="comments-id"></span>
                         <span style="display:none" rsf:id="commentsAnon" class="commentsAnon"></span>
@@ -589,7 +587,6 @@
 
 
                     <div rsf:id="checklistItemContainer" class="right-col">
-                        <div rsf:id="editchecklist-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-checklistProgress"><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton itemLink" rsf:id="edit-checklist"><span aria-hidden="true" class="fa-edit fa-edit-icon fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
                         <div class="checklistDiv" rsf:id="checklistDiv">
                             <div>
                                 <h3 class="checklistTitle" rsf:id="checklistTitle"></h3><span rsf:id="item-groups-titles-checklist" class="item-group-titles"></span>
@@ -611,11 +608,11 @@
                                 </div>
                             </div>
                         </div>
+                        <div rsf:id="editchecklist-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-checklistProgress"><span aria-hidden="true" class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton itemLink" rsf:id="edit-checklist"><span aria-hidden="true" class="fa-edit fa-edit-icon fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
                     </div>
                     
                     <div rsf:id="studentgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-student"><span rsf:id="icon-student"></span></a></div></div>
                     <div rsf:id="studentSpan" class="right-col">
-                            <div rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="studentGradingPaneLink" ><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                             <span rsf:id="student-missing-prereqs"></span>
                         <div class="studentDiv" rsf:id="studentDiv">
                             <div rsf:id="item-group-titles7" class="item-group-titles"></div>
@@ -641,7 +638,7 @@
 			      <a rsf:id="peer-eval-stats-link" class="usebutton switchLink peer-eval-stats"><span style="font-weight:normal" rsf:id="msg=simplepage.peer-eval-stats"></span></a>
 			    </div>
                         </div>
-                        
+                            <div rsf:id="student-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="studentGradingPaneLink" ><span aria-hidden="true" class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>                        
                         <div style="display:none" rsf:id="studentId" class="student-id"></div>
                         <div style="display:none" rsf:id="studentAnon" class="studentAnon"></div>
                         <div style="display:none" rsf:id="studentComments" class="studentComments"></div>
@@ -676,7 +673,6 @@
                     </div>
                     
 		    <div rsf:id="peerReviewRubricStudent" class="right-col"  style="width:100%;" colspan="2">
-		      <div rsf:id="peerReviewRubricStudent-edit" class="edit-col"></div>
 		      <div class="add-peereval-button">
 			<a rsf:id="add-peereval-link" class="usebutton switchLink" onclick=""><span style="font-weight:normal; color:#555" rsf:id="add-peereval-text"></span></a>
 		      </div>
@@ -721,13 +717,13 @@
 
 			</form>
 		      </div>
+		      <div rsf:id="peerReviewRubricStudent-edit" role="toolbar" class="edit-col"></div>
 		    </div>
 
                     <div rsf:id="questiongroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-question"><span rsf:id="icon-question"></span></a></div></div>
                     <div rsf:id="questionSpan" class="right-col">
 
 
-                        <div rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="questionGradingPaneLink" ><span class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                         <div class="questionDiv" rsf:id="questionDiv">
 			    <div rsf:id="questionitem-group-titles" class="item-group-titles"></div>
                             <div class="statusCol">
@@ -778,6 +774,7 @@
                             </div>
 
                         </div>
+                        <div rsf:id="question-td" role="toolbar" class="edit-col"><div><a href="#" class="usebutton gradingPaneLink" rsf:id="questionGradingPaneLink" ><span aria-hidden="true" class="fa-list-ul fa-edit-icon"></span></a><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                         
                         <span style="display:none" rsf:id="questionId" class="question-id"></span>
                         <span style="display:none" rsf:id="questionAnswer" class="questionAnswer"></span>
