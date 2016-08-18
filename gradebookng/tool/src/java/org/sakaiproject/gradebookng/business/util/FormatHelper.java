@@ -24,6 +24,7 @@ public class FormatHelper {
 		final NumberFormat df = NumberFormat.getInstance();
 		df.setMinimumFractionDigits(0);
 		df.setMaximumFractionDigits(2);
+		df.setGroupingUsed(false);
 		df.setRoundingMode(RoundingMode.HALF_DOWN);
 
 		return formatGrade(df.format(score));
