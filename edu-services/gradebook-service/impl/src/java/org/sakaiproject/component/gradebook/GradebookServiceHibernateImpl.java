@@ -111,6 +111,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
         @SuppressWarnings("unchecked")
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -154,7 +155,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	        @SuppressWarnings({ "unchecked", "rawtypes"})
 			List<Assignment> internalAssignments = (List<Assignment>)getHibernateTemplate().execute(new HibernateCallback() {
-	            public Object doInHibernate(Session session) throws HibernateException {
+	            @Override
+				public Object doInHibernate(Session session) throws HibernateException {
 	                return getAssignments(gradebookId, session);
 	            }
 	        });
@@ -181,6 +183,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 			}
@@ -206,6 +209,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -259,6 +263,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				
 				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
@@ -671,7 +676,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		List<String> assignmentNames = (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(final Session session) throws HibernateException {
+            @Override
+			public Object doInHibernate(final Session session) throws HibernateException {
             	return session.createQuery(
             		"select asn.name from Assignment as asn where asn.gradebook.id=? and asn.removed=false").
             		setLong(0, gradebook.getId().longValue()).
@@ -733,7 +739,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void removeAssignment(final Long assignmentId) throws StaleObjectModificationException {
     	
 		HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
                 Assignment asn = (Assignment)session.load(Assignment.class, assignmentId);
                 Gradebook gradebook = asn.getGradebook();
                 asn.setRemoved(true);
@@ -949,6 +956,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) {
 		HibernateCallback hc = new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				if(studentUids == null || studentUids.size() == 0) {
 					if(log.isInfoEnabled()) log.info("Returning no grade records for an empty collection of student UIDs");
@@ -1278,6 +1286,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	private List getAssignmentsCounted(final Long gradebookId) throws HibernateException 
 	{
 		HibernateCallback hc = new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				List assignments = session.createQuery(
 						"from Assignment as asn where asn.gradebook.id=? and asn.removed=false and asn.notCounted=false").
@@ -1371,7 +1380,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
   	HibernateCallback hc = new HibernateCallback() {
-  		public Object doInHibernate(Session session) throws HibernateException {
+  		@Override
+		public Object doInHibernate(Session session) throws HibernateException {
   			if(studentUids.size() == 0) {
   				// If there are no enrollments, no need to execute the query.
   				if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
@@ -1391,7 +1401,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   private List getAllAssignmentGradeRecordsForGbItem(final Long gradableObjectId, 
 		  final Collection studentUids) {
 	  	HibernateCallback hc = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException {
+	  		@Override
+			public Object doInHibernate(Session session) throws HibernateException {
 	  			if(studentUids.size() == 0) {
 	  				// If there are no enrollments, no need to execute the query.
 	  				if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
@@ -1414,6 +1425,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	{
 		HibernateCallback hc = new HibernateCallback()
 		{
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException
 			{
 				List<AssignmentGradeRecord> gradeRecords = new ArrayList<AssignmentGradeRecord>();
@@ -1470,7 +1482,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List getAssignments(final Long gradebookId, final SortType sortBy, final boolean ascending) {
   	return (List)getHibernateTemplate().execute(new HibernateCallback() {
-  		public Object doInHibernate(Session session) throws HibernateException {
+  		@Override
+		public Object doInHibernate(Session session) throws HibernateException {
   			List assignments = getAssignments(gradebookId, session);
 
   			sortAssignments(assignments, sortBy, ascending);
@@ -1644,7 +1657,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
       }
 
       Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException {
+          @Override
+		public Object doInHibernate(Session session) throws HibernateException {
               return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
           }
       });
@@ -1746,7 +1760,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  // first, we need to make sure the current user is authorized to view the
 		  // grades for all of the requested students
 		  Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException {
+			  @Override
+			public Object doInHibernate(Session session) throws HibernateException {
 				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
 			  }
 		  });
@@ -2065,7 +2080,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  }
 
 		  Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException {
+			  @Override
+			public Object doInHibernate(Session session) throws HibernateException {
 				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
 			  }
 		  });
@@ -2327,6 +2343,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Map getEnteredCourseGrade(final String gradebookUid)
 	{
 		HibernateCallback hc = new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				Gradebook thisGradebook = getGradebook(gradebookUid);
 
@@ -2383,7 +2400,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}	
 
 	  	Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException {
+	  		@Override
+			public Object doInHibernate(Session session) throws HibernateException {
 	  			Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 	  			if (assignment == null) {
 	  				throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
@@ -2433,6 +2451,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}	
 
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -2450,6 +2469,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	throws GradebookNotFoundException, AssessmentNotFoundException 
 	{
 		getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 				if (assignment == null) {
@@ -2500,6 +2520,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throws GradebookNotFoundException, AssessmentNotFoundException {
   		
   		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -2531,7 +2552,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    }
 	    
 	    Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
                 return getAssignmentWithoutStats(gradebookUid, gradebookItemId, session);
             }
         });
@@ -3000,6 +3022,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//do the updates
 		for(final Assignment assignmentToUpdate: assignmentsToUpdate){
 			getHibernateTemplate().execute(new HibernateCallback() {
+				@Override
 				public Object doInHibernate(Session session) throws HibernateException {
 					updateAssignment(assignmentToUpdate, session);
 					return null;
@@ -3416,7 +3439,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			this.removeCategory(cat.getKey());
 		}
 		
-		//no need to set assignments, gbInfo doesn't update them
+		//if weighted categories, all uncategorised assignments are to be removed from course grade calcs
+		if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+			excludeUncategorisedItemsFromCourseGradeCalculations(gradebook);
+		}
 
 		//persist
 		this.updateGradebook(gradebook);
@@ -3615,6 +3641,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//do the updates
 		for(final Assignment assignmentToUpdate: assignmentsToUpdate){
 			getHibernateTemplate().execute(new HibernateCallback() {
+				@Override
 				public Object doInHibernate(Session session) throws HibernateException {
 					updateAssignment(assignmentToUpdate, session);
 					return null;
@@ -3733,8 +3760,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		session.close();
 	}
 	
-	private boolean isCurrentUserFromGroup(final String gradebookUid, final String studentId)
-	{
+	private boolean isCurrentUserFromGroup(final String gradebookUid, final String studentId) {
 		boolean isFromGroup=false;
 		try {
 			Site s = siteService.getSite(gradebookUid);
@@ -3746,4 +3772,25 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		} 
 		return isFromGroup;
 	}
+	
+	/**
+	 * Updates all uncategorised items to exclude them from the course grade calcs
+	 * @param gradebook
+	 */
+	private void excludeUncategorisedItemsFromCourseGradeCalculations(final Gradebook gradebook) {
+		
+        @SuppressWarnings({ "unchecked", "rawtypes"})
+		List<Assignment> allAssignments = (List<Assignment>)getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
+                return getAssignments(gradebook.getId(), session);
+            }
+        });
+        
+        List<Assignment> assignments = allAssignments.stream().filter(a -> a.getCategory() == null).collect(Collectors.toList());
+        assignments.forEach(a -> a.setCounted(false));
+        batchPersistEntities(assignments);
+        
+	}
+	
 }
