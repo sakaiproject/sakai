@@ -23,6 +23,7 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.rsf.entitybroker.EntityViewParamsInferrer;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -30,6 +31,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.ui.helpers.entity.model.Category;
 import org.sakaiproject.tool.gradebook.ui.helpers.entity.model.GradebookData;
 import org.sakaiproject.tool.gradebook.ui.helpers.entity.model.GradebookItem;
 import org.sakaiproject.tool.gradebook.ui.helpers.entity.model.StudentGrade;
@@ -343,7 +345,7 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 		
 		List<GradebookData> rval = new ArrayList<>();
 		
-		// for every passed in site get the students, the assignments and the grades for each student in each assignment, and map it all together
+		// for every passed in site get the students, the assignments and the grades for each student in each assignment, the categories, and map it all together
 		siteIds.forEach(siteId -> {
 			
 			if (securityService.isSuperUser() || siteService.allowUpdateSite(siteId)) {
@@ -371,6 +373,13 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 					});
 					
 					gradebookData.getGradeItems().add(gradebookItem);
+				});
+				
+				// add category info
+				List<CategoryDefinition> categories = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
+				categories.forEach(def -> {
+					Category cat = new Category(def);
+					gradebookData.getCategories().add(cat);
 				});
 				
 				rval.add(gradebookData);

@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * ExternalInfo encapsulates all of the external info for a gradebook item
+ * Encapsulates the external info for a {@link GradebookItem}, if any.
  */
 public class ExternalInfo {
 	

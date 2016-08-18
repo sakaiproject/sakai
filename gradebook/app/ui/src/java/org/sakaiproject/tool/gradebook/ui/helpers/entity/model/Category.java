@@ -10,34 +10,32 @@
  */
 package org.sakaiproject.tool.gradebook.ui.helpers.entity.model;
 
-import java.util.Date;
-
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Encapsulates data about a specific grade for a student. It is always wrapped inside a {@link GradebookItem} to give it context.
+ * Encapsulates category info for a gradebook. It is always wrapped inside {@link GradebookData} to give it context.
  */
-public class StudentGrade {
-
-	@Getter
-	@Setter
-	private String userId;
+public class Category {
 	
 	@Getter
 	@Setter
-	private String grade;
+	private long id;
 	
 	@Getter
 	@Setter
-	private Date dateGraded;
+	private String name;
 	
-	public StudentGrade(GradeDefinition def) {
-		this.userId = def.getStudentUid();
-		this.grade = def.getGrade();
-		this.dateGraded = def.getDateRecorded();
+	@Getter
+	@Setter
+	private Double weight;
+	
+	public Category(CategoryDefinition categoryDefinition) {
+		this.id = categoryDefinition.getId();
+		this.name = categoryDefinition.getName();
+		this.weight = categoryDefinition.getWeight();
 	}
 	
 }

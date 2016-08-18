@@ -33,12 +33,17 @@ public class GradebookData {
 	
 	@Getter
 	@Setter
+	private List<Category> categories;
+	
+	@Getter
+	@Setter
 	private List<GradebookItem> gradeItems;
 	
 	public GradebookData(Site site) {
 		this.siteId = site.getId();
 		this.siteTitle = site.getTitle();
 		this.gradeItems = new ArrayList<>();
+		this.categories = new ArrayList<>();
 	}
 	
 }

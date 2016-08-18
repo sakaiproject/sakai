@@ -14,14 +14,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * GradebookItem encapsulates basic data about a gradebook item and the list of grades for that item
+ * Encapsulates basic data about a gradebook item and the list of grades for that item
  */
 public class GradebookItem {
 	
@@ -49,17 +48,31 @@ public class GradebookItem {
 	@Setter
 	private List<StudentGrade> grades;
 	
+	@Setter
+	@Getter
+	private Long categoryId;
+	
+	@Setter
+	@Getter
+	private boolean released;
+	
+	@Setter
+	@Getter
+	private boolean extraCredit;
+
+	
 	public GradebookItem(Assignment assignment) {
 		this.id = assignment.getId();
 		this.name = assignment.getName();
 		this.points = assignment.getPoints();
 		this.dueDate = assignment.getDueDate();
-		if(StringUtils.isNotBlank(assignment.getExternalId())) {
+		if(assignment.isExternallyMaintained()) {
 			this.externalInfo = new ExternalInfo(assignment);
 		}
 		this.grades = new ArrayList<>();
-		
-		assignment.get
+		this.categoryId = assignment.getCategoryId();
+		this.released = assignment.isReleased();
+		this.extraCredit = assignment.isExtraCredit();
 	}
 	
 }
