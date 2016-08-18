@@ -1161,9 +1161,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
 
 					// only do this is there's an actual section break. Implicit ones don't have an item to hold the title
-					UIOutput.make(sectionWrapper, "sectionHeaderText", (!"section".equals(i.getFormat()) || i.getName() == null) ? "" : i.getName());
+					String headerText = "";
+					if ("section".equals(i.getFormat()) && i.getName() != null) {
+					    headerText = i.getName();
+					}
+					UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
 					UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
-					sectionHeader.decorate(new UIStyleDecorator(i.getName() == null || i.getName().isEmpty() ? "skip" : ""));
+					sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
 					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
 					boolean needIcon = false;
 					if (collapsible) {
