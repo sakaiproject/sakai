@@ -783,10 +783,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
         }
         
-        // name cannot start with * or # as they are reserved for special columns in import/export
-        if(StringUtils.startsWithAny(validatedName, new String[]{"*", "#"})) {
+        // name cannot contain these chars as they are reserved for special columns in import/export
+        if(StringUtils.containsAny(validatedName, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
             // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
         }
 
 		final Gradebook gradebook = this.getGradebook(gradebookUid);
