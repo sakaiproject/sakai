@@ -51,6 +51,17 @@ public class GbFeedbackPanel extends FeedbackPanel {
 		return newMessageDisplayComponent;
 	}
 
+	@Override
+	public void onBeforeRender() {
+		if (getFeedbackMessages().isEmpty()) {
+			// ensure class is removed from feedback panel
+			// when there are no messages to avoid empty
+			// colored rectangle
+			clear();
+		}
+		super.onBeforeRender();
+	}
+
 	/**
 	 * Clear all messages from the feedback panel
 	 */
