@@ -804,7 +804,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// this will be if we have percentage grading and we change the points possible
 				boolean scaleGrades = false;
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE
-						&& assignment.getPointsPossible() != assignmentDefinition.getPoints()) {
+					&& !assignment.getPointsPossible().equals(assignmentDefinition.getPoints())) {
 					scaleGrades = true;
 				}
 
