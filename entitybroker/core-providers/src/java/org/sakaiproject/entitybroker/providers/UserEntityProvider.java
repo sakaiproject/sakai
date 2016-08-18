@@ -638,9 +638,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     //log.warn(msg);
                 }
             }
-            if (user == null) {
-                throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId);
-            }
         }
         return user;
     }
