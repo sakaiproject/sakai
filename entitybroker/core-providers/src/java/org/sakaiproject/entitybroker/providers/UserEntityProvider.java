@@ -402,7 +402,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         User user = getUserByIdEid(ID_PREFIX+userId);
 
         // It is possible the user is orphaned/unregistered; deleted from LDAP
-        if (userId == null) {
+        if (user == null) {
             return null;
         }
         // convert
