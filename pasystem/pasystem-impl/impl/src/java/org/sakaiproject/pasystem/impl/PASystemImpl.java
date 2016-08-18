@@ -35,8 +35,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
+
+import com.github.jknack.handlebars.cache.TemplateCache;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.sakaiproject.authz.cover.FunctionManager;
@@ -52,13 +53,13 @@ import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.Popups;
 import org.sakaiproject.pasystem.impl.banners.BannerStorage;
 import org.sakaiproject.pasystem.impl.common.SakaiI18n;
+import org.sakaiproject.pasystem.impl.handlebars.ForeverTemplateCache;
 import org.sakaiproject.pasystem.impl.popups.PopupForUser;
 import org.sakaiproject.pasystem.impl.popups.PopupStorage;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,11 +74,16 @@ class PASystemImpl implements PASystem {
 
     private static final String POPUP_SCREEN_SHOWN = "pasystem.popup.screen.shown";
 
+    private TemplateCache cache;
+
     @Override
     public void init() {
         if (ServerConfigurationService.getBoolean("auto.ddl", false) || ServerConfigurationService.getBoolean("pasystem.auto.ddl", false)) {
             runDBMigration(ServerConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService"));
         }
+
+        // No need to parse each time.
+        cache = new ForeverTemplateCache();
 
         FunctionManager.registerFunction("pasystem.manage");
     }
@@ -132,7 +138,8 @@ class PASystemImpl implements PASystem {
     }
 
     private Handlebars loadHandleBars(final I18n i18n) {
-        Handlebars handlebars = new Handlebars();
+        Handlebars handlebars = new Handlebars()
+                .with(cache);
 
         handlebars.registerHelper("t", new Helper<Object>() {
             @Override
