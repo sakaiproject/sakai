@@ -1538,7 +1538,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		String sql = getStatement("count.NewsLinks.by.sakaiId.groupId");
 		Object[] params = new Object[]{sakaiUserId, groupId};
 		try {
-			return getJdbcTemplate().queryForInt(sql,params);
+			return getJdbcTemplate().queryForObject(sql,Integer.class,params);
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("countNewsLinksByGroupId: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
 	        return 0;
@@ -2267,7 +2267,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		JdbcTemplate jdbcTemplate = getJdbcTemplate();
 		try {
-			value = jdbcTemplate.queryForInt(sql, params);
+			value = jdbcTemplate.queryForObject(sql, Integer.class, params);
 		} catch (EmptyResultDataAccessException ex) {
 			// do nothing.  This means no value is set for this property, an expected condition in some cases.
 			// log.warn("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
