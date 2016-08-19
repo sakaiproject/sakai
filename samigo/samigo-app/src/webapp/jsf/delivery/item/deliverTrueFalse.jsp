@@ -34,10 +34,10 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{question.answers}" var="answer">
         <h:column>
           <h:panelGroup id="image" rendered="#{answer.description eq 'true' && question.responseId eq answer.value}"
-            styleClass="icon-sakai-check feedBackCheck" >
+            styleClass="icon-sakai--check feedBackCheck" >
           </h:panelGroup>
           <h:panelGroup id="image2" rendered="#{answer.description ne 'true' && question.responseId eq answer.value}"
-            styleClass="icon-sakai-delete feedBackCross">
+            styleClass="icon-sakai--delete feedBackCross">
           </h:panelGroup>
        </h:column>
      </h:dataTable>
