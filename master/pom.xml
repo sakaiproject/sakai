@@ -109,7 +109,7 @@
     <sakai.asm.version>4.1</sakai.asm.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>4.1.9.RELEASE</sakai.spring.version>
+    <sakai.spring.version>4.2.7.RELEASE</sakai.spring.version>
     <sakai.spring.security.version>3.2.9.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.1.9.RELEASE</sakai.spring.test.version>
