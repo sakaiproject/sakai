@@ -402,6 +402,11 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
          */
         // ID only lookup so prefix with "id="
         User user = getUserByIdEid(ID_PREFIX+userId);
+
+        // It is possible the user is orphaned/unregistered; deleted from LDAP
+        if (user == null) {
+            return null;
+        }
         // convert
         EntityUser eu = convertUser(user);
         return eu;
