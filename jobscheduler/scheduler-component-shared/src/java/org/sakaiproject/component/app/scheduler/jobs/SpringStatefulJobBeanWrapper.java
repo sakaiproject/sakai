@@ -6,6 +6,10 @@ import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
 import org.sakaiproject.component.cover.ComponentManager;
 
+/**
+ * This is the wrapper that tells quartz that is should make the jobs stateful.
+ * @see SpringJobBeanWrapper
+ */
 public class SpringStatefulJobBeanWrapper extends SpringJobBeanWrapper implements StatefulJob {
 
 	public SpringStatefulJobBeanWrapper() {
