@@ -3062,7 +3062,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     }
 	
 	@Override
-	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
+	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> categoryAssignments, Map<Long,String> gradeMap) {
 		
 		Gradebook gb = (Gradebook) gradebook;
 		
@@ -3072,7 +3072,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//collect the data and turn it into a list of AssignmentGradeRecords
 		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
 		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
-		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: viewableAssignments) {
+		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: categoryAssignments) {
 			
 			Long assignmentId = assignment.getId();
 			
@@ -3137,9 +3137,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	/**
 	 * Does the heavy lifting for the category calculations.
 	 * Requires the List of AssignmentGradeRecord so that we can applyDropScores.
-	 * @param studentUuid
-	 * @param categoryId
-	 * @param gradeRecords
+	 * @param studentUuid the studnet uuid
+	 * @param categoryId the cateogry id we are interested in
+	 * @param gradeRecords all grade records for the student
 	 * @return
 	 */
 	private Double calculateCategoryScore(String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords) {
@@ -3161,36 +3161,58 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		BigDecimal totalEarned = new BigDecimal("0");
 		BigDecimal totalPossible = new BigDecimal("0");
 				
-		//apply any drop/keep settings for this category
+		// apply any drop/keep settings for this category
 		this.applyDropScores(gradeRecords);
-				
-		//iterate every grade record, check it's for the category we want, otherwise discard
+		
+		// Since all gradeRecords for the student are passed in, not just for this category,
+		// plus they may not meet the criteria for including in the calculation,
+		// this list is filtered down according to the following rules:
+		// Rule 1. remove gradeRecords that don't match the given category
+		// Rule 2. the assignment must have points to be assigned
+		// Rule 3. there is a non blank grade for the student
+		// Rule 4. the assignment is included in course grade calculations
+		// Rule 5. the assignment is  released to the student (safety check against condition 3)
+		// Rule 6. the grade is not dropped from the calc
+		log.debug("categoryId: " + categoryId);
+
+		gradeRecords.removeIf(gradeRecord -> {
+			Assignment assignment = gradeRecord.getAssignment();
+						
+			// remove if not for this category (rule 1)
+			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+				return true;
+			}
+			
+			//remove if the assignment/graderecord doesn't meet the criteria for the calculation (rule 2-6)
+			if(assignment.getPointsPossible() == null || gradeRecord.getPointsEarned() == null || !assignment.isCounted() || !assignment.isReleased() || gradeRecord.getDroppedFromGrade()) {
+				return true;
+			}
+
+			return false;
+		});
+		
+		log.debug("gradeRecords.size(): " + gradeRecords.size());
+		
+		// pre-calculation
+		// Rule 1. If category only has a single EC item, don't try to calculate category total.
+		if(gradeRecords.size() == 1 && gradeRecords.get(0).getAssignment().isExtraCredit()) {
+			return null;
+		}
+		
+		//iterate the filtered list and set the variables for the calculation
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
 			Assignment assignment = gradeRecord.getAssignment();
-						
-			//check category ids match, otherwise skip
-			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
-				continue;
-			}
-						
-			//only update the variables for the calculation if:
-			// 1. the assignment has points to be assigned
-			// 2. there is a grade for the student
-			// 3. the assignment is included in course grade calculations
-			// 4. the assignment is  released to the student (safety check against condition 3)
-			// 5. the grade is not dropped from the calc
-			if(assignment.getPointsPossible() != null && gradeRecord.getPointsEarned() != null && assignment.isCounted() && assignment.isReleased() && !gradeRecord.getDroppedFromGrade()) {
-				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
-				numOfAssignments++;
-				numScored++;
-				
-				//sanitise grade, null values to "0";
-				String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
-				
-				//update total points earned
-				totalEarned = totalEarned.add(new BigDecimal(grade));
-			}
+									
+			totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
+			numOfAssignments++;
+			numScored++;
+			
+			//sanitise grade, null values to "0";
+			String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
+			
+			//update total points earned
+			totalEarned = totalEarned.add(new BigDecimal(grade));
 			
 		}
 		
