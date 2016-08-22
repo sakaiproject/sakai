@@ -264,7 +264,7 @@ public class GradeItemImportSelectionStep extends Panel {
 							String rowClass = "comment";
 							String statusValue = getString("importExport.status." + commentStatus.getStatusCode());
 							if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
-								rowClass += " external";
+								rowClass += " no_changes external";
 								statusValue = new StringResourceModel("importExport.status." + commentStatus.getStatusCode(), Model.of(commentStatus), null, commentStatus.getStatusValue()).getString();
 							}
 							if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
