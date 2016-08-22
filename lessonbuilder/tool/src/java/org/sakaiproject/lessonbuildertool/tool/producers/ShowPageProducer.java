@@ -2808,7 +2808,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
 						//create html for announcements widget
 						String divHeight = "height:" + height +"px;";
-						String html = "<div align=\"left\" style='"+divHeight+"' class=\"announcements-div\"></div>";
+						String html = "<div align=\"left\" class=\"announcements-div\"></div>";
 						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "announcements-id", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "announcements-widget-height", height);
@@ -2848,7 +2848,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
 						String divHeight = "height:" + height +"px;";
 						//create html for forum-summary widget
-						String html = "<div align=\"left\" style='"+divHeight+"' class=\"forum-summary-div\"></div>";
+						String html = "<div align=\"left\" class=\"forum-summary-div\"></div>";
 						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "forum-summary-id", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "forum-summary-widget-height", height);
