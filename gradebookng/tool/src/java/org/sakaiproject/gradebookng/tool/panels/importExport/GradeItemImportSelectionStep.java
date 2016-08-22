@@ -191,6 +191,21 @@ public class GradeItemImportSelectionStep extends Panel {
 		backButton.setDefaultFormProcessing(false);
 		group.add(backButton);
 
+		final Button cancelButton = new Button("cancelbutton") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				// clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+
+				setResponsePage(ImportExportPage.class);
+			}
+		};
+		cancelButton.setDefaultFormProcessing(false);
+		group.add(cancelButton);
+
 		group.add(new Button("nextbutton"));
 
 		group.add(new CheckGroupSelector("groupselector"));
