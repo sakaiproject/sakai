@@ -1158,7 +1158,7 @@
             hardened so this is safe to do, if it's something you want to allow. Beware the <><ing possibilities!
          -->
             
-        <tag name="form" action="validate">
+        <tag name="form" action="remove">
             
             <attribute name="action">
                 <regexp-list>
