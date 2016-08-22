@@ -230,21 +230,20 @@ public class GradeItemImportSelectionStep extends Panel {
 				// Determine status label
 				final ProcessedGradeItemStatus status = importedItem.getStatus();
 
-				// For external items, set a different label and disable the control
+				// base label
+				itemStatus.setDefaultModel(new ResourceModel("importExport.status." + status.getStatusCode()));
+
+				// special handling for external assignments
 				if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
 					itemStatus.setDefaultModel(new StringResourceModel("importExport.status." + status.getStatusCode(), Model.of(status), null, status.getStatusValue()));
-					item.setEnabled(false);
-					item.add(new AttributeModifier("class", "external"));
-				} else {
+					checkbox.setVisible(false);
+					item.add(new AttributeAppender("class", Model.of("no_changes external"), " "));
+				}
 
-					itemStatus.setDefaultModel(new ResourceModel("importExport.status." + status.getStatusCode()));
-
-					// if no changes, grey it out and remove checkbox
-					if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
-						checkbox.setVisible(false);
-						item.add(new AttributeAppender("class", Model.of("no_changes"), " "));
-					}
-
+				// special handling for no changes
+				if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
+					checkbox.setVisible(false);
+					item.add(new AttributeAppender("class", Model.of("no_changes"), " "));
 				}
 
 				final String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
@@ -265,7 +264,7 @@ public class GradeItemImportSelectionStep extends Panel {
 							String rowClass = "comment";
 							String statusValue = getString("importExport.status." + commentStatus.getStatusCode());
 							if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
-								rowClass += " external";
+								rowClass += " no_changes external";
 								statusValue = new StringResourceModel("importExport.status." + commentStatus.getStatusCode(), Model.of(commentStatus), null, commentStatus.getStatusValue()).getString();
 							}
 							if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
