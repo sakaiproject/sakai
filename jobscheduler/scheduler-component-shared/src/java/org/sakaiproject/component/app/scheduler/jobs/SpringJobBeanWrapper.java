@@ -20,18 +20,24 @@
 **********************************************************************************/
 package org.sakaiproject.component.app.scheduler.jobs;
 
+import org.quartz.StatefulJob;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is final to ensure that it will be constructable
  * by the scheduler infrastructure
+ * @see SpringStatefulJobBeanWrapper
  */
 public class SpringJobBeanWrapper implements JobBeanWrapper, Job {
+
+   private static final Logger log = LoggerFactory.getLogger(SpringJobBeanWrapper.class);
 
    private String beanId;
    private String jobName;
@@ -67,6 +73,10 @@ public class SpringJobBeanWrapper implements JobBeanWrapper, Job {
    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
       String beanId = jobExecutionContext.getJobDetail().getJobDataMap().getString(SPRING_BEAN_NAME);
       Job job = (Job) ComponentManager.get(beanId);
+      if (job instanceof StatefulJob) {
+         log.warn("Non-stateful wrapper used with stateful job: "+ beanId+
+         " You probably wanted to use SpringStatefulJobBeanWrapper for this job.");
+      }
       job.execute(jobExecutionContext);
    }
 
