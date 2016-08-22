@@ -257,6 +257,9 @@ public class ImportGradesHelper {
 		// Map assignment name to assignment
 		final Map<String, Assignment> assignmentNameMap = assignments.stream().collect(Collectors.toMap(Assignment::getName, a -> a));
 
+		// maintain a list of comment columns so we can check they have a corresponding item
+		final List<String> commentColumns = new ArrayList<>();
+
 		//for every column, setup the data
 		for (final ImportColumn column : importedGradeWrapper.getColumns()) {
 			boolean needsToBeAdded = false;
@@ -292,6 +295,7 @@ public class ImportGradesHelper {
 				log.debug("Comments: " + columnTitle + ", status: " + status.getStatusCode());
 				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
 				processedGradeItem.setCommentStatus(status);
+				commentColumns.add(columnTitle);
 			} else if (column.getType() == ImportColumn.Type.GB_ITEM_WITHOUT_POINTS) {
 				log.debug("Regular: " + columnTitle + ", status: " + status.getStatusCode());
 				processedGradeItem.setItemTitle(columnTitle);
@@ -333,10 +337,9 @@ public class ImportGradesHelper {
 
 		// comment columns must have an associated gb item column
 		// this ensures we have a processed grade item for each one
-		final List<ProcessedGradeItem> commentColumns = processedGradeItems.stream().filter(p -> p.getType() == ProcessedGradeItem.Type.COMMENT).collect(Collectors.toList());
-
 		commentColumns.forEach(c -> {
-			final boolean matchingItemExists = processedGradeItems.stream().filter(p -> StringUtils.equals(c.getItemTitle(), p.getItemTitle())).findFirst().isPresent();
+			final boolean matchingItemExists = processedGradeItems.stream().filter(p -> StringUtils.equals(c, p.getItemTitle())).findFirst().isPresent();
+
 			if(!matchingItemExists) {
 				throw new GbImportCommentMissingItemException("The comment column '" + c + "' does not have a corresponding gradebook item.");
 			}
