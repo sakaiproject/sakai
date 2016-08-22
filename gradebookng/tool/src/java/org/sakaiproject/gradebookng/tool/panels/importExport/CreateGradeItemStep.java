@@ -122,6 +122,21 @@ public class CreateGradeItemStep extends Panel {
         backButton.setDefaultFormProcessing(false);
         form.add(backButton);
 
+        final Button cancelButton = new Button("cancelbutton") {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void onSubmit() {
+                // clear any previous errors
+                final ImportExportPage page = (ImportExportPage) getPage();
+                page.clearFeedback();
+
+                setResponsePage(ImportExportPage.class);
+            }
+        };
+        cancelButton.setDefaultFormProcessing(false);
+        form.add(cancelButton);
+
         //wrap the form create panel
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
         form.add(new AddOrEditGradeItemPanelContent("subComponents", assignmentModel));
