@@ -17,7 +17,7 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 		//get the announcement tool url
 		var link_to_tool = tool_href.split("?", 1);
 		var title = msg("simplepage.announcements-header-title");
-		var text_for_announcements = '<div class="announcementsHeaderDiv"><h3 class="announcementSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai-announcements"></span><a href="'+link_to_tool+'" target="_top" class="announcementLink" title ="'+title+'">'+title+'</a></h3></div>';
+		var text_for_announcements = '<div class="announcementsHeaderDiv"><h3 class="announcementSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai-announcements"></span><a href="'+link_to_tool+'" target="_top" class="announcementLink" title ="'+title+'">'+title+'</a></h3></div><div class="announcementList">';
 		//Get announcements
 		$.ajax({
 			url: announcementsUrl,
@@ -45,11 +45,13 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 						text_for_announcements += '</div>';
 					});
 				}
+		                text_for_announcements += '</div>';
 				announcementsDiv.html(text_for_announcements);
 			},
 			error: function(xhr, textStatus, errorThrown){
 				var err = textStatus + ", " + errorThrown;
 				text_for_announcements += '<p>'+ msg("simplepage.announcements-error-message") + err +'</p>';
+		                text_for_announcements += '</div>';
 				announcementsDiv.html(text_for_announcements);
 			}
 		});
