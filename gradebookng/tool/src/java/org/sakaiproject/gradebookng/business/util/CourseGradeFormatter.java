@@ -127,8 +127,15 @@ public class CourseGradeFormatter {
 		// percentage
 		final String calculatedGrade;
 		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
-			calculatedGrade = FormatHelper.formatDoubleAsPercentage(
-				gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade()));
+
+			// if mapping doesn't exist for this grade override (mapping may have been changed!), map it to 0.
+			// TODO this should probably inform the instructor
+			Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
+			if(mappedGrade == null) {
+				mappedGrade = new Double(0);
+			}
+			calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);
+
 		} else {
 			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
 		}
