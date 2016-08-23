@@ -128,12 +128,12 @@ public class GradeImportConfirmationStep extends Panel {
 					itemsToSave.addAll(itemsToModify);
 
 					itemsToSave.forEach(processedGradeItem -> {
-						log.debug("Looping through items to save");
+						log.debug("Processing item: " + processedGradeItem);
 
 						final List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
 
 						processedGradeItemDetails.forEach(processedGradeItemDetail -> {
-							log.debug("Looping through detail items to save");
+							log.debug("Processing detail: " + processedGradeItemDetail);
 
 							//get data
 							// if its an update/modify, this will get the id
