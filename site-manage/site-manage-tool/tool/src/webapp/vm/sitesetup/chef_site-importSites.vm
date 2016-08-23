@@ -55,7 +55,10 @@
 					</th>
 					#foreach($site in $importSites.keys())
 						<th>
-							$validator.escapeHtml($site.getTitle())
+							<label>
+								<input type="checkbox" class="import-sites-tool-toggle"/>
+								$validator.escapeHtml($site.getTitle())
+							</label>
 						</th>
 					#end
 				</tr>

@@ -1385,3 +1385,28 @@ function changeLevel(level)
     document.getElementById("cmLevelChanged").value="true";
     document.getElementById("cmChangedLevel").value=level;
 }
+
+
+/*
+  Setup the Import from Site form
+*/
+function setupImportSitesForm($form) {
+    // Allow toggle of tools for an entire site/column
+    $form.on("click", ".import-sites-tool-toggle", function(event) {
+        var $checkbox = $(this);
+        var $th = $checkbox.closest("th");
+        var $tr = $checkbox.closest("tr");
+
+        $tr.siblings().each(function() {
+            var $td = $($(this).children().get($th.index()));
+            $td.find(":checkbox:not(:disabled)").prop("checked", $checkbox.is(":checked"));
+        });
+    });
+};
+
+$(document).ready(function() {
+    var $form = $("form[name='importSitesForm'");
+    if ($form.length > 0) {
+        setupImportSitesForm($form);
+    }
+});
