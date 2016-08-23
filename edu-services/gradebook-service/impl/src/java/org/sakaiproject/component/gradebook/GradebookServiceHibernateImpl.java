@@ -810,6 +810,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// check if we need to scale the grades
 				// this will be if we have percentage grading and we change the points possible
 				boolean scaleGrades = false;
+				final Double originalPointsPossible = assignment.getPointsPossible();
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE
 					&& !assignment.getPointsPossible().equals(assignmentDefinition.getPoints())) {
 					scaleGrades = true;
@@ -837,7 +838,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				updateAssignment(assignment, session);
 
 				if (scaleGrades) {
-					convertGradePointsForUpdatedTotalPoints(gradebook, assignment);
+					convertGradePointsForUpdatedTotalPoints(gradebook, assignment, originalPointsPossible);
 				}
 
 				return null;
@@ -3664,7 +3665,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @param gradebook the gradebook
 	 * @param assignment assignment with original total point value
 	 */
-	private void convertGradePointsForUpdatedTotalPoints(final Gradebook gradebook, final Assignment assignment) {
+	private void convertGradePointsForUpdatedTotalPoints(final Gradebook gradebook, final Assignment assignment, final Double originalPointsPossible) {
 		if (gradebook == null || assignment == null || assignment.getPointsPossible() == null) {
 			throw new IllegalArgumentException("null values found in convertGradePointsForUpdatedTotalPoints.");
 		}
@@ -3678,8 +3679,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			// Calculate the new points value that we should be persisting based on the new total points
 			if (assignment.getPointsPossible() != null) {
-				gradeRecords.forEach(gr -> gr.setPointsEarned(
-						calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), gr.getPointsEarned())));
+				for (AssignmentGradeRecord gr : gradeRecords) {
+					if (gr.getPointsEarned() != null) {
+						final BigDecimal scoreAsPercentage = (new BigDecimal(gr.getPointsEarned())
+								.divide(new BigDecimal(originalPointsPossible)))
+								.multiply(new BigDecimal(100));
+
+						final Double scaledScore = calculateEquivalentPointValueForPercent(
+								assignment.getPointsPossible(),
+								Double.valueOf(scoreAsPercentage.doubleValue()));
+
+						gr.setPointsEarned(scaledScore);
+					}
+				}
 			}
 		}
 
