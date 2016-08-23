@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportColumn;
@@ -45,9 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImportGradesHelper {
 
-	// column names we know about
-	public final static String IMPORT_USER_ID = "Student ID";
-	public final static String IMPORT_USER_NAME = "Student Name";
+	// column positions we care about. 0 is first column.
+	public final static int USER_ID_POS = 0;
+	public final static int USER_NAME_POS = 1;
 
 	// patterns for detecting column headers and their types
 	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([\\w ]+ \\[[0-9]+(\\.[0-9][0-9]?)?\\])");
@@ -175,6 +176,7 @@ public class ImportGradesHelper {
 	 * @param line
 	 * @param mapping
 	 * @return
+	 * @throws GbImportExportUnknownStudentException if a row for a student is found that does not exist in the userMap
 	 */
 	private static ImportedGrade mapLine(final String[] line, final Map<Integer, ImportColumn> mapping, final Map<String, String> userMap) {
 
@@ -194,12 +196,19 @@ public class ImportGradesHelper {
 			final String columnTitle = importColumn.getColumnTitle();
 
 			// process user id column
-			if (StringUtils.equals(columnTitle, IMPORT_USER_ID)) {
+			if (importColumn.getType() == ImportColumn.Type.USER_ID) {
+
+				// check user is in the map (ie in the site)
+				final String studentUuid = userMap.get(lineVal);
+				if(StringUtils.isBlank(studentUuid)){
+					throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
+				}
+
 				grade.setStudentEid(lineVal);
-				grade.setStudentUuid(userMap.get(lineVal));
+				grade.setStudentUuid(studentUuid);
 
 			// process user name column
-			} else if (StringUtils.equals(columnTitle, IMPORT_USER_NAME)) {
+			} else if (importColumn.getType() == ImportColumn.Type.USER_NAME) {
 				grade.setStudentName(lineVal);
 
 			//process item with points column
@@ -264,6 +273,11 @@ public class ImportGradesHelper {
 		for (final ImportColumn column : importedGradeWrapper.getColumns()) {
 			boolean needsToBeAdded = false;
 
+			// skip the ignorable columns
+			if(column.isIgnorable()) {
+				continue;
+			}
+
 			final String columnTitle = StringUtils.trim(column.getColumnTitle()); // trim whitespace so we can match properly
 
 			//setup a new one unless it already exists (ie there were duplicate columns)
@@ -280,11 +294,6 @@ public class ImportGradesHelper {
 			final Assignment assignment = assignmentNameMap.get(columnTitle);
 			final ProcessedGradeItemStatus status = determineStatus(column, assignment, importedGradeWrapper, transformedGradeMap);
 
-			// skip the student columns
-			if(StringUtils.equals(column.getColumnTitle(), IMPORT_USER_ID) ||
-					StringUtils.equals(column.getColumnTitle(), IMPORT_USER_NAME)) {
-				continue;
-			}
 
 			if (column.getType() == ImportColumn.Type.GB_ITEM_WITH_POINTS) {
 				log.debug("GB Item: " + columnTitle + ", status: " + status.getStatusCode());
@@ -420,6 +429,7 @@ public class ImportGradesHelper {
 
 			// TODO - What about if a user was added to the import file?
 			// That probably means that actualGradeInfo from up above is null...but what do I do?
+			// SS - this is now caught.
 
 		}
 		return status;
@@ -449,17 +459,31 @@ public class ImportGradesHelper {
 	 * Takes a row of String[] data to determine the position of the columns so that we can correctly parse any arbitrary delimited file.
 	 * This is required because when we iterate over the rest of the lines, we need to know what the column header is, so we can take the appropriate action.
 	 *
+	 * Note that some columns are determined positionally
+	 *
 	 * @param line the already split line
-	 * @return
+	 * @return LinkedHashMap to retain order
 	 */
 	private static Map<Integer, ImportColumn> mapHeaderRow(final String[] line) throws GbImportExportInvalidColumnException {
+
 		final Map<Integer, ImportColumn> mapping = new LinkedHashMap<Integer, ImportColumn>();
+
 		for (int i = 0; i < line.length; i++) {
 
-			final ImportColumn column = parseHeaderForImportColumn(trim(line[i]));
-			if (column != null) {
-				mapping.put(i, column);
+			ImportColumn column = new ImportColumn();
+
+			log.debug("i: " + i);
+			log.debug("line[i]: " + line[i]);
+
+			if(i == USER_ID_POS) {
+				column.setType(ImportColumn.Type.USER_ID);
+			} else if(i == USER_NAME_POS) {
+				column.setType(ImportColumn.Type.USER_NAME);
+			} else {
+				column = parseHeaderForImportColumn(trim(line[i]));
 			}
+
+			mapping.put(i, column);
 		}
 
 		return mapping;
@@ -472,6 +496,13 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException if columns didn't match any known pattern
 	 */
 	private static ImportColumn parseHeaderForImportColumn(final String headerValue) throws GbImportExportInvalidColumnException {
+
+		if(StringUtils.isBlank(headerValue)) {
+			throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
+		}
+
+		log.debug("headerValue: " + headerValue);
+
 		final ImportColumn importColumn = new ImportColumn();
 
 		// assignment with points header
@@ -520,11 +551,12 @@ public class ImportGradesHelper {
 		final Matcher m4 = IGNORE_PATTERN.matcher(headerValue);
 		if (m4.matches()) {
 			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
-			return null;
+			importColumn.setType(ImportColumn.Type.IGNORE);
+			return importColumn;
 		}
 
 		// if we got here, couldn't parse the column header, throw an error
-		throw new GbImportExportInvalidColumnException("Invalid column header, skipping: " + headerValue);
+		throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
 
 	}
 

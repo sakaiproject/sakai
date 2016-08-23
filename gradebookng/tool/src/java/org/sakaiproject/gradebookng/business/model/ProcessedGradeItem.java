@@ -6,11 +6,14 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Holds the data about a grade item that is imported from the spreadsheet as well as any edits that happen through the wizard
  *
  */
+
+@ToString
 public class ProcessedGradeItem implements Serializable {
 
 	private static final long serialVersionUID = 1L;
