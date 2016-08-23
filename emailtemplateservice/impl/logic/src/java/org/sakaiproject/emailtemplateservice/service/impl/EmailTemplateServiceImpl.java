@@ -640,7 +640,8 @@ private List<User> getUsersEmail(List<String> userIds) {
 	/**
 	 * Extracts the email template fields from the given XML element. Checks
 	 * if the email template already exists; if it does not, it will save
-	 * the template to the service.
+	 * the template to the service. If it does exist it will update the template if
+	 * and only if the existing version is less than the new version.
 	 * @param xmlTemplate - the XML element containing the email template data
 	 * @param key - the key (name) of the template to be saved to the service
 	 */
@@ -651,7 +652,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 		String bodyHtml = StringUtils.trimToEmpty(xmlTemplate.getChildText("messagehtml"));
 		String locale = xmlTemplate.getChildText("locale");
 		String localeLangTag = xmlTemplate.getChildText("localeLangTag");
-		String versionString = xmlTemplate.getChildText("version");
+		int version = NumberUtils.toInt(xmlTemplate.getChildText("version"), 1);
 
 		Locale loc;
 		if( StringUtils.isBlank( localeLangTag ) )
@@ -663,11 +664,25 @@ private List<User> getUsersEmail(List<String> userIds) {
 			loc = Locale.forLanguageTag( localeLangTag );
 		}
 
-		if (getEmailTemplate(key, loc) == null)
+		// Determine if template already exists
+		EmailTemplate template = getEmailTemplate(key, loc);
+		boolean update = true;
+		if( template == null )
 		{
-			EmailTemplate template = new EmailTemplate();
+			update = false;
+			template = new EmailTemplate();
+		}
+
+		// If the template does not already exist, or the new version is greater than the existing version, proceed...
+		if( !update || version > template.getVersion() )
+		{
+			// Dump the values from XML into the object
 			template.setSubject(subject);
 			template.setMessage(body);
+			template.setLocale(locale);
+			template.setKey(key);
+			template.setVersion(version);
+			template.setOwner("admin");
 			try
 			{
 				template.setHtmlMessage(URLDecoder.decode(bodyHtml, "utf8"));
@@ -677,19 +692,24 @@ private List<User> getUsersEmail(List<String> userIds) {
 				template.setHtmlMessage(bodyHtml);
 				LOG.warn(String.format("Unable to decode body HTML for template %s, reverting to original value.", key), e);
 			}
-			template.setLocale(locale);
-			template.setKey(key);
-			template.setVersion(NumberUtils.toInt(versionString, 1));
-			template.setOwner("admin");
-			template.setLastModified(new Date());
+
+			// Update or save the template
 			try
 			{
-				saveTemplate(template);
-				LOG.info("Added " + key + " to the email template service.");
+				if( update )
+				{
+					updateTemplate( template );
+				}
+				else
+				{
+					saveTemplate( template );
+				}
+
+				LOG.info((update ? "Updated " : "Added ") + key + (update ? " in" : " to") + " the email template service.");
 			}
 			catch (Exception e)
 			{
-				LOG.error("Error saving template: " + key, e);
+				LOG.error("Error "+ (update ? "updating" : "saving") + " template: " + key, e);
 			}
 		}
 	}
