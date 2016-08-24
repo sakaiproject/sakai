@@ -1,24 +1,29 @@
 package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
- * Wraps an imported file
+ * Represents a cell in the imported spreadsheet
  */
-public class ImportedGradeWrapper implements Serializable {
+@ToString
+public class ImportedCell implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Getter
 	@Setter
-	private List<ImportedGrade> importedGrades;
-
+	private String score;
+	
 	@Getter
 	@Setter
-	private Collection<ImportColumn> columns;
+	private String comment;
+
+	public ImportedCell() {
+	}
+	
+
 }
