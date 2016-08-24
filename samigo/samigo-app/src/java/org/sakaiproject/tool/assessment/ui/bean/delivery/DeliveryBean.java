@@ -113,8 +113,7 @@ public class DeliveryBean
   
   private static final String MATHJAX_ENABLED = "mathJaxEnabled";
   private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
-  private static final String SRC_PATH_SAKAI_PROP_DEFAULT = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default,Safe";
-  private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP, SRC_PATH_SAKAI_PROP_DEFAULT);
+  private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
   
   private String assessmentId;
   private String assessmentTitle;
