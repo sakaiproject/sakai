@@ -305,7 +305,7 @@ simplePageBean.peerEvalAllowSelfGrade
 				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="fa-file-word-o"/>
 				<entry key="application/vnd.ms-powerpoint" value="fa-file-powerpoint-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="fa-file-powerpoint-o"/>
-				<entry key="application/vnd.ms-excel" value="file-excel-o"/>
+				<entry key="application/vnd.ms-excel" value="fa-file-excel-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="fa-file-excel-o"/>
 				<entry key="application/pdf" value="fa-file-pdf-o"/>
 				<entry key="application/x-shockwave-flash" value="fa-video-o"/>
