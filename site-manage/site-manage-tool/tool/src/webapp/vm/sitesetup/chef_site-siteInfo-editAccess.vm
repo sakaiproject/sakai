@@ -201,6 +201,57 @@
 		</div>
 		</fieldset>
 		## END site visibility ##
+		## User Visibility ##
+##            SAK-31443: Add option for sites to disable presence tool.
+##            If global setting is set to:	never, presence tool won't be shown in any case.
+##             								always, presence tool will be shown regardless of user setting
+##            								true or false, will depend on per site setting AND the global setting
+        <fieldset>
+            <legend>
+                <h4>
+                    $tlang.getString("ediacc.userpresence")
+                </h4>
+            </legend>
+            #if($showPresenceChangeable)
+                #set($presenceChangeableDiv='style="display:block"')
+                #set($presenceUnchangeableDiv='style="display:none"')
+            #else
+                #set($presenceChangeableDiv='style="display:none"')
+                #set($presenceUnchangeableDiv='style="display:block"')
+            #end
+			<div id="publicChangeableDiv"  >
+                <p  id="user_presence_desc">
+                    $tlang.getString("ediacc.userpresence.desc")
+					#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+                </p>
+				<p  id="user_presence_instr">
+					$tlang.getString("ediacc.userpresence.instr")
+					#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+				</p>
+				<div class="radio">
+					<label for="enable_presence_tool">
+						<input type="radio" name="presenceTool" id="enable_presence_tool" value="false" #if($!presenceTool)checked="checked"#end aria-describedby="site_presence_tool" />
+						$tlang.getString("ediacc.dismysit")
+					</label>
+				</div>
+				<div class="radio">
+					<label for="disable_presence_tool">
+						<input type="radio" name="presenceTool" id="disable_presence_tool" value="true" #if(!$!presenceTool)checked="checked"#end aria-describedby="site_presence_tool" />
+						$tlang.getString("ediacc.pri")
+					</label>
+				</div>
+			</div>
+			<div id="presenceUnchangeableDiv" $presenceUnchangeableDiv >
+                <p  id="user_presence_desc">
+                    $tlang.getString("ediacc.userpresence.desc")
+					#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+                </p>
+                <p  id="user_presence_instr">
+					$tlang.getString("ediacc.userpresence.global-override")
+                </p>
+			</div>
+		</fieldset>
+		## End User Visibility
 		## Global Access ##
 		<fieldset>
 		<legend>

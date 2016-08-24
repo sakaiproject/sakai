@@ -526,6 +526,8 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private static final String STATE_SITE_ACCESS_INCLUDE = "state_site_access_include";
 
+    private static final String STATE_SITE_ACCESS_PRESENCE_TOOL = "state_site_access_presenceTool";
+
 	/** the list of selected user */
 	private static final String STATE_SELECTED_USER_LIST = "state_selected_user_list";
 
@@ -1200,6 +1202,7 @@ public class SiteAction extends PagedResourceActionII {
 		// lti tools
 		state.removeAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
 		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
+        state.removeAttribute(STATE_SITE_ACCESS_PRESENCE_TOOL);
 
 		// bjones86 - SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
@@ -2735,10 +2738,16 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
 				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
 
+                context.put("presenceTool", !((Boolean) state.getAttribute(STATE_SITE_ACCESS_PRESENCE_TOOL)));
+
 				context.put("shoppingPeriodInstructorEditable", ServerConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				context.put("viewDelegatedAccessUsers", ServerConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
 
-				// bjones86 - SAK-24423 - add joinable site settings to context
+                // yhs4 - SAK-31443: Added option in sites to disable presence tool
+                String globalShowPresence = ServerConfigurationService.getString("display.users.present","true");
+                context.put("showPresenceChangeable", !(globalShowPresence.equals("never") || globalShowPresence.equals("always")));
+
+                // bjones86 - SAK-24423 - add joinable site settings to context
 				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNotNull( context, state, site, !unJoinableSiteTypes.contains( siteType ) );
 
 				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
@@ -2761,7 +2770,7 @@ public class SiteAction extends PagedResourceActionII {
 					// site cannot be set as joinable
 					context.put("disableJoinable", Boolean.TRUE);
 				}
-				
+
 				Map<String, AdditionalRole> access = getAdditionalAccess(site);
 				
 				addAccess(context, access);
@@ -8077,6 +8086,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Site site = getStateSite(state);
 			state.setAttribute(STATE_SITE_ACCESS_PUBLISH, Boolean.valueOf(site.isPublished()));
 			state.setAttribute(STATE_SITE_ACCESS_INCLUDE, Boolean.valueOf(site.isPubView()));
+            state.setAttribute(STATE_SITE_ACCESS_PRESENCE_TOOL, Boolean.valueOf(site.getProperties().getProperty("presenceTool")));
 			boolean joinable = site.isJoinable();
 			state.setAttribute(STATE_JOINABLE, Boolean.valueOf(joinable));
 			String joinerRole = site.getJoinerRole();
@@ -8977,7 +8987,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
 		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
 		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
-		
+		readInputAndUpdateStateVariable(state, params, "presenceTool", STATE_SITE_ACCESS_PRESENCE_TOOL, true);
+
 		// bjones86 - SAK-24423 - get all joinable site settings from the form input
 		JoinableSiteSettings.getAllFormInputs( state, params );
 		
@@ -9005,6 +9016,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// set pubview according to UI selection
 				sEdit.setPubView(include);
 			}
+
+            // Add Presence Tool Property to Site
+            sEdit.getProperties().addProperty("display-users-present", String.valueOf((Boolean) state.getAttribute(STATE_SITE_ACCESS_PRESENCE_TOOL)));
 
 			doUpdate_site_access_joinable(data, state, params, sEdit);
 			

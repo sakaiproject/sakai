@@ -37,6 +37,7 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.entity.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
@@ -46,12 +47,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.EntitySummary;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -801,7 +796,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				
 		boolean showPresence;
 		String globalShowPresence = ServerConfigurationService.getString("display.users.present","true");
-				
+        
 		if ("never".equals(globalShowPresence)) {
 			showPresence = false;
 		} else if ("always".equals(globalShowPresence)) {
