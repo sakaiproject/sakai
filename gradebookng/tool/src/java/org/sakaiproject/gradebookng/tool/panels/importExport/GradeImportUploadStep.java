@@ -115,7 +115,6 @@ public class GradeImportUploadStep extends Panel {
 					return;
 				}
 
-				//if still null
 				if(spreadsheetWrapper == null) {
 					error(getString("importExport.error.unknown"));
 					return;

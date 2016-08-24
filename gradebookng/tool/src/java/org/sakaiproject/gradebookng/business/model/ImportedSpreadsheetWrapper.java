@@ -1,7 +1,7 @@
 package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
@@ -20,5 +20,10 @@ public class ImportedSpreadsheetWrapper implements Serializable {
 
 	@Getter
 	@Setter
-	private Collection<ImportedColumn> columns;
+	private List<ImportedColumn> columns;
+
+	public ImportedSpreadsheetWrapper() {
+		this.rows = new ArrayList<>();
+		this.columns = new ArrayList<>();
+	}
 }

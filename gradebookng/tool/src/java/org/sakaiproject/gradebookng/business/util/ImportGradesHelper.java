@@ -103,7 +103,7 @@ public class ImportGradesHelper {
 		String[] nextLine;
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<ImportedRow>();
-		Map<Integer, ImportedColumn> mapping = null;
+		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
 
 		try {
 			while ((nextLine = reader.readNext()) != null) {
@@ -129,7 +129,7 @@ public class ImportGradesHelper {
 		}
 
 		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
-		importedGradeWrapper.setColumns(mapping.values());
+		importedGradeWrapper.setColumns(new ArrayList<>(mapping.values()));
 		importedGradeWrapper.setRows(list);
 
 		return importedGradeWrapper;
@@ -149,9 +149,8 @@ public class ImportGradesHelper {
 	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException {
 
 		int lineCount = 0;
-		final List<ImportedRow> list = new ArrayList<ImportedRow>();
-		Map<Integer, ImportedColumn> mapping = null;
-
+		final List<ImportedRow> list = new ArrayList<>();
+		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
 
 		final Workbook wb = WorkbookFactory.create(is);
 		final Sheet sheet = wb.getSheetAt(0);
@@ -173,7 +172,7 @@ public class ImportGradesHelper {
 		}
 
 		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
-		importedGradeWrapper.setColumns(mapping.values());
+		importedGradeWrapper.setColumns(new ArrayList<>(mapping.values()));
 		importedGradeWrapper.setRows(list);
 		return importedGradeWrapper;
 	}
@@ -261,7 +260,8 @@ public class ImportGradesHelper {
 
 		// setup
 		// TODO this will ensure dupes can't be added. Provide a report to the user that dupes were added. There would need to be a step before this though
-		final Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<>();
+		// this retains order of the columns in the imported file
+		final Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new LinkedHashMap<>();
 
 		// process grades
 		final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
@@ -469,6 +469,7 @@ public class ImportGradesHelper {
 	 */
 	private static Map<Integer, ImportedColumn> mapHeaderRow(final String[] line) throws GbImportExportInvalidColumnException {
 
+		// retain order
 		final Map<Integer, ImportedColumn> mapping = new LinkedHashMap<Integer, ImportedColumn>();
 
 		for (int i = 0; i < line.length; i++) {
