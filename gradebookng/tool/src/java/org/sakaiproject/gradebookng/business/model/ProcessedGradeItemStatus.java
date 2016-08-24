@@ -8,7 +8,7 @@ import lombok.ToString;
 
 /**
  * Status of an imported item
- * TODO this should not be a class. Instead the 'value' should be on ProcessedGradeItem' as it just indicates if its external or not
+ * TODO this should not be a class. Instead the 'value' should be on ProcessedGradeItem as it just indicates if its external or not
  */
 @ToString
 public class ProcessedGradeItemStatus implements Serializable {

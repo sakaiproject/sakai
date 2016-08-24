@@ -10,7 +10,7 @@ import lombok.ToString;
 
 /**
  * Holds the data about a grade item that is imported from the spreadsheet as well as any edits that happen through the wizard
- *
+ * TODO refactor this, it is far too busy
  */
 
 @ToString

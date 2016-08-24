@@ -21,7 +21,7 @@ import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColu
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
+import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
@@ -98,9 +98,9 @@ public class GradeImportUploadStep extends Panel {
 				final Map<String, String> userMap = getUserMap();
 
 				// turn file into list
-				ImportedGradeWrapper importedGradeWrapper = null;
+				ImportedSpreadsheetWrapper spreadsheetWrapper = null;
 				try {
-					importedGradeWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), userMap);
+					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), userMap);
 				} catch (final GbImportExportInvalidColumnException e) {
 					error(getString("importExport.error.incorrectformat"));
 					return;
@@ -115,8 +115,7 @@ public class GradeImportUploadStep extends Panel {
 					return;
 				}
 
-				//if still null
-				if(importedGradeWrapper == null) {
+				if(spreadsheetWrapper == null) {
 					error(getString("importExport.error.unknown"));
 					return;
 				}
@@ -128,7 +127,7 @@ public class GradeImportUploadStep extends Panel {
 				// process file
 				List<ProcessedGradeItem> processedGradeItems = null;
 				try {
-					processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper,assignments, grades);
+					processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
 				} catch (final GbImportCommentMissingItemException e) {
 					// TODO would be good if we could show the column here, but would have to return it
 					error(getString("importExport.error.commentnoitem"));

@@ -8,6 +8,8 @@ import lombok.ToString;
 
 /**
  * Encapsulates the details of an imported grade for a student and any comment
+ *
+ * TODO refactor to ProcessedCell?
  */
 @ToString
 public class ProcessedGradeItemDetail implements Serializable {
