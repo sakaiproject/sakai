@@ -12,7 +12,7 @@ import lombok.Setter;
  */
 @NoArgsConstructor
 @AllArgsConstructor
-public class ImportColumn implements Serializable {
+public class ImportedColumn implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
