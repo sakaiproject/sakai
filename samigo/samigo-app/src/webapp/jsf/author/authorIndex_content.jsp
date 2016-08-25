@@ -87,7 +87,7 @@ $(document).ready(function() {
 	var selectedTab = 0;
 	<h:outputText rendered="#{author.justPublishedAnAssessment}" value="selectedTab = 1;" />
 
-	$("#tabs").tabs({ selected: selectedTab });
+	$("#tabs").tabs({ active: selectedTab });
 
 	// SET THE HEIGHT ON TABS CONTAINER IF PUBLISHED IS LARGER THAN WORKING COPIES
 	if ($('#tabs-2').height() > $('#tabs-1').height()) {
