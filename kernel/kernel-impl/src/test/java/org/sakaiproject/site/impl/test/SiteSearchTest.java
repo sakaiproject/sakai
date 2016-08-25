@@ -11,6 +11,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.UUID;
  * @author buckett
  *
  */
+@DirtiesContext
 public class SiteSearchTest extends SakaiKernelTestBase {
 	private static Log log = LogFactory.getLog(SiteSearchTest.class);
 	
@@ -73,15 +75,20 @@ public class SiteSearchTest extends SakaiKernelTestBase {
 		Map stringMap = Collections.singletonMap("key", "value");
 
 		// Need to switch user so we're not a member of the site.
-		session.setUserEid("");
-		session.setUserId("");
-		// First test search for any.
+		session.setUserEid("someuser");
+		session.setUserId("someuser");
 		List<Site> sites;
+		// First test search for any with properties.
 		sites = siteService.getSites(SelectionType.ANY, type, null, stringMap, SiteService.SortType.TITLE_ASC, null);
 		Assert.assertEquals(1, sites.size());
-		// Then test that it's joinable
+		// Then test that it's joinable with properties
 		sites = siteService.getSites(SelectionType.JOINABLE, type, null, stringMap, SiteService.SortType.TITLE_ASC, null);
 		Assert.assertEquals(1, sites.size());
-
+		// Then test that it's joinable and with criteria
+		sites = siteService.getSites(SelectionType.JOINABLE, type, "Site", null, SiteService.SortType.TITLE_ASC, null);
+		Assert.assertEquals(1, sites.size());
+		// Then test that it's joinable and with criteria and properties
+		sites = siteService.getSites(SelectionType.JOINABLE, type, "Site", stringMap, SiteService.SortType.TITLE_ASC, null);
+		Assert.assertEquals(1, sites.size());
 	}
 }

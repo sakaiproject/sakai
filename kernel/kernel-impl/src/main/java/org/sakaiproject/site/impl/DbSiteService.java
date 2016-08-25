@@ -765,13 +765,13 @@ public abstract class DbSiteService extends BaseSiteService
 						}
 					}
 				}
-				if (type == SelectionType.JOINABLE)
-				{
-					fields[pos++] = getCurrentUserIdIfNull(userId);
-				}
 				if (criteria != null)
 				{
 					fields[pos++] =  "%" + criteria + "%";
+				}
+				if (type == SelectionType.JOINABLE)
+				{
+					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
 				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
 				{
