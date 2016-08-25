@@ -598,7 +598,9 @@ public class SitePageEditHandler {
             if (!(permissions.isEmpty())) {
                 // We never change SITE_UPD at all.
                 permissions.remove(SITE_UPD);
-                if (permissions.indexOf(SITE_VISIT) > 0) permissions.remove(SITE_VISIT);
+                if (permissions.indexOf(SITE_VISIT) > 0) {
+                	permissions.remove(SITE_VISIT);
+                }
                 Set<Role> roles = getRolesWithout(authzGroup, SITE_UPD);
 
 
