@@ -600,10 +600,6 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
 }
-.edit-col {
-  font-size: 20px;
-  line-height: 24px;
-}
 .buttonItem {
 	padding-left: 20px
 }
@@ -1342,9 +1338,17 @@ div[role="dialog"] {
 }
 
 .right-col {
- display: inline-block;
+  display: inline-block; /* probably no longer needed */
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+  page-break-inside: avoid; /* Firefox */
+  break-inside: avoid; /* standard, IE 10+ */
+ }
+.textType .right-col {
+  display: block;
+  -webkit-column-break-inside: auto; /* Chrome, Safari, Opera */
+  page-break-inside: auto; /* Firefox */
+  break-inside: auto; /* standard, IE 10+ */
 }
-
 .listType .right-col {
   display:flex
 }
