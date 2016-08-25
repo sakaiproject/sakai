@@ -148,8 +148,6 @@ a.markAsReadIcon{
 	cursor: pointer;
 	margin-left:.5em;
 	background: #fff url(../images/silk/email.png) 5px 5px no-repeat;
-	padding-bottom: 2px;
-	padding-top: 2px;
 }
 a.markAsReadIcon:hover{
 	background: #fff url(../images/silk/email_open.png) 5px 3px no-repeat
